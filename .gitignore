@@ -44,7 +44,3 @@ pnpm-debug.log*
 
 # Graphify knowledge graph outputs
 graphify-out/
-
-# Windows reserved device names
-nul
-NUL

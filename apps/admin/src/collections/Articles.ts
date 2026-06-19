@@ -195,11 +195,6 @@ export const Articles: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     {
-      name: 'publishedAt',
-      type: 'date',
-      admin: { position: 'sidebar' },
-    },
-    {
       name: 'seoTitle',
       type: 'text',
       admin: { position: 'sidebar' },

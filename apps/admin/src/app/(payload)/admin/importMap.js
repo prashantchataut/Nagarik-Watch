@@ -1,8 +1,9 @@
-import { BrandMark as BrandMark_8485647f8bc79e28dacb9ff7f0cd401d } from '@/components/BrandMark'
-import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+import type { ImportMap } from 'payload'
 
-/** @type import('payload').ImportMap */
-export const importMap = {
-  "@/components/BrandMark#BrandMark": BrandMark_8485647f8bc79e28dacb9ff7f0cd401d,
-  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
-}
+import config from '@payload-config'
+
+export const importMap: ImportMap = {}
+export const getImportMap = async () =>
+  (await import('@payloadcms/next/utilities')).handleImportMap({ importMap, config })
