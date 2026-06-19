@@ -12,7 +12,7 @@
  * Runs against all *.md under the repo (excluding node_modules). Prints a before/after
  * count. Re-run safe: idempotent once no em dashes remain.
  */
-import { readdir, readFile, writeFile, stat } from 'node:fs/promises'
+import { readdir, readFile, writeFile } from 'node:fs/promises'
 import { join, extname } from 'node:path'
 
 const ROOT = process.cwd()

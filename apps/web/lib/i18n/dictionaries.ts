@@ -1,0 +1,134 @@
+import type { Locale } from '@nagarikwatch/db'
+
+/**
+ * Reader-facing string dictionary (SPEC.md i18n rule: never hardcode English in JSX).
+ * Both locales are first-class; Nepali is the source of truth, English mirrors it. Keys are
+ * stable identifiers so components reference `t('shareLabel')` rather than a literal.
+ */
+export const dictionary = {
+  ne: {
+    siteName: 'नागरिक वाच',
+    siteNameEn: 'Nagarik Watch',
+    tagline: 'नागरिकको दृष्टिमा समाचार',
+    skipToContent: 'मूल सामग्रीमा जानुहोस्',
+    primaryNav: 'मुख्य नेभिगेसन',
+    closeMenu: 'मेनु बन्द गर्नुहोस्',
+    openMenu: 'मेनु खोल्नुहोस्',
+    search: 'खोज्नुहोस्',
+    searchAria: 'खोज प्रविष्ट गर्नुहोस्',
+    home: 'गृहपृष्ठ',
+    more: 'थप',
+    seeAll: 'सबै हेर्नुहोस्',
+    readMore: 'पूरा पढ्नुहोस्',
+    localeToggleTo: 'English',
+    localeToggleAria: 'अंग्रेजीमा पढ्नुहोस्',
+    breakingLabel: 'ब्रेकिङ',
+    updatedAt: 'यो लेख अपडेट भएको छ',
+    correctedAt: 'सच्याइएको',
+    correctionsHeading: 'सच्याइ',
+    sourcePrefix: 'स्रोत',
+    aggregatedFrom: 'बाट संकलित',
+    agencyReport: 'एजेन्सी रिपोर्ट',
+    readingTime: (n: number) => `${n} मिनेट पढाइ`,
+    shareLabel: 'साझेदारी',
+    shareCopied: 'समिक्षित',
+    shareCopyLink: 'लिङ्क प्रतिलिपि',
+    shareFacebook: 'फेसबुकमा साझेदारी',
+    shareTwitter: 'एक्समा साझेदारी',
+    relatedStories: 'सम्बन्धित समाचार',
+    authorStories: 'यी लेखकका समाचार',
+    topicStories: 'यो विषयका समाचार',
+    articleBy: 'लेखक',
+    publishedOn: 'प्रकाशित',
+    adLabel: 'विज्ञापन',
+    page: 'पृष्ठ',
+    of: 'को',
+    nextPage: 'अर्को पृष्ठ',
+    prevPage: 'अघिल्लो पृष्ठ',
+    notFoundHeading: 'पृष्ठ फेला परेन',
+    notFoundBody: 'तपाईंले खोज्नुभएको पृष्ठ अहिले उपलब्ध छैन।',
+    notFoundHome: 'गृहपृष्ठमा फर्कनुहोस्',
+    emptyEnglish: 'हाल यो समाचार अंग्रेजीमा उपलब्ध छैन।',
+    footerAbout: 'हाम्रो बारेमा',
+    footerEthics: 'सम्पादकीय नीति',
+    footerPrivacy: 'गोपनीयता',
+    footerContact: 'सम्पर्क',
+    footerSections: 'सामग्री',
+    footerDisclaimer:
+      'यस साइटमा प्रकाशित सामग्री नागरिक वाचको सम्पादकीय निर्णयमा तयार पारिएको हो। समाचार सत्यता र सन्तुलनमा आधारित छ, तर प्रयोगकर्ताले आफ्नो विवेक प्रयोग गर्नुहोस्।',
+    footerRegistration: 'प्रकाशन दर्ता',
+    footerRegistrationPending: 'pending',
+    footerCopyright: (year: number) => `© ${year} नागरिक वाच। सर्वाधिकार सुरक्षित।`,
+    metaDescription:
+      'नागरिक वाच (Nagarik Watch) — नेपालको नागरिककेन्द्रित, स्वतन्त्र र विश्वसनीय समाचार पोर्टल।',
+    mastheadDate: (date: string) => date,
+  },
+  en: {
+    siteName: 'Nagarik Watch',
+    siteNameEn: 'Nagarik Watch',
+    tagline: 'News through the eyes of the citizen',
+    skipToContent: 'Skip to main content',
+    primaryNav: 'Primary navigation',
+    closeMenu: 'Close menu',
+    openMenu: 'Open menu',
+    search: 'Search',
+    searchAria: 'Enter search',
+    home: 'Home',
+    more: 'More',
+    seeAll: 'See all',
+    readMore: 'Read full story',
+    localeToggleTo: 'नेपाली',
+    localeToggleAria: 'Read in Nepali',
+    breakingLabel: 'Breaking',
+    updatedAt: 'This article was updated',
+    correctedAt: 'Corrected',
+    correctionsHeading: 'Corrections',
+    sourcePrefix: 'Source',
+    aggregatedFrom: ', aggregated from',
+    agencyReport: 'Agency report',
+    readingTime: (n: number) => `${n} min read`,
+    shareLabel: 'Share',
+    shareCopied: 'Copied',
+    shareCopyLink: 'Copy link',
+    shareFacebook: 'Share on Facebook',
+    shareTwitter: 'Share on X',
+    relatedStories: 'Related stories',
+    authorStories: 'Stories by this author',
+    topicStories: 'Stories on this topic',
+    articleBy: 'By',
+    publishedOn: 'Published',
+    adLabel: 'Advertisement',
+    page: 'Page',
+    of: 'of',
+    nextPage: 'Next page',
+    prevPage: 'Previous page',
+    notFoundHeading: 'Page not found',
+    notFoundBody: 'The page you were looking for is not available right now.',
+    notFoundHome: 'Back to home',
+    emptyEnglish: 'This story is not available in English yet.',
+    footerAbout: 'About us',
+    footerEthics: 'Editorial policy',
+    footerPrivacy: 'Privacy',
+    footerContact: 'Contact',
+    footerSections: 'Sections',
+    footerDisclaimer:
+      'Content published on this site is produced under the editorial discretion of Nagarik Watch. Reporting is grounded in accuracy and balance, but readers should exercise their own judgement.',
+    footerRegistration: 'Publication registration',
+    footerRegistrationPending: 'pending',
+    footerCopyright: (year: number) => `© ${year} Nagarik Watch. All rights reserved.`,
+    metaDescription:
+      'Nagarik Watch — a citizen-focused, independent and trustworthy news portal from Nepal.',
+    mastheadDate: (date: string) => date,
+  },
+} as const
+
+export type DictionaryKey = keyof (typeof dictionary)['ne']
+export type Dictionary = (typeof dictionary)[Locale]
+
+/**
+ * Resolve a key for a locale. Throws on unknown key (compile-time safety via DictionaryKey);
+ * the generic keeps string-returning and function keys usable without casting at call sites.
+ */
+export function getDictionary<L extends Locale>(locale: L): (typeof dictionary)[L] {
+  return dictionary[locale]
+}

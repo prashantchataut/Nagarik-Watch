@@ -1,0 +1,35 @@
+# Local development database for Nagarik Watch.
+# Payload (apps/admin) and the web query layer read from this Postgres instance.
+#
+# Usage:
+#   docker compose up -d          start Postgres in the background
+#   docker compose down           stop (keeps data in the pgdata volume)
+#   docker compose down -v        stop and DELETE all data
+#
+# The connection string in .env.local matches the credentials below:
+#   postgresql://nagarik:nagarik_dev@localhost:5432/nagarik_watch
+#
+# These credentials are local-dev only. Production runs managed Postgres (ADR-005).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nagarik-watch-db
+    environment:
+      POSTGRES_USER: nagarik
+      POSTGRES_PASSWORD: nagarik_dev
+      POSTGRES_DB: nagarik_watch
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # Payload's postgresAdapter will retry on boot, but a healthy DB before `pnpm dev`
+      # avoids the race where the app starts before Postgres accepts connections.
+      test: ['CMD-SHELL', 'pg_isready -U nagarik -d nagarik_watch']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

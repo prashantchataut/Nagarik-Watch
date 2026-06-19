@@ -19,6 +19,21 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@nagarikwatch/ui', '@nagarikwatch/db'],
+  // `@payload-config` is a tsconfig path alias that only resolves inside apps/admin.
+  // apps/web pulls it in transitively through the Payload content source, but only
+  // executes that code path at runtime when PAYLOAD_CONTENT_SOURCE=payload (decided in
+  // lib/content/index.ts). In the default seed-backed build it is dead code, so mark it
+  // external on the server: webpack must never resolve or bundle it. Payload resolves the
+  // alias at runtime once the admin app is deployed alongside.
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = config.externals ?? []
+      if (Array.isArray(config.externals)) {
+        config.externals.push({ '@payload-config': 'commonjs @payload-config' })
+      }
+    }
+    return config
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [

@@ -19,17 +19,21 @@
     "clean": "rimraf dist .turbo"
   },
   "dependencies": {
+    "@nagarikwatch/db": "workspace:*",
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
     "@nagarikwatch/tsconfig": "workspace:*",
+    "@types/react": "^19.0.2",
     "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   },
   "peerDependencies": {
+    "next": "^15.0.0",
+    "react": "^19.0.0",
     "tailwindcss": "^3.4.0"
   }
 }

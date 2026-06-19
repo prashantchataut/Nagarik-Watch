@@ -38,3 +38,13 @@ apps/admin/src/payload-types.ts
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
+
+# Agent workspace — per-session context, not project code
+.opencode/
+
+# Graphify knowledge graph outputs
+graphify-out/
+
+# Windows reserved device names
+nul
+NUL
