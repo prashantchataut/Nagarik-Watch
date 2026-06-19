@@ -1,0 +1,41 @@
+{
+  "name": "@nagarikwatch/admin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "generate:types": "payload generate:types",
+    "generate:importmap": "payload generate:importmap",
+    "migrate": "payload migrate",
+    "migrate:create": "payload migrate:create",
+    "seed": "tsx src/seed/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "clean": "rimraf .next .turbo"
+  },
+  "dependencies": {
+    "@nagarikwatch/db": "workspace:*",
+    "@payloadcms/db-postgres": "3.85.1",
+    "@payloadcms/next": "3.85.1",
+    "@payloadcms/richtext-lexical": "3.85.1",
+    "@payloadcms/ui": "3.85.1",
+    "graphql": "^16.9.0",
+    "next": "15.4.11",
+    "payload": "3.85.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "^0.34.1"
+  },
+  "devDependencies": {
+    "@nagarikwatch/tsconfig": "workspace:*",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

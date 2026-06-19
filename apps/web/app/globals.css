@@ -1,0 +1,100 @@
+@import '@nagarikwatch/ui/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * apps/web base layer. Civic Crimson palette comes from tokens.css; this file only adds
+ * element-level resets and component utilities that map onto those tokens. No pure black or
+ * white anywhere (impeccable law): surfaces, text, and rules all use the tinted tokens.
+ */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-inter), var(--font-devanagari), system-ui, sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Devanagari content run: switch to the Devanagari-optimised stack. */
+  [lang='ne'] {
+    font-family: var(--font-devanagari), var(--font-inter), sans-serif;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+  }
+
+  a {
+    color: var(--link);
+  }
+
+  ::selection {
+    background: var(--brand-tint);
+    color: var(--ink);
+  }
+}
+
+@layer components {
+  /* A reserved-size, labeled ad container. Size is fixed up front so filling it can never
+     cause layout shift (SPEC.md CLS budget). The label is reader-facing per ADR-006. */
+  .ad-slot {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-1);
+  }
+
+  /* Category accent pill: brand-tint background + brand text. Never a side-stripe border
+     (impeccable ban). */
+  .category-pill {
+    display: inline-flex;
+    align-items: center;
+    background: var(--brand-tint);
+    color: var(--brand-strong);
+    border-radius: var(--radius-1);
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.4;
+  }
+}
+
+/* Breaking ticker: horizontal scroll via transform (never animate layout properties).
+   Pauses on hover/focus; under reduced-motion the marquee stops and the items stack. */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: ticker-scroll var(--ticker-duration, 40s) linear infinite;
+}
+
+.ticker-host:hover .ticker-track,
+.ticker-host:focus-within .ticker-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+}

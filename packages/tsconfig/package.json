@@ -1,0 +1,11 @@
+{
+  "name": "@nagarikwatch/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "base.json",
+    "next.json",
+    "node.json",
+    "lib.json"
+  ]
+}

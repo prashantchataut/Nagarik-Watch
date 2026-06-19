@@ -1,0 +1,136 @@
+/**
+ * Nagarik Watch — design tokens.
+ * Palette: A (Civic Crimson) — CHOSEN, see DESIGN.md §2.
+ * All colors in OKLCH. Neutrals are tinted toward the brand hue (chroma 0.004–0.02);
+ * there is no pure #000 or #fff anywhere (impeccable law).
+ *
+ * Dark-mode tokens invert L and slightly reduce chroma, brand hue preserved.
+ * These are consumed via the Tailwind preset in tailwind-preset.ts.
+ */
+
+:root {
+  /* Brand — Civic Crimson */
+  --brand: oklch(0.55 0.18 25);
+  --brand-strong: oklch(0.45 0.20 25);
+  --brand-tint: oklch(0.96 0.02 25);
+
+  /* Surfaces (warm-tinted neutrals, not white) */
+  --surface: oklch(0.985 0.004 25);
+  --surface-raised: oklch(0.99 0.003 25);
+
+  /* Ink (warm near-black) */
+  --ink: oklch(0.22 0.02 25);
+  --ink-soft: oklch(0.40 0.015 25);
+  --mute: oklch(0.62 0.012 25);
+
+  /* Lines */
+  --rule: oklch(0.90 0.008 25);
+
+  /* Semantic */
+  --breaking: oklch(0.50 0.22 27); /* stronger than brand, for the breaking bar */
+  --link: var(--brand);
+  --focus-ring: oklch(0.55 0.18 25);
+
+  /* Spacing (4px base) */
+  --space-1: 0.25rem;   /* 4 */
+  --space-2: 0.5rem;    /* 8 */
+  --space-3: 0.75rem;   /* 12 */
+  --space-4: 1rem;      /* 16 */
+  --space-6: 1.5rem;    /* 24 */
+  --space-8: 2rem;      /* 32 */
+  --space-12: 3rem;     /* 48 */
+  --space-16: 4rem;     /* 64 */
+  --space-24: 6rem;     /* 96 */
+  --space-32: 8rem;     /* 128 */
+
+  /* Layout */
+  --page-max: 80rem;    /* 1280px — homepage grid */
+  --body-max: 42.5rem;  /* 680px — article column (65–75ch) */
+
+  /* Radii — minimal; news sites are flat */
+  --radius-0: 0;
+  --radius-1: 2px;
+  --radius-2: 4px;
+
+  /* Motion — exponential ease-out only (impeccable law). No bounce/elastic. */
+  --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+
+  /* Elevation */
+  --shadow-overlay: 0 8px 32px oklch(0.2 0.02 25 / 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark tokens: invert L, slightly reduce chroma, preserve brand hue. */
+    --brand: oklch(0.65 0.15 25);
+    --brand-strong: oklch(0.70 0.16 25);
+    --brand-tint: oklch(0.30 0.03 25);
+
+    --surface: oklch(0.18 0.012 25);
+    --surface-raised: oklch(0.22 0.012 25);
+
+    --ink: oklch(0.93 0.008 25);
+    --ink-soft: oklch(0.78 0.012 25);
+    --mute: oklch(0.62 0.015 25);
+
+    --rule: oklch(0.32 0.012 25);
+    --breaking: oklch(0.62 0.19 27);
+    --focus-ring: oklch(0.70 0.16 25);
+
+    --shadow-overlay: 0 8px 32px oklch(0 0 0 / 0.4);
+  }
+}
+
+/* Explicit dark-mode class (user toggle), overrides the media query. */
+:root[data-theme='dark'] {
+  --brand: oklch(0.65 0.15 25);
+  --brand-strong: oklch(0.70 0.16 25);
+  --brand-tint: oklch(0.30 0.03 25);
+  --surface: oklch(0.18 0.012 25);
+  --surface-raised: oklch(0.22 0.012 25);
+  --ink: oklch(0.93 0.008 25);
+  --ink-soft: oklch(0.78 0.012 25);
+  --mute: oklch(0.62 0.015 25);
+  --rule: oklch(0.32 0.012 25);
+  --breaking: oklch(0.62 0.19 27);
+  --focus-ring: oklch(0.70 0.16 25);
+  --shadow-overlay: 0 8px 32px oklch(0 0 0 / 0.4);
+}
+
+:root[data-theme='light'] {
+  /* Re-declare light tokens so the [data-theme] class wins over the dark media query. */
+  --brand: oklch(0.55 0.18 25);
+  --brand-strong: oklch(0.45 0.20 25);
+  --brand-tint: oklch(0.96 0.02 25);
+  --surface: oklch(0.985 0.004 25);
+  --surface-raised: oklch(0.99 0.003 25);
+  --ink: oklch(0.22 0.02 25);
+  --ink-soft: oklch(0.40 0.015 25);
+  --mute: oklch(0.62 0.012 25);
+  --rule: oklch(0.90 0.008 25);
+  --breaking: oklch(0.50 0.22 27);
+  --focus-ring: oklch(0.55 0.18 25);
+  --shadow-overlay: 0 8px 32px oklch(0.2 0.02 25 / 0.12);
+}
+
+/* Global focus ring (a11y baseline). */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-1);
+}
+
+/* Reduced-motion: kill all non-essential animation (impeccable law). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

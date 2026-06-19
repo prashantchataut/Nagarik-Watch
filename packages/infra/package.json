@@ -1,0 +1,29 @@
+{
+  "name": "@nagarikwatch/infra",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./edge": "./src/edge.ts",
+    "./storage": "./src/storage.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest --passWithNoTests",
+    "clean": "rimraf dist .turbo"
+  },
+  "dependencies": {
+    "@nagarikwatch/db": "workspace:*"
+  },
+  "devDependencies": {
+    "@nagarikwatch/tsconfig": "workspace:*",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
