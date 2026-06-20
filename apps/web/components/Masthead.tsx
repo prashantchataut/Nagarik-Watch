@@ -3,6 +3,7 @@ import type { Category, Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, swapLocale } from '@/lib/i18n/locales'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 type MastheadProps = {
   locale: Locale
@@ -54,6 +55,7 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
             >
               <SearchIcon />
             </Link>
+            <ThemeToggle locale={locale} />
             <Link
               href={toggleHref}
               className="rounded-sm border border-rule px-3 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"

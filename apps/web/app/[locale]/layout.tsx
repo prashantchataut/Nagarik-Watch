@@ -57,8 +57,17 @@ export default async function LocaleLayout({
     process.env.NEXT_PUBLIC_PLAUSIBLE_SRC ?? 'https://plausible.io/js/script.js'
 
   return (
-    <html lang={locale} dir="ltr" className={fontVariables} data-theme="light" suppressHydrationWarning>
+    <html lang={locale} dir="ltr" className={fontVariables} suppressHydrationWarning>
       <head>
+        <script
+          // Resolve the initial theme before paint so there is no flash of the wrong scheme.
+          // Order: persisted choice (nw-theme) wins; otherwise fall back to prefers-color-scheme.
+          // Runs synchronously in <head>, ahead of body render, and is the only place that sets
+          // the attribute on first load — ThemeToggle.tsx reads it after mount.
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=localStorage.getItem('nw-theme');var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var t=s==='dark'||s==='light'?s:(m?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`,
+          }}
+        />
         {plausibleDomain && (
           <script
             defer
