@@ -1,21 +1,19 @@
-/* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */
-/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+/* THIS FILE IS GENERATED FROM THE PAYLOAD TEMPLATE. */
+/* IT CAN BE REGENERATED VIA `payload generate:importmap` IF NEEDED. */
 import type { Metadata } from 'next'
 import config from '@payload-config'
-import { RootPage } from '@payloadcms/next/views'
-import { importMap } from '../importMap'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { RootPage, generatePageMetadata } from '@payloadcms/next/views'
+import { importMap } from './importMap'
 
-export const generateMetadata = async (): Promise<Metadata> => {
-  const payloadConfig = (await getPayloadHMR({ config })) as unknown as {
-    admin?: { meta?: { title?: string; titleSuffix?: string } }
-  }
-  return {
-    title: payloadConfig.admin?.meta?.title ?? 'Nagarik Watch',
-    titleSuffix: payloadConfig.admin?.meta?.titleSuffix ?? ' · Nagarik Watch CMS',
-  }
+type Args = {
+  params: Promise<{ segments: string[] }>
+  searchParams: Promise<{ [key: string]: string | string[] }>
 }
 
-const Page = () => RootPage({ config, importMap })
+export const generateMetadata = ({ params, searchParams }: Args): Promise<Metadata> =>
+  generatePageMetadata({ config, params, searchParams })
+
+const Page = ({ params, searchParams }: Args) =>
+  RootPage({ config, importMap, params, searchParams })
 
 export default Page

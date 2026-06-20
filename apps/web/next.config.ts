@@ -19,6 +19,15 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@nagarikwatch/ui', '@nagarikwatch/db'],
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = config.externals ?? []
+      if (Array.isArray(config.externals)) {
+        config.externals.push({ '@payload-config': 'commonjs @payload-config' })
+      }
+    }
+    return config
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [

@@ -1,0 +1,190 @@
+import Image from 'next/image'
+import type { Metadata } from 'next'
+import type { Locale } from '@nagarikwatch/db'
+import { notFound } from 'next/navigation'
+import { Byline, CategoryLabel } from '@nagarikwatch/ui'
+import { getArticleBySlug, getStories } from '@/lib/content'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { asLocale, localePrefix } from '@/lib/i18n/locales'
+import { ArticleBody, CorrectionNotice, TagRow } from '@/components/article/ArticleBody'
+import { ShareBar } from '@/components/article/ShareBar'
+import { ArticleJsonLd } from '@/components/article/ArticleJsonLd'
+import { RelatedStories } from '@/components/article/RelatedStories'
+
+type Params = { locale: string; category: string; slug: string }
+
+/**
+ * Article page. Reads the article by (category, slug, locale) and renders the hero image,
+ * headline, deck, byline/dateline/attribution, the typed body, an inline share bar, a
+ * corrections notice when present, tags, related stories from the same category, and the
+ * NewsArticle JSON-LD. All content is locale-aware: Nepali is source of truth and the
+ * English route only resolves articles that have an English version.
+ */
+export default async function ArticlePage({ params }: { params: Promise<Params> }) {
+  const { locale: rawLocale, category, slug } = await params
+  const locale: Locale = asLocale(rawLocale)
+
+  const article = await getArticleBySlug(category, slug, locale)
+  if (!article) notFound()
+
+  const dict = getDictionary(locale)
+  const title = locale === 'en' && article.titleEn ? article.titleEn : article.titleNe
+  const deck = locale === 'en' ? article.deckEn : article.deckNe
+  const body = locale === 'en' && article.bodyEn ? article.bodyEn : article.bodyNe
+  const titleLang = locale === 'en' && article.titleEn ? 'en' : 'ne'
+
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
+  const prefix = localePrefix(locale)
+  const url = `${siteUrl}${prefix}/${category}/${slug}`
+
+  const related = await getStories({
+    category,
+    locale,
+    exclude: [slug],
+    limit: 3,
+  })
+
+  const readingLabel = dict.readingTime(article.readingMinutes)
+
+  return (
+    <article>
+      <ArticleJsonLd
+        article={article}
+        locale={locale}
+        url={url}
+        siteUrl={siteUrl}
+        siteName={dict.siteName}
+      />
+
+      <header className="mx-auto max-w-body px-4 pt-8">
+        <CategoryLabel category={article.category} locale={locale} as="span" className="mb-3" />
+        <h1
+          className="font-display text-display leading-tight text-ink"
+          lang={titleLang}
+        >
+          {title}
+        </h1>
+        {deck && (
+          <p className="mt-4 text-body-lg text-ink-soft leading-relaxed" lang={titleLang}>
+            {deck}
+          </p>
+        )}
+        <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-meta text-ink-soft">
+          <Byline
+            authors={article.authors}
+            locale={locale}
+            publishedAt={article.publishedAt}
+            source={article.source}
+          />
+          <span aria-hidden="true" className="text-mute">
+            ·
+          </span>
+          <span lang={locale === 'en' ? 'en' : 'ne'}>
+            {readingLabel}
+          </span>
+        </div>
+      </header>
+
+      {article.heroImage && (
+        <figure className="mx-auto mt-8 max-w-page px-4">
+          <div className="relative overflow-hidden rounded-sm aspect-[16/9]">
+            <Image
+              src={article.heroImage.url}
+              alt={article.heroImage.alt}
+              fill
+              priority
+              sizes="(min-width: 768px) 1280px, 100vw"
+              className="object-cover"
+            />
+          </div>
+          {(article.heroCaptionNe || article.heroCredit) && (
+            <figcaption className="mt-2 text-caption text-mute" lang={titleLang}>
+              {locale === 'en' ? article.heroCaptionEn : article.heroCaptionNe}
+              {article.heroCredit ? (
+                <span className="text-mute/80">
+                  {(locale === 'en' ? article.heroCaptionEn : article.heroCaptionNe) ? ' · ' : ''}
+                  {article.heroCredit}
+                </span>
+              ) : null}
+            </figcaption>
+          )}
+        </figure>
+      )}
+
+      <div className="mx-auto mt-8 max-w-body px-4">
+        <ShareBar url={`${prefix}/${category}/${slug}`} title={title} locale={locale} />
+
+        {article.corrections && article.corrections.length > 0 && (
+          <CorrectionNotice
+            corrections={article.corrections}
+            locale={locale}
+            className="mt-6"
+          />
+        )}
+
+        <ArticleBody blocks={body} locale={locale} className="mt-8" />
+
+        {article.tags.length > 0 && (
+          <TagRow tags={article.tags} locale={locale} className="mt-10" />
+        )}
+      </div>
+
+      {related.items.length > 0 && (
+        <RelatedStories
+          stories={related.items}
+          locale={locale}
+          className="mx-auto mt-16 max-w-page px-4"
+        />
+      )}
+    </article>
+  )
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>
+}): Promise<Metadata> {
+  const { locale: rawLocale, category, slug } = await params
+  const locale: Locale = asLocale(rawLocale)
+  const article = await getArticleBySlug(category, slug, locale)
+  const prefix = localePrefix(locale)
+  const canonical = `${prefix}/${category}/${slug}`
+
+  if (!article) {
+    return { title: getDictionary(locale).notFoundHeading, robots: { index: false } }
+  }
+
+  const title = locale === 'en' && article.titleEn ? article.titleEn : article.titleNe
+  const description =
+    locale === 'en' && article.seoDescriptionEn
+      ? article.seoDescriptionEn
+      : article.seoDescriptionNe ?? article.deckNe
+  const opposite = locale === 'en' ? '' : '/en'
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical,
+      languages: { ne: `/${category}/${slug}`, en: `${opposite}/${category}/${slug}` },
+    },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url: canonical,
+      images: article.heroImage ? [{ url: article.heroImage.url }] : undefined,
+      publishedTime: article.publishedAt,
+      modifiedTime: article.updatedAt,
+      authors: article.authors.map((a) => a.name),
+      locale: locale === 'en' ? 'en_US' : 'ne_NP',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: article.heroImage ? [article.heroImage.url] : undefined,
+    },
+  }
+}

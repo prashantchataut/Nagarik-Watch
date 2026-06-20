@@ -5,6 +5,11 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { Users } from './collections/Users'
+import { Media } from './collections/Media'
+import { Categories } from './collections/Categories'
+import { Authors } from './collections/Authors'
+import { Tags } from './collections/Tags'
+import { Articles } from './collections/Articles'
 import { loadEnv } from '@nagarikwatch/db/env'
 
 // Validate env at boot so misconfiguration fails fast before serving the admin.
@@ -16,14 +21,9 @@ const dirname = path.dirname(filename)
 /**
  * Payload CMS root config for Nagarik Watch.
  *
- * Collections and globals are added incrementally per docs/phase-2-tasks.md slices:
- *  - Slice 1 (this file): Users
- *  - Slice 2: Media
- *  - Slice 3: Category, Author, Tag
- *  - Slice 4: Article
- *  - Slice 5: globals
- *
- * Access control (Slice 6) and hooks (Slice 7) attach to each collection as it lands.
+ * Phase 1 lands the core content model (content-model.md §1–5): Users, Media, Category,
+ * Author, Tag and Article. Access control is open in dev (tightened in Slice 6 / Phase 2);
+ * the Article source-attribution hook is already in place.
  */
 export default buildConfig({
   admin: {
@@ -43,7 +43,7 @@ export default buildConfig({
       ],
     },
   },
-  collections: [Users],
+  collections: [Users, Media, Categories, Authors, Tags, Articles],
   globals: [],
   editor: lexicalEditor(),
   secret: env.PAYLOAD_SECRET,
@@ -51,8 +51,9 @@ export default buildConfig({
     pool: {
       connectionString: env.DATABASE_URL,
     },
-    // Schema push in dev; migrations are the source of truth in prod (Slice 8).
-    pushRecreateOplogs: false,
+    // Prod uses migrations (source of truth). Dev pushes the schema live; flip to false
+    // once a migrations workflow is in place (Slice 8).
+    push: true,
   }),
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
