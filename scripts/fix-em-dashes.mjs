@@ -20,7 +20,13 @@ const ROOT = process.cwd()
 async function walk(dir) {
   const out = []
   for (const entry of await readdir(dir, { withFileTypes: true })) {
-    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === '.next' || entry.name === 'dist') continue
+    if (
+      entry.name === 'node_modules' ||
+      entry.name === '.git' ||
+      entry.name === '.next' ||
+      entry.name === 'dist'
+    )
+      continue
     const p = join(dir, entry.name)
     if (entry.isDirectory()) out.push(...(await walk(p)))
     else if (extname(entry.name) === '.md') out.push(p)

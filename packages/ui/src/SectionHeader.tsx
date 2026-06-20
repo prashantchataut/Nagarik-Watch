@@ -29,7 +29,9 @@ export function SectionHeader({
 }: SectionHeaderProps) {
   const lang = titleLang ?? locale
   return (
-    <div className={cn('flex items-end justify-between gap-4 border-b border-rule pb-2', className)}>
+    <div
+      className={cn('flex items-end justify-between gap-4 border-b border-rule pb-2', className)}
+    >
       <h2 className="font-display text-h2 text-brand-strong" lang={lang}>
         {title}
       </h2>

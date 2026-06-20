@@ -43,27 +43,27 @@ reading in Devanagari, arriving from social or search.
 
 ## Tech Stack
 
-| Layer            | Choice                                        | Version target     |
+| Layer | Choice | Version target |
 |, , , , , |-, , , , , , , , , , , , |-, , , , , -|
-| Monorepo         | pnpm workspaces + Turborepo                   | pnpm 9, turbo 2    |
-| Language         | TypeScript (strict)                           | 5.5+               |
-| Web app          | Next.js (App Router, Node runtime)            | 15+                |
-| Styling          | Tailwind CSS + CSS variables for tokens       | 3.4+               |
-| CMS              | Payload CMS (self-hosted, in-repo)            | 3+                 |
-| Database         | PostgreSQL                                    | 16+                |
-| ORM (Payload)    | Payload's Drizzle adapter                     | bundled            |
-| Object storage   | S3-compatible; default Cloudflare R2 (swappable, ADR-003) | n/a          |
-| Image pipeline   | `next/image` + sharp, AVIF/WebP               | bundled            |
-| Search           | PostgreSQL full-text (Phase 2) → Meilisearch (later) | 16 / 1.8+   |
-| Analytics        | Plausible (self-hosted) + GA4                 | n/a                |
-| Ads              | Google AdSense (start) → GAM/DoubleClick (later) | n/a             |
-| Edge/CDN + WAF   | Adapter interface; default Cloudflare (swappable, ADR-003) | n/a       |
-| Web push         | OneSignal or self-hosted FCM                  | n/a                |
-| Email/newsletter | (Phase 3) Buttondown / Listmonk               | n/a                |
-| Testing          | Vitest (unit) + Playwright (e2e)              | 2+ / 1.49+         |
-| Lint/format      | ESLint + Prettier                             | 9+ / 3+            |
-| CI               | GitHub Actions                                | n/a                |
-| Deploy           | Origin: TBD (ADR-004). Edge + storage: adapter default Cloudflare, swappable (ADR-003). | n/a |
+| Monorepo | pnpm workspaces + Turborepo | pnpm 9, turbo 2 |
+| Language | TypeScript (strict) | 5.5+ |
+| Web app | Next.js (App Router, Node runtime) | 15+ |
+| Styling | Tailwind CSS + CSS variables for tokens | 3.4+ |
+| CMS | Payload CMS (self-hosted, in-repo) | 3+ |
+| Database | PostgreSQL | 16+ |
+| ORM (Payload) | Payload's Drizzle adapter | bundled |
+| Object storage | S3-compatible; default Cloudflare R2 (swappable, ADR-003) | n/a |
+| Image pipeline | `next/image` + sharp, AVIF/WebP | bundled |
+| Search | PostgreSQL full-text (Phase 2) → Meilisearch (later) | 16 / 1.8+ |
+| Analytics | Plausible (self-hosted) + GA4 | n/a |
+| Ads | Google AdSense (start) → GAM/DoubleClick (later) | n/a |
+| Edge/CDN + WAF | Adapter interface; default Cloudflare (swappable, ADR-003) | n/a |
+| Web push | OneSignal or self-hosted FCM | n/a |
+| Email/newsletter | (Phase 3) Buttondown / Listmonk | n/a |
+| Testing | Vitest (unit) + Playwright (e2e) | 2+ / 1.49+ |
+| Lint/format | ESLint + Prettier | 9+ / 3+ |
+| CI | GitHub Actions | n/a |
+| Deploy | Origin: TBD (ADR-004). Edge + storage: adapter default Cloudflare, swappable (ADR-003). | n/a |
 
 **Why these (summary; full rationale in ADRs):** Next.js App Router gives SSR/ISR for SEO
 and speed, which are existential for news. Payload is TypeScript-native, self-hostable,
@@ -75,7 +75,7 @@ latency. No vendor lock-in on the things that matter (CMS, DB)., -
 
 Full executable commands. Run from repo root unless noted.
 
-```bash
+````bash
 # Install
 pnpm install
 
@@ -116,41 +116,43 @@ pnpm turbo run build, filter=...
 
 ## Project Structure
 
-```
+````
+
 nagarik-watch/
 ├── apps/
-│   ├── web/                  # Next.js portal (the site readers see)
-│   │   ├── app/
-│   │   │   ├── [locale]/     # 'ne' (default) and 'en'
-│   │   │   │   ├── (home)/page.tsx
-│   │   │   │   ├── [category]/[...slug]/page.tsx   # category + article routes
-│   │   │   │   ├── author/[slug]/page.tsx
-│   │   │   │   ├── search/page.tsx
-│   │   │   │   └── layout.tsx
-│   │   │   ├── api/          # ISR revalidate webhook, og image, rss
-│   │   │   ├── sitemap.ts
-│   │   │   └── robots.ts
-│   │   ├── components/        # StoryCard, Hero, Ticker, AdSlot, etc.
-│   │   ├── lib/               # payload client, i18n, date (BS/AD), url
-│   │   ├── styles/            # globals.css, devanagari font imports
-│   │   └── public/            # fonts, icons, manifest
-│   └── admin/                # Payload CMS (the editorial tool)
-│       ├── src/              # payload.config.ts, collections, blocks, hooks
-│       ├── migrations/       # Drizzle migrations (versioned)
-│       └── seed/             # dev seed data
+│ ├── web/ # Next.js portal (the site readers see)
+│ │ ├── app/
+│ │ │ ├── [locale]/ # 'ne' (default) and 'en'
+│ │ │ │ ├── (home)/page.tsx
+│ │ │ │ ├── [category]/[...slug]/page.tsx # category + article routes
+│ │ │ │ ├── author/[slug]/page.tsx
+│ │ │ │ ├── search/page.tsx
+│ │ │ │ └── layout.tsx
+│ │ │ ├── api/ # ISR revalidate webhook, og image, rss
+│ │ │ ├── sitemap.ts
+│ │ │ └── robots.ts
+│ │ ├── components/ # StoryCard, Hero, Ticker, AdSlot, etc.
+│ │ ├── lib/ # payload client, i18n, date (BS/AD), url
+│ │ ├── styles/ # globals.css, devanagari font imports
+│ │ └── public/ # fonts, icons, manifest
+│ └── admin/ # Payload CMS (the editorial tool)
+│ ├── src/ # payload.config.ts, collections, blocks, hooks
+│ ├── migrations/ # Drizzle migrations (versioned)
+│ └── seed/ # dev seed data
 ├── packages/
-│   ├── db/                   # shared schema types, validation zod schemas
-│   ├── ui/                   # design system: tokens (CSS vars), primitives
-│   └── ingest/               # RSS/wire ingestion scripts (cron jobs)
-├── docs/                     # architecture, ADRs, content-model, workflow, phases
+│ ├── db/ # shared schema types, validation zod schemas
+│ ├── ui/ # design system: tokens (CSS vars), primitives
+│ └── ingest/ # RSS/wire ingestion scripts (cron jobs)
+├── docs/ # architecture, ADRs, content-model, workflow, phases
 ├── PRODUCT.md
 ├── DESIGN.md
-├── SPEC.md                   # this file
+├── SPEC.md # this file
 ├── turbo.json
 ├── pnpm-workspace.yaml
 ├── tsconfig.base.json
-└── .github/workflows/        # CI: lint, typecheck, test, lighthouse
-```, -
+└── .github/workflows/ # CI: lint, typecheck, test, lighthouse
+
+````, -
 
 ## Code Style
 
@@ -198,7 +200,7 @@ export function StoryCard({ story, variant = 'standard', locale = 'ne' }: StoryC
     </article>
   )
 }
-```
+````
 
 ### Conventions
 
@@ -219,27 +221,29 @@ export function StoryCard({ story, variant = 'standard', locale = 'ne' }: StoryC
   within a category.
 - **Formatting:** Prettier defaults, 100-col, single quotes, trailing commas. No
   prettier-vs-eslint conflicts, eslint-config-prettier applied.
-- **Comments:** explain *why*, not *what*. Public functions get a JSDoc summary.
+- **Comments:** explain _why_, not _what_. Public functions get a JSDoc summary.
 - **No em dashes in UI copy** (impeccable ban), use commas, colons, parentheses., -
 
 ## Testing Strategy
 
-| Level        | Tool        | What it covers                                    | Where             |
+| Level | Tool | What it covers | Where |
 |, , , , |-, , , |, , , , , , , , , , , , , -|, , , , , -|
-| Unit         | Vitest      | Pure functions: date conversion, slugify, i18n, content helpers | `*.test.ts` next to source |
-| Component    | Vitest + Testing Library | Component rendering, a11y assertions, variant behavior | `*.test.tsx` next to source |
-| Integration  | Vitest      | Payload hooks, ingestion, revalidate paths        | `__tests__/`      |
-| E2E          | Playwright  | Critical reader flows: home→article, search, category nav, locale toggle, breaking ticker | `e2e/` |
-| A11y         | axe-core (via Playwright) + manual keyboard audit | WCAG 2.1 AA on key pages     | `e2e/a11y/`       |
-| Performance  | Lighthouse CI | LCP/CLS/INP budgets on home + article            | `.github/workflows`|
-| Visual       | Playwright screenshots (light regression) | Layout breakage on key templates          | `e2e/visual/`     |
+| Unit | Vitest | Pure functions: date conversion, slugify, i18n, content helpers | `*.test.ts` next to source |
+| Component | Vitest + Testing Library | Component rendering, a11y assertions, variant behavior | `*.test.tsx` next to source |
+| Integration | Vitest | Payload hooks, ingestion, revalidate paths | `__tests__/` |
+| E2E | Playwright | Critical reader flows: home→article, search, category nav, locale toggle, breaking ticker | `e2e/` |
+| A11y | axe-core (via Playwright) + manual keyboard audit | WCAG 2.1 AA on key pages | `e2e/a11y/` |
+| Performance | Lighthouse CI | LCP/CLS/INP budgets on home + article | `.github/workflows`|
+| Visual | Playwright screenshots (light regression) | Layout breakage on key templates | `e2e/visual/` |
 
 **Coverage targets (guidelines, not gates):**
+
 - `packages/db`, `lib/`, `ingest`: ≥80%, these are pure logic, bugs are costly.
 - Components: focus on behavior and a11y assertions rather than % coverage.
 - E2E covers the happy paths; edge cases handled in component/integration tests.
 
 **What gets tested, by phase:**
+
 - Phase 1: date/slug helpers, StoryCard variants, home→article E2E, a11y on key pages,
   Lighthouse budget.
 - Phase 2: Payload hooks (slug generation, search-index update), workflow transitions,
@@ -253,6 +257,7 @@ matrix including Lighthouse and Playwright on PRs., -
 ## Boundaries
 
 ### Always do
+
 - Run `pnpm typecheck && pnpm test && pnpm lint` before committing.
 - Keep server/client component boundaries explicit and minimal.
 - Validate all external input (CMS webhooks, ingestion feeds, search queries) with Zod.
@@ -262,6 +267,7 @@ matrix including Lighthouse and Playwright on PRs., -
 - Write the ADR when making any architecture-level decision (skill: architecture-designer).
 
 ### Ask first
+
 - Database schema changes / new Drizzle migrations.
 - Adding a new runtime dependency (justify in the PR; check license + maintenance).
 - Changing CI configuration or the performance/a11y budgets.
@@ -271,6 +277,7 @@ matrix including Lighthouse and Playwright on PRs., -
 - Introducing a new ad placement or a new sponsored-content surface.
 
 ### Never do
+
 - Commit secrets, `.env` files, or production credentials.
 - Edit `node_modules`, build output, or any vendored directory.
 - Remove or `it.only`/`skip` a failing test to make CI green.

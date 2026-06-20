@@ -62,6 +62,6 @@ Node ≥ 20.11 · pnpm ≥ 9.
 - **Skills:** this project is built with the impeccable, spec-driven-development,
   architecture-designer, and planning-and-task-breakdown skills. Follow the workflow in
   the relevant `docs/` and ADR files.
-- **Spec is living:** update SPEC.md + the relevant ADR *before* implementing a decision
+- **Spec is living:** update SPEC.md + the relevant ADR _before_ implementing a decision
   change.
 - **Boundaries:** see SPEC.md §Boundaries (always / ask first / never).

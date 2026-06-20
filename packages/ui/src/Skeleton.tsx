@@ -18,9 +18,7 @@ export function StoryCardSkeleton({ variant = 'default', className }: StoryCardS
   const isFeatured = variant === 'featured'
   return (
     <div className={cn('flex flex-col', className)} aria-hidden="true">
-      <div
-        className={cn(shimmerBase, isFeatured ? 'mb-3 aspect-[16/9]' : 'mb-3 aspect-[4/3]')}
-      />
+      <div className={cn(shimmerBase, isFeatured ? 'mb-3 aspect-[16/9]' : 'mb-3 aspect-[4/3]')} />
       <div className={cn(shimmerBase, 'mb-2 h-4 w-20 rounded-sm')} />
       <div className={cn(shimmerBase, 'mb-2 h-5 w-full rounded-sm')} />
       <div className={cn(shimmerBase, 'h-5 w-3/4 rounded-sm')} />
@@ -28,7 +26,13 @@ export function StoryCardSkeleton({ variant = 'default', className }: StoryCardS
   )
 }
 
-export function StoryGridSkeleton({ count = 6, className }: { count?: number; className?: string }) {
+export function StoryGridSkeleton({
+  count = 6,
+  className,
+}: {
+  count?: number
+  className?: string
+}) {
   return (
     <ul className={cn('grid gap-8 sm:grid-cols-2 lg:grid-cols-3', className)} aria-hidden="true">
       {Array.from({ length: count }).map((_, i) => (

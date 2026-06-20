@@ -23,6 +23,7 @@ content) with a product register only inside the editorial CMS/admin (see `DESIG
 ## Users
 
 ### Primary: the Nepali news reader
+
 - Reads on a **mid-range Android phone over mobile data**, mostly Nepali ISPs (Ncell, NTC),
   often on flaky 3G/4G. Performance and data cost are existential, not nice-to-have.
 - Reads in **Devanagari (Nepali)** first; a meaningful minority want an English section.
@@ -32,11 +33,13 @@ content) with a product register only inside the editorial CMS/admin (see `DESIG
 - Cares about trust: clear bylines, dates, source attribution, visible correction notices.
 
 ### Secondary: the diaspora reader
+
 - On decent broadband in the Gulf, Malaysia, the US, UK, Australia. Wants to stay
   connected to home. Latency from origin matters less (CDN handles it) but reliability and
   freshness matter more.
 
 ### Tertiary: the journalist / editor (CMS users, product register)
+
 - Authors, copy editors, section editors, a publisher/Chief Sub. They live in the CMS all
   day. They need speed, no friction on common actions, draft→review→publish flow,
   revisions, scheduling, and a media library that enforces alt text and image credits.
@@ -44,15 +47,18 @@ content) with a product register only inside the editorial CMS/admin (see `DESIG
 ## Brand
 
 ### Positioning
+
 A civic-minded, independent news portal that treats the **citizen (नागरिक)** as the
 subject and the audience of news. The "Watch" in the name signals scrutiny: holding power
 to account, watching out for the reader. The tone is **credible, direct, calm, and
 respectful**, never sensationalist, never partisan-stenography, never clickbait.
 
 ### Personality (three words)
+
 **Vigilant. Clear. Nepali.**
 
 ### Tone of voice
+
 - **Devanagari-first** in all reader-facing copy. The English section reads as clean,
   plain Indian-subcontinent English, not American marketing English.
 - Headlines are **factual and specific**, who, what, where, not teasing or withholding.
@@ -64,11 +70,13 @@ respectful**, never sensationalist, never partisan-stenography, never clickbait.
   outlet with a link.
 
 ### What we sound like (do)
+
 > "अर्थमन्त्रीले आगामी बजेटमा पूर्वाधारमा रकम बढाउने जनाए"
 
 Factual subject–verb–object. Named actors. No filler, no hype.
 
 ### What we do not sound like (don't)
+
 > "यस्तो भयो भने तपाईंलाई पनि असर गर्छ! जान्नुहोस्..."
 
 Withholding, clickbait, emotional manipulation.
