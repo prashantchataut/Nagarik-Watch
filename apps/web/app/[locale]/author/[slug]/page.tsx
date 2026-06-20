@@ -1,6 +1,7 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import type { Metadata } from 'next'
-import type { Locale } from '@nagarikwatch/db'
+import type { CategoryRef, Locale } from '@nagarikwatch/db'
 import { notFound } from 'next/navigation'
 import { StoryCard, SectionHeader } from '@nagarikwatch/ui'
 import { getAuthor } from '@/lib/content'
@@ -24,6 +25,10 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
   const dict = getDictionary(locale)
   const bio = locale === 'en' ? author.bioEn : author.bioNe
   const roleLabel = roleFor(author.role, locale)
+  const lang = locale === 'en' ? 'en' : 'ne'
+
+  // Unique categories this author has written in, derived from their story list.
+  const categories = dedupeCategories(stories.items.map((s) => s.category))
 
   return (
     <div className="mx-auto max-w-page px-4 py-8">
@@ -40,22 +45,71 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={locale === 'en' ? 'en' : 'ne'}>
+          <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={lang}>
             {roleLabel}
           </p>
           <h1 className="mt-1 font-display text-display text-ink" lang="ne">
             {author.name}
           </h1>
           {bio && (
-            <p className="mt-3 max-w-body text-body-lg text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
+            <p className="mt-3 max-w-body text-body-lg text-ink-soft" lang={lang}>
               {bio}
             </p>
+          )}
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center rounded-sm bg-brand-tint px-3 py-1 text-meta font-semibold text-brand-strong" lang={lang}>
+              {dict.storyCount(stories.total)}
+            </span>
+            {author.social?.twitter && (
+              <a
+                href={author.social.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-sm border border-rule px-3 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+              >
+                <XIcon /> X
+              </a>
+            )}
+            {author.social?.facebook && (
+              <a
+                href={author.social.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-sm border border-rule px-3 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+              >
+                <FacebookIcon /> Facebook
+              </a>
+            )}
+          </div>
+          {categories.length > 0 && (
+            <nav aria-label={dict.authorCategories} className="mt-5">
+              <p className="text-meta font-semibold uppercase tracking-wide text-mute" lang={lang}>
+                {dict.authorCategories}
+              </p>
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {categories.map((c) => {
+                  const label = locale === 'en' && c.nameEn ? c.nameEn : c.nameNe
+                  const catLang = locale === 'en' && c.nameEn ? 'en' : 'ne'
+                  return (
+                    <li key={c.slug}>
+                      <Link
+                        href={localizeHref(locale, `/${c.slug}`)}
+                        lang={catLang}
+                        className="inline-flex items-center rounded-sm border border-rule px-3 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </nav>
           )}
         </div>
       </header>
 
       {stories.items.length === 0 ? (
-        <p className="mt-12 text-body-lg text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
+        <p className="mt-12 text-body-lg text-mute" lang={lang}>
           {dict.emptyEnglish}
         </p>
       ) : (
@@ -71,6 +125,33 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
         </section>
       )}
     </div>
+  )
+}
+
+function dedupeCategories(cats: CategoryRef[]): CategoryRef[] {
+  const seen = new Set<string>()
+  const out: CategoryRef[] = []
+  for (const c of cats) {
+    if (seen.has(c.slug)) continue
+    seen.add(c.slug)
+    out.push(c)
+  }
+  return out
+}
+
+function XIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  )
+}
+
+function FacebookIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+      <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+    </svg>
   )
 }
 

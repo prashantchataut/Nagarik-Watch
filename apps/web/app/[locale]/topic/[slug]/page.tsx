@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import type { Locale } from '@nagarikwatch/db'
+import Link from 'next/link'
+import type { CategoryRef, Locale } from '@nagarikwatch/db'
 import { notFound } from 'next/navigation'
 import { StoryCard } from '@nagarikwatch/ui'
 import { getStories, getTag } from '@/lib/content'
@@ -36,16 +37,21 @@ export default async function TopicPage({
   const result = await getStories({ tag: slug, page, locale })
   const dict = getDictionary(locale)
   const { tag } = data
+  const lang = locale === 'en' ? 'en' : 'ne'
   const name = locale === 'en' && tag.nameEn ? tag.nameEn : tag.nameNe
   const nameLang = locale === 'en' && tag.nameEn ? 'en' : 'ne'
   const description = locale === 'en' ? tag.descriptionEn : tag.descriptionNe
+
+  // Most common category across this topic's stories — the parent section the reader is
+  // most likely to have come from, so the back-link points somewhere useful rather than home.
+  const parentCategory = mostCommonCategory(result.items.map((s) => s.category))
 
   return (
     <div className="mx-auto max-w-page px-4 py-8">
       <header className="border-b border-rule pb-6">
         <p
           className="text-meta font-semibold uppercase tracking-wide text-brand-strong"
-          lang={locale === 'en' ? 'en' : 'ne'}
+          lang={lang}
         >
           {dict.topicStories}
         </p>
@@ -57,10 +63,27 @@ export default async function TopicPage({
             {description}
           </p>
         )}
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <span
+            className="inline-flex items-center rounded-sm bg-brand-tint px-3 py-1 text-meta font-semibold text-brand-strong"
+            lang={nameLang}
+          >
+            {dict.storyCountTopic(result.total)}
+          </span>
+          {parentCategory && (
+            <Link
+              href={localizeHref(locale, `/${parentCategory.slug}`)}
+              lang={lang}
+              className="inline-flex items-center rounded-sm border border-rule px-3 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+            >
+              {dict.topicBackToCategory}
+            </Link>
+          )}
+        </div>
       </header>
 
       {result.items.length === 0 ? (
-        <p className="mt-12 text-body-lg text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
+        <p className="mt-12 text-body-lg text-mute" lang={lang}>
           {dict.emptyEnglish}
         </p>
       ) : (
