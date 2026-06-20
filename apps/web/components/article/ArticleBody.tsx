@@ -1,12 +1,15 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import type { ArticleBlock, Locale } from '@nagarikwatch/db'
+import type { ArticleBlock, Locale, SourceAttribution } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { cn } from '@nagarikwatch/ui'
+import { AttributionLine } from './AttributionLine'
 
 type ArticleBodyProps = {
   blocks: ArticleBlock[]
   locale: Locale
+  /** Provenance for aggregated/wire stories; original/undefined renders nothing. */
+  source?: SourceAttribution
   className?: string
 }
 
@@ -21,7 +24,7 @@ const AD_AFTER_PARAGRAPH = 4
  * After the 4th paragraph a reserved 300x250 ad slot is injected so the ad never causes
  * layout shift (size is fixed up front) and is labeled reader-facing (ADR-006).
  */
-export function ArticleBody({ blocks, locale, className }: ArticleBodyProps) {
+export function ArticleBody({ blocks, locale, source, className }: ArticleBodyProps) {
   const dict = getDictionary(locale)
   let paragraphCount = 0
   let adInjected = false
@@ -45,7 +48,12 @@ export function ArticleBody({ blocks, locale, className }: ArticleBodyProps) {
     }
   })
 
-  return <div className={cn('space-y-6', className)}>{out}</div>
+  return (
+    <div className={cn('space-y-6', className)}>
+      {source && <AttributionLine source={source} locale={locale} />}
+      {out}
+    </div>
+  )
 }
 
 function BlockRenderer({ block, locale }: { block: ArticleBlock; locale: Locale }) {

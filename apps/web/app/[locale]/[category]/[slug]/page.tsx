@@ -122,7 +122,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
           />
         )}
 
-        <ArticleBody blocks={body} locale={locale} className="mt-8" />
+        <ArticleBody blocks={body} locale={locale} source={article.source} className="mt-8" />
 
         {article.tags.length > 0 && (
           <TagRow tags={article.tags} locale={locale} className="mt-10" />
