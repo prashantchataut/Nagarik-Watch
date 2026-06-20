@@ -5,7 +5,7 @@
   "description": "Nagarik Watch (नागरिक वाच) — a modern, Devanagari-first web news portal for Nepal.",
   "packageManager": "pnpm@9.12.0",
   "engines": {
-    "node": ">=20.11.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "dev": "turbo run dev",
