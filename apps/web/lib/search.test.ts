@@ -5,7 +5,12 @@ function story(partial: Partial<SearchableStory>): SearchableStory {
   return {
     id: partial.id ?? '1',
     slug: partial.slug ?? 'slug',
-    category: partial.category ?? { id: 'c', slug: 'politics', nameNe: 'राजनीति', nameEn: 'Politics' },
+    category: partial.category ?? {
+      id: 'c',
+      slug: 'politics',
+      nameNe: 'राजनीति',
+      nameEn: 'Politics',
+    },
     categoryLabel: partial.categoryLabel ?? 'राजनीति',
     titleNe: partial.titleNe ?? '',
     titleEn: partial.titleEn,

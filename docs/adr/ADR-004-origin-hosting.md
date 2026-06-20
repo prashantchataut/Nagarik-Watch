@@ -35,6 +35,7 @@ means the default edge/CDN per ADR-003; the origin choice is independent):
 before Phase 1 deploy**, when we can make a cheaper, better-informed decision.
 
 Concretely, the choice will be made by:
+
 1. Running a one-week **latency probe** from Nepali networks (NTC + Ncell, mobile + fixed)
    against a temp Vercel deployment vs a temp Nepal-VPS deployment, measuring TTFB on
    cache MISS (the only case where origin location matters).

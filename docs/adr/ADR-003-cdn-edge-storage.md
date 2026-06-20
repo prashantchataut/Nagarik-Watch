@@ -19,6 +19,7 @@ not be a hard dependency baked into code. The architecture must be **vendor-neut
 seam**, with a swappable provider behind a small interface.
 
 Requirements for the edge/storage layer:
+
 - Edge PoPs that reach Nepal well (Mumbai, Singapore, Chennai).
 - Cache static assets + ISR HTML; honor on-demand purge/revalidate from the CMS publish
   webhook.
@@ -47,6 +48,7 @@ packages/infra/
 ```
 
 **Default providers (configurable via env, not hard-coded):**
+
 - **Edge/CDN:** Cloudflare (free tier strong; PoPs near Nepal). Replaceable by CloudFront,
   Bunny, Fastly, or Vercel Edge via a different adapter.
 - **Object storage:** Cloudflare R2 (S3-compatible, **zero egress**). Replaceable by any
@@ -59,7 +61,7 @@ packages/infra/
 
 - **Vendor neutrality at the seam:** swapping the edge or storage provider is a new
   adapter + an env change, not an app rewrite. This directly satisfies the founder's
-  "don't be over-reliant on Cloudflare" constraint while still letting us *default* to
+  "don't be over-reliant on Cloudflare" constraint while still letting us _default_ to
   Cloudflare for its strengths.
 - **S3-compatibility is the de-facto standard:** R2, S3, B2, and MinIO all speak the S3
   API, so the storage adapter is trivially portable. We never use R2-specific features
@@ -68,7 +70,7 @@ packages/infra/
   ISPs (NTC, Ncell) well; cache HITs serve in tens of ms. If we later switch, CloudFront
   and Bunny also have regional PoPs.
 - **Cost:** free/cheap tier at launch; R2's zero-egress model is genuinely valuable for an
-  image-heavy news site, but it's a *benefit of the default*, not a lock-in.
+  image-heavy news site, but it's a _benefit of the default_, not a lock-in.
 - **Decoupled from origin vendor (ADR-004):** the edge layer is independent of where
   Next.js runs.
 

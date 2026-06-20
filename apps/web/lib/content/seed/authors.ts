@@ -8,7 +8,8 @@ export const authors: Author[] = [
     name: 'श्रीजना कार्की',
     role: 'staff',
     bioNe: 'श्रीजना कार्की राजनीति शाखाकी वरिष्ठ पत्रकार हुन्, संसद् र शासनप्रशासनमा विशेष रुचि।',
-    bioEn: 'Srijana Karki is a senior reporter on the politics desk, focused on parliament and governance.',
+    bioEn:
+      'Srijana Karki is a senior reporter on the politics desk, focused on parliament and governance.',
     isActive: true,
     social: { twitter: 'https://twitter.com/' },
   },

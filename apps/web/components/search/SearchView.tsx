@@ -171,7 +171,12 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
 
       {/* Results */}
       {hasQuery && results.length > 0 && (
-        <ul ref={listRef} className="mt-4 divide-y divide-rule" role="listbox" aria-label={dict.searchHeading}>
+        <ul
+          ref={listRef}
+          className="mt-4 divide-y divide-rule"
+          role="listbox"
+          aria-label={dict.searchHeading}
+        >
           {results.map((r, i) => {
             const title = titleFor(r)
             const segs = highlightSegments(title, debounced)
@@ -220,7 +225,10 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
       {/* Empty: no query, but recents exist */}
       {showRecents && (
         <section className="mt-8">
-          <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
+          <p
+            className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
+            lang={locale === 'en' ? 'en' : 'ne'}
+          >
             {dict.searchRecent}
           </p>
           <ul className="mt-3 flex flex-wrap gap-2">

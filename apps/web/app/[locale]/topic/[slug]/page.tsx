@@ -107,6 +107,25 @@ export default async function TopicPage({
   )
 }
 
+/**
+ * Returns the category that appears most often in a list of story categories, or null when
+ * the list is empty. Ties resolve to the first-seen category so the back-link is stable.
+ */
+function mostCommonCategory(cats: CategoryRef[]): CategoryRef | null {
+  if (cats.length === 0) return null
+  const counts = new Map<string, { ref: CategoryRef; n: number }>()
+  for (const c of cats) {
+    const entry = counts.get(c.slug)
+    if (entry) entry.n += 1
+    else counts.set(c.slug, { ref: c, n: 1 })
+  }
+  let best: { ref: CategoryRef; n: number } | null = null
+  for (const entry of counts.values()) {
+    if (!best || entry.n > best.n) best = entry
+  }
+  return best?.ref ?? null
+}
+
 export async function generateMetadata({
   params,
   searchParams,

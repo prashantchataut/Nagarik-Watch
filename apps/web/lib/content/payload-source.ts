@@ -159,7 +159,7 @@ export function createPayloadContentSource(): ContentSource {
     async getStories(opts: StoryListOptions): Promise<PaginatedStories> {
       const payload = await getPayload()
       const page = opts.page ?? 1
-      const perPage = opts.limit && !opts.page ? opts.limit : opts.perPage ?? PER_PAGE
+      const perPage = opts.limit && !opts.page ? opts.limit : (opts.perPage ?? PER_PAGE)
       const where: Record<string, unknown> = { _status: { equals: 'published' } }
       if (opts.category) where['category.slug'] = { equals: opts.category }
       if (opts.locale === 'en') where.englishStatus = { equals: 'published' }
@@ -202,10 +202,18 @@ export function createPayloadContentSource(): ContentSource {
         limit: 50,
         depth: 0,
       })
-      const sections = (catDocs as unknown as PayloadDoc[]).map((c) => {
-        const items = cards.filter((x) => x.category.slug === String((c as { slug?: string }).slug))
-        return { category: asCategoryRef(c as CategoryField), lead: items[0], items: items.slice(1, 5) }
-      }).filter((s) => s.items.length > 0 || s.lead)
+      const sections = (catDocs as unknown as PayloadDoc[])
+        .map((c) => {
+          const items = cards.filter(
+            (x) => x.category.slug === String((c as { slug?: string }).slug),
+          )
+          return {
+            category: asCategoryRef(c as CategoryField),
+            lead: items[0],
+            items: items.slice(1, 5),
+          }
+        })
+        .filter((s) => s.items.length > 0 || s.lead)
       return { lead, secondary: cards.slice(1, 5), sections, breaking }
     },
 
@@ -260,12 +268,14 @@ export function createPayloadContentSource(): ContentSource {
         limit: 1,
         depth: 1,
       })
-      const doc = docs[0] as unknown as (PayloadDoc & {
-        role?: string
-        bio?: string
-        photo?: MediaField
-        isActive?: boolean
-      }) | undefined
+      const doc = docs[0] as unknown as
+        | (PayloadDoc & {
+            role?: string
+            bio?: string
+            photo?: MediaField
+            isActive?: boolean
+          })
+        | undefined
       if (!doc) return null
       const author: Author = {
         id: String(doc.id),
@@ -306,7 +316,10 @@ export function createPayloadContentSource(): ContentSource {
 function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
   const card = asCard(doc)
   const bodyNe = (doc.bodyNe as ArticleBlock[]) ?? []
-  const bodyEn = locale === 'en' ? ((doc.bodyEn as ArticleBlock[]) ?? undefined) : (doc.bodyEn as ArticleBlock[] | undefined)
+  const bodyEn =
+    locale === 'en'
+      ? ((doc.bodyEn as ArticleBlock[]) ?? undefined)
+      : (doc.bodyEn as ArticleBlock[] | undefined)
   const sourceType = String(doc.sourceType ?? 'original')
   return {
     ...card,

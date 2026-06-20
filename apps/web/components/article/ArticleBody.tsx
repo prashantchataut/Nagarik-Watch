@@ -37,11 +37,7 @@ export function ArticleBody({ blocks, locale, source, className }: ArticleBodyPr
       paragraphCount += 1
       if (!adInjected && paragraphCount >= AD_AFTER_PARAGRAPH) {
         out.push(
-          <AdSlot
-            key={`ad-${i}`}
-            label={dict.adLabel}
-            lang={locale === 'en' ? 'en' : 'ne'}
-          />,
+          <AdSlot key={`ad-${i}`} label={dict.adLabel} lang={locale === 'en' ? 'en' : 'ne'} />,
         )
         adInjected = true
       }
@@ -108,10 +104,7 @@ function BlockRenderer({ block, locale }: { block: ArticleBlock; locale: Locale 
       const quote = locale === 'en' && block.quoteEn ? block.quoteEn : block.quoteNe
       const quoteLang = locale === 'en' && block.quoteEn ? 'en' : 'ne'
       return (
-        <blockquote
-          className="my-2 rounded-sm bg-brand-tint px-6 py-5"
-          lang={quoteLang}
-        >
+        <blockquote className="my-2 rounded-sm bg-brand-tint px-6 py-5" lang={quoteLang}>
           <p className="font-display text-h3 leading-snug text-brand-strong">{quote}</p>
           {block.attribution && (
             <footer className="mt-3 text-meta font-semibold text-ink-soft">
@@ -208,10 +201,7 @@ function CorrectionNotice({ corrections, locale, className }: CorrectionNoticePr
   const dict = getDictionary(locale)
   return (
     <aside
-      className={cn(
-        'rounded-sm border border-rule bg-surface-raised px-5 py-4',
-        className,
-      )}
+      className={cn('rounded-sm border border-rule bg-surface-raised px-5 py-4', className)}
       aria-label={dict.correctionsHeading}
     >
       <p

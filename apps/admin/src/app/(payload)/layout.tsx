@@ -19,8 +19,7 @@ const serverFunction: ServerFunctionClient = (args) =>
     args: args.args,
   })
 
-const Layout = ({ children }: Args) =>
-  RootLayout({ config, importMap, children, serverFunction })
+const Layout = ({ children }: Args) => RootLayout({ config, importMap, children, serverFunction })
 
 export const metadata: Metadata = {
   title: 'Nagarik Watch CMS',

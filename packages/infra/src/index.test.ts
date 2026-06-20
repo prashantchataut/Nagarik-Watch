@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { _resetAdaptersForTest, getEdge, getStorage, noopEdgeAdapter, noopStorageAdapter } from './index'
+import {
+  _resetAdaptersForTest,
+  getEdge,
+  getStorage,
+  noopEdgeAdapter,
+  noopStorageAdapter,
+} from './index'
 
 const originalEdgeProvider = process.env.EDGE_PROVIDER
 const originalStorageEndpoint = process.env.STORAGE_ENDPOINT
@@ -54,8 +60,6 @@ describe('noop adapters are safe', () => {
   })
 
   it('noop edge purge resolves without error', async () => {
-    await expect(
-      noopEdgeAdapter.purge({ urls: ['/'], tags: ['home'] }),
-    ).resolves.toBeUndefined()
+    await expect(noopEdgeAdapter.purge({ urls: ['/'], tags: ['home'] })).resolves.toBeUndefined()
   })
 })

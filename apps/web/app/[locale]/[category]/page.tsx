@@ -41,7 +41,10 @@ export default async function CategoryPage({
   return (
     <div className="mx-auto max-w-page px-4 py-8">
       <header className="border-b border-rule pb-6">
-        <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={titleLang}>
+        <p
+          className="text-meta font-semibold uppercase tracking-wide text-brand-strong"
+          lang={titleLang}
+        >
           {dict.footerSections}
         </p>
         <h1 className="mt-1 font-display text-display text-ink" lang={titleLang}>

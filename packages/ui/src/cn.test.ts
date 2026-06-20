@@ -7,9 +7,7 @@ describe('cn', () => {
   })
 
   it('handles conditional and object syntax (clsx)', () => {
-    expect(cn('base', { active: true, hidden: false }, ['x', 'y'])).toBe(
-      'base active x y',
-    )
+    expect(cn('base', { active: true, hidden: false }, ['x', 'y'])).toBe('base active x y')
   })
 
   it('lets later Tailwind classes override earlier conflicting ones (twMerge)', () => {

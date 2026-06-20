@@ -38,9 +38,7 @@ export default buildConfig({
     meta: {
       titleSuffix: ' · Nagarik Watch CMS',
       title: 'नागरिक वाच',
-      icons: [
-        { type: 'icon', rel: 'icon', url: '/favicon.ico' },
-      ],
+      icons: [{ type: 'icon', rel: 'icon', url: '/favicon.ico' }],
     },
   },
   collections: [Users, Media, Categories, Authors, Tags, Articles],

@@ -144,21 +144,24 @@ export const Articles: CollectionConfig = {
       name: 'sourceName',
       type: 'text',
       admin: {
-        condition: (_, siblingData) => siblingData?.sourceType && siblingData.sourceType !== 'original',
+        condition: (_, siblingData) =>
+          siblingData?.sourceType && siblingData.sourceType !== 'original',
       },
     },
     {
       name: 'sourceUrl',
       type: 'text',
       admin: {
-        condition: (_, siblingData) => siblingData?.sourceType && siblingData.sourceType !== 'original',
+        condition: (_, siblingData) =>
+          siblingData?.sourceType && siblingData.sourceType !== 'original',
       },
     },
     {
       name: 'sourcePublishedAt',
       type: 'date',
       admin: {
-        condition: (_, siblingData) => siblingData?.sourceType && siblingData.sourceType !== 'original',
+        condition: (_, siblingData) =>
+          siblingData?.sourceType && siblingData.sourceType !== 'original',
       },
     },
     {

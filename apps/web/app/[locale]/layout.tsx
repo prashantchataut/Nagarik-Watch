@@ -29,7 +29,11 @@ export async function generateMetadata({
       template: `%s — ${dict.siteName}`,
     },
     description: dict.metaDescription,
-    openGraph: { type: 'website', siteName: dict.siteName, locale: locale === 'ne' ? 'ne_NP' : 'en_US' },
+    openGraph: {
+      type: 'website',
+      siteName: dict.siteName,
+      locale: locale === 'ne' ? 'ne_NP' : 'en_US',
+    },
     twitter: { card: 'summary_large_image' },
     alternates: {
       canonical: '/',
@@ -53,8 +57,7 @@ export default async function LocaleLayout({
   // dev and previews stay analytics-free and the script never loads without an explicit opt-in.
   // NEXT_PUBLIC_PLAUSIBLE_SRC allows pointing at a self-hosted endpoint instead of plausible.io.
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
-  const plausibleSrc =
-    process.env.NEXT_PUBLIC_PLAUSIBLE_SRC ?? 'https://plausible.io/js/script.js'
+  const plausibleSrc = process.env.NEXT_PUBLIC_PLAUSIBLE_SRC ?? 'https://plausible.io/js/script.js'
 
   return (
     <html lang={locale} dir="ltr" className={fontVariables} suppressHydrationWarning>
@@ -68,13 +71,7 @@ export default async function LocaleLayout({
             __html: `(function(){try{var s=localStorage.getItem('nw-theme');var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var t=s==='dark'||s==='light'?s:(m?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`,
           }}
         />
-        {plausibleDomain && (
-          <script
-            defer
-            data-domain={plausibleDomain}
-            src={plausibleSrc}
-          />
-        )}
+        {plausibleDomain && <script defer data-domain={plausibleDomain} src={plausibleSrc} />}
       </head>
       <body className="min-h-screen bg-surface text-ink font-sans antialiased">
         <a

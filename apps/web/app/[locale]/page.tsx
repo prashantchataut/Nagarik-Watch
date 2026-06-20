@@ -30,9 +30,7 @@ export default async function HomePage({ params }: { params: Promise<Params> }) 
 
   return (
     <div>
-      {data.breaking.length > 0 && (
-        <BreakingTicker stories={data.breaking} locale={locale} />
-      )}
+      {data.breaking.length > 0 && <BreakingTicker stories={data.breaking} locale={locale} />}
 
       <div className="mx-auto max-w-page px-4 py-8">
         <div className="grid gap-10 lg:grid-cols-3">

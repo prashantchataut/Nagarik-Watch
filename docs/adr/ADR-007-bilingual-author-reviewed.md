@@ -51,7 +51,7 @@ Adopt an **author-reviewed bilingual model** with these rules:
 - **Trust:** readers see only human-vetted content in either language. The brand never
   vouches for machine output.
 - **Quality:** on-point English requires a human translator/editor; the workflow makes
-   that explicit and resourced, not accidental.
+  that explicit and resourced, not accidental.
 - **Simplicity of the toggle:** it becomes a pure content filter, so the UX is honest and
   predictable, "no English version" means the story is absent from `/en`, not badly
   translated.
@@ -63,26 +63,26 @@ Adopt an **author-reviewed bilingual model** with these rules:
 
 The `Article` collection gains explicit bilingual body fields and a translation workflow:
 
-| Field             | Type                | Notes                                                       |
+| Field | Type | Notes |
 |, , , , , -|, , , , , -|, , , , , , , , , , , , , , , |
-| `titleNe`         | text                | Required. Devanagari headline.                             |
-| `bodyNe`          | richText (blocks)   | Required. Nepali body.                                      |
-| `titleEn`         | text                | Optional. English headline; only if an English version exists. |
-| `bodyEn`          | richText (blocks)   | Optional. English body.                                     |
-| `deckNe`/`deckEn` | textarea            | Per-language deck.                                          |
-| `englishStatus`   | select              | `none` \| `requested` \| `in_progress` \| `ready` \| `published`. Default `none`. |
-| `englishBy`       | relationship → User | The translator/editor responsible for the English version. |
-| `hasEnglish`      | (derived)           | True only when `englishStatus = published` AND `titleEn`+`bodyEn` present. Drives `/en` visibility. |
+| `titleNe` | text | Required. Devanagari headline. |
+| `bodyNe` | richText (blocks) | Required. Nepali body. |
+| `titleEn` | text | Optional. English headline; only if an English version exists. |
+| `bodyEn` | richText (blocks) | Optional. English body. |
+| `deckNe`/`deckEn` | textarea | Per-language deck. |
+| `englishStatus` | select | `none` \| `requested` \| `in_progress` \| `ready` \| `published`. Default `none`. |
+| `englishBy` | relationship → User | The translator/editor responsible for the English version. |
+| `hasEnglish` | (derived) | True only when `englishStatus = published` AND `titleEn`+`bodyEn` present. Drives `/en` visibility. |
 
-`locale` (the *primary* language of the piece) is retained: a story can be `ne`-primary
-(usual) or `en`-primary (rare; an English-first wire/origin item translated *into* Nepali).
+`locale` (the _primary_ language of the piece) is retained: a story can be `ne`-primary
+(usual) or `en`-primary (rare; an English-first wire/origin item translated _into_ Nepali).
 
 ## Effect on the site (web)
 
 - **`/` serves Nepali** (all stories); **`/en` serves English** (only `hasEnglish`
   stories). The toggle switches path + `html[lang]`.
 - A Nepali-only story's page offers **no** "Read in English" CTA if `englishStatus ≠
-  published` (we do not tease or auto-translate). If an English version exists, a clear
+published` (we do not tease or auto-translate). If an English version exists, a clear
   "English" link appears and vice versa.
 - hreflang on article pages points to the sibling locale only when both exist.
 - Search is per-locale (Phase 2 FTS indexes `titleNe`+`bodyNe` and `titleEn`+`bodyEn`
@@ -133,7 +133,7 @@ translated one. This is consistent with PRODUCT.md's "reader trust above all."
 
 - **Translator role:** add a dedicated `translator` role or extend `copyeditor`? Decide in
   Phase 2 (lean: dedicated capability, same login).
-- **Optional CMS aid:** may we offer a *clearly-labeled, never-published* MT draft assist
+- **Optional CMS aid:** may we offer a _clearly-labeled, never-published_ MT draft assist
   (e.g. Google Translate pre-fill) that a human translator then fully rewrites? Acceptable
   only if it can never reach the public site and is opt-in per editor. Default: off.
 - **Translation memory / glossary:** maintain a Nepali↔English term glossary (proper nouns,

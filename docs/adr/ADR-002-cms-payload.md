@@ -22,14 +22,14 @@ The portal needs a content management system that supports:
 
 ## Alternatives considered
 
-| Option        | Pros                                            | Cons                                                    |
+| Option | Pros | Cons |
 |, , , , -|, , , , , , , , , , , , -|, , , , , , , , , , , , , , -|
-| **Sanity**    | Best-in-class editor UX, GROQ, real-time, CDN   | Managed-only; per-editor pricing; content lives in their cloud; vendor lock-in |
-| **Strapi**    | Self-hosted, mature, plugin ecosystem           | Less TypeScript-native; admin UX heavier; v4→v5 churn   |
-| **Contentful / Storyblok** | Managed, reliable                   | Per-seat/entry pricing gets expensive for a newsroom; data not ours |
-| **WordPress (headless)** | Huge ecosystem, familiar to editors  | PHP stack breaks monorepo TS story; REST/GraphQL plugin sprawl; security surface; weak type story for Next.js |
-| **Directus**  | DB-first, self-hosted, TypeScript               | Good option; less purpose-built for editorial rich-text + blocks than Payload |
-| **Custom CMS**| Total control                                   | Enormous build cost; reinvents access control, media, revisions, unjustified for solo dev |
+| **Sanity** | Best-in-class editor UX, GROQ, real-time, CDN | Managed-only; per-editor pricing; content lives in their cloud; vendor lock-in |
+| **Strapi** | Self-hosted, mature, plugin ecosystem | Less TypeScript-native; admin UX heavier; v4→v5 churn |
+| **Contentful / Storyblok** | Managed, reliable | Per-seat/entry pricing gets expensive for a newsroom; data not ours |
+| **WordPress (headless)** | Huge ecosystem, familiar to editors | PHP stack breaks monorepo TS story; REST/GraphQL plugin sprawl; security surface; weak type story for Next.js |
+| **Directus** | DB-first, self-hosted, TypeScript | Good option; less purpose-built for editorial rich-text + blocks than Payload |
+| **Custom CMS**| Total control | Enormous build cost; reinvents access control, media, revisions, unjustified for solo dev |
 
 ## Decision
 

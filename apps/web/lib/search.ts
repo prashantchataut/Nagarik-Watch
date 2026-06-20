@@ -151,7 +151,10 @@ export function highlightSegments(
   display: string,
   query: string,
 ): { text: string; match: boolean }[] {
-  const terms = normalize(query).split(' ').filter(Boolean).sort((a, b) => b.length - a.length)
+  const terms = normalize(query)
+    .split(' ')
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length)
   if (terms.length === 0) return [{ text: display, match: false }]
 
   const lower = display.toLowerCase()

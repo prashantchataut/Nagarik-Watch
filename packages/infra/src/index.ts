@@ -72,10 +72,8 @@ export function getEdge(): EdgeAdapter {
 /** Lazily resolve the storage adapter. Falls back to noop if STORAGE_* is unset. */
 export function getStorage(): StorageAdapter {
   if (cachedStorage) return cachedStorage
-  const hasS3Config = Boolean(
-    process.env.STORAGE_ENDPOINT && process.env.STORAGE_ACCESS_KEY_ID,
-  )
-  cachedStorage = hasS3Config ? storageAdapters['s3'] ?? noopStorageAdapter : noopStorageAdapter
+  const hasS3Config = Boolean(process.env.STORAGE_ENDPOINT && process.env.STORAGE_ACCESS_KEY_ID)
+  cachedStorage = hasS3Config ? (storageAdapters['s3'] ?? noopStorageAdapter) : noopStorageAdapter
   return cachedStorage
 }
 

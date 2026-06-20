@@ -21,7 +21,8 @@ type SectionBlockProps = {
  */
 export function SectionBlock({ section, locale, className }: SectionBlockProps) {
   const dict = getDictionary(locale)
-  const name = locale === 'en' && section.category.nameEn ? section.category.nameEn : section.category.nameNe
+  const name =
+    locale === 'en' && section.category.nameEn ? section.category.nameEn : section.category.nameNe
   const titleLang = locale === 'en' && section.category.nameEn ? 'en' : 'ne'
   const sectionHref = localizeHref(locale, `/${section.category.slug}`)
 

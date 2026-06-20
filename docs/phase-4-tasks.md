@@ -10,12 +10,14 @@
 > PRODUCT.md principle 4 (ads never poison UX).
 
 ## Overview
+
 Phase 1 proved the `AdSlot` pipeline on AdSense. Phase 4 widens the **inventory**, swaps
 the **fill** to GAM (direct + programmatic), adds **sponsored content** as a first-class
 labeled type, and installs an **ad-performance view**. Reader-side components stay the
 same; configuration + fill logic evolve.
 
 ## Architecture decisions active this phase
+
 - ADR-006 (phased ad stack: AdSense → GAM; sponsored as a type; ad-block recovery).
 - Cookie consent / CMP is wired in Phase 5; here GAM runs in consent-aware mode
   (consent mode default-deny until the banner ships)., -
@@ -23,12 +25,14 @@ same; configuration + fill logic evolve.
 ## Task list
 
 ### Task 4.1: Define canonical ad placements + sizes
+
 **Description:** write `docs/ad-placements.md` (ADR-006 open item) listing every placement
 key, its reader label, reserved sizes, lazy-load policy, and where it appears. Encode as
 the `AdSlot` collection seed.
+
 - **Acceptance:**
   - [ ] Placements: header leaderboard, in-feed (home), in-article ×2, sidebar (desktop),
-    footer, and sponsored rails. Each has a reserved size.
+        footer, and sponsored rails. Each has a reserved size.
   - [ ] No placement between every paragraph; no full-screen/interstitial/popup.
   - [ ] `AdSlot` collection seeded with these keys.
 - **Verify:** review the doc with the founder; render each placement on a staging page.
@@ -37,8 +41,10 @@ the `AdSlot` collection seed.
 - **Size:** M.
 
 ### Task 4.2: Migrate fill from AdSense to GAM
+
 **Description:** wire Google Ad Manager as the primary fill behind the same `AdSlot`
 component; keep AdSense as a backfill. Lazy-load, reserved sizes, consent-aware.
+
 - **Acceptance:**
   - [ ] GAM tags load lazily; slots fill; CLS unaffected.
   - [ ] AdSense backfills when GAM has no fill.
@@ -49,21 +55,26 @@ component; keep AdSense as a backfill. Lazy-load, reserved sizes, consent-aware.
 - **Size:** M.
 
 ### Task 4.3: Direct-sold / house / sponsorship line items
+
 **Description:** support direct-sold and house (self-promo) campaigns via GAM line items
-+ the `AdSlot.targeting` fields (category/tag/locale), so a sponsor can buy, say, "all
-sports pages for a week."
-- **Acceptance:**
+
+- the `AdSlot.targeting` fields (category/tag/locale), so a sponsor can buy, say, "all
+  sports pages for a week."
+
+* **Acceptance:**
   - [ ] A direct line item targets a category and renders in the right slots.
   - [ ] House promos fill otherwise-empty inventory.
-- **Verify:** create a test line item; confirm targeting + delivery.
-- **Dependencies:** 4.2.
-- **Files:** GAM setup (out of repo), `AdSlot.targeting` usage in components.
-- **Size:** S.
+* **Verify:** create a test line item; confirm targeting + delivery.
+* **Dependencies:** 4.2.
+* **Files:** GAM setup (out of repo), `AdSlot.targeting` usage in components.
+* **Size:** S.
 
 ### Task 4.4: Sponsored content type end to end
+
 **Description:** implement `SponsoredContent` (content-model.md §8): inherits the Article
 model, hard-sets `isSponsored=true` (read-only), mandatory `sponsor` + optional logo/URL,
 and a `SponsoredBadge` rendered on the card, page header, and sponsored rails.
+
 - **Acceptance:**
   - [ ] Creating a SponsoredContent requires the sponsor field; `isSponsored` cannot be unset.
   - [ ] Badge is unmissable; blind-test distinguishable (SPEC.md criterion).
@@ -75,8 +86,10 @@ and a `SponsoredBadge` rendered on the card, page header, and sponsored rails.
 - **Size:** M.
 
 ### Task 4.5: Sponsored rails on home + category
+
 **Description:** dedicated, clearly labeled sponsored rails ("प्रायोजित") on the home and
 category pages, fed only by `SponsoredContent`.
+
 - **Acceptance:**
   - [ ] Rails render only when sponsored items exist; labeled at the rail and item level.
   - [ ] No sponsored item appears in editorial rails.
@@ -86,8 +99,10 @@ category pages, fed only by `SponsoredContent`.
 - **Size:** S.
 
 ### Task 4.6: Ad-block recovery (polite)
+
 **Description:** a non-hostile message asking ad-block users to allowlist or fund via
 newsletter/support; no anti-adblock warfare. Replaces blocked slots with a house message.
+
 - **Acceptance:**
   - [ ] Ad-block users see a polite, on-brand message, not broken slots.
   - [ ] No hostile lockout or nag loops.
@@ -97,8 +112,10 @@ newsletter/support; no anti-adblock warfare. Replaces blocked slots with a house
 - **Size:** S.
 
 ### Task 4.7: Ad-performance dashboard
+
 **Description:** an internal view (admin-only) surfacing fill rate, viewability, revenue
 (by placement/category), pulling from GAM reporting. Plausible/GA4 for reader-side engagement.
+
 - **Acceptance:**
   - [ ] Dashboard shows per-placement and site-wide metrics, refreshed daily.
   - [ ] Accessible only to `admin`/`publisher`.
@@ -108,8 +125,10 @@ newsletter/support; no anti-adblock warfare. Replaces blocked slots with a house
 - **Size:** M.
 
 ### Task 4.8: Viewability + lazy-load tuning
+
 **Description:** tune lazy-load thresholds and slot sizing for viewability (ads lazy enough
 not to hurt perf, eager enough to count as viewable). Reserve sizes rigorously.
+
 - **Acceptance:**
   - [ ] Viewability rate improves vs Phase-1 baseline without regressing LCP/CLS.
   - [ ] No slot causes layout shift on load or fill.
@@ -119,6 +138,7 @@ not to hurt perf, eager enough to count as viewable). Reserve sizes rigorously.
 - **Size:** S., -
 
 ## Checkpoint: Phase 4 → Phase 5 gate
+
 - [ ] GAM live with direct + programmatic; AdSense backfilling.
   - [ ] Sponsored content shipped; blind-test distinguishable.
 - [ ] No UX regression: Lighthouse budgets still green; no interstitials/popups.
@@ -126,6 +146,7 @@ not to hurt perf, eager enough to count as viewable). Reserve sizes rigorously.
 - [ ] Founder + (if present) sales lead review the inventory + rate card process.
 
 ## Risks this phase surfaces
+
 | Risk | Mitigation |
 |, -|, -|
 | GAM setup is complex for a solo dev | Treat as a focused, time-boxed task; lean on Google's docs; keep AdSense as fallback until GAM is verified |

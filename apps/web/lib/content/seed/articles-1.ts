@@ -18,7 +18,8 @@ export const articlesBatch1: Article[] = [
     titleNe: 'अर्थमन्त्रीले आगामी बजेटमा पूर्वाधारमा रकम बढाउने जनाए',
     titleEn: 'Finance minister signals higher infrastructure spending in coming budget',
     deckNe: 'आर्थिक वर्ष २०८३/८४ को बजेटमा सडक, सिँचाइ र ऊर्जालाई प्राथमिकता दिने तयारी।',
-    deckEn: 'Roads, irrigation and energy are being lined up as priorities for fiscal year 2083/84.',
+    deckEn:
+      'Roads, irrigation and energy are being lined up as priorities for fiscal year 2083/84.',
     heroImage: unsplash('1450101499163-c8848c66ca85', 'संसद् भवनको बाहिरी दृश्य, काठमाडौं', {
       ...{ w: 1600, h: 900 },
       credit: 'Unsplash',
@@ -31,9 +32,7 @@ export const articlesBatch1: Article[] = [
     hasEnglish: true,
     isBreaking: false,
     readingMinutes: 4,
-    tags: [
-      { id: 'tag-budget', slug: 'budget-2083', nameNe: 'बजेट २०८३', nameEn: 'Budget 2083' },
-    ],
+    tags: [{ id: 'tag-budget', slug: 'budget-2083', nameNe: 'बजेट २०८३', nameEn: 'Budget 2083' }],
     bodyNe: [
       {
         type: 'paragraph',
@@ -79,7 +78,8 @@ export const articlesBatch1: Article[] = [
       },
     ],
     seoDescriptionNe: 'अर्थमन्त्रीले आगामी बजेटमा पूर्वाधारमा रकम बढाउने जनाएका छन्।',
-    seoDescriptionEn: 'The finance minister has flagged higher infrastructure spending in the upcoming budget.',
+    seoDescriptionEn:
+      'The finance minister has flagged higher infrastructure spending in the upcoming budget.',
   },
   {
     id: 'art-002',
@@ -147,7 +147,8 @@ export const articlesBatch1: Article[] = [
     categoryLabel: 'समाज',
     titleNe: 'मनसुनको सुरुवातसँगै विद्यालय खुले, सुरक्षित यात्राको जोड',
     titleEn: 'Schools reopen with the monsoon, focus on safe travel',
-    deckNe: 'जिल्ला शिक्षा कार्यालयले बाटो खतरनाक भएका क्षेत्रमा विशेष सावधानी अपनाउन निर्देशन दिएको छ।',
+    deckNe:
+      'जिल्ला शिक्षा कार्यालयले बाटो खतरनाक भएका क्षेत्रमा विशेष सावधानी अपनाउन निर्देशन दिएको छ।',
     heroImage: unsplash('1503676260728-1c00da094a0b', 'विद्यालयका विद्यार्थी', {
       ...{ w: 1600, h: 900 },
       credit: 'Unsplash',

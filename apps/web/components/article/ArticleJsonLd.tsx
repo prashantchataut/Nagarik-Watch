@@ -22,7 +22,7 @@ export function ArticleJsonLd({ article, locale, url, siteUrl, siteName }: JsonL
   const description =
     locale === 'en' && article.seoDescriptionEn
       ? article.seoDescriptionEn
-      : article.seoDescriptionNe ?? article.deckNe
+      : (article.seoDescriptionNe ?? article.deckNe)
 
   const authorNames = article.source
     ? [article.source.sourceName]
@@ -33,9 +33,7 @@ export function ArticleJsonLd({ article, locale, url, siteUrl, siteName }: JsonL
     name,
   }))
 
-  const image = article.heroImage
-    ? [article.heroImage.url]
-    : undefined
+  const image = article.heroImage ? [article.heroImage.url] : undefined
 
   const json = {
     '@context': 'https://schema.org',
@@ -60,13 +58,12 @@ export function ArticleJsonLd({ article, locale, url, siteUrl, siteName }: JsonL
     },
     inLanguage: locale === 'en' ? 'en' : 'ne-NP',
     articleSection:
-      locale === 'en' && article.category.nameEn ? article.category.nameEn : article.category.nameNe,
+      locale === 'en' && article.category.nameEn
+        ? article.category.nameEn
+        : article.category.nameNe,
   }
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }} />
   )
 }

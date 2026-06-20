@@ -9,20 +9,24 @@
 > acceptance + verification, checkpoints. Reference: content-model.md, editorial-workflow.md.
 
 ## Overview
+
 Phase 1 shipped a publishable Article/Category; Phase 2 deepens the CMS to the full
 content model and the workflow rules, plus ingestion. The reader site gains **search** and
 **author/topic** polish, and consumes the new content types as they arrive.
 
 ## Architecture decisions active this phase
+
 - ADR-002 (Payload), ADR-005 (Postgres FTS for search), editorial-workflow.md (roles +
   attribution rules), content-model.md (full model)., -
 
 ## Task list
 
 ### Task 2.1: Roles + RBAC in Payload
+
 **Description:** implement the five roles (`author`, `copyeditor`, `editor`, `publisher`,
 `admin`) with access policies matching editorial-workflow.md §1. Enforce the breaking-flag
 permission and the "author cannot self-publish" rule.
+
 - **Acceptance:**
   - [ ] Each role sees/edits/publishes exactly what the matrix allows.
   - [ ] `isBreaking=true` rejected for non-`editor`/`publisher` (or non-section).
@@ -33,9 +37,11 @@ permission and the "author cannot self-publish" rule.
 - **Size:** M.
 
 ### Task 2.2: Draft → review → publish workflow stage
+
 **Description:** add a `workflowStage` field + the state machine from editorial-workflow.md
 §2 (draft/review/scheduled/published/unpublished), with the review queue UI and
 "request changes" back-transition.
+
 - **Acceptance:**
   - [ ] Review queue lists `review` items oldest-first, filterable by section.
   - [ ] Only the permitted roles advance/reject each transition.
@@ -46,8 +52,10 @@ permission and the "author cannot self-publish" rule.
 - **Size:** M.
 
 ### Task 2.3: Revisions + scheduling
+
 **Description:** enable Payload revisions (keep last 25, ADR-002 open item), diff/rollback
 UI, and scheduled publishing via `publishAt`.
+
 - **Acceptance:**
   - [ ] Saving a published article creates a revision; rollback works.
   - [ ] Future `publishAt` hides the story until then; scheduler publishes it automatically.
@@ -58,8 +66,10 @@ UI, and scheduled publishing via `publishAt`.
 - **Size:** M.
 
 ### Task 2.4: Media library with alt-text enforcement
+
 **Description:** stand up the `Media` collection (content-model.md §5) with **required alt
 text**, credit/caption/license/sourceUrl fields, width/height capture for reserved sizes.
+
 - **Acceptance:**
   - [ ] Upload rejects an image with empty alt (client + server validation).
   - [ ] Object-storage adapter works (default R2; swappable per ADR-003); served via `next/image` transforms.
@@ -70,9 +80,11 @@ text**, credit/caption/license/sourceUrl fields, width/height capture for reserv
 - **Size:** M.
 
 ### Task 2.5: Taxonomy, Tags/Topics + Author (columnist) pages
+
 **Description:** add `Tag`, `Author` collections (content-model.md §3–4), wire Author to
 the existing author page, enrich Topic pages, and add columnist support (role + column
 category).
+
 - **Acceptance:**
   - [ ] Authors have bio/photo/social; author pages list their work.
   - [ ] Tags drive topic pages across categories.
@@ -83,8 +95,10 @@ category).
 - **Size:** M.
 
 ### Task 2.6: Source attribution enforcement + on-site rendering
+
 **Description:** hard-enforce the attribution rules (content-model.md §1, editorial-
 workflow.md §3) and render the linked attribution line for `aggregated`/`wire` articles.
+
 - **Acceptance:**
   - [ ] Cannot save/publish `sourceType ≠ original` without `sourceName`+`sourceUrl`+`sourcePublishedAt`.
   - [ ] On-site attribution line links to the origin; cannot be removed by editing copy.
@@ -94,9 +108,11 @@ workflow.md §3) and render the linked attribution line for `aggregated`/`wire` 
 - **Size:** S.
 
 ### Task 2.7: Search (Postgres FTS) end to end
+
 **Description:** add a `tsvector` index on Article title + deck + body (per locale), a
 Payload-backed search query, and `/[locale]/search?q=` page with result cards + empty
 state + recent searches.
+
 - **Acceptance:**
   - [ ] Search returns relevant results in both locales (Devanagari + Latin).
   - [ ] Empty/no-result states are helpful and on-brand.
@@ -107,8 +123,10 @@ state + recent searches.
 - **Size:** M.
 
 ### Task 2.8: Menu manager (globals)
+
 **Description:** implement the `Menu` globals (primary/footer/mobile/utility) editable in
 the CMS (content-model.md §6, §10) consumed by the chrome components.
+
 - **Acceptance:**
   - [ ] Editors reorder nav without code changes; one level of nested children supported.
   - [ ] Chrome reflects menu changes after publish revalidate.
@@ -118,21 +136,26 @@ the CMS (content-model.md §6, §10) consumed by the chrome components.
 - **Size:** M.
 
 ### Task 2.9: Wire/RSS ingestion pipeline
+
 **Description:** build `packages/ingest`: configurable RSS/wire sources, fetch + normalize
-+ dedupe (by sourceUrl + title hash), sanitize HTML, re-host images to R2 with alt text,
-and create **draft** `wire` Articles in the review queue.
-- **Acceptance:**
+
+- dedupe (by sourceUrl + title hash), sanitize HTML, re-host images to R2 with alt text,
+  and create **draft** `wire` Articles in the review queue.
+
+* **Acceptance:**
   - [ ] Cron pulls feeds on schedule; new items appear as drafts for editor review.
   - [ ] No raw HTML is injected (sanitized); images re-hosted.
   - [ ] Duplicate items across feeds are deduped, not double-created.
-- **Verify:** point at a real RSS feed; ingest; see drafts appear; reject the bad ones.
-- **Dependencies:** 2.4, 2.6.
-- **Files:** `packages/ingest/src/{index.ts,sources.ts,sanitize.ts,dedupe.ts}`, cron config.
-- **Size:** M (split if needed: ingest-core / sanitize-dedupe).
+* **Verify:** point at a real RSS feed; ingest; see drafts appear; reject the bad ones.
+* **Dependencies:** 2.4, 2.6.
+* **Files:** `packages/ingest/src/{index.ts,sources.ts,sanitize.ts,dedupe.ts}`, cron config.
+* **Size:** M (split if needed: ingest-core / sanitize-dedupe).
 
 ### Task 2.10: Publish webhook + revalidate hardening
+
 **Description:** make the publish→revalidate webhook robust: HMAC-signed, idempotent,
 tag-based cache purge, with a periodic sitemap-driven revalidation sweep as a backstop.
+
 - **Acceptance:**
   - [ ] Unsigned/forged webhooks rejected.
   - [ ] Repeated publishes don't cause duplicate work (idempotent).
@@ -143,8 +166,10 @@ tag-based cache purge, with a periodic sitemap-driven revalidation sweep as a ba
 - **Size:** M.
 
 ### Task 2.11: Breaking ticker global + push stub
+
 **Description:** implement the `BreakingTicker` global; render the ticker from it; enqueue
 a (no-op in Phase 2) push event respecting the rate cap. Real push ships in Phase 3.
+
 - **Acceptance:**
   - [ ] `publisher` sets a breaking item; ticker site-wide reflects it within seconds.
   - [ ] Rate cap enforced; over-cap noted to the editor.
@@ -155,8 +180,10 @@ a (no-op in Phase 2) push event respecting the rate cap. Real push ships in Phas
 - **Size:** M.
 
 ### Task 2.12: Corrections & updates UX
+
 **Description:** surface `corrections[]` as a visible dated notice and the "यो लेख अपडेट
 भएको छ" update notice when `updatedAt ≠ publishedAt` (editorial-workflow.md §5).
+
 - **Acceptance:**
   - [ ] Correction notice renders above the body with date + summary.
   - [ ] Update notice renders when the article was edited after publishing.
@@ -166,6 +193,7 @@ a (no-op in Phase 2) push event respecting the rate cap. Real push ships in Phas
 - **Size:** S., -
 
 ## Checkpoint: Phase 2 → Phase 3 gate
+
 - [ ] A journalist can take a tip → published (or scheduled) entirely in the CMS, under
       the correct role rules, in < 10 minutes (SPEC.md success criterion).
 - [ ] Aggregated/wire attribution is enforced and rendered; sponsored type not yet (Phase 4).
@@ -175,6 +203,7 @@ a (no-op in Phase 2) push event respecting the rate cap. Real push ships in Phas
 - [ ] Editorial review: walk the full workflow as each role.
 
 ## Risks this phase surfaces
+
 | Risk | Mitigation |
 |, -|, -|
 | Devanagari FTS relevance poor (ADR-005) | Spike tokenizer early in 2.7; fall back to a custom dictionary or move that field to Meilisearch sooner |

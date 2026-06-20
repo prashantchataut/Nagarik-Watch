@@ -45,7 +45,10 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
           </Link>
 
           <div className="flex items-center gap-3">
-            <span className="hidden text-meta text-ink-soft sm:inline" lang={locale === 'en' ? 'en' : 'ne'}>
+            <span
+              className="hidden text-meta text-ink-soft sm:inline"
+              lang={locale === 'en' ? 'en' : 'ne'}
+            >
               {dict.mastheadDate(dateLabel)}
             </span>
             <Link

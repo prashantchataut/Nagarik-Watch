@@ -42,11 +42,7 @@ export default async function SearchPage({ params }: { params: Promise<Params> }
   return <SearchView locale={locale} corpus={corpus} />
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale: rawLocale } = await params
   const locale: Locale = asLocale(rawLocale)
   const dict = getDictionary(locale)

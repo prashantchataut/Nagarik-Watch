@@ -13,14 +13,17 @@ DoIB registration started, accounts) in motion. When Phase 0 ends, Phase 1 start
 clean, building, lint-green, CI-passing foundation.
 
 ## Architecture decisions active this phase
+
 - All decisions in `docs/adr/ADR-001..006` are the reference; nothing here overrides them.
 - ADR-004 (origin) is **intentionally deferred**, Phase 0 work is origin-agnostic., -
 
 ## Task list
 
 ### Task 0.1: Monorepo scaffolding
+
 **Description:** create the pnpm + Turborepo workspace structure with the three apps and
 three packages, base tsconfig, and a clean first build.
+
 - **Acceptance:**
   - [ ] `apps/web`, `apps/admin`, `packages/{db,ui,ingest}` exist and are workspace members.
   - [ ] `pnpm install` runs clean; `pnpm -v` ≥ 9.
@@ -32,8 +35,10 @@ three packages, base tsconfig, and a clean first build.
 - **Size:** M.
 
 ### Task 0.2: Next.js web app shell
+
 **Description:** initialize `apps/web` with Next.js 15 App Router + TypeScript + Tailwind,
 running on the standard dev port.
+
 - **Acceptance:**
   - [ ] `pnpm, filter web dev` serves a stub homepage at `localhost:3000`.
   - [ ] App Router layout under `app/[locale]/` with `ne` and `en` locale folders.
@@ -44,8 +49,10 @@ running on the standard dev port.
 - **Size:** M.
 
 ### Task 0.3: Payload CMS admin app shell
+
 **Description:** initialize `apps/admin` with Payload 3 (Next.js-integrated), Postgres
 adapter configured, a single `users` collection, and the admin UI reachable.
+
 - **Acceptance:**
   - [ ] `pnpm, filter admin dev` serves Payload admin at `/admin`.
   - [ ] Postgres connection works (local or containerized).
@@ -56,11 +63,13 @@ adapter configured, a single `users` collection, and the admin UI reachable.
 - **Size:** M.
 
 ### Task 0.4: Design tokens package + Tailwind preset
+
 **Description:** encode the chosen palette (from DESIGN.md, once picked) as CSS variables
 in `packages/ui` and expose a Tailwind preset that web consumes.
+
 - **Acceptance:**
   - [ ] `packages/ui` exports `tokens.css` (OKLCH vars for brand/ink/surface/rule/etc.)
-    and `tailwind-preset.js`.
+        and `tailwind-preset.js`.
   - [ ] Web app consumes the preset and a test element renders in `brand` color.
   - [ ] No `#000` / `#fff` anywhere, all neutrals are tinted.
 - **Verify:** a temporary page renders a `bg-brand` element; computed color is the OKLCH value.
@@ -69,13 +78,15 @@ in `packages/ui` and expose a Tailwind preset that web consumes.
 - **Size:** M.
 
 ### Task 0.5: Devanagari + Latin fonts wired
+
 **Description:** self-host Noto Sans Devanagari, Mukta, and Inter (OFL) and wire them
 through `next/font` with proper `font-display` and a Devanagari-appropriate line-height
 baseline.
+
 - **Acceptance:**
   - [ ] Fonts load from local files (no Google Fonts runtime request), privacy + perf.
   - [ ] A Nepali paragraph renders in Noto Sans Devanagari with correct matras; an English
-    paragraph renders in Inter.
+        paragraph renders in Inter.
   - [ ] Lighthouse "Eliminate render-blocking" shows no external font hosts.
 - **Verify:** visual check of a bilingual stub page; network tab shows no fonts.googleapis.com.
 - **Dependencies:** 0.2.
@@ -83,12 +94,14 @@ baseline.
 - **Size:** S.
 
 ### Task 0.6: Date / i18n / slug helpers (in `packages/db` + `apps/web/lib`)
+
 **Description:** build and unit-test the core helpers everything depends on: BS/AD date
 conversion, locale-aware date formatting, Devanagari numeral formatting, Latin slug
 transliteration from Devanagari.
+
 - **Acceptance:**
   - [ ] `formatDate(iso, 'ne')` returns a BS string with Devanagari numerals; `'en'`
-    returns AD with Latin numerals.
+        returns AD with Latin numerals.
   - [ ] `toSlug("नेपाली राजनीति")` returns a stable lowercase Latin slug.
   - [ ] Unit tests cover edge cases (matras, conjuncts, leading/trailing spaces).
 - **Verify:** `pnpm test` green for these helpers.
@@ -97,8 +110,10 @@ transliteration from Devanagari.
 - **Size:** M.
 
 ### Task 0.7: Lint/format/typecheck + CI
+
 **Description:** ESLint (Next + Payload configs), Prettier, strict TS, and a GitHub
 Actions workflow that runs install/lint/typecheck/test on every PR.
+
 - **Acceptance:**
   - [ ] `pnpm lint`, `pnpm format:check`, `pnpm typecheck` all green on a clean repo.
   - [ ] `.github/workflows/ci.yml` runs the matrix on push + PR; fails the build on red.
@@ -109,8 +124,10 @@ Actions workflow that runs install/lint/typecheck/test on every PR.
 - **Size:** M.
 
 ### Task 0.8: Environments, secrets hygiene, `.env.example`
+
 **Description:** define the env var contract for web + admin; ship `.env.example`; wire a
 tiny typed env loader (zod-validated) so missing/invalid env fails fast at boot.
+
 - **Acceptance:**
   - [ ] `.env.example` documents every var (DB url, payload secret, R2 keys, etc.).
   - [ ] `.gitignore` excludes `.env*` (except `.env.example`).
@@ -121,8 +138,10 @@ tiny typed env loader (zod-validated) so missing/invalid env fails fast at boot.
 - **Size:** S.
 
 ### Task 0.9: Domain + DNS + Cloudflare account (operational)
+
 **Description:** register `nagarikwatch.com` (+ `.com.np` if a Nepali entity exists),
 point nameservers to Cloudflare, set up the account, and create R2 + API tokens.
+
 - **Acceptance:**
   - [ ] Domain registered; DNS resolves; Cloudflare is authoritative.
   - [ ] R2 bucket created; scoped API tokens stored in the secret store (not in repo).
@@ -134,9 +153,11 @@ point nameservers to Cloudflare, set up the account, and create R2 + API tokens.
 - **Size:** S (operational).
 
 ### Task 0.10: DoIB registration kick-off (operational)
+
 **Description:** begin Nepal's Department of Information & Broadcasting online media
 registration (requires company registration first). This is a business task; track it
 here because it gates public launch.
+
 - **Acceptance:**
   - [ ] Company registration initiated (if not already a registered entity).
   - [ ] DoIB application submitted (NPR 5,000 fee).
@@ -147,8 +168,10 @@ here because it gates public launch.
 - **Size:** operational.
 
 ### Task 0.11: Confirm seed categories + masthead wordmark direction
+
 **Description:** finalize the seed Category list (content-model.md open item) and pick the
 masthead lockup treatment (DESIGN.md open question) with the founder.
+
 - **Acceptance:**
   - [ ] Seed Category list written into `docs/content-model.md` (Phase 0 update).
   - [ ] Masthead lockup decision recorded in `DESIGN.md` decision log.
@@ -158,6 +181,7 @@ masthead lockup treatment (DESIGN.md open question) with the founder.
 - **Size:** S., -
 
 ## Checkpoint: Phase 0 → Phase 1 gate
+
 - [ ] `pnpm install && pnpm turbo run build && pnpm test && pnpm lint` all green.
 - [ ] Web stub renders in both locales with the chosen palette and Devanagari fonts.
 - [ ] Payload admin reachable; one user can log in.
@@ -168,6 +192,7 @@ masthead lockup treatment (DESIGN.md open question) with the founder.
 - [ ] Founder review of the foundation set (PRODUCT/DESIGN/SPEC/architecture/ADRs).
 
 ## Risks this phase surfaces
+
 | Risk | Mitigation |
 |, -|, -|
 | Founder hasn't picked a palette | Gate Task 0.4; default to DESIGN.md recommended (Civic Crimson) if undecided by Phase 1 |

@@ -3,6 +3,7 @@
 ## JARVIS Auto-Activation
 
 On every request, the agent MUST:
+
 1. **Check mempalace context** — `python -m mempalace status` (if mempalace installed), query wing `nagarik-watch` for project memories
 2. **Check graphify** — if `graphify-out/graph.json` exists, use graphify for codebase structure queries
 3. **Activate orchestrator mindset** — analyze the request, determine which skills below apply, load and apply them
@@ -13,6 +14,7 @@ On every request, the agent MUST:
 ## 1. Memory & Context
 
 ### Mempalace (project memory palace)
+
 - Wing: `nagarik-wagon` — 479 drawers from 86 project files (mined via `python -m mempalace mine`)
 - Query: `python -m mempalace search "your query here" --wing nagarik-watch`
 - Status: `python -m mempalace status`
@@ -21,6 +23,7 @@ On every request, the agent MUST:
 - To add new context: `python -m mempalace add --wing nagarik-watch --room <room> --content "..."`
 
 ### Graphify (codebase graph)
+
 - **Not yet run** — run `/graphify . --mode deep --no-viz` when graph context is needed
 - Install: `pip install graphifyy` (already installed)
 - Once generated, query with: `/graphify query "what does this codebase do?"`
@@ -29,22 +32,26 @@ On every request, the agent MUST:
 ## 2. Current Project State
 
 ### Done
+
 - Phase 0: build chain green, design tokens exist, fonts wired, date/slug/utils tested, CI present
 - `.gitignore` includes `.opencode/`, `graphify-out/` (local-only, not committed)
 - `AGENT.md` (this file) — committed, cross-agent universal
 - Git remote configured, all 93 files committed, `pnpm install/build/test/lint/typecheck` all pass
 
 ### In Progress
+
 - **Phase 1 Task 1.1**: Article + Category Payload collections + seed data
   - Collections created: `Categories.ts`, `Articles.ts`, `Authors.ts`, `Tags.ts`, `Media.ts`
   - Need: register in `payload.config.ts`, create seed script, verify build
 
 ### Blocked
+
 - Mempalace MCP not connecting in opencode — CLI workaround only
 - Domain registration + DoIB registration (operational, not code)
 - Graphify graph not yet generated (run when needed)
 
 ### Next Steps (after Task 1.1)
+
 1. Task 1.2: Content query layer (Payload Local API + typed helpers)
 2. Task 1.3: Homepage feed (hero section, grid, list)
 3. Task 1.4: Category page (bilingual, pagination)
@@ -64,7 +71,9 @@ On every request, the agent MUST:
 ## 3. Skills (activate contextually)
 
 ### Always-on Baseline Skills
+
 These fire on every request, no matter what:
+
 - **karpathy-guidelines** — think before coding, simplicity first, surgical changes
 - **anti-slop** — no generic AI patterns, no AI voice
 - **agentic-engineering** — eval-first, decomposition, cost-aware
@@ -75,27 +84,32 @@ These fire on every request, no matter what:
 - **council** — four-voice adversarial debate for ambiguous decisions, tradeoffs, go/no-go calls
 
 ### Frontend/Design (any UI work)
+
 - **impeccable** — design critique, polish, audit, optimize
 - **design-anti-slop** — no cookie-cutter layouts, no gradient-text, no glassmorphism
 - **frontend-design** — distinctive, production-grade UI
 - **accessibility-audit** — WCAG compliance
 
 ### Backend/API
+
 - **secure-code-guardian** — auth, input validation, OWASP
 - **error-handling** — error boundaries, graceful degradation
 - **source-driven-development** — check Payload docs for authoritative patterns
 
 ### Planning/Architecture
+
 - **brainstorming** — before any creative work
 - **writing-plans** — before multi-step implementation
 - **council** — for ambiguous decisions between approaches
 - **spec-miner** — when working with existing undocumented code
 
 ### Testing
+
 - **test-master** — test strategy, coverage
 - **webapp-testing** — Playwright browser testing
 
 ### Data/Content
+
 - **form-expert** — validation UX, conditional fields (used in collections)
 - **spec-driven-development** — when creating new collections or schemas
 
@@ -104,21 +118,25 @@ These fire on every request, no matter what:
 ## 4. Design Constraints (Non-Negotiable)
 
 ### Palette
+
 - Primary: Civic Crimson `oklch(0.55 0.18 25)`
 - **No** `#000`, `#fff`, gradient text, glassmorphism, side-stripe borders, modal as default
 - Grays: `oklch(from var(--civic-crimson) l 0 h)` at varying lightness
 
 ### Typography
+
 - **Devanagari-first**: Mukta (display headlines), Noto Sans Devanagari (body)
 - **Latin/UI**: Inter
 - Fonts loaded via Next.js `next/font` — already configured in `apps/web`
 
 ### Content
+
 - Nepali-primary fields use `Ne` suffix (`titleNe`), English uses `En` (`titleEn`)
 - Field-level (not document-level) bilingualism
 - BS date anchor: `2026-06-19 = असार ५, २०८३` (conversion in `packages/db/src/date.ts`)
 
 ### Coding
+
 - No comments in code
 - No `any` types — prefer `type` over `interface`
 - `import type { X }` for type-only imports
@@ -144,6 +162,7 @@ nagarik-watch/
 ```
 
 ### Stack
+
 - **CMS**: Payload 3.85.1 (Next.js 15 backend)
 - **DB**: PostgreSQL 16 (Docker compose, local dev)
 - **Storage**: Cloudflare R2 (S3-compatible adapter, optional in dev)
@@ -155,27 +174,29 @@ nagarik-watch/
 
 ## 6. Key Files Reference
 
-| File | Purpose |
-|------|---------|
-| `SPEC.md` | Master spec, success criteria, boundaries |
-| `PRODUCT.md` | Brand, users, tone, strategic principles |
-| `DESIGN.md` | Palette A, typography, component rules |
-| `docs/content-model.md` | Article, Category, Author, Tag, Media schemas |
-| `docs/architecture.md` | System design, monorepo structure, request flows |
-| `docs/phase-1-tasks.md` | Current 14-task MVP plan with acceptance criteria |
-| `docs/editorial-workflow.md` | Roles, attribution policy |
-| `.env.example` | Full env contract (copy to `.env`) |
+| File                         | Purpose                                           |
+| ---------------------------- | ------------------------------------------------- |
+| `SPEC.md`                    | Master spec, success criteria, boundaries         |
+| `PRODUCT.md`                 | Brand, users, tone, strategic principles          |
+| `DESIGN.md`                  | Palette A, typography, component rules            |
+| `docs/content-model.md`      | Article, Category, Author, Tag, Media schemas     |
+| `docs/architecture.md`       | System design, monorepo structure, request flows  |
+| `docs/phase-1-tasks.md`      | Current 14-task MVP plan with acceptance criteria |
+| `docs/editorial-workflow.md` | Roles, attribution policy                         |
+| `.env.example`               | Full env contract (copy to `.env`)                |
 
 ---
 
 ## 7. Verification Gate
 
 Always run before claiming completion:
+
 ```bash
 pnpm typecheck && pnpm lint && pnpm test && pnpm build
 ```
 
 For admin-only changes:
+
 ```bash
 pnpm --filter @nagarikwatch/admin typecheck && pnpm --filter @nagarikwatch/admin lint
 ```
@@ -185,6 +206,7 @@ pnpm --filter @nagarikwatch/admin typecheck && pnpm --filter @nagarikwatch/admin
 ## 8. Mempalace & Graphify Quick Reference
 
 ### Mempalace (context memory)
+
 ```bash
 # Check status
 python -m mempalace status
@@ -203,6 +225,7 @@ python -m mempalace traverse --start-room "articles-collection"
 ```
 
 ### Graphify (codebase graph)
+
 ```bash
 # Generate graph (first time or after major changes)
 graphify . --mode deep --no-viz

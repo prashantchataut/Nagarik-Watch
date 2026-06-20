@@ -17,14 +17,15 @@ hue. There is no `#000` and no `#fff` anywhere, neutrals are tinted with chroma
 0.005–0.02 toward the brand hue, per impeccable law. Chroma reduces as lightness
 approaches 0 or 100 (high chroma at extremes looks garish).
 
-Dark vs light is not a reflex. The physical scene: *a Nepali reader, often on a phone,
-reading outdoors or in a lit room during the day, in transit, sometimes at night in bed*.
+Dark vs light is not a reflex. The physical scene: _a Nepali reader, often on a phone,
+reading outdoors or in a lit room during the day, in transit, sometimes at night in bed_.
 That forces **light, high-readability surfaces for article reading** (the core activity).
 Dark mode is offered as a user toggle for night reading, not as a default.
 
 ### Anti-reflex check (done before settling)
+
 - News portals → reflex says "lots of red, alarmist." Rejected: our red (if chosen) is a
-  *civic, calm* crimson, used with restraint, not as alarm wallpaper.
+  _civic, calm_ crimson, used with restraint, not as alarm wallpaper.
 - Indian-subcontinent news → reflex says "yellow breaking-news bars." Rejected.
 - The chosen direction must read as **a serious news brand**, not a tabloid and not a SaaS., -
 
@@ -45,22 +46,22 @@ A deep, serious crimson drawn from the crimson of Nepal's flag, desaturated enou
 as civic and trustworthy rather than alarming. Distinct from Setopati (blue) and Ratopati.
 This is the most ownable, most "news-appropriate" of the three.
 
-| Role            | OKLCH                       | Hex (approx) | Use                                   |
+| Role | OKLCH | Hex (approx) | Use |
 |, , , , -|, , , , , , , -|, , , , |-, , , , , , , , , , |
-| `brand`         | `oklch(0.55 0.18 25)`       | `#C02A2A`-ish| Masthead, links, section labels       |
-| `brand-strong`  | `oklch(0.45 0.20 25)`       | `#9E1F22`-ish| Hover, breaking ticker bar            |
-| `brand-tint`    | `oklch(0.96 0.02 25)`       | `#F9F1F0`-ish| Subtle backgrounds, section rules     |
-| `surface`       | `oklch(0.985 0.004 25)`     | `#FBFAF9`-ish| Page background (warm, not white)     |
-| `surface-raised`| `oklch(0.99 0.003 25)`      | `#FEFDFD`-ish| Cards, article body container         |
-| `ink`           | `oklch(0.22 0.02 25)`       | `#3A3332`-ish| Primary text (warm near-black)        |
-| `ink-soft`      | `oklch(0.40 0.015 25)`      | `#6B5F5D`-ish| Secondary text, decks, meta           |
-| `mute`          | `oklch(0.62 0.012 25)`      | `#9C8E8C`-ish| Tertiary, captions, timestamps        |
-| `rule`          | `oklch(0.90 0.008 25)`      | `#E2DAD8`-ish| Hairline dividers, borders            |
-| `breaking`      | `oklch(0.50 0.22 27)`       | `#8E1B1B`-ish| Breaking-news bar (stronger than brand)|
+| `brand` | `oklch(0.55 0.18 25)` | `#C02A2A`-ish| Masthead, links, section labels |
+| `brand-strong` | `oklch(0.45 0.20 25)` | `#9E1F22`-ish| Hover, breaking ticker bar |
+| `brand-tint` | `oklch(0.96 0.02 25)` | `#F9F1F0`-ish| Subtle backgrounds, section rules |
+| `surface` | `oklch(0.985 0.004 25)` | `#FBFAF9`-ish| Page background (warm, not white) |
+| `surface-raised`| `oklch(0.99 0.003 25)` | `#FEFDFD`-ish| Cards, article body container |
+| `ink` | `oklch(0.22 0.02 25)` | `#3A3332`-ish| Primary text (warm near-black) |
+| `ink-soft` | `oklch(0.40 0.015 25)` | `#6B5F5D`-ish| Secondary text, decks, meta |
+| `mute` | `oklch(0.62 0.012 25)` | `#9C8E8C`-ish| Tertiary, captions, timestamps |
+| `rule` | `oklch(0.90 0.008 25)` | `#E2DAD8`-ish| Hairline dividers, borders |
+| `breaking` | `oklch(0.50 0.22 27)` | `#8E1B1B`-ish| Breaking-news bar (stronger than brand)|
 
 **Why:** crimson is flag-native (no other national flag is a non-rectangular double-
-pendant in crimson), it is gravely readable on warm neutrals, and it reads as *civic*
-rather than *tabloid* when desaturated and paired with warm-tinted ink.
+pendant in crimson), it is gravely readable on warm neutrals, and it reads as _civic_
+rather than _tabloid_ when desaturated and paired with warm-tinted ink.
 
 ### Palette B, Editorial Ink (navy/charcoal)
 
@@ -68,18 +69,18 @@ A confident editorial navy-blue, classic and trustworthy. **Caveat:** Setopati i
 associated with a blue; this risks looking derivative unless we lean the hue toward teal-
 ink and keep chroma restrained. Most "safe," least ownable.
 
-| Role            | OKLCH                       | Hex (approx) | Use                                   |
+| Role | OKLCH | Hex (approx) | Use |
 |, , , , -|, , , , , , , -|, , , , |-, , , , , , , , , , |
-| `brand`         | `oklch(0.42 0.11 245)`      | `#1F3A7A`-ish| Masthead, links, section labels       |
-| `brand-strong`  | `oklch(0.33 0.12 245)`      | `#172C66`-ish| Hover, breaking ticker bar            |
-| `brand-tint`    | `oklch(0.96 0.015 245)`     | `#EEF1F9`-ish| Subtle backgrounds                    |
-| `surface`       | `oklch(0.985 0.004 240)`    | `#F9FAFB`-ish| Page background (cool, not white)     |
-| `surface-raised`| `oklch(0.99 0.003 240)`     | `#FDFEFE`-ish| Cards, body container                 |
-| `ink`           | `oklch(0.24 0.02 245)`      | `#2A2F3A`-ish| Primary text (cool near-black)        |
-| `ink-soft`      | `oklch(0.42 0.018 245)`     | `#5A6173`-ish| Secondary text                        |
-| `mute`          | `oklch(0.62 0.014 245)`     | `#8C92A0`-ish| Tertiary, captions                    |
-| `rule`          | `oklch(0.90 0.01 245)`      | `#DDE1EA`-ish| Hairline dividers                     |
-| `breaking`      | `oklch(0.38 0.18 27)`       | `#8E1B1B`-ish| Breaking-news bar (kept crimson)      |
+| `brand` | `oklch(0.42 0.11 245)` | `#1F3A7A`-ish| Masthead, links, section labels |
+| `brand-strong` | `oklch(0.33 0.12 245)` | `#172C66`-ish| Hover, breaking ticker bar |
+| `brand-tint` | `oklch(0.96 0.015 245)` | `#EEF1F9`-ish| Subtle backgrounds |
+| `surface` | `oklch(0.985 0.004 240)` | `#F9FAFB`-ish| Page background (cool, not white) |
+| `surface-raised`| `oklch(0.99 0.003 240)` | `#FDFEFE`-ish| Cards, body container |
+| `ink` | `oklch(0.24 0.02 245)` | `#2A2F3A`-ish| Primary text (cool near-black) |
+| `ink-soft` | `oklch(0.42 0.018 245)` | `#5A6173`-ish| Secondary text |
+| `mute` | `oklch(0.62 0.014 245)` | `#8C92A0`-ish| Tertiary, captions |
+| `rule` | `oklch(0.90 0.01 245)` | `#DDE1EA`-ish| Hairline dividers |
+| `breaking` | `oklch(0.38 0.18 27)` | `#8E1B1B`-ish| Breaking-news bar (kept crimson) |
 
 **Why:** navy is the global newspaper default (NYT, Guardian-leaning). Safe, readable,
 serious. **Why not first choice:** least differentiated in the Nepali market; reads as
@@ -92,18 +93,18 @@ stability, and civic life. Rare among Nepali news portals, so **most visually ow
 Slight risk of reading as "agriculture/environment niche" if not handled with editorial
 gravitas; mitigated by pairing with serious ink and strong type.
 
-| Role            | OKLCH                       | Hex (approx) | Use                                   |
+| Role | OKLCH | Hex (approx) | Use |
 |, , , , -|, , , , , , , -|, , , , |-, , , , , , , , , , |
-| `brand`         | `oklch(0.42 0.09 155)`      | `#1E5E47`-ish| Masthead, links, section labels       |
-| `brand-strong`  | `oklch(0.33 0.10 155)`      | `#154435`-ish| Hover, breaking ticker bar            |
-| `brand-tint`    | `oklch(0.96 0.015 155)`     | `#ECF5F0`-ish| Subtle backgrounds                    |
-| `surface`       | `oklch(0.985 0.005 150)`    | `#F9FBF9`-ish| Page background (warm-cool, not white)|
-| `surface-raised`| `oklch(0.99 0.003 150)`     | `#FDFEFD`-ish| Cards, body container                 |
-| `ink`           | `oklch(0.24 0.015 160)`     | `#2A332E`-ish| Primary text                          |
-| `ink-soft`      | `oklch(0.42 0.015 160)`     | `#556459`-ish| Secondary text                        |
-| `mute`          | `oklch(0.62 0.012 160)`     | `#8B958C`-ish| Tertiary, captions                    |
-| `rule`          | `oklch(0.90 0.008 155)`     | `#DDE3DE`-ish| Hairline dividers                     |
-| `breaking`      | `oklch(0.50 0.22 27)`       | `#8E1B1B`-ish| Breaking-news bar (kept crimson)      |
+| `brand` | `oklch(0.42 0.09 155)` | `#1E5E47`-ish| Masthead, links, section labels |
+| `brand-strong` | `oklch(0.33 0.10 155)` | `#154435`-ish| Hover, breaking ticker bar |
+| `brand-tint` | `oklch(0.96 0.015 155)` | `#ECF5F0`-ish| Subtle backgrounds |
+| `surface` | `oklch(0.985 0.005 150)` | `#F9FBF9`-ish| Page background (warm-cool, not white)|
+| `surface-raised`| `oklch(0.99 0.003 150)` | `#FDFEFD`-ish| Cards, body container |
+| `ink` | `oklch(0.24 0.015 160)` | `#2A332E`-ish| Primary text |
+| `ink-soft` | `oklch(0.42 0.015 160)` | `#556459`-ish| Secondary text |
+| `mute` | `oklch(0.62 0.012 160)` | `#8B958C`-ish| Tertiary, captions |
+| `rule` | `oklch(0.90 0.008 155)` | `#DDE3DE`-ish| Hairline dividers |
+| `breaking` | `oklch(0.50 0.22 27)` | `#8E1B1B`-ish| Breaking-news bar (kept crimson) |
 
 **Why:** distinct, ownable, gravitas-capable. **Why caution:** must avoid looking like a
 niche sustainability site; requires a strong typographic masthead and editorial restraint.
@@ -118,6 +119,7 @@ niche sustainability site; requires a strong typographic masthead and editorial 
 appropriate line-height (Devanagari needs ~1.6–1.7 line-height for body, more than Latin).
 
 ### Font stacks
+
 - **Devanagari body:** "Noto Sans Devanagari" (Google Fonts, free, OFL). Best open-source
   coverage of Nepali matras and conjuncts. Fallback: "Mukta", system Devanagari.
 - **Devanagari display (headlines):** "Mukta" (Google Fonts, OFL) at heavier weights, or
@@ -130,18 +132,19 @@ appropriate line-height (Devanagari needs ~1.6–1.7 line-height for body, more 
 
 ### Type scale (modular, ratio ~1.25, passes the impeccable ≥1.25 hierarchy test)
 
-| Token        | Devanagari / Latin        | Size / Line-height | Weight | Use                         |
+| Token | Devanagari / Latin | Size / Line-height | Weight | Use |
 |, , , , |-, , , , , , , |-, , , , , -|, , |, , , , , , , -|
-| `display`    | Mukta / Inter             | 44px / 1.15        | 700    | Lead-story headline (hero)  |
-| `h1`         | Mukta / Inter             | 32px / 1.2         | 700    | Article headline            |
-| `h2`         | Mukta / Inter             | 24px / 1.25        | 700    | Section headers, sub-leads  |
-| `h3`         | Mukta / Inter             | 20px / 1.3         | 600    | Card titles                 |
-| `body-lg`    | Noto Sans Devanagari/Inter| 19px / 1.7         | 400    | Article body (Devanagari)   |
-| `body`       | Noto Sans Devanagari/Inter| 16px / 1.65        | 400    | Default body, cards         |
-| `meta`       | Inter / Noto Sans         | 13px / 1.4         | 500    | Byline, date, timestamps    |
-| `caption`    | Inter / Noto Sans         | 12px / 1.35        | 400    | Image captions, credits     |
+| `display` | Mukta / Inter | 44px / 1.15 | 700 | Lead-story headline (hero) |
+| `h1` | Mukta / Inter | 32px / 1.2 | 700 | Article headline |
+| `h2` | Mukta / Inter | 24px / 1.25 | 700 | Section headers, sub-leads |
+| `h3` | Mukta / Inter | 20px / 1.3 | 600 | Card titles |
+| `body-lg` | Noto Sans Devanagari/Inter| 19px / 1.7 | 400 | Article body (Devanagari) |
+| `body` | Noto Sans Devanagari/Inter| 16px / 1.65 | 400 | Default body, cards |
+| `meta` | Inter / Noto Sans | 13px / 1.4 | 500 | Byline, date, timestamps |
+| `caption` | Inter / Noto Sans | 12px / 1.35 | 400 | Image captions, credits |
 
 **Rules:**
+
 - Body line-length capped at **65–75ch** (impeccable law). Article column ~680px max.
 - Hierarchy through **scale + weight contrast**, not color or decoration.
 - No gradient text. No text effects. Emphasis via weight or size only.
@@ -160,6 +163,7 @@ everywhere is monotony).
 Tokens: `space-1`=4 … `space-2`=8 … up to `space-12`=128.
 
 **Layout primitives:**
+
 - Page max-width: **1280px** for the homepage grid; **680px** for the article body
   column; **1200px** for section/category pages.
 - Gutter: 24px desktop, 16px mobile.
@@ -173,6 +177,7 @@ The primitives in `packages/ui`. Each is accessible (keyboard, focus-visible, AR
 needed) and themable via the chosen palette tokens.
 
 **Editorial:**
+
 - `Masthead`, wordmark "नागरिक वाच / Nagarik Watch", date in BS (बिक्रम सम्बत) + AD, weather
   optional. Sticky on scroll with condensing behavior.
 - `PrimaryNav`, category nav, Devanagari labels, with language toggle (ने/EN) and search.
@@ -192,9 +197,11 @@ needed) and themable via the chosen palette tokens.
 - `CorrectionNotice`, dated, visible, set in `meta` size with a clear label.
 
 **Media (Phase 3):**
+
 - `ImageGallery`, `VideoEmbed`, `LiveBlogFeed`, `EpaperViewer`.
 
 **Commerce / chrome:**
+
 - `AdSlot`, labeled "विज्ञापन / Advertisement", lazy-loaded, viewability-tracked, never
   between every paragraph.
 - `SponsoredBadge`, unambiguous labeling for native/sponsored content.
@@ -202,6 +209,7 @@ needed) and themable via the chosen palette tokens.
   ethics policy, privacy.
 
 **Feedback:**
+
 - `Toast` (transient), `InlineMessage` (persistent, e.g. "यो लेख अपडेट भएको छ")., -
 
 ## 6. Elevation
@@ -298,9 +306,9 @@ larger line-height and a touch lower contrast for comfortable night reading., -
 
 ## Decision log
 
-| Date       | Decision                                   | Rationale            |
+| Date | Decision | Rationale |
 |, , , |, , , , , , , , , , , |, , , , , , |
-| 2026-06-18 | **Palette A, Civic Crimson CHOSEN**       | Founder pick; civic fit, flag-adjacent, distinct from Setopati/Ratopati |
-| 2026-06-18 | 3 palettes proposed; A recommended         | Ownability + civic fit |
-| 2026-06-18 | Light-first, dark as toggle                | Reading scene forces it |
-| 2026-06-18 | Noto Sans Devanagari + Mukta + Inter       | Free, OFL, best coverage |
+| 2026-06-18 | **Palette A, Civic Crimson CHOSEN** | Founder pick; civic fit, flag-adjacent, distinct from Setopati/Ratopati |
+| 2026-06-18 | 3 palettes proposed; A recommended | Ownability + civic fit |
+| 2026-06-18 | Light-first, dark as toggle | Reading scene forces it |
+| 2026-06-18 | Noto Sans Devanagari + Mukta + Inter | Free, OFL, best coverage |

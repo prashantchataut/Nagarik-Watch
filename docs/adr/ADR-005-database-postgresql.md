@@ -21,12 +21,12 @@ no separate cache store beyond the CDN) to keep the solo-dev ops surface small.
 
 ## Alternatives considered
 
-| Option        | Pros                                          | Cons                                                       |
+| Option | Pros | Cons |
 |, , , , -|, , , , , , , , , , , , -|, , , , , , , , , , , , , , , |
-| **PostgreSQL**| ACID, relational, mature FTS, JSONB for flexible fields, Payload-native via Drizzle | Vertical scale has limits (fine at our scale)              |
-| **MySQL / MariaDB** | Mature, common in shared hosting        | Weaker full-text story; Payload's first-class story is Postgres |
-| **MongoDB**   | Flexible schema, good for content            | We lose relational integrity + transactions; Payload's Postgres adapter is stronger |
-| **SQLite (Turso/libSQL)** | Zero-ops, embedded                 | Concurrency + write scaling limits for a newsroom editing all day; backups less convenient |
+| **PostgreSQL**| ACID, relational, mature FTS, JSONB for flexible fields, Payload-native via Drizzle | Vertical scale has limits (fine at our scale) |
+| **MySQL / MariaDB** | Mature, common in shared hosting | Weaker full-text story; Payload's first-class story is Postgres |
+| **MongoDB** | Flexible schema, good for content | We lose relational integrity + transactions; Payload's Postgres adapter is stronger |
+| **SQLite (Turso/libSQL)** | Zero-ops, embedded | Concurrency + write scaling limits for a newsroom editing all day; backups less convenient |
 | **Postgres + separate search (Meilisearch/Typesense) from day 1** | Best search | Second system to operate before traffic justifies it |
 
 ## Decision
@@ -72,7 +72,7 @@ a document DB. Both can be added later without rearchitecting the editorial mode
 
 - **FTS → Meilisearch migration threshold:** define the trigger (e.g. search p95 latency
   > 200ms, or article count > 50k, or editor demand for typo-tolerance / faceting). The
-  migration is additive (write-through from Payload hooks), not a rewrite.
+  > migration is additive (write-through from Payload hooks), not a rewrite.
 - **Revisions retention policy:** keep last N revisions per article to bound DB growth
   (Open item in ADR-002).
 - **Backups + PITR:** confirm the managed provider's backup cadence; document a quarterly

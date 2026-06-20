@@ -28,7 +28,14 @@ export const articlesBatch2: Article[] = [
     hasEnglish: true,
     isBreaking: true,
     readingMinutes: 3,
-    tags: [{ id: 'tag-cricket', slug: 'nepal-cricket', nameNe: 'नेपाली क्रिकेट', nameEn: 'Nepal cricket' }],
+    tags: [
+      {
+        id: 'tag-cricket',
+        slug: 'nepal-cricket',
+        nameNe: 'नेपाली क्रिकेट',
+        nameEn: 'Nepal cricket',
+      },
+    ],
     bodyNe: [
       {
         type: 'paragraph',
@@ -114,7 +121,12 @@ export const articlesBatch2: Article[] = [
   {
     id: 'art-013',
     slug: 'film-festival-entries',
-    category: { id: 'cat-entertainment', slug: 'entertainment', nameNe: 'मनोरञ्जन', nameEn: 'Entertainment' },
+    category: {
+      id: 'cat-entertainment',
+      slug: 'entertainment',
+      nameNe: 'मनोरञ्जन',
+      nameEn: 'Entertainment',
+    },
     categoryLabel: 'मनोरञ्जन',
     titleNe: 'अन्तर्राष्ट्रिय चलचित्र महोत्सवमा नेपाली चलचित्रको प्रतिनिधित्व',
     titleEn: 'Nepali films selected for the international festival',
@@ -152,7 +164,12 @@ export const articlesBatch2: Article[] = [
   {
     id: 'art-014',
     slug: 'music-concert-summer',
-    category: { id: 'cat-entertainment', slug: 'entertainment', nameNe: 'मनोरञ्जन', nameEn: 'Entertainment' },
+    category: {
+      id: 'cat-entertainment',
+      slug: 'entertainment',
+      nameNe: 'मनोरञ्जन',
+      nameEn: 'Entertainment',
+    },
     categoryLabel: 'मनोरञ्जन',
     titleNe: 'गर्मीमा सांगीतिक कार्यक्रमहरूको सुरुवात',
     heroImage: unsplash('1493225457124-a3eb161ffa5f', 'सांगीतिक मञ्च', {
@@ -178,7 +195,12 @@ export const articlesBatch2: Article[] = [
   {
     id: 'art-015',
     slug: 'streaming-local-content',
-    category: { id: 'cat-entertainment', slug: 'entertainment', nameNe: 'मनोरञ्जन', nameEn: 'Entertainment' },
+    category: {
+      id: 'cat-entertainment',
+      slug: 'entertainment',
+      nameNe: 'मनोरञ्जन',
+      nameEn: 'Entertainment',
+    },
     categoryLabel: 'मनोरञ्जन',
     titleNe: 'स्ट्रिमिङ प्लेटफर्ममा स्थानीय सामग्रीको उपस्थिति बढ्दो',
     heroImage: unsplash('1574267432553-4b4628081c31', 'स्ट्रिमिङ सेवा', {
@@ -437,7 +459,14 @@ export const articlesBatch2: Article[] = [
     hasEnglish: true,
     isBreaking: false,
     readingMinutes: 4,
-    tags: [{ id: 'tag-migration', slug: 'labour-migration', nameNe: 'श्रम प्रवास', nameEn: 'Labour migration' }],
+    tags: [
+      {
+        id: 'tag-migration',
+        slug: 'labour-migration',
+        nameNe: 'श्रम प्रवास',
+        nameEn: 'Labour migration',
+      },
+    ],
     bodyNe: [
       {
         type: 'paragraph',
@@ -479,7 +508,14 @@ export const articlesBatch2: Article[] = [
     hasEnglish: false,
     isBreaking: false,
     readingMinutes: 3,
-    tags: [{ id: 'tag-migration', slug: 'labour-migration', nameNe: 'श्रम प्रवास', nameEn: 'Labour migration' }],
+    tags: [
+      {
+        id: 'tag-migration',
+        slug: 'labour-migration',
+        nameNe: 'श्रम प्रवास',
+        nameEn: 'Labour migration',
+      },
+    ],
     bodyNe: [
       {
         type: 'paragraph',
@@ -507,7 +543,14 @@ export const articlesBatch2: Article[] = [
     hasEnglish: false,
     isBreaking: false,
     readingMinutes: 2,
-    tags: [{ id: 'tag-election', slug: 'local-election', nameNe: 'स्थानीय निर्वाचन', nameEn: 'Local election' }],
+    tags: [
+      {
+        id: 'tag-election',
+        slug: 'local-election',
+        nameNe: 'स्थानीय निर्वाचन',
+        nameEn: 'Local election',
+      },
+    ],
     bodyNe: [
       {
         type: 'paragraph',

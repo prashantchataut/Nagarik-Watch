@@ -8,13 +8,13 @@
 ## Context
 
 The project's working brand name is **"Nagarik Watch" (नागरिक वाच)**. The word "Nagarik"
-(नागरिक, meaning *citizen* in Nepali) overlaps with an established, major Nepali media
+(नागरिक, meaning _citizen_ in Nepali) overlaps with an established, major Nepali media
 brand:
 
 - **Nagarik** (नागरिक) is a national Nepali-language daily newspaper, the flagship of
   **Nepal Republic Media Limited (NRM)**, founded 2009 (founder Shova Gyawali, publisher
   Binod Raj Gyawali, editor Gunaraj Luitel; ~128 employees).
-- NRM's sister outlets: **Republica** (English daily, a *New York Times* partner),
+- NRM's sister outlets: **Republica** (English daily, a _New York Times_ partner),
   myRepublica, Radio Nagarik, AP1 TV.
 - They operate under the **"Nagarik Network"** umbrella at `nagariknetwork.com`,
   `nagariknews.nagariknetwork.com`, plus a Google Play news app, over 15 years of brand
@@ -68,7 +68,7 @@ code, or registration was committed. The architect will not raise the rename aga
 - **Positive:** the founder keeps the name they want; "नागरिक" (citizen) is a strong,
   meaning-rich word for a civic-minded news brand; "Watch" communicates scrutiny.
 - **Negative:** SEO will be an uphill climb for brand terms; a small but non-zero legal
-   risk persists forever; some readers will initially confuse us with NRM.
+  risk persists forever; some readers will initially confuse us with NRM.
 
 ## Trade-offs
 

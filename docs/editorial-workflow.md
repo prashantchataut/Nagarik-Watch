@@ -14,22 +14,24 @@ sponsored content is distinguishable in a blind test., -
 Six roles, mapped to Payload access policies. Smallest set that fits a real newsroom;
 consolidate later if needed.
 
-| Role           | Writes draft | Edits others' drafts | Sends to review | Publishes | Marks breaking | Manages taxonomy/menu | Manages ads/sponsored | Writes English version |
+| Role | Writes draft | Edits others' drafts | Sends to review | Publishes | Marks breaking | Manages taxonomy/menu | Manages ads/sponsored | Writes English version |
 |, , , , |:, -:|:, -:|:, -:|:, -:|:, -:|:, -:|:, -:|:, -:|
-| `author`       | ✓   | own only | ✓   |, | ,   |, | ,   |, |
-| `copyeditor`   | ✓   | ✓   | ✓   |, | ,   | tags only |, | ,   |
-| `translator`   |, (English fields only) | English fields only | ✓ (English) |, | , |, | , | ✓ |
-| `editor`       | ✓   | ✓   | ✓   | ✓ (own section) | ✓ (own section) | ✓ (own section) |, | ✓ |
+| `author` | ✓ | own only | ✓ |, | , |, | , |, |
+| `copyeditor` | ✓ | ✓ | ✓ |, | , | tags only |, | , |
+| `translator` |, (English fields only) | English fields only | ✓ (English) |, | , |, | , | ✓ |
+| `editor` | ✓ | ✓ | ✓ | ✓ (own section) | ✓ (own section) | ✓ (own section) |, | ✓ |
 | `publisher` (Chief Sub / desk lead) | ✓ | ✓ | ✓ | ✓ (any) | ✓ (any) | ✓ | ✓ | ✓ |
 | `admin` (technical) |, | , |, | , |, | ✓ | ✓ + system |, |
 
 Notes:
+
 - **`translator`** is a scoped role: it can only edit the `titleEn`/`deckEn`/`bodyEn`
   fields and move `englishStatus` along its sub-workflow (ADR-007). It cannot touch the
   Nepali body, publish the article itself, or manage taxonomy. This enforces "human-
   reviewed English, never auto-translation" at the access layer.
 
 Notes:
+
 - **`publisher` is the only role that may set `isBreaking = true`** at a site-wide level.
   Section editors may do so only within their section. This prevents "ब्रेकिङ" fatigue
   (PRODUCT.md voice rule) and the push-notification flood risk in architecture.md §8.
@@ -56,13 +58,13 @@ Notes:
 
 States map to Payload's draft system + a `workflowStage` field:
 
-| State          | Visibility                          | Who can advance it out              |
+| State | Visibility | Who can advance it out |
 |, , , , |, , , , , , , , , -|, , , , , , , , , -|
-| `draft`        | CMS only; not on site; noindex       | author, copyeditor, editor, publisher |
-| `review`       | CMS only; flagged in the review queue | editor, publisher                  |
-| `scheduled`    | CMS only until `publishAt`           | (auto-published by scheduler)       |
-| `published`    | Public; indexed; in feeds            |, (terminal until unpublished)      |
-| `unpublished`  | Reverts to `draft`; URL 410s or redirects to category | editor, publisher        |
+| `draft` | CMS only; not on site; noindex | author, copyeditor, editor, publisher |
+| `review` | CMS only; flagged in the review queue | editor, publisher |
+| `scheduled` | CMS only until `publishAt` | (auto-published by scheduler) |
+| `published` | Public; indexed; in feeds |, (terminal until unpublished) |
+| `unpublished` | Reverts to `draft`; URL 410s or redirects to category | editor, publisher |
 
 ### What happens on Publish (Payload `afterChange` hook)
 
@@ -94,11 +96,13 @@ This is the core of editorial honesty. Every Article has a `sourceType` that dri
 hard rules (content-model.md §1):
 
 ### `original`
+
 - Reported and written by Nagarik Watch staff.
 - Byline shows our author(s). No source attribution line needed.
 - This is the brand's claim to authority and should be the plurality of lead stories.
 
 ### `aggregated` (curated from another outlet)
+
 - **Mandatory:** `sourceName` (the originating outlet) and `sourceUrl` (canonical link).
 - **Mandatory:** `sourcePublishedAt` (the original timestamp).
 - The byline area renders: **"`<Outlet name>`बाट संकलित"** with a link to `sourceUrl`.
@@ -110,6 +114,7 @@ hard rules (content-model.md §1):
   `aggregated`.
 
 ### `wire` (syndicated/agency)
+
 - E.g. agency feeds ingested by `packages/ingest`.
 - **Mandatory:** `sourceName` (agency) + `sourceUrl` + license reference (in `Media.license`
   or an internal field).
@@ -118,9 +123,10 @@ hard rules (content-model.md §1):
   deck for our voice, and publishes. Wire copy is never auto-published.
 
 ### Enforcement (structural, not discretionary)
+
 - The CMS **refuses to save or publish** an Article with `sourceType ≠ original` and any
   of `sourceName`/`sourceUrl`/`sourcePublishedAt` missing (Payload field-level `required`
-  + a `validate` hook).
+  - a `validate` hook).
 - The on-site attribution line is rendered from these fields, editors cannot remove it
   by editing copy.
 - The reader always sees, at minimum: byline (or agency/source), dateline, and (where
@@ -147,6 +153,7 @@ Nepali published ──▶ editor "request English version"  (englishStatus = re
 ```
 
 Rules:
+
 - **`hasEnglish` is derived** (true only when `englishStatus = published` **and**
   `titleEn`+`bodyEn` are non-empty). It drives `/en` visibility, nothing else.
 - The `/en` toggle is a **content filter**, not a translator. Nepali-only stories are
@@ -157,7 +164,7 @@ Rules:
 - The two language versions are **linked but independent** editorial products: editing one
   does not silently change the other. A factual correction to one flags the other for the
   same fix (editorial prompt, not automatic).
-- **Optional MT aid:** a *clearly-labeled, never-published* machine-translation pre-fill
+- **Optional MT aid:** a _clearly-labeled, never-published_ machine-translation pre-fill
   may be offered to translators as a draft aid, opt-in per editor, default off. It can
   never reach the public site., -
 
@@ -167,7 +174,7 @@ Rules:
 - Breaking items feed the **BreakingTicker** and (optionally) a **web push**.
 - **Push rate cap:** ≤ 3 pushes/hour, ≤ 10/day site-wide (architecture.md §8). Over-cap,
   the item still appears in the ticker; the push is suppressed with an editor-visible note.
-- Breaking is a *state*, not a permanent label. Editors **un-flag** once the story is no
+- Breaking is a _state_, not a permanent label. Editors **un-flag** once the story is no
   longer unfolding; the ticker then drops it.
 - "ब्रेकिङ" is reserved for events actually unfolding (PRODUCT.md voice). Misuse is an
   editorial error, corrected like any other., -
@@ -177,6 +184,7 @@ Rules:
 Two distinct mechanisms:
 
 ### Correction (factual error fixed)
+
 - Add a `corrections[]` entry: `at`, `summary` (reader-facing), `madeBy`.
 - Renders as a visible, dated `CorrectionNotice` on the article, above the body or in a
   dedicated corrections strip.
@@ -185,6 +193,7 @@ Two distinct mechanisms:
   note on the homepage and may warrant a fresh story.
 
 ### Update (story developing, not an error)
+
 - `updatedAt` changes; if it differs from `publishedAt`, the article shows
   **"यो लेख अपडेट भएको छ"** with the timestamp.
 - No correction notice needed unless a fact was wrong.

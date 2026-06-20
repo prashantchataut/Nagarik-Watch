@@ -58,10 +58,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
 
       <header className="mx-auto max-w-body px-4 pt-8">
         <CategoryLabel category={article.category} locale={locale} as="span" className="mb-3" />
-        <h1
-          className="font-display text-display leading-tight text-ink"
-          lang={titleLang}
-        >
+        <h1 className="font-display text-display leading-tight text-ink" lang={titleLang}>
           {title}
         </h1>
         {deck && (
@@ -79,9 +76,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
           <span aria-hidden="true" className="text-mute">
             ·
           </span>
-          <span lang={locale === 'en' ? 'en' : 'ne'}>
-            {readingLabel}
-          </span>
+          <span lang={locale === 'en' ? 'en' : 'ne'}>{readingLabel}</span>
         </div>
       </header>
 
@@ -115,11 +110,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         <ShareBar url={`${prefix}/${category}/${slug}`} title={title} locale={locale} />
 
         {article.corrections && article.corrections.length > 0 && (
-          <CorrectionNotice
-            corrections={article.corrections}
-            locale={locale}
-            className="mt-6"
-          />
+          <CorrectionNotice corrections={article.corrections} locale={locale} className="mt-6" />
         )}
 
         <ArticleBody blocks={body} locale={locale} source={article.source} className="mt-8" />
@@ -140,11 +131,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   )
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale: rawLocale, category, slug } = await params
   const locale: Locale = asLocale(rawLocale)
   const article = await getArticleBySlug(category, slug, locale)
@@ -159,7 +146,7 @@ export async function generateMetadata({
   const description =
     locale === 'en' && article.seoDescriptionEn
       ? article.seoDescriptionEn
-      : article.seoDescriptionNe ?? article.deckNe
+      : (article.seoDescriptionNe ?? article.deckNe)
   const opposite = locale === 'en' ? '' : '/en'
 
   return {

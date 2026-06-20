@@ -42,8 +42,15 @@ export function ShareBar({ url, title, locale, className }: ShareBarProps) {
   const x = `https://twitter.com/intent/tweet?url=${encodeURIComponent(abs)}&text=${encodeURIComponent(title)}`
 
   return (
-    <div className={cn('flex flex-wrap items-center gap-2', className)} role="group" aria-label={dict.shareLabel}>
-      <span className="mr-1 text-meta font-semibold uppercase tracking-wide text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
+    <div
+      className={cn('flex flex-wrap items-center gap-2', className)}
+      role="group"
+      aria-label={dict.shareLabel}
+    >
+      <span
+        className="mr-1 text-meta font-semibold uppercase tracking-wide text-mute"
+        lang={locale === 'en' ? 'en' : 'ne'}
+      >
         {dict.shareLabel}
       </span>
       <button
@@ -110,7 +117,18 @@ function legacyCopy(text: string) {
 
 function LinkIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
     </svg>
@@ -119,7 +137,14 @@ function LinkIcon() {
 
 function FacebookIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z" />
     </svg>
   )
@@ -127,7 +152,14 @@ function FacebookIcon() {
 
 function XIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
     </svg>
   )
