@@ -42,6 +42,22 @@ export const tags: Tag[] = [
     descriptionNe: 'विदेशी रोजगारी र प्रवासी नेपालीका समाचार।',
     descriptionEn: 'Foreign employment and migrant-worker stories.',
   },
+  {
+    id: 'tag-football',
+    slug: 'fifa-world-cup',
+    nameNe: 'फिफा विश्वकप',
+    nameEn: 'FIFA World Cup',
+    descriptionNe: 'फिफा विश्वकप २०२६ को कभरेज।',
+    descriptionEn: 'Coverage of the 2026 FIFA World Cup.',
+  },
+  {
+    id: 'tag-geopolitics',
+    slug: 'geopolitics',
+    nameNe: 'भूराजनीति',
+    nameEn: 'Geopolitics',
+    descriptionNe: 'विश्व भूराजनीतिक विमर्श र संघर्षका समाचार।',
+    descriptionEn: 'Global geopolitical conflict and analysis.',
+  },
 ]
 
 export const tagById = new Map(tags.map((t) => [t.id, t]))

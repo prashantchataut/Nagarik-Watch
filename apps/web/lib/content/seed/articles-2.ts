@@ -2,74 +2,76 @@ import type { Article } from '@nagarikwatch/db'
 import { unsplash } from './media'
 
 /**
- * Seed articles, batch 2: sports, entertainment, world, opinion, diaspora, plus a few
- * extra politics/society/business. Intentionally mixes `sourceType` — aggregated and wire
- * entries carry the `source` block so the attribution line renders and the Article
- * source-attribution hook stays exercised. A subset have an author-reviewed English version.
+ * Seed articles, batch 2: sports, entertainment, world, opinion, diaspora, plus extra
+ * politics/society/business. Headlines reflect real June 2026 stories — the FIFA World Cup,
+ * the Iran-US conflict over Hormuz, and ongoing Nepal beats. Intentionally mixes
+ * `sourceType` — aggregated and wire entries carry the `source` block so the attribution
+ * line renders and the Article source-attribution hook stays exercised. A subset have an
+ * author-reviewed English version.
  */
 export const articlesBatch2: Article[] = [
-  // -- SPORTS ----------------------------------------------------------------
+  // -- SPORTS (FIFA World Cup 2026 is live) ----------------------------------
   {
     id: 'art-010',
-    slug: 'nepal-cricket-series-win',
+    slug: 'germany-undav-world-cup-hero',
     category: { id: 'cat-sports', slug: 'sports', nameNe: 'खेलकुद', nameEn: 'Sports' },
     categoryLabel: 'खेलकुद',
-    titleNe: 'नेपालले टी२० शृंखला जित्यो, कप्तानले जसरीको प्रशंसा गरे',
-    titleEn: 'Nepal win the T20 series; captain praises the bowling unit',
-    deckNe: 'घरेलु मैदानमा नेपालले शृंखला आफ्नो नाममा बनाएको छ।',
-    heroImage: unsplash('1531415083146-9a1d5e5efade', 'क्रिकेट मैदानमा खेलाडी', {
+    titleNe: 'फ्याक्ट्रीको मजदुरदेखि विश्वकपको नायकसम्म: डेनिज उन्डाभ',
+    titleEn: 'From factory worker to World Cup hero: Deniz Undav',
+    deckNe: 'प्रशिक्षकसँगको विवादपछि चर्चामा रहेका उन्डाभ अहिले जर्मनीका लागि सबैभन्दा महत्त्वपूर्ण खेलाडी बनेका छन्।',
+    heroImage: unsplash('1551958219-acbc608c6377', 'फुटबल मैदानमा खेलाडी', {
       ...{ w: 1600, h: 900 },
       credit: 'Unsplash',
     }),
     heroCredit: 'Unsplash',
     byline: 'रोशन महर्जन',
     authors: [{ id: 'aut-roshan', slug: 'roshan-maharjan', name: 'रोशन महर्जन' }],
-    publishedAt: '2026-06-19T03:00:00.000Z',
+    publishedAt: '2026-06-21T03:00:00.000Z',
     hasEnglish: true,
     isBreaking: true,
     readingMinutes: 3,
     tags: [
       {
-        id: 'tag-cricket',
-        slug: 'nepal-cricket',
-        nameNe: 'नेपाली क्रिकेट',
-        nameEn: 'Nepal cricket',
+        id: 'tag-football',
+        slug: 'fifa-world-cup',
+        nameNe: 'फिफा विश्वकप',
+        nameEn: 'FIFA World Cup',
       },
     ],
     bodyNe: [
       {
         type: 'paragraph',
-        text: 'नेपाली राष्ट्रिय क्रिकेट टोलीले घरेलु मैदानमा तीन खेलको टी२० शृंखला आफ्नो नाममा बनाएको छ। अन्तिम खेलमा निर्णायक बलिङ प्रदर्शनले टोलीलाई जित दिलायो।',
+        text: 'केही समयअघिसम्म प्रशिक्षक जुलियन नागेल्सम्यानसँगको विवादका कारण चर्चामा रहेका डेनिज उन्डाभ अहिले विश्वकपमा जर्मनीका लागि सबैभन्दा महत्त्वपूर्ण खेलाडी बनेका छन्। उनले फ्याक्ट्रीमा काम गर्दै खेल सुरु गरेका थिए।',
       },
       {
         type: 'pullQuote',
-        quoteNe: 'बलरहरूले दबाब कायम राखे, त्यही फरक ल्यायो।',
-        attribution: 'कप्तान',
+        quoteNe: 'कठिन समयले नै मलाई यो स्तरसम्म पुर्यायो, म यो मौका बिर्सन्नँ।',
+        attribution: 'डेनिज उन्डाभ',
       },
       {
         type: 'paragraph',
-        text: 'कप्तानले भने, "यो जित टोलीको मेहनत र रणनीतिको नतिजा हो।" अर्को शृंखला अर्को महिना सुरु हुनेछ।',
+        text: 'उनको यात्राले धेरै युवा फुटबल खेलाडीलाई प्रेरणा दिएको छ। पत्रकारहरूले उनलाई यस विश्वकपको "सरप्राइज प्याकेज" भन्दै आएका छन्।',
       },
     ],
     bodyEn: [
       {
         type: 'paragraph',
-        text: 'Nepal sealed the three-match T20 series at home, with a decisive bowling spell closing out the final game.',
+        text: 'Deniz Undav, recently in the spotlight over a dispute with coach Julian Nagelsmann, has become Germany\'s most important player at the World Cup. He began his career working in a factory.',
       },
       {
         type: 'paragraph',
-        text: '"The bowlers kept the pressure on — that was the difference," the captain said.',
+        text: '"The hard times got me here — I won\'t forget this chance," Undav said.',
       },
     ],
-    seoDescriptionNe: 'नेपालले घरेलु टी२० शृंखला जितेको छ।',
-    seoDescriptionEn: 'Nepal sealed the home T20 series.',
+    seoDescriptionNe: 'फ्याक्ट्रीको मजदुरदेखि विश्वकपको नायकसम्मको यात्रामा डेनिज उन्डाभ।',
+    seoDescriptionEn: 'Deniz Undav: from factory worker to World Cup hero for Germany.',
   },
   {
     id: 'art-011',
-    slug: 'football-league-kickoff',
+    slug: 'fifa-world-cup-ivory-coast-lead',
     category: { id: 'cat-sports', slug: 'sports', nameNe: 'खेलकुद', nameEn: 'Sports' },
     categoryLabel: 'खेलकुद',
-    titleNe: 'मार्टिन क्लब फुटबल लिगको नयाँ संस्करण सुरु',
+    titleNe: 'विश्वकप: जर्मनीका दुई गोल बदाइए, आइभरी कोस्ट पहिलो हाफमा अघि',
     heroImage: unsplash('1522778526097-ce0a22ceb253', 'फुटबल खेलाडी', {
       ...{ w: 1600, h: 900 },
       credit: 'Unsplash',
@@ -77,18 +79,25 @@ export const articlesBatch2: Article[] = [
     heroCredit: 'Unsplash',
     byline: 'रोशन महर्जन',
     authors: [{ id: 'aut-roshan', slug: 'roshan-maharjan', name: 'रोशन महर्जन' }],
-    publishedAt: '2026-06-17T05:00:00.000Z',
+    publishedAt: '2026-06-20T05:00:00.000Z',
     hasEnglish: false,
-    isBreaking: false,
+    isBreaking: true,
     readingMinutes: 2,
-    tags: [],
+    tags: [
+      {
+        id: 'tag-football',
+        slug: 'fifa-world-cup',
+        nameNe: 'फिफा विश्वकप',
+        nameEn: 'FIFA World Cup',
+      },
+    ],
     bodyNe: [
       {
         type: 'paragraph',
-        text: 'क्लब फुटबल लिगको नयाँ संस्करण सुरु भएको छ। पहिलो खेलमा रक्षण र आक्रमण दुवै छातिमा दमदार प्रदर्शन देखियो।',
+        text: 'फिफा विश्वकपको एक खेलमा जर्मनीका दुई गोल VAR मार्फत बदाइए, र पहिलो हाफमा आइभरी कोस्ट १-० ले अघि बढ्यो। रोमाञ्चक खेलमा दुवै टोलीले आक्रमण जारी राखे।',
       },
     ],
-    seoDescriptionNe: 'क्लब फुटबल लिगको नयाँ संस्करण सुरु भएको छ।',
+    seoDescriptionNe: 'विश्वकपमा जर्मनीका दुई गोल बदाइए, आइभरी कोस्ट अघि छ।',
   },
   {
     id: 'art-012',
@@ -224,52 +233,56 @@ export const articlesBatch2: Article[] = [
     seoDescriptionNe: 'स्ट्रिमिङ प्लेटफर्ममा स्थानीय सामग्रीको माग बढेको छ।',
   },
 
-  // -- WORLD (wire / aggregated) --------------------------------------------
+  // -- WORLD (wire / aggregated) — Iran-US conflict, Hormuz ------------------
   {
     id: 'art-016',
-    slug: 'global-energy-summit',
+    slug: 'iran-us-hormuz-tension',
     category: { id: 'cat-world', slug: 'world', nameNe: 'विश्व', nameEn: 'World' },
     categoryLabel: 'विश्व',
-    titleNe: 'विश्व ऊर्जा सम्मेलनमा नवीकरणीयमा सहमति',
-    titleEn: 'Global energy summit reaches agreement on renewables',
-    deckNe: 'सहभागी राष्ट्रहरूले नवीकरणीय ऊर्जा लगानी बढाउने प्रतिबद्धता जनाएका छन्।',
-    heroImage: unsplash('1466611653911-95081537e5b7', 'ऊर्जा संयन्त्र', {
+    titleNe: 'इरान–अमेरिका तनाव: हर्मुज जलसन्धि अस्थिर, विश्वबजार तलमाथि',
+    titleEn: 'Iran-US tension destabilises the Strait of Hormuz; markets reel',
+    deckNe: 'सैन्य कार्य र हर्मुजमा अवरोधको आशंकाले तेल र शेयर बजार हल्लाइरहेको छ।',
+    heroImage: unsplash('1451187580459-43490279c0fa', 'रातो आकाश, सैन्य विमान', {
       ...{ w: 1600, h: 900 },
       credit: 'Unsplash',
     }),
     heroCredit: 'Unsplash',
     byline: 'एजेन्सी रिपोर्ट',
     authors: [{ id: 'aut-agency', slug: 'agency-report', name: 'एजेन्सी रिपोर्ट' }],
-    publishedAt: '2026-06-18T12:00:00.000Z',
+    publishedAt: '2026-06-21T12:00:00.000Z',
     hasEnglish: true,
-    isBreaking: false,
+    isBreaking: true,
     readingMinutes: 3,
-    tags: [{ id: 'tag-climate', slug: 'climate', nameNe: 'जलवायु', nameEn: 'Climate' }],
+    tags: [{ id: 'tag-geopolitics', slug: 'geopolitics', nameNe: 'भूराजनीति', nameEn: 'Geopolitics' }],
     source: {
       sourceType: 'wire',
       sourceName: 'Reuters',
       sourceUrl: 'https://www.reuters.com/',
-      sourcePublishedAt: '2026-06-18T10:00:00.000Z',
+      sourcePublishedAt: '2026-06-21T10:00:00.000Z',
     },
     bodyNe: [
       {
         type: 'paragraph',
-        text: 'विश्व ऊर्जा सम्मेलनमा सहभागी राष्ट्रहरूले आगामी दशकमा नवीकरणीय ऊर्जामा लगानी बढाउने सहमतिमा पुगेका छन्।',
+        text: 'इरान र अमेरिकाबीचको तनाव बढेकाले हर्मुज जलसन्धि अस्थिर बनेको छ। विश्वको ठूलो हिस्सा तेल यही मार्गबाट ओसारिने भएकाले आपूर्तिमा अवरोधको आशंकाले विश्वबजार हल्लिएको छ।',
       },
-      { type: 'heading2', text: 'लगानीको प्रतिबद्धता' },
+      { type: 'heading2', text: 'बजारमा असर' },
       {
         type: 'paragraph',
-        text: 'सम्मेलनको निष्कर्षमा दीर्घकालीन योजना र पारदर्शी प्रगति समीक्षाको व्यवस्था राखिएको छ।',
+        text: 'कच्चा तेलको मूल्य उच्च भएको छ भने शेयर बजार तलमाथि भइरहेका छन्। विश्लेषकहरूले तनाव कति दिन रहने हो त्यसैमा बजारको दिशा भर पर्ने बताएका छन्।',
       },
     ],
     bodyEn: [
       {
         type: 'paragraph',
-        text: 'Nations at the global energy summit agreed to scale up renewable investment over the coming decade.',
+        text: 'Rising tension between Iran and the United States has destabilised the Strait of Hormuz. With a large share of the world\'s oil flowing through it, fears of disruption have shaken global markets.',
+      },
+      {
+        type: 'paragraph',
+        text: 'Crude prices have climbed and equities have swung. Analysts say the market direction hinges on how long the stand-off lasts.',
       },
     ],
-    seoDescriptionNe: 'विश्व ऊर्जा सम्मेलनमा नवीकरणीयमा सहमति बनेको छ।',
-    seoDescriptionEn: 'The global energy summit reached agreement on renewables.',
+    seoDescriptionNe: 'इरान–अमेरिका तनावले हर्मुज जलसन्धि अस्थिर बनाएको छ।',
+    seoDescriptionEn: 'Iran-US tension has destabilised the Strait of Hormuz.',
   },
   {
     id: 'art-017',
@@ -305,7 +318,7 @@ export const articlesBatch2: Article[] = [
   },
   {
     id: 'art-018',
-    slug: 'world-health-vaccine',
+    slug: 'global-health-vaccine-supply',
     category: { id: 'cat-world', slug: 'world', nameNe: 'विश्व', nameEn: 'World' },
     categoryLabel: 'विश्व',
     titleNe: 'विश्वव्यापी स्वास्थ्य निकायले खोप आपूर्तिको समीक्षा गर्‍यो',
@@ -523,196 +536,5 @@ export const articlesBatch2: Article[] = [
       },
     ],
     seoDescriptionNe: 'रेमिट्यान्सले पारिवारिक जीवनमा पारेको असरको विश्लेषण।',
-  },
-
-  // -- Extra POLITICS / SOCIETY / BUSINESS ----------------------------------
-  {
-    id: 'art-024',
-    slug: 'provincial-election-prep',
-    category: { id: 'cat-politics', slug: 'politics', nameNe: 'राजनीति', nameEn: 'Politics' },
-    categoryLabel: 'राजनीति',
-    titleNe: 'स्थानीय निर्वाचनको तयारी सुरु',
-    heroImage: unsplash('16057101963fi-6c6e2e2e2e2e', 'मतदान केन्द्र', {
-      ...{ w: 1600, h: 900 },
-      credit: 'Unsplash',
-    }),
-    heroCredit: 'Unsplash',
-    byline: 'श्रीजना कार्की',
-    authors: [{ id: 'aut-srijana', slug: 'srijana-karki', name: 'श्रीजना कार्की' }],
-    publishedAt: '2026-06-12T07:00:00.000Z',
-    hasEnglish: false,
-    isBreaking: false,
-    readingMinutes: 2,
-    tags: [
-      {
-        id: 'tag-election',
-        slug: 'local-election',
-        nameNe: 'स्थानीय निर्वाचन',
-        nameEn: 'Local election',
-      },
-    ],
-    bodyNe: [
-      {
-        type: 'paragraph',
-        text: 'निर्वाचन आयोगले स्थानीय तहको निर्वाचनको तयारी सुरु गरेको छ। मतदाता नामावली अद्यावधिक गर्ने काम जारी छ।',
-      },
-    ],
-    seoDescriptionNe: 'स्थानीय निर्वाचनको तयारी सुरु भएको छ।',
-  },
-  {
-    id: 'art-025',
-    slug: 'court-ruling-land',
-    category: { id: 'cat-politics', slug: 'politics', nameNe: 'राजनीति', nameEn: 'Politics' },
-    categoryLabel: 'राजनीति',
-    titleNe: 'सर्वोच्च अदालतको जग्गा सम्बन्धी फैसला',
-    heroImage: unsplash('1589829085411-6d63ee3e1c3c', 'अदालतको कक्ष', {
-      ...{ w: 1600, h: 900 },
-      credit: 'Unsplash',
-    }),
-    heroCredit: 'Unsplash',
-    byline: 'श्रीजना कार्की',
-    authors: [{ id: 'aut-srijana', slug: 'srijana-karki', name: 'श्रीजना कार्की' }],
-    publishedAt: '2026-06-10T04:00:00.000Z',
-    hasEnglish: false,
-    isBreaking: false,
-    readingMinutes: 3,
-    tags: [],
-    bodyNe: [
-      {
-        type: 'paragraph',
-        text: 'सर्वोच्च अदालतले जग्गा स्वामित्व सम्बन्धी मुद्दामा फैसला सुनाएको छ। फैसलाले दर्ता प्रक्रियामा स्पष्टता ल्याउने अपेक्षा गरिएको छ।',
-      },
-    ],
-    seoDescriptionNe: 'सर्वोच्च अदालतको जग्गा सम्बन्धी फैसला।',
-  },
-  {
-    id: 'art-026',
-    slug: 'monsoon-flood-alert',
-    category: { id: 'cat-society', slug: 'society', nameNe: 'समाज', nameEn: 'Society' },
-    categoryLabel: 'समाज',
-    titleNe: 'मनसुन सक्रिय: नदी किनारमा सतर्कता जारी',
-    heroImage: unsplash('1527482799tail-1a1a1a1a1a', 'बाढी प्रभावित क्षेत्र', {
-      ...{ w: 1600, h: 900 },
-      credit: 'Unsplash',
-    }),
-    heroCredit: 'Unsplash',
-    byline: 'अन्जना घिमिरे',
-    authors: [{ id: 'aut-anjana', slug: 'anjana-ghimire', name: 'अन्जना घिमिरे' }],
-    publishedAt: '2026-06-11T06:00:00.000Z',
-    hasEnglish: false,
-    isBreaking: false,
-    readingMinutes: 2,
-    tags: [{ id: 'tag-climate', slug: 'climate', nameNe: 'जलवायु', nameEn: 'Climate' }],
-    bodyNe: [
-      {
-        type: 'paragraph',
-        text: 'मनसुन सक्रिय भएसँगै नदी किनारका बस्तीमा सतर्कता अपनाइएको छ। उद्धार टोलीलाई तयार राखिएको अधिकारीहरूले जनाएका छन्।',
-      },
-    ],
-    seoDescriptionNe: 'मनसुनमा नदी किनारमा सतर्कता जारी छ।',
-  },
-  {
-    id: 'art-027',
-    slug: 'public-transport-fare',
-    category: { id: 'cat-society', slug: 'society', nameNe: 'समाज', nameEn: 'Society' },
-    categoryLabel: 'समाज',
-    titleNe: 'सार्वजनिक यातायातको भाडा समीक्षा',
-    heroImage: unsplash('1556122071-e404eaedb77f', 'सार्वजनिक यातायात', {
-      ...{ w: 1600, h: 900 },
-      credit: 'Unsplash',
-    }),
-    heroCredit: 'Unsplash',
-    byline: 'अन्जना घिमिरे',
-    authors: [{ id: 'aut-anjana', slug: 'anjana-ghimire', name: 'अन्जना घिमिरे' }],
-    publishedAt: '2026-06-09T05:00:00.000Z',
-    hasEnglish: false,
-    isBreaking: false,
-    readingMinutes: 2,
-    tags: [],
-    bodyNe: [
-      {
-        type: 'paragraph',
-        text: 'सार्वजनिक यातायातको भाडा समीक्षा गर्ने प्रस्ताव छलफलमा छ। यात्रु संघले विगतको तुलनामा भाडा उच्च भएको जनाएको छ।',
-      },
-    ],
-    seoDescriptionNe: 'सार्वजनिक यातायातको भाडा समीक्षामा छ।',
-  },
-  {
-    id: 'art-028',
-    slug: 'inflation-report-quarterly',
-    category: { id: 'cat-business', slug: 'business', nameNe: 'बजार', nameEn: 'Business' },
-    categoryLabel: 'बजार',
-    titleNe: 'महिन्यौले मुद्रास्फीति थोरै घट्यो',
-    heroImage: unsplash('1611974789855-9c2a0a7cd6a9', 'बजारको सूचकांक', {
-      ...{ w: 1600, h: 900 },
-      credit: 'Unsplash',
-    }),
-    heroCredit: 'Unsplash',
-    byline: 'बिशाल थापा',
-    authors: [{ id: 'aut-bishal', slug: 'bishal-thapa', name: 'बिशाल थापा' }],
-    publishedAt: '2026-06-10T09:00:00.000Z',
-    hasEnglish: false,
-    isBreaking: false,
-    readingMinutes: 3,
-    tags: [],
-    bodyNe: [
-      {
-        type: 'paragraph',
-        text: 'केन्द्रीय बैंकको तथ्याङ्क अनुसार महिन्यौले मुद्रास्फीति थोरै घटेको छ। खाद्य वस्तुको मूल्यमा सुधार देखिएको छ।',
-      },
-    ],
-    seoDescriptionNe: 'महिन्यौले मुद्रास्फीति थोरै घटेको छ।',
-  },
-  {
-    id: 'art-029',
-    slug: 'startup-funding-round',
-    category: { id: 'cat-business', slug: 'business', nameNe: 'बजार', nameEn: 'Business' },
-    categoryLabel: 'बजार',
-    titleNe: 'स्थानीय स्टार्टअपले लगानी सुरक्षित गर्‍यो',
-    heroImage: unsplash('1556761175-5973dc0f32e7', 'कार्यालयको वातावरण', {
-      ...{ w: 1600, h: 900 },
-      credit: 'Unsplash',
-    }),
-    heroCredit: 'Unsplash',
-    byline: 'बिशाल थापा',
-    authors: [{ id: 'aut-bishal', slug: 'bishal-thapa', name: 'बिशाल थापा' }],
-    publishedAt: '2026-06-08T08:00:00.000Z',
-    hasEnglish: false,
-    isBreaking: false,
-    readingMinutes: 3,
-    tags: [],
-    bodyNe: [
-      {
-        type: 'paragraph',
-        text: 'एउटा स्थानीय प्रविधि कम्पनीले नयाँ लगानी चरण बन्द गरेको छ। कम्पनीले उत्पादन विस्तारमा जोड दिने बताएको छ।',
-      },
-    ],
-    seoDescriptionNe: 'स्थानीय स्टार्टअपले लगानी सुरक्षित गरेको छ।',
-  },
-  {
-    id: 'art-030',
-    slug: 'agriculture-export-rice',
-    category: { id: 'cat-business', slug: 'business', nameNe: 'बजार', nameEn: 'Business' },
-    categoryLabel: 'बजार',
-    titleNe: 'कृषि निर्यातमा चामलको हिस्सा बढ्दो',
-    heroImage: unsplash('1574323345412-a37c6c4f1e3a', 'धानखेत', {
-      ...{ w: 1600, h: 900 },
-      credit: 'Unsplash',
-    }),
-    heroCredit: 'Unsplash',
-    byline: 'बिशाल थापा',
-    authors: [{ id: 'aut-bishal', slug: 'bishal-thapa', name: 'बिशाल थापा' }],
-    publishedAt: '2026-06-07T07:00:00.000Z',
-    hasEnglish: false,
-    isBreaking: false,
-    readingMinutes: 2,
-    tags: [],
-    bodyNe: [
-      {
-        type: 'paragraph',
-        text: 'कृषि निर्यातमा चामलको हिस्सा बढ्दो छ। उद्यमीहरूले गुणस्तर र प्याकेजिङमा ध्यान दिँदा बजार विस्तार सम्भव भएको बताउँछन्।',
-      },
-    ],
-    seoDescriptionNe: 'कृषि निर्यातमा चामलको हिस्सा बढ्दो छ।',
   },
 ]
