@@ -1,33 +1,45 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, swapLocale } from '@/lib/i18n/locales'
 import { MobileNav } from '@/components/MobileNav'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Logo } from '@/components/Logo'
 
 type MastheadProps = {
   locale: Locale
   navCategories: Category[]
 }
 
+// 44×44px is the WCAG 2.5.5 minimum touch target. Every icon button in the chrome uses it.
+const ICON_BTN =
+  'inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
+
 /**
- * Site chrome top — the wordmark, the BS/AD date line, the primary nav, and the locale +
- * search affordances. Server component: the localized date is computed from "today" at
- * render, and nav categories come from the content source.
+ * Site chrome top — the logo lockup, the BS/AD date line, the primary nav, and the locale +
+ * search + theme affordances. Client component so the locale toggle can read the current
+ * pathname and swap locale *in place* (the previous version always linked to "/", so the
+ * toggle dumped the reader on the other locale's home regardless of the page they were on).
  *
- * Sticky (Task 1.4): the bar stays pinned with a translucent surface so content scrolls
- * beneath it. The locale toggle preserves context (swapLocale) and every nav link is a
+ * Sticky: the bar stays pinned with a translucent surface so content scrolls beneath it.
+ * The locale toggle preserves context (swapLocale on usePathname) and every nav link is a
  * real keyboard-focusable anchor.
  */
 export function Masthead({ locale, navCategories }: MastheadProps) {
   const dict = getDictionary(locale)
+  const pathname = usePathname() ?? '/'
+
   const today = new Date().toISOString()
   const dateLabel = formatDate(today, locale)
 
   const homeHref = localizeHref(locale, '/')
   const searchHref = localizeHref(locale, '/search')
-  const toggleHref = swapLocale('/')
+  // The toggle points at the equivalent page in the other locale, not the home page.
+  const toggleHref = swapLocale(pathname)
 
   return (
     <header className="sticky top-0 z-40 border-b border-rule bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
@@ -35,41 +47,31 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
         <div className="flex items-center justify-between gap-4">
           <Link
             href={homeHref}
-            className="font-display text-h1 leading-none text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+            className="rounded-md transition-opacity duration-fast ease-out-quint hover:opacity-90 focus-visible:opacity-90"
+            aria-label={dict.siteName}
           >
-            <span lang="ne" className="block">
-              {dict.siteName}
-            </span>
-            <span className="block text-meta text-ink-soft" lang="en">
-              {dict.siteNameEn}
-            </span>
+            <Logo siteName={dict.siteName} />
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 sm:gap-2">
             <span
-              className="hidden text-meta text-ink-soft sm:inline"
+              className="mr-2 hidden text-meta text-ink-soft md:inline"
               lang={locale === 'en' ? 'en' : 'ne'}
             >
               {dict.mastheadDate(dateLabel)}
             </span>
-            <Link
-              href={searchHref}
-              className="rounded-sm p-2 text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
-              aria-label={dict.search}
-            >
+            <Link href={searchHref} className={ICON_BTN} aria-label={dict.search}>
               <SearchIcon />
             </Link>
             <ThemeToggle locale={locale} />
             <Link
               href={toggleHref}
-              className="rounded-sm border border-rule px-3 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+              className="inline-flex h-9 items-center rounded-full border border-rule px-3.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
               lang={locale === 'en' ? 'ne' : 'en'}
               aria-label={dict.localeToggleAria}
             >
               {dict.localeToggleTo}
             </Link>
-            {/* Mobile hamburger. The drawer it opens mirrors the inline nav below, so the
-                primary-navigation model stays identical across viewports (see MobileNav). */}
             <MobileNav locale={locale} navCategories={navCategories} />
           </div>
         </div>
@@ -78,27 +80,22 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
           aria-label={dict.primaryNav}
           className="hidden border-t border-rule pt-2 md:block"
         >
-          <ul className="flex flex-wrap items-center gap-x-5 gap-y-1">
+          <ul className="flex flex-wrap items-center gap-x-1 gap-y-1">
             <li>
-              <Link
-                href={homeHref}
-                className="text-body font-semibold text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong"
-              >
+              <NavLink href={homeHref} active={pathname === '/' || pathname === '/en'}>
                 {dict.home}
-              </Link>
+              </NavLink>
             </li>
             {navCategories.map((c) => {
               const label = locale === 'en' && c.nameEn ? c.nameEn : c.nameNe
               const catLang = locale === 'en' && c.nameEn ? 'en' : 'ne'
+              const href = localizeHref(locale, `/${c.slug}`)
+              const active = pathname === href || pathname.startsWith(`${href}/`)
               return (
                 <li key={c.slug}>
-                  <Link
-                    href={localizeHref(locale, `/${c.slug}`)}
-                    className="text-body text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong"
-                    lang={catLang}
-                  >
+                  <NavLink href={href} active={active} lang={catLang}>
                     {label}
-                  </Link>
+                  </NavLink>
                 </li>
               )
             })}
@@ -106,6 +103,36 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
         </nav>
       </div>
     </header>
+  )
+}
+
+/** Primary-nav item. The current section gets a brand-tint pill (rounded-full), the rest
+    are padded text links that fill to the pill on hover, so the active state reads as the
+    same affordance in its "on" state rather than a different component. */
+function NavLink({
+  href,
+  active,
+  lang,
+  children,
+}: {
+  href: string
+  active?: boolean
+  lang?: string
+  children: React.ReactNode
+}) {
+  return (
+    <Link
+      href={href}
+      lang={lang}
+      aria-current={active ? 'page' : undefined}
+      className={
+        active
+          ? 'inline-block rounded-full bg-brand-tint px-3.5 py-1.5 text-body font-semibold text-brand-strong'
+          : 'inline-block rounded-full px-3.5 py-1.5 text-body font-medium text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint/60 hover:text-brand-strong'
+      }
+    >
+      {children}
+    </Link>
   )
 }
 

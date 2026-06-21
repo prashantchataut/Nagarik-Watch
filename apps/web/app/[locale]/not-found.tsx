@@ -25,7 +25,7 @@ export default function NotFound() {
         <h1 className="font-display text-display text-ink" lang="ne">
           {ne.notFoundHeading}
         </h1>
-        <p className="mx-auto mt-2 font-display text-h2 text-mute" lang="en">
+        <p className="mx-auto mt-2 font-display text-h2 text-ink-soft" lang="en">
           {en.notFoundHeading}
         </p>
       </div>
@@ -42,14 +42,14 @@ export default function NotFound() {
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link
           href="/"
-          className="inline-flex items-center rounded-sm bg-brand px-6 py-3 text-body font-semibold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong"
+          className="inline-flex items-center rounded-full bg-brand px-6 py-3 text-body font-semibold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong"
           lang="ne"
         >
           {ne.notFoundHome}
         </Link>
         <Link
           href="/en"
-          className="inline-flex items-center rounded-sm border border-rule px-6 py-3 text-body font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+          className="inline-flex items-center rounded-full border border-rule px-6 py-3 text-body font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
           lang="en"
         >
           {en.notFoundHome}

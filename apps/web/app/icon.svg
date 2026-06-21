@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Nagarik Watch">
+  <title>Nagarik Watch</title>
+  <!-- Rounded crimson badge. Fixed hex (not OKLCH) so the favicon renders in all
+       browser tab contexts where CSS custom properties would not resolve. -->
+  <rect x="2" y="2" width="44" height="44" rx="12" fill="#C02A2A" />
+  <rect x="2" y="2" width="44" height="22" rx="12" fill="#ffffff" opacity="0.06" />
+  <g transform="translate(10 10)">
+    <!-- Eye / pendant body (Nepal double-pendant silhouette doubling as a watchful eye). -->
+    <path d="M14 2 L26 2 L26 9 L22 9 L22 14 L14 14 Z" fill="#FEFDFD" />
+    <path d="M2 14 L14 14 L22 14 L26 14 L26 18 L2 18 Z" fill="#FEFDFD" />
+    <!-- Gold iris (reserved accent color). -->
+    <circle cx="14" cy="11.5" r="3.4" fill="#E0A82E" />
+    <!-- Ink pupil. -->
+    <circle cx="14" cy="11" r="1.7" fill="#3A3332" />
+  </g>
+</svg>

@@ -48,7 +48,7 @@ export function ShareBar({ url, title, locale, className }: ShareBarProps) {
       aria-label={dict.shareLabel}
     >
       <span
-        className="mr-1 text-meta font-semibold uppercase tracking-wide text-mute"
+        className="mr-1 text-meta font-semibold uppercase tracking-wide text-ink-soft"
         lang={locale === 'en' ? 'en' : 'ne'}
       >
         {dict.shareLabel}
@@ -56,7 +56,7 @@ export function ShareBar({ url, title, locale, className }: ShareBarProps) {
       <button
         type="button"
         onClick={onCopy}
-        className="inline-flex items-center gap-1.5 rounded-sm border border-rule px-3 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+        className="inline-flex items-center gap-1.5 rounded-full border border-rule px-3.5 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
         lang={locale === 'en' ? 'en' : 'ne'}
       >
         <LinkIcon />
@@ -66,21 +66,19 @@ export function ShareBar({ url, title, locale, className }: ShareBarProps) {
         href={fb}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 rounded-sm border border-rule px-3 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rule text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
         aria-label={dict.shareFacebook}
       >
         <FacebookIcon />
-        <span className="sr-only">{dict.shareFacebook}</span>
       </a>
       <a
         href={x}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 rounded-sm border border-rule px-3 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rule text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
         aria-label={dict.shareTwitter}
       >
         <XIcon />
-        <span className="sr-only">{dict.shareTwitter}</span>
       </a>
       <span aria-live="polite" className="sr-only">
         {copied ? dict.shareCopied : ''}

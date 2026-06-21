@@ -58,7 +58,7 @@ export default async function CategoryPage({
       </header>
 
       {result.items.length === 0 ? (
-        <p className="mt-12 text-body-lg text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
+        <p className="mt-12 text-body-lg text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
           {dict.emptyEnglish}
         </p>
       ) : (

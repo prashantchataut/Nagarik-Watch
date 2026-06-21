@@ -28,16 +28,16 @@ export function Hero({ story, locale, className }: HeroProps) {
 
   return (
     <article className={cn('group', className)}>
-      <a href={href} className="block focus:outline-none">
+      <a href={href} className="block rounded-lg focus:outline-none">
         {story.heroImage && (
-          <div className="relative mb-5 overflow-hidden rounded-sm aspect-[16/9]">
+          <div className="relative mb-5 overflow-hidden rounded-lg aspect-[16/9]">
             <Image
               src={story.heroImage.url}
               alt={story.heroImage.alt}
               fill
               priority
               sizes="(min-width: 1024px) 100vw, 100vw"
-              className="object-cover transition-transform duration-slow ease-out-quint group-hover:scale-[1.02]"
+              className="object-cover transition-transform duration-slow ease-out-quint group-hover:scale-[1.03]"
             />
           </div>
         )}

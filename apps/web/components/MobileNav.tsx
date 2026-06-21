@@ -5,11 +5,16 @@ import { useEffect, useId, useRef, useState } from 'react'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
+import { LogoMark } from '@/components/Logo'
 
 type MobileNavProps = {
   locale: Locale
   navCategories: Category[]
 }
+
+// 44×44 minimum touch target (WCAG 2.5.5).
+const ICON_BTN =
+  'inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
 
 /**
  * Mobile primary navigation. The masthead's inline category list wraps on small screens but
@@ -65,7 +70,7 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
         aria-label={dict.openMenu}
         aria-expanded={open}
         aria-controls={titleId}
-        className="rounded-sm p-2 text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+        className={ICON_BTN}
       >
         <MenuIcon />
       </button>
@@ -91,27 +96,30 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
             className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-surface shadow-overlay"
           >
             <div className="flex items-center justify-between border-b border-rule px-4 py-3">
-              <span id={titleId} className="font-display text-h3 text-ink" lang="ne">
-                {dict.siteName}
+              <span className="flex items-center gap-2">
+                <LogoMark title={`${dict.siteName} / Nagarik Watch`} className="h-9 w-9" />
+                <span className="font-display text-h3 font-bold text-ink" lang="ne">
+                  {dict.siteName}
+                </span>
               </span>
               <button
                 ref={closeBtnRef}
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label={dict.closeMenu}
-                className="rounded-sm p-2 text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+                className={ICON_BTN}
               >
                 <CloseIcon />
               </button>
             </div>
 
-            <nav aria-label={dict.primaryNav} className="flex-1 overflow-y-auto px-4 py-4">
-              <ul className="flex flex-col divide-y divide-rule">
+            <nav aria-label={dict.primaryNav} className="flex-1 overflow-y-auto px-3 py-3">
+              <ul className="flex flex-col gap-1">
                 <li>
                   <Link
                     href={homeHref}
                     onClick={() => setOpen(false)}
-                    className="block py-3 text-body-lg font-semibold text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+                    className="block rounded-md px-3 py-3 text-body-lg font-semibold text-ink transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
                   >
                     {dict.home}
                   </Link>
@@ -125,7 +133,7 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                         href={localizeHref(locale, `/${c.slug}`)}
                         onClick={() => setOpen(false)}
                         lang={catLang}
-                        className="block py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+                        className="block rounded-md px-3 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
                       >
                         {label}
                       </Link>

@@ -30,15 +30,18 @@ export function SectionHeader({
   const lang = titleLang ?? locale
   return (
     <div
-      className={cn('flex items-end justify-between gap-4 border-b border-rule pb-2', className)}
+      className={cn(
+        'flex items-end justify-between gap-4 border-b-2 border-brand pb-2',
+        className,
+      )}
     >
-      <h2 className="font-display text-h2 text-brand-strong" lang={lang}>
+      <h2 className="font-display text-h2 font-bold text-ink" lang={lang}>
         {title}
       </h2>
       {href && moreLabel && (
         <Link
           href={href}
-          className="shrink-0 text-meta font-semibold text-brand transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+          className="shrink-0 rounded-full px-3 py-1 text-meta font-semibold text-brand transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
           lang={locale === 'en' ? 'en' : 'ne'}
         >
           {moreLabel}

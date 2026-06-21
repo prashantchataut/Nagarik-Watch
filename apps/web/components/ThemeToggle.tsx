@@ -56,7 +56,7 @@ export function ThemeToggle({ locale, className }: ThemeToggleProps) {
       onClick={toggle}
       aria-label={label}
       title={label}
-      className={`rounded-sm p-2 text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong ${className ?? ''}`}
+      className={`inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong ${className ?? ''}`}
     >
       <SunIcon />
       <MoonIcon />

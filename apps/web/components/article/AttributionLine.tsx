@@ -24,7 +24,7 @@ export function AttributionLine({ source, locale, className }: AttributionLinePr
   if (source.sourceType === 'wire') {
     return (
       <p className={cn('text-meta text-ink-soft', className)} lang={lang}>
-        <span className="inline-flex items-center rounded-sm bg-brand-tint px-2.5 py-1 font-semibold text-brand-strong">
+        <span className="inline-flex items-center rounded-full bg-brand-tint px-2.5 py-1 font-semibold text-brand-strong">
           {dict.agencyReport}
         </span>
       </p>

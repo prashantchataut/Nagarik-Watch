@@ -79,7 +79,7 @@ function BlockRenderer({ block, locale }: { block: ArticleBlock; locale: Locale 
     case 'image':
       return (
         <figure className="my-2">
-          <div className="relative overflow-hidden rounded-sm aspect-[16/9]">
+          <div className="relative overflow-hidden rounded-lg aspect-[16/9]">
             <Image
               src={block.image.url}
               alt={block.image.alt}
@@ -89,12 +89,10 @@ function BlockRenderer({ block, locale }: { block: ArticleBlock; locale: Locale 
             />
           </div>
           {(block.caption || block.image.credit) && (
-            <figcaption className="mt-2 text-caption text-mute" lang={lang}>
+            <figcaption className="mt-2 text-caption text-ink-soft" lang={lang}>
               {block.caption}
               {block.caption && block.image.credit ? ' ' : ''}
-              {block.image.credit ? (
-                <span className="text-mute/80">{block.image.credit}</span>
-              ) : null}
+              {block.image.credit ? <span className="text-mute">{block.image.credit}</span> : null}
             </figcaption>
           )}
         </figure>
@@ -104,11 +102,15 @@ function BlockRenderer({ block, locale }: { block: ArticleBlock; locale: Locale 
       const quote = locale === 'en' && block.quoteEn ? block.quoteEn : block.quoteNe
       const quoteLang = locale === 'en' && block.quoteEn ? 'en' : 'ne'
       return (
-        <blockquote className="my-2 rounded-sm bg-brand-tint px-6 py-5" lang={quoteLang}>
+        <blockquote
+          className="my-2 rounded-lg bg-brand-tint px-6 py-5"
+          lang={quoteLang}
+        >
           <p className="font-display text-h3 leading-snug text-brand-strong">{quote}</p>
           {block.attribution && (
+            // No em dash (impeccable ban): the attribution is a labeled cite line.
             <footer className="mt-3 text-meta font-semibold text-ink-soft">
-              — {block.attribution}
+              <cite className="not-italic">{block.attribution}</cite>
             </footer>
           )}
         </blockquote>
@@ -151,7 +153,7 @@ function Embed({
   const title = block.caption ?? (isYouTube ? 'YouTube video' : 'Embedded media')
   return (
     <figure className="my-2">
-      <div className="relative aspect-video overflow-hidden rounded-sm border border-rule">
+      <div className="relative aspect-video overflow-hidden rounded-lg border border-rule">
         <iframe
           src={block.url}
           title={title}
@@ -163,7 +165,7 @@ function Embed({
         />
       </div>
       {block.caption && (
-        <figcaption className="mt-2 text-caption text-mute" lang={lang}>
+        <figcaption className="mt-2 text-caption text-ink-soft" lang={lang}>
           {block.caption}
         </figcaption>
       )}
@@ -179,7 +181,7 @@ function AdSlot({ label, lang }: { label: string; lang: 'ne' | 'en' }) {
       aria-label={label}
       lang={lang}
     >
-      <span className="text-caption uppercase tracking-wide text-mute">{label}</span>
+      <span className="text-caption uppercase tracking-wide text-ink-soft">{label}</span>
       <span className="text-caption text-mute" lang="en">
         300 × 250
       </span>
@@ -201,7 +203,7 @@ function CorrectionNotice({ corrections, locale, className }: CorrectionNoticePr
   const dict = getDictionary(locale)
   return (
     <aside
-      className={cn('rounded-sm border border-rule bg-surface-raised px-5 py-4', className)}
+      className={cn('rounded-lg border border-rule bg-surface-raised px-5 py-4', className)}
       aria-label={dict.correctionsHeading}
     >
       <p
@@ -249,7 +251,7 @@ export function TagRow({
           <li key={t.slug}>
             <Link
               href={href}
-              className="inline-flex items-center rounded-sm border border-rule px-3 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+              className="inline-flex items-center rounded-full border border-rule px-3.5 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
               lang={lang}
             >
               #{name}

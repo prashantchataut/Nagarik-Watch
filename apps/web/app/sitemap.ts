@@ -35,6 +35,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
   }
 
+  // Static info pages (about, ethics, privacy, contact). Linked from the footer and served
+  // bilingually, so advertise both locales.
+  const STATIC_PAGES = ['about', 'ethics', 'privacy', 'contact'] as const
+  for (const locale of LOCALES) {
+    for (const page of STATIC_PAGES) {
+      entries.push({
+        url: `${SITE_URL}${prefix(locale)}/${page}`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.4,
+        alternates: {
+          languages: {
+            ne: `${SITE_URL}/${page}`,
+            en: `${SITE_URL}/en/${page}`,
+          },
+        },
+      })
+    }
+  }
+
   // Categories (nav-visible). Locale-specific names resolve on the page itself.
   const categories = await getNavCategories()
   for (const locale of LOCALES) {

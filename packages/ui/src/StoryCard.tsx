@@ -77,7 +77,7 @@ export function StoryCard({
         {story.heroImage && (
           <Link
             href={href}
-            className="relative block w-28 shrink-0 overflow-hidden rounded-sm aspect-[4/3]"
+            className="relative block w-28 shrink-0 overflow-hidden rounded-md aspect-[4/3]"
             tabIndex={-1}
             aria-hidden="true"
           >
@@ -118,7 +118,7 @@ export function StoryCard({
         <Link
           href={href}
           className={cn(
-            'relative block overflow-hidden rounded-sm mb-3',
+            'relative block overflow-hidden rounded-lg mb-3',
             isFeatured ? 'aspect-[16/9]' : 'aspect-[4/3]',
           )}
           tabIndex={-1}
@@ -130,7 +130,7 @@ export function StoryCard({
             fill
             priority={priority}
             sizes={imgSizes}
-            className="object-cover transition-transform duration-slow ease-out-quint group-hover:scale-[1.02]"
+            className="object-cover transition-transform duration-slow ease-out-quint group-hover:scale-[1.03]"
           />
         </Link>
       )}

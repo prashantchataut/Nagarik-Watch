@@ -56,11 +56,14 @@ export function localizeHref(locale: Locale, path: string): string {
 }
 
 /**
- * Convert a localized path back to the opposite locale (used by the locale toggle).
- * Preserves everything after the locale segment.
+ * Build the localized URL for the *opposite* locale from a pathname, preserving the page
+ * tail (used by the locale toggle). `/politics/budget` ↔ `/en/politics/budget`, `/` ↔ `/en`,
+ * `/en/author/x` ↔ `/author/x`. The masthead passes `usePathname()` so the reader lands on
+ * the same content in the other language rather than always being sent to the home page.
  */
 export function swapLocale(pathname: string): string {
-  const rest = pathname.startsWith('/en') ? pathname.slice(3) : pathname
-  const targetRest = rest === '' ? '/' : rest
-  return targetRest
+  const isEn = pathname === '/en' || pathname.startsWith('/en/')
+  const rest = isEn ? pathname.slice(3) : pathname // strip "/en" prefix if present
+  const tail = rest === '' ? '/' : rest
+  return isEn ? tail : `/en${tail === '/' ? '' : tail}`
 }

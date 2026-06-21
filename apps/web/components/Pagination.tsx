@@ -31,7 +31,7 @@ export function Pagination({ page, totalPages, basePath, locale, className }: Pa
         <Link
           href={hrefFor(page - 1)}
           rel="prev"
-          className="inline-flex items-center rounded-sm border border-rule px-3 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+          className="inline-flex items-center rounded-full border border-rule px-3.5 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
           lang={locale === 'en' ? 'en' : 'ne'}
         >
           ← {dict.prevPage}
@@ -47,7 +47,7 @@ export function Pagination({ page, totalPages, basePath, locale, className }: Pa
             <li key={p}>
               <span
                 aria-current="page"
-                className="inline-flex min-w-[2rem] items-center justify-center rounded-sm bg-brand px-2 py-1.5 text-meta font-bold text-surface"
+                className="inline-flex min-w-[2.25rem] items-center justify-center rounded-full bg-brand px-2 py-1.5 text-meta font-bold text-surface"
               >
                 {p}
               </span>
@@ -56,7 +56,7 @@ export function Pagination({ page, totalPages, basePath, locale, className }: Pa
             <li key={p}>
               <Link
                 href={hrefFor(p)}
-                className="inline-flex min-w-[2rem] items-center justify-center rounded-sm border border-rule px-2 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+                className="inline-flex min-w-[2.25rem] items-center justify-center rounded-full border border-rule px-2 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
               >
                 {p}
               </Link>
@@ -68,7 +68,7 @@ export function Pagination({ page, totalPages, basePath, locale, className }: Pa
         <Link
           href={hrefFor(page + 1)}
           rel="next"
-          className="inline-flex items-center rounded-sm border border-rule px-3 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+          className="inline-flex items-center rounded-full border border-rule px-3.5 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
           lang={locale === 'en' ? 'en' : 'ne'}
         >
           {dict.nextPage} →

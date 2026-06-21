@@ -32,7 +32,7 @@ export function CategoryLabel({
   }
 
   return (
-    <Link href={href} className={cn('category-pill hover:brightness-95', className)}>
+    <Link href={href} className={cn('category-pill transition-colors duration-fast ease-out-quint hover:brightness-95', className)}>
       {content}
     </Link>
   )

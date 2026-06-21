@@ -82,7 +82,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
 
       {article.heroImage && (
         <figure className="mx-auto mt-8 max-w-page px-4">
-          <div className="relative overflow-hidden rounded-sm aspect-[16/9]">
+          <div className="relative overflow-hidden rounded-lg aspect-[16/9]">
             <Image
               src={article.heroImage.url}
               alt={article.heroImage.alt}
@@ -93,10 +93,10 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             />
           </div>
           {(article.heroCaptionNe || article.heroCredit) && (
-            <figcaption className="mt-2 text-caption text-mute" lang={titleLang}>
+            <figcaption className="mt-2 text-caption text-ink-soft" lang={titleLang}>
               {locale === 'en' ? article.heroCaptionEn : article.heroCaptionNe}
               {article.heroCredit ? (
-                <span className="text-mute/80">
+                <span className="text-mute">
                   {(locale === 'en' ? article.heroCaptionEn : article.heroCaptionNe) ? ' · ' : ''}
                   {article.heroCredit}
                 </span>

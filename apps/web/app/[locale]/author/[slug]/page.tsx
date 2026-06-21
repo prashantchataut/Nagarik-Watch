@@ -51,7 +51,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
           >
             {roleLabel}
           </p>
-          <h1 className="mt-1 font-display text-display text-ink" lang="ne">
+          <h1 className="mt-1 font-display text-display text-ink" lang={lang}>
             {author.name}
           </h1>
           {bio && (
@@ -61,7 +61,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
           )}
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <span
-              className="inline-flex items-center rounded-sm bg-brand-tint px-3 py-1 text-meta font-semibold text-brand-strong"
+              className="inline-flex items-center rounded-full bg-brand-tint px-3.5 py-1 text-meta font-semibold text-brand-strong"
               lang={lang}
             >
               {dict.storyCount(stories.total)}
@@ -71,7 +71,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
                 href={author.social.twitter}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-sm border border-rule px-3 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+                className="inline-flex items-center gap-1.5 rounded-full border border-rule px-3.5 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
               >
                 <XIcon /> X
               </a>
@@ -81,7 +81,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
                 href={author.social.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-sm border border-rule px-3 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+                className="inline-flex items-center gap-1.5 rounded-full border border-rule px-3.5 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
               >
                 <FacebookIcon /> Facebook
               </a>
@@ -89,7 +89,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
           </div>
           {categories.length > 0 && (
             <nav aria-label={dict.authorCategories} className="mt-5">
-              <p className="text-meta font-semibold uppercase tracking-wide text-mute" lang={lang}>
+              <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={lang}>
                 {dict.authorCategories}
               </p>
               <ul className="mt-2 flex flex-wrap gap-2">
@@ -101,7 +101,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
                       <Link
                         href={localizeHref(locale, `/${c.slug}`)}
                         lang={catLang}
-                        className="inline-flex items-center rounded-sm border border-rule px-3 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+                        className="inline-flex items-center rounded-full border border-rule px-3.5 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
                       >
                         {label}
                       </Link>
@@ -115,7 +115,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
       </header>
 
       {stories.items.length === 0 ? (
-        <p className="mt-12 text-body-lg text-mute" lang={lang}>
+        <p className="mt-12 text-body-lg text-ink-soft" lang={lang}>
           {dict.emptyEnglish}
         </p>
       ) : (

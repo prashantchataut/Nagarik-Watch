@@ -33,6 +33,7 @@ const tailwindPreset: Partial<Config> = {
         rule: 'var(--rule)',
         breaking: 'var(--breaking)',
         link: 'var(--link)',
+        gold: 'var(--accent-gold)',
       },
       maxWidth: {
         page: 'var(--page-max)',
@@ -53,8 +54,13 @@ const tailwindPreset: Partial<Config> = {
       },
       borderRadius: {
         none: 'var(--radius-0)',
+        // Moderate rounding (user pick): inputs/small surfaces = 4px, default = 8px,
+        // large cards/overlays = 12px, pills = full. `sm` is the smallest non-zero radius.
         sm: 'var(--radius-1)',
         DEFAULT: 'var(--radius-2)',
+        md: 'var(--radius-2)',
+        lg: 'var(--radius-3)',
+        full: 'var(--radius-full)',
       },
       transitionTimingFunction: {
         'out-quint': 'var(--ease-out-quint)',
@@ -66,6 +72,7 @@ const tailwindPreset: Partial<Config> = {
       },
       boxShadow: {
         overlay: 'var(--shadow-overlay)',
+        card: 'var(--shadow-card)',
       },
     },
   },

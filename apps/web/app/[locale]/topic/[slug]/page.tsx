@@ -65,7 +65,7 @@ export default async function TopicPage({
         )}
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <span
-            className="inline-flex items-center rounded-sm bg-brand-tint px-3 py-1 text-meta font-semibold text-brand-strong"
+            className="inline-flex items-center rounded-full bg-brand-tint px-3.5 py-1 text-meta font-semibold text-brand-strong"
             lang={nameLang}
           >
             {dict.storyCountTopic(result.total)}
@@ -74,7 +74,7 @@ export default async function TopicPage({
             <Link
               href={localizeHref(locale, `/${parentCategory.slug}`)}
               lang={lang}
-              className="inline-flex items-center rounded-sm border border-rule px-3 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+              className="inline-flex items-center rounded-full border border-rule px-3.5 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
             >
               {dict.topicBackToCategory}
             </Link>
@@ -83,7 +83,7 @@ export default async function TopicPage({
       </header>
 
       {result.items.length === 0 ? (
-        <p className="mt-12 text-body-lg text-mute" lang={lang}>
+        <p className="mt-12 text-body-lg text-ink-soft" lang={lang}>
           {dict.emptyEnglish}
         </p>
       ) : (

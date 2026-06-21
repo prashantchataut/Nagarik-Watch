@@ -137,7 +137,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
       </h1>
 
       <div className="relative mt-4">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-mute">
+        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-mute">
           <SearchIcon />
         </span>
         <input
@@ -149,14 +149,14 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
           placeholder={dict.searchPlaceholder}
           aria-label={dict.searchAria}
           autoComplete="off"
-          className="w-full rounded-sm border border-rule bg-surface-raised py-3 pl-11 pr-10 text-body-lg text-ink shadow-overlay placeholder:text-mute focus:border-brand"
+          className="w-full rounded-md border border-rule bg-surface-raised py-3 pl-12 pr-12 text-body-lg text-ink shadow-card placeholder:text-mute focus:border-brand"
         />
         {query && (
           <button
             type="button"
             onClick={clear}
             aria-label={dict.searchClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-1 text-mute transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+            className="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-mute transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
           >
             <ClearIcon />
           </button>
@@ -164,7 +164,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
       </div>
 
       {hasQuery && results.length > 0 && (
-        <p className="mt-3 text-meta text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
+        <p className="mt-3 text-meta text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
           {dict.searchResults(results.length)}
         </p>
       )}
@@ -173,7 +173,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
       {hasQuery && results.length > 0 && (
         <ul
           ref={listRef}
-          className="mt-4 divide-y divide-rule"
+          className="mt-4 space-y-1"
           role="listbox"
           aria-label={dict.searchHeading}
         >
@@ -185,7 +185,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
               <li key={`${r.id}-${r.slug}`} role="option" aria-selected={isActive}>
                 <Link
                   href={hrefFor(r)}
-                  className={`flex flex-col gap-1 px-2 py-3 transition-colors duration-fast ease-out-quint ${
+                  className={`flex flex-col gap-1 rounded-md px-3 py-3 transition-colors duration-fast ease-out-quint ${
                     isActive ? 'bg-brand-tint' : 'hover:bg-brand-tint/60'
                   }`}
                 >
@@ -195,7 +195,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
                   >
                     {segs.map((s, idx) =>
                       s.match ? (
-                        <mark key={idx} className="bg-brand-tint text-brand-strong">
+                        <mark key={idx} className="bg-transparent font-bold text-brand-strong">
                           {s.text}
                         </mark>
                       ) : (
@@ -204,7 +204,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
                     )}
                   </span>
                   {r.authors.length > 0 && (
-                    <span className="text-meta text-mute">
+                    <span className="text-meta text-ink-soft">
                       {r.authors.map((a) => a.name).join(' · ')}
                     </span>
                   )}
@@ -219,7 +219,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
       {hasQuery && results.length === 0 && (
         <div className="mt-12 flex flex-col gap-1" lang={locale === 'en' ? 'en' : 'ne'}>
           <p className="text-body-lg text-ink">{dict.searchNoResults}</p>
-          <p className="text-body text-mute">{dict.searchNoResultsHint}</p>
+          <p className="text-body text-ink-soft">{dict.searchNoResultsHint}</p>
         </div>
       )}
 
@@ -238,7 +238,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
                 <button
                   type="button"
                   onClick={() => setQuery(r)}
-                  className="inline-flex items-center rounded-sm border border-rule px-3 py-1.5 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+                  className="inline-flex items-center rounded-full border border-rule px-3.5 py-1.5 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
                 >
                   {r}
                 </button>
@@ -252,7 +252,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
       {!hasQuery && recents.length === 0 && (
         <div className="mt-12 flex flex-col gap-1" lang={locale === 'en' ? 'en' : 'ne'}>
           <p className="text-body-lg text-ink">{dict.searchEmptyQuery}</p>
-          <p className="text-body text-mute">{dict.searchEmptyHint}</p>
+          <p className="text-body text-ink-soft">{dict.searchEmptyHint}</p>
         </div>
       )}
     </div>
