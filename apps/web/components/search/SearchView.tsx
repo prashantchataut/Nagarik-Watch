@@ -155,7 +155,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
           <button
             type="button"
             onClick={clear}
-            aria-label={dict.notFoundHome}
+            aria-label={dict.searchClear}
             className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-1 text-mute transition-colors duration-fast ease-out-quint hover:text-brand-strong"
           >
             <ClearIcon />
@@ -217,9 +217,10 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
 
       {/* Empty: query but no results */}
       {hasQuery && results.length === 0 && (
-        <p className="mt-12 text-body-lg text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
-          {dict.searchNoResults}
-        </p>
+        <div className="mt-12 flex flex-col gap-1" lang={locale === 'en' ? 'en' : 'ne'}>
+          <p className="text-body-lg text-ink">{dict.searchNoResults}</p>
+          <p className="text-body text-mute">{dict.searchNoResultsHint}</p>
+        </div>
       )}
 
       {/* Empty: no query, but recents exist */}
@@ -249,9 +250,10 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
 
       {/* Empty: no query, no recents */}
       {!hasQuery && recents.length === 0 && (
-        <p className="mt-12 text-body-lg text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
-          {dict.searchEmptyQuery}
-        </p>
+        <div className="mt-12 flex flex-col gap-1" lang={locale === 'en' ? 'en' : 'ne'}>
+          <p className="text-body-lg text-ink">{dict.searchEmptyQuery}</p>
+          <p className="text-body text-mute">{dict.searchEmptyHint}</p>
+        </div>
       )}
     </div>
   )

@@ -127,17 +127,17 @@ export function createSeedContentSource(): ContentSource {
       return { lead, secondary: sorted.slice(1, 5).map(toCard) }
     },
 
-    async getAuthor(slug) {
+    async getAuthor(slug, locale) {
       const author = authorBySlug.get(slug)
       if (!author) return null
-      const stories = await this.getStories({ author: slug, locale: 'ne' })
+      const stories = await this.getStories({ author: slug, locale })
       return { author, stories }
     },
 
-    async getTag(slug) {
+    async getTag(slug, locale) {
       const tag = tagBySlug.get(slug)
       if (!tag) return null
-      const stories = await this.getStories({ tag: slug, locale: 'ne' })
+      const stories = await this.getStories({ tag: slug, locale })
       return { tag, stories }
     },
   }

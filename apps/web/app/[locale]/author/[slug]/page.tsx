@@ -18,7 +18,7 @@ type Params = { locale: string; slug: string }
 export default async function AuthorPage({ params }: { params: Promise<Params> }) {
   const { locale: rawLocale, slug } = await params
   const locale: Locale = asLocale(rawLocale)
-  const data = await getAuthor(slug)
+  const data = await getAuthor(slug, locale)
   if (!data) notFound()
 
   const { author, stories } = data
@@ -192,7 +192,7 @@ function roleFor(role: string, locale: Locale): string {
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale: rawLocale, slug } = await params
   const locale: Locale = asLocale(rawLocale)
-  const data = await getAuthor(slug)
+  const data = await getAuthor(slug, locale)
   if (!data) {
     return { title: getDictionary(locale).notFoundHeading, robots: { index: false } }
   }

@@ -260,7 +260,7 @@ export function createPayloadContentSource(): ContentSource {
       return { lead: cards[0], secondary: cards.slice(1, 5) }
     },
 
-    async getAuthor(slug) {
+    async getAuthor(slug, locale) {
       const payload = await getPayload()
       const { docs } = await payload.find({
         collection: 'authors',
@@ -286,11 +286,11 @@ export function createPayloadContentSource(): ContentSource {
         photo: asMedia(doc.photo),
         isActive: Boolean(doc.isActive ?? true),
       }
-      const stories = await source.getStories({ author: slug, locale: 'ne' })
+      const stories = await source.getStories({ author: slug, locale })
       return { author, stories }
     },
 
-    async getTag(slug) {
+    async getTag(slug, locale) {
       const payload = await getPayload()
       const { docs } = await payload.find({
         collection: 'tags',
@@ -306,7 +306,7 @@ export function createPayloadContentSource(): ContentSource {
         nameNe: String(doc.nameNe ?? ''),
         nameEn: doc.nameEn ? String(doc.nameEn) : undefined,
       }
-      const stories = await source.getStories({ tag: slug, locale: 'ne' })
+      const stories = await source.getStories({ tag: slug, locale })
       return { tag, stories }
     },
   }

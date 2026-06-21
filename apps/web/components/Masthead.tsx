@@ -3,6 +3,7 @@ import type { Category, Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, swapLocale } from '@/lib/i18n/locales'
+import { MobileNav } from '@/components/MobileNav'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
 type MastheadProps = {
@@ -67,10 +68,16 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
             >
               {dict.localeToggleTo}
             </Link>
+            {/* Mobile hamburger. The drawer it opens mirrors the inline nav below, so the
+                primary-navigation model stays identical across viewports (see MobileNav). */}
+            <MobileNav locale={locale} navCategories={navCategories} />
           </div>
         </div>
 
-        <nav aria-label={dict.primaryNav} className="border-t border-rule pt-2">
+        <nav
+          aria-label={dict.primaryNav}
+          className="hidden border-t border-rule pt-2 md:block"
+        >
           <ul className="flex flex-wrap items-center gap-x-5 gap-y-1">
             <li>
               <Link

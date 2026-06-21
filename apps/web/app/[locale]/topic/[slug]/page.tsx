@@ -29,11 +29,11 @@ export default async function TopicPage({
   const requested = Number.parseInt(sp.page ?? '1', 10)
   const page = Number.isFinite(requested) && requested > 0 ? requested : 1
 
-  const data = await getTag(slug)
+  const data = await getTag(slug, locale)
   if (!data) notFound()
 
   // Fetch the full paginated list for this locale so /en honours the same visibility rules
-  // as the rest of the site (ADR-007). getTag only returns page 1 in ne; getStories paginates.
+  // as the rest of the site (ADR-007). getTag returns page 1 only; getStories paginates.
   const result = await getStories({ tag: slug, page, locale })
   const dict = getDictionary(locale)
   const { tag } = data
@@ -137,7 +137,7 @@ export async function generateMetadata({
   const locale: Locale = asLocale(rawLocale)
   const sp = await searchParams
   const page = Number.parseInt(sp.page ?? '1', 10)
-  const data = await getTag(slug)
+  const data = await getTag(slug, locale)
   const prefix = localePrefix(locale)
   const canonical = `${prefix}/topic/${slug}`
 

@@ -67,6 +67,22 @@
     letter-spacing: 0.01em;
     line-height: 1.4;
   }
+
+  /* Theme toggle: both icons render in the DOM, CSS picks the visible one from data-theme.
+     No JS is needed to decide which icon shows, so there is no first-paint flash or
+     hydration mismatch (the inline head script sets data-theme before body paints). */
+  .theme-icon-sun {
+    display: none;
+  }
+  .theme-icon-moon {
+    display: inline-block;
+  }
+  :root[data-theme='dark'] .theme-icon-sun {
+    display: inline-block;
+  }
+  :root[data-theme='dark'] .theme-icon-moon {
+    display: none;
+  }
 }
 
 /* Breaking ticker: horizontal scroll via transform (never animate layout properties).

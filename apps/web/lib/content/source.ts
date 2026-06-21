@@ -44,8 +44,8 @@ export type ContentSource = {
   getHomepage(): Promise<HomepageData | null>
   getCategory(slug: string): Promise<Category | null>
   getCategoryPage(slug: string, page: number, locale: Locale): Promise<PaginatedStories | null>
-  getAuthor(slug: string): Promise<{ author: Author; stories: PaginatedStories } | null>
-  getTag(slug: string): Promise<{ tag: Tag; stories: PaginatedStories } | null>
+  getAuthor(slug: string, locale: Locale): Promise<{ author: Author; stories: PaginatedStories } | null>
+  getTag(slug: string, locale: Locale): Promise<{ tag: Tag; stories: PaginatedStories } | null>
   getStories(opts: StoryListOptions): Promise<PaginatedStories>
   /** Categories that should appear in primary navigation, ordered by navOrder. */
   getNavCategories(): Promise<Category[]>

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import type { Locale } from '@nagarikwatch/db'
-import '@nagarikwatch/ui/tokens.css'
+import '../globals.css'
 import { fontVariables } from '../fonts'
 import { asLocale } from '@/lib/i18n/locales'
 import { getDictionary } from '@/lib/i18n/dictionaries'

@@ -75,14 +75,16 @@ export async function getStories(opts: StoryListOptions): Promise<PaginatedStori
 
 export async function getAuthor(
   slug: string,
+  locale: Locale,
 ): Promise<{ author: Author; stories: PaginatedStories } | null> {
-  return (await source()).getAuthor(slug)
+  return (await source()).getAuthor(slug, locale)
 }
 
 export async function getTag(
   slug: string,
+  locale: Locale,
 ): Promise<{ tag: Tag; stories: PaginatedStories } | null> {
-  return (await source()).getTag(slug)
+  return (await source()).getTag(slug, locale)
 }
 
 export type { ContentSource, StoryListOptions }

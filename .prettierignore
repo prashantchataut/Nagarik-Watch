@@ -1,0 +1,23 @@
+# Mirrors .gitignore for the tooling that doesn't read it (Prettier, ESLint).
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+.turbo/
+pnpm-lock.yaml
+**/*.tsbuildinfo
+
+# CMS-generated
+apps/admin/src/payload-types.ts
+
+# Agent workspace
+.opencode/
+graphify-out/
+
+# Local dev artifacts — HTML/CSS dumps saved for inspection, not part of the app
+live-home.html
+live.css

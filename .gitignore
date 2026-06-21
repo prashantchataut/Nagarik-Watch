@@ -44,3 +44,7 @@ pnpm-debug.log*
 
 # Graphify knowledge graph outputs
 graphify-out/
+
+# Local dev artifacts: live HTML/CSS dumps saved for inspection, not part of the app
+live-home.html
+live.css

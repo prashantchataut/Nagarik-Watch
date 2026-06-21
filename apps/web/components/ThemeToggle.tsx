@@ -29,27 +29,25 @@ function applyTheme(theme: Theme) {
 
 /**
  * Light/dark toggle. The inline script in the locale layout resolves the initial theme before
- * paint (no flash), so this only needs to read data-theme on mount and then flip it on click.
- * Persisted under `nw-theme`, which the inline script reads first so a returning reader never
- * sees the wrong theme even for a frame.
+ * paint (no flash), and the visible icon is selected purely by CSS based on data-theme, so this
+ * component renders identical markup on server and client — no hydration mismatch, no
+ * post-mount flip. State here only tracks the *next* theme for the accessible label, seeded
+ * post-mount from data-theme (a screen-reader-only concern; the visual icon never depended on
+ * it, so the label settling one tick after paint is not a visible flash).
  */
 export function ThemeToggle({ locale, className }: ThemeToggleProps) {
   const dict = getDictionary(locale)
-  const [theme, setTheme] = useState<Theme>('light')
-  const [mounted, setMounted] = useState(false)
+  const [next, setNext] = useState<Theme>('dark')
 
   useEffect(() => {
-    setTheme(readTheme())
-    setMounted(true)
+    setNext(readTheme() === 'dark' ? 'light' : 'dark')
   }, [])
 
-  const isDark = theme === 'dark'
-  const next: Theme = isDark ? 'light' : 'dark'
-  const label = isDark ? dict.themeToggleToLight : dict.themeToggleToDark
+  const label = next === 'light' ? dict.themeToggleToLight : dict.themeToggleToDark
 
   function toggle() {
     applyTheme(next)
-    setTheme(next)
+    setNext(next === 'dark' ? 'light' : 'dark')
   }
 
   return (
@@ -60,7 +58,8 @@ export function ThemeToggle({ locale, className }: ThemeToggleProps) {
       title={label}
       className={`rounded-sm p-2 text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong ${className ?? ''}`}
     >
-      {mounted && isDark ? <SunIcon /> : <MoonIcon />}
+      <SunIcon />
+      <MoonIcon />
     </button>
   )
 }
@@ -68,6 +67,7 @@ export function ThemeToggle({ locale, className }: ThemeToggleProps) {
 function SunIcon() {
   return (
     <svg
+      className="theme-icon-sun"
       width="20"
       height="20"
       viewBox="0 0 24 24"
@@ -88,6 +88,7 @@ function SunIcon() {
 function MoonIcon() {
   return (
     <svg
+      className="theme-icon-moon"
       width="20"
       height="20"
       viewBox="0 0 24 24"

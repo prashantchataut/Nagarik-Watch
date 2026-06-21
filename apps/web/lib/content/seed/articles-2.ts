@@ -18,7 +18,8 @@ export const articlesBatch2: Article[] = [
     categoryLabel: 'खेलकुद',
     titleNe: 'फ्याक्ट्रीको मजदुरदेखि विश्वकपको नायकसम्म: डेनिज उन्डाभ',
     titleEn: 'From factory worker to World Cup hero: Deniz Undav',
-    deckNe: 'प्रशिक्षकसँगको विवादपछि चर्चामा रहेका उन्डाभ अहिले जर्मनीका लागि सबैभन्दा महत्त्वपूर्ण खेलाडी बनेका छन्।',
+    deckNe:
+      'प्रशिक्षकसँगको विवादपछि चर्चामा रहेका उन्डाभ अहिले जर्मनीका लागि सबैभन्दा महत्त्वपूर्ण खेलाडी बनेका छन्।',
     heroImage: unsplash('1551958219-acbc608c6377', 'फुटबल मैदानमा खेलाडी', {
       ...{ w: 1600, h: 900 },
       credit: 'Unsplash',
@@ -56,7 +57,7 @@ export const articlesBatch2: Article[] = [
     bodyEn: [
       {
         type: 'paragraph',
-        text: 'Deniz Undav, recently in the spotlight over a dispute with coach Julian Nagelsmann, has become Germany\'s most important player at the World Cup. He began his career working in a factory.',
+        text: "Deniz Undav, recently in the spotlight over a dispute with coach Julian Nagelsmann, has become Germany's most important player at the World Cup. He began his career working in a factory.",
       },
       {
         type: 'paragraph',
@@ -253,7 +254,9 @@ export const articlesBatch2: Article[] = [
     hasEnglish: true,
     isBreaking: true,
     readingMinutes: 3,
-    tags: [{ id: 'tag-geopolitics', slug: 'geopolitics', nameNe: 'भूराजनीति', nameEn: 'Geopolitics' }],
+    tags: [
+      { id: 'tag-geopolitics', slug: 'geopolitics', nameNe: 'भूराजनीति', nameEn: 'Geopolitics' },
+    ],
     source: {
       sourceType: 'wire',
       sourceName: 'Reuters',
@@ -274,7 +277,7 @@ export const articlesBatch2: Article[] = [
     bodyEn: [
       {
         type: 'paragraph',
-        text: 'Rising tension between Iran and the United States has destabilised the Strait of Hormuz. With a large share of the world\'s oil flowing through it, fears of disruption have shaken global markets.',
+        text: "Rising tension between Iran and the United States has destabilised the Strait of Hormuz. With a large share of the world's oil flowing through it, fears of disruption have shaken global markets.",
       },
       {
         type: 'paragraph',
