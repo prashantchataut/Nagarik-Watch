@@ -9,6 +9,7 @@ import { localizeHref, swapLocale } from '@/lib/i18n/locales'
 import { MobileNav } from '@/components/MobileNav'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Logo } from '@/components/Logo'
+import { STATIC_HUBS } from '@/lib/site'
 
 type MastheadProps = {
   locale: Locale
@@ -76,10 +77,7 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
           </div>
         </div>
 
-        <nav
-          aria-label={dict.primaryNav}
-          className="hidden border-t border-rule pt-2 md:block"
-        >
+        <nav aria-label={dict.primaryNav} className="hidden border-t border-rule pt-2 md:block">
           <ul className="flex flex-wrap items-center gap-x-1 gap-y-1">
             <li>
               <NavLink href={homeHref} active={pathname === '/' || pathname === '/en'}>
@@ -95,6 +93,19 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
                 <li key={c.slug}>
                   <NavLink href={href} active={active} lang={catLang}>
                     {label}
+                  </NavLink>
+                </li>
+              )
+            })}
+            {STATIC_HUBS.filter((hub) =>
+              ['latest', 'trending', 'market', 'fact-check'].includes(hub.key),
+            ).map((hub) => {
+              const href = localizeHref(locale, hub.path)
+              const active = pathname === href || pathname.startsWith(`${href}/`)
+              return (
+                <li key={hub.key}>
+                  <NavLink href={href} active={active} lang={locale === 'en' ? 'en' : 'ne'}>
+                    {locale === 'en' ? hub.titleEn : hub.titleNe}
                   </NavLink>
                 </li>
               )

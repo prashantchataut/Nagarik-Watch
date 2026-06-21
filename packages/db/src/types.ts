@@ -79,9 +79,16 @@ export interface Author extends AuthorRef {
   bioNe?: string
   bioEn?: string
   photo?: MediaRef
+  expertise?: string[]
+  beats?: string[]
+  email?: string
+  joinedAt?: string
+  verified?: boolean
   social?: {
     twitter?: string
     facebook?: string
+    website?: string
+    linkedin?: string
   }
   isActive: boolean
 }
@@ -171,16 +178,113 @@ export interface Article extends StoryCardData {
   bodyEn?: ArticleBlock[]
   source?: SourceAttribution
   tags: Tag[]
+  editor?: AuthorRef
+  factChecker?: AuthorRef
   heroCaptionNe?: string
   heroCaptionEn?: string
   heroCredit?: string
+  sourceNotes?: string
+  correctionNote?: string
+  topic?: Tag
+  province?: string
+  district?: string
+  language?: Locale
+  canonicalUrl?: string
+  sponsored?: boolean
+  sponsorName?: string
+  exclusive?: boolean
+  factCheckStatus?:
+    | 'not_fact_check'
+    | 'in_review'
+    | 'verified'
+    | 'false'
+    | 'mixed'
+    | 'context_needed'
+  aiSummaryApproved?: boolean
+  keyPoints?: string[]
+  summary?: string
+  visibilityStatus?: 'draft' | 'private' | 'public' | 'noindex'
   corrections?: Correction[]
   updatedAt?: string
   seoTitleNe?: string
   seoTitleEn?: string
   seoDescriptionNe?: string
   seoDescriptionEn?: string
+  focusKeyword?: string
+  socialImage?: MediaRef
+  noindex?: boolean
+  doNotRecommend?: boolean
   readingMinutes: number
+}
+
+export interface Permission {
+  id: string
+  action: string
+  description?: string
+}
+
+export interface Role {
+  id: string
+  name: string
+  permissions: Permission[]
+}
+
+export interface User {
+  id: string
+  name: string
+  email: string
+  roles: Role[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Comment {
+  id: string
+  articleId: string
+  userId?: string
+  authorName: string
+  body: string
+  status: 'pending' | 'approved' | 'rejected' | 'spam'
+  parentId?: string
+  createdAt: string
+}
+
+export interface Poll {
+  id: string
+  question: string
+  options: { id: string; label: string; votes: number }[]
+  status: 'draft' | 'open' | 'closed'
+}
+
+export interface ReaderSubmission {
+  id: string
+  title: string
+  body: string
+  category?: string
+  province?: string
+  district?: string
+  anonymous: boolean
+  evidenceUrls: string[]
+  status: 'new' | 'reviewing' | 'accepted' | 'declined'
+  createdAt: string
+}
+
+export interface AuditLog {
+  id: string
+  actorId: string
+  action: string
+  entityType: string
+  entityId: string
+  metadata?: Record<string, unknown>
+  createdAt: string
+}
+
+export interface ApiDataCache<T = unknown> {
+  key: string
+  source: string
+  data: T
+  expiresAt: string
+  updatedAt: string
 }
 
 /** A homepage category section block (DESIGN.md §5 SectionBlock). */

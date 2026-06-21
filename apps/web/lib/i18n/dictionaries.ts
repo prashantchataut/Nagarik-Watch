@@ -19,8 +19,7 @@ export const dictionary = {
     searchPlaceholder: 'शीर्षक, विषय वा लेखक खोज्नुहोस्…',
     searchHeading: 'खोज',
     searchEmptyQuery: 'खोज्न क्वेरी लेख्नुहोस्',
-    searchEmptyHint:
-      'शीर्षक, लेखक, विषय वा विभाग खोज्नुहोस्। देवनागरी वा अंग्रेजी दुवै चल्छ।',
+    searchEmptyHint: 'शीर्षक, लेखक, विषय वा विभाग खोज्नुहोस्। देवनागरी वा अंग्रेजी दुवै चल्छ।',
     searchNoResults: 'कुनै परिणाम भेटिएन।',
     searchNoResultsHint: 'अर्को शब्द वा लेखकको नाम प्रयास गर्नुहोस्।',
     searchClear: 'खोज मेटाउनुहोस्',
@@ -232,7 +231,8 @@ export const dictionary = {
     contactTip:
       'Have an event or story? Email contact@nagarikwatch.com. For sensitive tips we can provide a secure channel.',
     contactCorrectionHeading: 'Correction request',
-    contactCorrection: 'Spotted an error in a published story? Please email us. We review immediately.',
+    contactCorrection:
+      'Spotted an error in a published story? Please email us. We review immediately.',
     contactEmailLabel: 'Email',
     contactEmail: 'contact@nagarikwatch.com',
     contactPageHeading: 'Other contact',

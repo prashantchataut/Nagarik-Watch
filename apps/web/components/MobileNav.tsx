@@ -6,6 +6,7 @@ import type { Category, Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
+import { STATIC_HUBS } from '@/lib/site'
 
 type MobileNavProps = {
   locale: Locale
@@ -140,6 +141,20 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                     </li>
                   )
                 })}
+                {STATIC_HUBS.filter((hub) =>
+                  ['latest', 'trending', 'market', 'fact-check', 'submit-story'].includes(hub.key),
+                ).map((hub) => (
+                  <li key={hub.key}>
+                    <Link
+                      href={localizeHref(locale, hub.path)}
+                      onClick={() => setOpen(false)}
+                      lang={locale === 'en' ? 'en' : 'ne'}
+                      className="block rounded-md px-3 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+                    >
+                      {locale === 'en' ? hub.titleEn : hub.titleNe}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </nav>
           </div>

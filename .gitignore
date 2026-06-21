@@ -39,8 +39,12 @@ npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
-# Agent workspace — per-session context, not project code
-.opencode/
+# Agent workspace — per-session context, not project code.
+# Project skills are reusable workflow code and may be committed.
+.opencode/*
+!.opencode/skills/
+!.opencode/skills/**/
+!.opencode/skills/**/SKILL.md
 
 # Graphify knowledge graph outputs
 graphify-out/

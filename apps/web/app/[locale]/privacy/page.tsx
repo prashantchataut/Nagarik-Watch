@@ -36,11 +36,7 @@ export default async function PrivacyPage({ params }: { params: Promise<Params> 
   )
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale: rawLocale } = await params
   const locale: Locale = asLocale(rawLocale)
   const dict = getDictionary(locale)

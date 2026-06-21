@@ -146,13 +146,11 @@ export async function generateMetadata({
   }
 
   const name = locale === 'en' && data.tag.nameEn ? data.tag.nameEn : data.tag.nameNe
-  const opposite = locale === 'en' ? '' : '/en'
-
   return {
     title: name,
     alternates: {
       canonical,
-      languages: { ne: `/topic/${slug}`, en: `${opposite}/topic/${slug}` },
+      languages: { ne: `/topic/${slug}`, en: `/en/topic/${slug}` },
     },
     robots: page > 1 ? { index: false, follow: true } : { index: true, follow: true },
   }

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getStories, getNavCategories } from '@/lib/content'
 import { seedTags, seedAuthors } from '@/lib/content/seed-source'
+import { STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
 
 /**
  * Dynamic sitemap. Emits one <url> per locale (ne at root, en under /en) for every article,
@@ -35,9 +36,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
   }
 
-  // Static info pages (about, ethics, privacy, contact). Linked from the footer and served
+  // Static info pages. Linked from the footer and served
   // bilingually, so advertise both locales.
-  const STATIC_PAGES = ['about', 'ethics', 'privacy', 'contact'] as const
+  const STATIC_PAGES = [
+    'about',
+    'ethics',
+    'privacy',
+    'contact',
+    'rss',
+    'sitemap',
+    ...STATIC_HUBS.map((hub) => hub.path.replace(/^\//, '')),
+    ...TRUST_PAGES.map((page) => page.path.replace(/^\//, '')),
+  ] as const
   for (const locale of LOCALES) {
     for (const page of STATIC_PAGES) {
       entries.push({

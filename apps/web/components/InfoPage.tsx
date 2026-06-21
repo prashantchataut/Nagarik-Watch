@@ -14,10 +14,7 @@ type InfoPageHeaderProps = {
 export function InfoPageHeader({ kicker, lead, lang }: InfoPageHeaderProps) {
   return (
     <header className="border-b border-rule pb-8">
-      <p
-        className="text-meta font-semibold uppercase tracking-wide text-brand-strong"
-        lang={lang}
-      >
+      <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={lang}>
         {kicker}
       </p>
       <h1 className="mt-1 font-display text-display text-ink" lang={lang}>

@@ -162,6 +162,8 @@ export function createPayloadContentSource(): ContentSource {
       const perPage = opts.limit && !opts.page ? opts.limit : (opts.perPage ?? PER_PAGE)
       const where: Record<string, unknown> = { _status: { equals: 'published' } }
       if (opts.category) where['category.slug'] = { equals: opts.category }
+      if (opts.author) where['authors.author.slug'] = { equals: opts.author }
+      if (opts.tag) where['tags.tag.slug'] = { equals: opts.tag }
       if (opts.locale === 'en') where.englishStatus = { equals: 'published' }
       if (opts.exclude?.length) where.slug = { not_in: opts.exclude }
       const { docs, totalDocs, totalPages } = await payload.find({
