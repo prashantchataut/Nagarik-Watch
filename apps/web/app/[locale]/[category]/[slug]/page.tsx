@@ -10,6 +10,8 @@ import { ArticleBody, CorrectionNotice, TagRow } from '@/components/article/Arti
 import { ShareBar } from '@/components/article/ShareBar'
 import { ArticleJsonLd } from '@/components/article/ArticleJsonLd'
 import { RelatedStories } from '@/components/article/RelatedStories'
+import { ReadingProgress } from '@/components/article/ReadingProgress'
+import { FontSizeControl } from '@/components/article/FontSizeControl'
 
 type Params = { locale: string; category: string; slug: string }
 
@@ -48,6 +50,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
 
   return (
     <article>
+      <ReadingProgress locale={locale} />
       <ArticleJsonLd
         article={article}
         locale={locale}
@@ -106,8 +109,11 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         </figure>
       )}
 
-      <div className="mx-auto mt-8 max-w-body px-4">
-        <ShareBar url={`${prefix}/${category}/${slug}`} title={title} locale={locale} />
+      <div className="reading-scale mx-auto mt-8 max-w-body px-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-y border-rule py-3">
+          <ShareBar url={`${prefix}/${category}/${slug}`} title={title} locale={locale} />
+          <FontSizeControl locale={locale} />
+        </div>
 
         {article.corrections && article.corrections.length > 0 && (
           <CorrectionNotice corrections={article.corrections} locale={locale} className="mt-6" />

@@ -7,6 +7,8 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { getNavCategories } from '@/lib/content'
 import { Masthead } from '@/components/Masthead'
 import { Footer } from '@/components/Footer'
+import { UtilityStrip } from '@/components/live/UtilityStrip'
+import { BottomNav } from '@/components/BottomNav'
 
 export const dynamicParams = false
 
@@ -80,9 +82,15 @@ export default async function LocaleLayout({
         >
           {getDictionary(locale).skipToContent}
         </a>
+        <UtilityStrip locale={locale} />
         <Masthead locale={locale} navCategories={navCategories} />
-        <main id="main">{children}</main>
+        {/* pb-16 on small screens reserves room for the fixed BottomNav so it never covers
+            the footer/last content (no sticky element blocking content, spec Phase 14). */}
+        <main id="main" className="pb-16 lg:pb-0">
+          {children}
+        </main>
         <Footer locale={locale} />
+        <BottomNav locale={locale} />
       </body>
     </html>
   )

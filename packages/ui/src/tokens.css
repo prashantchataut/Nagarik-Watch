@@ -40,6 +40,16 @@
      Committed-strategy second color so the chrome is not one-note red. ≤5% of surface. */
   --accent-gold: oklch(0.78 0.13 85);
 
+  /* Semantic live-data states. Used by market up/down, sports, AQI bands, disaster levels.
+     Never the only signal (DESIGN.md §11: no colour-only meaning) — widgets pair these with
+     an arrow/▲▼ glyph or a text label. Greens/ambers kept civic, not neon. AA on surface. */
+  --up: oklch(0.5 0.13 150); /* market gain / positive */
+  --down: oklch(0.52 0.18 25); /* market loss / negative (warm, not the brand crimson) */
+  --aqi-good: oklch(0.55 0.12 150);
+  --aqi-moderate: oklch(0.62 0.12 85);
+  --aqi-unhealthy: oklch(0.55 0.18 45);
+  --aqi-severe: oklch(0.48 0.2 25);
+
   /* Spacing (4px base) */
   --space-1: 0.25rem; /* 4 */
   --space-2: 0.5rem; /* 8 */
@@ -98,6 +108,13 @@
 
     --accent-gold: oklch(0.82 0.12 85);
 
+    --up: oklch(0.72 0.14 150);
+    --down: oklch(0.7 0.16 25);
+    --aqi-good: oklch(0.72 0.13 150);
+    --aqi-moderate: oklch(0.78 0.13 85);
+    --aqi-unhealthy: oklch(0.7 0.16 45);
+    --aqi-severe: oklch(0.68 0.18 25);
+
     --shadow-overlay: 0 8px 32px oklch(0 0 0 / 0.4);
     --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3);
   }
@@ -117,6 +134,12 @@
   --breaking: oklch(0.56 0.2 27);
   --focus-ring: oklch(0.78 0.15 25);
   --accent-gold: oklch(0.82 0.12 85);
+  --up: oklch(0.72 0.14 150);
+  --down: oklch(0.7 0.16 25);
+  --aqi-good: oklch(0.72 0.13 150);
+  --aqi-moderate: oklch(0.78 0.13 85);
+  --aqi-unhealthy: oklch(0.7 0.16 45);
+  --aqi-severe: oklch(0.68 0.18 25);
   --shadow-overlay: 0 8px 32px oklch(0 0 0 / 0.4);
   --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3);
 }
@@ -135,6 +158,12 @@
   --breaking: oklch(0.5 0.22 27);
   --focus-ring: oklch(0.55 0.18 25);
   --accent-gold: oklch(0.78 0.13 85);
+  --up: oklch(0.5 0.13 150);
+  --down: oklch(0.52 0.18 25);
+  --aqi-good: oklch(0.55 0.12 150);
+  --aqi-moderate: oklch(0.62 0.12 85);
+  --aqi-unhealthy: oklch(0.55 0.18 45);
+  --aqi-severe: oklch(0.48 0.2 25);
   --shadow-overlay: 0 8px 32px oklch(0.2 0.02 25 / 0.12);
   --shadow-card: 0 1px 2px oklch(0.2 0.02 25 / 0.06);
 }

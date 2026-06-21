@@ -7,6 +7,8 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { BreakingTicker } from '@/components/BreakingTicker'
 import { SectionBlock } from '@/components/home/SectionBlock'
+import { TodayInBrief } from '@/components/home/TodayInBrief'
+import { HomeLiveBoard } from '@/components/live/HomeLiveBoard'
 
 export const dynamic = 'force-static'
 
@@ -38,25 +40,36 @@ export default async function HomePage({ params }: { params: Promise<Params> }) 
             <Hero story={data.lead} locale={locale} />
           </div>
           {data.secondary.length > 0 && (
-            <aside aria-label={dict.relatedStories} className="lg:col-span-1">
-              <SectionHeader title={dict.more} locale={locale} />
-              <ul className="mt-5 flex flex-col gap-6">
-                {data.secondary.slice(0, 4).map((s) => (
-                  <li key={s.slug}>
-                    <StoryCard story={s} locale={locale} variant="horizontal" />
-                  </li>
-                ))}
-              </ul>
-              <a
-                href={sectionHref}
-                className="mt-6 inline-block text-meta font-semibold text-brand transition-colors duration-fast ease-out-quint hover:text-brand-strong"
-                lang={locale === 'en' ? 'en' : 'ne'}
-              >
-                {dict.seeAll} →
-              </a>
+            <aside aria-label={dict.more} className="flex flex-col gap-8 lg:col-span-1">
+              {/* The day at a glance, sitting beside the lead so a scanning reader gets the
+                  gist before committing to a story. Uses the day's top headlines. */}
+              <TodayInBrief stories={data.secondary} locale={locale} />
+
+              <div>
+                <SectionHeader title={dict.more} locale={locale} />
+                <ul className="mt-5 flex flex-col gap-6">
+                  {data.secondary.slice(0, 4).map((s) => (
+                    <li key={s.slug}>
+                      <StoryCard story={s} locale={locale} variant="horizontal" />
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={sectionHref}
+                  className="mt-6 inline-block text-meta font-semibold text-brand transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+                  lang={locale === 'en' ? 'en' : 'ne'}
+                >
+                  {dict.seeAll} →
+                </a>
+              </div>
             </aside>
           )}
         </div>
+
+        {/* Live data board (weather / AQI / NEPSE). Mock until feeds are wired; each card
+            shows its source, freshness, and a MOCK badge. Surfaced here so mobile readers,
+            who never see the desktop UtilityStrip, still get the glance values. */}
+        <HomeLiveBoard locale={locale} className="mt-12 border-t border-rule pt-8" />
 
         <div className="mt-16 flex flex-col gap-16">
           {data.sections.map((section) => (

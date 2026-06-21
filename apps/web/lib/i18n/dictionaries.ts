@@ -126,6 +126,39 @@ export const dictionary = {
     metaDescription:
       'नागरिक वाच (Nagarik Watch) — नेपालको नागरिककेन्द्रित, स्वतन्त्र र विश्वसनीय समाचार पोर्टल।',
     mastheadDate: (date: string) => date,
+
+    // Live widgets (weather / AQI / NEPSE / utility strip). MOCK label is shown until a
+    // real feed is wired (see apps/web/lib/live/mock.ts).
+    liveMock: 'नमुना',
+    liveSourcePrefix: 'स्रोत',
+    liveLoading: 'लोड हुँदै…',
+    liveError: 'अहिले उपलब्ध छैन',
+    liveEmpty: 'डाटा छैन',
+    liveRetry: 'पुनः प्रयास',
+    weatherTitle: 'मौसम',
+    aqiTitle: 'वायु गुणस्तर',
+    nepseTitle: 'नेप्से',
+    nepseOpen: 'कारोबार खुला',
+    nepseClosed: 'बजार बन्द',
+    marketUp: 'बढ्यो',
+    marketDown: 'घट्यो',
+
+    // Bottom mobile navigation
+    navLatest: 'ताजा',
+    navTrending: 'चर्चित',
+    navSaved: 'सुरक्षित',
+    bottomNavAria: 'मुख्य द्रुत नेभिगेसन',
+
+    // "Today in brief" homepage briefing module
+    briefTitle: 'आजका मुख्य कुरा',
+    briefSubtitle: 'छोटोमा थाहा पाउनुहोस्',
+
+    // Article reading enhancements
+    readingProgressAria: 'पढाइ प्रगति',
+    fontSizeLabel: 'अक्षर आकार',
+    fontSizeSmaller: 'सानो अक्षर',
+    fontSizeLarger: 'ठूलो अक्षर',
+    fontSizeReset: 'पूर्वनिर्धारित अक्षर',
   },
   en: {
     siteName: 'Nagarik Watch',
@@ -244,6 +277,38 @@ export const dictionary = {
     metaDescription:
       'Nagarik Watch — a citizen-focused, independent and trustworthy news portal from Nepal.',
     mastheadDate: (date: string) => date,
+
+    // Live widgets
+    liveMock: 'MOCK',
+    liveSourcePrefix: 'Source',
+    liveLoading: 'Loading…',
+    liveError: 'Unavailable right now',
+    liveEmpty: 'No data',
+    liveRetry: 'Retry',
+    weatherTitle: 'Weather',
+    aqiTitle: 'Air quality',
+    nepseTitle: 'NEPSE',
+    nepseOpen: 'Market open',
+    nepseClosed: 'Market closed',
+    marketUp: 'up',
+    marketDown: 'down',
+
+    // Bottom mobile navigation
+    navLatest: 'Latest',
+    navTrending: 'Trending',
+    navSaved: 'Saved',
+    bottomNavAria: 'Primary quick navigation',
+
+    // "Today in brief" homepage briefing module
+    briefTitle: 'Today in brief',
+    briefSubtitle: 'The day, quickly',
+
+    // Article reading enhancements
+    readingProgressAria: 'Reading progress',
+    fontSizeLabel: 'Text size',
+    fontSizeSmaller: 'Smaller text',
+    fontSizeLarger: 'Larger text',
+    fontSizeReset: 'Reset text size',
   },
 } as const
 
