@@ -102,13 +102,11 @@ export async function generateMetadata({
   }
 
   const name = locale === 'en' && cat.nameEn ? cat.nameEn : cat.nameNe
-  const opposite = locale === 'en' ? '' : '/en'
-
   return {
     title: name,
     alternates: {
       canonical,
-      languages: { ne: `/${category}`, en: `${opposite}/${category}` },
+      languages: { ne: `/${category}`, en: `/en/${category}` },
     },
     robots: page > 1 ? { index: false, follow: true } : { index: true, follow: true },
   }

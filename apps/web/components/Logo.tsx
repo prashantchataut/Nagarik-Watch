@@ -50,7 +50,11 @@ export function LogoMark({ title, className, ...props }: LogoMarkProps) {
           opacity="0.96"
         />
         {/* Lower lash line — grounds the eye, adds the "watching" weight at the base. */}
-        <path d="M2 14 L14 14 L22 14 L26 14 L26 18 L2 18 Z" fill="var(--surface-raised)" opacity="0.96" />
+        <path
+          d="M2 14 L14 14 L22 14 L26 14 L26 18 L2 18 Z"
+          fill="var(--surface-raised)"
+          opacity="0.96"
+        />
         {/* Iris — gold accent (the reserved second color, used only on identity + breaking). */}
         <circle cx="14" cy="11.5" r="3.4" fill="var(--accent-gold)" />
         {/* Pupil — ink, offset upward to read as alert/looking forward. */}
@@ -84,7 +88,10 @@ export function Logo({ siteName = 'नागरिक वाच', className, mar
         <span className="font-display text-h1 font-extrabold tracking-tight text-ink" lang="ne">
           {siteName}
         </span>
-        <span className="mt-0.5 text-meta font-semibold uppercase tracking-[0.14em] text-mute" lang="en">
+        <span
+          className="mt-0.5 text-meta font-semibold uppercase tracking-[0.14em] text-mute"
+          lang="en"
+        >
           Nagarik Watch
         </span>
       </span>

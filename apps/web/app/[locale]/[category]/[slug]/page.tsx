@@ -147,15 +147,15 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     locale === 'en' && article.seoDescriptionEn
       ? article.seoDescriptionEn
       : (article.seoDescriptionNe ?? article.deckNe)
-  const opposite = locale === 'en' ? '' : '/en'
 
   return {
     title,
     description,
     alternates: {
-      canonical,
-      languages: { ne: `/${category}/${slug}`, en: `${opposite}/${category}/${slug}` },
+      canonical: article.canonicalUrl ?? canonical,
+      languages: { ne: `/${category}/${slug}`, en: `/en/${category}/${slug}` },
     },
+    robots: article.noindex ? { index: false, follow: true } : undefined,
     openGraph: {
       type: 'article',
       title,

@@ -171,12 +171,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
 
       {/* Results */}
       {hasQuery && results.length > 0 && (
-        <ul
-          ref={listRef}
-          className="mt-4 space-y-1"
-          role="listbox"
-          aria-label={dict.searchHeading}
-        >
+        <ul ref={listRef} className="mt-4 space-y-1" role="listbox" aria-label={dict.searchHeading}>
           {results.map((r, i) => {
             const title = titleFor(r)
             const segs = highlightSegments(title, debounced)

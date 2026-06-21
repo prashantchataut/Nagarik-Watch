@@ -7,6 +7,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { getNavCategories } from '@/lib/content'
 import { Masthead } from '@/components/Masthead'
 import { Footer } from '@/components/Footer'
+import { SiteJsonLd } from '@/components/SiteJsonLd'
 
 export const dynamicParams = false
 
@@ -62,6 +63,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir="ltr" className={fontVariables} suppressHydrationWarning>
       <head>
+        <SiteJsonLd siteName={getDictionary(locale).siteName} />
         <script
           // Resolve the initial theme before paint so there is no flash of the wrong scheme.
           // Order: persisted choice (nw-theme) wins; otherwise fall back to prefers-color-scheme.

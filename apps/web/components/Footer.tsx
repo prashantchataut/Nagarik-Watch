@@ -21,8 +21,24 @@ export function Footer({ locale }: FooterProps) {
 
   const sectionLinks = [
     { href: localizeHref(locale, '/about'), label: dict.footerAbout },
+    { href: localizeHref(locale, '/team'), label: locale === 'en' ? 'Team' : 'टोली' },
     { href: localizeHref(locale, '/ethics'), label: dict.footerEthics },
+    {
+      href: localizeHref(locale, '/editorial-policy'),
+      label: locale === 'en' ? 'Editorial Policy' : 'सम्पादकीय नीति',
+    },
+    {
+      href: localizeHref(locale, '/corrections-policy'),
+      label: locale === 'en' ? 'Corrections' : 'सच्याइ',
+    },
+    {
+      href: localizeHref(locale, '/fact-check-policy'),
+      label: locale === 'en' ? 'Fact-check Policy' : 'तथ्य-जाँच नीति',
+    },
     { href: localizeHref(locale, '/privacy'), label: dict.footerPrivacy },
+    { href: localizeHref(locale, '/terms'), label: locale === 'en' ? 'Terms' : 'सर्त' },
+    { href: localizeHref(locale, '/advertise'), label: locale === 'en' ? 'Advertise' : 'विज्ञापन' },
+    { href: '/rss.xml', label: 'RSS' },
     { href: localizeHref(locale, '/contact'), label: dict.footerContact },
   ]
 

@@ -11,7 +11,10 @@ test.describe('breaking ticker + error surfaces', () => {
     const ticker = page.getByRole('region', { name: 'ब्रेकिङ' })
     // The ticker is conditional; if it rendered, its links must resolve to article URLs.
     if (await ticker.isVisible().catch(() => false)) {
-      await expect(ticker.getByRole('link').first()).toHaveAttribute('href', /\/[a-z-]+\/[a-z0-9-]+/)
+      await expect(ticker.getByRole('link').first()).toHaveAttribute(
+        'href',
+        /\/[a-z-]+\/[a-z0-9-]+/,
+      )
     }
   })
 

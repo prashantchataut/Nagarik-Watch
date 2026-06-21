@@ -102,10 +102,7 @@ function BlockRenderer({ block, locale }: { block: ArticleBlock; locale: Locale 
       const quote = locale === 'en' && block.quoteEn ? block.quoteEn : block.quoteNe
       const quoteLang = locale === 'en' && block.quoteEn ? 'en' : 'ne'
       return (
-        <blockquote
-          className="my-2 rounded-lg bg-brand-tint px-6 py-5"
-          lang={quoteLang}
-        >
+        <blockquote className="my-2 rounded-lg bg-brand-tint px-6 py-5" lang={quoteLang}>
           <p className="font-display text-h3 leading-snug text-brand-strong">{quote}</p>
           {block.attribution && (
             // No em dash (impeccable ban): the attribution is a labeled cite line.
@@ -149,19 +146,22 @@ function Embed({
   locale: Locale
 }) {
   const lang = locale === 'en' ? 'en' : 'ne'
+  const embedUrl = safeEmbedUrl(block.provider, block.url)
+  if (!embedUrl) return null
   const isYouTube = block.provider === 'youtube'
   const title = block.caption ?? (isYouTube ? 'YouTube video' : 'Embedded media')
   return (
     <figure className="my-2">
       <div className="relative aspect-video overflow-hidden rounded-lg border border-rule">
         <iframe
-          src={block.url}
+          src={embedUrl}
           title={title}
           loading="lazy"
           className="absolute inset-0 h-full w-full"
           allow="accelerometer; encrypted-media; gyroscope; fullscreen; picture-in-picture"
           allowFullScreen
           referrerPolicy="strict-origin-when-cross-origin"
+          sandbox="allow-scripts allow-same-origin allow-presentation"
         />
       </div>
       {block.caption && (
@@ -171,6 +171,40 @@ function Embed({
       )}
     </figure>
   )
+}
+
+function safeEmbedUrl(
+  provider: Extract<ArticleBlock, { type: 'embed' }>['provider'],
+  rawUrl: string,
+) {
+  try {
+    const url = new URL(rawUrl)
+    if (provider === 'youtube') {
+      if (url.hostname === 'www.youtube.com' || url.hostname === 'youtube.com') {
+        const id = url.searchParams.get('v')
+        return id ? `https://www.youtube-nocookie.com/embed/${id}` : null
+      }
+      if (url.hostname === 'youtu.be') {
+        const id = url.pathname.replace(/^\//, '')
+        return id ? `https://www.youtube-nocookie.com/embed/${id}` : null
+      }
+      if (url.hostname === 'www.youtube-nocookie.com' && url.pathname.startsWith('/embed/')) {
+        return url.toString()
+      }
+    }
+    if (
+      provider === 'twitter' &&
+      ['twitter.com', 'www.twitter.com', 'x.com', 'www.x.com'].includes(url.hostname)
+    ) {
+      return url.toString()
+    }
+    if (provider === 'facebook' && ['facebook.com', 'www.facebook.com'].includes(url.hostname)) {
+      return url.toString()
+    }
+  } catch {
+    return null
+  }
+  return null
 }
 
 /** Reserved-size ad container (300x250). Labeled reader-facing; lazy-filled later. */

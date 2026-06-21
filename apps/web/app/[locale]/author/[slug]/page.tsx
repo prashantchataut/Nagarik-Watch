@@ -89,7 +89,10 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
           </div>
           {categories.length > 0 && (
             <nav aria-label={dict.authorCategories} className="mt-5">
-              <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={lang}>
+              <p
+                className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
+                lang={lang}
+              >
                 {dict.authorCategories}
               </p>
               <ul className="mt-2 flex flex-wrap gap-2">
@@ -196,12 +199,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!data) {
     return { title: getDictionary(locale).notFoundHeading, robots: { index: false } }
   }
-  const opposite = locale === 'en' ? '' : '/en'
   return {
     title: data.author.name,
     alternates: {
       canonical: localizeHref(locale, `/author/${slug}`),
-      languages: { ne: `/author/${slug}`, en: `${opposite}/author/${slug}` },
+      languages: { ne: `/author/${slug}`, en: `/en/author/${slug}` },
     },
   }
 }
