@@ -53,7 +53,14 @@ export const DEFAULT_POLICY: NotificationPolicy = {
 
 export type ScoredNotification = NotificationCandidate & {
   score: number
-  reason: 'breaking' | 'follow' | 'digest' | 'suppressed-quota' | 'suppressed-pref' | 'suppressed-cooldown' | 'suppressed-quiet'
+  reason:
+    | 'breaking'
+    | 'follow'
+    | 'digest'
+    | 'suppressed-quota'
+    | 'suppressed-pref'
+    | 'suppressed-cooldown'
+    | 'suppressed-quiet'
   willSend: boolean
 }
 
@@ -140,18 +147,16 @@ export function planSends(
   now = new Date(),
 ): ScoredNotification[] {
   const scored = candidates.map((c) => {
-    const prefs =
-      prefsByUser.get(c.userId) ?? {
-        userId: c.userId,
-        breaking: true,
-        followedTopics: true,
-        followedAuthors: true,
-        dailyDigest: true,
-        marketing: false,
-        channels: { push: true, email: true, sms: false },
-      }
-    const win =
-      windowByUser.get(c.userId) ?? { userId: c.userId, sent24h: 0 }
+    const prefs = prefsByUser.get(c.userId) ?? {
+      userId: c.userId,
+      breaking: true,
+      followedTopics: true,
+      followedAuthors: true,
+      dailyDigest: true,
+      marketing: false,
+      channels: { push: true, email: true, sms: false },
+    }
+    const win = windowByUser.get(c.userId) ?? { userId: c.userId, sent24h: 0 }
     return scoreNotification(c, prefs, win, policy, now)
   })
 

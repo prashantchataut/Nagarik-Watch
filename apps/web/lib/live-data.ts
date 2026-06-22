@@ -129,21 +129,46 @@ export type YouTubeLiveStatus = {
 
 export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScore[]>> {
   return mock('Mock football provider, replace with FOOTBALL_API_KEY provider', [
-    { league: 'EPL', home: 'Arsenal', away: 'Liverpool', score: '1-1', minute: '67', status: 'live' },
-    { league: 'La Liga', home: 'Barcelona', away: 'Real Madrid', score: '20:45', minute: '', status: 'fixture' },
+    {
+      league: 'EPL',
+      home: 'Arsenal',
+      away: 'Liverpool',
+      score: '1-1',
+      minute: '67',
+      status: 'live',
+    },
+    {
+      league: 'La Liga',
+      home: 'Barcelona',
+      away: 'Real Madrid',
+      score: '20:45',
+      minute: '',
+      status: 'fixture',
+    },
   ])
 }
 
 export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[]>> {
   return mock('Mock cricket provider, replace with CRICKET_API_KEY provider', [
     { league: 'Nepal Cricket', home: 'Nepal', away: 'UAE', score: '124/4 (14.2)', status: 'Live' },
-    { league: 'T20 World Cup', home: 'India', away: 'Australia', score: '180/6', status: 'Innings break' },
+    {
+      league: 'T20 World Cup',
+      home: 'India',
+      away: 'Australia',
+      score: '180/6',
+      status: 'Innings break',
+    },
   ])
 }
 
 export async function getElectionResults(): Promise<LiveDataEnvelope<ElectionResult[]>> {
   return mock('Mock election provider, replace with ELECTION_API_KEY provider', [
-    { region: 'Nepal', body: 'Federal Parliament', reportedPercent: 0, summary: 'No active election' },
+    {
+      region: 'Nepal',
+      body: 'Federal Parliament',
+      reportedPercent: 0,
+      summary: 'No active election',
+    },
   ])
 }
 

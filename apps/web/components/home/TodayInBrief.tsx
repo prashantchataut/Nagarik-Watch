@@ -35,10 +35,7 @@ export function TodayInBrief({ stories, locale, className }: TodayInBriefProps) 
   const lang = locale === 'en' ? 'en' : 'ne'
 
   return (
-    <section
-      className={className}
-      aria-labelledby="today-in-brief"
-    >
+    <section className={className} aria-labelledby="today-in-brief">
       <div className="rounded-lg border border-rule bg-surface-raised p-5 sm:p-6">
         <div className="flex items-baseline justify-between gap-3 border-b border-rule pb-3">
           <h2 id="today-in-brief" className="font-display text-h2 text-ink" lang={lang}>

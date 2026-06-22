@@ -142,7 +142,14 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                   )
                 })}
                 {STATIC_HUBS.filter((hub) =>
-                  ['latest', 'trending', 'market', 'fact-check', 'submit-story'].includes(hub.key),
+                  [
+                    'latest',
+                    'trending',
+                    'market',
+                    'utilities',
+                    'fact-check',
+                    'submit-story',
+                  ].includes(hub.key),
                 ).map((hub) => (
                   <li key={hub.key}>
                     <Link

@@ -1,7 +1,13 @@
 import Link from 'next/link'
 import { adminSections, editorialWorkflow, newsroomRoles, permissions } from '@/lib/admin'
 
-export function AdminShell({ active = 'Dashboard', children }: { active?: string; children?: React.ReactNode }) {
+export function AdminShell({
+  active = 'Dashboard',
+  children,
+}: {
+  active?: string
+  children?: React.ReactNode
+}) {
   return (
     <div className="min-h-screen bg-surface">
       <header className="border-b border-rule bg-surface-raised">
@@ -43,7 +49,10 @@ export function AdminShell({ active = 'Dashboard', children }: { active?: string
               <section className="grid gap-4 md:grid-cols-4">
                 {['Drafts: 12', 'Pending review: 6', 'Published today: 4', 'SEO issues: 3'].map(
                   (metric) => (
-                    <div key={metric} className="rounded-lg border border-rule bg-surface-raised p-4">
+                    <div
+                      key={metric}
+                      className="rounded-lg border border-rule bg-surface-raised p-4"
+                    >
                       <p className="text-body font-semibold text-ink">{metric}</p>
                       <p className="mt-1 text-caption text-mute">
                         Placeholder until database and analytics connect.

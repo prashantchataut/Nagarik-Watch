@@ -98,6 +98,20 @@
   :root[data-theme='dark'] .theme-icon-moon {
     display: none;
   }
+
+  /* Reader focus mode: the article column becomes calmer while global chrome remains server
+     rendered and reachable. This class is toggled by a leaf client component only. */
+  .reader-focus-mode body {
+    background: var(--surface-raised);
+  }
+  .reader-focus-mode article header,
+  .reader-focus-mode .reading-scale {
+    max-width: 46rem;
+  }
+  .reader-focus-mode article figure,
+  .reader-focus-mode article + section {
+    opacity: 0.72;
+  }
 }
 
 /* Breaking ticker: horizontal scroll via transform (never animate layout properties).

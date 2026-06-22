@@ -46,6 +46,7 @@ PRODUCT.md  DESIGN.md  SPEC.md   impeccable + spec-driven context
 5. [docs/adr/](docs/adr/), ADR-001 (name risk) … ADR-007 (bilingual model)
 6. [docs/content-model.md](docs/content-model.md) + [docs/editorial-workflow.md](docs/editorial-workflow.md)
 7. [docs/phase-0-tasks.md](docs/phase-0-tasks.md) → [phase-5-tasks.md](docs/phase-5-tasks.md)
+8. [MANUAL.md](MANUAL.md), launch blockers, provider setup, env vars and mock/demo inventory
 
 ## Getting started (once apps are scaffolded)
 

@@ -93,12 +93,7 @@ export function PollOfDay({ locale, className }: { locale: Locale; className?: s
   const alreadyVoted = locale === 'en' ? 'You voted.' : 'तपाईंले मत दिनुभयो।'
 
   return (
-    <section
-      className={className}
-      aria-label={heading}
-      aria-live="polite"
-      data-mounted={mounted}
-    >
+    <section className={className} aria-label={heading} aria-live="polite" data-mounted={mounted}>
       <div className="rounded-md border border-rule bg-surface-raised p-5">
         <div className="flex items-center justify-between gap-2">
           <h2 className="font-display text-h3 font-bold text-ink" lang={lang}>
@@ -143,9 +138,7 @@ export function PollOfDay({ locale, className }: { locale: Locale; className?: s
                   )}
                   <span className="relative flex items-center justify-between gap-3 px-3 py-2.5">
                     <span className="flex items-center gap-2">
-                      {isMine ? (
-                        <CheckGlyph />
-                      ) : null}
+                      {isMine ? <CheckGlyph /> : null}
                       <span className="font-medium text-ink" lang={lang}>
                         {label}
                       </span>

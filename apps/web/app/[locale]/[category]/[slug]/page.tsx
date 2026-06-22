@@ -12,6 +12,7 @@ import { ArticleJsonLd } from '@/components/article/ArticleJsonLd'
 import { RelatedStories } from '@/components/article/RelatedStories'
 import { ReadingProgress } from '@/components/article/ReadingProgress'
 import { FontSizeControl } from '@/components/article/FontSizeControl'
+import { ReaderArticleControls } from '@/components/reader/ReaderArticleControls'
 
 type Params = { locale: string; category: string; slug: string }
 
@@ -112,7 +113,16 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
       <div className="reading-scale mx-auto mt-8 max-w-body px-4">
         <div className="flex flex-wrap items-center justify-between gap-3 border-y border-rule py-3">
           <ShareBar url={`${prefix}/${category}/${slug}`} title={title} locale={locale} />
-          <FontSizeControl locale={locale} />
+          <div className="flex flex-wrap items-center gap-2">
+            <ReaderArticleControls
+              story={article}
+              locale={locale}
+              title={title}
+              href={`${prefix}/${category}/${slug}`}
+              readingMinutes={article.readingMinutes}
+            />
+            <FontSizeControl locale={locale} />
+          </div>
         </div>
 
         {article.corrections && article.corrections.length > 0 && (

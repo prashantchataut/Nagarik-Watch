@@ -22,9 +22,13 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
     heading: locale === 'en' ? 'Daily briefing' : 'दैनिक ब्रिफिङ',
     placeholder: locale === 'en' ? 'you@email.com' : 'तपाईं@इमेल.com',
     button: locale === 'en' ? 'Subscribe' : 'सदस्यता',
-    success: locale === 'en' ? 'Subscribed (demo — no provider wired yet).' : 'सदस्यता (नमुना — प्रदायक जोडिएको छैन)।',
+    success:
+      locale === 'en'
+        ? 'Subscribed (demo — no provider wired yet).'
+        : 'सदस्यता (नमुना — प्रदायक जोडिएको छैन)।',
     error: locale === 'en' ? 'Enter a valid email.' : 'मान्य इमेल लेख्नुहोस्।',
-    privacy: locale === 'en' ? 'No spam. Unsubscribe anytime.' : 'स्प्याम छैन। जुनसुकै बेला विद्रोह।',
+    privacy:
+      locale === 'en' ? 'No spam. Unsubscribe anytime.' : 'स्प्याम छैन। जुनसुकै बेला विद्रोह।',
   }
 
   function submit(e: React.FormEvent) {
@@ -71,7 +75,12 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
             {labels.button}
           </button>
         </div>
-        <p id="nw-newsletter-status" className="text-caption text-ink-soft" lang={lang} aria-live="polite">
+        <p
+          id="nw-newsletter-status"
+          className="text-caption text-ink-soft"
+          lang={lang}
+          aria-live="polite"
+        >
           {status === 'done' ? labels.success : status === 'error' ? labels.error : labels.privacy}
         </p>
       </form>

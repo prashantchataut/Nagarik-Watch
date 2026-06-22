@@ -94,9 +94,7 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
 }
 
 function Divider() {
-  return (
-    <span aria-hidden="true" className="h-3 w-px bg-rule" />
-  )
+  return <span aria-hidden="true" className="h-3 w-px bg-rule" />
 }
 
 function NepseDelta({ value, locale }: { value: number; locale: Locale }) {
@@ -104,7 +102,11 @@ function NepseDelta({ value, locale }: { value: number; locale: Locale }) {
   const pct = localizeNumber(Math.abs(value).toFixed(2), locale)
   return (
     <span
-      className={up ? 'inline-flex items-center gap-0.5 text-up' : 'inline-flex items-center gap-0.5 text-down'}
+      className={
+        up
+          ? 'inline-flex items-center gap-0.5 text-up'
+          : 'inline-flex items-center gap-0.5 text-down'
+      }
     >
       <span aria-hidden="true">{up ? '▲' : '▼'}</span>
       <span>{pct}%</span>

@@ -136,7 +136,10 @@ export function parseFeed(xml: string, source: IngestSource): NormalizedItem[] {
   for (const block of matches) {
     const title = unwrap(extractTag(block, 'title'))
     const link = unwrap(extractTag(block, 'link')) || extractHref(block)
-    const pubDate = unwrap(extractTag(block, 'pubDate')) || unwrap(extractTag(block, 'published')) || unwrap(extractTag(block, 'updated'))
+    const pubDate =
+      unwrap(extractTag(block, 'pubDate')) ||
+      unwrap(extractTag(block, 'published')) ||
+      unwrap(extractTag(block, 'updated'))
     const category = unwrap(extractTag(block, 'category'))
 
     const parsed = ItemSchema.safeParse({ title, link, pubDate, category })

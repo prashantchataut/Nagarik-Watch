@@ -78,11 +78,10 @@ export function PollsManager() {
   return (
     <div className="grid gap-6">
       <section className="rounded-lg border border-rule bg-surface-raised p-5">
-        <h2 className="font-display text-h2 text-ink">
-          {draft.id ? 'Edit poll' : 'Create poll'}
-        </h2>
+        <h2 className="font-display text-h2 text-ink">{draft.id ? 'Edit poll' : 'Create poll'}</h2>
         <p className="mt-1 text-caption text-mute">
-          In-memory only until the poll store + vote endpoint are wired. Saved drafts do not persist across reloads.
+          In-memory only until the poll store + vote endpoint are wired. Saved drafts do not persist
+          across reloads.
         </p>
 
         <div className="mt-4 grid gap-4">
@@ -122,7 +121,10 @@ export function PollsManager() {
             <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft">Options</p>
             <ul className="mt-2 grid gap-2">
               {draft.options.map((opt, i) => (
-                <li key={opt.id} className="grid gap-2 rounded-md border border-rule p-3 sm:grid-cols-[1fr_1fr_auto]">
+                <li
+                  key={opt.id}
+                  className="grid gap-2 rounded-md border border-rule p-3 sm:grid-cols-[1fr_1fr_auto]"
+                >
                   <input
                     type="text"
                     value={opt.labelNe}
@@ -182,7 +184,9 @@ export function PollsManager() {
       <section className="rounded-lg border border-rule bg-surface-raised p-5">
         <h2 className="font-display text-h2 text-ink">Saved polls ({saved.length})</h2>
         {saved.length === 0 ? (
-          <p className="mt-3 text-body text-mute">No drafts yet. Saved drafts appear here for this session.</p>
+          <p className="mt-3 text-body text-mute">
+            No drafts yet. Saved drafts appear here for this session.
+          </p>
         ) : (
           <ul className="mt-3 grid gap-3">
             {saved.map((p) => (
@@ -240,9 +244,11 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function toPollId(s: string): string {
-  return s
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 40) || `poll-${Date.now()}`
+  return (
+    s
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 40) || `poll-${Date.now()}`
+  )
 }

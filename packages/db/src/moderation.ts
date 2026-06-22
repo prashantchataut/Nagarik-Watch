@@ -32,11 +32,7 @@ export function wilsonScore(upvotes: number, downvotes: number, confidence = 1.9
   )
 }
 
-export type ModerationVerdict =
-  | 'publish'
-  | 'hold_for_review'
-  | 'auto_hide'
-  | 'auto_reject'
+export type ModerationVerdict = 'publish' | 'hold_for_review' | 'auto_hide' | 'auto_reject'
 
 export type ModerationResult = {
   commentId: string
@@ -53,7 +49,10 @@ export const DEFAULT_BANNED_WORDS: BannedWordList = []
 
 /** Lexical toxicity: count of banned-word hits normalized by length. Tolerates
  *  Devanagari and Latin; callers pass their own list so policy stays external. */
-export function lexicalToxicity(text: string, banned: BannedWordList = DEFAULT_BANNED_WORDS): number {
+export function lexicalToxicity(
+  text: string,
+  banned: BannedWordList = DEFAULT_BANNED_WORDS,
+): number {
   if (!text || banned.length === 0) return 0
   const lower = text.toLowerCase()
   let hits = 0
@@ -91,7 +90,10 @@ export function spamScore(text: string): { score: number; flags: string[] } {
 
   const score = Math.min(
     1,
-    linkDensity * 0.5 + capsRatio * 0.3 + Math.min(0.3, repeats * 0.1) + (repeatedPhrases > 0 ? 0.2 : 0),
+    linkDensity * 0.5 +
+      capsRatio * 0.3 +
+      Math.min(0.3, repeats * 0.1) +
+      (repeatedPhrases > 0 ? 0.2 : 0),
   )
   return { score, flags }
 }
@@ -131,13 +133,16 @@ export function moderateComment(
 
 /** Comment ranking for display order: Wilson on up/down votes blended with
  *  recency decay and a small freshness boost for the first hour. */
-export function rankComment(comment: {
-  id: string
-  body: string
-  createdAt: string
-  upvotes: number
-  downvotes: number
-}, now = new Date()): { id: string; rankScore: number } {
+export function rankComment(
+  comment: {
+    id: string
+    body: string
+    createdAt: string
+    upvotes: number
+    downvotes: number
+  },
+  now = new Date(),
+): { id: string; rankScore: number } {
   const wilson = wilsonScore(comment.upvotes, comment.downvotes)
   const ageHours = (now.getTime() - Date.parse(comment.createdAt)) / 3_600_000
   const recency = Math.exp(-ageHours / 48)
