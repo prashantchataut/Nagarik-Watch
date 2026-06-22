@@ -1,4 +1,11 @@
 import type { CollectionConfig } from 'payload'
+import {
+  anyone,
+  editorialManagerRoles,
+  hardDeleteRoles,
+  newsroomContributorRoles,
+  withRoles,
+} from '../access/rbac'
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
@@ -8,10 +15,10 @@ export const Articles: CollectionConfig = {
     group: 'Content',
   },
   access: {
-    read: () => true,
-    create: () => true,
-    update: () => true,
-    delete: () => true,
+    read: anyone,
+    create: withRoles(newsroomContributorRoles),
+    update: withRoles(editorialManagerRoles),
+    delete: withRoles(hardDeleteRoles),
   },
   versions: {
     drafts: {
@@ -78,6 +85,59 @@ export const Articles: CollectionConfig = {
       name: 'englishBy',
       type: 'relationship',
       relationTo: 'users',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'workflowStage',
+      type: 'select',
+      required: true,
+      defaultValue: 'idea',
+      options: [
+        { label: 'Idea', value: 'idea' },
+        { label: 'Assigned', value: 'assigned' },
+        { label: 'Draft', value: 'draft' },
+        { label: 'Submitted', value: 'submitted' },
+        { label: 'Fact Check', value: 'fact_check' },
+        { label: 'Copy Edit', value: 'copy_edit' },
+        { label: 'SEO Review', value: 'seo_review' },
+        { label: 'Legal / Sensitivity Review', value: 'legal_review' },
+        { label: 'Ready for Publish', value: 'ready' },
+        { label: 'Scheduled', value: 'scheduled' },
+        { label: 'Published', value: 'published' },
+        { label: 'Updated', value: 'updated' },
+        { label: 'Archived', value: 'archived' },
+        { label: 'Retracted', value: 'retracted' },
+      ],
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'assignedTo',
+      type: 'relationship',
+      relationTo: 'users',
+      hasMany: true,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'editor',
+      type: 'relationship',
+      relationTo: 'users',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'factChecker',
+      type: 'relationship',
+      relationTo: 'users',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'copyEditor',
+      type: 'relationship',
+      relationTo: 'users',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'internalNotes',
+      type: 'textarea',
       admin: { position: 'sidebar' },
     },
     {
@@ -198,6 +258,48 @@ export const Articles: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     {
+      name: 'submittedAt',
+      type: 'date',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'factCheckedAt',
+      type: 'date',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'copyEditedAt',
+      type: 'date',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'seoReviewedAt',
+      type: 'date',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'legalReviewedAt',
+      type: 'date',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'readingMinutes',
+      type: 'number',
+      min: 1,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'wordCount',
+      type: 'number',
+      min: 0,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'readingDifficultyNote',
+      type: 'textarea',
+      admin: { position: 'sidebar' },
+    },
+    {
       name: 'seoTitle',
       type: 'text',
       admin: { position: 'sidebar' },
@@ -215,6 +317,41 @@ export const Articles: CollectionConfig = {
     },
     {
       name: 'noIndex',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'includeInNewsSitemap',
+      type: 'checkbox',
+      defaultValue: true,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'aiSummary',
+      type: 'textarea',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'aiSummaryApproved',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'doNotRecommend',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'premium',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'sensitive',
       type: 'checkbox',
       defaultValue: false,
       admin: { position: 'sidebar' },

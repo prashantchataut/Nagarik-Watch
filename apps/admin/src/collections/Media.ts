@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { anyone, hardDeleteRoles, newsroomContributorRoles, withRoles } from '../access/rbac'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -6,10 +7,10 @@ export const Media: CollectionConfig = {
     group: 'Content',
   },
   access: {
-    read: () => true,
-    create: () => true,
-    update: () => true,
-    delete: () => true,
+    read: anyone,
+    create: withRoles(newsroomContributorRoles),
+    update: withRoles(newsroomContributorRoles),
+    delete: withRoles(hardDeleteRoles),
   },
   upload: {
     mimeTypes: ['image/*'],
