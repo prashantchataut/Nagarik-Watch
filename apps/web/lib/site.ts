@@ -27,6 +27,7 @@ export type StaticHubKey =
   | 'opinion'
   | 'reader-corner'
   | 'market'
+  | 'utilities'
   | 'sports'
   | 'sports-live'
   | 'election'
@@ -120,6 +121,15 @@ export const STATIC_HUBS: StaticHub[] = [
     titleEn: 'Market and Shares',
     leadNe: 'NEPSE, सुनचाँदी, विदेशी मुद्रा र अर्थतन्त्रका लाइभ डाटा विजेटका लागि संरचित खण्ड।',
     leadEn: 'Structured hub for NEPSE, bullion, forex and economy live-data widgets.',
+    mode: 'utility',
+  },
+  {
+    key: 'utilities',
+    path: '/utilities',
+    titleNe: 'उपयोगी सेवा',
+    titleEn: 'Utilities',
+    leadNe: 'पात्रो, कनभर्टर, नतिजा, बजार र दैनिक नागरिक उपयोगिताहरूको केन्द्र।',
+    leadEn: 'A hub for calendar, converter, results, market and daily civic utilities.',
     mode: 'utility',
   },
   {
@@ -284,6 +294,7 @@ export const PROVINCES = [
  *  the rail stays in sync with the hub registry. */
 export const SECONDARY_NAV_HUBS = [
   'market',
+  'utilities',
   'sports',
   'election',
   'disaster-alerts',

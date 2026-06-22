@@ -16,6 +16,7 @@ apps/admin/src/payload-types.ts
 
 # Agent workspace
 .opencode/
+skills/
 graphify-out/
 
 # Local dev artifacts — HTML/CSS dumps saved for inspection, not part of the app

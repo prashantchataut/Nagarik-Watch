@@ -86,7 +86,9 @@ describe('fetchAggregatedFeed', () => {
       return true
     })
     expect(deduped).toHaveLength(a.length)
-    const sorted = [...deduped].sort((x, y) => y.sourcePublishedAt.localeCompare(x.sourcePublishedAt))
+    const sorted = [...deduped].sort((x, y) =>
+      y.sourcePublishedAt.localeCompare(x.sourcePublishedAt),
+    )
     const newest = sorted[0]
     const oldest = sorted[sorted.length - 1]
     expect(newest && oldest && newest.sourcePublishedAt >= oldest.sourcePublishedAt).toBe(true)

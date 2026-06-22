@@ -142,7 +142,7 @@ export function detectTrending<T extends StoryCardData>(
       const baseline = agg?.baseline ?? 0
       const burst = burstRatio(agg?.short ?? 0, baseline, baseMinutes, opts.minBaseline)
       const recency = recencyWeight(story.publishedAt, opts.recencyHalfLifeHours, now)
-      const trendingScore = (velocity * (1 + Math.min(burst, 10))) * recency
+      const trendingScore = velocity * (1 + Math.min(burst, 10)) * recency
       return { ...story, velocity, burstRatio: burst, trendingScore, baseline } as TrendingStory<T>
     })
     .filter((s) => Number.isFinite(s.trendingScore))

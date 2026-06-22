@@ -16,13 +16,7 @@
  * Everything here is deterministic and side-effect free, which makes the
  * strategies unit-testable in isolation (see recommend.test.ts).
  */
-import type {
-  Article,
-  Bookmark,
-  Follow,
-  ReadingHistory,
-  StoryCardData,
-} from './types'
+import type { Article, Bookmark, Follow, ReadingHistory, StoryCardData } from './types'
 
 export type RecommendableStory = Pick<
   StoryCardData,
@@ -133,10 +127,13 @@ export function buildInterestVector(
 
   for (const f of profile.follows ?? []) {
     const key =
-      f.kind === 'topic' ? `tag:${f.targetSlug}`
-      : f.kind === 'province' ? `prov:${f.targetSlug}`
-      : f.kind === 'category' ? `cat:${f.targetSlug}`
-      : `author:${f.targetSlug}`
+      f.kind === 'topic'
+        ? `tag:${f.targetSlug}`
+        : f.kind === 'province'
+          ? `prov:${f.targetSlug}`
+          : f.kind === 'category'
+            ? `cat:${f.targetSlug}`
+            : `author:${f.targetSlug}`
     vec.set(key, (vec.get(key) ?? 0) + 4)
   }
 
@@ -186,7 +183,13 @@ export function coldStartScore(candidate: RecommendableStory, now = new Date()):
   return fresh + breaking + sponsored
 }
 
-export type RecStrategy = 'content' | 'session' | 'freshness' | 'follow' | 'editorial' | 'cold-start'
+export type RecStrategy =
+  | 'content'
+  | 'session'
+  | 'freshness'
+  | 'follow'
+  | 'editorial'
+  | 'cold-start'
 
 export type ScoredRecommendation<T extends RecommendableStory = RecommendableStory> = T & {
   recScore: number

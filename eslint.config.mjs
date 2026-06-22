@@ -16,6 +16,9 @@ export default [
       '**/.turbo/**',
       '**/coverage/**',
       '**/playwright-report/**',
+      // Project-local agent skills are vendored operational assets, not app source.
+      'skills/**',
+      '.opencode/**',
       // Payload regenerates these from payload.config.ts; hand-edits are overwritten.
       '**/app/(payload)/admin/importMap.js',
       '**/app/(payload)/admin/importMap.js.map',

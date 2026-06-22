@@ -23,7 +23,10 @@ export default async function TrendingPage({ params }: { params: Promise<Params>
   return (
     <div className="mx-auto max-w-page px-4 py-8">
       <header className="border-b border-rule pb-6">
-        <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={lang}>
+        <p
+          className="text-meta font-semibold uppercase tracking-wide text-brand-strong"
+          lang={lang}
+        >
           {dict.siteName}
         </p>
         <h1 className="mt-1 font-display text-display text-ink" lang={lang}>
@@ -58,11 +61,7 @@ function toNeDigits(n: number): string {
   return String(n).replace(/[0-9]/g, (d) => NE[Number(d)] ?? d)
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale: rawLocale } = await params
   const locale: Locale = asLocale(rawLocale)
   const dict = getDictionary(locale)

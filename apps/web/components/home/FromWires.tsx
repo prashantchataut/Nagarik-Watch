@@ -20,9 +20,10 @@ export async function FromWires({ locale, className }: { locale: Locale; classNa
   const dict = getDictionary(locale)
   const lang = locale === 'en' ? 'en' : 'ne'
   const heading = locale === 'en' ? 'From wires' : 'स्रोतबाट'
-  const subhead = locale === 'en'
-    ? 'Headlines from official Nepali outlets. Taps open the original story.'
-    : 'आधिकारिक नेपाली मिडियाका शीर्षकहरू। थिच्दा मूल समाचार खुल्छ।'
+  const subhead =
+    locale === 'en'
+      ? 'Headlines from official Nepali outlets. Taps open the original story.'
+      : 'आधिकारिक नेपाली मिडियाका शीर्षकहरू। थिच्दा मूल समाचार खुल्छ।'
 
   let items: NormalizedItem[] = []
   try {
@@ -75,7 +76,10 @@ export async function FromWires({ locale, className }: { locale: Locale; classNa
       </ul>
 
       <p className="mt-3 text-caption text-mute" lang={lang}>
-        {dict.aggregatedFrom} · {locale === 'en' ? 'Links point to the original publishers.' : 'लिङ्क मूल प्रकाशकतर्फ जान्छन्।'}
+        {dict.aggregatedFrom} ·{' '}
+        {locale === 'en'
+          ? 'Links point to the original publishers.'
+          : 'लिङ्क मूल प्रकाशकतर्फ जान्छन्।'}
       </p>
     </section>
   )

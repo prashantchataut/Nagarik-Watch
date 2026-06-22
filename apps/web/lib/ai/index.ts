@@ -73,13 +73,58 @@ export function splitSentences(text: string): string[] {
 }
 
 const STOPWORDS_NE = new Set([
-  'र', 'को', 'मा', 'ले', 'लाई', 'का', 'गर्न', 'भएको', 'छ', 'हो', 'यो', 'त्यो',
-  'गरेको', 'गर्दा', 'हुने', 'भने', 'अब', 'पनि', 'गर्', 'एक',
+  'र',
+  'को',
+  'मा',
+  'ले',
+  'लाई',
+  'का',
+  'गर्न',
+  'भएको',
+  'छ',
+  'हो',
+  'यो',
+  'त्यो',
+  'गरेको',
+  'गर्दा',
+  'हुने',
+  'भने',
+  'अब',
+  'पनि',
+  'गर्',
+  'एक',
 ])
 const STOPWORDS_EN = new Set([
-  'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with',
-  'by', 'from', 'is', 'are', 'was', 'were', 'be', 'been', 'has', 'have', 'had',
-  'this', 'that', 'it', 'as', 'said', 'says',
+  'the',
+  'a',
+  'an',
+  'and',
+  'or',
+  'but',
+  'in',
+  'on',
+  'at',
+  'to',
+  'for',
+  'of',
+  'with',
+  'by',
+  'from',
+  'is',
+  'are',
+  'was',
+  'were',
+  'be',
+  'been',
+  'has',
+  'have',
+  'had',
+  'this',
+  'that',
+  'it',
+  'as',
+  'said',
+  'says',
 ])
 
 /** Extractive summary: pick the first 2 sentences with the highest term density
@@ -189,7 +234,10 @@ export function detectDuplicates(
   candidates: Array<Pick<Article, 'id' | 'titleNe' | 'bodyNe' | 'deckNe'>>,
   threshold = 0.45,
 ): Array<{ a: string; b: string; similarity: number }> {
-  const tokenized = candidates.map((c) => ({ id: c.id, tokens: new Set(tokenize(articleToText(c))) }))
+  const tokenized = candidates.map((c) => ({
+    id: c.id,
+    tokens: new Set(tokenize(articleToText(c))),
+  }))
   const pairs: Array<{ a: string; b: string; similarity: number }> = []
   for (let i = 0; i < tokenized.length; i++) {
     const a = tokenized[i]

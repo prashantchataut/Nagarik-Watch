@@ -28,11 +28,24 @@ export function Footer({ locale }: FooterProps) {
   const sectionLinks = [
     { href: localizeHref(locale, '/latest'), label: locale === 'en' ? 'Latest' : 'ताजा' },
     { href: localizeHref(locale, '/trending'), label: locale === 'en' ? 'Trending' : 'ट्रेन्डिङ' },
-    { href: localizeHref(locale, '/most-read'), label: locale === 'en' ? 'Most read' : 'धेरै पढिएको' },
-    { href: localizeHref(locale, '/editor-picks'), label: locale === 'en' ? "Editor's picks" : 'सम्पादकको रोजाइ' },
+    {
+      href: localizeHref(locale, '/most-read'),
+      label: locale === 'en' ? 'Most read' : 'धेरै पढिएको',
+    },
+    {
+      href: localizeHref(locale, '/editor-picks'),
+      label: locale === 'en' ? "Editor's picks" : 'सम्पादकको रोजाइ',
+    },
     { href: localizeHref(locale, '/exclusive'), label: locale === 'en' ? 'Exclusive' : 'विशेष' },
-    { href: localizeHref(locale, '/fact-check'), label: locale === 'en' ? 'Fact check' : 'तथ्य-जाँच' },
+    {
+      href: localizeHref(locale, '/fact-check'),
+      label: locale === 'en' ? 'Fact check' : 'तथ्य-जाँच',
+    },
     { href: localizeHref(locale, '/opinion'), label: locale === 'en' ? 'Opinion' : 'विचार' },
+    {
+      href: localizeHref(locale, '/utilities'),
+      label: locale === 'en' ? 'Utilities' : 'उपयोगी सेवा',
+    },
     { href: localizeHref(locale, '/video'), label: locale === 'en' ? 'Video' : 'भिडियो' },
     { href: localizeHref(locale, '/photos'), label: locale === 'en' ? 'Photos' : 'फोटो' },
   ]
@@ -125,7 +138,10 @@ export function Footer({ locale }: FooterProps) {
         {/* Middle band: 4-column grid */}
         <div className="grid gap-8 py-8 md:grid-cols-2 lg:grid-cols-4">
           <nav aria-label={locale === 'en' ? 'Sections' : 'विभाग'} className="lg:col-span-1">
-            <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={lang}>
+            <p
+              className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
+              lang={lang}
+            >
               {locale === 'en' ? 'Sections' : 'विभाग'}
             </p>
             <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
@@ -144,7 +160,10 @@ export function Footer({ locale }: FooterProps) {
           </nav>
 
           <nav aria-label={dict.footerSections} className="lg:col-span-1">
-            <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={lang}>
+            <p
+              className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
+              lang={lang}
+            >
               {locale === 'en' ? 'About & policy' : 'बारेमा र नीति'}
             </p>
             <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
@@ -163,7 +182,10 @@ export function Footer({ locale }: FooterProps) {
           </nav>
 
           <div className="lg:col-span-1">
-            <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={lang}>
+            <p
+              className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
+              lang={lang}
+            >
               {locale === 'en' ? 'Contact' : 'सम्पर्क'}
             </p>
             <address className="mt-3 not-italic text-body text-ink-soft" lang={lang}>
@@ -179,7 +201,10 @@ export function Footer({ locale }: FooterProps) {
               </p>
               <p className="mt-1">{PUBLICATION.phone}</p>
             </address>
-            <p className="mt-3 rounded-md border border-rule bg-surface-raised px-3 py-2 text-caption text-ink-soft" lang={lang}>
+            <p
+              className="mt-3 rounded-md border border-rule bg-surface-raised px-3 py-2 text-caption text-ink-soft"
+              lang={lang}
+            >
               <span className="font-semibold uppercase tracking-wide" lang="en">
                 {dict.footerRegistration}:
               </span>{' '}

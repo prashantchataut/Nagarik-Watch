@@ -103,7 +103,7 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
             })}
             <ProvinceMegaMenu locale={locale} />
             {STATIC_HUBS.filter((hub) =>
-              ['latest', 'trending', 'fact-check'].includes(hub.key),
+              ['latest', 'trending', 'utilities', 'fact-check'].includes(hub.key),
             ).map((hub) => {
               const href = localizeHref(locale, hub.path)
               const active = pathname === href || pathname.startsWith(`${href}/`)
