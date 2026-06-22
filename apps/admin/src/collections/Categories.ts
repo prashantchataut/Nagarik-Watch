@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { anyone, hardDeleteRoles, taxonomyManagerRoles, withRoles } from '../access/rbac'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
@@ -8,10 +9,10 @@ export const Categories: CollectionConfig = {
     group: 'Content',
   },
   access: {
-    read: () => true,
-    create: () => true,
-    update: () => true,
-    delete: () => true,
+    read: anyone,
+    create: withRoles(taxonomyManagerRoles),
+    update: withRoles(taxonomyManagerRoles),
+    delete: withRoles(hardDeleteRoles),
   },
   fields: [
     {
