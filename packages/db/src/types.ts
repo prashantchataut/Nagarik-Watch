@@ -287,6 +287,246 @@ export interface ApiDataCache<T = unknown> {
   updatedAt: string
 }
 
+// ---------------------------------------------------------------------------
+// Phase 2 data-model extension. Each entity below is scaffolded so the
+// recommendation / trending / analytics / moderation modules have a typed
+// shape to consume. The Payload collections that persist them land in a later
+// phase; for now they live in the shared type contract the same way the core
+// content model does, so library code never touches `any`.
+// ---------------------------------------------------------------------------
+
+export interface ArticleRevision {
+  id: string
+  articleId: string
+  editorId: string
+  stage: WorkflowStage
+  snapshotNe: string
+  snapshotEn?: string
+  note?: string
+  createdAt: string
+}
+
+export interface Province {
+  slug: string
+  nameNe: string
+  nameEn: string
+  capital?: string
+  districts?: string[]
+}
+
+export interface District {
+  slug: string
+  provinceSlug: string
+  nameNe: string
+  nameEn: string
+}
+
+export interface MediaAsset extends MediaRef {
+  id: string
+  filename: string
+  mimeType: string
+  uploadedById: string
+  createdAt: string
+}
+
+export interface PollVote {
+  id: string
+  pollId: string
+  optionId: string
+  userId?: string
+  sessionFingerprint: string
+  createdAt: string
+}
+
+export interface NewsletterSubscriber {
+  id: string
+  email: string
+  locale: Locale
+  confirmedAt?: string
+  preferences?: string[]
+  createdAt: string
+  status: 'pending' | 'subscribed' | 'unsubscribed'
+}
+
+export interface Bookmark {
+  id: string
+  userId: string
+  articleId: string
+  createdAt: string
+}
+
+export interface ReadingHistory {
+  id: string
+  userId: string
+  articleId: string
+  readAt: string
+  scrollDepth?: number
+  readingSeconds?: number
+  completed?: boolean
+}
+
+export interface Follow {
+  id: string
+  userId: string
+  kind: 'topic' | 'author' | 'province' | 'category'
+  targetSlug: string
+  createdAt: string
+}
+
+export interface NotificationPreference {
+  userId: string
+  breaking: boolean
+  followedTopics: boolean
+  followedAuthors: boolean
+  dailyDigest: boolean
+  marketing: boolean
+  channels: { push: boolean; email: boolean; sms: boolean }
+}
+
+export interface LiveBlog {
+  id: string
+  articleId: string
+  title: string
+  status: 'scheduled' | 'live' | 'closed'
+  startedAt?: string
+  endedAt?: string
+}
+
+export interface LiveBlogUpdate {
+  id: string
+  liveBlogId: string
+  authorId: string
+  body: string
+  pinned: boolean
+  createdAt: string
+}
+
+export interface AdCampaign {
+  id: string
+  name: string
+  sponsorName?: string
+  placementKey: string
+  html?: string
+  imageUrl?: string
+  href?: string
+  startsAt: string
+  endsAt: string
+  status: 'draft' | 'active' | 'paused' | 'ended'
+}
+
+export interface AdSlot {
+  placementKey: string
+  label: string
+  width: number
+  height: number
+  responsive: boolean
+}
+
+export interface SponsoredContent {
+  articleId: string
+  sponsorName: string
+  sponsorUrl?: string
+  disclosureNe: string
+  disclosureEn?: string
+}
+
+export interface SeoMetadata {
+  path: string
+  titleNe?: string
+  titleEn?: string
+  descriptionNe?: string
+  descriptionEn?: string
+  canonical?: string
+  noindex: boolean
+  socialImage?: MediaRef
+}
+
+export interface FactCheckClaim {
+  id: string
+  articleId: string
+  claimNe: string
+  claimEn?: string
+  claimant?: string
+  evidenceNe: string
+  evidenceEn?: string
+  sources: { url: string; label: string }[]
+  verdict: 'verified' | 'false' | 'mixed' | 'context_needed'
+  reviewedBy?: AuthorRef
+  reviewedAt?: string
+}
+
+export interface LiveWidgetConfig {
+  key: string
+  enabled: boolean
+  provider?: string
+  refreshSeconds: number
+  showOnHome: boolean
+  showOnArticle: boolean
+  adminOverride?: Record<string, unknown>
+}
+
+// ---------------------------------------------------------------------------
+// Analytics, recommendation, and moderation events. These power the catalog in
+// packages/db/src/events.ts and the client tracker in apps/web/lib/analytics.
+// The same names flow into the data warehouse once an ingestion pipeline is
+// wired; keeping them in the shared contract avoids a rename later.
+// ---------------------------------------------------------------------------
+
+export type AnalyticsEventName =
+  | 'article_view'
+  | 'article_click'
+  | 'search'
+  | 'share'
+  | 'bookmark'
+  | 'comment'
+  | 'follow_topic'
+  | 'follow_author'
+  | 'follow_province'
+  | 'newsletter_signup'
+  | 'notification_click'
+  | 'scroll_depth'
+  | 'reading_complete'
+  | 'poll_vote'
+  | 'reader_submission'
+  | 'ad_impression'
+  | 'ad_click'
+
+export interface AnalyticsEvent {
+  name: AnalyticsEventName
+  /** ISO timestamp the client observed the event. */
+  at: string
+  /** Anonymous per-session id (no PII). */
+  sessionId: string
+  /** Logged-in user id when available. */
+  userId?: string
+  articleId?: string
+  categorySlug?: string
+  provinceSlug?: string
+  /** Free-form payload; shape depends on `name` (see events.ts per-event schema). */
+  props?: Record<string, unknown>
+}
+
+export interface SearchEvent {
+  id: string
+  query: string
+  resultCount: number
+  clickedArticleId?: string
+  locale: Locale
+  sessionId: string
+  at: string
+}
+
+export interface RecommendationEvent {
+  id: string
+  userId?: string
+  sessionId: string
+  surface: 'related' | 'home' | 'feed' | 'continue_reading' | 'topic' | 'author'
+  candidateIds: string[]
+  shownIds: string[]
+  clickedId?: string
+  at: string
+}
+
 /** A homepage category section block (DESIGN.md §5 SectionBlock). */
 export interface HomepageSection {
   category: CategoryRef

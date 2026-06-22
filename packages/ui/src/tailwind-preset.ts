@@ -34,6 +34,14 @@ const tailwindPreset: Partial<Config> = {
         breaking: 'var(--breaking)',
         link: 'var(--link)',
         gold: 'var(--accent-gold)',
+        // Semantic live-data states (market up/down, AQI bands). Paired with a glyph/label
+        // in components, never colour-only (DESIGN.md §11).
+        up: 'var(--up)',
+        down: 'var(--down)',
+        'aqi-good': 'var(--aqi-good)',
+        'aqi-moderate': 'var(--aqi-moderate)',
+        'aqi-unhealthy': 'var(--aqi-unhealthy)',
+        'aqi-severe': 'var(--aqi-severe)',
       },
       maxWidth: {
         page: 'var(--page-max)',

@@ -267,6 +267,31 @@ export function localizedTitle(locale: Locale, item: { titleNe: string; titleEn:
   return locale === 'en' ? item.titleEn : item.titleNe
 }
 
+/** Nepal's seven provinces. The province mega-menu and /province/[slug] pages
+ *  key off this list; the slug matches the dynamic route and the sitemap. */
+export const PROVINCES = [
+  { slug: 'koshi', nameNe: 'कोशी', nameEn: 'Koshi' },
+  { slug: 'madhesh', nameNe: 'मधेश', nameEn: 'Madhesh' },
+  { slug: 'bagmati', nameNe: 'बागमती', nameEn: 'Bagmati' },
+  { slug: 'gandaki', nameNe: 'गण्डकी', nameEn: 'Gandaki' },
+  { slug: 'lumbini', nameNe: 'लुम्बिनी', nameEn: 'Lumbini' },
+  { slug: 'karnali', nameNe: 'कर्णाली', nameEn: 'Karnali' },
+  { slug: 'sudurpashchim', nameNe: 'सुदूरपश्चिम', nameEn: 'Sudurpashchim' },
+] as const
+
+/** Secondary nav rail — utility hubs a national portal surfaces above the
+ *  section nav (eKantipur / OnlineKhabar pattern). Drawn from STATIC_HUBS so
+ *  the rail stays in sync with the hub registry. */
+export const SECONDARY_NAV_HUBS = [
+  'market',
+  'sports',
+  'election',
+  'disaster-alerts',
+  'video',
+  'photos',
+  'reader-corner',
+] as const satisfies readonly (typeof STATIC_HUBS)[number]['key'][]
+
 export function localizedLead(locale: Locale, item: { leadNe: string; leadEn: string }) {
   return locale === 'en' ? item.leadEn : item.leadNe
 }

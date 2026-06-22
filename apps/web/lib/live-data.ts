@@ -82,6 +82,93 @@ export async function getDisasterAlerts(): Promise<LiveDataEnvelope<AlertData[]>
   ])
 }
 
+export type FootballScore = {
+  league: string
+  home: string
+  away: string
+  score: string
+  minute: string
+  status: 'live' | 'fixture' | 'finished'
+}
+
+export type CricketScore = {
+  league: string
+  home: string
+  away: string
+  score: string
+  status: string
+}
+
+export type ElectionResult = {
+  region: string
+  body: string
+  reportedPercent: number
+  summary: string
+}
+
+export type ExamResult = {
+  exam: string
+  board: string
+  publishedOn: string
+  summary: string
+}
+
+export type ParliamentLiveStatus = {
+  inSession: boolean
+  title: string
+  startedAt?: string
+  streamUrl?: string
+}
+
+export type YouTubeLiveStatus = {
+  channelId: string
+  isLive: boolean
+  title: string
+  videoId?: string
+}
+
+export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScore[]>> {
+  return mock('Mock football provider, replace with FOOTBALL_API_KEY provider', [
+    { league: 'EPL', home: 'Arsenal', away: 'Liverpool', score: '1-1', minute: '67', status: 'live' },
+    { league: 'La Liga', home: 'Barcelona', away: 'Real Madrid', score: '20:45', minute: '', status: 'fixture' },
+  ])
+}
+
+export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[]>> {
+  return mock('Mock cricket provider, replace with CRICKET_API_KEY provider', [
+    { league: 'Nepal Cricket', home: 'Nepal', away: 'UAE', score: '124/4 (14.2)', status: 'Live' },
+    { league: 'T20 World Cup', home: 'India', away: 'Australia', score: '180/6', status: 'Innings break' },
+  ])
+}
+
+export async function getElectionResults(): Promise<LiveDataEnvelope<ElectionResult[]>> {
+  return mock('Mock election provider, replace with ELECTION_API_KEY provider', [
+    { region: 'Nepal', body: 'Federal Parliament', reportedPercent: 0, summary: 'No active election' },
+  ])
+}
+
+export async function getExamResults(): Promise<LiveDataEnvelope<ExamResult[]>> {
+  return mock('Mock exam-results provider, replace with EXAM_RESULTS_API_KEY provider', [
+    { exam: 'SEE', board: 'NEB', publishedOn: '', summary: 'No result published' },
+    { exam: 'Grade XII', board: 'NEB', publishedOn: '', summary: 'No result published' },
+  ])
+}
+
+export async function getParliamentLive(): Promise<LiveDataEnvelope<ParliamentLiveStatus>> {
+  return mock('Mock parliament-feed provider, replace with PARLIAMENT_LIVE_URL provider', {
+    inSession: false,
+    title: 'Parliament not in session',
+  })
+}
+
+export async function getYouTubeLiveStatus(): Promise<LiveDataEnvelope<YouTubeLiveStatus>> {
+  return mock('Mock YouTube provider, replace with YOUTUBE_API_KEY provider', {
+    channelId: '',
+    isLive: false,
+    title: 'No live stream scheduled',
+  })
+}
+
 export const liveDataProviderNames = [
   'getWeather',
   'getAQI',

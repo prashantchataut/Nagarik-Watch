@@ -7,6 +7,8 @@ import { formatDate } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, swapLocale } from '@/lib/i18n/locales'
 import { MobileNav } from '@/components/MobileNav'
+import { SecondaryNav } from '@/components/SecondaryNav'
+import { ProvinceMegaMenu } from '@/components/ProvinceMegaMenu'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Logo } from '@/components/Logo'
 import { STATIC_HUBS } from '@/lib/site'
@@ -21,14 +23,14 @@ const ICON_BTN =
   'inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
 
 /**
- * Site chrome top — the logo lockup, the BS/AD date line, the primary nav, and the locale +
- * search + theme affordances. Client component so the locale toggle can read the current
- * pathname and swap locale *in place* (the previous version always linked to "/", so the
- * toggle dumped the reader on the other locale's home regardless of the page they were on).
+ * Site chrome top — three tiers, modelled on national-grade news portals:
+ *   1. SecondaryNav (utility rail: market, sports, election, …) — desktop only.
+ *   2. Brand row: logo, BS/AD date, search, theme, locale toggle, mobile menu.
+ *   3. Primary section nav: categories + the province mega-menu + key hubs.
  *
- * Sticky: the bar stays pinned with a translucent surface so content scrolls beneath it.
- * The locale toggle preserves context (swapLocale on usePathname) and every nav link is a
- * real keyboard-focusable anchor.
+ * Client component so the locale toggle can swap locale in place, the
+ * ProvinceMegaMenu can manage disclosure state, and the SecondaryNav can read
+ * the pathname for the active affordance.
  */
 export function Masthead({ locale, navCategories }: MastheadProps) {
   const dict = getDictionary(locale)
@@ -44,6 +46,8 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-rule bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
+      <SecondaryNav locale={locale} />
+
       <div className="mx-auto flex max-w-page flex-col gap-3 px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           <Link
@@ -97,8 +101,9 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
                 </li>
               )
             })}
+            <ProvinceMegaMenu locale={locale} />
             {STATIC_HUBS.filter((hub) =>
-              ['latest', 'trending', 'market', 'fact-check'].includes(hub.key),
+              ['latest', 'trending', 'fact-check'].includes(hub.key),
             ).map((hub) => {
               const href = localizeHref(locale, hub.path)
               const active = pathname === href || pathname.startsWith(`${href}/`)

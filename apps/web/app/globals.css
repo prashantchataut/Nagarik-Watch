@@ -68,6 +68,21 @@
     line-height: 1.4;
   }
 
+  /* Reader text-resize (FontSizeControl). The control sets data-reading-size on <html>; we
+     scale only the article reading column so the choice never leaks into chrome or cards.
+     The scale multiplies the body-lg paragraph/list sizes. Headings are intentionally left
+     to the type scale so hierarchy holds at every step. */
+  .reading-scale p,
+  .reading-scale li {
+    font-size: calc(1.1875rem * var(--reading-scale, 1));
+  }
+  :root[data-reading-size='sm'] {
+    --reading-scale: 0.92;
+  }
+  :root[data-reading-size='lg'] {
+    --reading-scale: 1.15;
+  }
+
   /* Theme toggle: both icons render in the DOM, CSS picks the visible one from data-theme.
      No JS is needed to decide which icon shows, so there is no first-paint flash or
      hydration mismatch (the inline head script sets data-theme before body paints). */

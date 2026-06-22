@@ -1,4 +1,7 @@
 import type { StoryCardData } from '@nagarikwatch/db'
+import { wilsonScore } from '@nagarikwatch/db'
+
+export { wilsonScore }
 
 export type RankingSignals = {
   editorialPriority?: number
@@ -113,17 +116,6 @@ export function relatedByContent(
   )
     .slice(0, limit)
     .map(({ rankScore: _rankScore, rankSignals: _rankSignals, ...ranked }) => ranked)
-}
-
-export function wilsonScore(upvotes: number, downvotes: number, confidence = 1.96): number {
-  const n = upvotes + downvotes
-  if (n === 0) return 0
-  const phat = upvotes / n
-  const z = confidence
-  return (
-    (phat + (z * z) / (2 * n) - z * Math.sqrt((phat * (1 - phat) + (z * z) / (4 * n)) / n)) /
-    (1 + (z * z) / n)
-  )
 }
 
 export const ALGORITHM_ROADMAP = [

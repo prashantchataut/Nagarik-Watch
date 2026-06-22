@@ -99,6 +99,9 @@ importers:
       '@nagarikwatch/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@nagarikwatch/ingest':
+        specifier: workspace:*
+        version: link:../../packages/ingest
       '@nagarikwatch/ui':
         specifier: workspace:*
         version: link:../../packages/ui

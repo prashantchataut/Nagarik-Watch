@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { adminSections, editorialWorkflow, newsroomRoles, permissions } from '@/lib/admin'
 
-export function AdminShell({ active = 'Dashboard' }: { active?: string }) {
+export function AdminShell({ active = 'Dashboard', children }: { active?: string; children?: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-surface">
       <header className="border-b border-rule bg-surface-raised">
@@ -38,49 +38,53 @@ export function AdminShell({ active = 'Dashboard' }: { active?: string }) {
           </nav>
         </aside>
         <main className="grid gap-6">
-          <section className="grid gap-4 md:grid-cols-4">
-            {['Drafts: 12', 'Pending review: 6', 'Published today: 4', 'SEO issues: 3'].map(
-              (metric) => (
-                <div key={metric} className="rounded-lg border border-rule bg-surface-raised p-4">
-                  <p className="text-body font-semibold text-ink">{metric}</p>
-                  <p className="mt-1 text-caption text-mute">
-                    Placeholder until database and analytics connect.
-                  </p>
+          {children ?? (
+            <>
+              <section className="grid gap-4 md:grid-cols-4">
+                {['Drafts: 12', 'Pending review: 6', 'Published today: 4', 'SEO issues: 3'].map(
+                  (metric) => (
+                    <div key={metric} className="rounded-lg border border-rule bg-surface-raised p-4">
+                      <p className="text-body font-semibold text-ink">{metric}</p>
+                      <p className="mt-1 text-caption text-mute">
+                        Placeholder until database and analytics connect.
+                      </p>
+                    </div>
+                  ),
+                )}
+              </section>
+              <section className="rounded-lg border border-rule bg-surface-raised p-5">
+                <h2 className="font-display text-h2 text-ink">Editorial workflow</h2>
+                <ol className="mt-4 flex flex-wrap gap-2">
+                  {editorialWorkflow.map((stage) => (
+                    <li
+                      key={stage}
+                      className="rounded-full border border-rule px-3 py-1 text-caption font-semibold text-ink-soft"
+                    >
+                      {stage}
+                    </li>
+                  ))}
+                </ol>
+              </section>
+              <section className="grid gap-6 lg:grid-cols-2">
+                <div className="rounded-lg border border-rule bg-surface-raised p-5">
+                  <h2 className="font-display text-h2 text-ink">Roles</h2>
+                  <ul className="mt-3 columns-1 text-body text-ink-soft md:columns-2">
+                    {newsroomRoles.map((role) => (
+                      <li key={role}>{role}</li>
+                    ))}
+                  </ul>
                 </div>
-              ),
-            )}
-          </section>
-          <section className="rounded-lg border border-rule bg-surface-raised p-5">
-            <h2 className="font-display text-h2 text-ink">Editorial workflow</h2>
-            <ol className="mt-4 flex flex-wrap gap-2">
-              {editorialWorkflow.map((stage) => (
-                <li
-                  key={stage}
-                  className="rounded-full border border-rule px-3 py-1 text-caption font-semibold text-ink-soft"
-                >
-                  {stage}
-                </li>
-              ))}
-            </ol>
-          </section>
-          <section className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-lg border border-rule bg-surface-raised p-5">
-              <h2 className="font-display text-h2 text-ink">Roles</h2>
-              <ul className="mt-3 columns-1 text-body text-ink-soft md:columns-2">
-                {newsroomRoles.map((role) => (
-                  <li key={role}>{role}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-lg border border-rule bg-surface-raised p-5">
-              <h2 className="font-display text-h2 text-ink">Permissions</h2>
-              <ul className="mt-3 columns-1 text-body text-ink-soft md:columns-2">
-                {permissions.map((permission) => (
-                  <li key={permission}>{permission}</li>
-                ))}
-              </ul>
-            </div>
-          </section>
+                <div className="rounded-lg border border-rule bg-surface-raised p-5">
+                  <h2 className="font-display text-h2 text-ink">Permissions</h2>
+                  <ul className="mt-3 columns-1 text-body text-ink-soft md:columns-2">
+                    {permissions.map((permission) => (
+                      <li key={permission}>{permission}</li>
+                    ))}
+                  </ul>
+                </div>
+              </section>
+            </>
+          )}
         </main>
       </div>
     </div>
