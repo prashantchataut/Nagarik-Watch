@@ -16,6 +16,7 @@ export default [
       '**/.turbo/**',
       '**/coverage/**',
       '**/playwright-report/**',
+      'skills/**',
       // Payload regenerates these from payload.config.ts; hand-edits are overwritten.
       '**/app/(payload)/admin/importMap.js',
       '**/app/(payload)/admin/importMap.js.map',

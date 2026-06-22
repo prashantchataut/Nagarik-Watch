@@ -1,20 +1,20 @@
 import type { CollectionConfig } from 'payload'
+import { hardDeleteRoles, userManagerRoles, withRoles } from '../access/rbac'
 
 /**
  * Users — CMS accounts. Roles are stored on the user and drive access control across all
  * collections (see src/access/, editorial-workflow.md §1).
  *
- * Six roles: author, copyeditor, translator, editor, publisher, admin.
- * The `translator` role is scoped to English-version fields only (ADR-007).
+ * Newsroom roles follow the production RBAC model in AGENT.md. Legacy role strings are
+ * mapped by access helpers so older seeded users do not get locked out during migration.
  */
 export const Users: CollectionConfig = {
   slug: 'users',
   access: {
-    // Self-service read of own record; admins read all. Tightened in Slice 6.
-    read: () => true,
-    create: () => true,
-    update: () => true,
-    delete: () => true,
+    read: withRoles(userManagerRoles),
+    create: withRoles(userManagerRoles),
+    update: withRoles(userManagerRoles),
+    delete: withRoles(hardDeleteRoles),
   },
   auth: {
     // Payload's default email/password with a strong minimum; 2FA lands in Phase 5.
@@ -39,14 +39,27 @@ export const Users: CollectionConfig = {
       type: 'select',
       hasMany: true,
       required: true,
-      defaultValue: ['author'],
+      defaultValue: ['journalist'],
       options: [
-        { label: 'Author', value: 'author' },
-        { label: 'Copy Editor', value: 'copyeditor' },
-        { label: 'Translator', value: 'translator' },
-        { label: 'Editor (section)', value: 'editor' },
-        { label: 'Publisher (desk lead)', value: 'publisher' },
-        { label: 'Admin (technical)', value: 'admin' },
+        { label: 'Reader', value: 'reader' },
+        { label: 'Contributor', value: 'contributor' },
+        { label: 'Journalist / Reporter', value: 'journalist' },
+        { label: 'Photo / Video Editor', value: 'photo_video_editor' },
+        { label: 'Copy Editor', value: 'copy_editor' },
+        { label: 'Fact Checker', value: 'fact_checker' },
+        { label: 'Assistant Editor', value: 'assistant_editor' },
+        { label: 'Sub Editor', value: 'sub_editor' },
+        { label: 'Section Editor', value: 'section_editor' },
+        { label: 'Province Editor', value: 'province_editor' },
+        { label: 'Managing Editor', value: 'managing_editor' },
+        { label: 'Editor in Chief', value: 'editor_in_chief' },
+        { label: 'SEO Manager', value: 'seo_manager' },
+        { label: 'Moderator', value: 'moderator' },
+        { label: 'Ad Manager', value: 'ad_manager' },
+        { label: 'Analyst', value: 'analyst' },
+        { label: 'Publisher / Owner', value: 'publisher' },
+        { label: 'Admin', value: 'admin' },
+        { label: 'Super Admin', value: 'super_admin' },
       ],
       admin: {
         position: 'sidebar',

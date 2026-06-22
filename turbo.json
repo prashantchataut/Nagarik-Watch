@@ -2,6 +2,24 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "stream",
   "globalDependencies": ["**/.env.*local", ".env.example"],
+  "globalEnv": [
+    "DATABASE_URL",
+    "PAYLOAD_SECRET",
+    "PAYLOAD_PUBLIC_SERVER_URL",
+    "NEXT_PUBLIC_SITE_URL",
+    "REVALIDATE_SECRET",
+    "STORAGE_ENDPOINT",
+    "STORAGE_BUCKET",
+    "STORAGE_ACCESS_KEY_ID",
+    "STORAGE_SECRET_ACCESS_KEY",
+    "STORAGE_PUBLIC_BASE_URL",
+    "PAYLOAD_CONTENT_SOURCE",
+    "NEXT_PUBLIC_DOIB_NUMBER",
+    "ENABLE_WEB_ADMIN_SCAFFOLD",
+    "NEXT_PUBLIC_PLAUSIBLE_DOMAIN",
+    "NEXT_PUBLIC_PLAUSIBLE_SRC",
+    "NEXT_PUBLIC_GA4_ID"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
