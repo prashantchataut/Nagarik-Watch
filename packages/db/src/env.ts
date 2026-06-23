@@ -20,13 +20,15 @@ const EnvSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().url(),
   REVALIDATE_SECRET: z.string().min(16, 'REVALIDATE_SECRET must be at least 16 characters'),
 
-  // Object storage adapter (ADR-003) — default S3-compatible (R2)
-  STORAGE_ENDPOINT: z.string().url(),
+  // Object storage adapter (ADR-003) — default S3-compatible (R2).
+  // Optional: uploads degrade gracefully when no bucket is configured (dev, preview,
+  // or a fresh prod deploy before R2 is provisioned). Set all five to enable uploads.
+  STORAGE_ENDPOINT: z.string().url().optional(),
   STORAGE_REGION: z.string().default('auto'),
-  STORAGE_BUCKET: z.string().min(1),
-  STORAGE_ACCESS_KEY_ID: z.string().min(1),
-  STORAGE_SECRET_ACCESS_KEY: z.string().min(1),
-  STORAGE_PUBLIC_BASE_URL: z.string().url(),
+  STORAGE_BUCKET: z.string().optional(),
+  STORAGE_ACCESS_KEY_ID: z.string().optional(),
+  STORAGE_SECRET_ACCESS_KEY: z.string().optional(),
+  STORAGE_PUBLIC_BASE_URL: z.string().url().optional(),
 
   // Edge/CDN adapter (ADR-003) — optional in dev (no-op adapter)
   EDGE_PROVIDER: z.enum(['cloudflare', 'aws', 'bunny', 'none']).default('none'),

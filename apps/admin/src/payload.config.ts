@@ -49,9 +49,10 @@ export default buildConfig({
     pool: {
       connectionString: env.DATABASE_URL,
     },
-    // Prod uses migrations (source of truth). Dev pushes the schema live; flip to false
-    // once a migrations workflow is in place (Slice 8).
-    push: true,
+    // Dev pushes the schema live (fast iteration). Prod runs against generated
+    // migrations (source of truth) so schema changes are reviewed and ordered.
+    // Set PAYLOAD_DB_PUSH=false in production; defaults to true for local dev.
+    push: (process.env.PAYLOAD_DB_PUSH ?? 'true') === 'true',
   }),
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
