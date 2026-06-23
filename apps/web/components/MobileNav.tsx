@@ -115,7 +115,10 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
             </div>
 
             <nav aria-label={dict.primaryNav} className="flex-1 overflow-y-auto px-3 py-3">
-              <ul className="flex flex-col gap-1">
+              <DrawerSection
+                label={locale === 'en' ? 'News' : 'समाचार'}
+                lang={locale === 'en' ? 'en' : 'ne'}
+              >
                 <li>
                   <Link
                     href={homeHref}
@@ -141,6 +144,12 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                     </li>
                   )
                 })}
+              </DrawerSection>
+
+              <DrawerSection
+                label={locale === 'en' ? 'Tools and hubs' : 'उपकरण र हब'}
+                lang={locale === 'en' ? 'en' : 'ne'}
+              >
                 {STATIC_HUBS.filter((hub) =>
                   [
                     'latest',
@@ -162,11 +171,34 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                     </Link>
                   </li>
                 ))}
-              </ul>
+              </DrawerSection>
             </nav>
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+/** A labeled group of links inside the mobile drawer, so the list isn't a flat wall. */
+function DrawerSection({
+  label,
+  lang,
+  children,
+}: {
+  label: string
+  lang: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="mb-2">
+      <p
+        className="px-3 pb-1 pt-3 text-meta font-semibold uppercase tracking-wide text-mute"
+        lang={lang}
+      >
+        {label}
+      </p>
+      <ul className="flex flex-col gap-1">{children}</ul>
     </div>
   )
 }

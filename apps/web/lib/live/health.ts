@@ -1,10 +1,8 @@
 import {
   getAQI,
-  getCricketScores,
   getDisasterAlerts,
   getElectionResults,
   getExamResults,
-  getFootballScores,
   getForexRates,
   getGoldSilverRates,
   getNepseMarket,
@@ -14,6 +12,8 @@ import {
   getYouTubeLiveStatus,
   type LiveDataEnvelope,
 } from '@/lib/live-data'
+// Real sports fetchers (provider-aware) replace the mock-based ones from live-data.
+import { getFootballScores as getRealFootball, getCricketScores as getRealCricket } from '@/lib/live/sports'
 
 export type ProviderHealth = {
   key: string
@@ -37,8 +37,8 @@ const PROVIDERS = [
   },
   { key: 'forex', label: 'Forex', envVars: ['FOREX_API_KEY'], check: getForexRates },
   { key: 'sports', label: 'Sports scores', envVars: ['SPORTS_API_KEY'], check: getSportsScores },
-  { key: 'football', label: 'Football', envVars: ['FOOTBALL_API_KEY'], check: getFootballScores },
-  { key: 'cricket', label: 'Cricket', envVars: ['CRICKET_API_KEY'], check: getCricketScores },
+  { key: 'football', label: 'Football', envVars: ['FOOTBALL_API_KEY'], check: getRealFootball },
+  { key: 'cricket', label: 'Cricket', envVars: ['CRICKET_API_KEY'], check: getRealCricket },
   {
     key: 'election',
     label: 'Election results',

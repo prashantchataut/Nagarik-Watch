@@ -81,8 +81,11 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
           </div>
         </div>
 
-        <nav aria-label={dict.primaryNav} className="hidden border-t border-rule pt-2 md:block">
-          <ul className="flex flex-wrap items-center gap-x-1 gap-y-1">
+        <nav
+          aria-label={dict.primaryNav}
+          className="hidden border-t border-rule pt-2 md:block"
+        >
+          <ul className="flex flex-nowrap items-center gap-x-1 gap-y-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <li>
               <NavLink href={homeHref} active={pathname === '/' || pathname === '/en'}>
                 {dict.home}
@@ -143,8 +146,8 @@ function NavLink({
       aria-current={active ? 'page' : undefined}
       className={
         active
-          ? 'inline-block rounded-full bg-brand-tint px-3.5 py-1.5 text-body font-semibold text-brand-strong'
-          : 'inline-block rounded-full px-3.5 py-1.5 text-body font-medium text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint/60 hover:text-brand-strong'
+          ? 'inline-block whitespace-nowrap rounded-full bg-brand-tint px-3.5 py-1.5 text-body font-semibold text-brand-strong'
+          : 'inline-block whitespace-nowrap rounded-full px-3.5 py-1.5 text-body font-medium text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint/60 hover:text-brand-strong'
       }
     >
       {children}

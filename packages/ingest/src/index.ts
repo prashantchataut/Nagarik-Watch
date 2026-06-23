@@ -110,6 +110,27 @@ export const INGEST_SOURCES: readonly IngestSource[] = [
     sourceType: 'aggregated',
     license: 'headline+link only',
   },
+  {
+    id: 'annapurna-post',
+    name: 'अन्नपूर्ण पोस्ट',
+    feedUrl: 'https://www.annapurnapost.com/rss/news.rss',
+    sourceType: 'aggregated',
+    license: 'headline+link only',
+  },
+  {
+    id: 'bbc-nepali',
+    name: 'BBC Nepali',
+    feedUrl: 'https://feeds.bbci.co.uk/nepali/rss.xml',
+    sourceType: 'wire',
+    license: 'headline+link only',
+  },
+  {
+    id: 'rss-gorkhapatra',
+    name: 'गोरखापत्र',
+    feedUrl: 'https://gorkhapatraonline.com/rss',
+    sourceType: 'aggregated',
+    license: 'headline+link only',
+  },
 ] as const
 
 const CDATA_RE = /^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/

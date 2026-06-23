@@ -2,7 +2,13 @@ import type { Metadata } from 'next'
 import type { Locale } from '@nagarikwatch/db'
 import { UtilityWidgetRail } from '@/components/live/LiveWidgets'
 import { UtilityTools } from '@/components/utilities/UtilityTools'
+import { NepaliCalendar } from '@/components/utilities/NepaliCalendar'
+import { getRealForex } from '@/lib/live/real'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
+
+// The page now fetches live forex for the currency converter, so it revalidates on a
+// short window instead of being fully static. The converter math stays client-side.
+export const revalidate = 600
 
 const utilityGroups = [
   {
@@ -71,6 +77,12 @@ export default async function UtilitiesPage({ params }: { params: Promise<{ loca
   const locale: Locale = asLocale((await params).locale)
   const lang = locale === 'en' ? 'en' : 'ne'
 
+  // Live NPR forex drives the currency converter. Mock fallback returns empty, which the
+  // converter renders as a "connect key" note — no broken widget.
+  const forex = await getRealForex(locale)
+  const forexRates = forex.mock ? [] : forex.data ?? []
+  const forexSource = forex.mock ? undefined : forex.source
+
   return (
     <div className="mx-auto max-w-page px-4 py-8" lang={lang}>
       <header className="border-b border-rule pb-6">
@@ -109,7 +121,9 @@ export default async function UtilitiesPage({ params }: { params: Promise<{ loca
         ))}
       </section>
 
-      <UtilityTools locale={locale} />
+      <UtilityTools locale={locale} forexRates={forexRates} forexSource={forexSource} />
+
+      <NepaliCalendar locale={locale} />
     </div>
   )
 }

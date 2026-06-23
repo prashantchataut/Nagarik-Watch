@@ -81,13 +81,22 @@ function weatherCodeToCondition(code: number): WeatherReading['condition'] {
   return WEATHER_CODE_MAP[code] ?? 'clouds'
 }
 
-/** REAL weather from Open-Meteo. Falls back to mock on any failure. */
-export async function getRealWeather(_locale: Locale): Promise<LiveValue<WeatherReading>> {
+/** REAL weather. Provider-aware: uses WEATHER_PROVIDER + WEATHER_API_KEY when set
+ *  (meteosource | openweather | weatherstack), otherwise the keyless Open-Meteo feed.
+ *  Any failure degrades to the mock so the homepage never breaks on an upstream error. */
+export async function getRealWeather(locale: Locale): Promise<LiveValue<WeatherReading>> {
   const key = 'weather'
   const hit = cached<WeatherReading>(key)
   if (hit) return hit
 
+  const provider = (process.env.WEATHER_PROVIDER ?? 'open-meteo').toLowerCase()
+  const apiKey = process.env.WEATHER_API_KEY
+
   try {
+    if (apiKey && provider !== 'open-meteo') {
+      const value = await fetchProviderWeather(provider, apiKey)
+      if (value) return remember(key, value)
+    }
     const url =
       `https://api.open-meteo.com/v1/forecast` +
       `?latitude=${KTM_LAT}&longitude=${KTM_LON}` +
@@ -115,8 +124,101 @@ export async function getRealWeather(_locale: Locale): Promise<LiveValue<Weather
     }
     return remember(key, value)
   } catch {
-    return getMockWeather(_locale)
+    return getMockWeather(locale)
   }
+}
+
+/** Fetch from a keyed weather provider, or null to signal "fall back to Open-Meteo". */
+async function fetchProviderWeather(
+  provider: string,
+  apiKey: string,
+): Promise<LiveValue<WeatherReading> | null> {
+  const common = { placeNe: 'काठमाडौं', placeEn: 'Kathmandu' }
+  if (provider === 'openweather') {
+    const url =
+      `https://api.openweathermap.org/data/2.5/weather?lat=${KTM_LAT}&lon=${KTM_LON}` +
+      `&units=metric&appid=${encodeURIComponent(apiKey)}`
+    const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
+    if (!res.ok) throw new Error(`openweather http ${res.status}`)
+    const j = (await res.json()) as { main?: { temp?: number }; weather?: Array<{ id?: number }> }
+    const temp = j.main?.temp
+    const code = j.weather?.[0]?.id ?? 800
+    if (typeof temp !== 'number') throw new Error('openweather shape')
+    return {
+      status: 'ok',
+      data: { ...common, tempC: Math.round(temp), condition: owmCodeToCondition(code) },
+      source: 'OpenWeather',
+      updatedAt: new Date().toISOString(),
+      mock: false,
+    }
+  }
+  if (provider === 'weatherstack') {
+    const url =
+      `http://api.weatherstack.com/current?access_key=${encodeURIComponent(apiKey)}` +
+      `&query=${KTM_LAT},${KTM_LON}&units=m`
+    const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
+    if (!res.ok) throw new Error(`weatherstack http ${res.status}`)
+    const j = (await res.json()) as {
+      current?: { temperature?: number; weather_descriptions?: string[] }
+    }
+    const temp = j.current?.temperature
+    if (typeof temp !== 'number') throw new Error('weatherstack shape')
+    return {
+      status: 'ok',
+      data: {
+        ...common,
+        tempC: Math.round(temp),
+        condition: descriptionToCondition(j.current?.weather_descriptions?.[0]),
+      },
+      source: 'Weatherstack',
+      updatedAt: new Date().toISOString(),
+      mock: false,
+    }
+  }
+  if (provider === 'meteosource') {
+    const url =
+      `https://www.meteosource.com/api/v1/free/point?place_id=kathmandu` +
+      `&key=${encodeURIComponent(apiKey)}&units=si`
+    const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
+    if (!res.ok) throw new Error(`meteosource http ${res.status}`)
+    const j = (await res.json()) as {
+      current?: { temperature?: number; summary?: string; icon?: string }
+    }
+    const temp = j.current?.temperature
+    if (typeof temp !== 'number') throw new Error('meteosource shape')
+    return {
+      status: 'ok',
+      data: {
+        ...common,
+        tempC: Math.round(temp),
+        condition: descriptionToCondition(j.current?.summary ?? j.current?.icon),
+      },
+      source: 'Meteosource',
+      updatedAt: new Date().toISOString(),
+      mock: false,
+    }
+  }
+  return null
+}
+
+/** OpenWeatherMap condition code → our set (2xx storm, 5xx rain, 7xx haze, 800 clear). */
+function owmCodeToCondition(code: number): WeatherReading['condition'] {
+  if (code >= 200 && code < 300) return 'storm'
+  if (code >= 300 && code < 600) return 'rain'
+  if (code >= 600 && code < 700) return 'rain'
+  if (code >= 700 && code < 800) return 'haze'
+  return code === 800 ? 'clear' : 'clouds'
+}
+
+/** Map a free-text weather description to our condition set. */
+function descriptionToCondition(desc?: string): WeatherReading['condition'] {
+  const d = (desc ?? '').toLowerCase()
+  if (!d) return 'clouds'
+  if (d.includes('thunder') || d.includes('storm')) return 'storm'
+  if (d.includes('rain') || d.includes('drizzle') || d.includes('shower')) return 'rain'
+  if (d.includes('haze') || d.includes('fog') || d.includes('mist') || d.includes('dust')) return 'haze'
+  if (d.includes('clear') || d.includes('sunny')) return 'clear'
+  return 'clouds'
 }
 
 /** REAL AQI (US AQI + PM2.5) from Open-Meteo Air Quality. Falls back to mock. */
@@ -163,13 +265,42 @@ type NrbForexPayload = {
 
 export type ForexRate = { iso3: string; name: string; buy: number; sell: number; unit: string }
 
-/** REAL forex rates from Nepal Rastra Bank. Falls back to empty list on failure. */
+/**
+ * The forex widget shows NPR against a focused set of currencies that matter to Nepali
+ * readers: the majors (USD, EUR, GBP, AUD, CAD, JPY, CNY) plus the high-remittance Gulf
+ * and Asian corridors (SAR, AED, MYR, KRW) where millions of Nepali workers send money
+ * home. Everything else NRB publishes is dropped to keep the widget scannable.
+ */
+const FOREX_FOCUS = new Set([
+  'USD',
+  'EUR',
+  'GBP',
+  'AUD',
+  'CAD',
+  'JPY',
+  'CNY',
+  'SAR',
+  'AED',
+  'MYR',
+  'KRW',
+])
+
+/** REAL forex rates, NPR against the focus set. Provider-aware:
+ *  FOREX_PROVIDER=fxrateapis + FOREX_API_KEY uses fxrateapis (NPR cross-rates), else
+ *  the keyless Nepal Rastra Bank daily feed. Falls back to empty list on any failure. */
 export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate[]>> {
   const key = 'forex'
   const hit = cached<ForexRate[]>(key)
   if (hit) return hit
 
+  const provider = (process.env.FOREX_PROVIDER ?? 'nr-bank').toLowerCase()
+  const apiKey = process.env.FOREX_API_KEY
+
   try {
+    if (apiKey && provider === 'fxrateapis') {
+      const value = await fetchFxrateapisForex(apiKey)
+      if (value) return remember(key, value)
+    }
     const today = new Date().toISOString().slice(0, 10)
     const url = `https://www.nrb.org.np/api/forex/v1/rates?from=${today}&to=${today}&per_page=10`
     const res = await withTimeout(fetch(url, { next: { revalidate: 600 } }), 5000)
@@ -190,7 +321,7 @@ export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate
           unit: 'NPR',
         }
       })
-      .filter((r): r is ForexRate => r !== null && r.iso3 !== '')
+      .filter((r): r is ForexRate => r !== null && FOREX_FOCUS.has(r.iso3))
 
     if (rates.length === 0) throw new Error('forex empty')
     const value: LiveValue<ForexRate[]> = {
@@ -209,6 +340,44 @@ export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate
       updatedAt: new Date().toISOString(),
       mock: true,
     }
+  }
+}
+
+/**
+ * fxrateapis returns 1 NPR expressed in each focus currency. We invert to NPR per 1 unit
+ * of the currency (how Nepali readers quote rates). A retail-rate API has no buy/sell
+ * spread, so we apply an indicative ±0.5% and label the source "FXRateAPIs (indicative)";
+ * NRB remains the authoritative source when its feed is reachable.
+ */
+async function fetchFxrateapisForex(apiKey: string): Promise<LiveValue<ForexRate[]> | null> {
+  const currencies = [...FOREX_FOCUS].join(',')
+  const url =
+    `https://api.fxrateapis.com/latest?base=NPR&currencies=${currencies}` +
+    `&api_key=${encodeURIComponent(apiKey)}`
+  const res = await withTimeout(fetch(url, { next: { revalidate: 600 } }), 5000)
+  if (!res.ok) throw new Error(`fxrateapis http ${res.status}`)
+  const j = (await res.json()) as { rates?: Record<string, number> }
+  const ratesMap = j.rates ?? {}
+  const rates: ForexRate[] = []
+  for (const iso3 of FOREX_FOCUS) {
+    const perNpr = ratesMap[iso3]
+    if (typeof perNpr !== 'number' || perNpr <= 0) continue
+    const nprPerUnit = 1 / perNpr
+    rates.push({
+      iso3,
+      name: iso3,
+      buy: Number((nprPerUnit * 0.995).toFixed(2)),
+      sell: Number((nprPerUnit * 1.005).toFixed(2)),
+      unit: 'NPR',
+    })
+  }
+  if (rates.length === 0) throw new Error('fxrateapis empty')
+  return {
+    status: 'ok',
+    data: rates,
+    source: 'FXRateAPIs (indicative)',
+    updatedAt: new Date().toISOString(),
+    mock: false,
   }
 }
 
