@@ -1,4 +1,34 @@
-import { AdminShell } from '@/components/admin/AdminShell'
-export default function Page() {
-  return <AdminShell active="New Article" />
+import type { Metadata } from 'next'
+import { getNavCategories } from '@/lib/content'
+import { seedTags } from '@/lib/content/seed-source'
+import { requireNewsroomSession } from '@/lib/auth/session'
+import { canCreate } from '@/lib/admin-roles'
+import { redirect } from 'next/navigation'
+import { AdminPageHeader } from '@/components/admin/primitives'
+import { ArticleEditor } from '@/components/admin/ArticleEditor'
+
+export const metadata: Metadata = {
+  title: 'New Article',
+  robots: { index: false, follow: false },
+}
+
+export const dynamic = 'force-dynamic'
+
+export default async function NewArticlePage() {
+  const session = await requireNewsroomSession()
+  if (!canCreate(session.newsroomRole)) {
+    redirect('/admin/articles')
+  }
+
+  const [categories, tags] = await Promise.all([getNavCategories(), Promise.resolve(seedTags)])
+
+  return (
+    <div>
+      <AdminPageHeader
+        title="नयाँ समाचार"
+        subtitle="नयाँ समाचार लेख्न सुरु गर्नुहोस्। ड्राफ्ट बचत गर्न सक्नुहुन्छ।"
+      />
+      <ArticleEditor categories={categories} tags={tags} role={session.newsroomRole} isNew />
+    </div>
+  )
 }

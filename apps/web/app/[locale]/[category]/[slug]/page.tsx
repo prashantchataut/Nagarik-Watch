@@ -13,6 +13,7 @@ import { RelatedStories } from '@/components/article/RelatedStories'
 import { ReadingProgress } from '@/components/article/ReadingProgress'
 import { FontSizeControl } from '@/components/article/FontSizeControl'
 import { ReaderArticleControls } from '@/components/reader/ReaderArticleControls'
+import { BreadcrumbJsonLd, SpeakableJsonLd } from '@/components/seo/Schema'
 
 type Params = { locale: string; category: string; slug: string }
 
@@ -59,6 +60,17 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         siteUrl={siteUrl}
         siteName={dict.siteName}
       />
+      <BreadcrumbJsonLd
+        locale={locale}
+        crumbs={[
+          {
+            name: locale === 'en' && article.category.nameEn ? article.category.nameEn : article.category.nameNe,
+            path: `${prefix}/${category}`,
+          },
+          { name: title, path: `/${category}/${slug}` },
+        ]}
+      />
+      <SpeakableJsonLd url={url} />
 
       <header className="mx-auto max-w-body px-4 pt-8">
         <CategoryLabel category={article.category} locale={locale} as="span" className="mb-3" />

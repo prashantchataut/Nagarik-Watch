@@ -89,3 +89,49 @@ This manual separates what is functional in the repository from work that needs 
 - Functional: Next.js public portal routes, RSS, sitemap, news sitemap, seed-backed content source, Payload core collections, RBAC helper, reading-time utility, search tests, ranking utilities, live-widget envelope contracts, and visible mock status boundaries.
 - Scaffolded: reader accounts, synced bookmarks/history, comments, polls, push notifications, newsletter campaigns, payment/subscription flows, real market/sports/election/exam providers, AI editorial assistants, advanced analytics, and production moderation queues.
 - Mock/demo fallback: seed articles, some live data widgets, placeholder legal/contact details, and provider health surfaces until credentials and approved providers are configured.
+
+## Newsroom Admin + Reader Auth (Better Auth)
+
+The newsroom admin and reader accounts are powered by Better Auth. The auth
+database is **Postgres when `DATABASE_URL` is set** (production, shared with
+Payload CMS), and **PGlite (in-memory Postgres via WASM) when it is not**
+(dev/preview — sessions reset on restart, which is fine for the seed-backed demo).
+
+### First-boot admin setup
+
+1. Set `ENABLE_WEB_ADMIN_SCAFFOLD=true` in your environment.
+2. Set `NEWSROOM_ADMIN_EMAIL`, `NEWSROOM_ADMIN_PASSWORD` (min 8 chars), and
+   `NEWSROOM_ADMIN_NAME`.
+3. Visit `/admin/login` and sign in with those credentials.
+4. **Change the password immediately** via the profile screen, then remove
+   the `NEWSROOM_ADMIN_*` env vars so they cannot leak.
+
+If you do NOT set the env vars: sign up as a reader at `/auth/signup`, then
+manually elevate that account's `role` column to `super_admin` in the
+`user` table (Better Auth stores additional fields as JSON columns). After
+elevation, log out and back in at `/admin/login`.
+
+### Reader accounts
+
+Reader signups are open at `/auth/signup` (Nepali) and `/en/auth/signup`
+(English). Readers get bookmarks, reading history, and can comment + vote in
+polls. Reader accounts never see `/admin/*` — the session gate rejects any
+account whose role is `reader`.
+
+### Engagement backend
+
+- **Comments**: `POST /api/comments` (rate-limited 5/min/IP). Comments are
+  created in `pending` status; approve in `/admin/comments`.
+- **Polls**: `POST /api/polls/vote`. One vote per fingerprint per poll.
+- **Bookmarks**: `GET/POST /api/bookmarks`. Logged-in readers sync across
+  devices; anonymous readers use a localStorage fingerprint.
+- **Reading history**: `POST /api/reading` (called by ReadingProgress). 50
+  most-recent entries per reader.
+- **Newsletter**: `POST /api/newsletter/subscribe` (double opt-in). Confirm
+  via `GET /api/newsletter/confirm?token=…`. Requires `NEWSLETTER_API_KEY`
+  + `NEWSLETTER_API_BASE` to send the confirmation email; without them the
+  confirm link is logged to the server console in dev.
+
+All engagement data lives in the same in-memory/Postgres store. When
+`DATABASE_URL` is set, migrate these to Postgres tables (the store module
+is the single seam to update).

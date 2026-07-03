@@ -1,0 +1,86 @@
+import { NextResponse, type NextRequest } from 'next/server'
+import { createComment } from '@/lib/engagement/store'
+import { getSession } from '@/lib/auth/session'
+
+export const dynamic = 'force-dynamic'
+
+const RATE_LIMIT = new Map<string, { count: number; resetAt: number }>()
+
+function rateLimit(ip: string): boolean {
+  const now = Date.now()
+  const entry = RATE_LIMIT.get(ip)
+  if (!entry || entry.resetAt < now) {
+    RATE_LIMIT.set(ip, { count: 1, resetAt: now + 60_000 })
+    return true
+  }
+  if (entry.count >= 5) return false
+  entry.count++
+  return true
+}
+
+/**
+ * POST /api/comments — create a reader comment. Comments are always created in
+ * 'pending' status; a moderator approves them in /admin/comments before they
+ * appear publicly.
+ *
+ * Body: { articleSlug, articleCategory, authorName, bodyNe, parentId?, locale }
+ * Returns: { id, status: 'pending' } | 429 | 400
+ */
+export async function POST(request: NextRequest) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  if (!rateLimit(ip)) {
+    return NextResponse.json(
+      { error: 'धेरै प्रयास। केही समयपछि प्रयास गर्नुहोस्।' },
+      { status: 429 },
+    )
+  }
+
+  let body: Record<string, unknown>
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+
+  const articleSlug = String(body.articleSlug ?? '').trim()
+  const articleCategory = String(body.articleCategory ?? '').trim()
+  const authorName = String(body.authorName ?? '').trim()
+  const bodyNe = String(body.bodyNe ?? '').trim()
+  const parentId = body.parentId ? String(body.parentId) : undefined
+  const locale = body.locale === 'en' ? 'en' : 'ne'
+
+  if (!articleSlug || !authorName || !bodyNe) {
+    return NextResponse.json(
+      { error: 'आवश्यक क्षेत्रहरू भर्नुहोस्।' },
+      { status: 400 },
+    )
+  }
+  if (bodyNe.length > 2000) {
+    return NextResponse.json(
+      { error: 'टिप्पणी २००० अक्षरभन्दा छोटो हुनुपर्छ।' },
+      { status: 400 },
+    )
+  }
+
+  const session = await getSession().catch(() => null)
+
+  const comment = await createComment({
+    articleSlug,
+    articleCategory,
+    authorName,
+    authorEmail: session?.email,
+    authorUserId: session?.userId,
+    bodyNe,
+    parentId,
+    locale,
+  })
+
+  return NextResponse.json(
+    {
+      id: comment.id,
+      status: comment.status,
+      message: 'टिप्पणी प्राप्त भयो। सम्पादकीय स्वीकृतिपछि प्रकाशित हुनेछ।',
+    },
+    { status: 201 },
+  )
+}

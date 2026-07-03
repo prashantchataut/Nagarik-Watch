@@ -2,18 +2,25 @@ import type { SVGProps } from 'react'
 import { cn } from '@nagarikwatch/ui'
 
 /**
- * Nagarik Watch logo mark. A rounded crimson badge containing a mark that fuses Nepal's
- * non-rectangular double-pendant flag silhouette with a watchful eye. The "Watch" in the
- * brand name is vigilance, so the eye carries the meaning; the pendant shape carries the
- * national identity (no other flag is a non-rectangular double-pendulum). One ownable mark.
+ * Nagarik Watch logo mark — "The Watchtower Eye".
  *
- * Pure inline SVG so it scales crisply from favicon to masthead with no raster assets.
- * `currentColor` is unused on purpose: the mark colors are semantic (brand badge, warm
- * face, ink pupil, gold iris accent) and should not follow surrounding text color.
+ * A rounded crimson badge (trust + civic authority) containing a refined almond
+ * eye (vigilance — the "Watch" in the name). The eye's iris is a stylised
+ * Himalayan peak (Nepal), and a single gold signal dot sits at the apex — the
+ * reserved accent colour, used only on identity + breaking, signalling that
+ * the watchtower is active.
  *
- * Accessibility: the bare mark is decorative when paired with the visible wordmark, so
- * the default is aria-hidden + role="img" with a <title>. Pass an `aria-label` to make it
- * the lone label (e.g. the favicon-shaped footer mark with no adjacent text).
+ * The mark is ownable: no other Nepali portal uses an eye + peak composite,
+ * and the crimson + gold pair reads as serious-news, not tabloid. The geometry
+ * is clean enough to render crisply from 16px favicon to 120px masthead.
+ *
+ * Pure inline SVG (no raster), so it scales without artefacts. `currentColor`
+ * is unused on purpose: the mark colours are semantic and must not follow
+ * surrounding text.
+ *
+ * Accessibility: decorative when paired with the visible wordmark, so the
+ * default is role="img" with a <title>. Pass an `aria-label` to make it the
+ * lone label (e.g. the footer mark with no adjacent text).
  */
 
 type LogoMarkProps = SVGProps<SVGSVGElement> & {
@@ -31,35 +38,58 @@ export function LogoMark({ title, className, ...props }: LogoMarkProps) {
       {...props}
     >
       <title>{title}</title>
-      {/* Rounded badge container — moderate radius, brand fill. */}
-      <rect x="2" y="2" width="44" height="44" rx="12" fill="var(--brand)" />
-      {/* Subtle top sheen for depth without glassmorphism. */}
-      <rect x="2" y="2" width="44" height="22" rx="12" fill="#ffffff" opacity="0.06" />
+      {/* Rounded badge — brand fill, moderate radius for civic seriousness. */}
+      <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="var(--brand)" />
+      {/* Subtle top sheen for depth (impeccable: no glassmorphism, just a 5% lift). */}
+      <rect x="1.5" y="1.5" width="45" height="22" rx="11" fill="#ffffff" opacity="0.05" />
 
       {/*
-        The pendant-eye mark, drawn within a 28×28 box centered on the badge.
-        Outer almond eye shape traces Nepal's double-pendant silhouette: the upper edge
-        steps down then jogs back up (the flag's two stacked pennants). It doubles as an
-        eye — the watchful gaze. The warm face sits on the crimson badge.
+        The Watchtower Eye, drawn within a 32×20 box centred on the badge.
+        Outer almond eye: two mirrored quadratic curves meeting at pointed
+        corners (the "watchful" shape — pointed ends read as alert). The warm
+        cream face sits on the crimson badge.
       */}
-      <g transform="translate(10 10)">
-        {/* Eye / pendant body, warm cream on crimson. */}
-        <path
-          d="M14 2 L26 2 L26 9 L22 9 L22 14 L14 14 Z"
-          fill="var(--surface-raised)"
-          opacity="0.96"
-        />
-        {/* Lower lash line — grounds the eye, adds the "watching" weight at the base. */}
-        <path
-          d="M2 14 L14 14 L22 14 L26 14 L26 18 L2 18 Z"
-          fill="var(--surface-raised)"
-          opacity="0.96"
-        />
-        {/* Iris — gold accent (the reserved second color, used only on identity + breaking). */}
-        <circle cx="14" cy="11.5" r="3.4" fill="var(--accent-gold)" />
-        {/* Pupil — ink, offset upward to read as alert/looking forward. */}
-        <circle cx="14" cy="11" r="1.7" fill="var(--ink)" />
-      </g>
+      <path
+        d="M8 24 Q24 12 40 24 Q24 36 8 24 Z"
+        fill="var(--surface-raised)"
+        opacity="0.97"
+      />
+
+      {/*
+        Himalayan peak iris — a triangle whose base sits on the eye's midline
+        and whose apex points up toward the gold signal dot. Two ridges give
+        it the silhouette of a mountain range rather than a flat triangle.
+      */}
+      <path
+        d="M17 24 L21 17.5 L23.5 21 L26 16 L31 24 Z"
+        fill="var(--brand-strong)"
+      />
+      {/* Secondary smaller ridge for range texture. */}
+      <path
+        d="M17 24 L20 21 L22 23 L24 20 L26 22.5 L31 24 Z"
+        fill="var(--brand)"
+        opacity="0.55"
+      />
+
+      {/*
+        Gold signal dot — the apex spark. Reserved accent colour, used only
+        on identity + breaking. Sits at the peak's tip so the eye "looks up"
+        toward the signal.
+      */}
+      <circle cx="26" cy="16.5" r="1.5" fill="var(--accent-gold)" />
+
+      {/*
+        Lower lash line — grounds the eye, adds the "watching" weight at the
+        base so the mark doesn't float. A single curved stroke under the eye.
+      */}
+      <path
+        d="M10 27.5 Q24 33 38 27.5"
+        fill="none"
+        stroke="var(--surface-raised)"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        opacity="0.8"
+      />
     </svg>
   )
 }
@@ -73,9 +103,9 @@ type LogoProps = {
 }
 
 /**
- * Full masthead lockup: mark + bilingual wordmark. The Devanagari wordmark is primary
- * (PRODUCT.md: Devanagari-first), the English line sits beneath in ink-soft. The whole
- * lockup links home via the caller wrapping it in a <Link>.
+ * Full masthead lockup: mark + bilingual wordmark. The Devanagari wordmark is
+ * primary (PRODUCT.md: Devanagari-first), the English line sits beneath in
+ * ink-soft. The whole lockup links home via the caller wrapping it in a <Link>.
  */
 export function Logo({ siteName = 'नागरिक वाच', className, markOnly = false }: LogoProps) {
   if (markOnly) {

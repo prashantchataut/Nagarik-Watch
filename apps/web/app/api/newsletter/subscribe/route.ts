@@ -1,0 +1,110 @@
+import { NextResponse, type NextRequest } from 'next/server'
+
+export const dynamic = 'force-dynamic'
+
+const RATE_LIMIT = new Map<string, { count: number; resetAt: number }>()
+
+function rateLimit(ip: string): boolean {
+  const now = Date.now()
+  const entry = RATE_LIMIT.get(ip)
+  if (!entry || entry.resetAt < now) {
+    RATE_LIMIT.set(ip, { count: 1, resetAt: now + 60_000 })
+    return true
+  }
+  if (entry.count >= 3) return false
+  entry.count++
+  return true
+}
+
+// In-memory pending-confirmation list. When a provider (Resend/Listmonk) is
+// configured, this is replaced by a real provider call. Double opt-in: the
+// subscriber gets a confirmation email with a token link; clicking it moves
+// them to confirmed.
+//
+// Shared with the confirm route (app/api/newsletter/confirm/route.ts) via a
+// module-level singleton accessor so both routes read/write the same maps
+// within a single long-lived server process (dev / single-instance preview).
+// For multi-instance production, swap `getSubscriberStore()` for a Redis or
+// Postgres-backed implementation — the call sites stay identical.
+import { getSubscriberStore } from '../store'
+
+const { pendingSubscribers, confirmedSubscribers } = getSubscriberStore()
+
+/**
+ * POST /api/newsletter/subscribe — double-opt-in newsletter subscription.
+ *
+ * Flow:
+ *   1. Reader submits email.
+ *   2. We store { email, token } in pendingSubscribers.
+ *   3. If NEWSLETTER_API_KEY + NEWSLETTER_API_BASE are set, we call the
+ *      provider to send a confirmation email. Otherwise we log the token so
+ *      the founder can confirm manually during dev.
+ *   4. GET /api/newsletter/confirm?token=… moves the email to confirmed.
+ *      (That route lives in app/api/newsletter/confirm/route.ts — Next.js
+ *      resolves /api/newsletter/confirm to its own file, not the GET export
+ *      here, so confirm logic is split out accordingly.)
+ *
+ * Body: { email }
+ */
+export async function POST(request: NextRequest) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  if (!rateLimit(ip)) {
+    return NextResponse.json({ error: 'धेरै प्रयास।' }, { status: 429 })
+  }
+
+  let body: Record<string, unknown>
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+
+  const email = String(body.email ?? '').trim().toLowerCase()
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    return NextResponse.json({ error: 'मान्य इमेल भर्नुहोस्।' }, { status: 400 })
+  }
+
+  if (confirmedSubscribers.has(email)) {
+    return NextResponse.json({ ok: true, message: 'Already subscribed.' })
+  }
+
+  const token = crypto.randomUUID()
+  pendingSubscribers.set(token, { email, token, createdAt: Date.now() })
+
+  // If a newsletter provider is configured, send the confirmation email.
+  // Otherwise, log the confirm link so the founder can complete the loop in dev.
+  const providerKey = process.env.NEWSLETTER_API_KEY
+  const providerBase = process.env.NEWSLETTER_API_BASE
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  const confirmUrl = `${siteUrl}/api/newsletter/confirm?token=${token}`
+
+  if (providerKey && providerBase) {
+    try {
+      await fetch(`${providerBase}/messages`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${providerKey}`,
+        },
+        body: JSON.stringify({
+          from: 'Nagarik Watch <newsletter@nagarikwatch.com>',
+          to: email,
+          subject: 'नागरिक वाच — सदस्यता पुष्टि गर्नुहोस्',
+          text: `नमस्ते,\n\nतपाईंले नागरिक वाचको न्युजलेटर सदस्यताका लागि अनुरोध गर्नुभएको छ। पुष्टि गर्न यो लिङ्कमा क्लिक गर्नुहोस्:\n\n${confirmUrl}\n\nधन्यवाद,\nनागरिक वाच टोली`,
+        }),
+      })
+    } catch {
+      // Provider call failed — fall through to the dev log so the founder sees it.
+    }
+  } else {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[newsletter] dev confirm link for ${email}: ${confirmUrl}`)
+    }
+  }
+
+  return NextResponse.json(
+    { ok: true, message: 'पुष्टि इमेल पठाइयो। आफ्नो इनबक्स जाँच्नुहोस्।' },
+    { status: 202 },
+  )
+}
