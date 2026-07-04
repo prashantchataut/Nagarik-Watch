@@ -4,7 +4,7 @@
   "devCommand": "pnpm --filter @nagarikwatch/web dev",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs",
-  "outputDirectory": "../web/.next",
+  "outputDirectory": "apps/web/.next",
   "github": {
     "silent": true
   }
