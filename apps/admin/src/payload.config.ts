@@ -12,20 +12,54 @@ import { Tags } from './collections/Tags'
 import { Articles } from './collections/Articles'
 import { loadEnv } from '@nagarikwatch/db/env'
 
-// Validate env at boot so misconfiguration fails fast before serving the admin.
-const env = loadEnv()
-
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 /**
+ * Build-safe env access.
+ *
+ * Payload's config module is imported at `next build` time (the catch-all
+ * `/api/[payload]` route pulls in `@payload-config`). If we call `loadEnv()`
+ * at module top-level, the build fails in the Vercel sandbox whenever any
+ * required var is absent or the DB isn't reachable — which is the default for
+ * a fresh deploy.
+ *
+ * Strategy: read directly from `process.env` with build-time fallbacks so the
+ * config module always evaluates; defer the strict `loadEnv()` check to
+ * runtime (server boot) where the real env is guaranteed present. The
+ * `serverURL` and `secret` are only needed when the server runs, not at build.
+ */
+const isBuild = process.env.NEXT_PHASE === 'phase-production-build'
+const PAYLOAD_SECRET =
+  process.env.PAYLOAD_SECRET ?? (isBuild ? 'build-placeholder-not-used-at-runtime' : undefined)
+const DATABASE_URL =
+  process.env.DATABASE_URL ??
+  (isBuild ? 'postgres://build-placeholder.not.used.at.runtime/db' : undefined)
+const SERVER_URL =
+  process.env.PAYLOAD_PUBLIC_SERVER_URL ??
+  (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000')
+
+/**
+ * Validate env at runtime (NOT at build). Called once on first server boot
+ * via the `onInit` hook — fails fast with a clear message if production env
+ * is missing, but never blocks `next build`.
+ */
+function validateAtBoot() {
+  if (isBuild) return
+  loadEnv()
+}
+
+/**
  * Payload CMS root config for Nagarik Watch.
  *
- * Phase 1 lands the core content model (content-model.md §1–5): Users, Media, Category,
- * Author, Tag and Article. Access control is open in dev (tightened in Slice 6 / Phase 2);
- * the Article source-attribution hook is already in place.
+ * Phase 1 lands the core content model (content-model.md §1–5): Users, Media,
+ * Category, Author, Tag and Article. Access control is open in dev (tightened
+ * in Slice 6 / Phase 2); the Article source-attribution hook is already in
+ * place.
  */
 export default buildConfig({
+  secret: PAYLOAD_SECRET as string,
+  serverURL: SERVER_URL,
   admin: {
     user: Users.slug,
     importMap: {
@@ -44,10 +78,11 @@ export default buildConfig({
   collections: [Users, Media, Categories, Authors, Tags, Articles],
   globals: [],
   editor: lexicalEditor(),
-  secret: env.PAYLOAD_SECRET,
+  // Validate env once the server actually boots — never during `next build`.
+  onInit: validateAtBoot,
   db: postgresAdapter({
     pool: {
-      connectionString: env.DATABASE_URL,
+      connectionString: DATABASE_URL as string,
     },
     // Dev pushes the schema live (fast iteration). Prod runs against generated
     // migrations (source of truth) so schema changes are reviewed and ordered.
