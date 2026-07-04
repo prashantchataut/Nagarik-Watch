@@ -18,7 +18,9 @@
     "test": "turbo run test",
     "test:watch": "turbo run test:watch",
     "test:e2e": "turbo run test:e2e",
-    "clean": "turbo run clean && rimraf node_modules"
+    "clean": "turbo run clean && rimraf node_modules",
+    "audit:public": "node scripts/audit-public-surface.mjs",
+    "verify:launch": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm audit:public && pnpm --filter @nagarikwatch/web build && pnpm --filter @nagarikwatch/db test"
   },
   "devDependencies": {
     "@nagarikwatch/tsconfig": "workspace:*",

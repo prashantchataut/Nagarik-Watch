@@ -94,13 +94,13 @@ export default async function UtilitiesPage({ params }: { params: Promise<{ loca
         </h1>
         <p className="mt-3 max-w-body text-body-lg text-ink-soft">
           {locale === 'en'
-            ? 'A production entry point for calendar, results, market, weather, typing and converter utilities. Provider-backed widgets show demo labels until credentials are added.'
-            : 'पात्रो, नतिजा, बजार, मौसम, टाइपिङ र कनभर्टरका लागि उत्पादन प्रवेश बिन्दु। प्रदायक नजोडिएसम्म विजेटले नमुना लेबल देखाउँछ।'}
+            ? 'Calendar, results, market, weather, typing and converter tools gathered in one reader-first utility desk.'
+            : 'पात्रो, नतिजा, बजार, मौसम, टाइपिङ र कनभर्टर उपकरणलाई एउटै पाठक-केन्द्रित सेवा डेस्कमा राखिएको छ।'}
         </p>
       </header>
 
       <div className="mt-8">
-        <UtilityWidgetRail />
+        <UtilityWidgetRail locale={locale} />
       </div>
 
       <section className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">

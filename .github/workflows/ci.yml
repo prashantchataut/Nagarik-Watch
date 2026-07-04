@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   verify:
-    name: lint · typecheck · test
+    name: launch verification
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,3 +39,12 @@ jobs:
 
       - name: Unit tests
         run: pnpm test
+
+      - name: Public surface audit
+        run: pnpm audit:public
+
+      - name: Web build
+        run: pnpm --filter @nagarikwatch/web build
+
+      - name: DB tests
+        run: pnpm --filter @nagarikwatch/db test

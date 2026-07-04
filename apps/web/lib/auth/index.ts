@@ -21,13 +21,12 @@
 import 'server-only'
 import { betterAuth } from 'better-auth'
 import { createDialect } from './auth-pool'
+import { SITE_URL } from '@/lib/site'
 
 const AUTH_SECRET =
   process.env.AUTH_SECRET ||
   process.env.BETTER_AUTH_SECRET ||
   'dev-only-secret-change-me-please-32-chars-minimum'
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
 
 type AuthInstance = ReturnType<typeof betterAuth>
 

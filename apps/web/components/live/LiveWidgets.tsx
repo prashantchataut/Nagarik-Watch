@@ -1,102 +1,110 @@
-import {
-  getAQI,
-  getDisasterAlerts,
-  getForexRates,
-  getGoldSilverRates,
-  getNepseMarket,
-  getSportsScores,
-  getWeather,
-  type LiveDataEnvelope,
-} from '@/lib/live-data'
+import type { Locale } from '@nagarikwatch/db'
+import { LiveWidget } from '@nagarikwatch/ui'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { getRealAqi, getRealForex, getRealGoldSilver, getRealNepse, getRealWeather } from '@/lib/live/real'
+import { aqiBand, localizeNumber, relativeTime } from '@/lib/live/format'
 
-function WidgetShell<T>({
-  title,
-  envelope,
-  children,
-}: {
-  title: string
-  envelope: LiveDataEnvelope<T>
-  children: React.ReactNode
-}) {
-  return (
-    <section className="rounded-lg border border-rule bg-surface-raised p-4">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="font-display text-h3 text-ink">{title}</h2>
-        {envelope.status === 'mock' && (
-          <span className="rounded-full bg-brand-tint px-2 py-1 text-caption font-semibold text-brand-strong">
-            MOCK
-          </span>
-        )}
-      </div>
-      <div className="mt-3">{children}</div>
-      <p className="mt-3 text-caption text-mute">
-        Source: {envelope.source}. Updated {new Date(envelope.updatedAt).toLocaleString('en-GB')}.
-      </p>
-    </section>
-  )
-}
+export async function UtilityWidgetRail({ locale }: { locale: Locale }) {
+  const dict = getDictionary(locale)
+  const lang = locale === 'en' ? 'en' : 'ne'
+  const labels = {
+    mock: dict.liveMock,
+    sourcePrefix: dict.liveSourcePrefix,
+    loading: dict.liveLoading,
+    error: dict.liveError,
+    empty: dict.liveEmpty,
+    retry: dict.liveRetry,
+  }
+  const showFallbackBadge = process.env.NEXT_PUBLIC_SHOW_MOCK_BADGE === 'true'
 
-export async function UtilityWidgetRail() {
-  const [weather, aqi, nepse, metals, forex, scores, alerts] = await Promise.all([
-    getWeather(),
-    getAQI(),
-    getNepseMarket(),
-    getGoldSilverRates(),
-    getForexRates(),
-    getSportsScores(),
-    getDisasterAlerts(),
+  const [weather, aqi, nepse, metals, forex] = await Promise.all([
+    getRealWeather(locale),
+    getRealAqi(locale),
+    getRealNepse(locale),
+    getRealGoldSilver(locale),
+    getRealForex(locale),
   ])
 
   return (
-    <aside className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" aria-label="Live utility widgets">
-      <WidgetShell title="Weather" envelope={weather}>
-        <p className="text-body text-ink">
-          {weather.data.city}: {weather.data.temperatureC}°C, {weather.data.condition}
-        </p>
-      </WidgetShell>
-      <WidgetShell title="AQI" envelope={aqi}>
-        <p className="text-body text-ink">
-          {aqi.data.city}: AQI {aqi.data.aqi}, {aqi.data.label}
-        </p>
-      </WidgetShell>
-      <WidgetShell title="NEPSE" envelope={nepse}>
-        <p className="text-body text-ink">
-          {nepse.data.index} {nepse.data.value.toLocaleString('en-NP')} ({nepse.data.changePercent}
-          %)
-        </p>
-      </WidgetShell>
-      <WidgetShell title="Gold and Forex" envelope={metals}>
-        <ul className="text-body text-ink-soft">
-          {metals.data.map((rate) => (
-            <li key={rate.label}>
-              {rate.label}: {rate.sell} {rate.unit}
-            </li>
-          ))}
-          {forex.data.map((rate) => (
-            <li key={rate.label}>
-              {rate.label}: {rate.buy}/{rate.sell} {rate.unit}
-            </li>
-          ))}
-        </ul>
-      </WidgetShell>
-      <WidgetShell title="Sports" envelope={scores}>
-        <ul className="text-body text-ink-soft">
-          {scores.data.map((score) => (
-            <li key={`${score.league}-${score.home}`}>
-              {score.league}: {score.home} vs {score.away}, {score.score}
-            </li>
-          ))}
-        </ul>
-      </WidgetShell>
-      <WidgetShell title="Disaster Alerts" envelope={alerts}>
-        <ul className="text-body text-ink-soft">
-          {alerts.data.map((alert) => (
-            <li key={`${alert.area}-${alert.title}`}>
-              {alert.severity.toUpperCase()}: {alert.title}, {alert.area}
-            </li>
-          ))}
-        </ul>
-      </WidgetShell>
+    <aside className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" aria-label={locale === 'en' ? 'Daily utility data' : 'दैनिक उपयोगी डाटा'}>
+      <LiveWidget title={dict.weatherTitle} titleLang={lang} status={weather.status} source={sourceFor(weather.source, locale)} updatedLabel={relativeTime(weather.updatedAt, locale)} mock={showFallbackBadge && weather.mock} labels={labels}>
+        {weather.data ? (
+          <p className="text-body text-ink">
+            <span className="font-display text-h2 font-bold">{localizeNumber(weather.data.tempC, locale)}°C</span>{' '}
+            <span className="text-ink-soft" lang={lang}>{locale === 'en' ? weather.data.placeEn : weather.data.placeNe}</span>
+          </p>
+        ) : null}
+      </LiveWidget>
+
+      <LiveWidget title={dict.aqiTitle} titleLang={lang} status={aqi.status} source={sourceFor(aqi.source, locale)} updatedLabel={relativeTime(aqi.updatedAt, locale)} mock={showFallbackBadge && aqi.mock} labels={labels}>
+        {aqi.data ? <AqiValue aqi={aqi.data.aqi} locale={locale} /> : null}
+      </LiveWidget>
+
+      <LiveWidget title={dict.nepseTitle} titleLang="en" status={nepse.status} source={sourceFor(nepse.source, locale)} updatedLabel={relativeTime(nepse.updatedAt, locale)} mock={showFallbackBadge && nepse.mock} labels={labels} tone={nepse.data && nepse.data.change >= 0 ? 'up' : 'down'}>
+        {nepse.data ? (
+          <div className="flex items-baseline gap-2">
+            <span className="font-display text-h2 font-bold text-ink">{localizeNumber(nepse.data.index.toFixed(2), locale)}</span>
+            <span className={nepse.data.change >= 0 ? 'text-meta font-semibold text-up' : 'text-meta font-semibold text-down'}>
+              <span aria-hidden="true">{nepse.data.change >= 0 ? '▲' : '▼'}</span> {localizeNumber(Math.abs(nepse.data.changePercent).toFixed(2), locale)}%
+            </span>
+          </div>
+        ) : null}
+      </LiveWidget>
+
+      <LiveWidget title={locale === 'en' ? 'Forex' : 'विदेशी मुद्रा'} titleLang={lang} status={forex.data && forex.data.length > 0 ? forex.status : 'empty'} source={sourceFor(forex.source, locale)} updatedLabel={relativeTime(forex.updatedAt, locale)} mock={showFallbackBadge && forex.mock} labels={labels}>
+        {forex.data && forex.data.length > 0 ? (
+          <ul className="grid gap-1 text-meta text-ink-soft">
+            {forex.data.slice(0, 4).map((rate) => (
+              <li key={rate.iso3} className="flex justify-between gap-3">
+                <span className="font-semibold" lang="en">{rate.iso3}</span>
+                <span className="tabular-nums text-ink">{localizeNumber(rate.sell.toFixed(2), locale)}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </LiveWidget>
+
+      <LiveWidget title={locale === 'en' ? 'Gold' : 'सुन'} titleLang={lang} status={metals.status} source={sourceFor(metals.source, locale)} updatedLabel={relativeTime(metals.updatedAt, locale)} mock={showFallbackBadge && metals.mock} labels={labels}>
+        {metals.data ? (
+          <p className="text-body text-ink">
+            <span className="font-display text-h2 font-bold">रु. {localizeNumber(metals.data.goldTolaNpr.toLocaleString('en-IN'), locale)}</span>{' '}
+            <span className="text-meta text-mute" lang={lang}>{locale === 'en' ? 'per tola' : 'प्रति तोला'}</span>
+          </p>
+        ) : null}
+      </LiveWidget>
+
+      <LiveWidget title={locale === 'en' ? 'Silver' : 'चाँदी'} titleLang={lang} status={metals.status} source={sourceFor(metals.source, locale)} updatedLabel={relativeTime(metals.updatedAt, locale)} mock={showFallbackBadge && metals.mock} labels={labels}>
+        {metals.data ? (
+          <p className="text-body text-ink">
+            <span className="font-display text-h2 font-bold">रु. {localizeNumber(metals.data.silverTolaNpr.toLocaleString('en-IN'), locale)}</span>{' '}
+            <span className="text-meta text-mute" lang={lang}>{locale === 'en' ? 'per tola' : 'प्रति तोला'}</span>
+          </p>
+        ) : null}
+      </LiveWidget>
     </aside>
   )
+}
+
+function AqiValue({ aqi, locale }: { aqi: number; locale: Locale }) {
+  const { band, label } = aqiBand(aqi, locale)
+  const color =
+    band === 'good'
+      ? 'text-aqi-good'
+      : band === 'moderate'
+        ? 'text-aqi-moderate'
+        : band === 'severe'
+          ? 'text-aqi-severe'
+          : 'text-aqi-unhealthy'
+
+  return (
+    <p className="text-body text-ink">
+      <span className={`font-display text-h2 font-bold ${color}`}>{localizeNumber(aqi, locale)}</span>{' '}
+      <span className="text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>{label}</span>
+    </p>
+  )
+}
+
+function sourceFor(source: string, locale: Locale): string {
+  if (/mock/i.test(source)) return locale === 'en' ? 'Provider fallback' : 'प्रदायक फलब्याक'
+  return source
 }

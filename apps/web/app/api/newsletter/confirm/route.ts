@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { SITE_URL } from '@/lib/site'
 import { getSubscriberStore } from '../store'
 
 export const dynamic = 'force-dynamic'
@@ -41,6 +42,5 @@ export async function GET(request: NextRequest) {
   confirmedSubscribers.add(pending.email)
   pendingSubscribers.delete(token)
 
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
-  return NextResponse.redirect(`${siteUrl}/newsletter-confirmed`)
+  return NextResponse.redirect(`${SITE_URL}/newsletter-confirmed`)
 }

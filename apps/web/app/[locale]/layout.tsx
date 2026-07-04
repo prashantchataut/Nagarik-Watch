@@ -11,6 +11,7 @@ import { SiteJsonLd } from '@/components/SiteJsonLd'
 import { UtilityStrip } from '@/components/live/UtilityStrip'
 import { BottomNav } from '@/components/BottomNav'
 import { CookieConsent } from '@/components/CookieConsent'
+import { SITE_URL } from '@/lib/site'
 
 export const dynamicParams = false
 
@@ -27,7 +28,7 @@ export async function generateMetadata({
   const locale = asLocale(rawLocale)
   const dict = getDictionary(locale)
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+    metadataBase: new URL(SITE_URL),
     title: {
       default: `${dict.siteName} — ${dict.tagline}`,
       template: `%s — ${dict.siteName}`,

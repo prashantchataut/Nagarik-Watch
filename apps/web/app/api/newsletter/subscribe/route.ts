@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { SITE_URL } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,12 +73,14 @@ export async function POST(request: NextRequest) {
   const token = crypto.randomUUID()
   pendingSubscribers.set(token, { email, token, createdAt: Date.now() })
 
-  // If a newsletter provider is configured, send the confirmation email.
-  // Otherwise, log the confirm link so the founder can complete the loop in dev.
   const providerKey = process.env.NEWSLETTER_API_KEY
   const providerBase = process.env.NEWSLETTER_API_BASE
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
-  const confirmUrl = `${siteUrl}/api/newsletter/confirm?token=${token}`
+  const confirmUrl = `${SITE_URL}/api/newsletter/confirm?token=${token}`
+
+  if (process.env.NODE_ENV === 'production' && (!providerKey || !providerBase)) {
+    pendingSubscribers.delete(token)
+    return NextResponse.json({ error: 'Newsletter provider is not configured.' }, { status: 503 })
+  }
 
   if (providerKey && providerBase) {
     try {
@@ -95,12 +98,11 @@ export async function POST(request: NextRequest) {
         }),
       })
     } catch {
-      // Provider call failed — fall through to the dev log so the founder sees it.
+      pendingSubscribers.delete(token)
+      return NextResponse.json({ error: 'Newsletter provider failed.' }, { status: 502 })
     }
-  } else {
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`[newsletter] dev confirm link for ${email}: ${confirmUrl}`)
-    }
+  } else if (process.env.NODE_ENV !== 'production') {
+    console.log(`[newsletter] dev confirm link for ${email}: ${confirmUrl}`)
   }
 
   return NextResponse.json(

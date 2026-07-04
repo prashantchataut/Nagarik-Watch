@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getStories, getNavCategories } from '@/lib/content'
 import { seedTags, seedAuthors } from '@/lib/content/seed-source'
-import { STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
+import { SITE_URL, STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
 
 /**
  * Dynamic sitemap. Emits one <url> per locale (ne at root, en under /en) for every article,
@@ -15,8 +15,6 @@ import { STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
  */
 const LOCALES = ['ne', 'en'] as const
 type SLocale = (typeof LOCALES)[number]
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
 
 function prefix(locale: SLocale): string {
   return locale === 'en' ? '/en' : ''

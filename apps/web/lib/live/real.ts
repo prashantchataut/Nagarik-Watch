@@ -336,7 +336,7 @@ export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate
     return {
       status: 'ok',
       data: [],
-      source: 'Mock feed',
+      source: 'Provider fallback',
       updatedAt: new Date().toISOString(),
       mock: true,
     }

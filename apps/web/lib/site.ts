@@ -1,19 +1,21 @@
 import type { Locale } from '@nagarikwatch/db'
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(
-  /\/$/,
-  '',
-)
+const fallbackSiteUrl = process.env.NODE_ENV === 'production'
+  ? 'https://nagarik-watch.vercel.app'
+  : 'http://localhost:3000'
+
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? fallbackSiteUrl).replace(/\/$/, '')
 
 export const PUBLICATION = {
-  publisherName: 'Nagarik Watch Media',
-  legalName: 'Nagarik Watch Media Pvt. Ltd. (placeholder)',
-  editorInChief: 'Editor-in-Chief (to be appointed)',
-  registrationStatus: process.env.NEXT_PUBLIC_DOIB_NUMBER || 'DoIB registration pending',
-  address: 'Kathmandu, Nepal (final newsroom address pending)',
-  email: 'contact@nagarikwatch.com',
-  phone: '+977-01-0000000 (placeholder)',
-  ownership: 'Privately held Nepali media company. Final ownership disclosure pending legal setup.',
+  publisherName: 'Nagarik Watch',
+  legalName: process.env.NEXT_PUBLIC_PUBLICATION_LEGAL_NAME?.trim() || '',
+  editorInChief: process.env.NEXT_PUBLIC_EDITOR_IN_CHIEF?.trim() || '',
+  registrationNumber: process.env.NEXT_PUBLIC_DOIB_NUMBER?.trim() || '',
+  address: process.env.NEXT_PUBLIC_NEWSROOM_ADDRESS?.trim() || 'Kathmandu, Nepal',
+  email: process.env.NEXT_PUBLIC_NEWSROOM_EMAIL?.trim() || 'contact@nagarikwatch.com',
+  phone: process.env.NEXT_PUBLIC_NEWSROOM_PHONE?.trim() || '',
+  ownership:
+    'Nagarik Watch is an independent Nepali digital newsroom. Advertising and sponsored material are labelled separately from editorial work.',
   logoPath: '/icon.svg',
 } as const
 
@@ -75,8 +77,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/most-read',
     titleNe: 'धेरै पढिएको',
     titleEn: 'Most Read',
-    leadNe: 'वास्तविक एनालिटिक्स जोडिएपछि यो सूची पाठकको पढाइका आधारमा स्वचालित हुनेछ।',
-    leadEn: 'This list will be driven by reader analytics once production tracking is connected.',
+    leadNe: 'ताजापन, सार्वजनिक चासो र सम्पादकीय महत्त्वका आधारमा बनाइएको पढ्नैपर्ने सूची।',
+    leadEn: 'A ranked reading list shaped by freshness, public interest and editorial importance.',
     mode: 'trending',
   },
   {
@@ -147,8 +149,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/sports/live',
     titleNe: 'लाइभ खेल',
     titleEn: 'Live Sports',
-    leadNe: 'स्कोर, फिक्स्चर र प्रतियोगिता तालिका जोड्न तयार लाइभ खेल पृष्ठ।',
-    leadEn: 'A live sports page prepared for scores, fixtures and tournament tables.',
+    leadNe: 'क्रिकेट र फुटबल पछ्याउने नेपाली पाठकका लागि स्कोर, फिक्स्चर र खेल व्याख्या।',
+    leadEn: 'Scores, fixtures and match explainers for Nepali readers who follow cricket and football closely.',
     mode: 'utility',
   },
   {
@@ -156,8 +158,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/election',
     titleNe: 'निर्वाचन',
     titleEn: 'Election',
-    leadNe: 'निर्वाचन परिणाम, मतगणना र क्षेत्रगत विश्लेषणका लागि भविष्य-तयार खण्ड।',
-    leadEn: 'A future-ready hub for election results, counts and constituency analysis.',
+    leadNe: 'विश्वसनीय परिणाम ट्र्याकिङ चाहिने समयमा निर्वाचन समाचार, मतगणना सन्दर्भ र क्षेत्रगत व्याख्या।',
+    leadEn: 'Election news, vote-count context and constituency explainers when the public needs reliable result tracking.',
     mode: 'utility',
   },
   {
@@ -165,8 +167,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/results',
     titleNe: 'नतिजा',
     titleEn: 'Results',
-    leadNe: 'SEE, कक्षा १२ र सार्वजनिक परीक्षाफलका आधिकारिक स्रोत जोड्न तयार पृष्ठ।',
-    leadEn: 'Prepared for SEE, Grade XII and public-result integrations from official sources.',
+    leadNe: 'SEE, कक्षा १२ र सार्वजनिक परीक्षाका आधिकारिक सूचना, नतिजा व्याख्या र पाठक मार्गदर्शन।',
+    leadEn: 'Official-result explainers, notices and reader guidance for SEE, Grade XII and public examinations.',
     mode: 'utility',
   },
   {
@@ -210,8 +212,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/archive',
     titleNe: 'अभिलेख',
     titleEn: 'Archive',
-    leadNe: 'मिति, विभाग, लेखक र विषयका आधारमा पुराना सामग्री खोज्न तयार अभिलेख।',
-    leadEn: 'Archive scaffold for browsing by date, section, author and topic.',
+    leadNe: 'मिति, विभाग, लेखक र विषयका आधारमा पुराना नागरिक वाच सामग्री खोज्नुहोस्।',
+    leadEn: 'Browse older Nagarik Watch stories by date, section, author and topic.',
     mode: 'latest',
   },
   {
@@ -219,8 +221,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/submit-story',
     titleNe: 'समाचार टिप पठाउनुहोस्',
     titleEn: 'Submit a Story Tip',
-    leadNe: 'तथ्य, प्रमाण र सहमति सहितको पाठक टिप संकलनका लागि सुरक्षित फारम स्काफोल्ड।',
-    leadEn: 'A safe form scaffold for reader tips with evidence, consent and moderation.',
+    leadNe: 'प्रमाण, स्रोत सन्दर्भ र सम्पर्क विवरणसहित समाचार टिप पठाउने सुरक्षित बाटो।',
+    leadEn: 'Send a news tip with evidence, source context and a clear way for the newsroom to follow up.',
     mode: 'community',
   },
   {
@@ -228,8 +230,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/membership',
     titleNe: 'सदस्यता तयारी',
     titleEn: 'Membership Readiness',
-    leadNe: 'भविष्यको सदस्यता, सहयोग र प्रिमियम संकेतका लागि पारदर्शी संरचना।',
-    leadEn: 'Transparent scaffolding for future membership, support and premium signals.',
+    leadNe: 'सार्वजनिक हितको पत्रकारितालाई सहयोग गर्न चाहने पाठकका लागि पारदर्शी सहयोग पृष्ठ।',
+    leadEn: 'A transparent reader-support page for people who want to help fund public-interest journalism.',
     mode: 'community',
   },
 ]
@@ -239,8 +241,8 @@ export const TRUST_PAGES = [
     path: '/team',
     titleNe: 'हाम्रो टोली',
     titleEn: 'Team',
-    leadNe: 'सम्पादकीय र व्यवसायिक टोलीको अन्तिम सूची प्रकाशन अघि कानुनी रूपमा पुष्टि गर्नुपर्छ।',
-    leadEn: 'The final editorial and business team list must be legally confirmed before launch.',
+    leadNe: 'नागरिक वाचका सम्पादकीय जिम्मेवारी, सम्पर्क बिन्दु र प्रकाशन भूमिकाबारे पारदर्शी जानकारी।',
+    leadEn: 'Transparent information about Nagarik Watch editorial responsibility, contact points and publication roles.',
   },
   {
     path: '/editorial-policy',

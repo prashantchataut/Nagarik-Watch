@@ -20,7 +20,7 @@ export async function GET() {
     `Publisher: ${PUBLICATION.publisherName}`,
     `Editorial contact: ${PUBLICATION.email}`,
     `Site: ${SITE_URL}`,
-    `DoIB: ${process.env.NEXT_PUBLIC_DOIB_NUMBER ?? 'pending'}`,
+    ...(PUBLICATION.registrationNumber ? [`DoIB: ${PUBLICATION.registrationNumber}`] : []),
     ``,
     `## Sections`,
     ...categories.map((c) => `- ${c.nameNe} (${c.nameEn ?? c.slug}): ${SITE_URL}/${c.slug}`),

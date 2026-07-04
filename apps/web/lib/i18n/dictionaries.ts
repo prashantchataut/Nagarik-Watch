@@ -47,7 +47,7 @@ export const dictionary = {
     topicBackToCategory: 'विभागमा फर्कनुहोस्',
     storyCountTopic: (n: number) => `${n} वटा समाचार`,
     shareLabel: 'साझेदारी',
-    shareCopied: 'समिक्षित',
+    shareCopied: 'प्रतिलिपि भयो',
     shareCopyLink: 'लिङ्क प्रतिलिपि',
     shareFacebook: 'फेसबुकमा साझेदारी',
     shareTwitter: 'एक्समा साझेदारी',
@@ -120,7 +120,7 @@ export const dictionary = {
     footerDisclaimer:
       'यस साइटमा प्रकाशित सामग्री नागरिक वाचको सम्पादकीय निर्णयमा तयार पारिएको हो। समाचार सत्यता र सन्तुलनमा आधारित छ, तर प्रयोगकर्ताले आफ्नो विवेक प्रयोग गर्नुहोस्।',
     footerRegistration: 'प्रकाशन दर्ता',
-    footerRegistrationPending: 'pending',
+    footerRegistrationPending: 'प्रमाणित भएपछि प्रकाशित',
     footerCopyright: (year: number) => `© ${year} नागरिक वाच। सर्वाधिकार सुरक्षित।`,
     metaDescription:
       'नागरिक वाच (Nagarik Watch) — नेपालको नागरिककेन्द्रित, स्वतन्त्र र विश्वसनीय समाचार पोर्टल।',
@@ -272,7 +272,7 @@ export const dictionary = {
     footerDisclaimer:
       'Content published on this site is produced under the editorial discretion of Nagarik Watch. Reporting is grounded in accuracy and balance, but readers should exercise their own judgement.',
     footerRegistration: 'Publication registration',
-    footerRegistrationPending: 'pending',
+    footerRegistrationPending: 'Published after verification',
     footerCopyright: (year: number) => `© ${year} Nagarik Watch. All rights reserved.`,
     metaDescription:
       'Nagarik Watch — a citizen-focused, independent and trustworthy news portal from Nepal.',

@@ -17,6 +17,7 @@ import { ReaderArticleControls } from '@/components/reader/ReaderArticleControls
 import { BookmarkButton } from '@/components/reader/BookmarkButton'
 import { BreadcrumbJsonLd, SpeakableJsonLd } from '@/components/seo/Schema'
 import { CommentSection } from '@/components/article/CommentSection'
+import { SITE_URL } from '@/lib/site'
 
 type Params = { locale: string; category: string; slug: string }
 
@@ -40,7 +41,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const body = locale === 'en' && article.bodyEn ? article.bodyEn : article.bodyNe
   const titleLang = locale === 'en' && article.titleEn ? 'en' : 'ne'
 
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
+  const siteUrl = SITE_URL
   const prefix = localePrefix(locale)
   const url = `${siteUrl}${prefix}/${category}/${slug}`
 
