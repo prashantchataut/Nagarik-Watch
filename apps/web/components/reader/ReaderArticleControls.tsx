@@ -3,12 +3,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import {
-  READER_BOOKMARKS_KEY,
   READER_HISTORY_KEY,
   safeParseArray,
-  toggleBookmark,
   upsertHistory,
-  type BookmarkRecord,
   type ReadingHistoryRecord,
 } from '@/lib/reader/state'
 import { remainingReadingMinutes } from '@/lib/reader/reading'
@@ -28,17 +25,9 @@ export function ReaderArticleControls({
   href,
   readingMinutes,
 }: ReaderArticleControlsProps) {
-  const [bookmarked, setBookmarked] = useState(false)
   const [readingMode, setReadingMode] = useState(false)
   const [scrollDepth, setScrollDepth] = useState(0)
-  const [mounted, setMounted] = useState(false)
   const lang = locale === 'en' ? 'en' : 'ne'
-
-  useEffect(() => {
-    setMounted(true)
-    const saved = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))
-    setBookmarked(saved.some((record) => record.articleId === story.id))
-  }, [story.id])
 
   useEffect(() => {
     const startedAt = Date.now()
@@ -97,39 +86,16 @@ export function ReaderArticleControls({
     [readingMinutes, scrollDepth],
   )
 
-  function onBookmark() {
-    const previous = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))
-    const next = toggleBookmark(previous, story)
-    localStorage.setItem(READER_BOOKMARKS_KEY, JSON.stringify(next))
-    setBookmarked(next.some((record) => record.articleId === story.id))
-  }
-
-  const saveLabel = bookmarked
-    ? locale === 'en'
-      ? 'Saved'
-      : 'सुरक्षित छ'
-    : locale === 'en'
-      ? 'Save'
-      : 'सुरक्षित गर्नुहोस्'
   const modeLabel = readingMode
     ? locale === 'en'
-      ? 'Exit reading mode'
-      : 'पढाइ मोड बन्द'
+      ? 'Exit reader view'
+      : 'पढाइ दृश्य बन्द'
     : locale === 'en'
-      ? 'Reading mode'
-      : 'पढाइ मोड'
+      ? 'Reader view'
+      : 'पढाइ दृश्य'
 
   return (
     <div className="flex flex-wrap items-center gap-2" lang={lang}>
-      <button
-        type="button"
-        onClick={onBookmark}
-        aria-pressed={bookmarked}
-        className="inline-flex min-h-10 items-center gap-2 rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong active:scale-[0.98]"
-      >
-        <BookmarkIcon filled={bookmarked} />
-        {mounted ? saveLabel : locale === 'en' ? 'Save' : 'सुरक्षित गर्नुहोस्'}
-      </button>
       <button
         type="button"
         onClick={() => setReadingMode((value) => !value)}
@@ -142,24 +108,5 @@ export function ReaderArticleControls({
         {locale === 'en' ? `${remaining} min left` : `${remaining} मिनेट बाँकी`}
       </span>
     </div>
-  )
-}
-
-function BookmarkIcon({ filled }: { filled: boolean }) {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill={filled ? 'currentColor' : 'none'}
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1Z" />
-    </svg>
   )
 }

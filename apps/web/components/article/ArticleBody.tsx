@@ -63,28 +63,28 @@ function BlockRenderer({ block, locale, dropCap }: { block: ArticleBlock; locale
         const first = block.text[0]!
         const rest = block.text.slice(1)
         return (
-          <p className="text-body-lg leading-relaxed text-ink" lang={lang}>
+          <p className="text-[1.2rem] leading-[1.9] text-ink sm:text-[1.26rem]" lang={lang}>
             <span className="float-left mr-2 mt-1 font-display text-[3.5rem] leading-[0.8] text-brand">{first}</span>
             {rest}
           </p>
         )
       }
       return (
-        <p className="text-body-lg leading-relaxed text-ink" lang={lang}>
+        <p className="text-[1.2rem] leading-[1.9] text-ink sm:text-[1.26rem]" lang={lang}>
           {block.text}
         </p>
       )
 
     case 'heading2':
       return (
-        <h2 className="pt-2 font-display text-h2 text-ink" lang={lang}>
+        <h2 className="pt-5 font-display text-h2 leading-tight text-ink" lang={lang}>
           {block.text}
         </h2>
       )
 
     case 'heading3':
       return (
-        <h3 className="pt-2 font-display text-h3 text-ink" lang={lang}>
+        <h3 className="pt-4 font-display text-h3 leading-tight text-ink" lang={lang}>
           {block.text}
         </h3>
       )
@@ -132,7 +132,7 @@ function BlockRenderer({ block, locale, dropCap }: { block: ArticleBlock; locale
 
     case 'list': {
       const items = block.items.map((it, idx) => (
-        <li key={idx} lang={lang} className="text-body-lg leading-relaxed text-ink">
+        <li key={idx} lang={lang} className="text-[1.2rem] leading-[1.9] text-ink sm:text-[1.26rem]">
           {it}
         </li>
       ))
@@ -224,7 +224,7 @@ function safeEmbedUrl(
 function AdSlot({ label, lang }: { label: string; lang: 'ne' | 'en' }) {
   return (
     <aside
-      className="ad-slot my-2 flex min-h-[250px] flex-col items-center justify-center gap-2 p-4"
+      className="ad-slot my-8 flex min-h-[250px] flex-col items-center justify-center gap-2 p-4"
       aria-label={label}
       lang={lang}
     >

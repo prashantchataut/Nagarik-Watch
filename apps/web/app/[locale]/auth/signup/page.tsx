@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import type { Locale } from '@nagarikwatch/db'
-import { asLocale } from '@/lib/i18n/locales'
+import Link from 'next/link'
+import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { LogoMark } from '@/components/Logo'
+import { Logo } from '@/components/Logo'
 import { ReaderSignupForm } from '@/components/reader/ReaderSignupForm'
 
 export const dynamic = 'force-dynamic'
@@ -22,64 +23,62 @@ export default async function ReaderSignupPage({
   const locale: Locale = asLocale(rawLocale)
   const dict = getDictionary(locale)
   const ne = locale === 'ne'
-
-  // The ekantipur-style benefit list — same four points as the admin login,
-  // rendered compactly under the signup form so the value prop lands.
+  const lang = ne ? 'ne' : 'en'
   const benefits = ne
-    ? [
-        'समाचार डाइजेस्ट: तपाईले पढ्न छुटाउनुभएका समाचारहरू',
-        'संग्रहित समाचार: तपाईले संग्रह गर्नुभएको सामग्री',
-        'प्रस्तावित समाचार: तपाईका रुचि अनुसारका कथा',
-        'विविध: राशिफल, विनिमय दर, भ्याकेन्सी लगायत',
-      ]
-    : [
-        'News digest: catch up on what you missed',
-        'Saved stories: pick up where you left off',
-        'Recommended: stories matched to your interests',
-        'Utilities: horoscope, forex, vacancies and more',
-      ]
+    ? ['समाचार संग्रह', 'पढाइ इतिहास', 'रुचि अनुसारका सुझाव', 'दैनिक उपयोगी सेवामा छिटो पहुँच']
+    : ['Saved stories', 'Reading history', 'Interest-based picks', 'Quick access to daily utilities']
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-surface px-4 py-10">
-      <div className="w-full max-w-md">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <a href={ne ? '/' : '/en'} className="flex items-center gap-2.5">
-            <LogoMark title={`${dict.siteName} / Nagarik Watch`} className="h-11 w-11" />
-            <div className="flex flex-col leading-none">
-              <span className="font-display text-h1 font-extrabold text-ink" lang="ne">
-                {dict.siteName}
-              </span>
-              <span className="mt-0.5 text-meta font-semibold uppercase tracking-[0.14em] text-mute" lang="en">
-                Nagarik Watch
-              </span>
-            </div>
-          </a>
-          <h1 className="mt-8 font-display text-display leading-tight text-ink" lang={ne ? 'ne' : 'en'}>
-            {ne ? 'खाता बनाउनुहोस्' : 'Create your account'}
-          </h1>
-          <p className="mt-2 text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
-            {ne ? 'निःशुल्क। कुनै क्रेडिट कार्ड आवश्यक छैन।' : 'Free. No credit card required.'}
+    <div className="min-h-screen bg-surface">
+      <div className="mx-auto grid min-h-screen max-w-page lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="hidden border-r border-rule bg-surface-raised px-8 py-10 lg:flex lg:flex-col lg:justify-between">
+          <Link href={localizeHref(locale, '/')} className="inline-flex w-fit rounded-md" aria-label={dict.siteName}>
+            <Logo siteName={dict.siteName} />
+          </Link>
+          <div className="max-w-md">
+            <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang={lang}>
+              {ne ? 'निःशुल्क पाठक खाता' : 'Free reader account'}
+            </p>
+            <h1 className="mt-4 font-display text-[3rem] font-extrabold leading-[1.05] text-ink" lang={lang}>
+              {ne ? 'धेरै खोल्ने समाचार फेरि खोज्न नपरोस्।' : 'Stop losing the stories you meant to finish.'}
+            </h1>
+            <ul className="mt-6 grid gap-2 text-body text-ink-soft" lang={lang}>
+              {benefits.map((benefit) => (
+                <li key={benefit} className="flex items-center gap-2">
+                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand" />
+                  {benefit}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p className="text-caption text-mute" lang={lang}>
+            {ne ? 'कुनै पेवाल छैन। खाता केवल सुविधा र सम्झनाका लागि।' : 'No paywall. The account is for convenience and memory.'}
           </p>
-        </div>
+        </section>
 
-        <div className="rounded-lg border border-rule bg-surface-raised p-6">
-          <ReaderSignupForm locale={locale} />
-        </div>
+        <section className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-12">
+          <div className="w-full max-w-md">
+            <Link href={localizeHref(locale, '/')} className="mx-auto mb-8 flex w-fit rounded-md lg:hidden" aria-label={dict.siteName}>
+              <Logo siteName={dict.siteName} />
+            </Link>
+            <div>
+              <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang={lang}>
+                {ne ? 'खाता बनाउनुहोस्' : 'Create account'}
+              </p>
+              <h2 className="mt-2 font-display text-h1 font-extrabold leading-tight text-ink" lang={lang}>
+                {ne ? 'पाठक सुविधा सुरु गर्नुहोस्' : 'Start reader tools'}
+              </h2>
+              <p className="mt-2 text-body text-ink-soft" lang={lang}>
+                {ne ? 'निःशुल्क। पेवाल होइन। विज्ञापन र सामग्री पढ्न खाता चाहिँदैन।' : 'Free. Not a paywall. Reading the news does not require an account.'}
+              </p>
+            </div>
 
-        <ul className="mt-6 space-y-1.5 rounded-md border border-rule bg-surface-raised p-4">
-          <li className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={ne ? 'ne' : 'en'}>
-            {ne ? 'नागरिक वाचमा किन आवद्ध हुने?' : 'Why join Nagarik Watch?'}
-          </li>
-          {benefits.map((b) => (
-            <li key={b} className="flex items-start gap-2 text-caption text-ink-soft" lang={ne ? 'ne' : 'en'}>
-              <span className="mt-1 text-brand" aria-hidden="true">
-                ✓
-              </span>
-              {b}
-            </li>
-          ))}
-        </ul>
+            <div className="mt-7 rounded-lg border border-rule bg-surface-raised p-5 shadow-card sm:p-6">
+              <ReaderSignupForm locale={locale} />
+            </div>
+          </div>
+        </section>
       </div>
-    </main>
+    </div>
   )
 }

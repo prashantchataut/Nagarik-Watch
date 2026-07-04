@@ -76,9 +76,9 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
       />
       <SpeakableJsonLd url={url} />
 
-      <header className="mx-auto max-w-body px-4 pt-6 sm:pt-8">
+      <header className="mx-auto max-w-body px-4 pt-8 sm:pt-12">
         {/* Visible breadcrumb trail — schema is emitted separately above. */}
-        <nav aria-label="breadcrumb" className="mb-3 flex flex-wrap items-center gap-1.5 text-caption text-mute sm:mb-4">
+        <nav aria-label="breadcrumb" className="mb-5 flex flex-wrap items-center gap-1.5 text-caption text-mute sm:mb-6">
           <Link href={locale === 'en' ? '/en' : '/'} className="hover:text-brand-strong" lang={locale === 'en' ? 'en' : 'ne'}>
             {locale === 'en' ? 'Home' : 'गृह'}
           </Link>
@@ -93,15 +93,15 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         </nav>
 
         <CategoryLabel category={article.category} locale={locale} as="span" className="mb-3" />
-        <h1 className="font-display text-h1 leading-tight text-ink sm:text-display" lang={titleLang}>
+        <h1 className="font-display text-[2.35rem] font-extrabold leading-[1.12] tracking-[-0.01em] text-ink sm:text-[3.35rem]" lang={titleLang}>
           {title}
         </h1>
         {deck && (
-          <p className="mt-4 text-body-lg text-ink-soft leading-relaxed" lang={titleLang}>
+          <p className="mt-5 text-[1.25rem] leading-[1.75] text-ink-soft" lang={titleLang}>
             {deck}
           </p>
         )}
-        <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-rule py-3 text-meta text-ink-soft">
+        <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-rule py-4 text-meta text-ink-soft">
           <Byline
             authors={article.authors}
             locale={locale}
@@ -114,7 +114,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
       </header>
 
       {article.heroImage && (
-        <figure className="mx-auto mt-8 max-w-page px-4">
+        <figure className="mx-auto mt-10 max-w-[72rem] px-4">
           <div className="relative overflow-hidden rounded-lg aspect-[16/9]">
             <Image
               src={article.heroImage.url}
@@ -140,10 +140,10 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         </figure>
       )}
 
-      <div className="reading-scale mx-auto mt-8 max-w-body px-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-y border-rule py-3">
+      <div className="reading-scale mx-auto mt-10 max-w-body px-4">
+        <div className="grid gap-3 border-y border-rule py-4 lg:grid-cols-[1fr_auto] lg:items-center">
           <ShareBar url={`${prefix}/${category}/${slug}`} title={title} locale={locale} />
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 lg:justify-end">
             <BookmarkButton story={article} locale={locale} variant="pill" />
             <ReaderArticleControls
               story={article}

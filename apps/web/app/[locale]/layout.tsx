@@ -86,8 +86,8 @@ export default async function LocaleLayout({
         >
           {getDictionary(locale).skipToContent}
         </a>
-        <UtilityStrip locale={locale} />
         <Masthead locale={locale} navCategories={navCategories} />
+        <UtilityStrip locale={locale} />
         {/* pb-16 on small screens reserves room for the fixed BottomNav so it never covers
             the footer/last content (no sticky element blocking content, spec Phase 14). */}
         <main id="main" className="pb-16 lg:pb-0">

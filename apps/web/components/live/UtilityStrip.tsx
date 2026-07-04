@@ -31,14 +31,17 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
 
   return (
     <div
-      className="hidden border-b border-rule bg-surface-raised lg:block"
+      className="hidden border-b border-rule bg-surface lg:block"
       role="complementary"
-      aria-label={lang === 'ne' ? 'लाइभ जानकारी' : 'Live information'}
+      aria-label={lang === 'ne' ? 'दैनिक उपयोगी डेटा' : 'Daily utility data'}
     >
-      <div className="mx-auto flex max-w-page items-center gap-4 px-4 py-1.5 text-meta">
+      <div className="mx-auto flex max-w-page items-center gap-3 px-4 py-2 text-meta">
+        <span className="font-bold uppercase tracking-wide text-brand-strong" lang={lang}>
+          {locale === 'en' ? 'Today' : 'आज'}
+        </span>
         {/* Weather */}
         {weather.status === 'ok' && weather.data ? (
-          <span className="inline-flex items-center gap-1.5 text-ink-soft">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-raised px-3 py-1 text-ink-soft">
             <WeatherGlyph condition={weather.data.condition} />
             <span lang={lang}>{locale === 'en' ? weather.data.placeEn : weather.data.placeNe}</span>
             <span className="font-semibold text-ink">
@@ -60,7 +63,7 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
         {nepse.status === 'ok' && nepse.data ? (
           <a
             href={`${locale === 'en' ? '/en' : ''}/search?q=NEPSE`}
-            className="inline-flex items-center gap-1.5 rounded-sm text-ink-soft transition-opacity duration-fast ease-out-quint hover:opacity-80"
+            className="inline-flex items-center gap-1.5 rounded-full bg-surface-raised px-3 py-1 text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
           >
             <span className="font-semibold uppercase tracking-wide" lang="en">
               {dict.nepseTitle}
@@ -122,7 +125,7 @@ function AqiChip({ aqi, locale, title }: { aqi: number; locale: Locale; title: s
           ? 'text-aqi-severe'
           : 'text-aqi-unhealthy'
   return (
-    <span className="inline-flex items-center gap-1.5 text-ink-soft" title={title}>
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-raised px-3 py-1 text-ink-soft" title={title}>
       <span className="font-semibold uppercase tracking-wide">AQI</span>
       <span className={`font-semibold ${color}`}>{localizeNumber(aqi, locale)}</span>
       <span className="text-mute" lang={locale === 'en' ? 'en' : 'ne'}>

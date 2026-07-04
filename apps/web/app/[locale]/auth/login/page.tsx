@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import type { Locale } from '@nagarikwatch/db'
-import { asLocale } from '@/lib/i18n/locales'
+import Link from 'next/link'
+import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { LogoMark } from '@/components/Logo'
+import { Logo } from '@/components/Logo'
 import { ReaderLoginForm } from '@/components/reader/ReaderLoginForm'
 
 export const dynamic = 'force-dynamic'
@@ -22,45 +23,65 @@ export default async function ReaderLoginPage({
   const locale: Locale = asLocale(rawLocale)
   const dict = getDictionary(locale)
   const ne = locale === 'ne'
+  const lang = ne ? 'ne' : 'en'
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-surface px-4 py-10">
-      <div className="w-full max-w-md">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <a href={ne ? '/' : '/en'} className="flex items-center gap-2.5">
-            <LogoMark title={`${dict.siteName} / Nagarik Watch`} className="h-11 w-11" />
-            <div className="flex flex-col leading-none">
-              <span className="font-display text-h1 font-extrabold text-ink" lang="ne">
-                {dict.siteName}
-              </span>
-              <span className="mt-0.5 text-meta font-semibold uppercase tracking-[0.14em] text-mute" lang="en">
-                Nagarik Watch
-              </span>
-            </div>
-          </a>
-          <h1 className="mt-8 font-display text-display leading-tight text-ink" lang={ne ? 'ne' : 'en'}>
-            {ne ? 'पाठक लगइन' : 'Reader login'}
-          </h1>
-          <p className="mt-2 text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
-            {ne
-              ? 'संग्रहित समाचार, पढ्न जारी र प्रस्तावित सामग्रीका लागि लगइन गर्नुहोस्।'
-              : 'Sign in for saved stories, continue reading, and personalized picks.'}
+    <div className="min-h-screen bg-surface">
+      <div className="mx-auto grid min-h-screen max-w-page lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="hidden border-r border-rule bg-surface-raised px-8 py-10 lg:flex lg:flex-col lg:justify-between">
+          <Link href={localizeHref(locale, '/')} className="inline-flex w-fit rounded-md" aria-label={dict.siteName}>
+            <Logo siteName={dict.siteName} />
+          </Link>
+          <div className="max-w-md">
+            <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang={lang}>
+              {ne ? 'पाठक खाता' : 'Reader account'}
+            </p>
+            <h1 className="mt-4 font-display text-[3rem] font-extrabold leading-[1.05] text-ink" lang={lang}>
+              {ne ? 'समाचार पढ्ने ठाउँलाई आफ्नै बनाउनुहोस्।' : 'Make the reading desk yours.'}
+            </h1>
+            <p className="mt-5 text-body-lg leading-relaxed text-ink-soft" lang={lang}>
+              {ne
+                ? 'संग्रहित समाचार, पढाइ इतिहास र पछि फर्केर आउने सामग्रीका लागि पाठक लगइन प्रयोग हुन्छ। सम्पादकीय न्युजरुम लगइन यसबाट अलग छ।'
+                : 'Use reader login for saved stories, reading history, and return-to-read flows. Staff newsroom access is separate.'}
+            </p>
+          </div>
+          <p className="text-caption text-mute" lang={lang}>
+            {ne ? 'नागरिक वाच, नागरिककेन्द्रित पत्रकारिता।' : 'Nagarik Watch, civic-first journalism.'}
           </p>
-        </div>
+        </section>
 
-        <div className="rounded-lg border border-rule bg-surface-raised p-6">
-          <ReaderLoginForm locale={locale} />
-        </div>
+        <section className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-12">
+          <div className="w-full max-w-md">
+            <Link href={localizeHref(locale, '/')} className="mx-auto mb-8 flex w-fit rounded-md lg:hidden" aria-label={dict.siteName}>
+              <Logo siteName={dict.siteName} />
+            </Link>
+            <div>
+              <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang={lang}>
+                {ne ? 'पाठक लगइन' : 'Reader login'}
+              </p>
+              <h2 className="mt-2 font-display text-h1 font-extrabold leading-tight text-ink" lang={lang}>
+                {ne ? 'फर्केर पढ्न सजिलो बनाउनुहोस्' : 'Return to what matters'}
+              </h2>
+              <p className="mt-2 text-body text-ink-soft" lang={lang}>
+                {ne
+                  ? 'यो पाठकका लागि हो। न्युजरुम प्रवेश केवल सम्पादकीय कर्मचारीका लागि हो।'
+                  : 'This is for readers. Newsroom entry is only for editorial staff.'}
+              </p>
+            </div>
 
-        <p className="mt-6 text-center text-caption text-mute" lang={ne ? 'ne' : 'en'}>
-          {ne
-            ? 'न्युजरुमका लागि छुट्टै लगइन छ।'
-            : 'Newsroom staff have a separate login.'}{' '}
-          <a href="/admin/login" className="font-semibold text-brand underline-offset-2 hover:underline">
-            {ne ? 'न्युजरुम लगइन' : 'Newsroom login'}
-          </a>
-        </p>
+            <div className="mt-7 rounded-lg border border-rule bg-surface-raised p-5 shadow-card sm:p-6">
+              <ReaderLoginForm locale={locale} />
+            </div>
+
+            <p className="mt-5 text-center text-caption text-mute" lang={lang}>
+              {ne ? 'सम्पादकीय कर्मचारी?' : 'Editorial staff?'}{' '}
+              <a href="/admin/login" className="font-semibold text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline">
+                {ne ? 'स्टाफ लगइन' : 'Staff login'}
+              </a>
+            </p>
+          </div>
+        </section>
       </div>
-    </main>
+    </div>
   )
 }
