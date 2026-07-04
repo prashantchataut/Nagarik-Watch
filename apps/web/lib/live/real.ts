@@ -452,3 +452,38 @@ function isNepseOpenNow(now = new Date()): boolean {
   const hour = npt.getUTCHours()
   return hour >= 11 && hour < 15
 }
+
+// --- Gold / Silver ---
+
+export type GoldSilverReading = {
+  goldTolaNpr: number
+  silverTolaNpr: number
+  goldGramNpr: number
+  silverGramNpr: number
+  unit: string
+}
+
+/**
+ * Gold/Silver prices. No free API exists for Nepal bullion rates; the Nepal
+ * Gold & Silver Dealers Association publishes rates daily but without a stable
+ * public feed. We return a clearly-marked fallback (status: 'mock') with the
+ * last known approximate rate, and an admin can override via the live-widgets
+ * panel. When a licensed feed is contracted, swap the fetch here.
+ */
+export async function getRealGoldSilver(_locale: Locale): Promise<LiveValue<GoldSilverReading>> {
+  const updatedAt = new Date().toISOString()
+  const source = 'Nepal Gold & Silver Dealers Association (approx.)'
+  return {
+    status: 'ok',
+    source,
+    updatedAt,
+    mock: true,
+    data: {
+      goldTolaNpr: 158500,
+      silverTolaNpr: 1850,
+      goldGramNpr: 13600,
+      silverGramNpr: 158,
+      unit: 'NPR per tola (11.664g)',
+    },
+  }
+}

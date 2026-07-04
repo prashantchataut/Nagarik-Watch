@@ -10,6 +10,7 @@ import { Footer } from '@/components/Footer'
 import { SiteJsonLd } from '@/components/SiteJsonLd'
 import { UtilityStrip } from '@/components/live/UtilityStrip'
 import { BottomNav } from '@/components/BottomNav'
+import { CookieConsent } from '@/components/CookieConsent'
 
 export const dynamicParams = false
 
@@ -93,6 +94,7 @@ export default async function LocaleLayout({
         </main>
         <Footer locale={locale} />
         <BottomNav locale={locale} />
+        <CookieConsent />
       </body>
     </html>
   )

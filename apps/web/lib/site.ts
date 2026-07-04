@@ -28,6 +28,7 @@ export type StaticHubKey =
   | 'reader-corner'
   | 'market'
   | 'utilities'
+  | 'rashifal'
   | 'sports'
   | 'sports-live'
   | 'election'
@@ -130,6 +131,15 @@ export const STATIC_HUBS: StaticHub[] = [
     titleEn: 'Utilities',
     leadNe: 'पात्रो, कनभर्टर, नतिजा, बजार र दैनिक नागरिक उपयोगिताहरूको केन्द्र।',
     leadEn: 'A hub for calendar, converter, results, market and daily civic utilities.',
+    mode: 'utility',
+  },
+  {
+    key: 'rashifal',
+    path: '/rashifal',
+    titleNe: 'राशिफल',
+    titleEn: 'Horoscope',
+    leadNe: 'आजको दैनिक राशिफल — १२ राशिको भविष्यवाणी, भाग्य अंक र रंग।',
+    leadEn: 'Today’s daily horoscope — forecasts for all 12 signs, lucky numbers and colors.',
     mode: 'utility',
   },
   {

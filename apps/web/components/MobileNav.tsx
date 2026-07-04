@@ -156,6 +156,7 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                     'trending',
                     'market',
                     'utilities',
+                    'rashifal',
                     'fact-check',
                     'submit-story',
                   ].includes(hub.key),

@@ -14,14 +14,12 @@ import { Logo } from '@/components/Logo'
 import { STATIC_HUBS } from '@/lib/site'
 
 type MastheadProps = { locale: Locale; navCategories: Category[] }
-
-const ICON_BTN = 'inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
+const ICON_BTN = 'inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong sm:h-11 sm:w-11'
 
 export function Masthead({ locale, navCategories }: MastheadProps) {
   const dict = getDictionary(locale)
   const pathname = usePathname() ?? '/'
-  const today = new Date().toISOString()
-  const dateLabel = formatDate(today, locale)
+  const dateLabel = formatDate(new Date().toISOString(), locale)
   const homeHref = localizeHref(locale, '/')
   const searchHref = localizeHref(locale, '/search')
   const accountHref = localizeHref(locale, '/auth/profile')
@@ -30,24 +28,19 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-rule bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
       <SecondaryNav locale={locale} />
-      <div className="mx-auto flex max-w-page flex-col gap-3 px-4 py-3">
-        <div className="flex items-center justify-between gap-2 md:gap-4">
-          <div className="flex items-center gap-1 md:hidden">
-            <Link href={searchHref} className={ICON_BTN} aria-label={dict.search}>
-              <SearchIcon />
-            </Link>
-          </div>
-          <Link href={homeHref} className="rounded-md transition-opacity duration-fast ease-out-quint hover:opacity-90 focus-visible:opacity-90 md:flex-shrink-0" aria-label={dict.siteName}>
-            <span className="hidden md:inline-flex"><Logo siteName={dict.siteName} /></span>
+      <div className="mx-auto max-w-page px-3 py-2.5 sm:px-4 sm:py-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center md:hidden"><MobileNav locale={locale} navCategories={navCategories} /></div>
+          <Link href={homeHref} className="flex flex-1 justify-center rounded-md transition-opacity hover:opacity-90 md:flex-none md:justify-start" aria-label={dict.siteName}>
             <span className="flex md:hidden"><Logo siteName={dict.siteName} stacked /></span>
+            <span className="hidden md:inline-flex"><Logo siteName={dict.siteName} /></span>
           </Link>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <span className="mr-2 hidden text-meta text-ink-soft md:inline" lang={locale === 'en' ? 'en' : 'ne'}>{dict.mastheadDate(dateLabel)}</span>
-            <Link href={searchHref} className={`${ICON_BTN} hidden md:inline-flex`} aria-label={dict.search}><SearchIcon /></Link>
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <span className="mr-2 hidden text-meta text-ink-soft lg:inline" lang={locale === 'en' ? 'en' : 'ne'}>{dict.mastheadDate(dateLabel)}</span>
+            <Link href={searchHref} className={ICON_BTN} aria-label={dict.search}><SearchIcon /></Link>
             <ThemeToggle locale={locale} />
-            <Link href={toggleHref} className="inline-flex h-9 items-center rounded-full border border-rule px-3.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong" lang={locale === 'en' ? 'ne' : 'en'} aria-label={dict.localeToggleAria}>{dict.localeToggleTo}</Link>
+            <Link href={toggleHref} className="inline-flex h-8 items-center rounded-full border border-rule px-2.5 text-meta font-semibold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong sm:h-9 sm:px-3.5" lang={locale === 'en' ? 'ne' : 'en'} aria-label={dict.localeToggleAria}>{dict.localeToggleTo}</Link>
             <Link href={accountHref} className={ICON_BTN} aria-label={locale === 'en' ? 'Account' : 'खाता'} title={locale === 'en' ? 'Account' : 'खाता'}><AccountIcon /></Link>
-            <MobileNav locale={locale} navCategories={navCategories} />
           </div>
         </div>
         <nav aria-label={dict.primaryNav} className="hidden border-t border-rule pt-2 md:block">
@@ -74,15 +67,7 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
 }
 
 function NavLink({ href, active, lang, children }: { href: string; active?: boolean; lang?: string; children: React.ReactNode }) {
-  return (
-    <Link href={href} lang={lang} aria-current={active ? 'page' : undefined} className={active ? 'inline-block whitespace-nowrap rounded-full bg-brand-tint px-3.5 py-1.5 text-body font-semibold text-brand-strong' : 'inline-block whitespace-nowrap rounded-full px-3.5 py-1.5 text-body font-medium text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint/60 hover:text-brand-strong'}>{children}</Link>
-  )
+  return <Link href={href} lang={lang} aria-current={active ? 'page' : undefined} className={active ? 'inline-block whitespace-nowrap rounded-full bg-brand-tint px-3.5 py-1.5 text-body font-semibold text-brand-strong' : 'inline-block whitespace-nowrap rounded-full px-3.5 py-1.5 text-body font-medium text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint/60 hover:text-brand-strong'}>{children}</Link>
 }
-
-function SearchIcon() {
-  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
-}
-
-function AccountIcon() {
-  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
-}
+function SearchIcon() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg> }
+function AccountIcon() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg> }

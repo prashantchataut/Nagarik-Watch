@@ -75,9 +75,9 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
       />
       <SpeakableJsonLd url={url} />
 
-      <header className="mx-auto max-w-body px-4 pt-8">
+      <header className="mx-auto max-w-body px-4 pt-6 sm:pt-8">
         {/* Visible breadcrumb trail — schema is emitted separately above. */}
-        <nav aria-label="breadcrumb" className="mb-4 flex items-center gap-1.5 text-caption text-mute">
+        <nav aria-label="breadcrumb" className="mb-3 flex flex-wrap items-center gap-1.5 text-caption text-mute sm:mb-4">
           <Link href={locale === 'en' ? '/en' : '/'} className="hover:text-brand-strong" lang={locale === 'en' ? 'en' : 'ne'}>
             {locale === 'en' ? 'Home' : 'गृह'}
           </Link>
@@ -92,7 +92,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         </nav>
 
         <CategoryLabel category={article.category} locale={locale} as="span" className="mb-3" />
-        <h1 className="font-display text-display leading-tight text-ink" lang={titleLang}>
+        <h1 className="font-display text-h1 leading-tight text-ink sm:text-display" lang={titleLang}>
           {title}
         </h1>
         {deck && (
