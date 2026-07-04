@@ -72,16 +72,13 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
           </a>
         ) : null}
 
-        {/* Trust line, pushed to the right: shared timestamp + a single MOCK marker. */}
+        {/* Trust line. The mock badge is dev-only (NEXT_PUBLIC_SHOW_MOCK_BADGE)
+            so production readers never see "नमुना" — it reads as unfinished. */}
         <span className="ml-auto inline-flex items-center gap-2 text-caption text-mute">
-          {anyMock ? (
+          {anyMock && process.env.NEXT_PUBLIC_SHOW_MOCK_BADGE === 'true' ? (
             <span
               className="rounded-full bg-brand-tint px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-wide text-brand-strong"
-              title={
-                lang === 'ne'
-                  ? 'नमुना डाटा — वास्तविक फिड जोडिएको छैन'
-                  : 'Placeholder data — no live feed connected yet'
-              }
+              title={lang === 'ne' ? 'नमुना डाटा' : 'Placeholder data'}
             >
               {dict.liveMock}
             </span>

@@ -212,9 +212,14 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
 
       {/* Empty: query but no results */}
       {hasQuery && results.length === 0 && (
-        <div className="mt-12 flex flex-col gap-1" lang={locale === 'en' ? 'en' : 'ne'}>
-          <p className="text-body-lg text-ink">{dict.searchNoResults}</p>
-          <p className="text-body text-ink-soft">{dict.searchNoResultsHint}</p>
+        <div className="mt-12 flex flex-col items-center gap-3 rounded-lg border border-dashed border-rule p-10 text-center" lang={locale === 'en' ? 'en' : 'ne'}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-mute" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m21 21-4.3-4.3" />
+            <path d="M8 11h6" />
+          </svg>
+          <p className="font-display text-h2 text-ink">{dict.searchNoResults}</p>
+          <p className="max-w-md text-body text-ink-soft">{dict.searchNoResultsHint}</p>
         </div>
       )}
 
@@ -245,9 +250,13 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
 
       {/* Empty: no query, no recents */}
       {!hasQuery && recents.length === 0 && (
-        <div className="mt-12 flex flex-col gap-1" lang={locale === 'en' ? 'en' : 'ne'}>
-          <p className="text-body-lg text-ink">{dict.searchEmptyQuery}</p>
-          <p className="text-body text-ink-soft">{dict.searchEmptyHint}</p>
+        <div className="mt-12 flex flex-col items-center gap-3 rounded-lg border border-dashed border-rule p-10 text-center" lang={locale === 'en' ? 'en' : 'ne'}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-mute" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+          <p className="font-display text-h2 text-ink">{dict.searchEmptyQuery}</p>
+          <p className="max-w-md text-body text-ink-soft">{dict.searchEmptyHint}</p>
         </div>
       )}
     </div>

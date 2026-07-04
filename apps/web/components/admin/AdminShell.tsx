@@ -37,6 +37,7 @@ const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
       { label: 'ड्यासबोर्ड', href: '/admin/dashboard', icon: 'dashboard' },
       { label: 'समाचार', href: '/admin/articles', icon: 'article' },
       { label: 'नयाँ समाचार', href: '/admin/articles/new', icon: 'plus' },
+      { label: 'वायर र RSS', href: '/admin/wire', icon: 'wire' },
       { label: 'मिडिया', href: '/admin/media', icon: 'media' },
       { label: 'लाइभ ब्लग', href: '/admin/live-blogs', icon: 'live' },
     ],
@@ -256,6 +257,7 @@ function pageTitle(pathname: string): string {
     '/admin/polls': 'मतदान',
     '/admin/newsletter': 'न्युजलेटर',
     '/admin/live-blogs': 'लाइभ ब्लग',
+    '/admin/wire': 'वायर र RSS',
     '/admin/live-widgets': 'लाइभ विजेट',
     '/admin/ads': 'विज्ञापन',
     '/admin/seo': 'एसइओ',
@@ -315,6 +317,12 @@ function NavIcon({ name }: { name: string }) {
         <svg {...props}>
           <circle cx="12" cy="12" r="3" />
           <path d="M5.5 5.5a9 9 0 0 0 0 13M18.5 5.5a9 9 0 0 1 0 13" />
+        </svg>
+      )
+    case 'wire':
+      return (
+        <svg {...props}>
+          <path d="M4 11h16M4 11a2 2 0 0 0 0 4h16a2 2 0 0 0 0-4M8 11V7a4 4 0 0 1 8 0v4M12 15v6" />
         </svg>
       )
     case 'category':

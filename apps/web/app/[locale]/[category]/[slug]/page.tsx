@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { Metadata } from 'next'
 import type { Locale } from '@nagarikwatch/db'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Byline, CategoryLabel } from '@nagarikwatch/ui'
 import { getArticleBySlug, getStories } from '@/lib/content'
@@ -13,7 +14,9 @@ import { RelatedStories } from '@/components/article/RelatedStories'
 import { ReadingProgress } from '@/components/article/ReadingProgress'
 import { FontSizeControl } from '@/components/article/FontSizeControl'
 import { ReaderArticleControls } from '@/components/reader/ReaderArticleControls'
+import { BookmarkButton } from '@/components/reader/BookmarkButton'
 import { BreadcrumbJsonLd, SpeakableJsonLd } from '@/components/seo/Schema'
+import { CommentSection } from '@/components/article/CommentSection'
 
 type Params = { locale: string; category: string; slug: string }
 
@@ -73,6 +76,21 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
       <SpeakableJsonLd url={url} />
 
       <header className="mx-auto max-w-body px-4 pt-8">
+        {/* Visible breadcrumb trail — schema is emitted separately above. */}
+        <nav aria-label="breadcrumb" className="mb-4 flex items-center gap-1.5 text-caption text-mute">
+          <Link href={locale === 'en' ? '/en' : '/'} className="hover:text-brand-strong" lang={locale === 'en' ? 'en' : 'ne'}>
+            {locale === 'en' ? 'Home' : 'गृह'}
+          </Link>
+          <span aria-hidden="true">/</span>
+          <Link
+            href={`${prefix}/${category}`}
+            className="hover:text-brand-strong"
+            lang={locale === 'en' && article.category.nameEn ? 'en' : 'ne'}
+          >
+            {locale === 'en' && article.category.nameEn ? article.category.nameEn : article.category.nameNe}
+          </Link>
+        </nav>
+
         <CategoryLabel category={article.category} locale={locale} as="span" className="mb-3" />
         <h1 className="font-display text-display leading-tight text-ink" lang={titleLang}>
           {title}
@@ -82,16 +100,14 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             {deck}
           </p>
         )}
-        <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-meta text-ink-soft">
+        <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-rule py-3 text-meta text-ink-soft">
           <Byline
             authors={article.authors}
             locale={locale}
             publishedAt={article.publishedAt}
             source={article.source}
           />
-          <span aria-hidden="true" className="text-mute">
-            ·
-          </span>
+          <span aria-hidden="true" className="text-mute">·</span>
           <span lang={locale === 'en' ? 'en' : 'ne'}>{readingLabel}</span>
         </div>
       </header>
@@ -104,6 +120,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
               alt={article.heroImage.alt}
               fill
               priority
+              unoptimized={article.heroImage.url.startsWith('data:')}
               sizes="(min-width: 768px) 1280px, 100vw"
               className="object-cover"
             />
@@ -126,6 +143,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         <div className="flex flex-wrap items-center justify-between gap-3 border-y border-rule py-3">
           <ShareBar url={`${prefix}/${category}/${slug}`} title={title} locale={locale} />
           <div className="flex flex-wrap items-center gap-2">
+            <BookmarkButton story={article} locale={locale} variant="pill" />
             <ReaderArticleControls
               story={article}
               locale={locale}
@@ -155,6 +173,15 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
           className="mx-auto mt-16 max-w-page px-4"
         />
       )}
+
+      <div className="mx-auto mt-16 max-w-body px-4">
+        <CommentSection
+          articleSlug={slug}
+          articleCategory={category}
+          locale={locale}
+          commentsEnabled={true}
+        />
+      </div>
     </article>
   )
 }

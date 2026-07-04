@@ -175,6 +175,9 @@ importers:
       kysely:
         specifier: ^0.29.2
         version: 0.29.2
+      nepali-datetime:
+        specifier: ^2.0.0
+        version: 2.0.0
       transliteration:
         specifier: ^2.6.1
         version: 2.6.1
@@ -2903,6 +2906,10 @@ packages:
 
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
+
+  nepali-datetime@2.0.0:
+    resolution: {integrity: sha512-y/twQ6XHEO3rgB74efOSyMSLO985lEsHs3dSJhRpUON6JGXb+6QjxWMSWKgd/+Fn/gqEYbK+sfyKx/MwgY5rNA==}
+    engines: {node: '>=22'}
 
   next@15.4.11:
     resolution: {integrity: sha512-IJRyXal45mIsshZI5XJne/intjusslUP1F+FHVBIyMGEqbYtIq1Irdx5vdWBBg58smviPDycmDeV6txsfkv1RQ==}
@@ -6263,6 +6270,8 @@ snapshots:
   nanostores@1.4.0: {}
 
   natural-compare@1.4.0: {}
+
+  nepali-datetime@2.0.0: {}
 
   next@15.4.11(@playwright/test@1.61.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4):
     dependencies:

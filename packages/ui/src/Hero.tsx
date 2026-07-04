@@ -25,6 +25,7 @@ export function Hero({ story, locale, className }: HeroProps) {
   const deck = locale === 'en' ? story.deckEn : story.deckNe
   const href = `${locale === 'en' ? '/en' : ''}/${story.category.slug}/${story.slug}`
   const titleLang = locale === 'en' && story.titleEn ? 'en' : 'ne'
+  const unoptimized = story.heroImage ? story.heroImage.url.startsWith('data:') : false
 
   return (
     <article className={cn('group', className)}>
@@ -36,6 +37,7 @@ export function Hero({ story, locale, className }: HeroProps) {
               alt={story.heroImage.alt}
               fill
               priority
+              unoptimized={unoptimized}
               sizes="(min-width: 1024px) 100vw, 100vw"
               className="object-cover transition-transform duration-slow ease-out-quint group-hover:scale-[1.03]"
             />

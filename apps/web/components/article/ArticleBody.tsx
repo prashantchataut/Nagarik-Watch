@@ -28,11 +28,14 @@ export function ArticleBody({ blocks, locale, source, className }: ArticleBodyPr
   const dict = getDictionary(locale)
   let paragraphCount = 0
   let adInjected = false
+  let firstParagraphRendered = false
 
   const out: React.ReactNode[] = []
 
   blocks.forEach((block, i) => {
-    out.push(<BlockRenderer key={`b-${i}`} block={block} locale={locale} />)
+    const isFirstParagraph = !firstParagraphRendered && block.type === 'paragraph'
+    if (isFirstParagraph) firstParagraphRendered = true
+    out.push(<BlockRenderer key={`b-${i}`} block={block} locale={locale} dropCap={isFirstParagraph} />)
     if (block.type === 'paragraph') {
       paragraphCount += 1
       if (!adInjected && paragraphCount >= AD_AFTER_PARAGRAPH) {
@@ -52,10 +55,20 @@ export function ArticleBody({ blocks, locale, source, className }: ArticleBodyPr
   )
 }
 
-function BlockRenderer({ block, locale }: { block: ArticleBlock; locale: Locale }) {
+function BlockRenderer({ block, locale, dropCap }: { block: ArticleBlock; locale: Locale; dropCap?: boolean }) {
   const lang = locale === 'en' ? 'en' : 'ne'
   switch (block.type) {
     case 'paragraph':
+      if (dropCap && block.text.length > 1) {
+        const first = block.text[0]!
+        const rest = block.text.slice(1)
+        return (
+          <p className="text-body-lg leading-relaxed text-ink" lang={lang}>
+            <span className="float-left mr-2 mt-1 font-display text-[3.5rem] leading-[0.8] text-brand">{first}</span>
+            {rest}
+          </p>
+        )
+      }
       return (
         <p className="text-body-lg leading-relaxed text-ink" lang={lang}>
           {block.text}
@@ -84,6 +97,7 @@ function BlockRenderer({ block, locale }: { block: ArticleBlock; locale: Locale 
               src={block.image.url}
               alt={block.image.alt}
               fill
+              unoptimized={block.image.url.startsWith('data:')}
               sizes="(min-width: 768px) 680px, 100vw"
               className="object-cover"
             />
@@ -102,11 +116,10 @@ function BlockRenderer({ block, locale }: { block: ArticleBlock; locale: Locale 
       const quote = locale === 'en' && block.quoteEn ? block.quoteEn : block.quoteNe
       const quoteLang = locale === 'en' && block.quoteEn ? 'en' : 'ne'
       return (
-        <blockquote className="my-2 rounded-lg bg-brand-tint px-6 py-5" lang={quoteLang}>
-          <p className="font-display text-h3 leading-snug text-brand-strong">{quote}</p>
+        <blockquote className="my-4 border-y-2 border-brand py-6" lang={quoteLang}>
+          <p className="font-display text-h2 leading-tight text-ink">{quote}</p>
           {block.attribution && (
-            // No em dash (impeccable ban): the attribution is a labeled cite line.
-            <footer className="mt-3 text-meta font-semibold text-ink-soft">
+            <footer className="mt-3 text-meta font-semibold uppercase tracking-wide text-brand-strong">
               <cite className="not-italic">{block.attribution}</cite>
             </footer>
           )}

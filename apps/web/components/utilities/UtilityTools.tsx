@@ -106,7 +106,7 @@ function DateConverter({ locale }: { locale: Locale }) {
     const d = Number(bsDay)
     if (!y || !m || !d) return null
     const result = bsToAd(y, m, d)
-    if (!result) return locale === 'en' ? 'Out of supported range (2080–2087)' : 'सीमित (२०८०–२०८७)'
+    if (!result) return locale === 'en' ? 'Out of supported range (2000–2099)' : 'सीमित (२०००–२०९९)'
     return result.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
   }, [bsYear, bsMonth, bsDay, locale])
 
@@ -115,7 +115,7 @@ function DateConverter({ locale }: { locale: Locale }) {
     <Card
       locale={locale}
       title={en ? 'AD ⇄ BS date converter' : 'अंग्रेजी ⇄ बि.सं. मिति'}
-      subtitle={en ? 'Bikram Sambat, supported 2080–2087' : 'विक्रम संवत्, २०८०–२०८७'}
+      subtitle={en ? 'Bikram Sambat, supported 2000–2099' : 'विक्रम संवत्, २०००–२०९९'}
     >
       <label className="block text-meta font-semibold text-ink" htmlFor="ad-input">
         {en ? 'Gregorian (AD) date' : 'अंग्रेजी (AD) मिति'}

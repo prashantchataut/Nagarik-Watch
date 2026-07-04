@@ -31,6 +31,9 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
   const nepse = await getRealNepse(locale)
   const forex = await getRealForex(locale)
 
+  // Mock badge is dev-only — production readers never see "नमुना".
+  const showMock = process.env.NEXT_PUBLIC_SHOW_MOCK_BADGE === 'true'
+
   return (
     <section className={className} aria-label={lang === 'ne' ? 'लाइभ जानकारी' : 'Live information'}>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -41,7 +44,7 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
           status={weather.status}
           source={weather.source}
           updatedLabel={relativeTime(weather.updatedAt, locale)}
-          mock={weather.mock}
+          mock={showMock && weather.mock}
           labels={labels}
         >
           {weather.data ? (
@@ -63,7 +66,7 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
           status={aqi.status}
           source={aqi.source}
           updatedLabel={relativeTime(aqi.updatedAt, locale)}
-          mock={aqi.mock}
+          mock={showMock && aqi.mock}
           labels={labels}
         >
           {aqi.data ? <AqiValue aqi={aqi.data.aqi} locale={locale} /> : null}
@@ -76,7 +79,7 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
           status={nepse.status}
           source={nepse.source}
           updatedLabel={relativeTime(nepse.updatedAt, locale)}
-          mock={nepse.mock}
+          mock={showMock && nepse.mock}
           tone={nepse.data && nepse.data.change >= 0 ? 'up' : 'down'}
           href={`${locale === 'en' ? '/en' : ''}/search?q=NEPSE`}
           labels={labels}
@@ -104,7 +107,7 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
           status={forex.status}
           source={forex.source}
           updatedLabel={relativeTime(forex.updatedAt, locale)}
-          mock={forex.mock}
+          mock={showMock && forex.mock}
           labels={labels}
           className="col-span-2 sm:col-span-1"
         >

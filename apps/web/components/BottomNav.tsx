@@ -55,7 +55,11 @@ export function BottomNav({ locale }: { locale: Locale }) {
         {ITEMS.map((item) => {
           const active = item.match(pathname)
           return (
-            <li key={item.key} className="flex-1">
+            <li key={item.key} className="relative flex-1">
+              {/* Active top indicator — a 2px brand bar that marks the current tab. */}
+              {active && (
+                <span className="absolute inset-x-3 top-0 h-0.5 bg-brand" aria-hidden="true" />
+              )}
               <Link
                 href={localizeHref(locale, item.href)}
                 aria-current={active ? 'page' : undefined}

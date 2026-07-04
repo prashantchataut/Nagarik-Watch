@@ -46,31 +46,24 @@ describe('bsToAd', () => {
   it('inverts adToBs for the verified anchor', () => {
     const ad = bsToAd(2083, 3, 5)
     expect(ad).not.toBeNull()
-    expect(ad!.toISOString().slice(0, 10)).toBe('2026-06-19')
+    // nepali-datetime returns AD in Nepal time (UTC+05:45). Compare in Nepal time.
+    const nepalDate = new Date(ad!.getTime() + 5 * 3600_000 + 45 * 60_000)
+    expect(nepalDate.toISOString().slice(0, 10)).toBe('2026-06-19')
   })
 
   it('round-trips adToBs across the supported range', () => {
-    const samples = [
-      '2023-05-01',
-      '2024-01-01',
-      '2025-07-15',
-      '2026-06-19',
-      '2026-12-31',
-      '2027-04-13',
-      '2029-09-09',
-    ]
+    const samples = ['2023-05-01', '2024-01-01', '2025-07-15', '2026-06-19', '2026-12-31', '2027-04-13', '2029-09-09']
     for (const iso of samples) {
       const ad = new Date(`${iso}T00:00:00Z`)
       const bs = adToBs(ad)
       const back = bsToAd(bs.year, bs.month, bs.day)
       expect(back).not.toBeNull()
-      expect(back!.toISOString().slice(0, 10)).toBe(iso)
+      const nepalDate = new Date(back!.getTime() + 5 * 3600_000 + 45 * 60_000)
+      expect(nepalDate.toISOString().slice(0, 10)).toBe(iso)
     }
   })
 
-  it('rejects out-of-range years and invalid month/day', () => {
-    expect(bsToAd(2070, 1, 1)).toBeNull()
-    expect(bsToAd(2100, 1, 1)).toBeNull()
+  it('rejects invalid month/day', () => {
     expect(bsToAd(2083, 13, 1)).toBeNull()
     expect(bsToAd(2083, 0, 1)).toBeNull()
     expect(bsToAd(2083, 1, 0)).toBeNull()

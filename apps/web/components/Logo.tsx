@@ -2,128 +2,47 @@ import type { SVGProps } from 'react'
 import { cn } from '@nagarikwatch/ui'
 
 /**
- * Nagarik Watch logo mark — "The Watchtower Eye".
- *
- * A rounded crimson badge (trust + civic authority) containing a refined almond
- * eye (vigilance — the "Watch" in the name). The eye's iris is a stylised
- * Himalayan peak (Nepal), and a single gold signal dot sits at the apex — the
- * reserved accent colour, used only on identity + breaking, signalling that
- * the watchtower is active.
- *
- * The mark is ownable: no other Nepali portal uses an eye + peak composite,
- * and the crimson + gold pair reads as serious-news, not tabloid. The geometry
- * is clean enough to render crisply from 16px favicon to 120px masthead.
- *
- * Pure inline SVG (no raster), so it scales without artefacts. `currentColor`
- * is unused on purpose: the mark colours are semantic and must not follow
- * surrounding text.
- *
- * Accessibility: decorative when paired with the visible wordmark, so the
- * default is role="img" with a <title>. Pass an `aria-label` to make it the
- * lone label (e.g. the footer mark with no adjacent text).
+ * Nagarik Watch logo mark — "The Civic Watchtower".
+ A shield-shaped crimson badge with a watchtower + arched window (the eye) +
+ battlement merlons + gold flag pennant. Ownable, serious-news, no tabloid.
  */
-
-type LogoMarkProps = SVGProps<SVGSVGElement> & {
-  /** Title rendered into <title> for SR + tooltip. Required for accessibility. */
-  title: string
-}
+type LogoMarkProps = SVGProps<SVGSVGElement> & { title: string }
 
 export function LogoMark({ title, className, ...props }: LogoMarkProps) {
   return (
-    <svg
-      viewBox="0 0 48 48"
-      role="img"
-      aria-label={title}
-      className={cn('h-10 w-10', className)}
-      {...props}
-    >
+    <svg viewBox="0 0 48 48" role="img" aria-label={title} className={cn('h-10 w-10', className)} {...props}>
       <title>{title}</title>
-      {/* Rounded badge — brand fill, moderate radius for civic seriousness. */}
-      <rect x="1.5" y="1.5" width="45" height="45" rx="11" fill="var(--brand)" />
-      {/* Subtle top sheen for depth (impeccable: no glassmorphism, just a 5% lift). */}
-      <rect x="1.5" y="1.5" width="45" height="22" rx="11" fill="#ffffff" opacity="0.05" />
-
-      {/*
-        The Watchtower Eye, drawn within a 32×20 box centred on the badge.
-        Outer almond eye: two mirrored quadratic curves meeting at pointed
-        corners (the "watchful" shape — pointed ends read as alert). The warm
-        cream face sits on the crimson badge.
-      */}
-      <path
-        d="M8 24 Q24 12 40 24 Q24 36 8 24 Z"
-        fill="var(--surface-raised)"
-        opacity="0.97"
-      />
-
-      {/*
-        Himalayan peak iris — a triangle whose base sits on the eye's midline
-        and whose apex points up toward the gold signal dot. Two ridges give
-        it the silhouette of a mountain range rather than a flat triangle.
-      */}
-      <path
-        d="M17 24 L21 17.5 L23.5 21 L26 16 L31 24 Z"
-        fill="var(--brand-strong)"
-      />
-      {/* Secondary smaller ridge for range texture. */}
-      <path
-        d="M17 24 L20 21 L22 23 L24 20 L26 22.5 L31 24 Z"
-        fill="var(--brand)"
-        opacity="0.55"
-      />
-
-      {/*
-        Gold signal dot — the apex spark. Reserved accent colour, used only
-        on identity + breaking. Sits at the peak's tip so the eye "looks up"
-        toward the signal.
-      */}
-      <circle cx="26" cy="16.5" r="1.5" fill="var(--accent-gold)" />
-
-      {/*
-        Lower lash line — grounds the eye, adds the "watching" weight at the
-        base so the mark doesn't float. A single curved stroke under the eye.
-      */}
-      <path
-        d="M10 27.5 Q24 33 38 27.5"
-        fill="none"
-        stroke="var(--surface-raised)"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        opacity="0.8"
-      />
+      <path d="M24 2 L44 7 L44 26 Q44 38 24 46 Q4 38 4 26 L4 7 Z" fill="var(--brand)" />
+      <path d="M24 2 L44 7 L44 18 Q24 12 4 18 L4 7 Z" fill="#ffffff" opacity="0.06" />
+      <g transform="translate(14 11)">
+        <rect x="2" y="8" width="16" height="18" rx="1.5" fill="var(--surface-raised)" opacity="0.96" />
+        <rect x="2" y="5" width="3" height="4" rx="0.5" fill="var(--surface-raised)" opacity="0.96" />
+        <rect x="8.5" y="5" width="3" height="4" rx="0.5" fill="var(--surface-raised)" opacity="0.96" />
+        <rect x="15" y="5" width="3" height="4" rx="0.5" fill="var(--surface-raised)" opacity="0.96" />
+        <path d="M5 14 Q10 10 15 14 L15 22 L5 22 Z" fill="var(--brand-strong)" />
+        <circle cx="10" cy="16" r="1.8" fill="var(--accent-gold)" />
+        <rect x="8" y="20" width="4" height="6" rx="0.5" fill="var(--brand)" opacity="0.5" />
+      </g>
+      <path d="M24 8 L24 4 L29 5.5 L26.5 7 L29 8.5 L24 7.5 Z" fill="var(--accent-gold)" />
     </svg>
   )
 }
 
 type LogoProps = {
-  /** Optional locale for the bilingual title fallback. */
   siteName?: string
   className?: string
-  /** Hide the wordmark and render the mark alone (e.g. tight masthead slots). */
   markOnly?: boolean
+  stacked?: boolean
 }
 
-/**
- * Full masthead lockup: mark + bilingual wordmark. The Devanagari wordmark is
- * primary (PRODUCT.md: Devanagari-first), the English line sits beneath in
- * ink-soft. The whole lockup links home via the caller wrapping it in a <Link>.
- */
-export function Logo({ siteName = 'नागरिक वाच', className, markOnly = false }: LogoProps) {
-  if (markOnly) {
-    return <LogoMark title={`${siteName} / Nagarik Watch`} className={className} />
-  }
+export function Logo({ siteName = 'नागरिक वाच', className, markOnly = false, stacked = false }: LogoProps) {
+  if (markOnly) return <LogoMark title={`${siteName} / Nagarik Watch`} className={className} />
   return (
-    <span className={cn('flex items-center gap-2.5', className)}>
-      <LogoMark title={`${siteName} / Nagarik Watch`} className="h-11 w-11 shrink-0" />
-      <span className="flex flex-col leading-none">
-        <span className="font-display text-h1 font-extrabold tracking-tight text-ink" lang="ne">
-          {siteName}
-        </span>
-        <span
-          className="mt-0.5 text-meta font-semibold uppercase tracking-[0.14em] text-mute"
-          lang="en"
-        >
-          Nagarik Watch
-        </span>
+    <span className={cn(stacked ? 'flex flex-col items-center gap-1' : 'flex items-center gap-2.5', className)}>
+      <LogoMark title={`${siteName} / Nagarik Watch`} className={stacked ? 'h-12 w-12 shrink-0' : 'h-11 w-11 shrink-0'} />
+      <span className={cn('flex flex-col leading-none', stacked && 'items-center')}>
+        <span className="font-display text-h1 font-extrabold tracking-tight text-ink" lang="ne">{siteName}</span>
+        <span className="mt-0.5 text-meta font-semibold uppercase tracking-[0.14em] text-mute" lang="en">Nagarik Watch</span>
       </span>
     </span>
   )

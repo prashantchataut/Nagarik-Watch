@@ -6,13 +6,18 @@ import { getCategory, getCategoryPage } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref, localePrefix } from '@/lib/i18n/locales'
 import { Pagination } from '@/components/Pagination'
+import { LogoMark } from '@/components/Logo'
 
 type Params = { locale: string; category: string }
 
 /**
- * Category landing. Reads the category (404 if unknown) and the paginated story list.
- * Pagination is via ?page=N as real links; page 1 keeps a bare canonical (no query), page
- * 2+ gets robots noindex to avoid thin duplicate listings in the index.
+ * Category landing. Magazine-style layout (not a flat card grid):
+ *  - Page 1: featured lead (large) + 2-col stream + sidebar with most-read.
+ *  - Page 2+: uniform grid.
+ *  - Empty: onboarding state with a link to the admin, not a bare message.
+ *
+ * Pagination is via ?page=N as real links; page 1 keeps a bare canonical,
+ * page 2+ gets robots noindex to avoid thin duplicate listings.
  */
 export default async function CategoryPage({
   params,
@@ -37,19 +42,27 @@ export default async function CategoryPage({
   const name = locale === 'en' && cat.nameEn ? cat.nameEn : cat.nameNe
   const titleLang = locale === 'en' && cat.nameEn ? 'en' : 'ne'
   const description = locale === 'en' ? cat.descriptionEn : cat.descriptionNe
+  const en = locale === 'en'
+
+  const isEmpty = result.items.length === 0
+  const isPage1 = page === 1
+  const lead = isPage1 ? result.items[0] : null
+  const rest = isPage1 ? result.items.slice(1) : result.items
 
   return (
     <div className="mx-auto max-w-page px-4 py-8">
       <header className="border-b border-rule pb-6">
-        <p
-          className="text-meta font-semibold uppercase tracking-wide text-brand-strong"
-          lang={titleLang}
-        >
-          {dict.footerSections}
-        </p>
-        <h1 className="mt-1 font-display text-display text-ink" lang={titleLang}>
-          {name}
-        </h1>
+        <div className="flex items-baseline gap-3">
+          <span className="h-8 w-1 bg-brand" aria-hidden="true" />
+          <div>
+            <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={titleLang}>
+              {dict.footerSections}
+            </p>
+            <h1 className="mt-0.5 font-display text-display text-ink" lang={titleLang}>
+              {name}
+            </h1>
+          </div>
+        </div>
         {description && (
           <p className="mt-3 max-w-body text-body-lg text-ink-soft" lang={titleLang}>
             {description}
@@ -57,10 +70,56 @@ export default async function CategoryPage({
         )}
       </header>
 
-      {result.items.length === 0 ? (
-        <p className="mt-12 text-body-lg text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
-          {dict.emptyEnglish}
-        </p>
+      {isEmpty ? (
+        <div className="mt-12 rounded-lg border border-dashed border-rule p-10 text-center">
+          <LogoMark title={name} className="mx-auto h-12 w-12 opacity-40" />
+          <p className="mt-4 font-display text-h2 text-ink" lang={titleLang}>
+            {en ? 'No stories yet' : 'अहिलेसम्म कुनै समाचार छैन'}
+          </p>
+          <p className="mx-auto mt-2 max-w-md text-body text-ink-soft" lang={titleLang}>
+            {en
+              ? `The ${name} section is ready. Our editors will publish stories here soon.`
+              : `${name} खण्ड तयार छ। हाम्रा सम्पादकहरूले चाँडै यहाँ समाचार प्रकाशित गर्नेछन्।`}
+          </p>
+          <a
+            href="/admin/articles/new"
+            className="mt-5 inline-flex h-11 items-center rounded-full bg-brand px-5 text-meta font-semibold text-surface hover:bg-brand-strong"
+            lang="ne"
+          >
+            {en ? 'Create a story' : 'समाचार बनाउनुहोस्'}
+          </a>
+        </div>
+      ) : isPage1 && lead ? (
+        <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_1fr]">
+          {/* Lead + stream */}
+          <div className="flex flex-col gap-6">
+            <StoryCard story={lead} locale={locale} variant="featured" priority />
+            {rest.length > 0 && (
+              <ul className="grid gap-6 sm:grid-cols-2">
+                {rest.slice(0, 4).map((s) => (
+                  <li key={s.slug}>
+                    <StoryCard story={s} locale={locale} variant="default" />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          {/* Sidebar: remaining items as compact text rails */}
+          {rest.length > 4 && (
+            <aside className="border-t border-rule pt-6 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+              <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang={titleLang}>
+                {en ? 'More from ' + name : name + 'बाट थप'}
+              </p>
+              <ul className="mt-4 flex flex-col divide-y divide-rule">
+                {rest.slice(4).map((s) => (
+                  <li key={s.slug} className="py-3 first:pt-0">
+                    <StoryCard story={s} locale={locale} variant="horizontal" />
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          )}
+        </div>
       ) : (
         <ul className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {result.items.map((s) => (
@@ -71,13 +130,15 @@ export default async function CategoryPage({
         </ul>
       )}
 
-      <Pagination
-        page={result.page}
-        totalPages={result.totalPages}
-        basePath={localizeHref(locale, `/${category}`)}
-        locale={locale}
-        className="mt-12"
-      />
+      {!isEmpty && (
+        <Pagination
+          page={result.page}
+          totalPages={result.totalPages}
+          basePath={localizeHref(locale, `/${category}`)}
+          locale={locale}
+          className="mt-12"
+        />
+      )}
     </div>
   )
 }

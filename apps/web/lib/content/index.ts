@@ -1,18 +1,14 @@
 /**
  * Content-source façade. Single import for pages: `import { getHomepage } from '@/lib/content'`.
  *
- * Selection is environment-driven:
- *  - When `PAYLOAD_CONTENT_SOURCE=payload` (set in prod / when a DB is reachable) the
- *    Payload-backed source reads the CMS via the Local API.
- *  - Otherwise the seed-backed source is used, so the site renders real content with zero
- *    infrastructure (clones, previews, tests, Lighthouse against a seeded local DB).
+ * v3 selection is environment-driven:
+ *  - `PAYLOAD_CONTENT_SOURCE=payload` → Payload CMS (prod, needs DATABASE_URL).
+ *  - Otherwise → the JSON-file store source. Editors create articles via /admin;
+ *    they persist to data/articles.json (dev) or in-memory (prod read-only FS).
+ *    The site renders honest empty states when no articles exist — never fake content.
  *
- * Pages never branch on the source; they call the typed helpers below, which match the
- * Phase 1 task acceptance (getArticleBySlug, getCategoryPage, getHomepageBlocks, …).
- *
- * The Payload source is loaded via a dynamic import inside resolveSource() so its
- * `@payload-config` dependency never enters the build graph when the seed path is in use —
- * otherwise Next's bundler fails to resolve a config that only lives in apps/admin.
+ * The seed source is gone (v3 removed all copyrighted seed articles). The store
+ * source is the default; it reads from the JSON store which starts empty.
  */
 import 'server-only'
 import type {
@@ -25,14 +21,14 @@ import type {
   Tag,
 } from '@nagarikwatch/db'
 import type { ContentSource, StoryListOptions } from './source'
-import { createSeedContentSource } from './seed-source'
+import { createStoreContentSource } from './store/store-source'
 
 async function resolveSource(): Promise<ContentSource> {
   if (process.env.PAYLOAD_CONTENT_SOURCE === 'payload') {
     const { createPayloadContentSource } = await import('./payload-source')
     return createPayloadContentSource()
   }
-  return createSeedContentSource()
+  return createStoreContentSource()
 }
 
 let cached: ContentSource | null = null
