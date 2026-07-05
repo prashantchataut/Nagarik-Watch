@@ -77,12 +77,13 @@ function EmptyHome({ locale, dict }: { locale: Locale; dict: ReturnType<typeof g
               </div>
             </div>
             <p className="mt-5 text-body leading-relaxed text-ink-soft sm:text-body-lg" lang={lang}>
-              {en ? 'A civic-minded Nepali news portal. Our newsroom is preparing original reporting. Live data, RSS wires, and utilities are available now.' : 'नागरिककेन्द्रित नेपाली समाचार पोर्टल। हाम्रो न्युजरुमले मौलिक रिपोर्टिङ तयार गर्दै छ। लाइभ डाटा, RSS वायर र उपयोगी सेवाहरू अहिले उपलब्ध छन्।'}
+              {en ? 'A civic-minded Nepali news portal. The reader site shows original Nagarik Watch content, daily utilities, and clear editorial trust pages.' : 'नागरिककेन्द्रित नेपाली समाचार पोर्टल। पाठक साइटमा नागरिक वाचका मौलिक सामग्री, दैनिक उपयोगी सेवा र स्पष्ट सम्पादकीय भरोसा पृष्ठ देखिन्छन्।'}
             </p>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row md:flex-col">
-            <a href="/admin/articles/new" className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-5 text-meta font-semibold text-surface transition-colors hover:bg-brand-strong" lang="ne">{en ? 'Create first article' : 'पहिलो समाचार बनाउनुहोस्'}</a>
-            <a href="/admin/wire" className="inline-flex h-11 items-center justify-center rounded-full border border-rule px-5 text-meta font-semibold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong" lang="ne">{en ? 'Browse RSS wires' : 'RSS वायर हेर्नुहोस्'}</a>
+          <div className="rounded-lg border border-rule bg-surface-raised p-4 text-meta text-ink-soft" lang={lang}>
+            {en
+              ? 'The public desk is ready. Published stories will appear here after editorial review.'
+              : 'सार्वजनिक डेस्क तयार छ। सम्पादकीय समीक्षा भएपछि प्रकाशित समाचार यहाँ देखिन्छन्।'}
           </div>
         </div>
       </section>

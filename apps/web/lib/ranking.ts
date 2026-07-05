@@ -95,9 +95,9 @@ export function weightedScore(
     merged.provinceRelevance * 8 +
     merged.authorAffinity * 7 +
     merged.userPreference * 10 +
-    merged.diversityBoost * 6 -
-    merged.fatiguePenalty * 16 -
+    merged.diversityBoost * 6 +
     merged.qualityTrustScore * 9 -
+    merged.fatiguePenalty * 16 -
     (merged.sponsored ? 20 : 0)
 
   return Number.isFinite(score) ? score : 0
@@ -121,21 +121,39 @@ export function rankStories<T extends StoryCardData>(
     .sort((a, b) => b.rankScore - a.rankScore || b.publishedAt.localeCompare(a.publishedAt))
 }
 
+function textTerms(story: StoryCardData): Set<string> {
+  return new Set(
+    `${story.titleNe} ${story.titleEn ?? ''} ${story.deckNe ?? ''} ${story.deckEn ?? ''}`
+      .toLowerCase()
+      .split(/[\s\u0964\u0965,.!?;:()"']+|\|/u)
+      .map((term) => term.trim())
+      .filter((term) => term.length > 3),
+  )
+}
+
 export function relatedByContent(
   story: StoryCardData,
   candidates: StoryCardData[],
   limit = 6,
 ): StoryCardData[] {
+  const sourceTerms = textTerms(story)
   return rankStories(
     candidates.filter((candidate) => candidate.slug !== story.slug),
-    (candidate) => ({
-      categorySimilarity: candidate.category.slug === story.category.slug ? 1 : 0,
-      topicSimilarity: candidate.titleNe
-        .split(' ')
-        .some((term) => term.length > 3 && story.titleNe.includes(term))
-        ? 0.6
-        : 0,
-    }),
+    (candidate, index) => {
+      const candidateTerms = textTerms(candidate)
+      let overlap = 0
+      for (const term of candidateTerms) if (sourceTerms.has(term)) overlap += 1
+      const topicSimilarity = Math.min(1, overlap / Math.max(1, Math.min(sourceTerms.size, candidateTerms.size)))
+      const flags = candidate as StoryCardData & Pick<RankingSignals, 'sponsored' | 'doNotRecommend'>
+      return {
+        editorialPriority: Math.max(0, 1.5 - index / 10),
+        categorySimilarity: candidate.category.slug === story.category.slug ? 1 : 0,
+        topicSimilarity,
+        qualityTrustScore: 0.8,
+        sponsored: Boolean(flags.sponsored),
+        doNotRecommend: Boolean(flags.doNotRecommend),
+      }
+    },
   )
     .slice(0, limit)
     .map(({ rankScore: _rankScore, rankSignals: _rankSignals, ...ranked }) => ranked)

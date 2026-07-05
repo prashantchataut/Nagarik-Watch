@@ -97,13 +97,6 @@ export const INGEST_SOURCES: readonly IngestSource[] = [
     license: 'headline+link only',
   },
   {
-    id: 'kathmandu-post',
-    name: 'Kathmandu Post',
-    feedUrl: 'https://kathmandupost.com/rss',
-    sourceType: 'aggregated',
-    license: 'headline+link only',
-  },
-  {
     id: 'nepali-times',
     name: 'Nepali Times',
     feedUrl: 'https://www.nepalitimes.com/feed',

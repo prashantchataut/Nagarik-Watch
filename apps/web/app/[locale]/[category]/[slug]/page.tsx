@@ -18,6 +18,7 @@ import { BookmarkButton } from '@/components/reader/BookmarkButton'
 import { BreadcrumbJsonLd, SpeakableJsonLd } from '@/components/seo/Schema'
 import { CommentSection } from '@/components/article/CommentSection'
 import { SITE_URL } from '@/lib/site'
+import { relatedByContent } from '@/lib/ranking'
 
 type Params = { locale: string; category: string; slug: string }
 
@@ -45,12 +46,12 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const prefix = localePrefix(locale)
   const url = `${siteUrl}${prefix}/${category}/${slug}`
 
-  const related = await getStories({
-    category,
+  const relatedPool = await getStories({
     locale,
     exclude: [slug],
-    limit: 3,
+    perPage: 24,
   })
+  const related = relatedByContent(article, relatedPool.items, 6)
 
   const readingLabel = dict.readingTime(article.readingMinutes)
 
@@ -167,9 +168,9 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         )}
       </div>
 
-      {related.items.length > 0 && (
+      {related.length > 0 && (
         <RelatedStories
-          stories={related.items}
+          stories={related}
           locale={locale}
           className="mx-auto mt-16 max-w-page px-4"
         />

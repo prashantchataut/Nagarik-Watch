@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { PasswordField } from '@/components/forms/PasswordField'
 
 /**
  * Admin login form. Posts credentials to Better Auth's /api/auth/sign-in/email
@@ -79,18 +80,17 @@ export function AdminLoginForm() {
         />
       </label>
 
-      <label className="grid gap-1.5 text-meta font-semibold text-ink" lang="ne">
-        पासवर्ड
-        <input
+      <div lang="ne">
+        <PasswordField
           name="password"
-          type="password"
+          label="पासवर्ड"
           autoComplete="current-password"
           required
           disabled={pending}
-          placeholder="••••••••"
-          className="rounded-md border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
+          showLabel="देखाउनुहोस्"
+          hideLabel="लुकाउनुहोस्"
         />
-      </label>
+      </div>
 
       <button
         type="submit"
@@ -114,13 +114,7 @@ export function AdminLoginForm() {
         >
           पासवर्ड भुल्नुभयो?
         </a>
-        <a
-          href="/auth/signup"
-          className="font-semibold text-brand underline-offset-2 hover:underline"
-          lang="ne"
-        >
-          नयाँ खाता बनाउनुहोस्
-        </a>
+        <span className="text-mute" lang="ne">स्टाफ खाता मालिकले मात्र बनाउँछ</span>
       </div>
     </form>
   )

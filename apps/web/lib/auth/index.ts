@@ -28,6 +28,42 @@ const AUTH_SECRET =
   process.env.BETTER_AUTH_SECRET ||
   'dev-only-secret-change-me-please-32-chars-minimum'
 
+function normalizeOrigin(value: string | undefined): string | null {
+  if (!value) return null
+  const raw = value.trim()
+  if (!raw) return null
+  const withProtocol = raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`
+  try {
+    return new URL(withProtocol).origin
+  } catch {
+    return null
+  }
+}
+
+function authBaseUrl(): string {
+  return normalizeOrigin(process.env.BETTER_AUTH_URL) ?? SITE_URL
+}
+
+function trustedOrigins(): string[] {
+  const candidates = [
+    SITE_URL,
+    process.env.BETTER_AUTH_URL,
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.VERCEL_URL,
+    process.env.VERCEL_BRANCH_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ]
+  return Array.from(
+    new Set(
+      candidates
+        .map((value) => normalizeOrigin(value))
+        .filter((value): value is string => Boolean(value)),
+    ),
+  )
+}
+
 type AuthInstance = ReturnType<typeof betterAuth>
 
 let authPromise: Promise<AuthInstance> | null = null
@@ -41,8 +77,8 @@ async function buildAuth(): Promise<AuthInstance> {
   const dialect = await createDialect()
   const auth = betterAuth({
     secret: AUTH_SECRET,
-    baseURL: SITE_URL,
-    trustedOrigins: [SITE_URL],
+    baseURL: authBaseUrl(),
+    trustedOrigins: trustedOrigins(),
     database: { dialect },
     emailAndPassword: {
       enabled: true,

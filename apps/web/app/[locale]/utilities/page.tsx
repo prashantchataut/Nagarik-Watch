@@ -1,129 +1,186 @@
 import type { Metadata } from 'next'
 import type { Locale } from '@nagarikwatch/db'
-import { UtilityWidgetRail } from '@/components/live/LiveWidgets'
 import { UtilityTools } from '@/components/utilities/UtilityTools'
 import { NepaliCalendar } from '@/components/utilities/NepaliCalendar'
-import { getRealForex } from '@/lib/live/real'
+import { getRealAqi, getRealForex, getRealGoldSilver, getRealNepse, getRealWeather } from '@/lib/live/real'
+import { aqiBand, localizeNumber, relativeTime } from '@/lib/live/format'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 
-// The page now fetches live forex for the currency converter, so it revalidates on a
-// short window instead of being fully static. The converter math stays client-side.
 export const revalidate = 600
-
-const utilityGroups = [
-  {
-    titleEn: 'Live data',
-    titleNe: 'लाइभ डाटा',
-    itemsEn: [
-      'Weather by city',
-      'AQI by city',
-      'Forex rates',
-      'Gold and silver',
-      'NEPSE dashboard',
-    ],
-    itemsNe: ['शहरअनुसार मौसम', 'शहरअनुसार AQI', 'विदेशी मुद्रा', 'सुनचाँदी', 'NEPSE ड्यासबोर्ड'],
-  },
-  {
-    titleEn: 'Results and public records',
-    titleNe: 'नतिजा र सार्वजनिक अभिलेख',
-    itemsEn: [
-      'SEE results',
-      'Grade XII results',
-      'Election results',
-      'Public notices',
-      'Archive by Nepali date',
-    ],
-    itemsNe: [
-      'SEE नतिजा',
-      'कक्षा १२ नतिजा',
-      'निर्वाचन नतिजा',
-      'सार्वजनिक सूचना',
-      'नेपाली मितिबाट अभिलेख',
-    ],
-  },
-  {
-    titleEn: 'Calculators and converters',
-    titleNe: 'क्याल्कुलेटर र कनभर्टर',
-    itemsEn: [
-      'AD to BS',
-      'BS to AD',
-      'Preeti to Unicode',
-      'Nepali typing helper',
-      'Age calculator',
-    ],
-    itemsNe: ['AD बाट BS', 'BS बाट AD', 'Preeti बाट Unicode', 'नेपाली टाइपिङ', 'उमेर क्याल्कुलेटर'],
-  },
-  {
-    titleEn: 'Sports and civic hubs',
-    titleNe: 'खेलकुद र नागरिक हब',
-    itemsEn: [
-      'Cricket scorecards',
-      'Football fixtures',
-      'Festival calendar',
-      'Holiday calendar',
-      'Trending topics',
-    ],
-    itemsNe: [
-      'क्रिकेट स्कोरकार्ड',
-      'फुटबल फिक्स्चर',
-      'चाडपर्व पात्रो',
-      'बिदा पात्रो',
-      'ट्रेन्डिङ विषय',
-    ],
-  },
-]
 
 export default async function UtilitiesPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale: Locale = asLocale((await params).locale)
   const lang = locale === 'en' ? 'en' : 'ne'
+  const en = locale === 'en'
 
-  // Live NPR forex drives the currency converter. Mock fallback returns empty, which the
-  // converter renders as a "connect key" note — no broken widget.
-  const forex = await getRealForex(locale)
+  const [weather, aqi, nepse, metals, forex] = await Promise.all([
+    getRealWeather(locale),
+    getRealAqi(locale),
+    getRealNepse(locale),
+    getRealGoldSilver(locale),
+    getRealForex(locale),
+  ])
   const forexRates = forex.mock ? [] : forex.data ?? []
   const forexSource = forex.mock ? undefined : forex.source
 
   return (
     <div className="mx-auto max-w-page px-4 py-8" lang={lang}>
-      <header className="border-b border-rule pb-6">
-        <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong">
-          {locale === 'en' ? 'Utility Portal' : 'उपयोगी सेवा'}
-        </p>
-        <h1 className="mt-1 font-display text-display text-ink">
-          {locale === 'en' ? 'Daily tools for Nepali readers' : 'नेपाली पाठकका दैनिक उपकरण'}
-        </h1>
-        <p className="mt-3 max-w-body text-body-lg text-ink-soft">
-          {locale === 'en'
-            ? 'Calendar, results, market, weather, typing and converter tools gathered in one reader-first utility desk.'
-            : 'पात्रो, नतिजा, बजार, मौसम, टाइपिङ र कनभर्टर उपकरणलाई एउटै पाठक-केन्द्रित सेवा डेस्कमा राखिएको छ।'}
-        </p>
+      <header className="grid gap-6 border-b border-rule pb-7 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.45fr)] lg:items-end">
+        <div>
+          <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">
+            Reader Utility Desk
+          </p>
+          <h1 className="mt-2 font-display text-display font-extrabold leading-tight text-ink">
+            {en ? 'Useful, not noisy' : 'काम लाग्ने सेवा, अनावश्यक हल्ला होइन'}
+          </h1>
+          <p className="mt-3 max-w-3xl text-body-lg leading-relaxed text-ink-soft">
+            {en
+              ? 'Weather, air quality, market indicators, date conversion, typing and calendar tools collected as a daily service desk.'
+              : 'मौसम, वायु गुणस्तर, बजार संकेत, मिति रूपान्तरण, टाइपिङ र पात्रोलाई दैनिक सेवा डेस्कका रूपमा मिलाइएको छ।'}
+          </p>
+        </div>
+        <div className="rounded-lg border border-rule bg-surface-raised p-4">
+          <p className="text-meta font-semibold text-ink">
+            {en ? 'Data rule' : 'डाटा नियम'}
+          </p>
+          <p className="mt-1 text-meta leading-relaxed text-ink-soft">
+            {en
+              ? 'Provider names and freshness are shown. Approximate values are never presented as official.'
+              : 'स्रोत र अद्यावधिक समय देखाइन्छ। अनुमानित मानलाई आधिकारिक जसरी देखाइँदैन।'}
+          </p>
+        </div>
       </header>
 
-      <div className="mt-8">
-        <UtilityWidgetRail locale={locale} />
-      </div>
-
-      <section className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        {utilityGroups.map((group) => (
-          <div key={group.titleEn} className="rounded-lg border border-rule bg-surface-raised p-5">
-            <h2 className="font-display text-h2 text-ink">
-              {locale === 'en' ? group.titleEn : group.titleNe}
-            </h2>
-            <ul className="mt-4 grid gap-2 text-body text-ink-soft">
-              {(locale === 'en' ? group.itemsEn : group.itemsNe).map((item) => (
-                <li key={item} className="flex items-start gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+      <section className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]" aria-label={en ? 'Live daily snapshot' : 'लाइभ दैनिक झलक'}>
+        <div className="rounded-xl border border-rule bg-surface-raised p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong" lang="en">
+                Kathmandu now
+              </p>
+              <h2 className="mt-1 font-display text-h1 font-extrabold text-ink">
+                {weather.data
+                  ? `${localizeNumber(weather.data.tempC, locale)}°C`
+                  : en
+                    ? 'Weather unavailable'
+                    : 'मौसम उपलब्ध छैन'}
+              </h2>
+            </div>
+            {aqi.data ? <AqiPill aqi={aqi.data.aqi} locale={locale} /> : null}
           </div>
-        ))}
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            <Metric
+              label={en ? 'Weather source' : 'मौसम स्रोत'}
+              value={weather.source}
+              note={relativeTime(weather.updatedAt, locale)}
+            />
+            <Metric
+              label="AQI"
+              value={aqi.data ? localizeNumber(aqi.data.aqi, locale) : en ? 'Unavailable' : 'उपलब्ध छैन'}
+              note={aqi.source}
+            />
+            <Metric
+              label={en ? 'Use' : 'प्रयोग'}
+              value={en ? 'Plan your day' : 'दैनिक योजना'}
+              note={en ? 'Weather and air quality together' : 'मौसम र वायु गुणस्तर सँगै'}
+            />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-rule bg-surface-raised p-5">
+          <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong" lang="en">
+            Market glance
+          </p>
+          <div className="mt-4 grid gap-4">
+            <MarketRow
+              label="NEPSE"
+              value={nepse.data ? localizeNumber(nepse.data.index.toFixed(2), locale) : en ? 'Unavailable' : 'उपलब्ध छैन'}
+              delta={nepse.data ? `${nepse.data.changePercent >= 0 ? '▲' : '▼'} ${localizeNumber(Math.abs(nepse.data.changePercent).toFixed(2), locale)}%` : ''}
+              positive={(nepse.data?.changePercent ?? 0) >= 0}
+              source={nepse.source}
+            />
+            <MarketRow
+              label={en ? 'Gold' : 'सुन'}
+              value={metals.data ? `रु. ${localizeNumber(metals.data.goldTolaNpr.toLocaleString('en-IN'), locale)}` : en ? 'Unavailable' : 'उपलब्ध छैन'}
+              delta={en ? 'per tola' : 'प्रति तोला'}
+              positive
+              source={metals.source}
+            />
+            <MarketRow
+              label={en ? 'Forex' : 'विदेशी मुद्रा'}
+              value={forexRates[0] ? `USD ${localizeNumber(forexRates[0].sell.toFixed(2), locale)}` : en ? 'Connect provider' : 'प्रदायक जोड्नुहोस्'}
+              delta={forexRates[0] ? 'NPR' : ''}
+              positive
+              source={forexSource ?? (en ? 'No live rate' : 'लाइभ दर छैन')}
+            />
+          </div>
+        </div>
       </section>
 
-      <UtilityTools locale={locale} forexRates={forexRates} forexSource={forexSource} />
+      <section className="mt-10 grid gap-6 lg:grid-cols-[0.62fr_1.38fr]">
+        <aside className="rounded-xl border border-rule bg-surface-raised p-5 lg:sticky lg:top-24 lg:self-start">
+          <h2 className="font-display text-h2 font-extrabold text-ink">
+            {en ? 'What belongs here' : 'यहाँ के राखिन्छ'}
+          </h2>
+          <ol className="mt-4 grid gap-3 text-body text-ink-soft">
+            {(en
+              ? ['Quick daily checks', 'Converters people actually use', 'Official or clearly-labelled data', 'No fake result/search widgets']
+              : ['दैनिक छिटो जाँच', 'साँच्चै प्रयोग हुने कनभर्टर', 'आधिकारिक वा स्पष्ट लेबल भएको डाटा', 'नक्कली नतिजा/खोजी विजेट होइन']
+            ).map((item, index) => (
+              <li key={item} className="grid grid-cols-[2rem_1fr] gap-2">
+                <span className="font-mono text-caption font-bold text-brand-strong">{String(index + 1).padStart(2, '0')}</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ol>
+        </aside>
+        <div>
+          <UtilityTools locale={locale} forexRates={forexRates} forexSource={forexSource} />
+          <NepaliCalendar locale={locale} />
+        </div>
+      </section>
+    </div>
+  )
+}
 
-      <NepaliCalendar locale={locale} />
+function Metric({ label, value, note }: { label: string; value: string; note: string }) {
+  return (
+    <div className="border-t border-rule pt-3">
+      <p className="text-caption font-semibold uppercase tracking-wide text-mute">{label}</p>
+      <p className="mt-1 font-display text-h2 font-bold text-ink">{value}</p>
+      <p className="mt-1 text-caption text-ink-soft">{note}</p>
+    </div>
+  )
+}
+
+function AqiPill({ aqi, locale }: { aqi: number; locale: Locale }) {
+  const { band, label } = aqiBand(aqi, locale)
+  const color =
+    band === 'good'
+      ? 'text-aqi-good'
+      : band === 'moderate'
+        ? 'text-aqi-moderate'
+        : band === 'severe'
+          ? 'text-aqi-severe'
+          : 'text-aqi-unhealthy'
+  return (
+    <span className="rounded-full border border-rule bg-surface px-3 py-1.5 text-meta font-semibold">
+      AQI <span className={color}>{localizeNumber(aqi, locale)}</span> · {label}
+    </span>
+  )
+}
+
+function MarketRow({ label, value, delta, positive, source }: { label: string; value: string; delta: string; positive: boolean; source: string }) {
+  return (
+    <div className="grid grid-cols-[5.5rem_1fr] gap-3 border-t border-rule pt-3 first:border-t-0 first:pt-0">
+      <span className="text-meta font-bold uppercase tracking-wide text-mute">{label}</span>
+      <div>
+        <p className="font-display text-h2 font-bold text-ink">
+          {value}{' '}
+          {delta ? <span className={positive ? 'text-meta font-semibold text-up' : 'text-meta font-semibold text-down'}>{delta}</span> : null}
+        </p>
+        <p className="mt-1 text-caption text-ink-soft">{source}</p>
+      </div>
     </div>
   )
 }
@@ -136,6 +193,10 @@ export async function generateMetadata({
   const locale: Locale = asLocale((await params).locale)
   return {
     title: locale === 'en' ? 'Utilities' : 'उपयोगी सेवा',
+    description:
+      locale === 'en'
+        ? 'Daily tools for Nepali readers: weather, AQI, markets, calendar, date converter and typing tools.'
+        : 'नेपाली पाठकका दैनिक उपकरण: मौसम, AQI, बजार, पात्रो, मिति रूपान्तरण र टाइपिङ।',
     alternates: { canonical: localizeHref(locale, '/utilities') },
   }
 }

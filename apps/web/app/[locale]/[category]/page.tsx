@@ -52,16 +52,13 @@ export default async function CategoryPage({
   return (
     <div className="mx-auto max-w-page px-4 py-8">
       <header className="border-b border-rule pb-6">
-        <div className="flex items-baseline gap-3">
-          <span className="h-8 w-1 bg-brand" aria-hidden="true" />
-          <div>
-            <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={titleLang}>
-              {dict.footerSections}
-            </p>
-            <h1 className="mt-0.5 font-display text-display text-ink" lang={titleLang}>
-              {name}
-            </h1>
-          </div>
+        <div>
+          <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={titleLang}>
+            {dict.footerSections}
+          </p>
+          <h1 className="mt-0.5 font-display text-display text-ink" lang={titleLang}>
+            {name}
+          </h1>
         </div>
         {description && (
           <p className="mt-3 max-w-body text-body-lg text-ink-soft" lang={titleLang}>
@@ -82,11 +79,11 @@ export default async function CategoryPage({
               : `${name} खण्ड तयार छ। हाम्रा सम्पादकहरूले चाँडै यहाँ समाचार प्रकाशित गर्नेछन्।`}
           </p>
           <a
-            href="/admin/articles/new"
-            className="mt-5 inline-flex h-11 items-center rounded-full bg-brand px-5 text-meta font-semibold text-surface hover:bg-brand-strong"
-            lang="ne"
+            href={localizeHref(locale, '/latest')}
+            className="mt-5 inline-flex h-11 items-center rounded-full border border-rule px-5 text-meta font-semibold text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+            lang={titleLang}
           >
-            {en ? 'Create a story' : 'समाचार बनाउनुहोस्'}
+            {en ? 'Read latest stories' : 'ताजा समाचार पढ्नुहोस्'}
           </a>
         </div>
       ) : isPage1 && lead ? (

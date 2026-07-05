@@ -11,6 +11,7 @@ import { SiteJsonLd } from '@/components/SiteJsonLd'
 import { UtilityStrip } from '@/components/live/UtilityStrip'
 import { BottomNav } from '@/components/BottomNav'
 import { CookieConsent } from '@/components/CookieConsent'
+import { AnalyticsGate } from '@/components/analytics/AnalyticsGate'
 import { SITE_URL } from '@/lib/site'
 
 export const dynamicParams = false
@@ -58,9 +59,7 @@ export default async function LocaleLayout({
   const locale: Locale = asLocale(rawLocale)
   const navCategories = await getNavCategories()
 
-  // Plausible (privacy-friendly, cookieless). Only emitted when a domain is configured, so
-  // dev and previews stay analytics-free and the script never loads without an explicit opt-in.
-  // NEXT_PUBLIC_PLAUSIBLE_SRC allows pointing at a self-hosted endpoint instead of plausible.io.
+  // Plausible is injected by AnalyticsGate only after cookie consent.
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
   const plausibleSrc = process.env.NEXT_PUBLIC_PLAUSIBLE_SRC ?? 'https://plausible.io/js/script.js'
 
@@ -77,7 +76,6 @@ export default async function LocaleLayout({
             __html: `(function(){try{var s=localStorage.getItem('nw-theme');var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var t=s==='dark'||s==='light'?s:(m?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`,
           }}
         />
-        {plausibleDomain && <script defer data-domain={plausibleDomain} src={plausibleSrc} />}
       </head>
       <body className="min-h-screen bg-surface text-ink font-sans antialiased">
         <a
@@ -95,6 +93,7 @@ export default async function LocaleLayout({
         </main>
         <Footer locale={locale} />
         <BottomNav locale={locale} />
+        <AnalyticsGate domain={plausibleDomain} src={plausibleSrc} />
         <CookieConsent />
       </body>
     </html>

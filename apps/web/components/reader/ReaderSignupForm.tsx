@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { PasswordField } from '@/components/forms/PasswordField'
 
 /**
  * Reader sign-up form. Posts to Better Auth's /api/auth/sign-up/email endpoint.
@@ -102,31 +103,30 @@ export function ReaderSignupForm({ locale }: { locale: 'ne' | 'en' }) {
         />
       </label>
 
-      <label className="grid gap-1.5 text-meta font-semibold text-ink">
-        <span lang={ne ? 'ne' : 'en'}>{ne ? 'पासवर्ड' : 'Password'}</span>
-        <input
+      <div lang={ne ? 'ne' : 'en'}>
+        <PasswordField
           name="password"
-          type="password"
+          label={ne ? 'पासवर्ड' : 'Password'}
           autoComplete="new-password"
           required
           disabled={pending}
-          placeholder="••••••••"
-          className="rounded-md border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
+          helpText={ne ? 'कम्तिमा ८ अक्षर' : 'At least 8 characters'}
+          showLabel={ne ? 'देखाउनुहोस्' : 'Show'}
+          hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'}
         />
-      </label>
+      </div>
 
-      <label className="grid gap-1.5 text-meta font-semibold text-ink">
-        <span lang={ne ? 'ne' : 'en'}>{ne ? 'पासवर्ड पुष्टि' : 'Confirm password'}</span>
-        <input
+      <div lang={ne ? 'ne' : 'en'}>
+        <PasswordField
           name="confirm"
-          type="password"
+          label={ne ? 'पासवर्ड पुष्टि' : 'Confirm password'}
           autoComplete="new-password"
           required
           disabled={pending}
-          placeholder="••••••••"
-          className="rounded-md border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
+          showLabel={ne ? 'देखाउनुहोस्' : 'Show'}
+          hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'}
         />
-      </label>
+      </div>
 
       <button
         type="submit"

@@ -1,162 +1,74 @@
 import type { Locale } from '@nagarikwatch/db'
-import { getDictionary } from '@/lib/i18n/dictionaries'
 import { getRealWeather, getRealAqi, getRealNepse } from '@/lib/live/real'
 import { aqiBand, localizeNumber, relativeTime } from '@/lib/live/format'
 
-/**
- * UtilityStrip — the slim "live info" band that sits above the masthead on desktop
- * (DESIGN.md masthead spec / spec Phase 3 "top utility bar"). It surfaces the three glance
- * values a Nepali reader checks reflexively: weather, air quality, and the NEPSE index.
- *
- * Async server component reading the REAL live source once per render (Open-Meteo for
- * weather/AQI, nepalstock.com for NEPSE). Each chip's source line names the real upstream
- * and the relative timestamp carries freshness. If a fetch fails it degrades to a clearly
- * MOCK value rather than breaking the homepage render.
- *
- * Hidden below `lg` to keep the mobile chrome short and the first paint focused on the
- * lead story (PRODUCT.md: performance + readability first). The same values surface in
- * the homepage HomeLiveBoard so mobile readers still see them.
- */
 export async function UtilityStrip({ locale }: { locale: Locale }) {
-  const dict = getDictionary(locale)
   const lang = locale === 'en' ? 'en' : 'ne'
+  const [weather, aqi, nepse] = await Promise.all([
+    getRealWeather(locale),
+    getRealAqi(locale),
+    getRealNepse(locale),
+  ])
 
-  const weather = await getRealWeather(locale)
-  const aqi = await getRealAqi(locale)
-  const nepse = await getRealNepse(locale)
+  const items: Array<{ label: string; value: string; note?: string; href?: string; tone?: string }> = []
+  if (weather.status === 'ok' && weather.data) {
+    items.push({
+      label: locale === 'en' ? weather.data.placeEn : weather.data.placeNe,
+      value: `${localizeNumber(weather.data.tempC, locale)}°C`,
+      note: weather.source,
+    })
+  }
+  if (aqi.status === 'ok' && aqi.data) {
+    const band = aqiBand(aqi.data.aqi, locale)
+    items.push({ label: 'AQI', value: localizeNumber(aqi.data.aqi, locale), note: band.label })
+  }
+  if (nepse.status === 'ok' && nepse.data) {
+    const up = nepse.data.changePercent >= 0
+    items.push({
+      label: 'NEPSE',
+      value: localizeNumber(nepse.data.index.toFixed(2), locale),
+      note: `${up ? '▲' : '▼'} ${localizeNumber(Math.abs(nepse.data.changePercent).toFixed(2), locale)}%`,
+      href: `${locale === 'en' ? '/en' : ''}/market`,
+      tone: up ? 'text-up' : 'text-down',
+    })
+  }
 
-  // A single shared "as of" label keeps the strip honest without three timestamps.
+  if (items.length === 0) return null
+
   const updated = relativeTime(nepse.updatedAt, locale)
-  const anyMock = weather.mock || aqi.mock || nepse.mock
 
   return (
     <div
-      className="hidden border-b border-rule bg-surface lg:block"
+      className="hidden border-b border-rule bg-surface-raised/70 lg:block"
       role="complementary"
-      aria-label={lang === 'ne' ? 'दैनिक उपयोगी डेटा' : 'Daily utility data'}
+      aria-label={locale === 'en' ? 'Daily reference line' : 'दैनिक सन्दर्भ लाइन'}
     >
-      <div className="mx-auto flex max-w-page items-center gap-3 px-4 py-2 text-meta">
-        <span className="font-bold uppercase tracking-wide text-brand-strong" lang={lang}>
-          {locale === 'en' ? 'Today' : 'आज'}
+      <div className="mx-auto flex max-w-page items-center gap-5 overflow-x-auto px-4 py-2 text-caption text-ink-soft [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <span className="shrink-0 font-bold uppercase tracking-[0.16em] text-brand-strong" lang={lang}>
+          {locale === 'en' ? 'Reference' : 'सन्दर्भ'}
         </span>
-        {/* Weather */}
-        {weather.status === 'ok' && weather.data ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-raised px-3 py-1 text-ink-soft">
-            <WeatherGlyph condition={weather.data.condition} />
-            <span lang={lang}>{locale === 'en' ? weather.data.placeEn : weather.data.placeNe}</span>
-            <span className="font-semibold text-ink">
-              {localizeNumber(weather.data.tempC, locale)}°C
+        {items.map((item) => {
+          const inner = (
+            <>
+              <span className="font-semibold uppercase tracking-wide text-mute" lang={item.label === 'NEPSE' || item.label === 'AQI' ? 'en' : lang}>
+                {item.label}
+              </span>
+              <span className="font-semibold text-ink">{item.value}</span>
+              {item.note ? <span className={item.tone ?? 'text-mute'}>{item.note}</span> : null}
+            </>
+          )
+          return item.href ? (
+            <a key={item.label} href={item.href} className="inline-flex shrink-0 items-center gap-2 hover:text-brand-strong">
+              {inner}
+            </a>
+          ) : (
+            <span key={item.label} className="inline-flex shrink-0 items-center gap-2">
+              {inner}
             </span>
-          </span>
-        ) : null}
-
-        <Divider />
-
-        {/* AQI — band carries colour AND a text label (never colour-only). */}
-        {aqi.status === 'ok' && aqi.data ? (
-          <AqiChip aqi={aqi.data.aqi} locale={locale} title={dict.aqiTitle} />
-        ) : null}
-
-        <Divider />
-
-        {/* NEPSE — up/down state shown with an arrow glyph + colour token. */}
-        {nepse.status === 'ok' && nepse.data ? (
-          <a
-            href={`${locale === 'en' ? '/en' : ''}/search?q=NEPSE`}
-            className="inline-flex items-center gap-1.5 rounded-full bg-surface-raised px-3 py-1 text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
-          >
-            <span className="font-semibold uppercase tracking-wide" lang="en">
-              {dict.nepseTitle}
-            </span>
-            <span className="font-semibold text-ink">
-              {localizeNumber(nepse.data.index.toFixed(2), locale)}
-            </span>
-            <NepseDelta value={nepse.data.changePercent} locale={locale} />
-          </a>
-        ) : null}
-
-        {/* Trust line. The mock badge is dev-only (NEXT_PUBLIC_SHOW_MOCK_BADGE)
-            so production readers never see "नमुना" — it reads as unfinished. */}
-        <span className="ml-auto inline-flex items-center gap-2 text-caption text-mute">
-          {anyMock && process.env.NEXT_PUBLIC_SHOW_MOCK_BADGE === 'true' ? (
-            <span
-              className="rounded-full bg-brand-tint px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-wide text-brand-strong"
-              title={lang === 'ne' ? 'नमुना डाटा' : 'Placeholder data'}
-            >
-              {dict.liveMock}
-            </span>
-          ) : null}
-          {updated ? <span lang={lang}>{updated}</span> : null}
-        </span>
+          )
+        })}
+        {updated ? <span className="ml-auto shrink-0 text-mute" lang={lang}>{updated}</span> : null}
       </div>
     </div>
-  )
-}
-
-function Divider() {
-  return <span aria-hidden="true" className="h-3 w-px bg-rule" />
-}
-
-function NepseDelta({ value, locale }: { value: number; locale: Locale }) {
-  const up = value >= 0
-  const pct = localizeNumber(Math.abs(value).toFixed(2), locale)
-  return (
-    <span
-      className={
-        up
-          ? 'inline-flex items-center gap-0.5 text-up'
-          : 'inline-flex items-center gap-0.5 text-down'
-      }
-    >
-      <span aria-hidden="true">{up ? '▲' : '▼'}</span>
-      <span>{pct}%</span>
-    </span>
-  )
-}
-
-function AqiChip({ aqi, locale, title }: { aqi: number; locale: Locale; title: string }) {
-  const { band, label } = aqiBand(aqi, locale)
-  const color =
-    band === 'good'
-      ? 'text-aqi-good'
-      : band === 'moderate'
-        ? 'text-aqi-moderate'
-        : band === 'severe'
-          ? 'text-aqi-severe'
-          : 'text-aqi-unhealthy'
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-raised px-3 py-1 text-ink-soft" title={title}>
-      <span className="font-semibold uppercase tracking-wide">AQI</span>
-      <span className={`font-semibold ${color}`}>{localizeNumber(aqi, locale)}</span>
-      <span className="text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
-        {label}
-      </span>
-    </span>
-  )
-}
-
-function WeatherGlyph({ condition }: { condition: string }) {
-  // Minimal line glyph; full weather iconography is a later pass. aria-hidden (label is text).
-  const path =
-    condition === 'rain' || condition === 'storm'
-      ? 'M16 13a4 4 0 0 0-3.8-4A5 5 0 0 0 3 10a3 3 0 0 0 0 6h12a3 3 0 0 0 1-5.8M8 19l-1 2m4-2-1 2m4-2-1 2'
-      : condition === 'clouds' || condition === 'haze'
-        ? 'M17 14a4 4 0 0 0-3.8-4A5 5 0 0 0 4 11a3 3 0 0 0 0 6h13a3 3 0 0 0 0-3'
-        : 'M12 3v2m0 14v2m9-9h-2M5 12H3m14.5-6.5-1.5 1.5M7 17l-1.5 1.5m13 0L17 17M7 7 5.5 5.5M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z'
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d={path} />
-    </svg>
   )
 }
