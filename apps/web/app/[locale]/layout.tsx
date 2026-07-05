@@ -11,6 +11,7 @@ import { SiteJsonLd } from '@/components/SiteJsonLd'
 import { UtilityStrip } from '@/components/live/UtilityStrip'
 import { BottomNav } from '@/components/BottomNav'
 import { CookieConsent } from '@/components/CookieConsent'
+import { PwaBoot } from '@/components/PwaBoot'
 import { AnalyticsGate } from '@/components/analytics/AnalyticsGate'
 import { SITE_URL } from '@/lib/site'
 
@@ -41,6 +42,7 @@ export async function generateMetadata({
       locale: locale === 'ne' ? 'ne_NP' : 'en_US',
     },
     twitter: { card: 'summary_large_image' },
+    manifest: '/manifest.webmanifest',
     alternates: {
       canonical: '/',
       languages: { ne: '/', en: '/en' },
@@ -59,7 +61,6 @@ export default async function LocaleLayout({
   const locale: Locale = asLocale(rawLocale)
   const navCategories = await getNavCategories()
 
-  // Plausible is injected by AnalyticsGate only after cookie consent.
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
   const plausibleSrc = process.env.NEXT_PUBLIC_PLAUSIBLE_SRC ?? 'https://plausible.io/js/script.js'
 
@@ -86,14 +87,13 @@ export default async function LocaleLayout({
         </a>
         <Masthead locale={locale} navCategories={navCategories} />
         <UtilityStrip locale={locale} />
-        {/* pb-16 on small screens reserves room for the fixed BottomNav so it never covers
-            the footer/last content (no sticky element blocking content, spec Phase 14). */}
-        <main id="main" className="pb-16 lg:pb-0">
+        <main id="main" className="safe-bottom lg:pb-0">
           {children}
         </main>
         <Footer locale={locale} />
         <BottomNav locale={locale} />
         <AnalyticsGate domain={plausibleDomain} src={plausibleSrc} />
+        <PwaBoot />
         <CookieConsent />
       </body>
     </html>

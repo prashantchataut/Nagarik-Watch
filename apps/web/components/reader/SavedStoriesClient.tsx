@@ -11,6 +11,7 @@ import {
   type ReadingHistoryRecord,
 } from '@/lib/reader/state'
 import { recommendForReader } from '@/lib/reader/personalize'
+import { CONSENT_EVENT, hasPersonalizationConsent, writeConsent } from '@/lib/reader/consent'
 
 export function SavedStoriesClient({
   locale,
@@ -21,19 +22,35 @@ export function SavedStoriesClient({
 }) {
   const [bookmarks, setBookmarks] = useState<BookmarkRecord[]>([])
   const [history, setHistory] = useState<ReadingHistoryRecord[]>([])
+  const [personalized, setPersonalized] = useState(false)
   const lang = locale === 'en' ? 'en' : 'ne'
 
   useEffect(() => {
-    setBookmarks(safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY)))
-    setHistory(safeParseArray<ReadingHistoryRecord>(localStorage.getItem(READER_HISTORY_KEY)))
+    function refresh() {
+      setPersonalized(hasPersonalizationConsent())
+      setBookmarks(safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY)))
+      setHistory(safeParseArray<ReadingHistoryRecord>(localStorage.getItem(READER_HISTORY_KEY)))
+    }
+    refresh()
+    window.addEventListener(CONSENT_EVENT, refresh)
+    window.addEventListener('nw-reader-state-change', refresh)
+    return () => {
+      window.removeEventListener(CONSENT_EVENT, refresh)
+      window.removeEventListener('nw-reader-state-change', refresh)
+    }
   }, [])
 
-  const continueItem = useMemo(() => recentUnfinished(history), [history])
+  const effectiveHistory = useMemo(() => personalized ? history : [], [history, personalized])
+  const continueItem = useMemo(() => personalized ? recentUnfinished(history) : null, [history, personalized])
   const recommendations = useMemo(
-    () => recommendForReader(catalog, bookmarks, history, 6),
-    [bookmarks, catalog, history],
+    () => recommendForReader(catalog, bookmarks, effectiveHistory, 6),
+    [bookmarks, catalog, effectiveHistory],
   )
-  const recent = [...history].sort((a, b) => b.readAt.localeCompare(a.readAt)).slice(0, 6)
+  const recent = personalized ? [...history].sort((a, b) => b.readAt.localeCompare(a.readAt)).slice(0, 6) : []
+
+  function enablePersonalization() {
+    writeConsent({ essential: true, personalization: true, analytics: false, decidedAt: new Date().toISOString() })
+  }
 
   return (
     <div className="mx-auto max-w-page px-4 py-8" lang={lang}>
@@ -50,6 +67,26 @@ export function SavedStoriesClient({
             : 'बुकमार्क र पढाइ इतिहास अहिले यही ब्राउजरमा काम गर्छ। प्रमाणीकरण सक्रिय भएपछि खाता-सिंकले यसलाई प्रतिस्थापन गर्न सक्छ।'}
         </p>
       </header>
+
+      {!personalized ? (
+        <section className="mt-8 rounded-lg border border-rule bg-surface-raised p-5">
+          <h2 className="font-display text-h2 text-ink">
+            {locale === 'en' ? 'Personal reading is off' : 'व्यक्तिगत पढाइ बन्द छ'}
+          </h2>
+          <p className="mt-2 max-w-body text-body text-ink-soft">
+            {locale === 'en'
+              ? 'Turn it on to save reading history, continue unfinished stories and tune recommendations on this browser.'
+              : 'पढाइ इतिहास, अधुरो लेख जारी राख्ने सुविधा र यही ब्राउजरमा मिल्ने सिफारिसका लागि खोल्नुहोस्।'}
+          </p>
+          <button
+            type="button"
+            onClick={enablePersonalization}
+            className="mt-4 inline-flex min-h-10 items-center rounded-full bg-brand px-4 text-meta font-semibold text-surface hover:bg-brand-strong"
+          >
+            {locale === 'en' ? 'Enable personal desk' : 'व्यक्तिगत डेस्क खोल्नुहोस्'}
+          </button>
+        </section>
+      ) : null}
 
       {continueItem ? (
         <section className="mt-8 rounded-lg border border-brand/30 bg-brand-tint p-5">

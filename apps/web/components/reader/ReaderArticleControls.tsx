@@ -9,6 +9,7 @@ import {
   type ReadingHistoryRecord,
 } from '@/lib/reader/state'
 import { remainingReadingMinutes } from '@/lib/reader/reading'
+import { CONSENT_EVENT, getOrCreateReaderId, hasPersonalizationConsent } from '@/lib/reader/consent'
 
 type ReaderArticleControlsProps = {
   story: StoryCardData
@@ -27,7 +28,17 @@ export function ReaderArticleControls({
 }: ReaderArticleControlsProps) {
   const [readingMode, setReadingMode] = useState(false)
   const [scrollDepth, setScrollDepth] = useState(0)
+  const [personalized, setPersonalized] = useState(false)
   const lang = locale === 'en' ? 'en' : 'ne'
+
+  useEffect(() => {
+    function refreshConsent() {
+      setPersonalized(hasPersonalizationConsent())
+    }
+    refreshConsent()
+    window.addEventListener(CONSENT_EVENT, refreshConsent)
+    return () => window.removeEventListener(CONSENT_EVENT, refreshConsent)
+  }, [])
 
   useEffect(() => {
     const startedAt = Date.now()
@@ -46,9 +57,11 @@ export function ReaderArticleControls({
 
     function persist() {
       record()
+      if (!hasPersonalizationConsent()) return
       const previous = safeParseArray<ReadingHistoryRecord>(
         localStorage.getItem(READER_HISTORY_KEY),
       )
+      const readPercent = Math.round(maxDepth)
       const next = upsertHistory(previous, {
         articleId: story.id,
         slug: story.slug,
@@ -56,12 +69,25 @@ export function ReaderArticleControls({
         title,
         href,
         readAt: new Date().toISOString(),
-        scrollDepth: Math.round(maxDepth),
+        scrollDepth: readPercent,
         completed: maxDepth >= 92,
         readingMinutes,
         dwellSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
       })
       localStorage.setItem(READER_HISTORY_KEY, JSON.stringify(next))
+      window.dispatchEvent(new Event('nw-reader-state-change'))
+      fetch('/api/reading', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          fingerprint: getOrCreateReaderId(),
+          articleSlug: story.slug,
+          articleCategory: story.category.slug,
+          articleTitleNe: story.titleNe,
+          readPercent,
+        }),
+        keepalive: true,
+      }).catch(() => {})
     }
 
     record()
@@ -74,7 +100,7 @@ export function ReaderArticleControls({
       window.removeEventListener('pagehide', persist)
       window.clearInterval(interval)
     }
-  }, [href, readingMinutes, story.category.slug, story.id, story.slug, title])
+  }, [href, readingMinutes, story.category.slug, story.id, story.slug, story.titleNe, title])
 
   useEffect(() => {
     document.documentElement.classList.toggle('reader-focus-mode', readingMode)
@@ -107,6 +133,11 @@ export function ReaderArticleControls({
       <span className="rounded-full bg-surface-raised px-3 py-2 text-caption text-mute">
         {locale === 'en' ? `${remaining} min left` : `${remaining} मिनेट बाँकी`}
       </span>
+      {!personalized ? (
+        <span className="rounded-full border border-rule px-3 py-2 text-caption text-mute">
+          {locale === 'en' ? 'History off' : 'इतिहास बन्द'}
+        </span>
+      ) : null}
     </div>
   )
 }

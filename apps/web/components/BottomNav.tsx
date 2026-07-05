@@ -6,25 +6,6 @@ import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
 
-/**
- * BottomNav — a mobile-only fixed bottom bar (spec Phase 3: optional bottom nav with
- * Home / Latest / Search / Trending / Saved). It is the one-tap reach for the actions a
- * reader repeats every session, so search and the feeds are never buried.
- *
- * Why a bottom bar, on mobile only: thumbs reach the bottom of a phone, not the top
- * masthead; on `lg+` the desktop header already carries these, so it hides (`lg:hidden`).
- *
- * Accessibility: it is a real <nav> of real links with 56px-tall targets (well above the
- * 44px WCAG 2.5.5 minimum), visible labels (no icon-only guessing), aria-current on the
- * active item, and a focus-visible ring from the global token. The layout reserves
- * bottom padding on <main> so this bar never covers content.
- *
- * Routing note: "Latest"/"Trending" do not have dedicated pages yet (the backend agent owns
- * those feeds). Until they exist they resolve to the search view with an honest query, so
- * the link always lands somewhere real rather than a 404. "Saved" points at the bookmarks
- * placeholder page. TODO(integration): repoint Latest/Trending to their real routes once the
- * feeds ship, and Saved to the real account/bookmarks surface.
- */
 const ITEMS = [
   { key: 'home', href: '/', match: (p: string) => p === '/' || p === '/en' },
   { key: 'latest', href: '/latest', match: (p: string) => p.endsWith('/latest') },
@@ -49,14 +30,13 @@ export function BottomNav({ locale }: { locale: Locale }) {
   return (
     <nav
       aria-label={dict.bottomNavAria}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/85 lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-surface/85 lg:hidden"
     >
       <ul className="mx-auto flex max-w-page items-stretch justify-around">
         {ITEMS.map((item) => {
           const active = item.match(pathname)
           return (
             <li key={item.key} className="relative flex-1">
-              {/* Active top indicator — a 2px brand bar that marks the current tab. */}
               {active && (
                 <span className="absolute inset-x-3 top-0 h-0.5 bg-brand" aria-hidden="true" />
               )}

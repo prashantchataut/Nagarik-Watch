@@ -2,33 +2,49 @@
 
 import { useState, useTransition, useEffect } from 'react'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
+import { READER_BOOKMARKS_KEY, safeParseArray, toggleBookmark, type BookmarkRecord } from '@/lib/reader/state'
+import { getOrCreateReaderId } from '@/lib/reader/consent'
 
-export function BookmarkButton({ story, locale, variant = 'icon' }: { story: Pick<StoryCardData, 'slug' | 'category' | 'titleNe'>; locale: Locale; variant?: 'icon' | 'pill' }) {
+type BookmarkStory = Pick<StoryCardData, 'id' | 'slug' | 'category' | 'titleNe'> & Partial<StoryCardData>
+
+export function BookmarkButton({ story, locale, variant = 'icon' }: { story: BookmarkStory; locale: Locale; variant?: 'icon' | 'pill' }) {
   const [bookmarked, setBookmarked] = useState(false)
   const [pending, startTransition] = useTransition()
 
   useEffect(() => {
-    const fp = getFingerprint()
+    const local = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))
+    setBookmarked(local.some((record) => record.articleId === story.id || record.story.slug === story.slug))
+    const fp = getOrCreateReaderId()
     if (!fp) return
     fetch(`/api/bookmarks?fingerprint=${encodeURIComponent(fp)}`)
       .then((r) => r.json())
       .then((data: { bookmarks?: { articleSlug: string }[] }) => {
-        setBookmarked((data.bookmarks ?? []).some((b) => b.articleSlug === story.slug))
+        if ((data.bookmarks ?? []).some((b) => b.articleSlug === story.slug)) setBookmarked(true)
       })
       .catch(() => {})
-  }, [story.slug])
+  }, [story.id, story.slug])
+
+  function persistLocal(nextBookmarked: boolean) {
+    if (!('authors' in story) || !('publishedAt' in story)) return
+    const records = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))
+    const next = toggleBookmark(records, story as StoryCardData)
+    localStorage.setItem(READER_BOOKMARKS_KEY, JSON.stringify(next))
+    setBookmarked(nextBookmarked)
+    window.dispatchEvent(new Event('nw-reader-state-change'))
+  }
 
   function toggle() {
-    const fp = getFingerprint()
+    const nextBookmarked = !bookmarked
+    persistLocal(nextBookmarked)
+    const fp = getOrCreateReaderId()
     if (!fp) return
     startTransition(async () => {
       try {
         await fetch('/api/bookmarks', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ action: bookmarked ? 'remove' : 'add', fingerprint: fp, articleSlug: story.slug, articleCategory: story.category.slug, articleTitleNe: story.titleNe }),
+          body: JSON.stringify({ action: nextBookmarked ? 'add' : 'remove', fingerprint: fp, articleSlug: story.slug, articleCategory: story.category.slug, articleTitleNe: story.titleNe }),
         })
-        setBookmarked(!bookmarked)
       } catch {}
     })
   }
@@ -38,26 +54,16 @@ export function BookmarkButton({ story, locale, variant = 'icon' }: { story: Pic
 
   if (variant === 'pill') {
     return (
-      <button type="button" onClick={toggle} disabled={pending} aria-pressed={bookmarked} className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-meta font-semibold transition-colors duration-fast ease-out-quint focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-50 ${bookmarked ? 'bg-brand text-surface' : 'border border-rule text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong'}`} lang={en ? 'en' : 'ne'}>
+      <button type="button" onClick={toggle} disabled={pending} aria-pressed={bookmarked} className={`inline-flex h-10 items-center gap-1.5 rounded-full px-3.5 text-meta font-semibold transition-colors duration-fast ease-out-quint focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-50 ${bookmarked ? 'bg-brand text-surface' : 'border border-rule text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong'}`} lang={en ? 'en' : 'ne'}>
         <BookmarkIcon filled={bookmarked} />{label}
       </button>
     )
   }
   return (
-    <button type="button" onClick={toggle} disabled={pending} aria-pressed={bookmarked} aria-label={label} title={label} className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors duration-fast ease-out-quint focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-50 ${bookmarked ? 'bg-brand-tint text-brand-strong' : 'text-ink-soft hover:bg-brand-tint hover:text-brand-strong'}`}>
+    <button type="button" onClick={toggle} disabled={pending} aria-pressed={bookmarked} aria-label={label} title={label} className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-fast ease-out-quint focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-50 ${bookmarked ? 'bg-brand-tint text-brand-strong' : 'text-ink-soft hover:bg-brand-tint hover:text-brand-strong'}`}>
       <BookmarkIcon filled={bookmarked} />
     </button>
   )
-}
-
-function getFingerprint(): string {
-  if (typeof window === 'undefined') return ''
-  let fp = localStorage.getItem('nw-reader-fp')
-  if (!fp) {
-    fp = `anon-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
-    localStorage.setItem('nw-reader-fp', fp)
-  }
-  return fp
 }
 
 function BookmarkIcon({ filled }: { filled: boolean }) {

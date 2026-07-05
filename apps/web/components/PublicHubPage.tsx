@@ -30,7 +30,7 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
         <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={lang}>
           Nagarik Watch
         </p>
-        <h1 className="mt-1 font-display text-display text-ink" lang={lang}>
+        <h1 className="mt-1 font-display text-[clamp(2.05rem,9vw,4rem)] leading-tight text-ink" lang={lang}>
           {localizedTitle(locale, hub)}
         </h1>
         <p className="mt-3 max-w-body text-body-lg text-ink-soft" lang={lang}>

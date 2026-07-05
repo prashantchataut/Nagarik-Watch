@@ -55,9 +55,9 @@ export function Logo({ siteName = 'नागरिक वाच', className, mar
 
   return (
     <span className={cn(stacked ? 'flex flex-col items-center gap-1.5' : 'flex items-center gap-3', className)}>
-      <LogoMark title={`${siteName} / Nagarik Watch`} className={stacked ? 'h-12 w-12 shrink-0' : 'h-11 w-11 shrink-0'} />
+      <LogoMark title={`${siteName} / Nagarik Watch`} className={stacked ? 'h-12 w-12 shrink-0' : 'h-9 w-9 shrink-0 sm:h-11 sm:w-11'} />
       <span className={cn('flex flex-col leading-none', stacked && 'items-center text-center')}>
-        <span className="font-display text-h2 font-extrabold tracking-tight text-ink sm:text-h1" lang={siteNameLang}>
+        <span className="font-display text-[1.35rem] font-extrabold tracking-tight text-ink sm:text-h1" lang={siteNameLang}>
           {siteName}
         </span>
         <span className="mt-0.5 text-[0.58rem] font-black uppercase tracking-[0.22em] text-brand-strong sm:text-caption" lang="en">

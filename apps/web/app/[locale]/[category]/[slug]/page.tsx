@@ -94,11 +94,11 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         </nav>
 
         <CategoryLabel category={article.category} locale={locale} as="span" className="mb-3" />
-        <h1 className="font-display text-[2.35rem] font-extrabold leading-[1.12] tracking-[-0.01em] text-ink sm:text-[3.35rem]" lang={titleLang}>
+        <h1 className="font-display text-[clamp(2rem,9vw,3.35rem)] font-extrabold leading-[1.12] tracking-[-0.01em] text-ink" lang={titleLang}>
           {title}
         </h1>
         {deck && (
-          <p className="mt-5 text-[1.25rem] leading-[1.75] text-ink-soft" lang={titleLang}>
+          <p className="mt-4 text-[1.08rem] leading-[1.85] text-ink-soft sm:mt-5 sm:text-[1.25rem]" lang={titleLang}>
             {deck}
           </p>
         )}
@@ -115,7 +115,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
       </header>
 
       {article.heroImage && (
-        <figure className="mx-auto mt-10 max-w-[72rem] px-4">
+        <figure className="mx-auto mt-7 max-w-[72rem] px-4 sm:mt-10">
           <div className="relative overflow-hidden rounded-lg aspect-[16/9]">
             <Image
               src={article.heroImage.url}
@@ -141,8 +141,8 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         </figure>
       )}
 
-      <div className="reading-scale mx-auto mt-10 max-w-body px-4">
-        <div className="grid gap-3 border-y border-rule py-4 lg:grid-cols-[1fr_auto] lg:items-center">
+      <div className="reading-scale mx-auto mt-7 max-w-body px-4 sm:mt-10">
+        <div className="grid gap-4 border-y border-rule py-4 lg:grid-cols-[1fr_auto] lg:items-center">
           <ShareBar url={`${prefix}/${category}/${slug}`} title={title} locale={locale} />
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
             <BookmarkButton story={article} locale={locale} variant="pill" />

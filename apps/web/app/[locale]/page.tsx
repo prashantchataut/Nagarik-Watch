@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import type { Locale } from '@nagarikwatch/db'
 import { Hero, StoryCard } from '@nagarikwatch/ui'
-import { getHomepage } from '@/lib/content'
+import { getHomepage, getStories } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale } from '@/lib/i18n/locales'
 import { BreakingTicker } from '@/components/BreakingTicker'
@@ -13,6 +13,8 @@ import { ProvinceHub } from '@/components/home/ProvinceHub'
 import { HomeLiveBoard } from '@/components/live/HomeLiveBoard'
 import { AdSlot } from '@/components/AdSlot'
 import { LogoMark } from '@/components/Logo'
+import { RecommendedForYou } from '@/components/reader/RecommendedForYou'
+import { NotificationCenter } from '@/components/reader/NotificationCenter'
 
 export const revalidate = 300
 
@@ -21,7 +23,7 @@ type Params = { locale: string }
 export default async function HomePage({ params }: { params: Promise<Params> }) {
   const { locale: rawLocale } = await params
   const locale: Locale = asLocale(rawLocale)
-  const data = await getHomepage()
+  const [data, catalog] = await Promise.all([getHomepage(), getStories({ locale, perPage: 36 })])
   const dict = getDictionary(locale)
 
   if (!data) return <EmptyHome locale={locale} dict={dict} />
@@ -48,6 +50,10 @@ export default async function HomePage({ params }: { params: Promise<Params> }) 
           </aside>
         </div>
         <HomeLiveBoard locale={locale} className="mt-12 border-t border-rule pt-8 sm:mt-14" />
+        <div className="mt-12 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.38fr)]">
+          <RecommendedForYou locale={locale} catalog={catalog.items} />
+          <NotificationCenter locale={locale} />
+        </div>
         <FromWires locale={locale} className="mt-12 sm:mt-14" />
         <ProvinceHub locale={locale} className="mt-12 sm:mt-14" />
         <div className="mt-12 flex justify-center sm:mt-14"><AdSlot variant="leaderboard" locale={locale} placementKey="home-mid" /></div>

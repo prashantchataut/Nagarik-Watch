@@ -135,3 +135,39 @@ account whose role is `reader`.
 All engagement data lives in the same in-memory/Postgres store. When
 `DATABASE_URL` is set, migrate these to Postgres tables (the store module
 is the single seam to update).
+
+## V11 reader personalization, cookies and notifications
+
+### Cookie consent
+
+The public cookie banner now separates:
+
+- essential cookies, always required for the site to run;
+- personalization, used for local reading history, bookmarks, continue-reading and recommendations;
+- analytics, used only after explicit consent.
+
+Personalized recommendations must not use reading history unless the personalization switch is enabled.
+
+### Notifications
+
+The current implementation supports foreground browser alerts for breaking stories while the site is open. It also includes `/manifest.webmanifest` and `/sw.js` with service-worker push handlers.
+
+This is not yet a complete production background push system. Before launch, configure one of:
+
+- direct Web Push with `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`;
+- Firebase Cloud Messaging;
+- OneSignal.
+
+Then add persistent subscription storage, unsubscribe handling, topic/province preferences, fatigue limits and an admin trigger when breaking news is published.
+
+### Mobile QA required
+
+Before production, manually test:
+
+- 320px narrow Android;
+- 375px iPhone SE;
+- 390px iPhone 14;
+- 414px large phones;
+- 768px tablet.
+
+Check masthead, drawer, bottom nav, article hero, article body, utilities, fact-check, auth, saved, search, comments and footer. No page should create horizontal overflow or hide content behind the bottom nav.

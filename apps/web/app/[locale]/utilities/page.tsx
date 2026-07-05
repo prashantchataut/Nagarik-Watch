@@ -30,7 +30,7 @@ export default async function UtilitiesPage({ params }: { params: Promise<{ loca
           <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">
             Reader Utility Desk
           </p>
-          <h1 className="mt-2 font-display text-display font-extrabold leading-tight text-ink">
+          <h1 className="mt-2 font-display text-[clamp(2.05rem,9vw,4rem)] font-extrabold leading-tight text-ink">
             {en ? 'Useful, not noisy' : 'काम लाग्ने सेवा, अनावश्यक हल्ला होइन'}
           </h1>
           <p className="mt-3 max-w-3xl text-body-lg leading-relaxed text-ink-soft">

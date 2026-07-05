@@ -1,31 +1,14 @@
 'use client'
 
 import { useEffect } from 'react'
-
-const CONSENT_KEY = 'nw-cookie-consent-v2'
-
-type ConsentShape = {
-  essential: true
-  analytics: boolean
-  decidedAt: string
-}
-
-function readConsent(): ConsentShape | null {
-  try {
-    const raw = localStorage.getItem(CONSENT_KEY)
-    return raw ? (JSON.parse(raw) as ConsentShape) : null
-  } catch {
-    return null
-  }
-}
+import { CONSENT_EVENT, hasAnalyticsConsent } from '@/lib/reader/consent'
 
 export function AnalyticsGate({ domain, src }: { domain?: string; src: string }) {
   useEffect(() => {
     if (!domain) return
 
     function inject() {
-      const consent = readConsent()
-      if (!consent?.analytics) return
+      if (!hasAnalyticsConsent()) return
       if (document.querySelector('script[data-nw-analytics="plausible"]')) return
 
       const script = document.createElement('script')
@@ -37,8 +20,8 @@ export function AnalyticsGate({ domain, src }: { domain?: string; src: string })
     }
 
     inject()
-    window.addEventListener('nw-cookie-consent-change', inject)
-    return () => window.removeEventListener('nw-cookie-consent-change', inject)
+    window.addEventListener(CONSENT_EVENT, inject)
+    return () => window.removeEventListener(CONSENT_EVENT, inject)
   }, [domain, src])
 
   return null

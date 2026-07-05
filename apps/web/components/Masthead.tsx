@@ -28,7 +28,7 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
   return (
     <header className="z-40 border-b border-rule bg-surface">
       <div className="border-b border-rule bg-surface-raised">
-        <div className="mx-auto flex max-w-page items-center justify-between gap-3 px-4 py-2 text-caption text-ink-soft">
+        <div className="mx-auto hidden max-w-page items-center justify-between gap-3 px-4 py-2 text-caption text-ink-soft sm:flex">
           <p lang={lang} className="truncate">
             {dict.mastheadDate(dateLabel)}
           </p>
@@ -43,7 +43,7 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-page px-3 py-3 sm:px-4 sm:py-5">
+      <div className="mx-auto max-w-page px-3 py-2.5 sm:px-4 sm:py-5">
         <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 md:grid-cols-[1fr_auto_1fr]">
           <div className="flex items-center gap-1 md:hidden">
             <MobileNav locale={locale} navCategories={navCategories} />
@@ -54,19 +54,19 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
             </Link>
           </div>
 
-          <Link href={homeHref} className="justify-self-center rounded-md transition-opacity hover:opacity-90" aria-label={dict.siteName}>
-            <Logo siteName={dict.siteName} />
+          <Link href={homeHref} className="min-w-0 justify-self-center rounded-md transition-opacity hover:opacity-90" aria-label={dict.siteName}>
+            <Logo siteName={dict.siteName} className="max-w-[11.5rem] sm:max-w-none" />
           </Link>
 
           <div className="flex items-center justify-end gap-0.5 sm:gap-1">
             <Link href={searchHref} className={ICON_BTN} aria-label={dict.search}><SearchIcon /></Link>
             <ThemeToggle locale={locale} />
-            <Link href={toggleHref} className="inline-flex h-9 items-center rounded-full border border-rule px-3 text-meta font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong sm:px-3.5" lang={locale === 'en' ? 'ne' : 'en'} aria-label={dict.localeToggleAria}>{dict.localeToggleTo}</Link>
+            <Link href={toggleHref} className="hidden h-9 items-center rounded-full border border-rule px-3 text-meta font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong sm:inline-flex sm:px-3.5" lang={locale === 'en' ? 'ne' : 'en'} aria-label={dict.localeToggleAria}>{dict.localeToggleTo}</Link>
           </div>
         </div>
       </div>
 
-      <nav aria-label={dict.primaryNav} className="sticky top-0 z-40 border-t border-rule bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/88">
+      <nav aria-label={dict.primaryNav} className="sticky top-0 z-40 hidden border-t border-rule bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/88 md:block">
         <div className="mx-auto max-w-page px-2 sm:px-4">
           <ul className="flex flex-nowrap items-center gap-x-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <li><NavLink href={homeHref} active={pathname === '/' || pathname === '/en'}>{dict.home}</NavLink></li>
