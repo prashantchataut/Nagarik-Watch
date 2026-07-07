@@ -12,7 +12,7 @@ import { UtilityStrip } from '@/components/live/UtilityStrip'
 import { BottomNav } from '@/components/BottomNav'
 import { MobileAdDock } from '@/components/MobileAdDock'
 import { CookieConsent } from '@/components/CookieConsent'
-import { LaunchReadinessBanner } from '@/components/LaunchReadinessBanner'
+
 import { PwaBoot } from '@/components/PwaBoot'
 import { AnalyticsGate } from '@/components/analytics/AnalyticsGate'
 import { SITE_URL } from '@/lib/site'
@@ -88,7 +88,7 @@ export default async function LocaleLayout({
           {getDictionary(locale).skipToContent}
         </a>
         <Masthead locale={locale} navCategories={navCategories} />
-        <LaunchReadinessBanner locale={locale} />
+
         <UtilityStrip locale={locale} />
         <main id="main" className="safe-bottom lg:pb-0">
           {children}
