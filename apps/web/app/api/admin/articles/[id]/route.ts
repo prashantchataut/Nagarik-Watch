@@ -68,7 +68,7 @@ export async function PUT(
   if (requestedStage === 'published') {
     if (body.noIndex === undefined) patch.noIndex = false
     if (body.includeInNewsSitemap === undefined) patch.includeInNewsSitemap = true
-  } else if (requestedStage && requestedStage !== 'published') {
+  } else if (requestedStage) {
     if (body.noIndex === undefined) patch.noIndex = true
     if (body.includeInNewsSitemap === undefined) patch.includeInNewsSitemap = false
   }
