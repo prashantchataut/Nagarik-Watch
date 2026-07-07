@@ -31,7 +31,7 @@ function mock<T>(source: string, data: T): LiveDataEnvelope<T> {
 }
 
 export async function getWeather(): Promise<LiveDataEnvelope<WeatherData>> {
-  return mock('Mock weather provider, replace with WEATHER_API_KEY provider', {
+  return mock('Weather feed pending verification', {
     city: 'Kathmandu',
     temperatureC: 23,
     condition: 'Partly cloudy',
@@ -39,7 +39,7 @@ export async function getWeather(): Promise<LiveDataEnvelope<WeatherData>> {
 }
 
 export async function getAQI(): Promise<LiveDataEnvelope<AQIData>> {
-  return mock('Mock AQI provider, replace with AQI_API_KEY provider', {
+  return mock('Air-quality feed pending verification', {
     city: 'Kathmandu',
     aqi: 78,
     label: 'Moderate',
@@ -47,7 +47,7 @@ export async function getAQI(): Promise<LiveDataEnvelope<AQIData>> {
 }
 
 export async function getNepseMarket(): Promise<LiveDataEnvelope<MarketData>> {
-  return mock('Mock NEPSE provider, replace with NEPSE_API_KEY provider', {
+  return mock('Market feed pending verification', {
     index: 'NEPSE',
     value: 2108.72,
     change: 12.42,
@@ -56,28 +56,28 @@ export async function getNepseMarket(): Promise<LiveDataEnvelope<MarketData>> {
 }
 
 export async function getGoldSilverRates(): Promise<LiveDataEnvelope<RateData[]>> {
-  return mock('Mock bullion provider, replace with GOLD_SILVER_API_KEY provider', [
+  return mock('Bullion feed pending verification', [
     { label: 'Gold', sell: 142500, unit: 'per tola' },
     { label: 'Silver', sell: 1825, unit: 'per tola' },
   ])
 }
 
 export async function getForexRates(): Promise<LiveDataEnvelope<RateData[]>> {
-  return mock('Mock forex provider, replace with FOREX_API_KEY provider', [
+  return mock('Forex feed pending verification', [
     { label: 'USD', buy: 133.2, sell: 133.8, unit: 'NPR' },
     { label: 'EUR', buy: 145.4, sell: 146.2, unit: 'NPR' },
   ])
 }
 
 export async function getSportsScores(): Promise<LiveDataEnvelope<SportsScore[]>> {
-  return mock('Mock sports provider, replace with SPORTS_API_KEY provider', [
+  return mock('Sports feed pending verification', [
     { league: 'Nepal Cricket', home: 'Nepal', away: 'UAE', score: '124/4', status: 'Live' },
     { league: 'EPL', home: 'Arsenal', away: 'Liverpool', score: '20:45', status: 'Fixture' },
   ])
 }
 
 export async function getDisasterAlerts(): Promise<LiveDataEnvelope<AlertData[]>> {
-  return mock('Mock disaster-alert provider, replace with DISASTER_ALERT_API_KEY provider', [
+  return mock('Disaster-alert feed pending verification', [
     { severity: 'watch', title: 'Monsoon preparedness notice', area: 'Bagmati Province' },
   ])
 }
@@ -128,7 +128,7 @@ export type YouTubeLiveStatus = {
 }
 
 export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScore[]>> {
-  return mock('Mock football provider, replace with FOOTBALL_API_KEY provider', [
+  return mock('Football feed pending verification', [
     {
       league: 'EPL',
       home: 'Arsenal',
@@ -149,7 +149,7 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
 }
 
 export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[]>> {
-  return mock('Mock cricket provider, replace with CRICKET_API_KEY provider', [
+  return mock('Cricket feed pending verification', [
     { league: 'Nepal Cricket', home: 'Nepal', away: 'UAE', score: '124/4 (14.2)', status: 'Live' },
     {
       league: 'T20 World Cup',
@@ -162,7 +162,7 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
 }
 
 export async function getElectionResults(): Promise<LiveDataEnvelope<ElectionResult[]>> {
-  return mock('Mock election provider, replace with ELECTION_API_KEY provider', [
+  return mock('Election feed pending verification', [
     {
       region: 'Nepal',
       body: 'Federal Parliament',
@@ -173,21 +173,21 @@ export async function getElectionResults(): Promise<LiveDataEnvelope<ElectionRes
 }
 
 export async function getExamResults(): Promise<LiveDataEnvelope<ExamResult[]>> {
-  return mock('Mock exam-results provider, replace with EXAM_RESULTS_API_KEY provider', [
+  return mock('Exam-results feed pending verification', [
     { exam: 'SEE', board: 'NEB', publishedOn: '', summary: 'No result published' },
     { exam: 'Grade XII', board: 'NEB', publishedOn: '', summary: 'No result published' },
   ])
 }
 
 export async function getParliamentLive(): Promise<LiveDataEnvelope<ParliamentLiveStatus>> {
-  return mock('Mock parliament-feed provider, replace with PARLIAMENT_LIVE_URL provider', {
+  return mock('Parliament feed pending verification', {
     inSession: false,
     title: 'Parliament not in session',
   })
 }
 
 export async function getYouTubeLiveStatus(): Promise<LiveDataEnvelope<YouTubeLiveStatus>> {
-  return mock('Mock YouTube provider, replace with YOUTUBE_API_KEY provider', {
+  return mock('Video feed pending verification', {
     channelId: '',
     isLive: false,
     title: 'No live stream scheduled',

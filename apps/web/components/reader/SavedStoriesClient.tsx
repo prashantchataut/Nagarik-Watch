@@ -63,8 +63,8 @@ export function SavedStoriesClient({
         </h1>
         <p className="mt-3 max-w-body text-body-lg text-ink-soft">
           {locale === 'en'
-            ? 'Bookmarks and reading history work locally now. Account sync can replace this storage once authentication is live.'
-            : 'बुकमार्क र पढाइ इतिहास अहिले यही ब्राउजरमा काम गर्छ। प्रमाणीकरण सक्रिय भएपछि खाता-सिंकले यसलाई प्रतिस्थापन गर्न सक्छ।'}
+            ? 'Bookmarks and reading history are kept in this browser with clear consent controls. Signing in identifies you, but this privacy-first library still works locally.'
+            : 'बुकमार्क र पढाइ इतिहास स्पष्ट सहमतिसहित यही ब्राउजरमा राखिन्छ। साइन इनले तपाईंलाई चिनाउँछ, तर यो गोपनीयता-पहिलो लाइब्रेरी स्थानीय रूपमा काम गर्छ।'}
         </p>
       </header>
 

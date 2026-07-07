@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { getArticleBySlug, getNavCategories } from '@/lib/content'
+import { getNavCategories } from '@/lib/content'
+import { findArticleForAdmin } from '@/lib/content/store/json-store'
 import { seedTags } from '@/lib/content/seed-source'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { AdminPageHeader } from '@/components/admin/primitives'
@@ -14,15 +15,10 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 /**
- * Article edit page. Resolves the article by slug (via the content façade,
- * so it works against seed or Payload), maps its block body back to the
- * markdown-shorthand the editor expects, and hands off to ArticleEditor.
- *
- * Note: until the Payload write path is wired, saving updates the in-memory
- * draft only (the editor posts to /api/admin/articles which writes to the
- * configured store). For the seed-backed dev site this means the editor is a
- * real, functional surface that demonstrates the workflow — the actual
- * persistence lands when PAYLOAD_CONTENT_SOURCE=payload and the DB is live.
+ * Article edit page. Resolves draft or published stories through the admin
+ * store lookup, maps block bodies back to the markdown-shorthand the editor
+ * expects, and hands off to ArticleEditor. Drafts must remain editable even
+ * before they are visible on the public site.
  */
 export default async function EditArticlePage({
   params,
@@ -32,16 +28,8 @@ export default async function EditArticlePage({
   const session = await requireNewsroomSession()
   const { id } = await params
 
-  // Try the content façade first (works for seed + Payload). The `id` param
-  // is actually the slug in the seed-backed path; Payload would use the doc id.
   const [categories, tags] = await Promise.all([getNavCategories(), Promise.resolve(seedTags)])
-
-  // We don't know the category from the URL, so search across categories.
-  let article = null
-  for (const cat of categories) {
-    article = await getArticleBySlug(cat.slug, id, 'ne')
-    if (article) break
-  }
+  const article = await findArticleForAdmin(id)
 
   if (!article) {
     // Fallback: render the editor with empty state so the editor can still
@@ -75,16 +63,21 @@ export default async function EditArticlePage({
           deckEn: article.deckEn ?? '',
           bodyNe: bodyText,
           bodyEn: blocksToShorthand(article.bodyEn ?? []),
-          category: article.category.slug,
-          sourceType: article.source?.sourceType ?? 'original',
-          sourceName: article.source?.sourceName ?? '',
-          sourceUrl: article.source?.sourceUrl ?? '',
+          category: article.categorySlug,
+          tagSlugs: article.tagSlugs,
+          workflowStage: article.workflowStage,
+          sourceType: article.sourceType ?? 'original',
+          sourceName: article.sourceName ?? '',
+          sourceUrl: article.sourceUrl ?? '',
           isBreaking: article.isBreaking,
+          featuredState: article.isFeatured,
           seoTitle: article.seoTitleNe ?? '',
           seoDescription: article.seoDescriptionNe ?? '',
-          noIndex: article.noindex ?? false,
-          includeInNewsSitemap: true,
-          heroImageUrl: article.heroImage?.url ?? '',
+          noIndex: article.noIndex ?? false,
+          includeInNewsSitemap: article.includeInNewsSitemap ?? false,
+          premium: article.premium,
+          commentsEnabled: article.commentsEnabled,
+          heroImageUrl: article.heroImageUrl ?? '',
           heroCaption: article.heroCaptionNe ?? '',
           heroCredit: article.heroCredit ?? '',
         }}

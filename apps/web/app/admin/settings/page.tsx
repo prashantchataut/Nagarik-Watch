@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { SITE_URL, PUBLICATION } from '@/lib/site'
+import { getAdMode, isNetworkAdsReady } from '@/lib/ads'
 import {
   AdminPageHeader,
   AdminCard,
@@ -37,7 +38,8 @@ export default async function SettingsPage() {
       process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ||
       process.env.NEXT_PUBLIC_POSTHOG_KEY,
   )
-  const adsenseConfigured = Boolean(process.env.NEXT_PUBLIC_ADSENSE_CLIENT)
+  const adMode = getAdMode()
+  const adNetworkReady = isNetworkAdsReady()
 
   return (
     <div>
@@ -205,26 +207,28 @@ export default async function SettingsPage() {
         <AdminCard>
           <h2 className="font-display text-h2 text-ink" lang="ne">विज्ञापन</h2>
           <p className="mt-1 text-caption text-mute" lang="ne">
-            AdSense कन्फिगरेसन।
+            विज्ञापन मोड र नेटवर्क कन्फिगरेसन।
           </p>
           <div className="mt-4 flex items-center gap-3">
             <span
               className={`rounded-full px-2.5 py-0.5 text-caption font-semibold ${
-                adsenseConfigured
+                adMode !== 'off'
                   ? 'bg-brand-tint text-brand-strong'
                   : 'border border-rule text-mute'
               }`}
               lang="ne"
             >
-              {adsenseConfigured ? 'कन्फिगर भएको' : 'अव्यवस्थित'}
+              {adMode === 'network' ? (adNetworkReady ? 'नेटवर्क तयार' : 'नेटवर्क अधुरो') : adMode === 'house' ? 'हाउस मोड' : 'बन्द'}
             </span>
             <span className="text-caption text-mute" lang="ne">
-              {adsenseConfigured
-                ? 'विज्ञापन सक्रिय।'
-                : 'विज्ञापन प्लेसमेन्ट निष्क्रिय।'}
+              {adMode === 'network'
+                ? adNetworkReady ? 'नेटवर्क प्लेसमेन्ट सुरक्षित।' : 'नेटवर्क मोडमा प्रदायक नाम चाहिन्छ।'
+                : adMode === 'house' ? 'प्रत्यक्ष बिक्रीका लेबल भएका स्थान सक्रिय।' : 'विज्ञापन स्थान बन्द।'}
             </span>
           </div>
           <ul className="mt-3 space-y-1 text-caption text-ink-soft" lang="en">
+            <li><code className="font-mono text-mute">NEXT_PUBLIC_ADS_MODE</code></li>
+            <li><code className="font-mono text-mute">NEXT_PUBLIC_AD_NETWORK</code></li>
             <li><code className="font-mono text-mute">NEXT_PUBLIC_ADSENSE_CLIENT</code></li>
           </ul>
           <p className="mt-3 text-caption text-mute" lang="ne">

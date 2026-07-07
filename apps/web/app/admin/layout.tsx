@@ -3,7 +3,9 @@ import { headers } from 'next/headers'
 import '../globals.css'
 import { fontVariables } from '../fonts'
 import { requireNewsroomSession } from '@/lib/auth/session'
+import { notFound } from 'next/navigation'
 import type { NewsroomSession } from '@/lib/auth/session'
+import { canAccessAdminPath } from '@/lib/admin-roles'
 
 export const metadata: Metadata = {
   title: 'Newsroom Admin',
@@ -73,8 +75,11 @@ export default async function AdminLayout({
     )
   }
 
-  // All other /admin/* routes require a newsroom session.
+  // All other /admin/* routes require a newsroom session and a server-side
+  // route permission check. Sidebar filtering is only a convenience; this is
+  // the enforcement point for sensitive operations screens.
   const session: NewsroomSession = await requireNewsroomSession()
+  if (!canAccessAdminPath(session.newsroomRole, pathname)) notFound()
   const { AdminShell } = await import('@/components/admin/AdminShell')
 
   return (

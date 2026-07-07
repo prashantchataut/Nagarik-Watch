@@ -7,7 +7,7 @@ const fallbackSiteUrl = process.env.NODE_ENV === 'production'
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? fallbackSiteUrl).replace(/\/$/, '')
 
 export const PUBLICATION = {
-  publisherName: 'Nagarik Watch',
+  publisherName: process.env.NEXT_PUBLIC_PUBLICATION_NAME?.trim() || 'Nagarik Watch',
   legalName: process.env.NEXT_PUBLIC_PUBLICATION_LEGAL_NAME?.trim() || '',
   editorInChief: process.env.NEXT_PUBLIC_EDITOR_IN_CHIEF?.trim() || '',
   registrationNumber: process.env.NEXT_PUBLIC_DOIB_NUMBER?.trim() || '',
@@ -15,7 +15,7 @@ export const PUBLICATION = {
   email: process.env.NEXT_PUBLIC_NEWSROOM_EMAIL?.trim() || 'contact@nagarikwatch.com',
   phone: process.env.NEXT_PUBLIC_NEWSROOM_PHONE?.trim() || '',
   ownership:
-    'Nagarik Watch is an independent Nepali digital newsroom. Advertising and sponsored material are labelled separately from editorial work.',
+    'Nagarik Watch separates editorial, opinion, advertising and sponsored material. Corrections are recorded on article and policy pages.',
   logoPath: '/icon.svg',
 } as const
 
@@ -68,8 +68,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/trending',
     titleNe: 'ट्रेन्डिङ',
     titleEn: 'Trending',
-    leadNe: 'पढाइ, ताजापन र सम्पादकीय प्राथमिकताको मिश्रित संकेतबाट बनेको ट्रेन्डिङ सूची।',
-    leadEn: 'A trending list shaped by freshness, reading signals and editorial judgement.',
+    leadNe: 'हालैका पाठक संकेत, ताजापन र सम्पादकीय प्राथमिकताका आधारमा अद्यावधिक हुने सूची।',
+    leadEn: 'An updated list based on recent reader signals, freshness and editorial priority.',
     mode: 'trending',
   },
   {
@@ -77,8 +77,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/most-read',
     titleNe: 'धेरै पढिएको',
     titleEn: 'Most Read',
-    leadNe: 'ताजापन, सार्वजनिक चासो र सम्पादकीय महत्त्वका आधारमा बनाइएको पढ्नैपर्ने सूची।',
-    leadEn: 'A ranked reading list shaped by freshness, public interest and editorial importance.',
+    leadNe: 'पाठक चासो, ताजापन र सम्पादकीय महत्त्वका आधारमा धेरै पढिएका सामग्री।',
+    leadEn: 'Most-read stories ranked by reader interest, freshness and editorial importance.',
     mode: 'trending',
   },
   {
@@ -95,8 +95,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/exclusive',
     titleNe: 'विशेष रिपोर्ट',
     titleEn: 'Exclusive Reports',
-    leadNe: 'मौलिक रिपोर्टिङ, अनुसन्धान र नागरिक सरोकारका विशेष सामग्रीका लागि तयार गरिएको खण्ड।',
-    leadEn: 'A home for original reporting, investigations and public-interest exclusives.',
+    leadNe: 'मौलिक रिपोर्टिङ, अनुसन्धान र सार्वजनिक सरोकारका विशेष सामग्री।',
+    leadEn: 'Original reporting, investigations and public-interest exclusives.',
     mode: 'editorial',
   },
   {
@@ -122,8 +122,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/market',
     titleNe: 'बजार र सेयर',
     titleEn: 'Market and Shares',
-    leadNe: 'NEPSE, सुनचाँदी, विदेशी मुद्रा र अर्थतन्त्रका लाइभ डाटा विजेटका लागि संरचित खण्ड।',
-    leadEn: 'Structured hub for NEPSE, bullion, forex and economy live-data widgets.',
+    leadNe: 'NEPSE, सुनचाँदी, विदेशी मुद्रा र अर्थतन्त्रका अद्यावधिक डाटा।',
+    leadEn: 'Updated data for NEPSE, bullion, forex and the economy.',
     mode: 'utility',
   },
   {
@@ -131,8 +131,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/utilities',
     titleNe: 'उपयोगी सेवा',
     titleEn: 'Utilities',
-    leadNe: 'पात्रो, कनभर्टर, नतिजा, बजार र दैनिक नागरिक उपयोगिताहरूको केन्द्र।',
-    leadEn: 'A hub for calendar, converter, results, market and daily civic utilities.',
+    leadNe: 'पात्रो, मिति रूपान्तरण, टाइपिङ, बजार र दैनिक उपयोगी उपकरण।',
+    leadEn: 'Calendar, date conversion, typing, market and daily reader tools.',
     mode: 'utility',
   },
   {
@@ -230,8 +230,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/membership',
     titleNe: 'सदस्यता तयारी',
     titleEn: 'Membership Readiness',
-    leadNe: 'सार्वजनिक हितको पत्रकारितालाई सहयोग गर्न चाहने पाठकका लागि पारदर्शी सहयोग पृष्ठ।',
-    leadEn: 'A transparent reader-support page for people who want to help fund public-interest journalism.',
+    leadNe: 'पाठक सहयोग, सदस्यता योजना र लाभ स्पष्ट पार्ने पृष्ठ।',
+    leadEn: 'Reader-support and membership information with clear benefits and limits.',
     mode: 'community',
   },
 ]
@@ -269,8 +269,8 @@ export const TRUST_PAGES = [
     path: '/terms',
     titleNe: 'प्रयोग सर्त',
     titleEn: 'Terms',
-    leadNe: 'साइट प्रयोग, सामग्री अधिकार, टिप्पणी र सेवाका सर्तको प्रारम्भिक मस्यौदा।',
-    leadEn: 'Initial draft for site use, content rights, comments and service terms.',
+    leadNe: 'साइट प्रयोग, सामग्री अधिकार, टिप्पणी र सेवाका सर्त।',
+    leadEn: 'Terms for site use, content rights, comments and services.',
   },
   {
     path: '/advertise',
@@ -307,7 +307,7 @@ export const PROVINCES = [
 export const SECONDARY_NAV_HUBS = [
   'market',
   'utilities',
-  'sports',
+  'sports-live',
   'election',
   'disaster-alerts',
   'video',

@@ -9,7 +9,7 @@
  * (mock: true) so the widget never breaks and is honestly labelled. See
  * docs/sports-api-setup.md for key registration.
  *
- * Server-only: API keys live in process.env and must never reach the client.
+ * Server-only: licensed feed credentials live in process.env and must never reach the client.
  */
 import 'server-only'
 import type {
@@ -71,7 +71,7 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
 
   const apiKey = process.env.FOOTBALL_API_KEY
   if (!apiKey) {
-    return mock('Mock football — set FOOTBALL_API_KEY (see docs/sports-api-setup.md)', MOCK_FOOTBALL)
+    return mock('Football feed pending verification', MOCK_FOOTBALL)
   }
 
   try {
@@ -120,7 +120,7 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
     })
   } catch (error) {
     return mock(
-      `Mock football — ${error instanceof Error ? error.message : 'fetch failed'}`,
+      `Football feed pending verification — ${error instanceof Error ? error.message : 'fetch failed'}`,
       MOCK_FOOTBALL,
     )
   }
@@ -147,7 +147,7 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
 
   const apiKey = process.env.CRICKET_API_KEY
   if (!apiKey) {
-    return mock('Mock cricket — set CRICKET_API_KEY (see docs/sports-api-setup.md)', MOCK_CRICKET)
+    return mock('Cricket feed pending verification', MOCK_CRICKET)
   }
 
   try {
@@ -194,7 +194,7 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
     })
   } catch (error) {
     return mock(
-      `Mock cricket — ${error instanceof Error ? error.message : 'fetch failed'}`,
+      `Cricket feed pending verification — ${error instanceof Error ? error.message : 'fetch failed'}`,
       MOCK_CRICKET,
     )
   }

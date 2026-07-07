@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { SITE_URL } from '@/lib/site'
-import { getSubscriberStore } from '../store'
+import { confirmSubscriber, getPendingSubscriber, removePendingSubscriber } from '../store'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,8 +22,7 @@ const TOKEN_TTL_MS = 24 * 60 * 60 * 1000
  */
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token') ?? ''
-  const { pendingSubscribers, confirmedSubscribers } = getSubscriberStore()
-  const pending = pendingSubscribers.get(token)
+  const pending = await getPendingSubscriber(token)
 
   if (!pending) {
     return NextResponse.json(
@@ -32,15 +31,14 @@ export async function GET(request: NextRequest) {
     )
   }
   if (Date.now() - pending.createdAt > TOKEN_TTL_MS) {
-    pendingSubscribers.delete(token)
+    await removePendingSubscriber(token)
     return NextResponse.json(
       { error: 'Token expired. Please subscribe again.' },
       { status: 410 },
     )
   }
 
-  confirmedSubscribers.add(pending.email)
-  pendingSubscribers.delete(token)
+  await confirmSubscriber(token)
 
   return NextResponse.redirect(`${SITE_URL}/newsletter-confirmed`)
 }

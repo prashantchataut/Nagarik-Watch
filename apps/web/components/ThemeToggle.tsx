@@ -20,34 +20,46 @@ function readTheme(): Theme {
 
 function applyTheme(theme: Theme) {
   document.documentElement.setAttribute('data-theme', theme)
+  document.documentElement.style.colorScheme = theme
   try {
     localStorage.setItem(STORAGE_KEY, theme)
   } catch {
-    // localStorage may be unavailable (private mode / disabled); the attribute still applies.
+    // localStorage may be unavailable; the visible theme still changes.
   }
 }
 
 /**
- * Light/dark toggle. The inline script in the locale layout resolves the initial theme before
- * paint (no flash), and the visible icon is selected purely by CSS based on data-theme, so this
- * component renders identical markup on server and client — no hydration mismatch, no
- * post-mount flip. State here only tracks the *next* theme for the accessible label, seeded
- * post-mount from data-theme (a screen-reader-only concern; the visual icon never depended on
- * it, so the label settling one tick after paint is not a visible flash).
+ * Accessible light/dark toggle. The layout script sets the initial data-theme
+ * before paint; this client control only mirrors the current theme after mount.
+ * It exposes aria-pressed for screen readers, updates color-scheme for native
+ * controls, and stays in sync if another tab changes the stored preference.
  */
 export function ThemeToggle({ locale, className }: ThemeToggleProps) {
   const dict = getDictionary(locale)
-  const [next, setNext] = useState<Theme>('dark')
+  const [theme, setTheme] = useState<Theme>('light')
 
   useEffect(() => {
-    setNext(readTheme() === 'dark' ? 'light' : 'dark')
+    const current = readTheme()
+    setTheme(current)
+    document.documentElement.style.colorScheme = current
+
+    function onStorage(event: StorageEvent) {
+      if (event.key !== STORAGE_KEY) return
+      const next = event.newValue === 'dark' ? 'dark' : 'light'
+      applyTheme(next)
+      setTheme(next)
+    }
+
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
   }, [])
 
+  const next = theme === 'dark' ? 'light' : 'dark'
   const label = next === 'light' ? dict.themeToggleToLight : dict.themeToggleToDark
 
   function toggle() {
     applyTheme(next)
-    setNext(next === 'dark' ? 'light' : 'dark')
+    setTheme(next)
   }
 
   return (
@@ -55,11 +67,14 @@ export function ThemeToggle({ locale, className }: ThemeToggleProps) {
       type="button"
       onClick={toggle}
       aria-label={label}
+      aria-pressed={theme === 'dark'}
       title={label}
-      className={`inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong ${className ?? ''}`}
+      data-current-theme={theme}
+      className={`inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint ${className ?? ''}`}
     >
       <SunIcon />
       <MoonIcon />
+      <span className="sr-only">{label}</span>
     </button>
   )
 }

@@ -1,18 +1,38 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { createArticle } from '@/lib/content/store/json-store'
+import type { StoredArticle } from '@/lib/content/store/json-store'
 import { canCreate, canPublish } from '@/lib/admin-roles'
-import type { ArticleBlock } from '@nagarikwatch/db'
+import { blocksFromShorthand } from '@/lib/content/blocks'
 
 export const dynamic = 'force-dynamic'
+
+const WORKFLOW_STAGES: StoredArticle['workflowStage'][] = [
+  'idea',
+  'assigned',
+  'draft',
+  'submitted',
+  'fact_check',
+  'copy_edit',
+  'seo_review',
+  'legal_review',
+  'ready',
+  'scheduled',
+  'published',
+  'archived',
+]
+
+function asWorkflowStage(value: unknown): StoredArticle['workflowStage'] {
+  const stage = String(value ?? 'draft')
+  return WORKFLOW_STAGES.includes(stage as StoredArticle['workflowStage']) ? stage as StoredArticle['workflowStage'] : 'draft'
+}
 
 /**
  * POST /api/admin/articles — create a new article. Editors and above can
  * create; only publishers can set workflowStage to 'published'.
  *
- * Body matches the StoredArticle create input. The bodyNe/bodyEn fields are
- * arrays of ArticleBlock — the editor form converts markdown-shorthand to
- * blocks on the client.
+ * Body matches the editor contract. bodyNe/bodyEn may arrive as the editor's
+ * markdown-shorthand and are converted to ArticleBlock[] before persistence.
  */
 export async function POST(request: NextRequest) {
   const session = await requireNewsroomSession()
@@ -35,7 +55,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'आवश्यक क्षेत्रहरू भर्नुहोस्।' }, { status: 400 })
   }
 
-  const requestedStage = String(body.workflowStage ?? 'draft') as 'draft' | 'published'
+  const requestedStage = asWorkflowStage(body.workflowStage)
+  const isPublishing = requestedStage === 'published'
   if (requestedStage === 'published' && !canPublish(session.newsroomRole)) {
     return NextResponse.json({ error: 'प्रकाशन अनुमति छैन।' }, { status: 403 })
   }
@@ -48,8 +69,8 @@ export async function POST(request: NextRequest) {
       titleEn: body.titleEn ? String(body.titleEn) : undefined,
       deckNe: body.deckNe ? String(body.deckNe) : undefined,
       deckEn: body.deckEn ? String(body.deckEn) : undefined,
-      bodyNe: (body.bodyNe as ArticleBlock[]) ?? [{ type: 'paragraph', text: titleNe }],
-      bodyEn: body.bodyEn ? (body.bodyEn as ArticleBlock[]) : undefined,
+      bodyNe: blocksFromShorthand(body.bodyNe, titleNe),
+      bodyEn: body.bodyEn ? blocksFromShorthand(body.bodyEn) : undefined,
       heroImageUrl: body.heroImageUrl ? String(body.heroImageUrl) : undefined,
       heroImageAlt: body.heroImageAlt ? String(body.heroImageAlt) : undefined,
       heroCaptionNe: body.heroCaptionNe ? String(body.heroCaptionNe) : undefined,
@@ -64,8 +85,8 @@ export async function POST(request: NextRequest) {
       sourceUrl: body.sourceUrl ? String(body.sourceUrl) : undefined,
       seoTitleNe: body.seoTitleNe ? String(body.seoTitleNe) : undefined,
       seoDescriptionNe: body.seoDescriptionNe ? String(body.seoDescriptionNe) : undefined,
-      noIndex: Boolean(body.noIndex),
-      includeInNewsSitemap: body.includeInNewsSitemap !== false,
+      noIndex: body.noIndex === undefined ? !isPublishing : Boolean(body.noIndex),
+      includeInNewsSitemap: body.includeInNewsSitemap === undefined ? isPublishing : body.includeInNewsSitemap !== false,
       aiSummary: body.aiSummary ? String(body.aiSummary) : undefined,
       premium: Boolean(body.premium),
       commentsEnabled: body.commentsEnabled !== false,

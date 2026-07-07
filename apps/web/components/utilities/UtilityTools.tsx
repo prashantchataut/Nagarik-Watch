@@ -11,7 +11,7 @@ type ForexRate = { iso3: string; name: string; buy: number; sell: number; unit: 
 
 type UtilityToolsProps = {
   locale: Locale
-  /** Today's NPR forex rates. When empty, the currency tool shows a fallback note. */
+  /** Today's NPR forex rates. When empty, the currency tool clearly says rates are unavailable. */
   forexRates?: ForexRate[]
   /** Source label for the rate provenance line (e.g. "Nepal Rastra Bank"). */
   forexSource?: string
@@ -252,8 +252,8 @@ function CurrencyConverter({
       subtitle={
         rates.length === 0
           ? en
-            ? 'Live rate unavailable — showing the converter shell'
-            : 'लाइभ दर उपलब्ध छैन'
+            ? 'Official rate feed is not available right now'
+            : 'आधिकारिक दर फिड अहिले उपलब्ध छैन'
           : source
             ? `${en ? 'Rate source' : 'दर स्रोत'}: ${source}`
             : undefined
@@ -262,8 +262,8 @@ function CurrencyConverter({
       {rates.length === 0 ? (
         <p className="text-body text-ink-soft">
           {en
-            ? 'Connect FOREX_API_KEY to enable NPR conversion against live rates.'
-            : 'FOREX_API_KEY जोड्नुहोस्।'}
+            ? 'NPR conversion will appear when the newsroom enables a licensed foreign-exchange feed.'
+            : 'न्यूजरुमले स्वीकृत विदेशी मुद्रा फिड सक्रिय गरेपछि रूपान्तरण देखिन्छ।'}
         </p>
       ) : (
         <>

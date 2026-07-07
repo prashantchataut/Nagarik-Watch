@@ -29,7 +29,18 @@ export function ReaderArticleControls({
   const [readingMode, setReadingMode] = useState(false)
   const [scrollDepth, setScrollDepth] = useState(0)
   const [personalized, setPersonalized] = useState(false)
+  const [speechSupported, setSpeechSupported] = useState(false)
+  const [speaking, setSpeaking] = useState(false)
   const lang = locale === 'en' ? 'en' : 'ne'
+
+  useEffect(() => {
+    setSpeechSupported(typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window)
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+      }
+    }
+  }, [])
 
   useEffect(() => {
     function refreshConsent() {
@@ -120,6 +131,25 @@ export function ReaderArticleControls({
       ? 'Reader view'
       : 'पढाइ दृश्य'
 
+  function toggleNarrator() {
+    if (!speechSupported) return
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel()
+      setSpeaking(false)
+      return
+    }
+    const body = document.querySelector('[data-narrator-body="true"]')?.textContent?.trim() ?? ''
+    const text = [title, body].filter(Boolean).join('. ')
+    if (!text) return
+    const utterance = new SpeechSynthesisUtterance(text.slice(0, 8000))
+    utterance.lang = locale === 'en' ? 'en-US' : 'ne-NP'
+    utterance.rate = 0.92
+    utterance.onend = () => setSpeaking(false)
+    utterance.onerror = () => setSpeaking(false)
+    setSpeaking(true)
+    window.speechSynthesis.speak(utterance)
+  }
+
   return (
     <div className="flex flex-wrap items-center gap-2" lang={lang}>
       <button
@@ -129,6 +159,21 @@ export function ReaderArticleControls({
         className="inline-flex min-h-10 items-center rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong active:scale-[0.98]"
       >
         {modeLabel}
+      </button>
+      <button
+        type="button"
+        onClick={toggleNarrator}
+        disabled={!speechSupported}
+        aria-pressed={speaking}
+        className="inline-flex min-h-10 items-center rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
+      >
+        {speaking
+          ? locale === 'en'
+            ? 'Stop audio'
+            : 'आवाज रोक्नुहोस्'
+          : locale === 'en'
+            ? 'Listen'
+            : 'सुन्नुहोस्'}
       </button>
       <span className="rounded-full bg-surface-raised px-3 py-2 text-caption text-mute">
         {locale === 'en' ? `${remaining} min left` : `${remaining} मिनेट बाँकी`}

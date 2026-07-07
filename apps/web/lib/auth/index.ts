@@ -20,13 +20,17 @@
  */
 import 'server-only'
 import { betterAuth } from 'better-auth'
+import { Kysely } from 'kysely'
 import { createDialect } from './auth-pool'
 import { SITE_URL } from '@/lib/site'
 
-const AUTH_SECRET =
-  process.env.AUTH_SECRET ||
-  process.env.BETTER_AUTH_SECRET ||
-  'dev-only-secret-change-me-please-32-chars-minimum'
+const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET
+
+if (process.env.NODE_ENV === 'production' && (!AUTH_SECRET || AUTH_SECRET.length < 32)) {
+  throw new Error('AUTH_SECRET or BETTER_AUTH_SECRET with at least 32 characters is required in production.')
+}
+
+const EFFECTIVE_AUTH_SECRET = AUTH_SECRET || 'dev-only-secret-change-me-please-32-chars-minimum'
 
 function normalizeOrigin(value: string | undefined): string | null {
   if (!value) return null
@@ -76,7 +80,7 @@ export function getAuth(): Promise<AuthInstance> {
 async function buildAuth(): Promise<AuthInstance> {
   const dialect = await createDialect()
   const auth = betterAuth({
-    secret: AUTH_SECRET,
+    secret: EFFECTIVE_AUTH_SECRET,
     baseURL: authBaseUrl(),
     trustedOrigins: trustedOrigins(),
     database: { dialect },
@@ -97,15 +101,14 @@ async function buildAuth(): Promise<AuthInstance> {
     },
     user: {
       additionalFields: {
-        // `input: true` so the founder bootstrap (seedFounderAccount) can set
-        // role='super_admin' at sign-up. Public reader sign-ups never send a
-        // role, so they fall through to the 'reader' default — the field is
-        // only privileged on the server, never exposed in the reader form.
+        // Never accept role from public sign-up payloads. Founder/admin boot
+        // accounts are promoted after creation by seedOne() via a server-only
+        // SQL update, so clients cannot self-escalate by posting role fields.
         role: {
           type: 'string',
           required: false,
           defaultValue: 'reader',
-          input: true,
+          input: false,
         },
         displayName: {
           type: 'string',
@@ -202,13 +205,26 @@ async function seedOne(
         email,
         password,
         name: email.split('@')[0] ?? 'Newsroom',
-        role,
         displayName,
       },
     })
   } catch {
-    // Account already exists, or adapter not ready yet. Either way, no-op.
+    // Account already exists, or adapter not ready yet. Either way, attempt the
+    // role update below so existing boot users stay aligned with env.
   }
+
+  await assignBootRole(email, role, displayName).catch(() => undefined)
 }
+
+async function assignBootRole(email: string, role: string, displayName: string): Promise<void> {
+  const dialect = await createDialect()
+  const db = new Kysely<{ user: Record<string, unknown> }>({ dialect })
+  await db
+    .updateTable('user')
+    .set({ role, displayName })
+    .where('email', '=', email)
+    .executeTakeFirst()
+}
+
 
 export type Session = Awaited<ReturnType<AuthInstance['api']['getSession']>>

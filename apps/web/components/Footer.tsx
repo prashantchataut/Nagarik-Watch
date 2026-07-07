@@ -64,8 +64,8 @@ export function Footer({ locale }: FooterProps) {
             </p>
             <p className="mt-3 text-meta leading-relaxed text-mute" lang={lang}>
               {locale === 'en'
-                ? 'Civic-minded, Devanagari-first journalism for Nepal and the Nepali diaspora.'
-                : 'नेपाल र नेपाली डायस्पोराका लागि नागरिककेन्द्रित, देवनागरी-पहिलो पत्रकारिता।'}
+                ? 'Devanagari-first reporting for Nepal and the Nepali diaspora.'
+                : 'नेपाल र नेपाली डायस्पोराका लागि देवनागरी-पहिलो रिपोर्टिङ।'}
             </p>
           </div>
 
@@ -125,12 +125,15 @@ export function Footer({ locale }: FooterProps) {
               </p>
               {PUBLICATION.phone ? <p className="mt-1">{PUBLICATION.phone}</p> : null}
             </address>
-            {registration ? (
-              <p className="mt-3 rounded-md border border-rule bg-surface-raised px-3 py-2 text-caption text-ink-soft" lang={lang}>
-                <span className="font-semibold uppercase tracking-wide" lang="en">
-                  {dict.footerRegistration}:
-                </span>{' '}
-                {registration}
+            <p className="mt-3 rounded-md border border-rule bg-surface-raised px-3 py-2 text-caption text-ink-soft" lang={lang}>
+              <span className="font-semibold uppercase tracking-wide" lang={lang}>
+                {dict.footerRegistration}:
+              </span>{' '}
+              {registration || dict.footerRegistrationPending}
+            </p>
+            {PUBLICATION.editorInChief ? (
+              <p className="mt-2 text-caption text-mute" lang={lang}>
+                {locale === 'en' ? 'Responsible editor' : 'जिम्मेवार सम्पादक'}: {PUBLICATION.editorInChief}
               </p>
             ) : null}
           </div>

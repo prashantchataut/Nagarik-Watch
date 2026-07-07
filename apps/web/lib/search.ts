@@ -1,7 +1,7 @@
 import type { StoryCardData } from '@nagarikwatch/db'
 
 /**
- * Client-side story search. No dependency: the corpus is small (the seed), Devanagari has no
+ * Client-side story search. No dependency: the corpus is intentionally bounded, Devanagari has no
  * case to fold, and a focused scorer beats pulling in Fuse for this size. Multi-term queries
  * are AND-ed across the matched fields; ranking rewards title hits over deck/author hits and
  * rewards word-start matches over mid-word substrings, which is what readers expect from a

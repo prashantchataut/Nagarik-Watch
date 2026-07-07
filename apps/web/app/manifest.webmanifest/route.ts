@@ -6,7 +6,7 @@ export function GET() {
   const manifest = {
     name: 'Nagarik Watch',
     short_name: 'Nagarik Watch',
-    description: 'Civic-minded Nepali news, fact-checks and public utilities.',
+    description: 'Verified Nepali news, fact-checks and public utilities.',
     start_url: '/',
     scope: '/',
     display: 'standalone',

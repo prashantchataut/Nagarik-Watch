@@ -58,7 +58,7 @@ export function RecommendedForYou({
       <div className="grid gap-5 rounded-2xl border border-rule bg-surface-raised p-4 sm:p-5 lg:grid-cols-[17rem_1fr] lg:gap-7">
         <div className="lg:border-r lg:border-rule lg:pr-6">
           <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">
-            Personal desk
+            Reader picks
           </p>
           <h2 className="mt-1 font-display text-h1 font-extrabold leading-tight text-ink" lang={lang}>
             {locale === 'en' ? 'Recommended for you' : 'तपाईंका लागि सिफारिस'}
@@ -70,7 +70,7 @@ export function RecommendedForYou({
                 : 'सुरक्षित लेख, पढाइ प्रगति, विभाग रुचि र ताजापनका आधारमा। डाटा यही ब्राउजरमा रहन्छ।'
               : locale === 'en'
                 ? 'Turn on personalization to make this rail learn from your reading.'
-                : 'तपाईंको पढाइबाट सिक्ने सिफारिस चाहिन्छ भने व्यक्तिगत डेस्क खोल्नुहोस्।'}
+                : 'पढाइ र सुरक्षित लेखका आधारमा सिफारिस मिलाउन अनुमति दिनुहोस्।'}
           </p>
           {!enabled ? (
             <button

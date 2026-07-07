@@ -11,7 +11,7 @@ import { PollOfDay } from '@/components/home/PollOfDay'
 import { FromWires } from '@/components/home/FromWires'
 import { ProvinceHub } from '@/components/home/ProvinceHub'
 import { HomeLiveBoard } from '@/components/live/HomeLiveBoard'
-import { AdSlot } from '@/components/AdSlot'
+import { AdSlot, AdStack } from '@/components/AdSlot'
 import { LogoMark } from '@/components/Logo'
 import { RecommendedForYou } from '@/components/reader/RecommendedForYou'
 import { NotificationCenter } from '@/components/reader/NotificationCenter'
@@ -32,12 +32,13 @@ export default async function HomePage({ params }: { params: Promise<Params> }) 
     <div>
       {data.breaking.length > 0 && <BreakingTicker stories={data.breaking} locale={locale} />}
       <div className="mx-auto max-w-page px-4 pt-4">
-        <AdSlot variant="leaderboard" locale={locale} placementKey="home-top" />
+        <AdSlot locale={locale} placementKey="home-top" />
       </div>
       <div className="mx-auto max-w-page px-4 py-6 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr] lg:gap-8">
           <div><Hero story={data.lead} locale={locale} /></div>
           <aside aria-label={dict.more} className="flex flex-col gap-6 border-t border-rule pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+            <AdSlot locale={locale} placementKey="home-hero-rail" className="hidden lg:flex" />
             <TodayInBrief stories={data.secondary} locale={locale} />
             {data.secondary.length > 0 && (
               <ul className="flex flex-col divide-y divide-rule">
@@ -50,13 +51,19 @@ export default async function HomePage({ params }: { params: Promise<Params> }) 
           </aside>
         </div>
         <HomeLiveBoard locale={locale} className="mt-12 border-t border-rule pt-8 sm:mt-14" />
+        <div className="mt-10 flex justify-center">
+          <AdSlot locale={locale} placementKey="home-billboard" variant="billboard" />
+        </div>
         <div className="mt-12 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.38fr)]">
           <RecommendedForYou locale={locale} catalog={catalog.items} />
-          <NotificationCenter locale={locale} />
+          <div className="grid gap-6">
+            <NotificationCenter locale={locale} />
+            <AdStack locale={locale} className="hidden xl:grid" />
+          </div>
         </div>
         <FromWires locale={locale} className="mt-12 sm:mt-14" />
         <ProvinceHub locale={locale} className="mt-12 sm:mt-14" />
-        <div className="mt-12 flex justify-center sm:mt-14"><AdSlot variant="leaderboard" locale={locale} placementKey="home-mid" /></div>
+        <div className="mt-12 flex justify-center sm:mt-14"><AdSlot locale={locale} placementKey="home-mid" /></div>
         <div className="mt-14 flex flex-col gap-12 sm:gap-16">
           {data.sections.map((section, i) => (
             <SectionBlock key={section.category.slug} section={section} locale={locale} className={i % 2 === 1 ? 'border-t border-rule pt-10 sm:pt-12' : ''} />
@@ -83,13 +90,13 @@ function EmptyHome({ locale, dict }: { locale: Locale; dict: ReturnType<typeof g
               </div>
             </div>
             <p className="mt-5 text-body leading-relaxed text-ink-soft sm:text-body-lg" lang={lang}>
-              {en ? 'A civic-minded Nepali news portal. The reader site shows original Nagarik Watch content, daily utilities, and clear editorial trust pages.' : 'नागरिककेन्द्रित नेपाली समाचार पोर्टल। पाठक साइटमा नागरिक वाचका मौलिक सामग्री, दैनिक उपयोगी सेवा र स्पष्ट सम्पादकीय भरोसा पृष्ठ देखिन्छन्।'}
+              {en ? 'A Devanagari-first news portal with published stories, daily utilities and visible editorial policies.' : 'देवनागरी-पहिलो समाचार पोर्टल। यहाँ प्रकाशित समाचार, दैनिक उपयोगी सेवा र स्पष्ट सम्पादकीय नीति देखिन्छन्।'}
             </p>
           </div>
           <div className="rounded-lg border border-rule bg-surface-raised p-4 text-meta text-ink-soft" lang={lang}>
             {en
-              ? 'The public desk is ready. Published stories will appear here after editorial review.'
-              : 'सार्वजनिक डेस्क तयार छ। सम्पादकीय समीक्षा भएपछि प्रकाशित समाचार यहाँ देखिन्छन्।'}
+              ? 'No lead story is published yet. Add reviewed stories from the newsroom before launch.'
+              : 'मुख्य समाचार प्रकाशित भएको छैन। लन्चअघि न्यूजरुमबाट समीक्षा भएको सामग्री राख्नुहोस्।'}
           </div>
         </div>
       </section>

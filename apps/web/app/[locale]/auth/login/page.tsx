@@ -46,7 +46,7 @@ export default async function ReaderLoginPage({
             </p>
           </div>
           <p className="text-caption text-mute" lang={lang}>
-            {ne ? 'नागरिक वाच, नागरिककेन्द्रित पत्रकारिता।' : 'Nagarik Watch, civic-first journalism.'}
+            {ne ? 'नागरिक वाच, देवनागरी-पहिलो समाचार।' : 'Nagarik Watch, Devanagari-first news.'}
           </p>
         </section>
 
@@ -60,7 +60,7 @@ export default async function ReaderLoginPage({
                 {ne ? 'पाठक लगइन' : 'Reader login'}
               </p>
               <h2 className="mt-2 font-display text-h1 font-extrabold leading-tight text-ink" lang={lang}>
-                {ne ? 'फर्केर पढ्न सजिलो बनाउनुहोस्' : 'Return to what matters'}
+                {ne ? 'पढ्न बाँकी सामग्रीमा फर्कनुहोस्' : 'Return to unfinished stories'}
               </h2>
               <p className="mt-2 text-body text-ink-soft" lang={lang}>
                 {ne

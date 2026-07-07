@@ -1,9 +1,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import type { ArticleBlock, Locale, SourceAttribution } from '@nagarikwatch/db'
-import { getDictionary } from '@/lib/i18n/dictionaries'
+import type { ArticleBlock, Correction, Locale, SourceAttribution, Tag } from '@nagarikwatch/db'
 import { cn } from '@nagarikwatch/ui'
 import { AttributionLine } from './AttributionLine'
+import { AdSlot } from '@/components/AdSlot'
+import { isAdPlacementKey } from '@/lib/ads'
+import { localizeHref } from '@/lib/i18n/locales'
 
 type ArticleBodyProps = {
   blocks: ArticleBlock[]
@@ -25,7 +27,6 @@ const AD_AFTER_PARAGRAPH = 4
  * layout shift (size is fixed up front) and is labeled reader-facing (ADR-006).
  */
 export function ArticleBody({ blocks, locale, source, className }: ArticleBodyProps) {
-  const dict = getDictionary(locale)
   let paragraphCount = 0
   let adInjected = false
   let firstParagraphRendered = false
@@ -40,7 +41,7 @@ export function ArticleBody({ blocks, locale, source, className }: ArticleBodyPr
       paragraphCount += 1
       if (!adInjected && paragraphCount >= AD_AFTER_PARAGRAPH) {
         out.push(
-          <AdSlot key={`ad-${i}`} label={dict.adLabel} lang={locale === 'en' ? 'en' : 'ne'} />,
+          <AdSlot key={`ad-${i}`} locale={locale} placementKey="article-inline-1" variant="inline" />,
         )
         adInjected = true
       }
@@ -48,11 +49,84 @@ export function ArticleBody({ blocks, locale, source, className }: ArticleBodyPr
   })
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-6', className)} data-narrator-body="true">
       {source && <AttributionLine source={source} locale={locale} />}
       {out}
     </div>
   )
+}
+
+
+export function CorrectionNotice({
+  corrections,
+  locale,
+  className,
+}: {
+  corrections: Correction[]
+  locale: Locale
+  className?: string
+}) {
+  if (!corrections.length) return null
+  const lang = locale === 'en' ? 'en' : 'ne'
+  const heading = locale === 'en' ? 'Corrections and updates' : 'सच्याइएका विवरण'
+  const label = locale === 'en' ? 'Updated' : 'अद्यावधिक'
+  return (
+    <aside
+      className={cn('rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-ink', className)}
+      aria-labelledby="corrections-heading"
+      lang={lang}
+    >
+      <h2 id="corrections-heading" className="font-display text-base font-semibold text-ink">
+        {heading}
+      </h2>
+      <ul className="mt-2 space-y-2">
+        {corrections.map((correction, idx) => {
+          const summary = locale === 'en' && correction.summaryEn ? correction.summaryEn : correction.summaryNe
+          return (
+            <li key={`${correction.at}-${idx}`} className="leading-relaxed text-ink-soft">
+              <time dateTime={correction.at} className="font-semibold text-ink">
+                {label}: {formatCorrectionDate(correction.at, locale)}
+              </time>
+              <span className="mx-2 text-mute">·</span>
+              <span>{summary}</span>
+            </li>
+          )
+        })}
+      </ul>
+    </aside>
+  )
+}
+
+export function TagRow({ tags, locale, className }: { tags: Tag[]; locale: Locale; className?: string }) {
+  if (!tags.length) return null
+  const lang = locale === 'en' ? 'en' : 'ne'
+  const label = locale === 'en' ? 'Topics' : 'विषय'
+  return (
+    <nav className={cn('flex flex-wrap items-center gap-2', className)} aria-label={label} lang={lang}>
+      <span className="mr-1 text-meta font-semibold uppercase tracking-wide text-ink-soft">{label}</span>
+      {tags.map((tag) => {
+        const name = locale === 'en' && tag.nameEn ? tag.nameEn : tag.nameNe
+        return (
+          <Link
+            key={tag.slug}
+            href={localizeHref(locale, `/tag/${tag.slug}`)}
+            className="rounded-full border border-rule px-3 py-1 text-sm font-semibold text-ink-soft transition hover:border-brand hover:text-brand-strong"
+          >
+            {name}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+}
+
+function formatCorrectionDate(value: string, locale: Locale) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'ne-NP', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date)
 }
 
 function BlockRenderer({ block, locale, dropCap }: { block: ArticleBlock; locale: Locale; dropCap?: boolean }) {
@@ -143,8 +217,10 @@ function BlockRenderer({ block, locale, dropCap }: { block: ArticleBlock; locale
       )
     }
 
-    case 'adSlot':
-      return null
+    case 'adSlot': {
+      const placementKey = isAdPlacementKey(block.placementKey) ? block.placementKey : 'article-inline-1'
+      return <AdSlot locale={locale} placementKey={placementKey} variant="inline" />
+    }
 
     default:
       return null
@@ -218,94 +294,4 @@ function safeEmbedUrl(
     return null
   }
   return null
-}
-
-/** Reserved-size ad container (300x250). Labeled reader-facing; lazy-filled later. */
-function AdSlot({ label, lang }: { label: string; lang: 'ne' | 'en' }) {
-  return (
-    <aside
-      className="ad-slot my-8 flex min-h-[250px] flex-col items-center justify-center gap-2 p-4"
-      aria-label={label}
-      lang={lang}
-    >
-      <span className="text-caption uppercase tracking-wide text-ink-soft">{label}</span>
-      <span className="text-caption text-mute" lang="en">
-        300 × 250
-      </span>
-    </aside>
-  )
-}
-
-// Re-export so the page can drop a CorrectionNotice block in the right place.
-export { CorrectionNotice }
-
-type CorrectionNoticeProps = {
-  corrections: { at: string; summaryNe: string; summaryEn?: string }[]
-  locale: Locale
-  className?: string
-}
-
-function CorrectionNotice({ corrections, locale, className }: CorrectionNoticeProps) {
-  if (corrections.length === 0) return null
-  const dict = getDictionary(locale)
-  return (
-    <aside
-      className={cn('rounded-lg border border-rule bg-surface-raised px-5 py-4', className)}
-      aria-label={dict.correctionsHeading}
-    >
-      <p
-        className="text-meta font-bold uppercase tracking-wide text-brand-strong"
-        lang={locale === 'en' ? 'en' : 'ne'}
-      >
-        {dict.correctionsHeading}
-      </p>
-      <ul className="mt-2 space-y-2">
-        {corrections.map((c, i) => {
-          const summary = locale === 'en' && c.summaryEn ? c.summaryEn : c.summaryNe
-          const sumLang = locale === 'en' && c.summaryEn ? 'en' : 'ne'
-          return (
-            <li key={i} className="text-body text-ink-soft" lang={sumLang}>
-              <time dateTime={c.at} className="font-semibold text-ink">
-                {dict.correctedAt}:
-              </time>{' '}
-              {summary}
-            </li>
-          )
-        })}
-      </ul>
-    </aside>
-  )
-}
-
-// Tags row used at the foot of an article.
-export function TagRow({
-  tags,
-  locale,
-  className,
-}: {
-  tags: { slug: string; nameNe: string; nameEn?: string }[]
-  locale: Locale
-  className?: string
-}) {
-  if (tags.length === 0) return null
-  return (
-    <ul className={cn('flex flex-wrap gap-2', className)}>
-      {tags.map((t) => {
-        const name = locale === 'en' && t.nameEn ? t.nameEn : t.nameNe
-        const lang = locale === 'en' && t.nameEn ? 'en' : 'ne'
-        const href = `${locale === 'en' ? '/en' : ''}/topic/${t.slug}`
-        return (
-          <li key={t.slug}>
-            <Link
-              href={href}
-              className="inline-flex items-center rounded-full border border-rule px-3.5 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
-              lang={lang}
-            >
-              #{name}
-            </Link>
-          </li>
-        )
-      })}
-    </ul>
-  )
 }

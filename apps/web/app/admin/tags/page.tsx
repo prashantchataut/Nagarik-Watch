@@ -26,7 +26,7 @@ export default async function TagsPage() {
   void session // auth gate; session unused on this surface
 
   const storiesResult = await getStories({ locale: 'ne', perPage: 1000 })
-  // StoryCardData type doesn't declare `tags`, but the seed source returns
+  // StoryCardData type doesn't declare `tags`, but the content source returns
   // Article-shaped objects (with tags) — the cast is safe at runtime.
   type StoryWithTags = { tags?: { slug: string; nameNe?: string; nameEn?: string }[] }
   const countsByTagSlug = new Map<string, number>()

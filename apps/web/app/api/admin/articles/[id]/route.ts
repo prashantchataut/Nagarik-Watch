@@ -1,10 +1,31 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { updateArticle, deleteArticle, getArticleById } from '@/lib/content/store/json-store'
+import type { StoredArticle } from '@/lib/content/store/json-store'
 import { canEdit, canDelete, canPublish } from '@/lib/admin-roles'
 import type { ArticleBlock } from '@nagarikwatch/db'
+import { blocksFromShorthand } from '@/lib/content/blocks'
 
 export const dynamic = 'force-dynamic'
+
+const WORKFLOW_STAGES: StoredArticle['workflowStage'][] = [
+  'idea',
+  'assigned',
+  'draft',
+  'submitted',
+  'fact_check',
+  'copy_edit',
+  'seo_review',
+  'legal_review',
+  'ready',
+  'scheduled',
+  'published',
+  'archived',
+]
+
+function isWorkflowStage(value: unknown): value is StoredArticle['workflowStage'] {
+  return typeof value === 'string' && WORKFLOW_STAGES.includes(value as StoredArticle['workflowStage'])
+}
 
 /** GET /api/admin/articles/[id] — fetch a single article for the editor. */
 export async function GET(
@@ -35,17 +56,28 @@ export async function PUT(
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const requestedStage = body.workflowStage as string | undefined
+  const requestedStage = isWorkflowStage(body.workflowStage) ? body.workflowStage : undefined
+  if (body.workflowStage !== undefined && !requestedStage) {
+    return NextResponse.json({ error: 'Invalid workflow stage' }, { status: 400 })
+  }
   if (requestedStage === 'published' && !canPublish(session.newsroomRole)) {
     return NextResponse.json({ error: 'प्रकाशन अनुमति छैन।' }, { status: 403 })
   }
 
   const patch: Record<string, unknown> = { ...body }
-  if (typeof body.bodyNe === 'string') {
-    patch.bodyNe = [{ type: 'paragraph', text: body.bodyNe }] as ArticleBlock[]
+  if (requestedStage === 'published') {
+    if (body.noIndex === undefined) patch.noIndex = false
+    if (body.includeInNewsSitemap === undefined) patch.includeInNewsSitemap = true
+  } else if (requestedStage && requestedStage !== 'published') {
+    if (body.noIndex === undefined) patch.noIndex = true
+    if (body.includeInNewsSitemap === undefined) patch.includeInNewsSitemap = false
   }
-  if (typeof body.bodyEn === 'string' && body.bodyEn) {
-    patch.bodyEn = [{ type: 'paragraph', text: body.bodyEn }] as ArticleBlock[]
+  if (body.bodyNe !== undefined) {
+    patch.bodyNe = blocksFromShorthand(body.bodyNe, String(body.titleNe ?? '')) as ArticleBlock[]
+  }
+  if (body.bodyEn !== undefined) {
+    const bodyEn = blocksFromShorthand(body.bodyEn)
+    patch.bodyEn = bodyEn.length > 0 ? bodyEn : undefined
   }
 
   const updated = await updateArticle(id, patch as Parameters<typeof updateArticle>[1], session.userId)

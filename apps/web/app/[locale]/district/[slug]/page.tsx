@@ -17,8 +17,8 @@ export default async function Page({
         path: `/district/${slug}`,
         titleNe: title,
         titleEn: title,
-        leadNe: 'जिल्ला-आधारित समाचारका लागि CMS taxonomy जोड्न तयार पृष्ठ।',
-        leadEn: 'District-based news page prepared for CMS taxonomy integration.',
+        leadNe: 'यस जिल्लाका प्रकाशित सामग्री, स्थानीय अपडेट र सम्बन्धित समाचार।',
+        leadEn: 'Published stories, local updates and related coverage for this district.',
         mode: 'latest',
       }}
     />

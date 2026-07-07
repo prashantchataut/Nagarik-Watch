@@ -1,7 +1,7 @@
 # Live Sports Scores — API Setup
 
 The `/sports/live` page renders real football (incl. FIFA World Cup 2026) and cricket
-(incl. Nepal matches when available) scores the moment you add API keys. Without keys the
+(incl. Nepal matches when available) scores the moment you add licensed feed credentials. Without keys the
 widget falls back to a clearly-labelled mock so the page never breaks.
 
 The code is **key-ready**: `apps/web/lib/live/sports.ts` already implements both providers

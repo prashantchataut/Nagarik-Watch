@@ -6,6 +6,7 @@ import { getCategory, getCategoryPage } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref, localePrefix } from '@/lib/i18n/locales'
 import { Pagination } from '@/components/Pagination'
+import { AdSlot } from '@/components/AdSlot'
 import { LogoMark } from '@/components/Logo'
 
 type Params = { locale: string; category: string }
@@ -67,16 +68,22 @@ export default async function CategoryPage({
         )}
       </header>
 
+      {!isEmpty && (
+        <div className="mt-6 flex justify-center">
+          <AdSlot locale={locale} placementKey="category-top" />
+        </div>
+      )}
+
       {isEmpty ? (
         <div className="mt-12 rounded-lg border border-dashed border-rule p-10 text-center">
           <LogoMark title={name} className="mx-auto h-12 w-12 opacity-40" />
           <p className="mt-4 font-display text-h2 text-ink" lang={titleLang}>
-            {en ? 'No stories yet' : 'अहिलेसम्म कुनै समाचार छैन'}
+            {en ? 'No reviewed stories in this section yet' : 'यस खण्डमा समीक्षा भएका समाचार छैनन्'}
           </p>
           <p className="mx-auto mt-2 max-w-md text-body text-ink-soft" lang={titleLang}>
             {en
-              ? `The ${name} section is ready. Our editors will publish stories here soon.`
-              : `${name} खण्ड तयार छ। हाम्रा सम्पादकहरूले चाँडै यहाँ समाचार प्रकाशित गर्नेछन्।`}
+              ? `${name} will stay empty until the newsroom publishes reviewed stories. Check the latest desk for current updates.`
+              : `${name}मा न्यूजरुमले समीक्षा गरेर प्रकाशित सामग्री आएपछि मात्र सूची देखिन्छ। हालका अपडेटका लागि ताजा समाचार हेर्नुहोस्।`}
           </p>
           <a
             href={localizeHref(locale, '/latest')}
@@ -125,6 +132,12 @@ export default async function CategoryPage({
             </li>
           ))}
         </ul>
+      )}
+
+      {!isEmpty && (
+        <div className="mt-10 flex justify-center">
+          <AdSlot locale={locale} placementKey="category-inline" variant="native" />
+        </div>
       )}
 
       {!isEmpty && (

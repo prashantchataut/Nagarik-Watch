@@ -214,6 +214,7 @@ export interface Article extends StoryCardData {
   socialImage?: MediaRef
   noindex?: boolean
   doNotRecommend?: boolean
+  commentsEnabled?: boolean
   readingMinutes: number
 }
 

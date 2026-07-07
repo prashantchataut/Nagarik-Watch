@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const STORE_FILE = resolve(__dirname, '../apps/web/data/articles.json')
+const PUBLISH = process.argv.includes('--publish')
+
 const genId = () => `art-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`
 const baseTime = Date.now()
 const p = (text) => ({ type: 'paragraph', text })
@@ -41,12 +43,12 @@ for (const a of articles) {
   a.updatedAt = a.publishedAt
   a.createdBy = 'seed-script'
   a.updatedBy = 'seed-script'
-  a.workflowStage = 'published'
+  a.workflowStage = PUBLISH ? 'published' : 'draft'
   a.sourceType = 'original'
   a.locale = 'ne'
   a.premium = false
-  a.noIndex = false
-  a.includeInNewsSitemap = true
+  a.noIndex = !PUBLISH
+  a.includeInNewsSitemap = PUBLISH
   a.commentsEnabled = true
   a.titleEn = undefined
   a.bodyEn = undefined
@@ -64,3 +66,4 @@ for (const a of articles) {
 mkdirSync(dirname(STORE_FILE), { recursive: true })
 writeFileSync(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
 console.log(`\nDone. Created ${created}, skipped ${skipped}. Store: ${store.articles.length} articles.`)
+console.log(PUBLISH ? 'Seed articles were published.' : 'Seed articles were added as drafts. Use --publish only for an approved staging demo, never for live newsroom content.')

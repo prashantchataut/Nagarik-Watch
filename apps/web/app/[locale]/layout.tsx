@@ -10,7 +10,9 @@ import { Footer } from '@/components/Footer'
 import { SiteJsonLd } from '@/components/SiteJsonLd'
 import { UtilityStrip } from '@/components/live/UtilityStrip'
 import { BottomNav } from '@/components/BottomNav'
+import { MobileAdDock } from '@/components/MobileAdDock'
 import { CookieConsent } from '@/components/CookieConsent'
+import { LaunchReadinessBanner } from '@/components/LaunchReadinessBanner'
 import { PwaBoot } from '@/components/PwaBoot'
 import { AnalyticsGate } from '@/components/analytics/AnalyticsGate'
 import { SITE_URL } from '@/lib/site'
@@ -74,7 +76,7 @@ export default async function LocaleLayout({
           // Runs synchronously in <head>, ahead of body render, and is the only place that sets
           // the attribute on first load — ThemeToggle.tsx reads it after mount.
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=localStorage.getItem('nw-theme');var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var t=s==='dark'||s==='light'?s:(m?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`,
+            __html: `(function(){try{var s=localStorage.getItem('nw-theme');var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var t=s==='dark'||s==='light'?s:(m?'dark':'light');document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}catch(e){document.documentElement.setAttribute('data-theme','light');document.documentElement.style.colorScheme='light';}})();`,
           }}
         />
       </head>
@@ -86,15 +88,17 @@ export default async function LocaleLayout({
           {getDictionary(locale).skipToContent}
         </a>
         <Masthead locale={locale} navCategories={navCategories} />
+        <LaunchReadinessBanner locale={locale} />
         <UtilityStrip locale={locale} />
         <main id="main" className="safe-bottom lg:pb-0">
           {children}
         </main>
         <Footer locale={locale} />
+        <MobileAdDock locale={locale} />
         <BottomNav locale={locale} />
         <AnalyticsGate domain={plausibleDomain} src={plausibleSrc} />
         <PwaBoot />
-        <CookieConsent />
+        <CookieConsent locale={locale} />
       </body>
     </html>
   )

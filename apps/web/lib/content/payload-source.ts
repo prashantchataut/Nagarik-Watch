@@ -1,15 +1,15 @@
 /**
  * Payload-backed {@link ContentSource}. Reads the live CMS via Payload's Local API and maps
- * the persisted documents onto the shared `@nagarikwatch/db` shapes — the same shapes the
- * seed source returns — so rendering code is identical across sources.
+ * the persisted documents onto the shared `@nagarikwatch/db` shapes — the same shared shapes the
+ * store source returns — so rendering code is identical across sources.
  *
  * The Payload config lives in apps/admin; apps/web imports it lazily via
  * `@payload-config` (resolved by the `payload` tsconfig path at build time). The Local API
  * bypasses HTTP entirely (in-process), keeping server reads fast and authentication-free
  * for public read access.
  *
- * Visibility rules mirror ADR-007: `/en` surfaces only articles whose `englishStatus` is
- * `published` and whose `bodyEn` is present.
+ * Visibility rules: listing pages filter `/en` to reviewed English stories. Direct article
+ * URLs can fall back to Nepali with a visible notice so the language toggle never dead-ends.
  */
 import 'server-only'
 import type {
@@ -151,8 +151,6 @@ export function createPayloadContentSource(): ContentSource {
       if (!doc) return null
       const cat = asCategoryRef(doc.category as CategoryField)
       if (cat.slug !== category) return null
-      const hasEnglish = String(doc.englishStatus ?? 'none') === 'published'
-      if (locale === 'en' && !hasEnglish) return null
       return thisToArticle(doc, locale)
     },
 
@@ -351,6 +349,7 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
     updatedAt: doc.updatedAt ? String(doc.updatedAt) : undefined,
     seoTitleNe: doc.seoTitle ? String(doc.seoTitle) : undefined,
     seoDescriptionNe: doc.seoDescription ? String(doc.seoDescription) : undefined,
+    commentsEnabled: doc.commentsEnabled !== false,
     readingMinutes: Number(doc.readingMinutes ?? Math.max(1, Math.ceil((bodyNe?.length ?? 1) / 4))),
   }
 }

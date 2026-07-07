@@ -11,7 +11,7 @@ export async function GET() {
   <channel>
     <title>नागरिक वाच</title>
     <link>${SITE_URL}/</link>
-    <description>नेपालको नागरिककेन्द्रित, स्वतन्त्र र विश्वसनीय समाचार पोर्टल।</description>
+    <description>नेपालका लागि देवनागरी-पहिलो डिजिटल समाचार पोर्टल।</description>
     <language>ne-NP</language>
     <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml" />
     ${items

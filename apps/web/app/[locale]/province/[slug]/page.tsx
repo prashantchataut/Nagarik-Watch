@@ -17,8 +17,8 @@ export default async function Page({
         path: `/province/${slug}`,
         titleNe: title,
         titleEn: title,
-        leadNe: 'प्रदेश-आधारित समाचारका लागि CMS taxonomy जोड्न तयार पृष्ठ।',
-        leadEn: 'Province-based news page prepared for CMS taxonomy integration.',
+        leadNe: 'यस प्रदेशका प्रकाशित सामग्री, स्थानीय अपडेट र सम्बन्धित समाचार।',
+        leadEn: 'Published stories, local updates and related coverage for this province.',
         mode: 'latest',
       }}
     />

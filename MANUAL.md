@@ -16,13 +16,13 @@ This manual separates what is functional in the repository from work that needs 
 
 ## Live Data Providers
 
-- Weather: `WEATHER_PROVIDER=open-meteo` works without an API key for basic weather. If changing providers, set `WEATHER_API_KEY` and document the license.
-- AQI: `AQI_PROVIDER=open-meteo-air-quality` works without an API key for basic air-quality readings.
+- Weather: `WEATHER_PROVIDER=open-meteo` works without an licensed feed credential for basic weather. If changing providers, set `WEATHER_API_KEY` and document the license.
+- AQI: `AQI_PROVIDER=open-meteo-air-quality` works without an licensed feed credential for basic air-quality readings.
 - Disaster alerts: use a manual CMS feed or an official public warning source. Set `DISASTER_ALERT_PROVIDER` and `DISASTER_ALERT_API_KEY` only for a licensed or official provider.
 - NEPSE: use an official or licensed market-data vendor. Do not rely on scraping for production market reporting. Set `NEPSE_PROVIDER` and `NEPSE_API_KEY` after contract approval.
 - Gold/silver: use a licensed bullion-rate source or a verified manual editorial feed. Set `GOLD_SILVER_PROVIDER` and `GOLD_SILVER_API_KEY`.
 - Forex: prefer Nepal Rastra Bank or a licensed provider. Set `FOREX_PROVIDER` and `FOREX_API_KEY`.
-- Sports: set `SPORTS_PROVIDER`, `FOOTBALL_PROVIDER`, `CRICKET_PROVIDER`, and API keys only for licensed feeds that allow public redistribution.
+- Sports: set `SPORTS_PROVIDER`, `FOOTBALL_PROVIDER`, `CRICKET_PROVIDER`, and licensed feed credentials only for licensed feeds that allow public redistribution.
 - Elections: use Election Commission Nepal or a manual verified CMS feed. Never display unverified election numbers as live results.
 - Exam results: use NEB or official result channels. Never publish unofficial SEE or Grade XII result data.
 - Parliament and YouTube live: set `PARLIAMENT_LIVE_URL`, `YOUTUBE_PROVIDER`, and `YOUTUBE_API_KEY` after confirming embed rights.

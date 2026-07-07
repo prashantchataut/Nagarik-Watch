@@ -107,7 +107,7 @@ admin can deploy and operate independently first.
 ## Security notes
 
 - Payload's auth is on by default for the `users` collection (hashed passwords, sessions,
-  JWT, optional API keys). No custom auth code to write or audit.
+  JWT, optional licensed feed credentials). No custom auth code to write or audit.
 - `robots: { index: false }` keeps the admin out of search engines.
 - Restrict the admin domain in production (Cloudflare WAF / Vercel access protection)
   before launch for defense in depth.

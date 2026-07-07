@@ -17,6 +17,7 @@ import { ReaderArticleControls } from '@/components/reader/ReaderArticleControls
 import { BookmarkButton } from '@/components/reader/BookmarkButton'
 import { BreadcrumbJsonLd, SpeakableJsonLd } from '@/components/seo/Schema'
 import { CommentSection } from '@/components/article/CommentSection'
+import { AdSlot } from '@/components/AdSlot'
 import { SITE_URL } from '@/lib/site'
 import { relatedByContent } from '@/lib/ranking'
 
@@ -27,7 +28,8 @@ type Params = { locale: string; category: string; slug: string }
  * headline, deck, byline/dateline/attribution, the typed body, an inline share bar, a
  * corrections notice when present, tags, related stories from the same category, and the
  * NewsArticle JSON-LD. All content is locale-aware: Nepali is source of truth and the
- * English route only resolves articles that have an English version.
+ * English route shows reviewed English when available and clearly labels Nepali fallback
+ * when a translation is still pending, so the language toggle never sends readers to a dead end.
  */
 export default async function ArticlePage({ params }: { params: Promise<Params> }) {
   const { locale: rawLocale, category, slug } = await params
@@ -112,7 +114,16 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
           <span aria-hidden="true" className="text-mute">·</span>
           <span lang={locale === 'en' ? 'en' : 'ne'}>{readingLabel}</span>
         </div>
+        {locale === 'en' && !article.hasEnglish && (
+          <p className="mt-4 rounded-lg border border-rule bg-surface-raised px-4 py-3 text-meta text-ink-soft" lang="en">
+            This article is not available in English yet. Showing the Nepali edition so the language switch does not break the reading path.
+          </p>
+        )}
       </header>
+
+      <div className="mx-auto mt-6 max-w-page px-4 sm:mt-8">
+        <AdSlot locale={locale} placementKey="article-top-billboard" variant="billboard" />
+      </div>
 
       {article.heroImage && (
         <figure className="mx-auto mt-7 max-w-[72rem] px-4 sm:mt-10">
@@ -141,31 +152,56 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         </figure>
       )}
 
-      <div className="reading-scale mx-auto mt-7 max-w-body px-4 sm:mt-10">
-        <div className="grid gap-4 border-y border-rule py-4 lg:grid-cols-[1fr_auto] lg:items-center">
-          <ShareBar url={`${prefix}/${category}/${slug}`} title={title} locale={locale} />
-          <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-            <BookmarkButton story={article} locale={locale} variant="pill" />
-            <ReaderArticleControls
-              story={article}
-              locale={locale}
-              title={title}
-              href={`${prefix}/${category}/${slug}`}
-              readingMinutes={article.readingMinutes}
-            />
-            <FontSizeControl locale={locale} />
+      <div className="mx-auto mt-7 max-w-page px-4 sm:mt-10">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,46rem)_300px] lg:items-start lg:justify-center">
+          <div className="reading-scale min-w-0">
+            <div className="grid gap-4 border-y border-rule py-4 lg:grid-cols-[1fr_auto] lg:items-center">
+              <ShareBar url={`${prefix}/${category}/${slug}`} title={title} locale={locale} />
+              <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                <BookmarkButton story={article} locale={locale} variant="pill" />
+                <ReaderArticleControls
+                  story={article}
+                  locale={locale}
+                  title={title}
+                  href={`${prefix}/${category}/${slug}`}
+                  readingMinutes={article.readingMinutes}
+                />
+                <FontSizeControl locale={locale} />
+              </div>
+            </div>
+
+            {article.corrections && article.corrections.length > 0 && (
+              <CorrectionNotice corrections={article.corrections} locale={locale} className="mt-6" />
+            )}
+
+            <ArticleBody blocks={body} locale={locale} source={article.source} className="mt-8" />
+
+            {article.tags.length > 0 && (
+              <TagRow tags={article.tags} locale={locale} className="mt-10" />
+            )}
+
+            <AdSlot locale={locale} placementKey="article-native-related" variant="native" className="mt-10" />
+
+            <div className="mt-12">
+              <CommentSection
+                articleSlug={slug}
+                articleCategory={category}
+                locale={locale}
+                commentsEnabled={article.commentsEnabled !== false}
+              />
+            </div>
           </div>
+
+          <aside
+            aria-label={locale === 'en' ? 'Article advertisements' : 'लेख विज्ञापन'}
+            className="hidden gap-5 lg:grid lg:self-start"
+          >
+            <AdSlot locale={locale} placementKey="article-sidebar-top" variant="rail" />
+            <div className="lg:sticky lg:top-24">
+              <AdSlot locale={locale} placementKey="article-sidebar-sticky" variant="rail" />
+            </div>
+          </aside>
         </div>
-
-        {article.corrections && article.corrections.length > 0 && (
-          <CorrectionNotice corrections={article.corrections} locale={locale} className="mt-6" />
-        )}
-
-        <ArticleBody blocks={body} locale={locale} source={article.source} className="mt-8" />
-
-        {article.tags.length > 0 && (
-          <TagRow tags={article.tags} locale={locale} className="mt-10" />
-        )}
       </div>
 
       {related.length > 0 && (
@@ -176,14 +212,6 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         />
       )}
 
-      <div className="mx-auto mt-16 max-w-body px-4">
-        <CommentSection
-          articleSlug={slug}
-          articleCategory={category}
-          locale={locale}
-          commentsEnabled={true}
-        />
-      </div>
     </article>
   )
 }
@@ -212,7 +240,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       canonical: article.canonicalUrl ?? canonical,
       languages: { ne: `/${category}/${slug}`, en: `/en/${category}/${slug}` },
     },
-    robots: article.noindex ? { index: false, follow: true } : undefined,
+    robots: article.noindex || (locale === 'en' && !article.hasEnglish) ? { index: false, follow: true } : undefined,
     openGraph: {
       type: 'article',
       title,

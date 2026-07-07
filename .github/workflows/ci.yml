@@ -40,8 +40,8 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
-      - name: Public surface audit
-        run: pnpm audit:public
+      - name: Static product audits
+        run: pnpm verify:static
 
       - name: Web build
         run: pnpm --filter @nagarikwatch/web build

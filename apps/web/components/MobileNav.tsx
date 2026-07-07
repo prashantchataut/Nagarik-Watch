@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useEffect, useId, useRef, useState } from 'react'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { localizeHref } from '@/lib/i18n/locales'
+import { localizeHref, swapLocale } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
 import { STATIC_HUBS } from '@/lib/site'
 
@@ -61,7 +62,11 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
     return () => document.removeEventListener('keydown', onKey)
   }, [open])
 
+  const pathname = usePathname() ?? '/'
   const homeHref = localizeHref(locale, '/')
+  const savedHref = localizeHref(locale, '/saved')
+  const profileHref = localizeHref(locale, '/auth/profile')
+  const toggleHref = swapLocale(pathname)
 
   return (
     <div className="md:hidden">
@@ -147,6 +152,41 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
               </DrawerSection>
 
               <DrawerSection
+                label={locale === 'en' ? 'Reader account' : 'पाठक खाता'}
+                lang={locale === 'en' ? 'en' : 'ne'}
+              >
+                <li>
+                  <Link
+                    href={savedHref}
+                    onClick={() => setOpen(false)}
+                    className="block rounded-md px-3 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+                  >
+                    {locale === 'en' ? 'Saved stories' : 'सुरक्षित समाचार'}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href={profileHref}
+                    onClick={() => setOpen(false)}
+                    className="block rounded-md px-3 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+                  >
+                    {locale === 'en' ? 'Profile' : 'प्रोफाइल'}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href={toggleHref}
+                    onClick={() => setOpen(false)}
+                    lang={locale === 'en' ? 'ne' : 'en'}
+                    aria-label={dict.localeToggleAria}
+                    className="block rounded-md px-3 py-3 text-body-lg font-semibold text-brand-strong transition-colors duration-fast ease-out-quint hover:bg-brand-tint"
+                  >
+                    {locale === 'en' ? 'नेपालीमा पढ्नुहोस्' : 'Read in English'}
+                  </Link>
+                </li>
+              </DrawerSection>
+
+              <DrawerSection
                 label={locale === 'en' ? 'Tools and hubs' : 'उपकरण र हब'}
                 lang={locale === 'en' ? 'en' : 'ne'}
               >
@@ -157,6 +197,7 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                     'market',
                     'utilities',
                     'rashifal',
+                    'sports-live',
                     'fact-check',
                     'submit-story',
                   ].includes(hub.key),

@@ -1,10 +1,13 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
+import { canModerateComments } from '@/lib/admin-roles'
+import { listAllComments, type CommentStatus } from '@/lib/engagement/store'
 import {
   AdminPageHeader,
   AdminEmptyState,
 } from '@/components/admin/primitives'
+import { CommentModerationActions } from '@/components/admin/CommentModerationActions'
 
 export const metadata: Metadata = {
   title: 'टिप्पणी मध्यस्थ',
@@ -13,48 +16,65 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-/**
- * Comment moderation queue. Comments are not yet persisted (the reader
- * comment submission route is a Phase-7 deliverable); this surface shows
- * the shape of the queue — filter bar, table header, empty state — so
- * moderators can preview the workflow today. When the comments store is
- * wired, only the data fetch changes; the markup is already correct.
- */
+const statusOptions: { value: 'all' | CommentStatus; label: string }[] = [
+  { value: 'all', label: 'सबै' },
+  { value: 'pending', label: 'पेन्डिङ' },
+  { value: 'approved', label: 'स्वीकृत' },
+  { value: 'rejected', label: 'अस्वीकृत' },
+  { value: 'flagged', label: 'फ्ल्याग' },
+]
+
+function asStatus(value: string | undefined): 'all' | CommentStatus {
+  return statusOptions.some((option) => option.value === value) ? value as 'all' | CommentStatus : 'pending'
+}
+
+function statusLabel(status: CommentStatus) {
+  return statusOptions.find((option) => option.value === status)?.label ?? status
+}
+
+function formatDate(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return new Intl.DateTimeFormat('ne-NP', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+}
+
 export default async function CommentsPage({
   searchParams,
 }: {
   searchParams: Promise<{ status?: string }>
 }) {
   const session = await requireNewsroomSession()
-  void session // auth gate; session unused on this surface
+  const canModerate = canModerateComments(session.newsroomRole)
   const sp = await searchParams
-
-  const statusOptions = [
-    { value: 'all', label: 'सबै' },
-    { value: 'pending', label: 'पेन्डिङ' },
-    { value: 'approved', label: 'स्वीकृत' },
-    { value: 'rejected', label: 'अस्वीकृत' },
-  ]
+  const selected = asStatus(sp.status)
+  const comments = canModerate
+    ? await listAllComments({ status: selected === 'all' ? undefined : selected, limit: 200 })
+    : []
 
   return (
     <div>
       <AdminPageHeader
         title="टिप्पणी मध्यस्थ"
-        subtitle="पाठकले पेश गरेका टिप्पणी यहाँ स्वीकृत वा अस्वीकृत गर्नुहोस्"
+        subtitle="पाठकले पेश गरेका टिप्पणी हेर्नुहोस्, स्वीकृत गर्नुहोस् वा अस्वीकार गर्नुहोस्।"
       />
 
-      {/* Filter bar — kept even when empty so the moderator UI is honest */}
+      {!canModerate && (
+        <div role="alert" className="mb-5 rounded-lg border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong" lang="ne">
+          तपाईंको भूमिकालाई टिप्पणी मध्यस्थता गर्ने अनुमति छैन।
+        </div>
+      )}
+
       <form className="mb-5 flex flex-wrap items-end gap-3 rounded-lg border border-rule bg-surface-raised p-4">
         <label className="grid gap-1 text-caption font-semibold text-ink-soft">
           स्थिति
           <select
             name="status"
-            defaultValue={sp.status ?? 'pending'}
+            defaultValue={selected}
             className="h-10 w-44 rounded-md border border-rule bg-surface px-3 text-body text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
           >
-            {statusOptions.map((o) => (
-              <option key={o.value} value={o.value} lang="ne">
-                {o.label}
+            {statusOptions.map((option) => (
+              <option key={option.value} value={option.value} lang="ne">
+                {option.label}
               </option>
             ))}
           </select>
@@ -66,10 +86,10 @@ export default async function CommentsPage({
         >
           फिल्टर
         </button>
-        {(sp.status ?? 'pending') !== 'pending' && (
+        {selected !== 'pending' && (
           <Link
             href="/admin/comments"
-            className="h-10 rounded-full border border-rule px-4 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong"
+            className="inline-flex h-10 items-center rounded-full border border-rule px-4 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong"
             lang="ne"
           >
             खाली गर्नुहोस्
@@ -77,8 +97,6 @@ export default async function CommentsPage({
         )}
       </form>
 
-      {/* Empty state — render the table header above it so the moderator
-          sees the queue's shape even when there is nothing to action. */}
       <div className="overflow-hidden rounded-lg border border-rule bg-surface-raised">
         <table className="min-w-full divide-y divide-rule text-left">
           <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
@@ -91,15 +109,41 @@ export default async function CommentsPage({
               <th className="px-4 py-3 font-semibold" lang="ne">कारबाही</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td colSpan={6} className="px-0 py-0">
-                <AdminEmptyState
-                  title="कुनै टिप्पणी छैन"
-                  body="पाठकले समाचारमा टिप्पणी पेश गरेपछि यहाँ देखिनेछ। हालसम्म कुनै टिप्पणी संकलन भएको छैन।"
-                />
-              </td>
-            </tr>
+          <tbody className="divide-y divide-rule">
+            {comments.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-0 py-0">
+                  <AdminEmptyState
+                    title="कुनै टिप्पणी छैन"
+                    body={selected === 'all' ? 'हालसम्म कुनै टिप्पणी संकलन भएको छैन।' : 'यो स्थितिमा कुनै टिप्पणी छैन।'}
+                  />
+                </td>
+              </tr>
+            ) : comments.map((comment) => (
+              <tr key={comment.id} className="align-top">
+                <td className="whitespace-nowrap px-4 py-3 text-caption text-ink-soft" lang="ne">
+                  {formatDate(comment.createdAt)}
+                </td>
+                <td className="px-4 py-3 text-meta text-ink" lang="ne">
+                  <div className="font-semibold">{comment.authorName}</div>
+                  {comment.authorEmail ? <div className="text-caption text-mute">{comment.authorEmail}</div> : null}
+                </td>
+                <td className="px-4 py-3 text-meta text-ink-soft">
+                  <Link href={`/${comment.articleCategory}/${comment.articleSlug}`} className="font-semibold text-brand-strong hover:underline">
+                    {comment.articleCategory}/{comment.articleSlug}
+                  </Link>
+                </td>
+                <td className="max-w-md px-4 py-3 text-meta leading-relaxed text-ink" lang={comment.locale === 'en' ? 'en' : 'ne'}>
+                  {comment.bodyNe}
+                </td>
+                <td className="px-4 py-3 text-caption font-semibold text-ink-soft" lang="ne">
+                  {statusLabel(comment.status)}
+                </td>
+                <td className="px-4 py-3">
+                  <CommentModerationActions commentId={comment.id} />
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

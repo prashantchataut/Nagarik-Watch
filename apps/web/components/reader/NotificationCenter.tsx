@@ -78,12 +78,12 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
           Alerts
         </p>
         <h2 className="mt-1 font-display text-h2 font-extrabold text-ink">
-          {locale === 'en' ? 'Breaking only, never spam' : 'ब्रेकिङ मात्र, स्पाम होइन'}
+          {locale === 'en' ? 'Breaking alerts on this device' : 'यो उपकरणमा ब्रेकिङ सूचना'}
         </h2>
         <p className="mt-2 text-meta leading-relaxed text-ink-soft">
           {locale === 'en'
-            ? 'This device can show browser alerts while the site is open. Background push still needs OneSignal, FCM or Web Push credentials.'
-            : 'साइट खुला हुँदा यो उपकरणमा ब्राउजर सूचना देखिन्छ। साइट बन्द हुँदा आउने वास्तविक push का लागि OneSignal, FCM वा Web Push credential चाहिन्छ।'}
+            ? 'This browser can show alerts while the site is open. Background push requires OneSignal, FCM or Web Push credentials.'
+            : 'साइट खुला हुँदा यो ब्राउजरले सूचना देखाउन सक्छ। साइट बन्द हुँदा आउने push का लागि OneSignal, FCM वा Web Push credential चाहिन्छ।'}
         </p>
         <div className="mt-4 rounded-lg border border-rule bg-surface p-3 text-caption text-ink-soft">
           {supported

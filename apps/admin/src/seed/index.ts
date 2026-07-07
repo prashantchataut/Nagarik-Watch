@@ -5,7 +5,11 @@
  * collections via the Local API: Categories → Authors → Tags → Media → Articles, in
  * dependency order. Idempotent: existing slugs are skipped unless --reset wipes first.
  *
- * Run: pnpm --filter @nagarikwatch/admin seed [--reset]
+ * Run: pnpm --filter @nagarikwatch/admin seed [--reset] [--publish]
+ *
+ * Without --publish, imported stories stay as drafts so sample/dev content cannot
+ * accidentally appear on the public site. Use --publish only with editor-reviewed
+ * original content.
  *
  * Media uploads are best-effort: the seed fetches each Unsplash hero into a buffer and
  * passes it to the Local API, so editors see real images. If the network is unavailable
@@ -25,6 +29,7 @@ import type { Article, ArticleBlock } from '@nagarikwatch/db'
 const articles = [...articlesBatch1, ...articlesBatch2]
 
 const RESET = process.argv.includes('--reset')
+const PUBLISH = process.argv.includes('--publish')
 
 type SlugToId = Map<string, number | string>
 
@@ -40,7 +45,7 @@ async function main() {
   const tagIds = await seedTags(payload)
   await seedArticles(payload, { categoryIds, authorIds, tagIds })
 
-  payload.logger.info('Seed complete.')
+  payload.logger.info(PUBLISH ? 'Seed complete: published content created.' : 'Seed complete: draft content created. Use --publish only for reviewed original stories.')
   process.exit(0)
 }
 
@@ -162,7 +167,7 @@ async function seedArticles(
       featuredState: 'none',
       locale: 'ne',
       publishedAt: a.publishedAt,
-      _status: 'published',
+      _status: PUBLISH ? 'published' : 'draft',
     }
 
     const existing = await findBySlug(payload, 'articles', a.slug)

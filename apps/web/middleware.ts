@@ -20,9 +20,9 @@ import { DEFAULT_LOCALE, LOCALE_COOKIE } from './lib/i18n/locales'
 const PUBLIC_FILE = /\.(?!well-known)[a-zA-Z0-9]{1,}$/
 
 function stampPath(request: NextRequest): NextResponse {
-  const response = NextResponse.next()
-  response.headers.set('x-pathname', request.nextUrl.pathname)
-  return response
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-pathname', request.nextUrl.pathname)
+  return NextResponse.next({ request: { headers: requestHeaders } })
 }
 
 export function middleware(request: NextRequest) {

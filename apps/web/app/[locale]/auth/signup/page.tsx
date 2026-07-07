@@ -40,7 +40,7 @@ export default async function ReaderSignupPage({
               {ne ? 'निःशुल्क पाठक खाता' : 'Free reader account'}
             </p>
             <h1 className="mt-4 font-display text-[3rem] font-extrabold leading-[1.05] text-ink" lang={lang}>
-              {ne ? 'धेरै खोल्ने समाचार फेरि खोज्न नपरोस्।' : 'Stop losing the stories you meant to finish.'}
+              {ne ? 'पढ्न बाँकी समाचार सुरक्षित राख्नुहोस्।' : 'Save the stories you want to finish.'}
             </h1>
             <ul className="mt-6 grid gap-2 text-body text-ink-soft" lang={lang}>
               {benefits.map((benefit) => (

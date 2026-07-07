@@ -2,12 +2,12 @@
  * Content source contract — the seam between the reader site and where content lives.
  *
  * Two implementations ship today:
- *  - {@link PayloadContentSource}: reads the live CMS via Payload Local API (prod, with DB).
- *  - {@link SeedContentSource}: reads the in-repo seed (dev/preview/tests, no DB required).
+ *  - Payload content source: reads the live CMS via Payload Local API (prod, with DB).
+ *  - Store content source: reads the JSON article store and renders honest empty states.
  *
  * Pages and components depend only on this contract and the `@nagarikwatch/db` types, so
  * the source can be swapped by environment without touching rendering code. The default
- * export in ./payload-client picks the right one based on env; tests inject the seed.
+ * runtime resolver in ./index picks the right one based on env.
  */
 import type {
   Article,
@@ -31,7 +31,7 @@ export type StoryListOptions = {
   author?: string
   /** Restrict to this tag slug. */
   tag?: string
-  /** Restrict to a locale's visibility rules (ADR-007: /en only sees englishStatus=published). */
+  /** Restrict to a locale's listing visibility rules; /en lists reviewed English stories. */
   locale?: Locale
   /** Exclude these slugs (e.g. the lead story on a homepage section). */
   exclude?: string[]

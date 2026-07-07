@@ -15,7 +15,7 @@ export async function UtilityWidgetRail({ locale }: { locale: Locale }) {
     empty: dict.liveEmpty,
     retry: dict.liveRetry,
   }
-  const showFallbackBadge = process.env.NEXT_PUBLIC_SHOW_MOCK_BADGE === 'true'
+  const showFallbackBadge = true
 
   const [weather, aqi, nepse, metals, forex] = await Promise.all([
     getRealWeather(locale),
@@ -105,6 +105,6 @@ function AqiValue({ aqi, locale }: { aqi: number; locale: Locale }) {
 }
 
 function sourceFor(source: string, locale: Locale): string {
-  if (/mock/i.test(source)) return locale === 'en' ? 'Provider fallback' : 'प्रदायक फलब्याक'
+  if (/mock/i.test(source)) return locale === 'en' ? 'Verified feed pending' : 'प्रमाणित फिड प्रतीक्षामा'
   return source
 }

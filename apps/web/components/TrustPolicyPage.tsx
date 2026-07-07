@@ -136,9 +136,9 @@ export function TrustPolicyPage({ locale, path, titleNe, titleEn, leadNe, leadEn
         </h2>
         <dl className="mt-3 grid gap-3 text-body text-ink-soft md:grid-cols-2">
           <TransparencyItem label="Publisher" value={PUBLICATION.publisherName} />
-          {PUBLICATION.legalName ? <TransparencyItem label="Legal name" value={PUBLICATION.legalName} /> : null}
-          {PUBLICATION.editorInChief ? <TransparencyItem label="Editor" value={PUBLICATION.editorInChief} /> : null}
-          {PUBLICATION.registrationNumber ? <TransparencyItem label="Registration" value={PUBLICATION.registrationNumber} /> : null}
+          <TransparencyItem label="Legal name" value={PUBLICATION.legalName || (locale === 'en' ? 'Not configured for public launch' : 'सार्वजनिक लन्चका लागि राखिएको छैन')} />
+          <TransparencyItem label="Editor" value={PUBLICATION.editorInChief || (locale === 'en' ? 'Not configured for public launch' : 'सार्वजनिक लन्चका लागि राखिएको छैन')} />
+          <TransparencyItem label="Registration" value={PUBLICATION.registrationNumber || (locale === 'en' ? 'Not configured for public launch' : 'सार्वजनिक लन्चका लागि राखिएको छैन')} />
           <TransparencyItem label="Address" value={PUBLICATION.address} />
           <TransparencyItem label="Contact" value={PUBLICATION.email} />
         </dl>

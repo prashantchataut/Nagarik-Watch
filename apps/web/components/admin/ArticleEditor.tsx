@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useEffect } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Category, Tag } from '@nagarikwatch/db'
@@ -17,6 +17,7 @@ type ArticleDraft = {
   bodyNe: string
   bodyEn: string
   category: string
+  tagSlugs: string[]
   workflowStage: string
   sourceType: string
   sourceName: string
@@ -44,6 +45,7 @@ const EMPTY: ArticleDraft = {
   bodyNe: '',
   bodyEn: '',
   category: '',
+  tagSlugs: [],
   workflowStage: 'draft',
   sourceType: 'original',
   sourceName: '',
@@ -53,7 +55,7 @@ const EMPTY: ArticleDraft = {
   seoTitle: '',
   seoDescription: '',
   noIndex: false,
-  includeInNewsSitemap: true,
+  includeInNewsSitemap: false,
   aiSummary: '',
   premium: false,
   commentsEnabled: false,
@@ -110,8 +112,9 @@ export function ArticleEditor({
   isNew: boolean
 }) {
   const router = useRouter()
+  const formRef = useRef<HTMLFormElement | null>(null)
   const [draft, setDraft] = useState<ArticleDraft>({ ...EMPTY, ...initial })
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [selectedTags, setSelectedTags] = useState<string[]>(initial?.tagSlugs ?? [])
   const [status, setStatus] = useState<{ kind: 'idle' | 'saving' | 'saved' | 'error'; msg?: string }>({
     kind: 'idle',
   })
@@ -141,18 +144,41 @@ export function ArticleEditor({
     setSelectedTags((t) => (t.includes(slug) ? t.filter((s) => s !== slug) : [...t, slug]))
   }
 
-  async function save(targetStage?: string) {
+  function save(targetStage?: string) {
     setStatus({ kind: 'saving' })
-    startTransition(async () => {
-      try {
+    startTransition(() => {
+      void (async () => {
+        try {
+        const formData = formRef.current ? new FormData(formRef.current) : null
+        const read = (name: string, fallback = '') => String(formData?.get(name) ?? fallback).trim()
+        const workflowStage = targetStage ?? read('workflowStage', draft.workflowStage)
         const body = {
-          ...draft,
-          tags: selectedTags,
-          workflowStage: targetStage ?? draft.workflowStage,
-          bodyNe: draft.bodyNe, // API converts markdown-shorthand to blocks
+          slug: read('slug', draft.slug),
+          categorySlug: read('category', draft.category),
+          titleNe: read('titleNe', draft.titleNe),
+          titleEn: read('titleEn', draft.titleEn) || undefined,
+          deckNe: read('deckNe', draft.deckNe) || undefined,
+          deckEn: read('deckEn', draft.deckEn) || undefined,
+          workflowStage,
+          bodyNe: draft.bodyNe,
           bodyEn: draft.bodyEn || undefined,
-          titleEn: draft.titleEn || undefined,
-          deckEn: draft.deckEn || undefined,
+          authorIds: [],
+          tagSlugs: selectedTags,
+          sourceType: read('sourceType', draft.sourceType) as 'original' | 'aggregated' | 'wire',
+          sourceName: read('sourceName', draft.sourceName) || undefined,
+          sourceUrl: read('sourceUrl', draft.sourceUrl) || undefined,
+          isBreaking: draft.isBreaking,
+          isFeatured: read('featuredState', draft.featuredState) as 'lead' | 'secondary' | 'none',
+          seoTitleNe: read('seoTitle', draft.seoTitle) || undefined,
+          seoDescriptionNe: read('seoDescription', draft.seoDescription) || undefined,
+          noIndex: workflowStage === 'published' ? false : draft.noIndex,
+          includeInNewsSitemap: workflowStage === 'published',
+          aiSummary: read('aiSummary', draft.aiSummary) || undefined,
+          premium: draft.premium,
+          commentsEnabled: draft.commentsEnabled,
+          heroImageUrl: read('heroImageUrl', draft.heroImageUrl) || undefined,
+          heroCaptionNe: read('heroCaption', draft.heroCaption) || undefined,
+          heroCredit: read('heroCredit', draft.heroCredit) || undefined,
         }
         const url = initial?.id
           ? `/api/admin/articles/${initial.id}`
@@ -164,18 +190,19 @@ export function ArticleEditor({
         })
         if (!res.ok) {
           const err = await res.json().catch(() => ({}))
-          throw new Error(err?.message ?? 'सुरक्षित गर्न सकिएन')
+          throw new Error(err?.error ?? err?.message ?? 'सुरक्षित गर्न सकिएन')
         }
         const saved = await res.json().catch(() => ({}))
         setStatus({ kind: 'saved', msg: 'सुरक्षित भयो' })
-        if (isNew && saved?.slug) {
-          router.push(`/admin/articles/${saved.slug}/edit`)
+        if (isNew && saved?.id) {
+          router.push(`/admin/articles/${saved.id}/edit`)
         } else {
           router.refresh()
         }
-      } catch (e) {
-        setStatus({ kind: 'error', msg: e instanceof Error ? e.message : 'त्रुटि' })
-      }
+        } catch (e) {
+          setStatus({ kind: 'error', msg: e instanceof Error ? e.message : 'त्रुटि' })
+        }
+      })()
     })
   }
 
@@ -183,7 +210,7 @@ export function ArticleEditor({
   const readingMinutes = Math.max(1, Math.round(wordCount / 200))
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+    <form ref={formRef} className="grid gap-6 lg:grid-cols-[1fr_320px]" onSubmit={(event) => event.preventDefault()}>
       {/* MAIN COLUMN — content */}
       <div className="space-y-5">
         {status.kind === 'error' && (
@@ -201,7 +228,8 @@ export function ArticleEditor({
           <AdminInput
             label="शीर्षक (नेपाली)"
             name="titleNe"
-            defaultValue={draft.titleNe}
+            value={draft.titleNe}
+            onChange={(e) => update('titleNe', e.target.value)}
             required
             placeholder="समाचारको शीर्षक"
             lang="ne"
@@ -210,14 +238,16 @@ export function ArticleEditor({
           <AdminInput
             label="शीर्षक (अंग्रेजी) — वैकल्पिक"
             name="titleEn"
-            defaultValue={draft.titleEn}
+            value={draft.titleEn}
+            onChange={(e) => update('titleEn', e.target.value)}
             placeholder="English headline (author-reviewed translation)"
             lang="en"
           />
           <AdminTextarea
             label="डेक (नेपाली)"
             name="deckNe"
-            defaultValue={draft.deckNe}
+            value={draft.deckNe}
+            onChange={(e) => update('deckNe', e.target.value)}
             rows={2}
             placeholder="एक–दुई वाक्यको सारांश, शीर्षक अन्तर्गत देखिने।"
             lang="ne"
@@ -225,7 +255,8 @@ export function ArticleEditor({
           <AdminTextarea
             label="डेक (अंग्रेजी) — वैकल्पिक"
             name="deckEn"
-            defaultValue={draft.deckEn}
+            value={draft.deckEn}
+            onChange={(e) => update('deckEn', e.target.value)}
             rows={2}
             lang="en"
           />
@@ -323,7 +354,8 @@ export function ArticleEditor({
           <AdminSelect
             label="कार्यप्रवाह"
             name="workflowStage"
-            defaultValue={draft.workflowStage}
+            value={draft.workflowStage}
+            onChange={(e) => update('workflowStage', e.target.value)}
             options={WORKFLOW_STAGES}
             required
           />
@@ -367,7 +399,8 @@ export function ArticleEditor({
           <AdminSelect
             label="विभाग"
             name="category"
-            defaultValue={draft.category}
+            value={draft.category}
+            onChange={(e) => update('category', e.target.value)}
             options={[
               { value: '', label: '— छान्नुहोस् —' },
               ...categories.map((c) => ({ value: c.slug, label: c.nameNe })),
@@ -377,7 +410,8 @@ export function ArticleEditor({
           <AdminInput
             label="स्लग"
             name="slug"
-            defaultValue={draft.slug}
+            value={draft.slug}
+            onChange={(e) => update('slug', e.target.value)}
             required
             placeholder="url-मा-देखिने-नाम"
             lang="en"
@@ -401,7 +435,8 @@ export function ArticleEditor({
           <AdminSelect
             label="प्रमुखता"
             name="featuredState"
-            defaultValue={draft.featuredState}
+            value={draft.featuredState}
+            onChange={(e) => update('featuredState', e.target.value)}
             options={[
               { value: 'none', label: 'सामान्य' },
               { value: 'lead', label: 'मुख्य समाचार' },
@@ -435,7 +470,8 @@ export function ArticleEditor({
           <AdminSelect
             label="स्रोत प्रकार"
             name="sourceType"
-            defaultValue={draft.sourceType}
+            value={draft.sourceType}
+            onChange={(e) => update('sourceType', e.target.value)}
             options={SOURCE_TYPES}
             required
           />
@@ -444,14 +480,16 @@ export function ArticleEditor({
               <AdminInput
                 label="स्रोतको नाम"
                 name="sourceName"
-                defaultValue={draft.sourceName}
+                value={draft.sourceName}
+                onChange={(e) => update('sourceName', e.target.value)}
                 lang="ne"
               />
               <AdminInput
                 label="स्रोत URL"
                 name="sourceUrl"
                 type="url"
-                defaultValue={draft.sourceUrl}
+                value={draft.sourceUrl}
+                onChange={(e) => update('sourceUrl', e.target.value)}
                 lang="en"
               />
             </>
@@ -465,14 +503,16 @@ export function ArticleEditor({
           <AdminInput
             label="मेटा शीर्षक"
             name="seoTitle"
-            defaultValue={draft.seoTitle}
+            value={draft.seoTitle}
+            onChange={(e) => update('seoTitle', e.target.value)}
             lang="ne"
             hint="रिक्त भए शीर्षक प्रयोग हुन्छ। ६० अक्षरसम्म।"
           />
           <AdminTextarea
             label="मेटा विवरण"
             name="seoDescription"
-            defaultValue={draft.seoDescription}
+            value={draft.seoDescription}
+            onChange={(e) => update('seoDescription', e.target.value)}
             rows={2}
             lang="ne"
             hint="१६० अक्षरसम्म। खोज परिणाममा देखिने।"
@@ -480,7 +520,8 @@ export function ArticleEditor({
           <AdminTextarea
             label="AI सारांश (LLMO)"
             name="aiSummary"
-            defaultValue={draft.aiSummary}
+            value={draft.aiSummary}
+            onChange={(e) => update('aiSummary', e.target.value)}
             rows={3}
             lang="ne"
             hint="AI उत्तर इन्जिनले उद्धृत गर्न सक्ने संक्षिप्त सारांश।"
@@ -513,20 +554,23 @@ export function ArticleEditor({
             label="फोटो URL"
             name="heroImageUrl"
             type="url"
-            defaultValue={draft.heroImageUrl}
+            value={draft.heroImageUrl}
+            onChange={(e) => update('heroImageUrl', e.target.value)}
             lang="en"
             placeholder="https://…"
           />
           <AdminInput
             label="क्याप्सन"
             name="heroCaption"
-            defaultValue={draft.heroCaption}
+            value={draft.heroCaption}
+            onChange={(e) => update('heroCaption', e.target.value)}
             lang="ne"
           />
           <AdminInput
             label="श्रेय"
             name="heroCredit"
-            defaultValue={draft.heroCredit}
+            value={draft.heroCredit}
+            onChange={(e) => update('heroCredit', e.target.value)}
             lang="ne"
             hint="फोटोको स्रोत/फोटोग्राफर।"
           />
@@ -542,6 +586,6 @@ export function ArticleEditor({
           </Link>
         </div>
       </aside>
-    </div>
+    </form>
   )
 }

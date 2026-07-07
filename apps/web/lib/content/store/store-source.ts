@@ -76,6 +76,7 @@ function toFullArticle(a: StoredArticle, locale: Locale): Article {
     seoTitleNe: a.seoTitleNe,
     seoDescriptionNe: a.seoDescriptionNe,
     noindex: a.noIndex,
+    commentsEnabled: a.commentsEnabled,
     readingMinutes: a.readingMinutes,
     updatedAt: a.updatedAt,
   } as Article

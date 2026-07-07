@@ -67,7 +67,7 @@ Work Log:
 Stage Summary:
 - Site is fully functional end-to-end. Dev server stable on :3000. All core routes return 200.
 - Admin credentials: admin@nagarikwatch.com.np / nagarikwatch123 (CHANGE IN PRODUCTION).
-- Known non-blocking: ESLint style warnings (intentional client-only setState for hydration safety). Live NEPSE/gold use simulated data until real API keys are added.
+- Known non-blocking: ESLint style warnings (intentional client-only setState for hydration safety). Live NEPSE/gold use simulated data until real licensed feed credentials are added.
 - Next-phase candidates (for the 15-min cron): reading-history/bookmarks UI, reader accounts (NextAuth reader), scheduled publishing cron, eSewa/Khalti membership payments, Meilisearch-powered search, web push notifications, AEO FAQ pages per topic, image CDN (Cloudinary), performance/INP tuning.
 
 ---

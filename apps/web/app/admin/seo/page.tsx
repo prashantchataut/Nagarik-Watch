@@ -32,7 +32,7 @@ export default async function SeoPage() {
 
   // SEO completeness is derived from the article's own fields; only the
   // recent 50 stories land in the table to keep the page fast. The cast to
-  // ArticleSEO is safe because the seed source returns Article-shaped objects
+  // ArticleSEO is safe because the content source returns Article-shaped objects
   // (only bodyNe/bodyEn are stripped, not the SEO fields).
   type ArticleSEO = {
     heroImage?: { url?: string }

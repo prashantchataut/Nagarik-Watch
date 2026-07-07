@@ -3,7 +3,7 @@
  *   - DATABASE_URL present → PostgresDialect (production, shared with Payload).
  *   - absent → PGliteDialect (in-memory Postgres via WASM). Survives for the
  *     life of the server process; resets on restart. Perfect for dev/preview
- *     and for the seed-backed demo where reader accounts are ephemeral.
+ *     and for the local preview mode where reader accounts are ephemeral.
  *
  * Both dialects speak real SQL, so Better Auth's schema creation + queries
  * work identically. No code branches on the auth layer.

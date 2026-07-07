@@ -31,8 +31,7 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
   const nepse = await getRealNepse(locale)
   const forex = await getRealForex(locale)
 
-  // Mock badge is dev-only — production readers never see "नमुना".
-  const showMock = process.env.NEXT_PUBLIC_SHOW_MOCK_BADGE === 'true'
+  const showMock = true
 
   return (
     <section className={className} aria-label={lang === 'ne' ? 'लाइभ जानकारी' : 'Live information'}>
@@ -42,7 +41,7 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
           title={dict.weatherTitle}
           titleLang={lang}
           status={weather.status}
-          source={weather.source}
+          source={sourceFor(weather.source, locale)}
           updatedLabel={relativeTime(weather.updatedAt, locale)}
           mock={showMock && weather.mock}
           labels={labels}
@@ -64,7 +63,7 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
           title={dict.aqiTitle}
           titleLang={lang}
           status={aqi.status}
-          source={aqi.source}
+          source={sourceFor(aqi.source, locale)}
           updatedLabel={relativeTime(aqi.updatedAt, locale)}
           mock={showMock && aqi.mock}
           labels={labels}
@@ -77,7 +76,7 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
           title={dict.nepseTitle}
           titleLang="en"
           status={nepse.status}
-          source={nepse.source}
+          source={sourceFor(nepse.source, locale)}
           updatedLabel={relativeTime(nepse.updatedAt, locale)}
           mock={showMock && nepse.mock}
           tone={nepse.data && nepse.data.change >= 0 ? 'up' : 'down'}
@@ -105,7 +104,7 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
           title={locale === 'en' ? 'Forex (NRB)' : 'विदेशी मुद्रा (नराे)'}
           titleLang={lang}
           status={forex.status}
-          source={forex.source}
+          source={sourceFor(forex.source, locale)}
           updatedLabel={relativeTime(forex.updatedAt, locale)}
           mock={showMock && forex.mock}
           labels={labels}
@@ -178,4 +177,9 @@ function AqiValue({ aqi, locale }: { aqi: number; locale: Locale }) {
       </span>
     </p>
   )
+}
+
+function sourceFor(source: string, locale: Locale): string {
+  if (/mock/i.test(source)) return locale === 'en' ? 'Verified feed pending' : 'प्रमाणित फिड प्रतीक्षामा'
+  return source
 }

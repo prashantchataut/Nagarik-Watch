@@ -4,6 +4,7 @@ import { StoryCard } from '@nagarikwatch/ui'
 import { getStories } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localePrefix } from '@/lib/i18n/locales'
+import { AdSlot } from '@/components/AdSlot'
 
 type Params = { locale: string }
 
@@ -37,6 +38,10 @@ export default async function TrendingPage({ params }: { params: Promise<Params>
         </p>
       </header>
 
+      <div className="mt-6 flex justify-center">
+        <AdSlot locale={locale} placementKey="trending-top" />
+      </div>
+
       <ol className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {result.items.map((s, i) => (
           <li key={s.slug} className="flex gap-4">
@@ -52,6 +57,10 @@ export default async function TrendingPage({ params }: { params: Promise<Params>
           </li>
         ))}
       </ol>
+
+      <div className="mt-10 flex justify-center">
+        <AdSlot locale={locale} placementKey="trending-inline" variant="native" />
+      </div>
     </div>
   )
 }

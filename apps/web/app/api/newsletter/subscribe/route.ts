@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { SITE_URL } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
@@ -27,9 +28,7 @@ function rateLimit(ip: string): boolean {
 // within a single long-lived server process (dev / single-instance preview).
 // For multi-instance production, swap `getSubscriberStore()` for a Redis or
 // Postgres-backed implementation — the call sites stay identical.
-import { getSubscriberStore } from '../store'
-
-const { pendingSubscribers, confirmedSubscribers } = getSubscriberStore()
+import { addPendingSubscriber, isConfirmedSubscriber, removePendingSubscriber } from '../store'
 
 /**
  * POST /api/newsletter/subscribe — double-opt-in newsletter subscription.
@@ -48,6 +47,10 @@ const { pendingSubscribers, confirmedSubscribers } = getSubscriberStore()
  * Body: { email }
  */
 export async function POST(request: NextRequest) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
   if (!rateLimit(ip)) {
     return NextResponse.json({ error: 'धेरै प्रयास।' }, { status: 429 })
@@ -66,19 +69,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'मान्य इमेल भर्नुहोस्।' }, { status: 400 })
   }
 
-  if (confirmedSubscribers.has(email)) {
+  if (await isConfirmedSubscriber(email)) {
     return NextResponse.json({ ok: true, message: 'Already subscribed.' })
   }
 
   const token = crypto.randomUUID()
-  pendingSubscribers.set(token, { email, token, createdAt: Date.now() })
+  await addPendingSubscriber(email, token)
 
   const providerKey = process.env.NEWSLETTER_API_KEY
   const providerBase = process.env.NEWSLETTER_API_BASE
   const confirmUrl = `${SITE_URL}/api/newsletter/confirm?token=${token}`
 
   if (process.env.NODE_ENV === 'production' && (!providerKey || !providerBase)) {
-    pendingSubscribers.delete(token)
+    await removePendingSubscriber(token)
     return NextResponse.json({ error: 'Newsletter provider is not configured.' }, { status: 503 })
   }
 
@@ -98,11 +101,9 @@ export async function POST(request: NextRequest) {
         }),
       })
     } catch {
-      pendingSubscribers.delete(token)
+      await removePendingSubscriber(token)
       return NextResponse.json({ error: 'Newsletter provider failed.' }, { status: 502 })
     }
-  } else if (process.env.NODE_ENV !== 'production') {
-    console.log(`[newsletter] dev confirm link for ${email}: ${confirmUrl}`)
   }
 
   return NextResponse.json(

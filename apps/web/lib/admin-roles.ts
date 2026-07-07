@@ -121,6 +121,20 @@ export const PUBLISHER_ROLES: ReadonlySet<NewsroomRole> = new Set([
 /** Roles that can hard-delete. Super admin only, by design. */
 export const HARD_DELETE_ROLES: ReadonlySet<NewsroomRole> = new Set(['super_admin'])
 
+
+/** Roles that can moderate reader comments. */
+export const COMMENT_MODERATOR_ROLES: ReadonlySet<NewsroomRole> = new Set([
+  'moderator',
+  'assistant_editor',
+  'sub_editor',
+  'section_editor',
+  'province_editor',
+  'managing_editor',
+  'editor_in_chief',
+  'admin',
+  'super_admin',
+])
+
 /** Roles that can manage users and roles. */
 export const USER_MANAGER_ROLES: ReadonlySet<NewsroomRole> = new Set(['admin', 'super_admin'])
 
@@ -136,6 +150,28 @@ export function canPublish(role: NewsroomRole): boolean {
 export function canDelete(role: NewsroomRole): boolean {
   return HARD_DELETE_ROLES.has(role)
 }
+export function canModerateComments(role: NewsroomRole): boolean {
+  return COMMENT_MODERATOR_ROLES.has(role)
+}
 export function canManageUsers(role: NewsroomRole): boolean {
   return USER_MANAGER_ROLES.has(role)
+}
+
+
+/** Server-side route access matrix for the custom web admin. */
+export const ADMIN_PATH_ROLE_RULES: ReadonlyArray<{ prefix: string; roles: ReadonlySet<NewsroomRole> }> = [
+  { prefix: '/admin/users', roles: USER_MANAGER_ROLES },
+  { prefix: '/admin/roles', roles: USER_MANAGER_ROLES },
+  { prefix: '/admin/audit-log', roles: USER_MANAGER_ROLES },
+  { prefix: '/admin/comments', roles: COMMENT_MODERATOR_ROLES },
+  { prefix: '/admin/ads', roles: new Set<NewsroomRole>(['ad_manager', 'publisher', 'admin', 'super_admin']) },
+  { prefix: '/admin/newsletter', roles: new Set<NewsroomRole>(['analyst', 'publisher', 'admin', 'super_admin']) },
+  { prefix: '/admin/seo', roles: new Set<NewsroomRole>(['seo_manager', 'assistant_editor', 'sub_editor', 'section_editor', 'managing_editor', 'editor_in_chief', 'admin', 'super_admin']) },
+  { prefix: '/admin/live-widgets', roles: new Set<NewsroomRole>(['analyst', 'assistant_editor', 'sub_editor', 'section_editor', 'managing_editor', 'editor_in_chief', 'admin', 'super_admin']) },
+]
+
+export function canAccessAdminPath(role: NewsroomRole, pathname: string): boolean {
+  const rule = ADMIN_PATH_ROLE_RULES.find((item) => pathname === item.prefix || pathname.startsWith(`${item.prefix}/`))
+  if (!rule) return true
+  return rule.roles.has(role)
 }

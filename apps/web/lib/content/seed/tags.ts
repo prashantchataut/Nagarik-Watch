@@ -58,6 +58,55 @@ export const tags: Tag[] = [
     descriptionNe: 'विश्व भूराजनीतिक विमर्श र संघर्षका समाचार।',
     descriptionEn: 'Global geopolitical conflict and analysis.',
   },
+  {
+    id: 'tag-editor-pick',
+    slug: 'editor-pick',
+    nameNe: 'सम्पादकको रोजाइ',
+    nameEn: 'Editor pick',
+    descriptionNe: 'सम्पादकीय टोलीले विशेष रूपमा छानेका सामग्री।',
+    descriptionEn: 'Stories explicitly selected by the editorial desk.',
+  },
+  {
+    id: 'tag-exclusive',
+    slug: 'exclusive-report',
+    nameNe: 'विशेष रिपोर्ट',
+    nameEn: 'Exclusive report',
+    descriptionNe: 'मौलिक रिपोर्टिङ वा अनुसन्धानमा आधारित विशेष सामग्री।',
+    descriptionEn: 'Exclusive or original-investigation reporting.',
+  },
+  {
+    id: 'tag-data-story',
+    slug: 'data-story',
+    nameNe: 'डाटा कथा',
+    nameEn: 'Data story',
+    descriptionNe: 'डाटा, ग्राफ, तालिका वा पद्धतिसहितका कथा।',
+    descriptionEn: 'Data-led stories with charts, tables or methodology.',
+  },
+  {
+    id: 'tag-reader-submission',
+    slug: 'reader-submission',
+    nameNe: 'पाठक सामग्री',
+    nameEn: 'Reader submission',
+    descriptionNe: 'सम्पादकीय स्वीकृतिपछि प्रकाशित पाठक सामग्री।',
+    descriptionEn: 'Reader material published after editorial review.',
+  },
+  {
+    id: 'tag-video-report',
+    slug: 'video-report',
+    nameNe: 'भिडियो रिपोर्ट',
+    nameEn: 'Video report',
+    descriptionNe: 'भिडियो, अन्तर्वार्ता वा दृश्य व्याख्यासहितका सामग्री।',
+    descriptionEn: 'Video-led reports, interviews and explainers.',
+  },
+  {
+    id: 'tag-photo-story',
+    slug: 'photo-story',
+    nameNe: 'फोटो कथा',
+    nameEn: 'Photo story',
+    descriptionNe: 'फोटो पत्रकारिता र दृश्य कथाका सामग्री।',
+    descriptionEn: 'Photojournalism and visual-story packages.',
+  },
+
 ]
 
 export const tagById = new Map(tags.map((t) => [t.id, t]))

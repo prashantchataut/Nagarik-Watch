@@ -20,7 +20,11 @@
     "test:e2e": "turbo run test:e2e",
     "clean": "turbo run clean && rimraf node_modules",
     "audit:public": "node scripts/audit-public-surface.mjs",
-    "verify:launch": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm audit:public && pnpm --filter @nagarikwatch/web build && pnpm --filter @nagarikwatch/db test"
+    "verify:launch": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm verify:static && pnpm --filter @nagarikwatch/web build && pnpm --filter @nagarikwatch/db test",
+    "audit:ads": "node scripts/audit-ad-placements.mjs",
+    "audit:architecture": "node scripts/audit-architecture.mjs",
+    "launch:gate": "node scripts/launch-gate.mjs",
+    "verify:static": "pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm launch:gate"
   },
   "devDependencies": {
     "@nagarikwatch/tsconfig": "workspace:*",

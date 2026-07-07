@@ -95,6 +95,8 @@ export function AdminInput({
   label,
   name,
   defaultValue,
+  value,
+  onChange,
   placeholder,
   type = 'text',
   required,
@@ -105,6 +107,8 @@ export function AdminInput({
   label: string
   name: string
   defaultValue?: string | number
+  value?: string | number
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
   placeholder?: string
   type?: string
   required?: boolean
@@ -121,7 +125,9 @@ export function AdminInput({
       <input
         name={name}
         type={type}
-        defaultValue={defaultValue}
+        defaultValue={value === undefined ? defaultValue : undefined}
+        value={value}
+        onChange={onChange}
         placeholder={placeholder}
         required={required}
         disabled={disabled}
@@ -141,6 +147,8 @@ export function AdminTextarea({
   label,
   name,
   defaultValue,
+  value,
+  onChange,
   placeholder,
   required,
   rows = 4,
@@ -150,6 +158,8 @@ export function AdminTextarea({
   label: string
   name: string
   defaultValue?: string
+  value?: string
+  onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void
   placeholder?: string
   required?: boolean
   rows?: number
@@ -164,7 +174,9 @@ export function AdminTextarea({
       </span>
       <textarea
         name={name}
-        defaultValue={defaultValue}
+        defaultValue={value === undefined ? defaultValue : undefined}
+        value={value}
+        onChange={onChange}
         placeholder={placeholder}
         required={required}
         rows={rows}
@@ -184,6 +196,8 @@ export function AdminSelect({
   label,
   name,
   defaultValue,
+  value,
+  onChange,
   options,
   required,
   lang,
@@ -192,6 +206,8 @@ export function AdminSelect({
   label: string
   name: string
   defaultValue?: string
+  value?: string
+  onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void
   options: { value: string; label: string }[]
   required?: boolean
   lang?: string
@@ -205,7 +221,9 @@ export function AdminSelect({
       </span>
       <select
         name={name}
-        defaultValue={defaultValue}
+        defaultValue={value === undefined ? defaultValue : undefined}
+        value={value}
+        onChange={onChange}
         required={required}
         className="rounded-md border border-rule bg-surface px-3.5 py-2.5 text-body text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
       >

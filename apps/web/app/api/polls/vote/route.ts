@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { recordPollVote } from '@/lib/engagement/store'
 import { getSession } from '@/lib/auth/session'
 
@@ -14,6 +15,10 @@ export const dynamic = 'force-dynamic'
  * Returns: { recorded: boolean, results: Record<optionId, count> }
  */
 export async function POST(request: NextRequest) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+
   let body: Record<string, unknown>
   try {
     body = await request.json()

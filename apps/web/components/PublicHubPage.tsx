@@ -1,22 +1,24 @@
 import Link from 'next/link'
-import type { Locale } from '@nagarikwatch/db'
+import type { Article, Locale, StoryCardData } from '@nagarikwatch/db'
 import { StoryCard } from '@nagarikwatch/ui'
-import { getStories } from '@/lib/content'
+import { getArticleBySlug, getStories } from '@/lib/content'
 import { localizeHref } from '@/lib/i18n/locales'
 import { rankStories } from '@/lib/ranking'
 import { localizedLead, localizedTitle, type StaticHub } from '@/lib/site'
 import { UtilityWidgetRail } from '@/components/live/LiveWidgets'
+import { AdStack, AdSlot } from '@/components/AdSlot'
 
 export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: Locale }) {
-  const { items } = await getStories({ locale, perPage: 16 })
+  const { items } = await getStories({ locale, perPage: 40 })
+  const hubStories = await storiesForHub(hub.key, items, locale)
   const ranked =
     hub.mode === 'trending'
-      ? rankStories(items, (story, index) => ({
+      ? rankStories(hubStories, (story, index) => ({
           editorialPriority: story.isBreaking ? 3 : 1,
           viewsPerHour: Math.max(1, 50 - index * 4),
           sharesPerHour: story.isBreaking ? 12 : 2,
         }))
-      : rankStories(items, (_story, index) => ({ editorialPriority: Math.max(0, 3 - index / 4) }))
+      : rankStories(hubStories, (_story, index) => ({ editorialPriority: Math.max(0, 3 - index / 4) }))
   const stories = ranked.slice(0, 10)
   const leadStory = stories[0]
   const sideStories = stories.slice(1, 4)
@@ -42,7 +44,11 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
         <div className="mt-8">
           <UtilityWidgetRail locale={locale} />
         </div>
-      ) : null}
+      ) : (
+        <div className="mt-8">
+          <AdSlot locale={locale} placementKey="hub-top" />
+        </div>
+      )}
 
       {hub.key === 'submit-story' ? <ReaderSubmissionWorkflow locale={locale} /> : null}
 
@@ -53,6 +59,7 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
             {sideStories.map((story) => (
               <StoryCard key={story.slug} story={story} locale={locale} variant="horizontal" />
             ))}
+            <AdStack locale={locale} className="hidden lg:grid" />
           </div>
         </section>
       ) : (
@@ -60,6 +67,12 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
           {empty}
         </p>
       )}
+
+      {compactStories.length > 0 ? (
+        <div className="mt-10 flex justify-center">
+          <AdSlot locale={locale} placementKey="hub-inline" variant="native" />
+        </div>
+      ) : null}
 
       {compactStories.length > 0 ? (
         <section className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -100,4 +113,32 @@ function ReaderSubmissionWorkflow({ locale }: { locale: Locale }) {
       </Link>
     </section>
   )
+}
+
+async function storiesForHub(
+  hubKey: StaticHub['key'],
+  cards: StoryCardData[],
+  locale: Locale,
+): Promise<StoryCardData[]> {
+  const taggedHub = new Set(['editor-picks', 'exclusive', 'data-stories', 'reader-corner'])
+  if (!taggedHub.has(hubKey)) return cards
+
+  const articles = await Promise.all(
+    cards.map((story) => getArticleBySlug(story.category.slug, story.slug, locale)),
+  )
+  return articles.filter((article): article is Article => {
+    if (!article) return false
+    const tagSlugs = new Set(article.tags.map((tag) => tag.slug))
+    if (hubKey === 'editor-picks') return tagSlugs.has('editor-pick') || article.isBreaking
+    if (hubKey === 'exclusive') return Boolean(article.exclusive) || tagSlugs.has('exclusive-report')
+    if (hubKey === 'data-stories') return tagSlugs.has('data-story') || article.bodyNe.some(isDataBlock)
+    if (hubKey === 'reader-corner') return tagSlugs.has('reader-submission')
+    return true
+  })
+}
+
+function isDataBlock(block: Article['bodyNe'][number]): boolean {
+  if (block.type === 'list' && block.items.length >= 3) return true
+  if (block.type === 'embed' && /data|chart|flourish|tableau/i.test(block.url)) return true
+  return false
 }

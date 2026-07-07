@@ -9,9 +9,9 @@ import { SITE_URL, STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
  * bilingual corpus. lastmod comes from the article's updatedAt/publishedAt where available.
  *
  * The article, category, and author lists are read through the content façade so this stays
- * correct when the source swaps from seed to Payload. Tags and authors currently come from
- * the seed exports (the façade has no list-tags/list-authors method); this is fine for the
- * seed-backed demo and is the single place to update when those lists move to the CMS.
+ * correct when the source swaps from the JSON store to Payload. Tags and authors currently come from
+ * the shared reference exports because the façade has no list-tags/list-authors method yet; this is
+ * the single place to update when those lists move fully to the CMS.
  */
 const LOCALES = ['ne', 'en'] as const
 type SLocale = (typeof LOCALES)[number]

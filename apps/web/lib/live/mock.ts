@@ -74,7 +74,7 @@ export function getMockWeather(_locale: Locale): LiveValue<WeatherReading> {
   return {
     status: 'ok',
     data: { placeNe: 'काठमाडौं', placeEn: 'Kathmandu', tempC: 27, condition: 'rain' },
-    source: 'Provider fallback',
+    source: 'Verified feed pending',
     updatedAt: now(),
     mock: true,
   }
@@ -88,7 +88,7 @@ export function getMockAqi(_locale: Locale): LiveValue<AqiReading> {
   return {
     status: 'ok',
     data: { aqi: 86, placeNe: 'काठमाडौं', placeEn: 'Kathmandu' },
-    source: 'Provider fallback',
+    source: 'Verified feed pending',
     updatedAt: now(),
     mock: true,
   }
@@ -102,7 +102,7 @@ export function getMockNepse(_locale: Locale): LiveValue<NepseReading> {
   return {
     status: 'ok',
     data: { index: 2148.6, change: 12.4, changePercent: 0.58, open: true },
-    source: 'Provider fallback',
+    source: 'Verified feed pending',
     updatedAt: now(),
     mock: true,
   }

@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
 const root = process.cwd()
-const scanRoots = ['apps/web/app', 'apps/web/components', 'apps/web/lib/site.ts', 'apps/web/lib/i18n/dictionaries.ts']
+const scanRoots = ['apps/web/app', 'apps/web/components', 'apps/web/lib/site.ts', 'apps/web/lib/i18n/dictionaries.ts', 'apps/web/lib/live-data.ts', 'apps/web/lib/live/mock.ts']
 const extensions = new Set(['.ts', '.tsx', '.js', '.jsx', '.mdx'])
 const excludedSegments = new Set(['admin', 'api', '__tests__', 'test', 'tests'])
 
@@ -21,6 +21,17 @@ const banned = [
   /Nagarik Watch Media Pvt\. Ltd\. \(placeholder\)/i,
   /final newsroom address pending/i,
   /Mock feed/i,
+  /काम लाग्ने सेवा/i,
+  /अनावश्यक हल्ला होइन/i,
+  /Connect provider/i,
+  /No live rate/i,
+  /Connect FOREX_API_KEY/i,
+  /FOREX_API_KEY जोड्नुहोस्/i,
+  /Provider fallback/i,
+  /Fallback shown/i,
+  /Mock football/i,
+  /Mock cricket/i,
+  /set .*API_KEY/i,
 ]
 
 const localhostAllowed = new Set(['apps/web/lib/site.ts'])

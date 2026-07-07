@@ -13,11 +13,11 @@ export async function FromWires({ locale, className }: { locale: Locale; classNa
   const [lead, ...rest] = stories
 
   return (
-    <section className={className} aria-label={locale === 'en' ? 'Nagarik Desk' : 'नागरिक डेस्क'}>
+    <section className={className} aria-label={locale === 'en' ? 'News Desk' : 'नागरिक डेस्क'}>
       <div className="flex items-end justify-between gap-4 border-b border-rule pb-3">
         <div>
           <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">
-            Nagarik Desk
+            News Desk
           </p>
           <h2 className="mt-1 font-display text-h2 font-extrabold text-ink" lang={lang}>
             {locale === 'en' ? 'Fresh from Nagarik Watch' : 'नागरिक वाचबाट ताजा'}

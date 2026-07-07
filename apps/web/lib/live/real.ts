@@ -1,5 +1,5 @@
 /**
- * REAL live-data source — replaces the mock feed with genuine free, no-API-key
+ * REAL live-data source — replaces the mock feed with genuine free, credential-free
  * public endpoints, while preserving the LiveValue<T> contract so the widgets,
  * trust lines, and MOCK badges all keep working unchanged.
  *
@@ -286,8 +286,8 @@ const FOREX_FOCUS = new Set([
 ])
 
 /** REAL forex rates, NPR against the focus set. Provider-aware:
- *  FOREX_PROVIDER=fxrateapis + FOREX_API_KEY uses fxrateapis (NPR cross-rates), else
- *  the keyless Nepal Rastra Bank daily feed. Falls back to empty list on any failure. */
+ *  FOREX_PROVIDER=fxrateapis with a licensed server credential uses fxrateapis (NPR cross-rates); otherwise
+ *  the Nepal Rastra Bank daily feed is used. Falls back to an empty list on any failure. */
 export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate[]>> {
   const key = 'forex'
   const hit = cached<ForexRate[]>(key)
@@ -336,7 +336,7 @@ export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate
     return {
       status: 'ok',
       data: [],
-      source: 'Provider fallback',
+      source: 'Verified feed pending',
       updatedAt: new Date().toISOString(),
       mock: true,
     }

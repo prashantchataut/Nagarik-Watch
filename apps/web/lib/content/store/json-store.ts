@@ -43,7 +43,7 @@ export type StoredArticle = {
   updatedAt: string
   isBreaking: boolean
   isFeatured: 'lead' | 'secondary' | 'none'
-  workflowStage: 'draft' | 'submitted' | 'fact_check' | 'copy_edit' | 'seo_review' | 'legal_review' | 'ready' | 'scheduled' | 'published' | 'archived'
+  workflowStage: 'idea' | 'assigned' | 'draft' | 'submitted' | 'fact_check' | 'copy_edit' | 'seo_review' | 'legal_review' | 'ready' | 'scheduled' | 'published' | 'archived'
   sourceType: 'original' | 'aggregated' | 'wire'
   sourceName?: string
   sourceUrl?: string
@@ -146,17 +146,30 @@ export async function listArticles(opts: {
   return { items, total }
 }
 
+
+export async function listArticlesForAdmin(opts: { limit?: number; offset?: number; status?: StoredArticle['workflowStage'] } = {}): Promise<{ items: StoredArticle[]; total: number }> {
+  const store = await read()
+  let items = store.articles
+  if (opts.status) items = items.filter((a) => a.workflowStage === opts.status)
+  items = items.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  const total = items.length
+  if (opts.limit !== undefined) {
+    const offset = opts.offset ?? 0
+    items = items.slice(offset, offset + opts.limit)
+  }
+  return { items, total }
+}
+
 export async function getArticleBySlug(
   category: string,
   slug: string,
-  locale: Locale,
+  _locale: Locale,
 ): Promise<StoredArticle | null> {
   const store = await read()
   const article = store.articles.find(
     (a) => a.categorySlug === category && a.slug === slug,
   )
   if (!article) return null
-  if (locale === 'en' && !article.hasEnglish) return null
   if (article.workflowStage !== 'published') return null
   return article
 }
@@ -164,6 +177,12 @@ export async function getArticleBySlug(
 export async function getArticleById(id: string): Promise<StoredArticle | null> {
   const store = await read()
   return store.articles.find((a) => a.id === id) ?? null
+}
+
+
+export async function findArticleForAdmin(identifier: string): Promise<StoredArticle | null> {
+  const store = await read()
+  return store.articles.find((a) => a.id === identifier || a.slug === identifier) ?? null
 }
 
 export async function getHomepageData(): Promise<{
@@ -263,8 +282,8 @@ export async function createArticle(input: {
     sourceUrl: input.sourceUrl,
     seoTitleNe: input.seoTitleNe,
     seoDescriptionNe: input.seoDescriptionNe,
-    noIndex: input.noIndex ?? false,
-    includeInNewsSitemap: input.includeInNewsSitemap ?? true,
+    noIndex: input.noIndex ?? (input.workflowStage !== 'published'),
+    includeInNewsSitemap: input.includeInNewsSitemap ?? (input.workflowStage === 'published'),
     aiSummary: input.aiSummary,
     premium: input.premium ?? false,
     commentsEnabled: input.commentsEnabled ?? true,

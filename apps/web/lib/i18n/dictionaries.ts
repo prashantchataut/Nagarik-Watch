@@ -9,7 +9,7 @@ export const dictionary = {
   ne: {
     siteName: 'नागरिक वाच',
     siteNameEn: 'Nagarik Watch',
-    tagline: 'नागरिकको दृष्टिमा समाचार',
+    tagline: 'सत्यापित समाचार, स्पष्ट सन्दर्भ',
     skipToContent: 'मूल सामग्रीमा जानुहोस्',
     primaryNav: 'मुख्य नेभिगेसन',
     closeMenu: 'मेनु बन्द गर्नुहोस्',
@@ -75,10 +75,10 @@ export const dictionary = {
     footerSections: 'सामग्री',
     aboutKicker: 'हाम्रो बारेमा',
     aboutLead:
-      'नागरिक वाच नेपाली पाठकका लागि नागरिककेन्द्रित, स्वतन्त्र र विश्वसनीय समाचार पोर्टल हो। हामी देवनागरीलाई प्राथमिकता दिन्छौं र प्रत्येक कथालाई सत्य, सन्तुलन र सन्दर्भसहित प्रस्तुत गर्छौं।',
+      'नागरिक वाच नेपाल र नेपाली डायस्पोराका पाठकका लागि देवनागरी-पहिलो डिजिटल समाचार पोर्टल हो। हाम्रो काम तथ्य जाँचेर, स्रोत खुलाएर र सन्दर्भसहित समाचार प्रकाशित गर्नु हो।',
     aboutMissionHeading: 'हाम्रो उद्देश्य',
     aboutMission:
-      'नेपाली नागरिकलाई निर्णय लिन आवश्यक जानकारी दिनु, शक्तिशालीलाई जवाफदेही बनाउनु र सीमान्तकृत स्वरलाई मूलधारमा ल्याउनु हाम्रो काम हो। स्वतन्त्र सम्पादकीय निर्णय हाम्रो मेरुदण्ड हो।',
+      'सार्वजनिक हितका विषयमा प्रमाणमा आधारित रिपोर्टिङ गर्नु, निर्णयकर्तालाई प्रश्न गर्नु र प्रभावित समुदायको आवाजलाई समाचारमा स्थान दिनु हाम्रो प्राथमिकता हो।',
     aboutFundingHeading: 'स्वामित्व र स्रोत',
     aboutFunding:
       'नागरिक वाच विज्ञापन र सीमित प्रायोजित सामग्रीबाट आर्थिक रूपमा टिकिरहेको छ। सबै प्रायोजित सामग्री स्पष्ट रूपमा छुट्याइन्छ र सम्पादकीय निर्णयमा हस्तक्षेप गर्दैन।',
@@ -118,17 +118,17 @@ export const dictionary = {
     contactEmail: 'contact@nagarikwatch.com',
     contactPageHeading: 'अन्य सम्पर्क',
     footerDisclaimer:
-      'यस साइटमा प्रकाशित सामग्री नागरिक वाचको सम्पादकीय निर्णयमा तयार पारिएको हो। समाचार सत्यता र सन्तुलनमा आधारित छ, तर प्रयोगकर्ताले आफ्नो विवेक प्रयोग गर्नुहोस्।',
+      'समाचार, विचार, विज्ञापन र प्रायोजित सामग्री अलग-अलग लेबल गरिन्छ। त्रुटि भेटिएमा सच्याइ पृष्ठ र सम्बन्धित लेखमा अद्यावधिक गरिन्छ।',
     footerRegistration: 'प्रकाशन दर्ता',
-    footerRegistrationPending: 'प्रमाणित भएपछि प्रकाशित',
+    footerRegistrationPending: 'सार्वजनिक लन्चका लागि राखिएको छैन',
     footerCopyright: (year: number) => `© ${year} नागरिक वाच। सर्वाधिकार सुरक्षित।`,
     metaDescription:
-      'नागरिक वाच (Nagarik Watch) — नेपालको नागरिककेन्द्रित, स्वतन्त्र र विश्वसनीय समाचार पोर्टल।',
+      'नागरिक वाच (Nagarik Watch) — नेपालका लागि देवनागरी-पहिलो डिजिटल समाचार पोर्टल।',
     mastheadDate: (date: string) => date,
 
     // Live widgets (weather / AQI / NEPSE / utility strip). MOCK label is shown until a
     // real feed is wired (see apps/web/lib/live/mock.ts).
-    liveMock: 'नमुना',
+    liveMock: 'फिड प्रतीक्षामा',
     liveSourcePrefix: 'स्रोत',
     liveLoading: 'लोड हुँदै…',
     liveError: 'अहिले उपलब्ध छैन',
@@ -162,7 +162,7 @@ export const dictionary = {
   en: {
     siteName: 'Nagarik Watch',
     siteNameEn: 'Nagarik Watch',
-    tagline: 'News through the eyes of the citizen',
+    tagline: 'Verified news with clear context',
     skipToContent: 'Skip to main content',
     primaryNav: 'Primary navigation',
     closeMenu: 'Close menu',
@@ -228,10 +228,10 @@ export const dictionary = {
     footerSections: 'Sections',
     aboutKicker: 'About us',
     aboutLead:
-      'Nagarik Watch is a citizen-focused, independent and trustworthy news portal for Nepali readers. We put Devanagari first and ground every story in accuracy, balance and context.',
+      'Nagarik Watch is a Devanagari-first digital news portal for Nepal and the Nepali diaspora. We publish with verified facts, named sources and visible context.',
     aboutMissionHeading: 'Our mission',
     aboutMission:
-      'Our job is to give Nepali citizens the information they need to make decisions, hold the powerful to account, and bring marginalised voices into the mainstream. Independent editorial judgement is our backbone.',
+      'Our priority is public-interest reporting: verify claims, question decision-makers and make room for communities affected by the news.',
     aboutFundingHeading: 'Ownership and funding',
     aboutFunding:
       'Nagarik Watch is sustained by advertising and limited sponsored content. All sponsored content is clearly labelled and does not influence editorial decisions.',
@@ -270,16 +270,16 @@ export const dictionary = {
     contactEmail: 'contact@nagarikwatch.com',
     contactPageHeading: 'Other contact',
     footerDisclaimer:
-      'Content published on this site is produced under the editorial discretion of Nagarik Watch. Reporting is grounded in accuracy and balance, but readers should exercise their own judgement.',
+      'News, opinion, advertising and sponsored material are labelled separately. Corrections are recorded on the relevant article and policy pages.',
     footerRegistration: 'Publication registration',
-    footerRegistrationPending: 'Published after verification',
+    footerRegistrationPending: 'Not configured for public launch',
     footerCopyright: (year: number) => `© ${year} Nagarik Watch. All rights reserved.`,
     metaDescription:
-      'Nagarik Watch — a citizen-focused, independent and trustworthy news portal from Nepal.',
+      'Nagarik Watch — a Devanagari-first digital news portal from Nepal.',
     mastheadDate: (date: string) => date,
 
     // Live widgets
-    liveMock: 'MOCK',
+    liveMock: 'Feed pending',
     liveSourcePrefix: 'Source',
     liveLoading: 'Loading…',
     liveError: 'Unavailable right now',

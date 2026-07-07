@@ -9,8 +9,7 @@ import type { SearchableStory } from '@/lib/search'
 type Params = { locale: string }
 
 /**
- * Search route. The page is a server component: it loads the full story corpus once (the seed,
- * capped for search breadth) and maps the cards onto the SearchableStory shape that
+ * Search route. The page is a server component: it loads the full story corpus once (capped for search breadth) and maps the cards onto the SearchableStory shape that
  * lib/search expects. All interactivity — input, debounce, keyboard nav, recents — lives in the
  * client SearchView, which receives the corpus as a prop.
  */

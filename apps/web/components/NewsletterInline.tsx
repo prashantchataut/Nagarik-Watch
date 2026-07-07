@@ -19,7 +19,7 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
     success: locale === 'en' ? 'Check your inbox to confirm the subscription.' : 'सदस्यता पुष्टि गर्न आफ्नो इमेल जाँच्नुहोस्।',
     error: locale === 'en' ? 'Newsletter is unavailable right now.' : 'न्युजलेटर अहिले उपलब्ध छैन।',
     invalid: locale === 'en' ? 'Enter a valid email.' : 'मान्य इमेल लेख्नुहोस्।',
-    privacy: locale === 'en' ? 'No spam. Unsubscribe anytime.' : 'स्प्याम हुँदैन। जुनसुकै बेला सदस्यता रद्द गर्न सकिन्छ।',
+    privacy: locale === 'en' ? 'One digest, unsubscribe anytime.' : 'एक डाइजेस्ट, जुनसुकै बेला सदस्यता रद्द गर्न सकिन्छ।',
   }
 
   async function submit(e: React.FormEvent) {

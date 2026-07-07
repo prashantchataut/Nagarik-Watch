@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { createComment, getCommentsForArticle } from '@/lib/engagement/store'
 import { getSession } from '@/lib/auth/session'
 
@@ -35,6 +36,10 @@ export async function GET(request: NextRequest) {
  * appear publicly.
  */
 export async function POST(request: NextRequest) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
   if (!rateLimit(ip)) {
     return NextResponse.json(

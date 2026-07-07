@@ -10,6 +10,7 @@ import { MobileNav } from '@/components/MobileNav'
 import { ProvinceMegaMenu } from '@/components/ProvinceMegaMenu'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Logo } from '@/components/Logo'
+import { SecondaryNav } from '@/components/SecondaryNav'
 import { STATIC_HUBS } from '@/lib/site'
 
 type MastheadProps = { locale: Locale; navCategories: Category[] }
@@ -61,10 +62,12 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
           <div className="flex items-center justify-end gap-0.5 sm:gap-1">
             <Link href={searchHref} className={ICON_BTN} aria-label={dict.search}><SearchIcon /></Link>
             <ThemeToggle locale={locale} />
-            <Link href={toggleHref} className="hidden h-9 items-center rounded-full border border-rule px-3 text-meta font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong sm:inline-flex sm:px-3.5" lang={locale === 'en' ? 'ne' : 'en'} aria-label={dict.localeToggleAria}>{dict.localeToggleTo}</Link>
+            <Link href={toggleHref} className="inline-flex h-10 min-w-10 items-center justify-center rounded-full border border-rule px-2.5 text-meta font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong sm:h-9 sm:px-3.5" lang={locale === 'en' ? 'ne' : 'en'} aria-label={dict.localeToggleAria}>{locale === 'en' ? 'ने' : 'EN'}</Link>
           </div>
         </div>
       </div>
+
+      <SecondaryNav locale={locale} />
 
       <nav aria-label={dict.primaryNav} className="sticky top-0 z-40 hidden border-t border-rule bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/88 md:block">
         <div className="mx-auto max-w-page px-2 sm:px-4">

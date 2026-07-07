@@ -5,6 +5,7 @@ import { getStories } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref, localePrefix } from '@/lib/i18n/locales'
 import { Pagination } from '@/components/Pagination'
+import { AdSlot } from '@/components/AdSlot'
 
 type Params = { locale: string }
 
@@ -39,6 +40,10 @@ export default async function LatestPage({
         </h1>
       </header>
 
+      <div className="mt-6 flex justify-center">
+        <AdSlot locale={locale} placementKey="latest-top" />
+      </div>
+
       <ul className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {result.items.map((s) => (
           <li key={s.slug}>
@@ -46,6 +51,10 @@ export default async function LatestPage({
           </li>
         ))}
       </ul>
+
+      <div className="mt-10 flex justify-center">
+        <AdSlot locale={locale} placementKey="latest-inline" variant="native" />
+      </div>
 
       <Pagination
         page={result.page}
