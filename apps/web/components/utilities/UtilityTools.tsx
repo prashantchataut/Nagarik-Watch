@@ -227,10 +227,7 @@ function CurrencyConverter({
   source?: string
 }) {
   const en = locale === 'en'
-  const sorted = useMemo(
-    () => [...rates].sort((a, b) => a.iso3.localeCompare(b.iso3)),
-    [rates],
-  )
+  const sorted = useMemo(() => [...rates].sort((a, b) => a.iso3.localeCompare(b.iso3)), [rates])
   const [currency, setCurrency] = useState('USD')
   const [amount, setAmount] = useState('100')
   const [direction, setDirection] = useState<'toNpr' | 'fromNpr'>('toNpr')
@@ -349,7 +346,13 @@ function AgeCalculator({ locale }: { locale: Locale }) {
         className="mt-2 w-full rounded-md border border-rule bg-surface p-3 text-body text-ink outline-none focus:border-brand"
       />
       <ResultBox>
-        {age === null ? (en ? 'Choose a date' : 'मिति छान्नुहोस्') : en ? `${age} years` : `${age} वर्ष`}
+        {age === null
+          ? en
+            ? 'Choose a date'
+            : 'मिति छान्नुहोस्'
+          : en
+            ? `${age} years`
+            : `${age} वर्ष`}
       </ResultBox>
     </Card>
   )

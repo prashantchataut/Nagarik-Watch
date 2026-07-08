@@ -18,21 +18,32 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
           viewsPerHour: Math.max(1, 50 - index * 4),
           sharesPerHour: story.isBreaking ? 12 : 2,
         }))
-      : rankStories(hubStories, (_story, index) => ({ editorialPriority: Math.max(0, 3 - index / 4) }))
+      : rankStories(hubStories, (_story, index) => ({
+          editorialPriority: Math.max(0, 3 - index / 4),
+        }))
   const stories = ranked.slice(0, 10)
   const leadStory = stories[0]
   const sideStories = stories.slice(1, 4)
   const compactStories = stories.slice(4)
   const lang = locale === 'en' ? 'en' : 'ne'
-  const empty = locale === 'en' ? 'No stories have been published in this section yet.' : 'यो खण्डमा अझै समाचार प्रकाशित गरिएको छैन।'
+  const empty =
+    locale === 'en'
+      ? 'No stories have been published in this section yet.'
+      : 'यो खण्डमा अझै समाचार प्रकाशित गरिएको छैन।'
 
   return (
     <div className="mx-auto max-w-page px-4 py-8">
       <header className="border-b border-rule pb-6">
-        <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={lang}>
+        <p
+          className="text-meta font-semibold uppercase tracking-wide text-brand-strong"
+          lang={lang}
+        >
           Nagarik Watch
         </p>
-        <h1 className="mt-1 font-display text-[clamp(2.05rem,9vw,4rem)] leading-tight text-ink" lang={lang}>
+        <h1
+          className="mt-1 font-display text-[clamp(2.05rem,9vw,4rem)] leading-tight text-ink"
+          lang={lang}
+        >
           {localizedTitle(locale, hub)}
         </h1>
         <p className="mt-3 max-w-body text-body-lg text-ink-soft" lang={lang}>
@@ -63,7 +74,10 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
           </div>
         </section>
       ) : (
-        <p className="mt-8 rounded-lg border border-rule bg-surface-raised p-5 text-body text-ink-soft" lang={lang}>
+        <p
+          className="mt-8 rounded-lg border border-rule bg-surface-raised p-5 text-body text-ink-soft"
+          lang={lang}
+        >
           {empty}
         </p>
       )}
@@ -77,7 +91,12 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
       {compactStories.length > 0 ? (
         <section className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {compactStories.map((story, index) => (
-            <StoryCard key={story.slug} story={story} locale={locale} variant={index % 3 === 0 ? 'text-led' : 'compact'} />
+            <StoryCard
+              key={story.slug}
+              story={story}
+              locale={locale}
+              variant={index % 3 === 0 ? 'text-led' : 'compact'}
+            />
           ))}
         </section>
       ) : null}
@@ -100,7 +119,9 @@ function ReaderSubmissionWorkflow({ locale }: { locale: Locale }) {
       <ol className="mt-4 grid gap-3 text-body text-ink-soft md:grid-cols-4">
         {steps.map((step, index) => (
           <li key={step} className="rounded-md border border-rule bg-surface p-3">
-            <span className="block text-caption font-semibold text-brand-strong">{locale === 'en' ? `Step ${index + 1}` : `चरण ${index + 1}`}</span>
+            <span className="block text-caption font-semibold text-brand-strong">
+              {locale === 'en' ? `Step ${index + 1}` : `चरण ${index + 1}`}
+            </span>
             <span>{step}</span>
           </li>
         ))}
@@ -130,8 +151,10 @@ async function storiesForHub(
     if (!article) return false
     const tagSlugs = new Set(article.tags.map((tag) => tag.slug))
     if (hubKey === 'editor-picks') return tagSlugs.has('editor-pick') || article.isBreaking
-    if (hubKey === 'exclusive') return Boolean(article.exclusive) || tagSlugs.has('exclusive-report')
-    if (hubKey === 'data-stories') return tagSlugs.has('data-story') || article.bodyNe.some(isDataBlock)
+    if (hubKey === 'exclusive')
+      return Boolean(article.exclusive) || tagSlugs.has('exclusive-report')
+    if (hubKey === 'data-stories')
+      return tagSlugs.has('data-story') || article.bodyNe.some(isDataBlock)
     if (hubKey === 'reader-corner') return tagSlugs.has('reader-submission')
     return true
   })

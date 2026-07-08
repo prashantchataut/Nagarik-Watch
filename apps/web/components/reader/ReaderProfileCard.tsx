@@ -13,13 +13,7 @@ import type { Locale } from '@nagarikwatch/db'
  * Display-name editing is a Phase 3 addition; for now the card is read-only
  * so we never surface a half-wired form.
  */
-export function ReaderProfileCard({
-  session,
-  locale,
-}: {
-  session: ReaderSession
-  locale: Locale
-}) {
+export function ReaderProfileCard({ session, locale }: { session: ReaderSession; locale: Locale }) {
   const router = useRouter()
   const [signingOut, startSignOut] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -46,7 +40,10 @@ export function ReaderProfileCard({
   return (
     <section className="rounded-lg border border-rule bg-surface-raised p-6">
       {error && (
-        <div role="alert" className="mb-4 rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong">
+        <div
+          role="alert"
+          className="mb-4 rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+        >
           {error}
         </div>
       )}
@@ -72,7 +69,10 @@ export function ReaderProfileCard({
 
       <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <dt className="text-caption font-semibold uppercase tracking-wide text-mute" lang={ne ? 'ne' : 'en'}>
+          <dt
+            className="text-caption font-semibold uppercase tracking-wide text-mute"
+            lang={ne ? 'ne' : 'en'}
+          >
             {ne ? 'देखाउने नाम' : 'Display name'}
           </dt>
           <dd className="mt-1 text-body text-ink" lang={ne ? 'ne' : 'en'}>
@@ -80,7 +80,10 @@ export function ReaderProfileCard({
           </dd>
         </div>
         <div>
-          <dt className="text-caption font-semibold uppercase tracking-wide text-mute" lang={ne ? 'ne' : 'en'}>
+          <dt
+            className="text-caption font-semibold uppercase tracking-wide text-mute"
+            lang={ne ? 'ne' : 'en'}
+          >
             {ne ? 'इमेल' : 'Email'}
           </dt>
           <dd className="mt-1 text-body text-ink" lang="en">
@@ -96,7 +99,7 @@ export function ReaderProfileCard({
           className="inline-flex h-10 items-center justify-center rounded-full border border-breaking/40 px-4 text-meta font-semibold text-breaking transition-colors duration-fast ease-out-quint hover:bg-breaking hover:text-surface focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:cursor-not-allowed disabled:opacity-50"
           lang={ne ? 'ne' : 'en'}
         >
-          {signingOut ? (ne ? 'साइन आउट हुँदै…' : 'Signing out…') : (ne ? 'साइन आउट' : 'Sign out')}
+          {signingOut ? (ne ? 'साइन आउट हुँदै…' : 'Signing out…') : ne ? 'साइन आउट' : 'Sign out'}
         </button>
       </div>
     </section>

@@ -50,27 +50,45 @@ export default async function AdsPage() {
               }`}
               lang="ne"
             >
-              {adMode !== 'network' || networkReady ? 'delivery तयार' : 'delivery credential प्रतीक्षामा'}
+              {adMode !== 'network' || networkReady
+                ? 'delivery तयार'
+                : 'delivery credential प्रतीक्षामा'}
             </span>
           </p>
           <p className="mt-2 text-meta text-ink-soft" lang="ne">
-            Public pages ले reserved ad slots देखाउँछन्। Campaign creative जोड्दा layout shift रोक्न यही width/height पालना गर्नुहोस्।
+            Public pages ले reserved ad slots देखाउँछन्। Campaign creative जोड्दा layout shift रोक्न
+            यही width/height पालना गर्नुहोस्।
           </p>
         </AdminCard>
         <AdminCard>
-          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="en">Editor shorthand</p>
+          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="en">
+            Editor shorthand
+          </p>
           <p className="mt-2 text-body text-ink-soft" lang="ne">
-            लेख body मा manual ad राख्न <code className="font-mono" lang="en">[ad:article-inline-1]</code> वा registry मा भएको कुनै key प्रयोग गर्नुहोस्। गलत key भए article-inline-1 fallback हुन्छ।
+            लेख body मा manual ad राख्न{' '}
+            <code className="font-mono" lang="en">
+              [ad:article-inline-1]
+            </code>{' '}
+            वा registry मा भएको कुनै key प्रयोग गर्नुहोस्। गलत key भए article-inline-1 fallback
+            हुन्छ।
           </p>
         </AdminCard>
       </div>
 
       <div className="grid gap-5">
         {Object.entries(grouped).map(([surface, items]) => (
-          <section key={surface} className="overflow-hidden rounded-lg border border-rule bg-surface-raised">
+          <section
+            key={surface}
+            className="overflow-hidden rounded-lg border border-rule bg-surface-raised"
+          >
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rule bg-surface px-4 py-3">
-              <h2 className="font-display text-h2 text-ink" lang="en">{surface}</h2>
-              <span className="rounded-full border border-rule px-2.5 py-1 text-caption font-semibold text-ink-soft" lang="en">
+              <h2 className="font-display text-h2 text-ink" lang="en">
+                {surface}
+              </h2>
+              <span
+                className="rounded-full border border-rule px-2.5 py-1 text-caption font-semibold text-ink-soft"
+                lang="en"
+              >
                 {items.length} slot{items.length === 1 ? '' : 's'}
               </span>
             </div>
@@ -78,21 +96,52 @@ export default async function AdsPage() {
               <table className="min-w-full divide-y divide-rule text-left">
                 <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
                   <tr>
-                    <th className="px-4 py-3 font-semibold" lang="ne">लेबल</th>
-                    <th className="px-4 py-3 font-semibold" lang="ne">Key</th>
-                    <th className="px-4 py-3 font-semibold" lang="ne">साइज</th>
-                    <th className="px-4 py-3 font-semibold" lang="ne">स्थान</th>
-                    <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">विवरण</th>
+                    <th className="px-4 py-3 font-semibold" lang="ne">
+                      लेबल
+                    </th>
+                    <th className="px-4 py-3 font-semibold" lang="ne">
+                      Key
+                    </th>
+                    <th className="px-4 py-3 font-semibold" lang="ne">
+                      साइज
+                    </th>
+                    <th className="px-4 py-3 font-semibold" lang="ne">
+                      स्थान
+                    </th>
+                    <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">
+                      विवरण
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-rule">
                   {items.map((p) => (
                     <tr key={p.key} className="hover:bg-brand-tint/30">
-                      <td className="px-4 py-3 align-top font-display font-semibold text-ink" lang="en">{p.label}</td>
-                      <td className="px-4 py-3 align-top"><code className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-ink-soft" lang="en">{p.key}</code></td>
-                      <td className="px-4 py-3 align-top text-meta text-ink-soft" lang="en">{p.width}×{p.height}</td>
-                      <td className="px-4 py-3 align-top text-meta text-ink-soft" lang="en">{p.position}</td>
-                      <td className="hidden px-4 py-3 align-top text-meta text-ink-soft md:table-cell" lang="ne">{p.descriptionNe}</td>
+                      <td
+                        className="px-4 py-3 align-top font-display font-semibold text-ink"
+                        lang="en"
+                      >
+                        {p.label}
+                      </td>
+                      <td className="px-4 py-3 align-top">
+                        <code
+                          className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-ink-soft"
+                          lang="en"
+                        >
+                          {p.key}
+                        </code>
+                      </td>
+                      <td className="px-4 py-3 align-top text-meta text-ink-soft" lang="en">
+                        {p.width}×{p.height}
+                      </td>
+                      <td className="px-4 py-3 align-top text-meta text-ink-soft" lang="en">
+                        {p.position}
+                      </td>
+                      <td
+                        className="hidden px-4 py-3 align-top text-meta text-ink-soft md:table-cell"
+                        lang="ne"
+                      >
+                        {p.descriptionNe}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -103,7 +152,11 @@ export default async function AdsPage() {
       </div>
 
       <p className="mt-4 text-caption text-mute" lang="ne">
-        Impression/click validation <code className="font-mono" lang="en">/api/ads/event</code> मा हुन्छ। Reporting जोड्दा यही event shape analytics sink मा पठाउनुहोस्।
+        Impression/click validation{' '}
+        <code className="font-mono" lang="en">
+          /api/ads/event
+        </code>{' '}
+        मा हुन्छ। Reporting जोड्दा यही event shape analytics sink मा पठाउनुहोस्।
       </p>
     </div>
   )

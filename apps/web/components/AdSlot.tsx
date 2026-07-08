@@ -52,8 +52,19 @@ export function AdSlot({
       data-ad-surface={placement.surface}
     >
       <AdTracker placementKey={placement.key} mode={mode} />
-      <span className={resolvedVariant === 'mobile' ? 'sr-only' : 'absolute inset-x-0 top-0 h-1 bg-brand-tint'} aria-hidden={resolvedVariant !== 'mobile'} />
-      <div className={resolvedVariant === 'native' ? 'flex w-full flex-col gap-2 text-left sm:flex-row sm:items-center sm:justify-between' : 'flex flex-col items-center text-center'}>
+      <span
+        className={
+          resolvedVariant === 'mobile' ? 'sr-only' : 'absolute inset-x-0 top-0 h-1 bg-brand-tint'
+        }
+        aria-hidden={resolvedVariant !== 'mobile'}
+      />
+      <div
+        className={
+          resolvedVariant === 'native'
+            ? 'flex w-full flex-col gap-2 text-left sm:flex-row sm:items-center sm:justify-between'
+            : 'flex flex-col items-center text-center'
+        }
+      >
         <div>
           <span className="text-caption font-bold uppercase tracking-[0.16em] text-ink-soft">
             {adLabel}
@@ -96,14 +107,23 @@ export function AdSlot({
 export function AdStack({ locale, className = '' }: { locale: Locale; className?: string }) {
   const lang = locale === 'en' ? 'en' : 'ne'
   return (
-    <aside className={`grid gap-4 ${className}`} aria-label={locale === 'en' ? 'Advertisement rail' : 'विज्ञापन रेल'} lang={lang}>
+    <aside
+      className={`grid gap-4 ${className}`}
+      aria-label={locale === 'en' ? 'Advertisement rail' : 'विज्ञापन रेल'}
+      lang={lang}
+    >
       <AdSlot locale={locale} placementKey="sidebar-rectangle" variant="rail" />
       <div className="rounded-lg border border-rule bg-surface-raised p-4">
-        <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong" lang="en">
+        <p
+          className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong"
+          lang="en"
+        >
           Media kit
         </p>
         <h2 className="mt-1 font-display text-h3 text-ink">
-          {locale === 'en' ? 'Commercial space is clearly labelled' : 'व्यावसायिक स्थान स्पष्ट लेबल हुन्छ'}
+          {locale === 'en'
+            ? 'Commercial space is clearly labelled'
+            : 'व्यावसायिक स्थान स्पष्ट लेबल हुन्छ'}
         </h2>
         <p className="mt-2 text-meta leading-relaxed text-ink-soft">
           {locale === 'en'
@@ -111,7 +131,12 @@ export function AdStack({ locale, className = '' }: { locale: Locale; className?
             : 'हरेक स्थानमा स्थिर key, सुरक्षित आकार, surface र पाठकले देख्ने label छ।'}
         </p>
       </div>
-      <AdSlot locale={locale} placementKey="sidebar-tower" variant="rail" className="hidden xl:flex" />
+      <AdSlot
+        locale={locale}
+        placementKey="sidebar-tower"
+        variant="rail"
+        className="hidden xl:flex"
+      />
     </aside>
   )
 }
@@ -125,7 +150,8 @@ function resolveVariant(size: AdSize): AdVariant {
 }
 
 function slotClass(variant: AdVariant) {
-  const base = 'ad-slot group relative isolate mx-auto overflow-hidden border border-dashed border-rule bg-surface-raised text-center'
+  const base =
+    'ad-slot group relative isolate mx-auto overflow-hidden border border-dashed border-rule bg-surface-raised text-center'
   switch (variant) {
     case 'billboard':
       return `${base} flex flex-col items-center justify-center rounded-xl p-5`

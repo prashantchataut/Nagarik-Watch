@@ -43,7 +43,19 @@ export type StoredArticle = {
   updatedAt: string
   isBreaking: boolean
   isFeatured: 'lead' | 'secondary' | 'none'
-  workflowStage: 'idea' | 'assigned' | 'draft' | 'submitted' | 'fact_check' | 'copy_edit' | 'seo_review' | 'legal_review' | 'ready' | 'scheduled' | 'published' | 'archived'
+  workflowStage:
+    | 'idea'
+    | 'assigned'
+    | 'draft'
+    | 'submitted'
+    | 'fact_check'
+    | 'copy_edit'
+    | 'seo_review'
+    | 'legal_review'
+    | 'ready'
+    | 'scheduled'
+    | 'published'
+    | 'archived'
   sourceType: 'original' | 'aggregated' | 'wire'
   sourceName?: string
   sourceUrl?: string
@@ -122,14 +134,16 @@ function estimateReadingMinutes(blocks: ArticleBlock[]): number {
 
 // --- Public CRUD API ---
 
-export async function listArticles(opts: {
-  category?: string
-  locale?: Locale
-  status?: StoredArticle['workflowStage']
-  limit?: number
-  offset?: number
-  breaking?: boolean
-} = {}): Promise<{ items: StoredArticle[]; total: number }> {
+export async function listArticles(
+  opts: {
+    category?: string
+    locale?: Locale
+    status?: StoredArticle['workflowStage']
+    limit?: number
+    offset?: number
+    breaking?: boolean
+  } = {},
+): Promise<{ items: StoredArticle[]; total: number }> {
   const store = await read()
   let items = store.articles
   if (opts.category) items = items.filter((a) => a.categorySlug === opts.category)
@@ -146,8 +160,9 @@ export async function listArticles(opts: {
   return { items, total }
 }
 
-
-export async function listArticlesForAdmin(opts: { limit?: number; offset?: number; status?: StoredArticle['workflowStage'] } = {}): Promise<{ items: StoredArticle[]; total: number }> {
+export async function listArticlesForAdmin(
+  opts: { limit?: number; offset?: number; status?: StoredArticle['workflowStage'] } = {},
+): Promise<{ items: StoredArticle[]; total: number }> {
   const store = await read()
   let items = store.articles
   if (opts.status) items = items.filter((a) => a.workflowStage === opts.status)
@@ -166,9 +181,7 @@ export async function getArticleBySlug(
   _locale: Locale,
 ): Promise<StoredArticle | null> {
   const store = await read()
-  const article = store.articles.find(
-    (a) => a.categorySlug === category && a.slug === slug,
-  )
+  const article = store.articles.find((a) => a.categorySlug === category && a.slug === slug)
   if (!article) return null
   if (article.workflowStage !== 'published') return null
   return article
@@ -178,7 +191,6 @@ export async function getArticleById(id: string): Promise<StoredArticle | null> 
   const store = await read()
   return store.articles.find((a) => a.id === id) ?? null
 }
-
 
 export async function findArticleForAdmin(identifier: string): Promise<StoredArticle | null> {
   const store = await read()
@@ -198,9 +210,7 @@ export async function getHomepageData(): Promise<{
 
   const breaking = published.filter((a) => a.isBreaking).slice(0, 5)
   const lead = published.find((a) => a.isFeatured === 'lead') ?? published[0] ?? null
-  const secondary = published
-    .filter((a) => a.id !== lead?.id)
-    .slice(0, 8)
+  const secondary = published.filter((a) => a.id !== lead?.id).slice(0, 8)
 
   // Group by category for section blocks.
   const byCategory = new Map<string, StoredArticle[]>()
@@ -282,8 +292,8 @@ export async function createArticle(input: {
     sourceUrl: input.sourceUrl,
     seoTitleNe: input.seoTitleNe,
     seoDescriptionNe: input.seoDescriptionNe,
-    noIndex: input.noIndex ?? (input.workflowStage !== 'published'),
-    includeInNewsSitemap: input.includeInNewsSitemap ?? (input.workflowStage === 'published'),
+    noIndex: input.noIndex ?? input.workflowStage !== 'published',
+    includeInNewsSitemap: input.includeInNewsSitemap ?? input.workflowStage === 'published',
     aiSummary: input.aiSummary,
     premium: input.premium ?? false,
     commentsEnabled: input.commentsEnabled ?? true,

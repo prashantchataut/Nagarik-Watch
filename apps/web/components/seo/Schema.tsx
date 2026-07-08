@@ -16,13 +16,7 @@ type Crumb = {
  * The home crumb is always first; pass additional crumbs in order. Paths are
  * resolved against SITE_URL.
  */
-export function BreadcrumbJsonLd({
-  crumbs,
-  locale,
-}: {
-  crumbs: Crumb[]
-  locale: Locale
-}) {
+export function BreadcrumbJsonLd({ crumbs, locale }: { crumbs: Crumb[]; locale: Locale }) {
   const prefix = locale === 'en' ? '/en' : ''
   const fullCrumbs: Crumb[] = [
     { name: locale === 'en' ? 'Home' : 'गृहपृष्ठ', path: prefix || '/', lang: locale },
@@ -41,10 +35,7 @@ export function BreadcrumbJsonLd({
   }
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }} />
   )
 }
 
@@ -70,10 +61,7 @@ export function SpeakableJsonLd({
     },
   }
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }} />
   )
 }
 
@@ -100,9 +88,6 @@ export function FaqJsonLd({
     })),
   }
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }} />
   )
 }

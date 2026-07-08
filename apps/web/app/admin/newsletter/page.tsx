@@ -31,10 +31,7 @@ export default async function NewsletterPage() {
 
   return (
     <div>
-      <AdminPageHeader
-        title="न्युजलेटर"
-        subtitle="इमेल अभियान तयार गर्नुहोस् र पठाउनुहोस्"
-      />
+      <AdminPageHeader title="न्युजलेटर" subtitle="इमेल अभियान तयार गर्नुहोस् र पठाउनुहोस्" />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <AdminCard>
@@ -77,7 +74,9 @@ export default async function NewsletterPage() {
               {!apiKeyConfigured && (
                 <span className="text-caption text-mute" lang="ne">
                   पठाउनका लागि{' '}
-                  <code className="font-mono text-ink-soft" lang="en">NEWSLETTER_API_KEY</code>{' '}
+                  <code className="font-mono text-ink-soft" lang="en">
+                    NEWSLETTER_API_KEY
+                  </code>{' '}
                   कन्फिगर गर्नुहोस्।
                 </span>
               )}
@@ -91,16 +90,16 @@ export default async function NewsletterPage() {
               सदस्य संख्या
             </h2>
             {apiKeyConfigured ? (
-              <p className="mt-2 font-display text-display font-extrabold text-brand">
-                —
-              </p>
+              <p className="mt-2 font-display text-display font-extrabold text-brand">—</p>
             ) : (
               <p className="mt-2 text-body text-mute" lang="ne">
                 प्रदायक कन्फिगर गर्नुहोस् सदस्य संख्या देख्न।
               </p>
             )}
             <p className="mt-3 text-caption text-mute" lang="ne">
-              <code className="font-mono text-ink-soft" lang="en">NEWSLETTER_API_KEY</code>{' '}
+              <code className="font-mono text-ink-soft" lang="en">
+                NEWSLETTER_API_KEY
+              </code>{' '}
               जोडिएपछि यो संख्या प्रदायकबाट ताजा हुनेछ।
             </p>
           </AdminCard>
@@ -123,8 +122,8 @@ export default async function NewsletterPage() {
               </span>
             </p>
             <p className="mt-3 text-caption text-mute" lang="ne">
-              हाल Mailchimp / Buttondown / Resend मध्ये कुनै पनि प्रदायक जोड्न सकिन्छ —
-              env चर कन्फिगर गरेपछि स्वतः पहिचान हुन्छ।
+              हाल Mailchimp / Buttondown / Resend मध्ये कुनै पनि प्रदायक जोड्न सकिन्छ — env चर
+              कन्फिगर गरेपछि स्वतः पहिचान हुन्छ।
             </p>
           </AdminCard>
         </div>

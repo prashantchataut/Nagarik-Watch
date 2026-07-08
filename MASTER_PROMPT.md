@@ -72,6 +72,7 @@ the actual rules.
 **Before writing a single line of code, read these files completely:**
 
 ### Planning documents (read in order)
+
 1. `PRODUCT.md` — brand, users, tone, anti-references, principles
 2. `DESIGN.md` — Civic Crimson palette, Devanagari type, design laws
 3. `SPEC.md` — master spec, success criteria, boundaries
@@ -82,6 +83,7 @@ the actual rules.
 8. `MANUAL.md` — launch blockers, env vars, provider setup
 
 ### Code structure (scan every file)
+
 9. `apps/web/app/` — all 70+ routes (read every `page.tsx`)
 10. `apps/web/components/` — all 46+ components
 11. `apps/web/lib/` — content store, auth, live data, i18n, search, ranking
@@ -91,6 +93,7 @@ the actual rules.
 15. `apps/admin/src/` — Payload CMS collections + config
 
 ### Configuration
+
 16. `apps/web/tailwind.config.ts` — type scale, colors, fonts
 17. `packages/ui/src/tokens.css` — CSS custom properties (OKLCH colors)
 18. `apps/web/next.config.ts` — image domains, security headers
@@ -148,6 +151,7 @@ choice?" If yes, make a different choice.
 **Before designing anything, study these sites in detail:**
 
 ### Nepali portals (primary competitors)
+
 - `ekantipur.com` — homepage hierarchy, article layout, province pages
 - `onlinekhabar.com` — utility widgets (NEPSE, forex, gold, rashifal, calendar)
 - `ratopati.com` — mobile tile layout, category pages
@@ -157,6 +161,7 @@ choice?" If yes, make a different choice.
 - `baahrakhari.com` — province filtering, video section
 
 ### Global standards (inspiration)
+
 - `bbc.com` — information density, live blog format, dark mode
 - `nytimes.com` — editorial typography, article reading experience
 - `theguardian.com` — section design, long-form layout
@@ -165,6 +170,7 @@ choice?" If yes, make a different choice.
 ### What to look for (audit checklist)
 
 For each site, note:
+
 - Homepage: lead story treatment, section hierarchy, sidebar content
 - Article: headline size, byline format, body typography, share buttons,
   related stories, comments
@@ -217,36 +223,43 @@ For each site, note:
 **After the audit, produce a prioritized plan. Use this structure:**
 
 ### Phase 1: Critical fixes (broken or non-functional)
+
 - Things that are literally broken (404s, errors, missing routes)
 - Things that make the site look unfinished (empty pages, placeholder text)
 - Things that violate the anti-slop policy (AI-slop logo, identical card grids)
 
 ### Phase 2: Reader experience (high-impact features)
+
 - Features that real Nepali portals have that we don't
 - Features that improve the reading experience
 - Features that drive daily traffic (rashifal, gold/silver, weather, calendar)
 
 ### Phase 3: Newsroom tools (admin completeness)
+
 - Editor workflow improvements (rich blocks, preview, scheduling, revisions)
 - Media library (upload, crop, alt text, credit)
 - Live blog, poll archive, fact-check labels
 
 ### Phase 4: Engagement + retention
+
 - Threaded comments, push notifications, newsletter popup
 - Share counts, related stories algorithm, bookmark sync
 - Reading history, continue reading rail
 
 ### Phase 5: SEO / AEO / GEO / LLMO
+
 - llms.txt, FAQ schema, Speakable, breadcrumb schema
 - Per-article OG images, Google News sitemap, Publisher Center
 - Citation markup, answer-target content
 
 ### Phase 6: Polish + design
+
 - Footer redesign, loading skeletons, error boundaries
 - PWA/offline, cookie consent, print view, admin branding
 - Type scale refinement, spacing rhythm, motion polish
 
 ### Phase 7: Mobile polish (every screen)
+
 - Article, category, search, saved, auth, admin — all responsive
 - Touch targets, gestures, bottom nav, sticky elements
 
@@ -255,6 +268,7 @@ For each site, note:
 ## 7. EXECUTION RULES
 
 ### Code quality
+
 - TypeScript strict mode. No `any` types. Prefer `type` over `interface`.
 - `import type { X }` for type-only imports.
 - Functional components, named exports.
@@ -263,6 +277,7 @@ For each site, note:
 - Server Components by default. Client Components only for interactivity.
 
 ### Design system
+
 - Use Civic Crimson tokens: `bg-brand`, `text-ink`, `border-rule`,
   `bg-surface-raised`, `text-brand-strong`, `bg-brand-tint`, `text-mute`.
 - Never use pure black (#000) or pure white (#fff).
@@ -271,19 +286,23 @@ For each site, note:
 - OKLCH colors only (defined in tokens.css).
 
 ### Content policy
+
 - Never copy text from other publishers. Original summaries only.
 - Every aggregated item carries sourceName + sourceUrl attribution.
 - No copyrighted images. Use SVG placeholders or properly licensed assets.
 - Nepali is the primary language. English is author-reviewed secondary.
 
 ### Verification gate
+
 Before claiming ANY task is complete:
+
 ```bash
 pnpm --filter @nagarikwatch/web typecheck
 pnpm --filter @nagarikwatch/web lint
 pnpm --filter @nagarikwatch/web build
 pnpm --filter @nagarikwatch/db test
 ```
+
 All four must pass with zero errors. If any fails, fix it before proceeding.
 
 ---
@@ -292,7 +311,7 @@ All four must pass with zero errors. If any fails, fix it before proceeding.
 
 The site will NOT work until these env vars are set:
 
-- `ENABLE_WEB_ADMIN_SCAFFOLD=true` — enables /admin/*
+- `ENABLE_WEB_ADMIN_SCAFFOLD=true` — enables /admin/\*
 - `NEWSROOM_ADMIN_EMAIL` + `NEWSROOM_ADMIN_PASSWORD` — first admin login
 - `DATABASE_URL` — Postgres (Neon/Supabase free tier) for auth + engagement
 - `AUTH_SECRET` — 32+ chars, `openssl rand -base64 32`

@@ -41,9 +41,24 @@ export default async function DashboardPage() {
 
   const locale: Locale = 'ne'
   const metrics = [
-    { label: 'प्रकाशित समाचार', value: published.length, tone: 'brand' as const, href: '/admin/articles' },
-    { label: 'कार्यप्रवाहमा', value: draftCount, tone: 'mute' as const, href: '/admin/articles?status=draft' },
-    { label: 'ब्रेकिङ', value: breakingCount, tone: 'breaking' as const, href: '/admin/articles?breaking=1' },
+    {
+      label: 'प्रकाशित समाचार',
+      value: published.length,
+      tone: 'brand' as const,
+      href: '/admin/articles',
+    },
+    {
+      label: 'कार्यप्रवाहमा',
+      value: draftCount,
+      tone: 'mute' as const,
+      href: '/admin/articles?status=draft',
+    },
+    {
+      label: 'ब्रेकिङ',
+      value: breakingCount,
+      tone: 'breaking' as const,
+      href: '/admin/articles?breaking=1',
+    },
     { label: 'विभाग', value: categories.length, tone: 'brand' as const, href: '/admin/categories' },
   ]
 
@@ -66,7 +81,8 @@ export default async function DashboardPage() {
           स्वागत छ, {newsroom.displayName || newsroom.email.split('@')[0]} ।
         </h2>
         <p className="mt-2 text-body text-ink-soft" lang="ne">
-          न्युजरुमको हालको अवस्था तल देखिएको छ। नयाँ समाचार लेख्न सुरु गर्नुहोस् वा कार्यप्रवाहमा रहेका समाचारहरू सम्पादन गर्नुहोस्।
+          न्युजरुमको हालको अवस्था तल देखिएको छ। नयाँ समाचार लेख्न सुरु गर्नुहोस् वा कार्यप्रवाहमा
+          रहेका समाचारहरू सम्पादन गर्नुहोस्।
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link

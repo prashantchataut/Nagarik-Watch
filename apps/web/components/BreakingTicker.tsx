@@ -35,7 +35,10 @@ export function BreakingTicker({ stories, locale, className }: BreakingTickerPro
 
   return (
     <div
-      className={cn('ticker-host flex items-stretch border-b border-breaking/30 bg-breaking text-surface', className)}
+      className={cn(
+        'ticker-host flex items-stretch border-b border-breaking/30 bg-breaking text-surface',
+        className,
+      )}
       role="region"
       aria-label={label}
     >
@@ -54,7 +57,9 @@ export function BreakingTicker({ stories, locale, className }: BreakingTickerPro
         <ul className="ticker-track py-2">
           {loop.map((item, i) => (
             <li key={`${item.slug}-${i}`} className="mx-4 inline-flex items-center">
-              <span aria-hidden="true" className="mr-2 text-surface/50">•</span>
+              <span aria-hidden="true" className="mr-2 text-surface/50">
+                •
+              </span>
               <Link
                 href={item.href}
                 className="text-meta font-medium text-surface transition-opacity duration-fast ease-out-quint hover:opacity-80"

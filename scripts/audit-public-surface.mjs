@@ -2,7 +2,14 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
 const root = process.cwd()
-const scanRoots = ['apps/web/app', 'apps/web/components', 'apps/web/lib/site.ts', 'apps/web/lib/i18n/dictionaries.ts', 'apps/web/lib/live-data.ts', 'apps/web/lib/live/mock.ts']
+const scanRoots = [
+  'apps/web/app',
+  'apps/web/components',
+  'apps/web/lib/site.ts',
+  'apps/web/lib/i18n/dictionaries.ts',
+  'apps/web/lib/live-data.ts',
+  'apps/web/lib/live/mock.ts',
+]
 const extensions = new Set(['.ts', '.tsx', '.js', '.jsx', '.mdx'])
 const excludedSegments = new Set(['admin', 'api', '__tests__', 'test', 'tests'])
 
@@ -64,12 +71,12 @@ function collect(path, out = []) {
 for (const entry of scanRoots) {
   const absolute = join(root, entry)
   for (const file of collect(absolute)) {
-    const rel = relative(root, file).split('/').join('/')
+    const rel = relative(root, file).replace(/\\\\/g, '/').split('/').join('/')
     const text = readFileSync(file, 'utf8')
     for (const pattern of banned) {
       if (pattern.test(text)) failures.push(`${rel}: banned public-surface phrase ${pattern}`)
     }
-    if (!localhostAllowed.has(rel) && /http:\/\/localhost:3000/.test(text)) {
+    if (!localhostAllowed.has(rel.replace(/\\/g, '/')) && /http:\/\/localhost:3000/.test(text)) {
       failures.push(`${rel}: localhost URL outside the central site config`)
     }
   }

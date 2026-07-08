@@ -21,7 +21,14 @@ export const revalidate = 300
  */
 export default async function WirePage() {
   await requireNewsroomSession()
-  let items: { titleNe: string; titleEn?: string; sourceName: string; sourceUrl: string; sourcePublishedAt: string; sourceType: string }[] = []
+  let items: {
+    titleNe: string
+    titleEn?: string
+    sourceName: string
+    sourceUrl: string
+    sourcePublishedAt: string
+    sourceType: string
+  }[] = []
   let fetchError: string | null = null
   try {
     items = await fetchAggregatedFeed(INGEST_SOURCES, 40)
@@ -37,13 +44,19 @@ export default async function WirePage() {
       />
       <AdminCard className="mb-5">
         <p className="text-meta text-ink-soft" lang="ne">
-          <strong className="text-brand-strong">कॉपीराइट नीति:</strong> यो पृष्ठले शीर्षक र लिङ्क मात्र देखाउँछ। स्रोतको मूल पाठ कहिल्यै प्रतिलिपि नगर्नुहोस्। 'समाचार विकास गर्नुहोस्' क्लिक गर्दा सम्पादकले मौलिक लेख लेख्नुपर्छ, स्रोत उल्लेख सहित।
+          <strong className="text-brand-strong">कॉपीराइट नीति:</strong> यो पृष्ठले शीर्षक र लिङ्क
+          मात्र देखाउँछ। स्रोतको मूल पाठ कहिल्यै प्रतिलिपि नगर्नुहोस्। 'समाचार विकास गर्नुहोस्'
+          क्लिक गर्दा सम्पादकले मौलिक लेख लेख्नुपर्छ, स्रोत उल्लेख सहित।
         </p>
       </AdminCard>
       {fetchError && (
         <AdminCard className="mb-5 border-breaking/30">
-          <p className="text-meta text-breaking" lang="ne">RSS फिड लोड गर्न सकिएन: {fetchError}</p>
-          <p className="mt-1 text-caption text-mute" lang="ne">सर्भरमा इन्टरनेट पहुँच आवश्यक छ। Vercel मा स्वतः काम गर्छ।</p>
+          <p className="text-meta text-breaking" lang="ne">
+            RSS फिड लोड गर्न सकिएन: {fetchError}
+          </p>
+          <p className="mt-1 text-caption text-mute" lang="ne">
+            सर्भरमा इन्टरनेट पहुँच आवश्यक छ। Vercel मा स्वतः काम गर्छ।
+          </p>
         </AdminCard>
       )}
       {items.length === 0 && !fetchError ? (

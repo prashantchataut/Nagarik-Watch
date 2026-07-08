@@ -39,12 +39,18 @@ export default async function ReaderProfilePage({
     {
       href: localizeHref(locale, '/latest'),
       title: locale === 'en' ? 'Continue reading' : 'पढ्न जारी',
-      body: locale === 'en' ? 'Return to the latest desk and keep reading.' : 'ताजा डेस्कमा फर्किएर पढ्न जारी राख्नुहोस्।',
+      body:
+        locale === 'en'
+          ? 'Return to the latest desk and keep reading.'
+          : 'ताजा डेस्कमा फर्किएर पढ्न जारी राख्नुहोस्।',
     },
     {
       href: localizeHref(locale, '/trending'),
       title: dict.navTrending,
-      body: locale === 'en' ? 'See what readers are following now.' : 'अहिले पाठकले के पछ्याइरहेका छन् हेर्नुहोस्।',
+      body:
+        locale === 'en'
+          ? 'See what readers are following now.'
+          : 'अहिले पाठकले के पछ्याइरहेका छन् हेर्नुहोस्।',
     },
     {
       href: locale === 'en' ? '/' : '/en',
@@ -55,14 +61,28 @@ export default async function ReaderProfilePage({
 
   return (
     <div className="mx-auto max-w-page px-4 py-10">
-      <nav aria-label={locale === 'en' ? 'Account navigation' : 'खाता नेभिगेसन'} className="mb-6 flex flex-wrap gap-2" lang={lang}>
-        <Link href={localizeHref(locale, '/auth/profile')} aria-current="page" className="rounded-full bg-brand px-3.5 py-2 text-meta font-bold text-surface">
+      <nav
+        aria-label={locale === 'en' ? 'Account navigation' : 'खाता नेभिगेसन'}
+        className="mb-6 flex flex-wrap gap-2"
+        lang={lang}
+      >
+        <Link
+          href={localizeHref(locale, '/auth/profile')}
+          aria-current="page"
+          className="rounded-full bg-brand px-3.5 py-2 text-meta font-bold text-surface"
+        >
           {locale === 'en' ? 'Profile' : 'प्रोफाइल'}
         </Link>
-        <Link href={localizeHref(locale, '/saved')} className="rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong">
+        <Link
+          href={localizeHref(locale, '/saved')}
+          className="rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+        >
           {dict.navSaved}
         </Link>
-        <Link href={localizeHref(locale, '/auth/login')} className="rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong">
+        <Link
+          href={localizeHref(locale, '/auth/login')}
+          className="rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+        >
           {locale === 'en' ? 'Login' : 'लगइन'}
         </Link>
       </nav>
@@ -78,7 +98,10 @@ export default async function ReaderProfilePage({
               : 'तपाईंको पाठक खाता, सुरक्षित समाचार, पढाइ बाटो र भाषा पहुँच एउटै ठाउँबाट हेर्नुहोस्।'}
           </p>
         </div>
-        <div className="rounded-lg border border-rule bg-surface-raised p-4 text-meta text-ink-soft" lang={lang}>
+        <div
+          className="rounded-lg border border-rule bg-surface-raised p-4 text-meta text-ink-soft"
+          lang={lang}
+        >
           {locale === 'en'
             ? 'Profile editing stays read-only until the account settings endpoint is connected.'
             : 'Account settings endpoint जोडिएपछि मात्र profile editing खुल्छ।'}
@@ -88,13 +111,19 @@ export default async function ReaderProfilePage({
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.42fr)]">
         <ReaderProfileCard session={session} locale={locale} />
         <aside className="rounded-lg border border-rule bg-surface-raised p-5" lang={lang}>
-          <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong" lang="en">
+          <p
+            className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong"
+            lang="en"
+          >
             Reader shortcuts
           </p>
           <ul className="mt-4 grid gap-3">
             {cards.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="block rounded-lg border border-rule bg-surface p-3 transition hover:border-brand hover:bg-brand-tint/40">
+                <Link
+                  href={item.href}
+                  className="block rounded-lg border border-rule bg-surface p-3 transition hover:border-brand hover:bg-brand-tint/40"
+                >
                   <span className="font-display text-h3 text-ink">{item.title}</span>
                   <span className="mt-1 block text-meta text-ink-soft">{item.body}</span>
                 </Link>

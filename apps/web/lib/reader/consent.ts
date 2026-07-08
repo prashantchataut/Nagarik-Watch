@@ -60,9 +60,10 @@ export function getOrCreateReaderId(): string {
   if (typeof window === 'undefined') return ''
   let fp = window.localStorage.getItem(READER_ID_KEY)
   if (!fp) {
-    const random = typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+    const random =
+      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
     fp = `anon-${random}`
     window.localStorage.setItem(READER_ID_KEY, fp)
     window.document.cookie = `nw_reader=${encodeURIComponent(fp)}; Path=/; Max-Age=31536000; SameSite=Lax`

@@ -37,6 +37,7 @@ Payload CMS).
    and **no public POST routes** (only one GET health route), so adopting it now would add
    a dependency nothing consumes. When the first public POST endpoint lands
    (newsletter / contact / tips / vote), add `zod` to `apps/web` and lift the pattern:
+
    ```ts
    // reference shape — do not import until zod is a web dependency
    export async function validateBody<T>(req: Request, schema: ZodSchema<T>) {
@@ -74,4 +75,4 @@ Payload CMS).
 - New JSON-LD coverage and a ready rate-limiter, both verified against the real content
   types rather than the portal's Prisma-shaped guesses.
 - Reader accounts and request validation are documented as the next steps, with the
-   design already worked out, so they are a small lift when the requirement lands.
+  design already worked out, so they are a small lift when the requirement lands.

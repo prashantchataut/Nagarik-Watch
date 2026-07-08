@@ -25,17 +25,11 @@ export async function GET(request: NextRequest) {
   const pending = await getPendingSubscriber(token)
 
   if (!pending) {
-    return NextResponse.json(
-      { error: 'Invalid or expired token.' },
-      { status: 400 },
-    )
+    return NextResponse.json({ error: 'Invalid or expired token.' }, { status: 400 })
   }
   if (Date.now() - pending.createdAt > TOKEN_TTL_MS) {
     await removePendingSubscriber(token)
-    return NextResponse.json(
-      { error: 'Token expired. Please subscribe again.' },
-      { status: 410 },
-    )
+    return NextResponse.json({ error: 'Token expired. Please subscribe again.' }, { status: 410 })
   }
 
   await confirmSubscriber(token)

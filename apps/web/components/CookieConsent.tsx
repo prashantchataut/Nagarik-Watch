@@ -50,7 +50,10 @@ export function CookieConsent({ locale }: { locale: Locale }) {
     >
       <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[1fr_18rem] lg:items-end">
         <div>
-          <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">
+          <p
+            className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
+            lang="en"
+          >
             Reader privacy
           </p>
           <h2 className="mt-1 font-display text-h2 font-extrabold text-ink">
@@ -60,7 +63,10 @@ export function CookieConsent({ locale }: { locale: Locale }) {
             {locale === 'en'
               ? 'Essential storage keeps the site working. Personalisation saves reading history, saved stories and interests in this browser. Analytics runs only after permission.'
               : 'आवश्यक भण्डारणले साइट चलाउँछ। व्यक्तिगत सिफारिस खोल्दा पढाइ इतिहास, सुरक्षित लेख र रुचि यही ब्राउजरमा राखिन्छ। Analytics अनुमति दिएपछि मात्र चल्छ।'}{' '}
-            <Link href={localizeHref(locale, '/privacy')} className="font-semibold text-brand underline-offset-2 hover:underline">
+            <Link
+              href={localizeHref(locale, '/privacy')}
+              className="font-semibold text-brand underline-offset-2 hover:underline"
+            >
               {locale === 'en' ? 'Privacy policy' : 'गोपनीयता नीति'}
             </Link>
           </p>
@@ -93,7 +99,9 @@ export function CookieConsent({ locale }: { locale: Locale }) {
             </label>
           </div>
           <p className="mt-2 text-[0.72rem] text-mute">
-            {locale === 'en' ? 'You can change this later from the privacy page.' : 'पछि गोपनीयता पृष्ठबाट यो रोजाइ बदल्न सकिन्छ।'}
+            {locale === 'en'
+              ? 'You can change this later from the privacy page.'
+              : 'पछि गोपनीयता पृष्ठबाट यो रोजाइ बदल्न सकिन्छ।'}
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">

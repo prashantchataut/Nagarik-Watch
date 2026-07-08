@@ -3,10 +3,7 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getStories } from '@/lib/content'
 import { seedTags } from '@/lib/content/seed-source'
-import {
-  AdminPageHeader,
-  AdminButton,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminButton } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'विषय',
@@ -35,10 +32,7 @@ export default async function TopicsPage() {
   for (const s of storiesResult.items) {
     const tags = (s as StoryWithTags).tags ?? []
     for (const t of tags) {
-      countsByTopicSlug.set(
-        t.slug,
-        (countsByTopicSlug.get(t.slug) ?? 0) + 1,
-      )
+      countsByTopicSlug.set(t.slug, (countsByTopicSlug.get(t.slug) ?? 0) + 1)
     }
   }
 
@@ -87,7 +81,10 @@ export default async function TopicsPage() {
                 </p>
               )}
               <div className="mt-4 flex items-center justify-between border-t border-rule pt-3">
-                <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-mute" lang="en">
+                <code
+                  className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-mute"
+                  lang="en"
+                >
                   /topic/{t.slug}
                 </code>
                 <Link

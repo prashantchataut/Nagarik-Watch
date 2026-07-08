@@ -143,8 +143,12 @@ export function relatedByContent(
       const candidateTerms = textTerms(candidate)
       let overlap = 0
       for (const term of candidateTerms) if (sourceTerms.has(term)) overlap += 1
-      const topicSimilarity = Math.min(1, overlap / Math.max(1, Math.min(sourceTerms.size, candidateTerms.size)))
-      const flags = candidate as StoryCardData & Pick<RankingSignals, 'sponsored' | 'doNotRecommend'>
+      const topicSimilarity = Math.min(
+        1,
+        overlap / Math.max(1, Math.min(sourceTerms.size, candidateTerms.size)),
+      )
+      const flags = candidate as StoryCardData &
+        Pick<RankingSignals, 'sponsored' | 'doNotRecommend'>
       return {
         editorialPriority: Math.max(0, 1.5 - index / 10),
         categorySimilarity: candidate.category.slug === story.category.slug ? 1 : 0,

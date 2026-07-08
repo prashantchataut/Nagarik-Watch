@@ -13,7 +13,10 @@ test.describe('article and category pages', () => {
       await expect(page.locator('h1')).toContainText(/राजनीति|Politics/)
       const storyLinks = page.locator('#main a[href*="/politics/"]')
       const empty = page.getByText(/अझै समाचार प्रकाशित गरिएको छैन|No stories have been published/i)
-      const hasStory = await storyLinks.first().isVisible().catch(() => false)
+      const hasStory = await storyLinks
+        .first()
+        .isVisible()
+        .catch(() => false)
       if (!hasStory) await expect(empty.first()).toBeVisible()
     }
   })
@@ -24,9 +27,15 @@ test.describe('article and category pages', () => {
     await expect(page.getByText('पृष्ठ फेला परेन')).toBeVisible()
   })
 
-  test('if homepage exposes a story, article page has article schema and body landmark', async ({ page }) => {
+  test('if homepage exposes a story, article page has article schema and body landmark', async ({
+    page,
+  }) => {
     await page.goto('/')
-    const link = page.locator('#main a[href^="/politics/"], #main a[href^="/society/"], #main a[href^="/economy/"]').first()
+    const link = page
+      .locator(
+        '#main a[href^="/politics/"], #main a[href^="/society/"], #main a[href^="/economy/"]',
+      )
+      .first()
     const visible = await link.isVisible().catch(() => false)
     test.skip(!visible, 'No published stories in the honest empty-store fixture')
     await link.click()

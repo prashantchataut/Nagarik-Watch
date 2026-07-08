@@ -62,7 +62,11 @@ function renderSvg(
   label: string,
   pattern: number,
 ): string {
-  const safeLabel = label.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  const safeLabel = label
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
   const patterns = [
     `<pattern id="p" patternUnits="userSpaceOnUse" width="40" height="40" patternTransform="rotate(45)"><rect width="20" height="40" fill="#ffffff" opacity="0.04"/></pattern>`,
     `<pattern id="p" patternUnits="userSpaceOnUse" width="30" height="30"><circle cx="15" cy="15" r="2" fill="#ffffff" opacity="0.06"/></pattern>`,
@@ -80,7 +84,14 @@ function renderSvg(
 export function unsplash(
   photoId: string,
   alt: string,
-  opts: { w?: number; h?: number; credit?: string; caption?: string; category?: string; label?: string } = {},
+  opts: {
+    w?: number
+    h?: number
+    credit?: string
+    caption?: string
+    category?: string
+    label?: string
+  } = {},
 ): MediaRef {
   const { w = 1600, h, credit, caption, category = 'default', label } = opts
   return placeholder(photoId, category, label ?? alt.slice(0, 30), alt, { w, h, credit, caption })

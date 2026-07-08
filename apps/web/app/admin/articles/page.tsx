@@ -43,9 +43,11 @@ export default async function ArticlesPage({
     <div>
       <AdminPageHeader
         title="समाचार"
-        subtitle={payloadCanonical
-          ? 'Production content source Payload CMS हो। यो सूची JSON-store/dev fallback का सामग्रीका लागि मात्र हो।'
-          : `JSON-store/dev content queue — कुल ${total} सामग्री`}
+        subtitle={
+          payloadCanonical
+            ? 'Production content source Payload CMS हो। यो सूची JSON-store/dev fallback का सामग्रीका लागि मात्र हो।'
+            : `JSON-store/dev content queue — कुल ${total} सामग्री`
+        }
         action={
           canCreate(session.newsroomRole) ? (
             <AdminButton href="/admin/articles/new">नयाँ समाचार</AdminButton>
@@ -55,31 +57,49 @@ export default async function ArticlesPage({
 
       {payloadCanonical ? (
         <AdminCard className="mb-5 border-brand/30 bg-brand-tint/40">
-          <p className="text-body font-semibold text-ink" lang="ne">Canonical CMS: Payload</p>
-          <p className="mt-1 text-meta text-ink-soft" lang="ne">
-            लेख लेख्ने, मिडिया अपलोड गर्ने र प्रकाशन गर्ने मुख्य स्थान Payload admin हो। Web admin मा देखिने editor dev/ops fallback मात्र हो।
+          <p className="text-body font-semibold text-ink" lang="ne">
+            Canonical CMS: Payload
           </p>
-          <a href={process.env.PAYLOAD_ADMIN_URL ?? 'http://localhost:3001/admin'} className="mt-3 inline-flex rounded-full bg-brand px-4 py-2 text-meta font-semibold text-surface">
+          <p className="mt-1 text-meta text-ink-soft" lang="ne">
+            लेख लेख्ने, मिडिया अपलोड गर्ने र प्रकाशन गर्ने मुख्य स्थान Payload admin हो। Web admin
+            मा देखिने editor dev/ops fallback मात्र हो।
+          </p>
+          <a
+            href={process.env.PAYLOAD_ADMIN_URL ?? 'http://localhost:3001/admin'}
+            className="mt-3 inline-flex rounded-full bg-brand px-4 py-2 text-meta font-semibold text-surface"
+          >
             Payload admin खोल्नुहोस्
           </a>
         </AdminCard>
       ) : null}
 
       <div className="mb-4 flex flex-wrap gap-2">
-        <FilterLink href="/admin/articles" active={!status}>सबै</FilterLink>
+        <FilterLink href="/admin/articles" active={!status}>
+          सबै
+        </FilterLink>
         {Object.entries(STAGE_LABELS).map(([key, label]) => (
-          <FilterLink key={key} href={`/admin/articles?status=${key}`} active={status === key}>{label}</FilterLink>
+          <FilterLink key={key} href={`/admin/articles?status=${key}`} active={status === key}>
+            {label}
+          </FilterLink>
         ))}
       </div>
 
       <AdminCard>
         {items.length === 0 ? (
           <div className="py-10 text-center">
-            <p className="font-display text-h2 text-ink" lang="ne">समाचार छैन</p>
-            <p className="mt-2 text-body text-ink-soft" lang="ne">
-              {status ? `${STAGE_LABELS[status]} चरणमा सामग्री छैन।` : 'हालसम्म कुनै समाचार बनाइएको छैन।'}
+            <p className="font-display text-h2 text-ink" lang="ne">
+              समाचार छैन
             </p>
-            {canCreate(session.newsroomRole) ? <AdminButton href="/admin/articles/new" className="mt-5">पहिलो ड्राफ्ट बनाउनुहोस्</AdminButton> : null}
+            <p className="mt-2 text-body text-ink-soft" lang="ne">
+              {status
+                ? `${STAGE_LABELS[status]} चरणमा सामग्री छैन।`
+                : 'हालसम्म कुनै समाचार बनाइएको छैन।'}
+            </p>
+            {canCreate(session.newsroomRole) ? (
+              <AdminButton href="/admin/articles/new" className="mt-5">
+                पहिलो ड्राफ्ट बनाउनुहोस्
+              </AdminButton>
+            ) : null}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -100,23 +120,48 @@ export default async function ArticlesPage({
                   return (
                     <tr key={article.id}>
                       <td className="max-w-xl py-3 pr-4">
-                        <p className="font-semibold text-ink" lang="ne">{article.titleNe}</p>
-                        <p className="mt-1 truncate text-caption text-mute" lang="en">{article.slug}</p>
+                        <p className="font-semibold text-ink" lang="ne">
+                          {article.titleNe}
+                        </p>
+                        <p className="mt-1 truncate text-caption text-mute" lang="en">
+                          {article.slug}
+                        </p>
                       </td>
-                      <td className="py-3 pr-4 text-ink-soft" lang="ne">{category?.nameNe ?? article.categorySlug}</td>
+                      <td className="py-3 pr-4 text-ink-soft" lang="ne">
+                        {category?.nameNe ?? article.categorySlug}
+                      </td>
                       <td className="py-3 pr-4">
-                        <span className="rounded-full border border-rule px-2.5 py-1 text-caption font-semibold text-ink-soft" lang="ne">
+                        <span
+                          className="rounded-full border border-rule px-2.5 py-1 text-caption font-semibold text-ink-soft"
+                          lang="ne"
+                        >
                           {STAGE_LABELS[article.workflowStage] ?? article.workflowStage}
                         </span>
                       </td>
-                      <td className="py-3 pr-4 text-mute" lang="en">{new Date(article.updatedAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}</td>
+                      <td className="py-3 pr-4 text-mute" lang="en">
+                        {new Date(article.updatedAt).toLocaleString('en-GB', {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        })}
+                      </td>
                       <td className="py-3 text-right">
                         <div className="flex justify-end gap-2">
                           {article.workflowStage === 'published' ? (
-                            <Link href={publicHref} target="_blank" className="rounded-full border border-rule px-3 py-1.5 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong">हेर्नुहोस्</Link>
+                            <Link
+                              href={publicHref}
+                              target="_blank"
+                              className="rounded-full border border-rule px-3 py-1.5 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong"
+                            >
+                              हेर्नुहोस्
+                            </Link>
                           ) : null}
                           {canEdit(session.newsroomRole) || canPublish(session.newsroomRole) ? (
-                            <Link href={`/admin/articles/${article.id}/edit`} className="rounded-full bg-brand px-3 py-1.5 text-caption font-semibold text-surface hover:bg-brand-strong">सम्पादन</Link>
+                            <Link
+                              href={`/admin/articles/${article.id}/edit`}
+                              className="rounded-full bg-brand px-3 py-1.5 text-caption font-semibold text-surface hover:bg-brand-strong"
+                            >
+                              सम्पादन
+                            </Link>
                           ) : null}
                         </div>
                       </td>
@@ -132,9 +177,24 @@ export default async function ArticlesPage({
   )
 }
 
-function FilterLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+function FilterLink({
+  href,
+  active,
+  children,
+}: {
+  href: string
+  active: boolean
+  children: React.ReactNode
+}) {
   return (
-    <Link href={href} className={active ? 'rounded-full bg-brand px-3 py-1.5 text-caption font-semibold text-surface' : 'rounded-full border border-rule px-3 py-1.5 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong'}>
+    <Link
+      href={href}
+      className={
+        active
+          ? 'rounded-full bg-brand px-3 py-1.5 text-caption font-semibold text-surface'
+          : 'rounded-full border border-rule px-3 py-1.5 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong'
+      }
+    >
       {children}
     </Link>
   )

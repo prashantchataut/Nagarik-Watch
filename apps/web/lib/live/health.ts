@@ -13,7 +13,10 @@ import {
   type LiveDataEnvelope,
 } from '@/lib/live-data'
 // Real sports fetchers (provider-aware) replace the mock-based ones from live-data.
-import { getFootballScores as getRealFootball, getCricketScores as getRealCricket } from '@/lib/live/sports'
+import {
+  getFootballScores as getRealFootball,
+  getCricketScores as getRealCricket,
+} from '@/lib/live/sports'
 
 export type ProviderHealth = {
   key: string

@@ -29,7 +29,10 @@ export function buildAffinity(
     const completionWeight = Math.min(1.25, record.scrollDepth / 100)
     const dwellWeight = Math.min(1.25, record.dwellSeconds / 180)
     const completionBonus = record.completed ? 1 : 0
-    bumpStory(catalogById.get(record.articleId), 1 + completionWeight + dwellWeight + completionBonus)
+    bumpStory(
+      catalogById.get(record.articleId),
+      1 + completionWeight + dwellWeight + completionBonus,
+    )
   }
 
   return { categories, authors }
@@ -84,7 +87,7 @@ export function recommendForReader(
 
   for (const story of ranked) {
     const count = categoryCounts.get(story.category.slug) ?? 0
-    if (count >= 2 && diverse.length >= 3) continue
+    if (count >= 2) continue
     categoryCounts.set(story.category.slug, count + 1)
     diverse.push(story)
     if (diverse.length >= limit) break

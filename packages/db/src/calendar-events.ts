@@ -59,7 +59,13 @@ export const BS_CALENDAR_EVENTS: readonly CalendarEvent[] = [
   { month: 11, day: 29, nameNe: 'राष्ट्रिय प्रजातन्त्र दिवस', nameEn: 'National Democracy Day' },
   { month: 12, day: 8, nameNe: 'महिला दिवस', nameEn: 'International Women\u2019s Day' },
   { month: 12, day: 26, nameNe: 'शिवरात्रि', nameEn: 'Maha Shivaratri', holiday: true },
-  { month: 12, day: 15, nameNe: 'फागु पूर्णिमा (होली)', nameEn: 'Fagu Purnima (Holi)', holiday: true },
+  {
+    month: 12,
+    day: 15,
+    nameNe: 'फागु पूर्णिमा (होली)',
+    nameEn: 'Fagu Purnima (Holi)',
+    holiday: true,
+  },
 ]
 
 /** Find events for a given BS month/day. Returns [] when none. */

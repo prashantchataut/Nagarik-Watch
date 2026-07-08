@@ -48,19 +48,33 @@ export function RecommendedForYou({
   }, [bookmarks, catalog, enabled, history])
 
   function enable() {
-    writeConsent({ essential: true, personalization: true, analytics: false, decidedAt: new Date().toISOString() })
+    writeConsent({
+      essential: true,
+      personalization: true,
+      analytics: false,
+      decidedAt: new Date().toISOString(),
+    })
   }
 
   if (recommendations.length === 0) return null
 
   return (
-    <section className={className} aria-label={locale === 'en' ? 'Recommended for you' : 'तपाईंका लागि सिफारिस'}>
+    <section
+      className={className}
+      aria-label={locale === 'en' ? 'Recommended for you' : 'तपाईंका लागि सिफारिस'}
+    >
       <div className="grid gap-5 rounded-2xl border border-rule bg-surface-raised p-4 sm:p-5 lg:grid-cols-[17rem_1fr] lg:gap-7">
         <div className="lg:border-r lg:border-rule lg:pr-6">
-          <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">
+          <p
+            className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
+            lang="en"
+          >
             Reader picks
           </p>
-          <h2 className="mt-1 font-display text-h1 font-extrabold leading-tight text-ink" lang={lang}>
+          <h2
+            className="mt-1 font-display text-h1 font-extrabold leading-tight text-ink"
+            lang={lang}
+          >
             {locale === 'en' ? 'Recommended for you' : 'तपाईंका लागि सिफारिस'}
           </h2>
           <p className="mt-2 text-meta leading-relaxed text-ink-soft" lang={lang}>
@@ -87,7 +101,10 @@ export function RecommendedForYou({
           <StoryCard story={recommendations[0]!} locale={locale} variant="featured" />
           <ol className="divide-y divide-rule border-y border-rule">
             {recommendations.slice(1).map((story, index) => (
-              <li key={story.id} className="grid grid-cols-[2rem_1fr] gap-3 py-3 first:pt-0 last:pb-0">
+              <li
+                key={story.id}
+                className="grid grid-cols-[2rem_1fr] gap-3 py-3 first:pt-0 last:pb-0"
+              >
                 <span className="pt-1 font-mono text-caption font-bold text-mute">
                   {String(index + 1).padStart(2, '0')}
                 </span>

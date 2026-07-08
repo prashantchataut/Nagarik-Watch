@@ -216,7 +216,8 @@ function descriptionToCondition(desc?: string): WeatherReading['condition'] {
   if (!d) return 'clouds'
   if (d.includes('thunder') || d.includes('storm')) return 'storm'
   if (d.includes('rain') || d.includes('drizzle') || d.includes('shower')) return 'rain'
-  if (d.includes('haze') || d.includes('fog') || d.includes('mist') || d.includes('dust')) return 'haze'
+  if (d.includes('haze') || d.includes('fog') || d.includes('mist') || d.includes('dust'))
+    return 'haze'
   if (d.includes('clear') || d.includes('sunny')) return 'clear'
   return 'clouds'
 }

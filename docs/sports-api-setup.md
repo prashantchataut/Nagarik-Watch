@@ -9,10 +9,10 @@ with the same mock-fallback contract as weather/forex. You only register the fre
 
 ## Providers (both have genuine, free tiers)
 
-| Sport    | Provider            | Free quota                 | Covers                          |
-| -------- | ------------------- | -------------------------- | ------------------------------- |
-| Football | football-data.org   | 10 requests/min            | FIFA World Cup, Premier League + a few major leagues |
-| Cricket  | api-sports.io       | 100 requests/day           | ICC, bilateral, Nepal matches   |
+| Sport    | Provider          | Free quota       | Covers                                               |
+| -------- | ----------------- | ---------------- | ---------------------------------------------------- |
+| Football | football-data.org | 10 requests/min  | FIFA World Cup, Premier League + a few major leagues |
+| Cricket  | api-sports.io     | 100 requests/day | ICC, bilateral, Nepal matches                        |
 
 Both keys are **server-side only** — `sports.ts` has `import 'server-only'` and reads them
 from `process.env`. They never ship to the browser.
@@ -20,6 +20,7 @@ from `process.env`. They never ship to the browser.
 ## Step 1 — Register the keys
 
 ### Football (football-data.org)
+
 1. Go to <https://www.football-data.org/client/register>
 2. Register a free account; confirm via email.
 3. Open the profile page; copy your **API Token**.
@@ -28,6 +29,7 @@ from `process.env`. They never ship to the browser.
    World Cup + headline leagues.
 
 ### Cricket (api-sports.io)
+
 1. Go to <https://api-sports.io/explorer/> → **Cricket API**.
 2. Create a free account (100 requests/day, forever free).
 3. Dashboard → **API Keys** → copy your key.
@@ -36,6 +38,7 @@ from `process.env`. They never ship to the browser.
 ## Step 2 — Add the keys to your environment
 
 ### Local dev (`.env.local`, gitignored):
+
 ```
 FOOTBALL_PROVIDER="football-data-org"
 FOOTBALL_API_KEY="your-football-data-token"
@@ -45,6 +48,7 @@ CRICKET_API_KEY="your-api-sports-key"
 ```
 
 ### Production (Vercel project settings → Environment Variables):
+
 Add the same two pairs. Redeploy after saving. Never paste real keys into `.env.example`
 (that file is committed) — keep them in `.env.local` locally and Vercel's dashboard in prod.
 

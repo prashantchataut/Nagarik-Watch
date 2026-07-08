@@ -274,8 +274,7 @@ export const dictionary = {
     footerRegistration: 'Publication registration',
     footerRegistrationPending: 'Not configured for public launch',
     footerCopyright: (year: number) => `© ${year} Nagarik Watch. All rights reserved.`,
-    metaDescription:
-      'Nagarik Watch — a Devanagari-first digital news portal from Nepal.',
+    metaDescription: 'Nagarik Watch — a Devanagari-first digital news portal from Nepal.',
     mastheadDate: (date: string) => date,
 
     // Live widgets

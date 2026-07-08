@@ -28,11 +28,7 @@ export const dynamic = 'force-dynamic'
  * the flag" notice. When set, the session check takes over. The login page is
  * always reachable so the founder can configure auth.
  */
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const h = await headers()
   const pathname = h.get('x-pathname') ?? ''
   const isLogin = pathname === '/admin/login' || pathname.startsWith('/admin/login/')
@@ -41,9 +37,7 @@ export default async function AdminLayout({
   if (isLogin) {
     return (
       <html lang="ne" className={fontVariables} suppressHydrationWarning>
-        <body className="min-h-screen bg-surface text-ink font-sans antialiased">
-          {children}
-        </body>
+        <body className="min-h-screen bg-surface text-ink font-sans antialiased">{children}</body>
       </html>
     )
   }
@@ -60,8 +54,8 @@ export default async function AdminLayout({
               <code className="rounded bg-brand-tint px-1.5 py-0.5 text-brand-strong">
                 ENABLE_WEB_ADMIN_SCAFFOLD=true
               </code>{' '}
-              in your environment to enable the newsroom admin. The reader-facing
-              site is unaffected.
+              in your environment to enable the newsroom admin. The reader-facing site is
+              unaffected.
             </p>
             <a
               href="/admin/login"

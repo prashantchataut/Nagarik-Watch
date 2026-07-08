@@ -129,8 +129,8 @@ account whose role is `reader`.
   most-recent entries per reader.
 - **Newsletter**: `POST /api/newsletter/subscribe` (double opt-in). Confirm
   via `GET /api/newsletter/confirm?token=…`. Requires `NEWSLETTER_API_KEY`
-  + `NEWSLETTER_API_BASE` to send the confirmation email; without them the
-  confirm link is logged to the server console in dev.
+  - `NEWSLETTER_API_BASE` to send the confirmation email; without them the
+    confirm link is logged to the server console in dev.
 
 All engagement data lives in the same in-memory/Postgres store. When
 `DATABASE_URL` is set, migrate these to Postgres tables (the store module

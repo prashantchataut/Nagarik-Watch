@@ -39,8 +39,14 @@ describe('reader personalization', () => {
   it('builds affinity from bookmarks and reading history', () => {
     const politics = story('p1', 'politics', 'a1')
     const economy = story('e1', 'economy', 'a2')
-    const bookmarks: BookmarkRecord[] = [{ articleId: politics.id, story: politics, savedAt: '2026-06-22T00:00:00Z' }]
-    const affinity = buildAffinity(bookmarks, [history(economy.id, economy.category.slug)], [politics, economy])
+    const bookmarks: BookmarkRecord[] = [
+      { articleId: politics.id, story: politics, savedAt: '2026-06-22T00:00:00Z' },
+    ]
+    const affinity = buildAffinity(
+      bookmarks,
+      [history(economy.id, economy.category.slug)],
+      [politics, economy],
+    )
 
     expect(affinity.categories.get('politics')).toBeGreaterThan(3)
     expect(affinity.categories.get('economy')).toBeGreaterThan(1)
@@ -55,7 +61,9 @@ describe('reader personalization', () => {
       story('e1', 'economy', 'a2'),
       story('w1', 'world', 'a3'),
     ]
-    const bookmarks: BookmarkRecord[] = [{ articleId: 'p1', story: catalog[0]!, savedAt: '2026-06-22T00:00:00Z' }]
+    const bookmarks: BookmarkRecord[] = [
+      { articleId: 'p1', story: catalog[0]!, savedAt: '2026-06-22T00:00:00Z' },
+    ]
     const recommended = recommendForReader(catalog, bookmarks, [history('p2', 'politics')], 4)
 
     expect(recommended).toHaveLength(4)

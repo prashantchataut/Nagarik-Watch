@@ -40,16 +40,26 @@ export function SavedStoriesClient({
     }
   }, [])
 
-  const effectiveHistory = useMemo(() => personalized ? history : [], [history, personalized])
-  const continueItem = useMemo(() => personalized ? recentUnfinished(history) : null, [history, personalized])
+  const effectiveHistory = useMemo(() => (personalized ? history : []), [history, personalized])
+  const continueItem = useMemo(
+    () => (personalized ? recentUnfinished(history) : null),
+    [history, personalized],
+  )
   const recommendations = useMemo(
     () => recommendForReader(catalog, bookmarks, effectiveHistory, 6),
     [bookmarks, catalog, effectiveHistory],
   )
-  const recent = personalized ? [...history].sort((a, b) => b.readAt.localeCompare(a.readAt)).slice(0, 6) : []
+  const recent = personalized
+    ? [...history].sort((a, b) => b.readAt.localeCompare(a.readAt)).slice(0, 6)
+    : []
 
   function enablePersonalization() {
-    writeConsent({ essential: true, personalization: true, analytics: false, decidedAt: new Date().toISOString() })
+    writeConsent({
+      essential: true,
+      personalization: true,
+      analytics: false,
+      decidedAt: new Date().toISOString(),
+    })
   }
 
   return (

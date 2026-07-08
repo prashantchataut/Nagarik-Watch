@@ -30,7 +30,8 @@ export async function GET() {
     ``,
     `## Categories`,
     ...categories.map(
-      (c) => `### ${c.nameNe}${c.nameEn ? ` / ${c.nameEn}` : ''}\nSlug: ${c.slug}\nURL: ${SITE_URL}/${c.slug}`,
+      (c) =>
+        `### ${c.nameNe}${c.nameEn ? ` / ${c.nameEn}` : ''}\nSlug: ${c.slug}\nURL: ${SITE_URL}/${c.slug}`,
     ),
     ``,
     `## Authors`,
@@ -44,9 +45,7 @@ export async function GET() {
     ),
     ``,
     `## Provinces`,
-    ...PROVINCES.map(
-      (p) => `- ${p.nameNe} / ${p.nameEn}: ${SITE_URL}/province/${p.slug}`,
-    ),
+    ...PROVINCES.map((p) => `- ${p.nameNe} / ${p.nameEn}: ${SITE_URL}/province/${p.slug}`),
     ``,
     `## Articles (${storiesResult.items.length} total)`,
     ``,

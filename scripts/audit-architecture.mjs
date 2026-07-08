@@ -13,7 +13,8 @@ const requiredFiles = [
   '.github/workflows/ci.yml',
 ]
 for (const file of requiredFiles) {
-  if (!existsSync(join(root, file))) failures.push(`Missing required architecture artifact: ${file}`)
+  if (!existsSync(join(root, file)))
+    failures.push(`Missing required architecture artifact: ${file}`)
 }
 
 function walk(dir, out = []) {
@@ -64,15 +65,25 @@ if (!/NextResponse\.next\(\{ request: \{ headers: requestHeaders \} \}\)/.test(m
 }
 
 const engagement = readFileSync(join(root, 'apps/web/lib/engagement/store.ts'), 'utf8')
-if (!/CREATE TABLE IF NOT EXISTS nw_comments/.test(engagement) || !/CREATE TABLE IF NOT EXISTS nw_bookmarks/.test(engagement)) {
+if (
+  !/CREATE TABLE IF NOT EXISTS nw_comments/.test(engagement) ||
+  !/CREATE TABLE IF NOT EXISTS nw_bookmarks/.test(engagement)
+) {
   failures.push('Engagement store is not backed by durable SQL tables.')
 }
 if (/const bookmarks = new Map/.test(engagement)) {
-  warnings.push('Engagement store still contains dev/preview memory fallback; launch gate must block live without DATABASE_URL.')
+  warnings.push(
+    'Engagement store still contains dev/preview memory fallback; launch gate must block live without DATABASE_URL.',
+  )
 }
 
 const launch = readFileSync(join(root, 'apps/web/lib/launch-readiness.ts'), 'utf8')
-for (const token of ['LAUNCH_MIN_PUBLISHED_ARTICLES', 'DATABASE_URL', 'AUTH_SECRET', 'NEXT_PUBLIC_NEWSROOM_ADDRESS']) {
+for (const token of [
+  'LAUNCH_MIN_PUBLISHED_ARTICLES',
+  'DATABASE_URL',
+  'AUTH_SECRET',
+  'NEXT_PUBLIC_NEWSROOM_ADDRESS',
+]) {
   if (!launch.includes(token)) failures.push(`Launch readiness does not check ${token}.`)
 }
 

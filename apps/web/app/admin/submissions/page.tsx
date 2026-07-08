@@ -1,10 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import {
-  AdminPageHeader,
-  AdminEmptyState,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminEmptyState } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'टिप',
@@ -38,10 +35,7 @@ export default async function SubmissionsPage({
 
   return (
     <div>
-      <AdminPageHeader
-        title="पाठक टिप"
-        subtitle="पाठकले /submit-story मार्फत पठाएका समाचार टिप"
-      />
+      <AdminPageHeader title="पाठक टिप" subtitle="पाठकले /submit-story मार्फत पठाएका समाचार टिप" />
 
       <form className="mb-5 flex flex-wrap items-end gap-3 rounded-lg border border-rule bg-surface-raised p-4">
         <label className="grid gap-1 text-caption font-semibold text-ink-soft">
@@ -80,12 +74,24 @@ export default async function SubmissionsPage({
         <table className="min-w-full divide-y divide-rule text-left">
           <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
             <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">प्राप्त समय</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">टिपकर्ता</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">विषय</th>
-              <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">स्रोत</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">स्थिति</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">कारबाही</th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                प्राप्त समय
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                टिपकर्ता
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                विषय
+              </th>
+              <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">
+                स्रोत
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                स्थिति
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                कारबाही
+              </th>
             </tr>
           </thead>
           <tbody>

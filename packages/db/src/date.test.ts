@@ -52,7 +52,15 @@ describe('bsToAd', () => {
   })
 
   it('round-trips adToBs across the supported range', () => {
-    const samples = ['2023-05-01', '2024-01-01', '2025-07-15', '2026-06-19', '2026-12-31', '2027-04-13', '2029-09-09']
+    const samples = [
+      '2023-05-01',
+      '2024-01-01',
+      '2025-07-15',
+      '2026-06-19',
+      '2026-12-31',
+      '2027-04-13',
+      '2029-09-09',
+    ]
     for (const iso of samples) {
       const ad = new Date(`${iso}T00:00:00Z`)
       const bs = adToBs(ad)

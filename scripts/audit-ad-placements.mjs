@@ -1,17 +1,31 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import { join } from 'node:path'
 
 const root = process.cwd()
 const adsFile = join(root, 'apps/web/lib/ads.ts')
 const adsText = readFileSync(adsFile, 'utf8')
 const keys = [...adsText.matchAll(/'([a-z0-9-]+)'\s*:\s*\{/g)].map((m) => m[1])
 const required = [
-  'home-top', 'home-billboard', 'home-hero-rail', 'home-mid',
-  'article-top-billboard', 'article-inline-1', 'article-sidebar-top',
-  'article-sidebar-sticky', 'article-native-related',
-  'category-top', 'category-inline', 'latest-top', 'latest-inline',
-  'trending-top', 'trending-inline', 'hub-top', 'hub-inline',
-  'sidebar-rectangle', 'sidebar-tower', 'mobile-sticky',
+  'home-top',
+  'home-billboard',
+  'home-hero-rail',
+  'home-mid',
+  'article-top-billboard',
+  'article-inline-1',
+  'article-sidebar-top',
+  'article-sidebar-sticky',
+  'article-native-related',
+  'category-top',
+  'category-inline',
+  'latest-top',
+  'latest-inline',
+  'trending-top',
+  'trending-inline',
+  'hub-top',
+  'hub-inline',
+  'sidebar-rectangle',
+  'sidebar-tower',
+  'mobile-sticky',
 ]
 
 const missing = required.filter((key) => !keys.includes(key))
@@ -35,7 +49,10 @@ const used = new Set()
 for (const file of sourceFiles) {
   const text = readFileSync(file, 'utf8')
   for (const key of keys) {
-    if (new RegExp(`placementKey=[{]?['\"]${key}['\"]`).test(text) || new RegExp(`placementKey:\\s*['\"]${key}['\"]`).test(text)) {
+    if (
+      new RegExp(`placementKey=[{]?['"]${key}['"]`).test(text) ||
+      new RegExp(`placementKey:\\s*['"]${key}['"]`).test(text)
+    ) {
       used.add(key)
     }
   }

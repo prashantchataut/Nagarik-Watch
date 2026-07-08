@@ -26,7 +26,8 @@ type SectionBlockProps = {
  */
 export function SectionBlock({ section, locale, className, layout }: SectionBlockProps) {
   const dict = getDictionary(locale)
-  const name = locale === 'en' && section.category.nameEn ? section.category.nameEn : section.category.nameNe
+  const name =
+    locale === 'en' && section.category.nameEn ? section.category.nameEn : section.category.nameNe
   const titleLang = locale === 'en' && section.category.nameEn ? 'en' : 'ne'
   const sectionHref = localizeHref(locale, `/${section.category.slug}`)
 
@@ -34,7 +35,8 @@ export function SectionBlock({ section, locale, className, layout }: SectionBloc
 
   // Pick layout: explicit prop > rotation by item count.
   const all = section.lead ? [section.lead, ...section.items] : section.items
-  const chosen = layout ?? (all.length >= 4 ? 'lead-rail' : all.length >= 3 ? 'overlay-grid' : 'text-led')
+  const chosen =
+    layout ?? (all.length >= 4 ? 'lead-rail' : all.length >= 3 ? 'overlay-grid' : 'text-led')
 
   return (
     <section className={className} aria-labelledby={`sec-${section.category.slug}`}>

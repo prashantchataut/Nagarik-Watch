@@ -12,11 +12,7 @@
  * Server-only: licensed feed credentials live in process.env and must never reach the client.
  */
 import 'server-only'
-import type {
-  CricketScore,
-  FootballScore,
-  LiveDataEnvelope,
-} from '@/lib/live-data'
+import type { CricketScore, FootballScore, LiveDataEnvelope } from '@/lib/live-data'
 
 const TTL_MS = 60_000
 type CacheEntry = { at: number; value: LiveDataEnvelope<unknown> }
@@ -44,8 +40,22 @@ function mock<T>(source: string, data: T): LiveDataEnvelope<T> {
 }
 
 const MOCK_FOOTBALL: FootballScore[] = [
-  { league: 'FIFA World Cup 2026', home: 'Nepal', away: 'UAE', score: '—', minute: '', status: 'fixture' },
-  { league: 'Premier League', home: 'Arsenal', away: 'Liverpool', score: '—', minute: '', status: 'fixture' },
+  {
+    league: 'FIFA World Cup 2026',
+    home: 'Nepal',
+    away: 'UAE',
+    score: '—',
+    minute: '',
+    status: 'fixture',
+  },
+  {
+    league: 'Premier League',
+    home: 'Arsenal',
+    away: 'Liverpool',
+    score: '—',
+    minute: '',
+    status: 'fixture',
+  },
 ]
 
 const MOCK_CRICKET: CricketScore[] = [
@@ -179,8 +189,7 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
         league: f.league?.name ?? 'Cricket',
         home: f.teams?.home?.name ?? '?',
         away: f.teams?.away?.name ?? '?',
-        score:
-          typeof hg === 'number' && typeof ag === 'number' ? `${hg}/${ag}` : '—',
+        score: typeof hg === 'number' && typeof ag === 'number' ? `${hg}/${ag}` : '—',
         status: statusLabel[short] ?? short,
       }
     })

@@ -36,14 +36,21 @@ export default async function HomePage({ params }: { params: Promise<Params> }) 
       </div>
       <div className="mx-auto max-w-page px-4 py-6 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr] lg:gap-8">
-          <div><Hero story={data.lead} locale={locale} /></div>
-          <aside aria-label={dict.more} className="flex flex-col gap-6 border-t border-rule pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+          <div>
+            <Hero story={data.lead} locale={locale} />
+          </div>
+          <aside
+            aria-label={dict.more}
+            className="flex flex-col gap-6 border-t border-rule pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0"
+          >
             <AdSlot locale={locale} placementKey="home-hero-rail" className="hidden lg:flex" />
             <TodayInBrief stories={data.secondary} locale={locale} />
             {data.secondary.length > 0 && (
               <ul className="flex flex-col divide-y divide-rule">
                 {data.secondary.slice(0, 4).map((s) => (
-                  <li key={s.slug} className="py-3 first:pt-0"><StoryCard story={s} locale={locale} variant="horizontal" /></li>
+                  <li key={s.slug} className="py-3 first:pt-0">
+                    <StoryCard story={s} locale={locale} variant="horizontal" />
+                  </li>
                 ))}
               </ul>
             )}
@@ -63,10 +70,17 @@ export default async function HomePage({ params }: { params: Promise<Params> }) 
         </div>
         <FromWires locale={locale} className="mt-12 sm:mt-14" />
         <ProvinceHub locale={locale} className="mt-12 sm:mt-14" />
-        <div className="mt-12 flex justify-center sm:mt-14"><AdSlot locale={locale} placementKey="home-mid" /></div>
+        <div className="mt-12 flex justify-center sm:mt-14">
+          <AdSlot locale={locale} placementKey="home-mid" />
+        </div>
         <div className="mt-14 flex flex-col gap-12 sm:gap-16">
           {data.sections.map((section, i) => (
-            <SectionBlock key={section.category.slug} section={section} locale={locale} className={i % 2 === 1 ? 'border-t border-rule pt-10 sm:pt-12' : ''} />
+            <SectionBlock
+              key={section.category.slug}
+              section={section}
+              locale={locale}
+              className={i % 2 === 1 ? 'border-t border-rule pt-10 sm:pt-12' : ''}
+            />
           ))}
         </div>
       </div>
@@ -83,17 +97,35 @@ function EmptyHome({ locale, dict }: { locale: Locale; dict: ReturnType<typeof g
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
             <div className="flex items-center gap-3">
-              <LogoMark title={`${dict.siteName} / Nagarik Watch`} className="h-11 w-11 sm:h-12 sm:w-12" />
+              <LogoMark
+                title={`${dict.siteName} / Nagarik Watch`}
+                className="h-11 w-11 sm:h-12 sm:w-12"
+              />
               <div>
-                <h1 className="font-display text-h1 leading-tight text-ink sm:text-display" lang="ne">{en ? 'Welcome to Nagarik Watch' : 'नागरिक वाचमा स्वागत छ'}</h1>
-                <p className="mt-1 text-meta font-semibold uppercase tracking-wide text-brand-strong" lang="ne">{dict.tagline}</p>
+                <h1
+                  className="font-display text-h1 leading-tight text-ink sm:text-display"
+                  lang="ne"
+                >
+                  {en ? 'Welcome to Nagarik Watch' : 'नागरिक वाचमा स्वागत छ'}
+                </h1>
+                <p
+                  className="mt-1 text-meta font-semibold uppercase tracking-wide text-brand-strong"
+                  lang="ne"
+                >
+                  {dict.tagline}
+                </p>
               </div>
             </div>
             <p className="mt-5 text-body leading-relaxed text-ink-soft sm:text-body-lg" lang={lang}>
-              {en ? 'A Devanagari-first news portal with published stories, daily utilities and visible editorial policies.' : 'देवनागरी-पहिलो समाचार पोर्टल। यहाँ प्रकाशित समाचार, दैनिक उपयोगी सेवा र स्पष्ट सम्पादकीय नीति देखिन्छन्।'}
+              {en
+                ? 'A Devanagari-first news portal with published stories, daily utilities and visible editorial policies.'
+                : 'देवनागरी-पहिलो समाचार पोर्टल। यहाँ प्रकाशित समाचार, दैनिक उपयोगी सेवा र स्पष्ट सम्पादकीय नीति देखिन्छन्।'}
             </p>
           </div>
-          <div className="rounded-lg border border-rule bg-surface-raised p-4 text-meta text-ink-soft" lang={lang}>
+          <div
+            className="rounded-lg border border-rule bg-surface-raised p-4 text-meta text-ink-soft"
+            lang={lang}
+          >
             {en
               ? 'No lead story is published yet. Add reviewed stories from the newsroom before launch.'
               : 'मुख्य समाचार प्रकाशित भएको छैन। लन्चअघि न्यूजरुमबाट समीक्षा भएको सामग्री राख्नुहोस्।'}

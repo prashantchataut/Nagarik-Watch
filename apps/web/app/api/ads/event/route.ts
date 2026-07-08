@@ -21,7 +21,11 @@ export async function POST(request: Request) {
   return NextResponse.json({ ok: true })
 }
 
-function isAdEvent(value: unknown): value is { placementKey: keyof typeof AD_PLACEMENTS; mode: AdMode; event: 'impression' | 'click' } {
+function isAdEvent(value: unknown): value is {
+  placementKey: keyof typeof AD_PLACEMENTS
+  mode: AdMode
+  event: 'impression' | 'click'
+} {
   if (!value || typeof value !== 'object') return false
   const record = value as Record<string, unknown>
   return (

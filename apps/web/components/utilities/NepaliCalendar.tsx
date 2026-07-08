@@ -77,9 +77,7 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
             {monthName} {en ? year : toDevanagari(year)}
           </h2>
           <p className="mt-0.5 text-caption text-mute">
-            {firstAd
-              ? firstAd.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
-              : ''}
+            {firstAd ? firstAd.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : ''}
           </p>
         </div>
         <div className="flex gap-1">

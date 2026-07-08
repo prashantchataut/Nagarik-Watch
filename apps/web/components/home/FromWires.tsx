@@ -16,7 +16,10 @@ export async function FromWires({ locale, className }: { locale: Locale; classNa
     <section className={className} aria-label={locale === 'en' ? 'News Desk' : 'नागरिक डेस्क'}>
       <div className="flex items-end justify-between gap-4 border-b border-rule pb-3">
         <div>
-          <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">
+          <p
+            className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
+            lang="en"
+          >
             News Desk
           </p>
           <h2 className="mt-1 font-display text-h2 font-extrabold text-ink" lang={lang}>
@@ -52,7 +55,10 @@ function DeskLead({ story, locale }: { story: StoryCardData; locale: Locale }) {
 
   return (
     <article className="rounded-lg border border-rule bg-surface-raised p-5">
-      <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong" lang={locale === 'en' ? 'en' : 'ne'}>
+      <p
+        className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong"
+        lang={locale === 'en' ? 'en' : 'ne'}
+      >
         {story.categoryLabel}
       </p>
       <h3 className="mt-3 font-display text-h1 font-extrabold leading-tight text-ink" lang={lang}>
@@ -66,22 +72,37 @@ function DeskLead({ story, locale }: { story: StoryCardData; locale: Locale }) {
         </p>
       ) : null}
       <p className="mt-5 text-caption text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
-        {locale === 'en' ? 'Nagarik Watch' : 'नागरिक वाच'} · {relativeTime(story.publishedAt, locale)}
+        {locale === 'en' ? 'Nagarik Watch' : 'नागरिक वाच'} ·{' '}
+        {relativeTime(story.publishedAt, locale)}
       </p>
     </article>
   )
 }
 
-function DeskItem({ story, index, locale }: { story: StoryCardData; index: number; locale: Locale }) {
+function DeskItem({
+  story,
+  index,
+  locale,
+}: {
+  story: StoryCardData
+  index: number
+  locale: Locale
+}) {
   const lang = locale === 'en' && story.titleEn ? 'en' : 'ne'
   const title = locale === 'en' && story.titleEn ? story.titleEn : story.titleNe
   const href = localizeHref(locale, `/${story.category.slug}/${story.slug}`)
 
   return (
     <li className="group grid grid-cols-[2.25rem_1fr] gap-3 py-3 first:pt-0 last:pb-0">
-      <span className="pt-1 font-mono text-caption font-bold text-mute">{String(index).padStart(2, '0')}</span>
+      <span className="pt-1 font-mono text-caption font-bold text-mute">
+        {String(index).padStart(2, '0')}
+      </span>
       <div>
-        <a href={href} className="font-semibold leading-snug text-ink group-hover:text-brand-strong" lang={lang}>
+        <a
+          href={href}
+          className="font-semibold leading-snug text-ink group-hover:text-brand-strong"
+          lang={lang}
+        >
           {title}
         </a>
         <p className="mt-1 text-caption text-mute" lang={locale === 'en' ? 'en' : 'ne'}>

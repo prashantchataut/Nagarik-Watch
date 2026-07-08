@@ -20,11 +20,7 @@ export const dynamic = 'force-dynamic'
  * expects, and hands off to ArticleEditor. Drafts must remain editable even
  * before they are visible on the public site.
  */
-export default async function EditArticlePage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireNewsroomSession()
   const { id } = await params
 
@@ -49,10 +45,7 @@ export default async function EditArticlePage({
 
   return (
     <div>
-      <AdminPageHeader
-        title="समाचार सम्पादन"
-        subtitle={article.titleNe}
-      />
+      <AdminPageHeader title="समाचार सम्पादन" subtitle={article.titleNe} />
       <ArticleEditor
         initial={{
           id: article.id,

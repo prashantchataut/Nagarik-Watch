@@ -45,7 +45,11 @@ async function main() {
   const tagIds = await seedTags(payload)
   await seedArticles(payload, { categoryIds, authorIds, tagIds })
 
-  payload.logger.info(PUBLISH ? 'Seed complete: published content created.' : 'Seed complete: draft content created. Use --publish only for reviewed original stories.')
+  payload.logger.info(
+    PUBLISH
+      ? 'Seed complete: published content created.'
+      : 'Seed complete: draft content created. Use --publish only for reviewed original stories.',
+  )
   process.exit(0)
 }
 

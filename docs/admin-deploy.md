@@ -39,10 +39,10 @@ Only needed when editors upload images. Skip to launch, add later.
 
 In <https://vercel.com> → Add New → Project, import this repo **twice**:
 
-| Project             | Root Directory | Build command                              | Output       |
-| ------------------- | -------------- | ------------------------------------------ | ------------ |
-| `nagarik-watch`     | (repo root)    | (from root `vercel.json`)                  | `../web/.next` |
-| `nagarik-watch-admin` | `apps/admin` | (from `apps/admin/vercel.json`)            | `.next`      |
+| Project               | Root Directory | Build command                   | Output         |
+| --------------------- | -------------- | ------------------------------- | -------------- |
+| `nagarik-watch`       | (repo root)    | (from root `vercel.json`)       | `../web/.next` |
+| `nagarik-watch-admin` | `apps/admin`   | (from `apps/admin/vercel.json`) | `.next`        |
 
 For the **admin** project, set the Root Directory to `apps/admin` in Vercel project
 settings so it picks up `apps/admin/vercel.json`.
@@ -51,14 +51,14 @@ settings so it picks up `apps/admin/vercel.json`.
 
 In Vercel → `nagarik-watch-admin` → Settings → Environment Variables:
 
-| Variable                 | Value                                                          |
-| ------------------------ | -------------------------------------------------------------- |
-| `DATABASE_URL`           | (the Neon/Supabase connection string from step 1)             |
-| `PAYLOAD_SECRET`         | a random ≥32-char string: `openssl rand -base64 32`            |
-| `PAYLOAD_PUBLIC_SERVER_URL` | `https://admin.nagarikwatch.com` (your admin domain)        |
-| `PAYLOAD_DB_PUSH`        | `false` (use migrations in prod — see step 5)                 |
-| `NEXT_PUBLIC_SITE_URL`   | `https://nagarikwatch.com`                                    |
-| `REVALIDATE_SECRET`      | a random ≥16-char string (shared with the web project)         |
+| Variable                    | Value                                                  |
+| --------------------------- | ------------------------------------------------------ |
+| `DATABASE_URL`              | (the Neon/Supabase connection string from step 1)      |
+| `PAYLOAD_SECRET`            | a random ≥32-char string: `openssl rand -base64 32`    |
+| `PAYLOAD_PUBLIC_SERVER_URL` | `https://admin.nagarikwatch.com` (your admin domain)   |
+| `PAYLOAD_DB_PUSH`           | `false` (use migrations in prod — see step 5)          |
+| `NEXT_PUBLIC_SITE_URL`      | `https://nagarikwatch.com`                             |
+| `REVALIDATE_SECRET`         | a random ≥16-char string (shared with the web project) |
 
 Optional (only when wiring media uploads):
 `STORAGE_ENDPOINT`, `STORAGE_REGION`, `STORAGE_BUCKET`, `STORAGE_ACCESS_KEY_ID`,
@@ -67,7 +67,7 @@ Optional (only when wiring media uploads):
 ### 5. Generate and run the first migration (one-time)
 
 Payload's `push: true` syncs schema in dev. In prod (`push: false`), schema changes go
-through migrations. Generate the first one against a *dev* DB (your local docker Postgres
+through migrations. Generate the first one against a _dev_ DB (your local docker Postgres
 or a Neon dev branch):
 
 ```bash

@@ -19,7 +19,10 @@ test.describe('search', () => {
     await input.fill('निर्वाचन')
     await input.press('Enter')
     const results = page.locator('#main a[href]')
-    const hasResult = await results.first().isVisible({ timeout: 5_000 }).catch(() => false)
+    const hasResult = await results
+      .first()
+      .isVisible({ timeout: 5_000 })
+      .catch(() => false)
     if (!hasResult) await expect(page.getByText('कुनै परिणाम भेटिएन।')).toBeVisible()
   })
 })

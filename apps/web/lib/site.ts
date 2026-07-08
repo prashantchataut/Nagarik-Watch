@@ -1,8 +1,9 @@
 import type { Locale } from '@nagarikwatch/db'
 
-const fallbackSiteUrl = process.env.NODE_ENV === 'production'
-  ? 'https://nagarik-watch.vercel.app'
-  : 'http://localhost:3000'
+const fallbackSiteUrl =
+  process.env.NODE_ENV === 'production'
+    ? 'https://nagarik-watch.vercel.app'
+    : 'http://localhost:3000'
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? fallbackSiteUrl).replace(/\/$/, '')
 
@@ -150,7 +151,8 @@ export const STATIC_HUBS: StaticHub[] = [
     titleNe: 'लाइभ खेल',
     titleEn: 'Live Sports',
     leadNe: 'क्रिकेट र फुटबल पछ्याउने नेपाली पाठकका लागि स्कोर, फिक्स्चर र खेल व्याख्या।',
-    leadEn: 'Scores, fixtures and match explainers for Nepali readers who follow cricket and football closely.',
+    leadEn:
+      'Scores, fixtures and match explainers for Nepali readers who follow cricket and football closely.',
     mode: 'utility',
   },
   {
@@ -158,8 +160,10 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/election',
     titleNe: 'निर्वाचन',
     titleEn: 'Election',
-    leadNe: 'विश्वसनीय परिणाम ट्र्याकिङ चाहिने समयमा निर्वाचन समाचार, मतगणना सन्दर्भ र क्षेत्रगत व्याख्या।',
-    leadEn: 'Election news, vote-count context and constituency explainers when the public needs reliable result tracking.',
+    leadNe:
+      'विश्वसनीय परिणाम ट्र्याकिङ चाहिने समयमा निर्वाचन समाचार, मतगणना सन्दर्भ र क्षेत्रगत व्याख्या।',
+    leadEn:
+      'Election news, vote-count context and constituency explainers when the public needs reliable result tracking.',
     mode: 'utility',
   },
   {
@@ -168,7 +172,8 @@ export const STATIC_HUBS: StaticHub[] = [
     titleNe: 'नतिजा',
     titleEn: 'Results',
     leadNe: 'SEE, कक्षा १२ र सार्वजनिक परीक्षाका आधिकारिक सूचना, नतिजा व्याख्या र पाठक मार्गदर्शन।',
-    leadEn: 'Official-result explainers, notices and reader guidance for SEE, Grade XII and public examinations.',
+    leadEn:
+      'Official-result explainers, notices and reader guidance for SEE, Grade XII and public examinations.',
     mode: 'utility',
   },
   {
@@ -222,7 +227,8 @@ export const STATIC_HUBS: StaticHub[] = [
     titleNe: 'समाचार टिप पठाउनुहोस्',
     titleEn: 'Submit a Story Tip',
     leadNe: 'प्रमाण, स्रोत सन्दर्भ र सम्पर्क विवरणसहित समाचार टिप पठाउने सुरक्षित बाटो।',
-    leadEn: 'Send a news tip with evidence, source context and a clear way for the newsroom to follow up.',
+    leadEn:
+      'Send a news tip with evidence, source context and a clear way for the newsroom to follow up.',
     mode: 'community',
   },
   {
@@ -241,8 +247,10 @@ export const TRUST_PAGES = [
     path: '/team',
     titleNe: 'हाम्रो टोली',
     titleEn: 'Team',
-    leadNe: 'नागरिक वाचका सम्पादकीय जिम्मेवारी, सम्पर्क बिन्दु र प्रकाशन भूमिकाबारे पारदर्शी जानकारी।',
-    leadEn: 'Transparent information about Nagarik Watch editorial responsibility, contact points and publication roles.',
+    leadNe:
+      'नागरिक वाचका सम्पादकीय जिम्मेवारी, सम्पर्क बिन्दु र प्रकाशन भूमिकाबारे पारदर्शी जानकारी।',
+    leadEn:
+      'Transparent information about Nagarik Watch editorial responsibility, contact points and publication roles.',
   },
   {
     path: '/editorial-policy',

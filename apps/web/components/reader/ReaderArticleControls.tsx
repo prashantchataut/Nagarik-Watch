@@ -34,7 +34,11 @@ export function ReaderArticleControls({
   const lang = locale === 'en' ? 'en' : 'ne'
 
   useEffect(() => {
-    setSpeechSupported(typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window)
+    setSpeechSupported(
+      typeof window !== 'undefined' &&
+        'speechSynthesis' in window &&
+        'SpeechSynthesisUtterance' in window,
+    )
     return () => {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel()

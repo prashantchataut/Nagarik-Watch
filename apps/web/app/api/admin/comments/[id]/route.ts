@@ -7,10 +7,7 @@ export const dynamic = 'force-dynamic'
 
 const STATUSES = new Set<CommentStatus>(['pending', 'approved', 'rejected', 'flagged'])
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireNewsroomSession()
   if (!canModerateComments(session.newsroomRole)) {
     return NextResponse.json({ error: 'टिप्पणी मध्यस्थता अनुमति छैन।' }, { status: 403 })

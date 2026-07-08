@@ -26,8 +26,15 @@ import { SITE_URL } from '@/lib/site'
 
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET
 
-if (process.env.NODE_ENV === 'production' && (!AUTH_SECRET || AUTH_SECRET.length < 32)) {
-  throw new Error('AUTH_SECRET or BETTER_AUTH_SECRET with at least 32 characters is required in production.')
+const isBuild = process.env.NEXT_PHASE === 'phase-production-build'
+if (
+  !isBuild &&
+  process.env.NODE_ENV === 'production' &&
+  (!AUTH_SECRET || AUTH_SECRET.length < 32)
+) {
+  throw new Error(
+    'AUTH_SECRET or BETTER_AUTH_SECRET with at least 32 characters is required in production.',
+  )
 }
 
 const EFFECTIVE_AUTH_SECRET = AUTH_SECRET || 'dev-only-secret-change-me-please-32-chars-minimum'
@@ -36,7 +43,8 @@ function normalizeOrigin(value: string | undefined): string | null {
   if (!value) return null
   const raw = value.trim()
   if (!raw) return null
-  const withProtocol = raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`
+  const withProtocol =
+    raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`
   try {
     return new URL(withProtocol).origin
   } catch {
@@ -225,6 +233,5 @@ async function assignBootRole(email: string, role: string, displayName: string):
     .where('email', '=', email)
     .executeTakeFirst()
 }
-
 
 export type Session = Awaited<ReturnType<AuthInstance['api']['getSession']>>

@@ -11,7 +11,13 @@ type LogoMarkProps = SVGProps<SVGSVGElement> & { title: string }
  */
 export function LogoMark({ title, className, ...props }: LogoMarkProps) {
   return (
-    <svg viewBox="0 0 128 128" role="img" aria-label={title} className={cn('h-10 w-10', className)} {...props}>
+    <svg
+      viewBox="0 0 128 128"
+      role="img"
+      aria-label={title}
+      className={cn('h-10 w-10', className)}
+      {...props}
+    >
       <title>{title}</title>
       <rect x="8" y="8" width="112" height="112" rx="28" fill="var(--surface-raised)" />
       <path
@@ -57,22 +63,44 @@ type LogoProps = {
   stacked?: boolean
 }
 
-export function Logo({ siteName = 'नागरिक वाच', className, markOnly = false, stacked = false }: LogoProps) {
+export function Logo({
+  siteName = 'नागरिक वाच',
+  className,
+  markOnly = false,
+  stacked = false,
+}: LogoProps) {
   const siteNameLang = /[A-Za-z]/.test(siteName) ? 'en' : 'ne'
 
   if (markOnly) return <LogoMark title={`${siteName} / Nagarik Watch`} className={className} />
 
   return (
-    <span className={cn(stacked ? 'flex flex-col items-center gap-1.5' : 'flex items-center gap-3', className)}>
-      <LogoMark title={`${siteName} / Nagarik Watch`} className={stacked ? 'h-12 w-12 shrink-0' : 'h-9 w-9 shrink-0 sm:h-11 sm:w-11'} />
+    <span
+      className={cn(
+        stacked ? 'flex flex-col items-center gap-1.5' : 'flex items-center gap-3',
+        className,
+      )}
+    >
+      <LogoMark
+        title={`${siteName} / Nagarik Watch`}
+        className={stacked ? 'h-12 w-12 shrink-0' : 'h-9 w-9 shrink-0 sm:h-11 sm:w-11'}
+      />
       <span className={cn('flex flex-col leading-none', stacked && 'items-center text-center')}>
-        <span className="font-display text-[1.35rem] font-extrabold tracking-tight text-ink sm:text-h1" lang={siteNameLang}>
+        <span
+          className="font-display text-[1.35rem] font-extrabold tracking-tight text-ink sm:text-h1"
+          lang={siteNameLang}
+        >
           {siteName}
         </span>
-        <span className="mt-0.5 text-[0.58rem] font-black uppercase tracking-[0.22em] text-brand-strong sm:text-caption" lang="en">
+        <span
+          className="mt-0.5 text-[0.58rem] font-black uppercase tracking-[0.22em] text-brand-strong sm:text-caption"
+          lang="en"
+        >
           Nagarik Watch
         </span>
-        <span className="mt-0.5 hidden text-[0.54rem] font-bold uppercase tracking-[0.18em] text-gold md:block" lang="en">
+        <span
+          className="mt-0.5 hidden text-[0.54rem] font-bold uppercase tracking-[0.18em] text-gold md:block"
+          lang="en"
+        >
           Public Interest News
         </span>
       </span>

@@ -37,7 +37,8 @@ const DATABASE_URL =
   (isBuild ? 'postgres://build-placeholder.not.used.at.runtime/db' : undefined)
 const SERVER_URL =
   process.env.PAYLOAD_PUBLIC_SERVER_URL ??
-  (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000')
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  'http://localhost:3000'
 
 /**
  * Validate env at runtime (NOT at build). Called once on first server boot

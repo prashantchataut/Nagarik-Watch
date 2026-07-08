@@ -3,11 +3,7 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getStories, getNavCategories } from '@/lib/content'
 import { seedCategories } from '@/lib/content/seed-source'
-import {
-  AdminPageHeader,
-  AdminButton,
-  StatusBadge,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminButton, StatusBadge } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'विभाग',
@@ -38,10 +34,7 @@ export default async function CategoriesPage() {
   const all = [...seedCategories].sort((a, b) => a.navOrder - b.navOrder)
   const countsBySlug = new Map<string, number>()
   for (const s of storiesResult.items) {
-    countsBySlug.set(
-      s.category.slug,
-      (countsBySlug.get(s.category.slug) ?? 0) + 1,
-    )
+    countsBySlug.set(s.category.slug, (countsBySlug.get(s.category.slug) ?? 0) + 1)
   }
 
   return (
@@ -60,12 +53,24 @@ export default async function CategoriesPage() {
         <table className="min-w-full divide-y divide-rule text-left">
           <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
             <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">नाम (ने)</th>
-              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="ne">नाम (En)</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">स्लग</th>
-              <th className="px-4 py-3 font-semibold text-right" lang="ne">समाचार</th>
-              <th className="px-4 py-3 font-semibold text-right" lang="ne">नेभ क्रम</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">नेभमा</th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                नाम (ने)
+              </th>
+              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="ne">
+                नाम (En)
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                स्लग
+              </th>
+              <th className="px-4 py-3 font-semibold text-right" lang="ne">
+                समाचार
+              </th>
+              <th className="px-4 py-3 font-semibold text-right" lang="ne">
+                नेभ क्रम
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                नेभमा
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-rule">
@@ -84,21 +89,25 @@ export default async function CategoriesPage() {
                   {c.nameEn}
                 </td>
                 <td className="px-4 py-3">
-                  <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-ink-soft" lang="en">
+                  <code
+                    className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-ink-soft"
+                    lang="en"
+                  >
                     {c.slug}
                   </code>
                 </td>
                 <td className="px-4 py-3 text-right font-display text-h2 text-ink">
                   {countsBySlug.get(c.slug) ?? 0}
                 </td>
-                <td className="px-4 py-3 text-right text-meta text-ink-soft">
-                  {c.navOrder}
-                </td>
+                <td className="px-4 py-3 text-right text-meta text-ink-soft">{c.navOrder}</td>
                 <td className="px-4 py-3">
                   {c.showInNav ? (
                     <StatusBadge status="published" />
                   ) : (
-                    <span className="rounded-full border border-rule px-2.5 py-0.5 text-caption font-semibold text-mute" lang="ne">
+                    <span
+                      className="rounded-full border border-rule px-2.5 py-0.5 text-caption font-semibold text-mute"
+                      lang="ne"
+                    >
                       लुकेको
                     </span>
                   )}

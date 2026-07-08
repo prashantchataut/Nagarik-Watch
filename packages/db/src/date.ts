@@ -25,8 +25,34 @@ export function toDevanagari(value: number | string): string {
   return String(value).replace(/[0-9]/g, (d) => map[Number(d)]!)
 }
 
-export const BS_MONTHS = ['बैशाख', 'जेठ', 'असार', 'साउन', 'भदौ', 'असोज', 'कार्तिक', 'मंसिर', 'पुष', 'माघ', 'फागुन', 'चैत'] as const
-export const BS_MONTHS_EN = ['Baisakh', 'Jestha', 'Asadh', 'Shrawan', 'Bhadra', 'Ashwin', 'Kartik', 'Mangsir', 'Poush', 'Magh', 'Falgun', 'Chaitra'] as const
+export const BS_MONTHS = [
+  'बैशाख',
+  'जेठ',
+  'असार',
+  'साउन',
+  'भदौ',
+  'असोज',
+  'कार्तिक',
+  'मंसिर',
+  'पुष',
+  'माघ',
+  'फागुन',
+  'चैत',
+] as const
+export const BS_MONTHS_EN = [
+  'Baisakh',
+  'Jestha',
+  'Asadh',
+  'Shrawan',
+  'Bhadra',
+  'Ashwin',
+  'Kartik',
+  'Mangsir',
+  'Poush',
+  'Magh',
+  'Falgun',
+  'Chaitra',
+] as const
 
 export type BsDate = { year: number; month: number; day: number }
 

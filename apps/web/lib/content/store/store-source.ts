@@ -35,14 +35,12 @@ function toCard(a: StoredArticle, locale: Locale): StoryCardData {
   const cardAuthors = a.authorIds
     .map((id) => authors.find((au) => au.id === id))
     .filter((au): au is Author => Boolean(au))
-  const heroImage = a.heroImageUrl
-    ? { url: a.heroImageUrl, alt: a.heroImageAlt ?? '' }
-    : undefined
+  const heroImage = a.heroImageUrl ? { url: a.heroImageUrl, alt: a.heroImageAlt ?? '' } : undefined
   return {
     id: a.id,
     slug: a.slug,
     category: cat,
-    categoryLabel: locale === 'en' ? cat.nameEn ?? cat.nameNe : cat.nameNe,
+    categoryLabel: locale === 'en' ? (cat.nameEn ?? cat.nameNe) : cat.nameNe,
     titleNe: a.titleNe,
     titleEn: a.titleEn,
     deckNe: a.deckNe,
@@ -58,12 +56,15 @@ function toCard(a: StoredArticle, locale: Locale): StoryCardData {
 }
 
 function toFullArticle(a: StoredArticle, locale: Locale): Article {
-  const cardTags = a.tagSlugs
-    .map((slug) => tagBySlug.get(slug))
-    .filter((t): t is Tag => Boolean(t))
+  const cardTags = a.tagSlugs.map((slug) => tagBySlug.get(slug)).filter((t): t is Tag => Boolean(t))
   const source =
     a.sourceType !== 'original' && a.sourceName && a.sourceUrl
-      ? { sourceType: a.sourceType, sourceName: a.sourceName, sourceUrl: a.sourceUrl, sourcePublishedAt: a.publishedAt }
+      ? {
+          sourceType: a.sourceType,
+          sourceName: a.sourceName,
+          sourceUrl: a.sourceUrl,
+          sourcePublishedAt: a.publishedAt,
+        }
       : undefined
   return {
     ...toCard(a, locale),
@@ -84,7 +85,11 @@ function toFullArticle(a: StoredArticle, locale: Locale): Article {
 
 export function createStoreContentSource(): ContentSource {
   return {
-    async getArticleBySlug(category: string, slug: string, locale: Locale): Promise<Article | null> {
+    async getArticleBySlug(
+      category: string,
+      slug: string,
+      locale: Locale,
+    ): Promise<Article | null> {
       const a = await store.getArticleBySlug(category, slug, locale)
       return a ? toFullArticle(a, locale) : null
     },
@@ -114,10 +119,19 @@ export function createStoreContentSource(): ContentSource {
     async getCategory(slug: string): Promise<Category | null> {
       return categoryBySlug.get(slug) ?? null
     },
-    async getCategoryPage(slug: string, page: number, locale: Locale): Promise<PaginatedStories | null> {
+    async getCategoryPage(
+      slug: string,
+      page: number,
+      locale: Locale,
+    ): Promise<PaginatedStories | null> {
       const cat = categoryBySlug.get(slug)
       if (!cat) return null
-      const { items, total } = await store.listArticles({ category: slug, locale, limit: PER_PAGE, offset: (page - 1) * PER_PAGE })
+      const { items, total } = await store.listArticles({
+        category: slug,
+        locale,
+        limit: PER_PAGE,
+        offset: (page - 1) * PER_PAGE,
+      })
       return {
         items: items.map((a) => toCard(a, locale)),
         total,
@@ -125,7 +139,10 @@ export function createStoreContentSource(): ContentSource {
         totalPages: Math.ceil(total / PER_PAGE) || 1,
       }
     },
-    async getAuthor(slug: string, locale: Locale): Promise<{ author: Author; stories: PaginatedStories } | null> {
+    async getAuthor(
+      slug: string,
+      locale: Locale,
+    ): Promise<{ author: Author; stories: PaginatedStories } | null> {
       const author = authorBySlug.get(slug)
       if (!author) return null
       const all = await store.listArticles({ locale, limit: 1000 })
@@ -140,7 +157,10 @@ export function createStoreContentSource(): ContentSource {
         },
       }
     },
-    async getTag(slug: string, locale: Locale): Promise<{ tag: Tag; stories: PaginatedStories } | null> {
+    async getTag(
+      slug: string,
+      locale: Locale,
+    ): Promise<{ tag: Tag; stories: PaginatedStories } | null> {
       const tag = tagBySlug.get(slug)
       if (!tag) return null
       const all = await store.listArticles({ locale, limit: 1000 })
@@ -174,7 +194,9 @@ export function createStoreContentSource(): ContentSource {
       }
     },
     async getNavCategories(): Promise<Category[]> {
-      return categories.filter((c) => c.navOrder !== undefined).sort((a, b) => (a.navOrder ?? 0) - (b.navOrder ?? 0))
+      return categories
+        .filter((c) => c.navOrder !== undefined)
+        .sort((a, b) => (a.navOrder ?? 0) - (b.navOrder ?? 0))
     },
     async getFeatured(): Promise<{ lead?: StoryCardData; secondary: StoryCardData[] }> {
       const data = await store.getHomepageData()

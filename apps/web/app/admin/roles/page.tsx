@@ -10,10 +10,7 @@ import {
   USER_MANAGER_ROLES,
   type NewsroomRole,
 } from '@/lib/admin-roles'
-import {
-  AdminPageHeader,
-  AdminCard,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'भूमिका',
@@ -46,7 +43,10 @@ export default async function RolesPage() {
   }))
 
   const Yes = () => (
-    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-tint font-bold text-brand-strong" aria-label="सक्षम">
+    <span
+      className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-tint font-bold text-brand-strong"
+      aria-label="सक्षम"
+    >
       ✓
     </span>
   )
@@ -56,12 +56,7 @@ export default async function RolesPage() {
     </span>
   )
 
-  type CapabilityKey =
-    | 'canCreate'
-    | 'canEdit'
-    | 'canPublish'
-    | 'canDelete'
-    | 'canManageUsers'
+  type CapabilityKey = 'canCreate' | 'canEdit' | 'canPublish' | 'canDelete' | 'canManageUsers'
   const columns: { key: CapabilityKey; labelNe: string }[] = [
     { key: 'canCreate', labelNe: 'सिर्जना' },
     { key: 'canEdit', labelNe: 'सम्पादन' },
@@ -80,8 +75,14 @@ export default async function RolesPage() {
       <AdminCard className="mb-5 border-l-4 border-l-brand">
         <p className="text-body text-ink" lang="ne">
           यो एउटा <strong>सन्दर्भ तालिका</strong> हो, सम्पादन पृष्ठ होइन। भूमिका र अनुमति
-          <code className="font-mono text-ink-soft" lang="en"> lib/admin-roles.ts</code>{' '}
-          मा परिभाषित छन् र Payload <code className="font-mono text-ink-soft" lang="en">Users</code>{' '}
+          <code className="font-mono text-ink-soft" lang="en">
+            {' '}
+            lib/admin-roles.ts
+          </code>{' '}
+          मा परिभाषित छन् र Payload{' '}
+          <code className="font-mono text-ink-soft" lang="en">
+            Users
+          </code>{' '}
           कलेक्सनमा लागू हुन्छन्। तलका ✓ चिन्हले सो भूमिकाले सो कार्य गर्न सक्ने जनाउँछ।
         </p>
       </AdminCard>
@@ -90,8 +91,12 @@ export default async function RolesPage() {
         <table className="min-w-full divide-y divide-rule text-left">
           <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
             <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">भूमिका</th>
-              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="en">key</th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                भूमिका
+              </th>
+              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="en">
+                key
+              </th>
               {columns.map((c) => (
                 <th key={c.key} className="px-4 py-3 text-center font-semibold" lang="ne">
                   {c.labelNe}
@@ -122,8 +127,11 @@ export default async function RolesPage() {
       </div>
 
       <p className="mt-4 text-caption text-mute" lang="ne">
-        <strong>मुख्य एडमिन</strong> (<code className="font-mono text-ink-soft" lang="en">super_admin</code>)
-        मात्र कड मेटाउन सक्षम छ — यो जानबुझकर निर्णय हो, त्यसैले कुनै पनि सम्पादकीय भूमिकाले
+        <strong>मुख्य एडमिन</strong> (
+        <code className="font-mono text-ink-soft" lang="en">
+          super_admin
+        </code>
+        ) मात्र कड मेटाउन सक्षम छ — यो जानबुझकर निर्णय हो, त्यसैले कुनै पनि सम्पादकीय भूमिकाले
         अन्तिम मेटाउन सक्दैन।
       </p>
     </div>

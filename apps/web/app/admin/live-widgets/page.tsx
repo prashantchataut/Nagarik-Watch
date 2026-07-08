@@ -2,10 +2,7 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getProviderHealth } from '@/lib/live/health'
 import { formatDate } from '@nagarikwatch/db'
-import {
-  AdminPageHeader,
-  AdminCard,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'लाइभ विजेट',
@@ -50,10 +47,12 @@ export default async function LiveWidgetsPage() {
 
       <AdminCard className="mb-5 border-l-4 border-l-brand">
         <p className="text-body text-ink" lang="ne">
-          प्रदायकको <code className="font-mono text-ink-soft" lang="en">API_KEY</code> नकन्फिगर
-          गरिएको अवस्थामा विजेट स्वतः नमुना डाटामा फर्कन्छ — गृहपृष्ठ खण्डित हुँदैन।
-          तलको तालिकामा प्रत्येक प्रदायकको स्थिति, आवश्यक पर्ने env चर, स्रोत र अन्तिम
-          अपडेट समय देखिन्छ।
+          प्रदायकको{' '}
+          <code className="font-mono text-ink-soft" lang="en">
+            API_KEY
+          </code>{' '}
+          नकन्फिगर गरिएको अवस्थामा विजेट स्वतः नमुना डाटामा फर्कन्छ — गृहपृष्ठ खण्डित हुँदैन। तलको
+          तालिकामा प्रत्येक प्रदायकको स्थिति, आवश्यक पर्ने env चर, स्रोत र अन्तिम अपडेट समय देखिन्छ।
         </p>
       </AdminCard>
 
@@ -61,12 +60,24 @@ export default async function LiveWidgetsPage() {
         <table className="min-w-full divide-y divide-rule text-left">
           <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
             <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">प्रदायक</th>
-              <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">आवश्यक env</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">स्थिति</th>
-              <th className="hidden px-4 py-3 font-semibold lg:table-cell" lang="ne">स्रोत</th>
-              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="ne">अन्तिम अपडेट</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">त्रुटि</th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                प्रदायक
+              </th>
+              <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">
+                आवश्यक env
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                स्थिति
+              </th>
+              <th className="hidden px-4 py-3 font-semibold lg:table-cell" lang="ne">
+                स्रोत
+              </th>
+              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="ne">
+                अन्तिम अपडेट
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                त्रुटि
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-rule">
@@ -99,10 +110,16 @@ export default async function LiveWidgetsPage() {
                     {statusLabel[p.status] ?? p.status}
                   </span>
                 </td>
-                <td className="hidden px-4 py-3 align-top text-meta text-ink-soft lg:table-cell" lang="en">
+                <td
+                  className="hidden px-4 py-3 align-top text-meta text-ink-soft lg:table-cell"
+                  lang="en"
+                >
                   {p.source}
                 </td>
-                <td className="hidden px-4 py-3 align-top text-caption text-mute sm:table-cell" lang="ne">
+                <td
+                  className="hidden px-4 py-3 align-top text-caption text-mute sm:table-cell"
+                  lang="ne"
+                >
                   {p.updatedAt ? formatDate(p.updatedAt, 'ne') : '—'}
                 </td>
                 <td className="px-4 py-3 align-top text-caption text-breaking" lang="ne">

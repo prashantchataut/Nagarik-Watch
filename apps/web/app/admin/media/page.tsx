@@ -1,11 +1,7 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { unsplash } from '@/lib/content/seed/media'
-import {
-  AdminPageHeader,
-  AdminButton,
-  AdminEmptyState,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminButton, AdminEmptyState } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'मिडिया पुस्तकालय',
@@ -95,7 +91,7 @@ export default async function MediaPage() {
   // realistic file name, not a raw query string.
   function filename(url: string): string {
     const m = url.match(/photo-([0-9a-f-]+)/)
-    return m ? `${m[1]!}.jpg` : url.split('?')[0]!.split('/').pop() ?? 'media.jpg'
+    return m ? `${m[1]!}.jpg` : (url.split('?')[0]!.split('/').pop() ?? 'media.jpg')
   }
 
   return (

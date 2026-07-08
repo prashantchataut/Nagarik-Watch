@@ -156,8 +156,12 @@ async function ensureSchema(): Promise<Queryable | null> {
           downvotes integer NOT NULL DEFAULT 0
         )
       `)
-      await pool.query(`CREATE INDEX IF NOT EXISTS nw_comments_article_idx ON nw_comments(article_slug, status, created_at DESC)`)
-      await pool.query(`CREATE INDEX IF NOT EXISTS nw_comments_status_idx ON nw_comments(status, created_at DESC)`)
+      await pool.query(
+        `CREATE INDEX IF NOT EXISTS nw_comments_article_idx ON nw_comments(article_slug, status, created_at DESC)`,
+      )
+      await pool.query(
+        `CREATE INDEX IF NOT EXISTS nw_comments_status_idx ON nw_comments(status, created_at DESC)`,
+      )
       await pool.query(`
         CREATE TABLE IF NOT EXISTS nw_poll_votes (
           poll_id text NOT NULL,
@@ -168,7 +172,9 @@ async function ensureSchema(): Promise<Queryable | null> {
           PRIMARY KEY (poll_id, voter_fingerprint)
         )
       `)
-      await pool.query(`CREATE INDEX IF NOT EXISTS nw_poll_votes_poll_idx ON nw_poll_votes(poll_id)`)
+      await pool.query(
+        `CREATE INDEX IF NOT EXISTS nw_poll_votes_poll_idx ON nw_poll_votes(poll_id)`,
+      )
       await pool.query(`
         CREATE TABLE IF NOT EXISTS nw_bookmarks (
           owner_key text NOT NULL,
@@ -181,7 +187,9 @@ async function ensureSchema(): Promise<Queryable | null> {
           PRIMARY KEY (owner_key, article_slug)
         )
       `)
-      await pool.query(`CREATE INDEX IF NOT EXISTS nw_bookmarks_owner_idx ON nw_bookmarks(owner_key, saved_at DESC)`)
+      await pool.query(
+        `CREATE INDEX IF NOT EXISTS nw_bookmarks_owner_idx ON nw_bookmarks(owner_key, saved_at DESC)`,
+      )
       await pool.query(`
         CREATE TABLE IF NOT EXISTS nw_reading_history (
           owner_key text NOT NULL,
@@ -195,7 +203,9 @@ async function ensureSchema(): Promise<Queryable | null> {
           PRIMARY KEY (owner_key, article_slug)
         )
       `)
-      await pool.query(`CREATE INDEX IF NOT EXISTS nw_reading_owner_idx ON nw_reading_history(owner_key, read_at DESC)`)
+      await pool.query(
+        `CREATE INDEX IF NOT EXISTS nw_reading_owner_idx ON nw_reading_history(owner_key, read_at DESC)`,
+      )
     })()
   }
   await schemaReady
@@ -335,7 +345,9 @@ export async function getCommentsForArticle(
     .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
 }
 
-export async function listAllComments(opts: { status?: CommentStatus; limit?: number } = {}): Promise<Comment[]> {
+export async function listAllComments(
+  opts: { status?: CommentStatus; limit?: number } = {},
+): Promise<Comment[]> {
   const pool = await ensureSchema()
   if (pool) {
     const limit = Math.max(1, Math.min(500, opts.limit ?? 100))
@@ -344,7 +356,10 @@ export async function listAllComments(opts: { status?: CommentStatus; limit?: nu
           `SELECT * FROM nw_comments WHERE status = $1 ORDER BY created_at DESC LIMIT $2`,
           [opts.status, limit],
         )
-      : await pool.query<CommentRow>(`SELECT * FROM nw_comments ORDER BY created_at DESC LIMIT $1`, [limit])
+      : await pool.query<CommentRow>(
+          `SELECT * FROM nw_comments ORDER BY created_at DESC LIMIT $1`,
+          [limit],
+        )
     return result.rows.map(rowToComment)
   }
 
@@ -354,10 +369,16 @@ export async function listAllComments(opts: { status?: CommentStatus; limit?: nu
   return all.slice(0, opts.limit ?? 100)
 }
 
-export async function updateCommentStatus(commentId: string, status: CommentStatus): Promise<boolean> {
+export async function updateCommentStatus(
+  commentId: string,
+  status: CommentStatus,
+): Promise<boolean> {
   const pool = await ensureSchema()
   if (pool) {
-    const result = await pool.query(`UPDATE nw_comments SET status = $2 WHERE id = $1`, [commentId, status])
+    const result = await pool.query(`UPDATE nw_comments SET status = $2 WHERE id = $1`, [
+      commentId,
+      status,
+    ])
     return Number(result.rowCount ?? 0) > 0
   }
 
@@ -433,7 +454,14 @@ export async function addBookmark(input: {
       `INSERT INTO nw_bookmarks (owner_key, user_id, anonymous_id, article_slug, article_category, article_title_ne)
        VALUES ($1,$2,$3,$4,$5,$6)
        ON CONFLICT (owner_key, article_slug) DO UPDATE SET saved_at = now(), article_category = EXCLUDED.article_category, article_title_ne = EXCLUDED.article_title_ne`,
-      [key, input.userId ?? null, input.anonymousId, input.articleSlug, input.articleCategory, input.articleTitleNe],
+      [
+        key,
+        input.userId ?? null,
+        input.anonymousId,
+        input.articleSlug,
+        input.articleCategory,
+        input.articleTitleNe,
+      ],
     )
     return
   }
@@ -452,12 +480,18 @@ export async function removeBookmark(
   const pool = await ensureSchema()
   const key = ownerKey(anonymousId, userId)
   if (pool) {
-    await pool.query(`DELETE FROM nw_bookmarks WHERE owner_key = $1 AND article_slug = $2`, [key, articleSlug])
+    await pool.query(`DELETE FROM nw_bookmarks WHERE owner_key = $1 AND article_slug = $2`, [
+      key,
+      articleSlug,
+    ])
     return
   }
 
   const list = bookmarks.get(key) ?? []
-  bookmarks.set(key, list.filter((b) => b.articleSlug !== articleSlug))
+  bookmarks.set(
+    key,
+    list.filter((b) => b.articleSlug !== articleSlug),
+  )
 }
 
 export async function getBookmarks(anonymousId: string, userId?: string): Promise<Bookmark[]> {
@@ -496,7 +530,15 @@ export async function recordReading(input: {
          read_percent = GREATEST(nw_reading_history.read_percent, EXCLUDED.read_percent),
          article_category = EXCLUDED.article_category,
          article_title_ne = EXCLUDED.article_title_ne`,
-      [key, input.userId ?? null, input.anonymousId, input.articleSlug, input.articleCategory, input.articleTitleNe, percent],
+      [
+        key,
+        input.userId ?? null,
+        input.anonymousId,
+        input.articleSlug,
+        input.articleCategory,
+        input.articleTitleNe,
+        percent,
+      ],
     )
     return
   }

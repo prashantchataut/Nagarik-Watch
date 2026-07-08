@@ -3,11 +3,7 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getStories } from '@/lib/content'
 import { seedAuthors } from '@/lib/content/seed-source'
-import {
-  AdminPageHeader,
-  AdminButton,
-  StatusBadge,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminButton, StatusBadge } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'लेखक',
@@ -77,7 +73,10 @@ export default async function AuthorsPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <span className="rounded-full bg-brand-tint px-2.5 py-0.5 text-caption font-semibold text-brand-strong" lang="ne">
+                  <span
+                    className="rounded-full bg-brand-tint px-2.5 py-0.5 text-caption font-semibold text-brand-strong"
+                    lang="ne"
+                  >
                     {roleLabel[a.role] ?? a.role}
                   </span>
                   <span className="rounded-full border border-rule px-2.5 py-0.5 text-caption font-semibold text-ink-soft">
@@ -92,7 +91,10 @@ export default async function AuthorsPage() {
                 )}
 
                 <div className="mt-auto border-t border-rule pt-3">
-                  <span className="text-meta font-semibold text-brand hover:text-brand-strong" lang="ne">
+                  <span
+                    className="text-meta font-semibold text-brand hover:text-brand-strong"
+                    lang="ne"
+                  >
                     प्रोफाइल हेर्नुहोस् →
                   </span>
                 </div>

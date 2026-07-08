@@ -1,12 +1,7 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
-import {
-  AdminPageHeader,
-  AdminCard,
-  AdminButton,
-  StatusBadge,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard, AdminButton, StatusBadge } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'प्रयोगकर्ता',
@@ -56,15 +51,20 @@ export default async function UsersPage() {
 
       <AdminCard className="mb-5 border-l-4 border-l-brand">
         <p className="text-body text-ink" lang="ne">
-          प्रयोगकर्ता खाता Better Auth ले व्यवस्थापन गर्छ। खाता सिर्जना, पासवर्ड रिसेट,
-          र सत्र व्यवस्थापन सबै Better Auth API मार्फत हुन्छ — यो पृष्ठले अवलोकन मात्र देखाउँछ।
-          हालको सत्रका प्रयोगकर्ता मात्र तल देखिन्छन्।
+          प्रयोगकर्ता खाता Better Auth ले व्यवस्थापन गर्छ। खाता सिर्जना, पासवर्ड रिसेट, र सत्र
+          व्यवस्थापन सबै Better Auth API मार्फत हुन्छ — यो पृष्ठले अवलोकन मात्र देखाउँछ। हालको
+          सत्रका प्रयोगकर्ता मात्र तल देखिन्छन्।
         </p>
         {!emailConfigured && (
           <p className="mt-3 text-caption text-mute" lang="ne">
             निमन्त्रणा पठाउन{' '}
-            <code className="font-mono text-ink-soft" lang="en">SMTP_HOST</code> वा{' '}
-            <code className="font-mono text-ink-soft" lang="en">RESEND_API_KEY</code>{' '}
+            <code className="font-mono text-ink-soft" lang="en">
+              SMTP_HOST
+            </code>{' '}
+            वा{' '}
+            <code className="font-mono text-ink-soft" lang="en">
+              RESEND_API_KEY
+            </code>{' '}
             कन्फिगर गर्नुहोस्।
           </p>
         )}
@@ -74,10 +74,18 @@ export default async function UsersPage() {
         <table className="min-w-full divide-y divide-rule text-left">
           <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
             <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">नाम</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">इमेल</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">भूमिका</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">स्थिति</th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                नाम
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                इमेल
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                भूमिका
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                स्थिति
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-rule">
@@ -90,7 +98,10 @@ export default async function UsersPage() {
                   {u.email}
                 </td>
                 <td className="px-4 py-3">
-                  <span className="rounded-full bg-brand-tint px-2.5 py-0.5 text-caption font-semibold text-brand-strong" lang="ne">
+                  <span
+                    className="rounded-full bg-brand-tint px-2.5 py-0.5 text-caption font-semibold text-brand-strong"
+                    lang="ne"
+                  >
                     {NEWSROOM_ROLE_LABELS_NE[u.role]}
                   </span>
                 </td>

@@ -11,7 +11,11 @@ export function LaunchReadinessBanner({ locale }: { locale: Locale }) {
   if (status === 'live' && blockers.length === 0) return null
 
   return (
-    <section className="border-b border-rule bg-brand-tint" lang={lang} aria-label={locale === 'en' ? 'Launch status' : 'लन्च अवस्था'}>
+    <section
+      className="border-b border-rule bg-brand-tint"
+      lang={lang}
+      aria-label={locale === 'en' ? 'Launch status' : 'लन्च अवस्था'}
+    >
       <div className="mx-auto flex max-w-page flex-col gap-3 px-4 py-3 text-meta text-ink-soft lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="font-bold text-brand-strong">
@@ -32,7 +36,10 @@ export function LaunchReadinessBanner({ locale }: { locale: Locale }) {
         {issues.length > 0 ? (
           <ul className="flex flex-wrap gap-2">
             {[...blockers, ...warnings].slice(0, 4).map((issue) => (
-              <li key={issue.key} className="rounded-full border border-rule bg-surface px-3 py-1 text-caption font-semibold text-ink">
+              <li
+                key={issue.key}
+                className="rounded-full border border-rule bg-surface px-3 py-1 text-caption font-semibold text-ink"
+              >
                 {locale === 'en' ? issue.labelEn : issue.labelNe}
               </li>
             ))}

@@ -44,11 +44,15 @@ export default async function AdminLoginPage() {
           <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="en">
             Staff-only newsroom
           </p>
-          <h1 className="mt-4 font-display text-[3.2rem] font-extrabold leading-[1.04] text-ink" lang="ne">
+          <h1
+            className="mt-4 font-display text-[3.2rem] font-extrabold leading-[1.04] text-ink"
+            lang="ne"
+          >
             समाचार प्रकाशन गर्ने ठाउँ, पाठक लगइन होइन।
           </h1>
           <p className="mt-5 text-body-lg leading-relaxed text-ink-soft" lang="ne">
-            यो पृष्ठ सम्पादक, लेखक र प्रशासनिक कर्मचारीका लागि हो। पाठकले समाचार पढ्न वा संग्रह गर्न अलग पाठक खाता प्रयोग गर्छन्।
+            यो पृष्ठ सम्पादक, लेखक र प्रशासनिक कर्मचारीका लागि हो। पाठकले समाचार पढ्न वा संग्रह गर्न
+            अलग पाठक खाता प्रयोग गर्छन्।
           </p>
           <ul className="mt-7 grid gap-2 text-body text-ink-soft" lang="en">
             {workflow.map((item) => (
@@ -61,24 +65,36 @@ export default async function AdminLoginPage() {
         </div>
 
         <p className="text-caption text-mute" lang="ne">
-          गलत ठाउँमा हुनुहुन्छ? <a href="/auth/login" className="font-semibold text-ink-soft hover:text-brand-strong">पाठक लगइन</a> प्रयोग गर्नुहोस्।
+          गलत ठाउँमा हुनुहुन्छ?{' '}
+          <a href="/auth/login" className="font-semibold text-ink-soft hover:text-brand-strong">
+            पाठक लगइन
+          </a>{' '}
+          प्रयोग गर्नुहोस्।
         </p>
       </section>
 
       <section className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-8">
         <div className="w-full max-w-md">
-          <a href="/" className="mx-auto mb-8 flex w-fit rounded-md lg:hidden" aria-label="Nagarik Watch home">
+          <a
+            href="/"
+            className="mx-auto mb-8 flex w-fit rounded-md lg:hidden"
+            aria-label="Nagarik Watch home"
+          >
             <Logo siteName="नागरिक वाच" />
           </a>
           <div>
             <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="en">
               Newsroom access
             </p>
-            <h2 className="mt-2 font-display text-h1 font-extrabold leading-tight text-ink" lang="ne">
+            <h2
+              className="mt-2 font-display text-h1 font-extrabold leading-tight text-ink"
+              lang="ne"
+            >
               स्टाफ लगइन
             </h2>
             <p className="mt-2 text-body text-ink-soft" lang="ne">
-              केवल स्वीकृत न्युजरुम खाताबाट प्रवेश हुन्छ। सफल लगइनपछि ड्यासबोर्डमा जानु सामान्य व्यवहार हो।
+              केवल स्वीकृत न्युजरुम खाताबाट प्रवेश हुन्छ। सफल लगइनपछि ड्यासबोर्डमा जानु सामान्य
+              व्यवहार हो।
             </p>
           </div>
 

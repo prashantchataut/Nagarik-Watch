@@ -24,14 +24,13 @@ const WORKFLOW_STAGES: StoredArticle['workflowStage'][] = [
 ]
 
 function isWorkflowStage(value: unknown): value is StoredArticle['workflowStage'] {
-  return typeof value === 'string' && WORKFLOW_STAGES.includes(value as StoredArticle['workflowStage'])
+  return (
+    typeof value === 'string' && WORKFLOW_STAGES.includes(value as StoredArticle['workflowStage'])
+  )
 }
 
 /** GET /api/admin/articles/[id] — fetch a single article for the editor. */
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   await requireNewsroomSession()
   const { id } = await params
   const article = await getArticleById(id)
@@ -40,10 +39,7 @@ export async function GET(
 }
 
 /** PUT /api/admin/articles/[id] — update an article. Editors+ can update. */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireNewsroomSession()
   if (!canEdit(session.newsroomRole)) {
     return NextResponse.json({ error: 'सम्पादन अनुमति छैन।' }, { status: 403 })
@@ -80,7 +76,11 @@ export async function PUT(
     patch.bodyEn = bodyEn.length > 0 ? bodyEn : undefined
   }
 
-  const updated = await updateArticle(id, patch as Parameters<typeof updateArticle>[1], session.userId)
+  const updated = await updateArticle(
+    id,
+    patch as Parameters<typeof updateArticle>[1],
+    session.userId,
+  )
   if (!updated) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
   return NextResponse.json(updated)
 }

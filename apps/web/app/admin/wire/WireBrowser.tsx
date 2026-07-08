@@ -20,7 +20,11 @@ type WireItem = {
 export function WireBrowser({ items }: { items: WireItem[] }) {
   const [filter, setFilter] = useState('')
   const filtered = items.filter(
-    (i) => !filter || i.titleNe.includes(filter) || (i.titleEn ?? '').toLowerCase().includes(filter.toLowerCase()) || i.sourceName.includes(filter),
+    (i) =>
+      !filter ||
+      i.titleNe.includes(filter) ||
+      (i.titleEn ?? '').toLowerCase().includes(filter.toLowerCase()) ||
+      i.sourceName.includes(filter),
   )
 
   function develop(item: WireItem) {
@@ -47,17 +51,29 @@ export function WireBrowser({ items }: { items: WireItem[] }) {
       />
       <ul className="space-y-2">
         {filtered.map((item, i) => (
-          <li key={`${item.sourceUrl}-${i}`} className="rounded-lg border border-rule bg-surface-raised p-4">
+          <li
+            key={`${item.sourceUrl}-${i}`}
+            className="rounded-lg border border-rule bg-surface-raised p-4"
+          >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-caption font-semibold uppercase tracking-wide text-brand-strong" lang="ne">
+                <p
+                  className="text-caption font-semibold uppercase tracking-wide text-brand-strong"
+                  lang="ne"
+                >
                   {item.sourceName}
                 </p>
                 <p className="mt-1 font-display text-body-lg font-semibold text-ink" lang="ne">
                   {item.titleNe}
                 </p>
                 <p className="mt-1 text-caption text-mute">
-                  <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline" lang="ne">
+                  <a
+                    href={item.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline"
+                    lang="ne"
+                  >
                     मूल स्रोत हेर्नुहोस् →
                   </a>
                   {' · '}

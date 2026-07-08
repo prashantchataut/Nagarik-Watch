@@ -51,7 +51,11 @@ export function CommentModerationActions({ commentId }: { commentId: string }) {
           </button>
         ))}
       </div>
-      {error ? <p className="text-caption text-breaking" lang="ne">{error}</p> : null}
+      {error ? (
+        <p className="text-caption text-breaking" lang="ne">
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }

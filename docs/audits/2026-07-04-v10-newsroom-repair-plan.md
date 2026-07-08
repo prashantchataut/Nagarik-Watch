@@ -39,34 +39,41 @@ Do not copy competitor body text, images or ledes. Do not relabel another publis
 ## Page-by-page next plan
 
 ### Homepage
+
 - Lead story, secondary desk, utility desk and province desk are the correct top-level modules.
 - Remove empty ad slots until a real ad provider exists.
 - Add an editor-curated top story control in CMS.
 
 ### Article pages
+
 - Keep one bookmark/save control only.
 - Preserve clear byline, published time, source attribution, image credit and correction link.
 - Add key-points only when edited by humans.
 
 ### Utilities
+
 - Keep weather, AQI, NEPSE, metals, forex, calendar and converters.
 - Add timestamps and provider labels to every data point.
 - Do not show fake widgets or raw provider implementation labels.
 
 ### Fact-check
+
 - Use a specific content type with claim, verdict, evidence, sources, correction path and editor.
 - Do not mix ordinary news with fact-check once CMS supports the type.
 
 ### Auth
+
 - Reader login is for saved stories and reading history.
 - Newsroom login is staff-only and redirecting to `/admin/dashboard` after staff login is normal.
 - Self-service password reset remains a launch blocker.
 
 ### Admin
+
 - `Invalid origin` is an env/trusted-origin issue. Set `SITE_URL` and `BETTER_AUTH_URL` to the deployed origin.
 - Staff accounts should be provisioned by env or a super-admin, not public signup.
 
 ### Recommendations
+
 - Current version is deterministic content/freshness/category scoring.
 - Next version should persist view, save, share and completion events in Postgres.
 - Future versions can add collaborative filtering only after there is enough reader signal.

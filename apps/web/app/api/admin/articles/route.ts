@@ -24,7 +24,9 @@ const WORKFLOW_STAGES: StoredArticle['workflowStage'][] = [
 
 function asWorkflowStage(value: unknown): StoredArticle['workflowStage'] {
   const stage = String(value ?? 'draft')
-  return WORKFLOW_STAGES.includes(stage as StoredArticle['workflowStage']) ? stage as StoredArticle['workflowStage'] : 'draft'
+  return WORKFLOW_STAGES.includes(stage as StoredArticle['workflowStage'])
+    ? (stage as StoredArticle['workflowStage'])
+    : 'draft'
 }
 
 /**
@@ -86,7 +88,10 @@ export async function POST(request: NextRequest) {
       seoTitleNe: body.seoTitleNe ? String(body.seoTitleNe) : undefined,
       seoDescriptionNe: body.seoDescriptionNe ? String(body.seoDescriptionNe) : undefined,
       noIndex: body.noIndex === undefined ? !isPublishing : Boolean(body.noIndex),
-      includeInNewsSitemap: body.includeInNewsSitemap === undefined ? isPublishing : body.includeInNewsSitemap !== false,
+      includeInNewsSitemap:
+        body.includeInNewsSitemap === undefined
+          ? isPublishing
+          : body.includeInNewsSitemap !== false,
       aiSummary: body.aiSummary ? String(body.aiSummary) : undefined,
       premium: Boolean(body.premium),
       commentsEnabled: body.commentsEnabled !== false,

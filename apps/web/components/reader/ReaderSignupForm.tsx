@@ -32,7 +32,9 @@ export function ReaderSignupForm({ locale }: { locale: 'ne' | 'en' }) {
       return
     }
     if (password.length < 8) {
-      setError(ne ? 'पासवर्ड कम्तिमा ८ अक्षरको हुनुपर्छ।' : 'Password must be at least 8 characters.')
+      setError(
+        ne ? 'पासवर्ड कम्तिमा ८ अक्षरको हुनुपर्छ।' : 'Password must be at least 8 characters.',
+      )
       return
     }
     if (password !== confirm) {
@@ -73,13 +75,18 @@ export function ReaderSignupForm({ locale }: { locale: 'ne' | 'en' }) {
   return (
     <form onSubmit={onSubmit} className="grid gap-4" noValidate>
       {error && (
-        <div role="alert" className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong">
+        <div
+          role="alert"
+          className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+        >
           {error}
         </div>
       )}
 
       <label className="grid gap-1.5 text-meta font-semibold text-ink">
-        <span lang={ne ? 'ne' : 'en'}>{ne ? 'देखाउने नाम (वैकल्पिक)' : 'Display name (optional)'}</span>
+        <span lang={ne ? 'ne' : 'en'}>
+          {ne ? 'देखाउने नाम (वैकल्पिक)' : 'Display name (optional)'}
+        </span>
         <input
           name="displayName"
           type="text"
@@ -141,8 +148,13 @@ export function ReaderSignupForm({ locale }: { locale: 'ne' | 'en' }) {
       </button>
 
       <p className="text-center text-caption text-ink-soft">
-        <span lang={ne ? 'ne' : 'en'}>{ne ? 'पहिले नै खाता छ? ' : 'Already have an account? '}</span>
-        <Link href={ne ? '/auth/login' : '/en/auth/login'} className="font-semibold text-brand underline-offset-2 hover:underline">
+        <span lang={ne ? 'ne' : 'en'}>
+          {ne ? 'पहिले नै खाता छ? ' : 'Already have an account? '}
+        </span>
+        <Link
+          href={ne ? '/auth/login' : '/en/auth/login'}
+          className="font-semibold text-brand underline-offset-2 hover:underline"
+        >
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'लगइन गर्नुहोस्' : 'Sign in'}</span>
         </Link>
       </p>

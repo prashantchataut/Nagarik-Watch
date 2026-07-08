@@ -3,10 +3,7 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canModerateComments } from '@/lib/admin-roles'
 import { listAllComments, type CommentStatus } from '@/lib/engagement/store'
-import {
-  AdminPageHeader,
-  AdminEmptyState,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminEmptyState } from '@/components/admin/primitives'
 import { CommentModerationActions } from '@/components/admin/CommentModerationActions'
 
 export const metadata: Metadata = {
@@ -25,7 +22,9 @@ const statusOptions: { value: 'all' | CommentStatus; label: string }[] = [
 ]
 
 function asStatus(value: string | undefined): 'all' | CommentStatus {
-  return statusOptions.some((option) => option.value === value) ? value as 'all' | CommentStatus : 'pending'
+  return statusOptions.some((option) => option.value === value)
+    ? (value as 'all' | CommentStatus)
+    : 'pending'
 }
 
 function statusLabel(status: CommentStatus) {
@@ -59,7 +58,11 @@ export default async function CommentsPage({
       />
 
       {!canModerate && (
-        <div role="alert" className="mb-5 rounded-lg border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong" lang="ne">
+        <div
+          role="alert"
+          className="mb-5 rounded-lg border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+          lang="ne"
+        >
           तपाईंको भूमिकालाई टिप्पणी मध्यस्थता गर्ने अनुमति छैन।
         </div>
       )}
@@ -101,12 +104,24 @@ export default async function CommentsPage({
         <table className="min-w-full divide-y divide-rule text-left">
           <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
             <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">समय</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">पाठक</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">समाचार</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">टिप्पणी</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">स्थिति</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">कारबाही</th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                समय
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                पाठक
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                समाचार
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                टिप्पणी
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                स्थिति
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                कारबाही
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-rule">
@@ -115,35 +130,49 @@ export default async function CommentsPage({
                 <td colSpan={6} className="px-0 py-0">
                   <AdminEmptyState
                     title="कुनै टिप्पणी छैन"
-                    body={selected === 'all' ? 'हालसम्म कुनै टिप्पणी संकलन भएको छैन।' : 'यो स्थितिमा कुनै टिप्पणी छैन।'}
+                    body={
+                      selected === 'all'
+                        ? 'हालसम्म कुनै टिप्पणी संकलन भएको छैन।'
+                        : 'यो स्थितिमा कुनै टिप्पणी छैन।'
+                    }
                   />
                 </td>
               </tr>
-            ) : comments.map((comment) => (
-              <tr key={comment.id} className="align-top">
-                <td className="whitespace-nowrap px-4 py-3 text-caption text-ink-soft" lang="ne">
-                  {formatDate(comment.createdAt)}
-                </td>
-                <td className="px-4 py-3 text-meta text-ink" lang="ne">
-                  <div className="font-semibold">{comment.authorName}</div>
-                  {comment.authorEmail ? <div className="text-caption text-mute">{comment.authorEmail}</div> : null}
-                </td>
-                <td className="px-4 py-3 text-meta text-ink-soft">
-                  <Link href={`/${comment.articleCategory}/${comment.articleSlug}`} className="font-semibold text-brand-strong hover:underline">
-                    {comment.articleCategory}/{comment.articleSlug}
-                  </Link>
-                </td>
-                <td className="max-w-md px-4 py-3 text-meta leading-relaxed text-ink" lang={comment.locale === 'en' ? 'en' : 'ne'}>
-                  {comment.bodyNe}
-                </td>
-                <td className="px-4 py-3 text-caption font-semibold text-ink-soft" lang="ne">
-                  {statusLabel(comment.status)}
-                </td>
-                <td className="px-4 py-3">
-                  <CommentModerationActions commentId={comment.id} />
-                </td>
-              </tr>
-            ))}
+            ) : (
+              comments.map((comment) => (
+                <tr key={comment.id} className="align-top">
+                  <td className="whitespace-nowrap px-4 py-3 text-caption text-ink-soft" lang="ne">
+                    {formatDate(comment.createdAt)}
+                  </td>
+                  <td className="px-4 py-3 text-meta text-ink" lang="ne">
+                    <div className="font-semibold">{comment.authorName}</div>
+                    {comment.authorEmail ? (
+                      <div className="text-caption text-mute">{comment.authorEmail}</div>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-3 text-meta text-ink-soft">
+                    <Link
+                      href={`/${comment.articleCategory}/${comment.articleSlug}`}
+                      className="font-semibold text-brand-strong hover:underline"
+                    >
+                      {comment.articleCategory}/{comment.articleSlug}
+                    </Link>
+                  </td>
+                  <td
+                    className="max-w-md px-4 py-3 text-meta leading-relaxed text-ink"
+                    lang={comment.locale === 'en' ? 'en' : 'ne'}
+                  >
+                    {comment.bodyNe}
+                  </td>
+                  <td className="px-4 py-3 text-caption font-semibold text-ink-soft" lang="ne">
+                    {statusLabel(comment.status)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <CommentModerationActions commentId={comment.id} />
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -1,6 +1,17 @@
 export type AdMode = 'off' | 'house' | 'network'
 export type AdSize = 'leaderboard' | 'billboard' | 'rectangle' | 'skyscraper' | 'mobile' | 'native'
-export type AdSurface = 'home' | 'article' | 'category' | 'latest' | 'trending' | 'hub' | 'sidebar' | 'inline' | 'native' | 'mobile' | 'billboard'
+export type AdSurface =
+  | 'home'
+  | 'article'
+  | 'category'
+  | 'latest'
+  | 'trending'
+  | 'hub'
+  | 'sidebar'
+  | 'inline'
+  | 'native'
+  | 'mobile'
+  | 'billboard'
 
 export type AdPlacement = {
   key: string

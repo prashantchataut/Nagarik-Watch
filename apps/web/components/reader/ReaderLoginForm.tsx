@@ -56,7 +56,10 @@ export function ReaderLoginForm({ locale }: { locale: 'ne' | 'en' }) {
   return (
     <form onSubmit={onSubmit} className="grid gap-4" noValidate>
       {error && (
-        <div role="alert" className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong">
+        <div
+          role="alert"
+          className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+        >
           {error}
         </div>
       )}

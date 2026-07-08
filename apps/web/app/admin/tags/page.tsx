@@ -3,10 +3,7 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getStories } from '@/lib/content'
 import { seedTags } from '@/lib/content/seed-source'
-import {
-  AdminPageHeader,
-  AdminButton,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminButton } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'ट्याग',
@@ -71,7 +68,10 @@ export default async function TagsPage() {
                     {t.nameEn}
                   </p>
                 )}
-                <code className="mt-auto inline-block w-fit rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-mute" lang="en">
+                <code
+                  className="mt-auto inline-block w-fit rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-mute"
+                  lang="en"
+                >
                   #{t.slug}
                 </code>
                 {t.descriptionNe && (

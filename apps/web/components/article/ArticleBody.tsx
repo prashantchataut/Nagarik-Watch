@@ -36,12 +36,19 @@ export function ArticleBody({ blocks, locale, source, className }: ArticleBodyPr
   blocks.forEach((block, i) => {
     const isFirstParagraph = !firstParagraphRendered && block.type === 'paragraph'
     if (isFirstParagraph) firstParagraphRendered = true
-    out.push(<BlockRenderer key={`b-${i}`} block={block} locale={locale} dropCap={isFirstParagraph} />)
+    out.push(
+      <BlockRenderer key={`b-${i}`} block={block} locale={locale} dropCap={isFirstParagraph} />,
+    )
     if (block.type === 'paragraph') {
       paragraphCount += 1
       if (!adInjected && paragraphCount >= AD_AFTER_PARAGRAPH) {
         out.push(
-          <AdSlot key={`ad-${i}`} locale={locale} placementKey="article-inline-1" variant="inline" />,
+          <AdSlot
+            key={`ad-${i}`}
+            locale={locale}
+            placementKey="article-inline-1"
+            variant="inline"
+          />,
         )
         adInjected = true
       }
@@ -55,7 +62,6 @@ export function ArticleBody({ blocks, locale, source, className }: ArticleBodyPr
     </div>
   )
 }
-
 
 export function CorrectionNotice({
   corrections,
@@ -72,7 +78,10 @@ export function CorrectionNotice({
   const label = locale === 'en' ? 'Updated' : 'अद्यावधिक'
   return (
     <aside
-      className={cn('rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-ink', className)}
+      className={cn(
+        'rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-ink',
+        className,
+      )}
       aria-labelledby="corrections-heading"
       lang={lang}
     >
@@ -81,7 +90,8 @@ export function CorrectionNotice({
       </h2>
       <ul className="mt-2 space-y-2">
         {corrections.map((correction, idx) => {
-          const summary = locale === 'en' && correction.summaryEn ? correction.summaryEn : correction.summaryNe
+          const summary =
+            locale === 'en' && correction.summaryEn ? correction.summaryEn : correction.summaryNe
           return (
             <li key={`${correction.at}-${idx}`} className="leading-relaxed text-ink-soft">
               <time dateTime={correction.at} className="font-semibold text-ink">
@@ -97,13 +107,27 @@ export function CorrectionNotice({
   )
 }
 
-export function TagRow({ tags, locale, className }: { tags: Tag[]; locale: Locale; className?: string }) {
+export function TagRow({
+  tags,
+  locale,
+  className,
+}: {
+  tags: Tag[]
+  locale: Locale
+  className?: string
+}) {
   if (!tags.length) return null
   const lang = locale === 'en' ? 'en' : 'ne'
   const label = locale === 'en' ? 'Topics' : 'विषय'
   return (
-    <nav className={cn('flex flex-wrap items-center gap-2', className)} aria-label={label} lang={lang}>
-      <span className="mr-1 text-meta font-semibold uppercase tracking-wide text-ink-soft">{label}</span>
+    <nav
+      className={cn('flex flex-wrap items-center gap-2', className)}
+      aria-label={label}
+      lang={lang}
+    >
+      <span className="mr-1 text-meta font-semibold uppercase tracking-wide text-ink-soft">
+        {label}
+      </span>
       {tags.map((tag) => {
         const name = locale === 'en' && tag.nameEn ? tag.nameEn : tag.nameNe
         return (
@@ -129,7 +153,15 @@ function formatCorrectionDate(value: string, locale: Locale) {
   }).format(date)
 }
 
-function BlockRenderer({ block, locale, dropCap }: { block: ArticleBlock; locale: Locale; dropCap?: boolean }) {
+function BlockRenderer({
+  block,
+  locale,
+  dropCap,
+}: {
+  block: ArticleBlock
+  locale: Locale
+  dropCap?: boolean
+}) {
   const lang = locale === 'en' ? 'en' : 'ne'
   switch (block.type) {
     case 'paragraph':
@@ -138,7 +170,9 @@ function BlockRenderer({ block, locale, dropCap }: { block: ArticleBlock; locale
         const rest = block.text.slice(1)
         return (
           <p className="text-[1.2rem] leading-[1.9] text-ink sm:text-[1.26rem]" lang={lang}>
-            <span className="float-left mr-2 mt-1 font-display text-[3.5rem] leading-[0.8] text-brand">{first}</span>
+            <span className="float-left mr-2 mt-1 font-display text-[3.5rem] leading-[0.8] text-brand">
+              {first}
+            </span>
             {rest}
           </p>
         )
@@ -206,7 +240,11 @@ function BlockRenderer({ block, locale, dropCap }: { block: ArticleBlock; locale
 
     case 'list': {
       const items = block.items.map((it, idx) => (
-        <li key={idx} lang={lang} className="text-[1.2rem] leading-[1.9] text-ink sm:text-[1.26rem]">
+        <li
+          key={idx}
+          lang={lang}
+          className="text-[1.2rem] leading-[1.9] text-ink sm:text-[1.26rem]"
+        >
           {it}
         </li>
       ))
@@ -218,7 +256,9 @@ function BlockRenderer({ block, locale, dropCap }: { block: ArticleBlock; locale
     }
 
     case 'adSlot': {
-      const placementKey = isAdPlacementKey(block.placementKey) ? block.placementKey : 'article-inline-1'
+      const placementKey = isAdPlacementKey(block.placementKey)
+        ? block.placementKey
+        : 'article-inline-1'
       return <AdSlot locale={locale} placementKey={placementKey} variant="inline" />
     }
 

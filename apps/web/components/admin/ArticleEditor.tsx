@@ -115,7 +115,10 @@ export function ArticleEditor({
   const formRef = useRef<HTMLFormElement | null>(null)
   const [draft, setDraft] = useState<ArticleDraft>({ ...EMPTY, ...initial })
   const [selectedTags, setSelectedTags] = useState<string[]>(initial?.tagSlugs ?? [])
-  const [status, setStatus] = useState<{ kind: 'idle' | 'saving' | 'saved' | 'error'; msg?: string }>({
+  const [status, setStatus] = useState<{
+    kind: 'idle' | 'saving' | 'saved' | 'error'
+    msg?: string
+  }>({
     kind: 'idle',
   })
   const [pending, startTransition] = useTransition()
@@ -149,56 +152,55 @@ export function ArticleEditor({
     startTransition(() => {
       void (async () => {
         try {
-        const formData = formRef.current ? new FormData(formRef.current) : null
-        const read = (name: string, fallback = '') => String(formData?.get(name) ?? fallback).trim()
-        const workflowStage = targetStage ?? read('workflowStage', draft.workflowStage)
-        const body = {
-          slug: read('slug', draft.slug),
-          categorySlug: read('category', draft.category),
-          titleNe: read('titleNe', draft.titleNe),
-          titleEn: read('titleEn', draft.titleEn) || undefined,
-          deckNe: read('deckNe', draft.deckNe) || undefined,
-          deckEn: read('deckEn', draft.deckEn) || undefined,
-          workflowStage,
-          bodyNe: draft.bodyNe,
-          bodyEn: draft.bodyEn || undefined,
-          authorIds: [],
-          tagSlugs: selectedTags,
-          sourceType: read('sourceType', draft.sourceType) as 'original' | 'aggregated' | 'wire',
-          sourceName: read('sourceName', draft.sourceName) || undefined,
-          sourceUrl: read('sourceUrl', draft.sourceUrl) || undefined,
-          isBreaking: draft.isBreaking,
-          isFeatured: read('featuredState', draft.featuredState) as 'lead' | 'secondary' | 'none',
-          seoTitleNe: read('seoTitle', draft.seoTitle) || undefined,
-          seoDescriptionNe: read('seoDescription', draft.seoDescription) || undefined,
-          noIndex: workflowStage === 'published' ? false : draft.noIndex,
-          includeInNewsSitemap: workflowStage === 'published',
-          aiSummary: read('aiSummary', draft.aiSummary) || undefined,
-          premium: draft.premium,
-          commentsEnabled: draft.commentsEnabled,
-          heroImageUrl: read('heroImageUrl', draft.heroImageUrl) || undefined,
-          heroCaptionNe: read('heroCaption', draft.heroCaption) || undefined,
-          heroCredit: read('heroCredit', draft.heroCredit) || undefined,
-        }
-        const url = initial?.id
-          ? `/api/admin/articles/${initial.id}`
-          : '/api/admin/articles'
-        const res = await fetch(url, {
-          method: initial?.id ? 'PUT' : 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(body),
-        })
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}))
-          throw new Error(err?.error ?? err?.message ?? 'सुरक्षित गर्न सकिएन')
-        }
-        const saved = await res.json().catch(() => ({}))
-        setStatus({ kind: 'saved', msg: 'सुरक्षित भयो' })
-        if (isNew && saved?.id) {
-          router.push(`/admin/articles/${saved.id}/edit`)
-        } else {
-          router.refresh()
-        }
+          const formData = formRef.current ? new FormData(formRef.current) : null
+          const read = (name: string, fallback = '') =>
+            String(formData?.get(name) ?? fallback).trim()
+          const workflowStage = targetStage ?? read('workflowStage', draft.workflowStage)
+          const body = {
+            slug: read('slug', draft.slug),
+            categorySlug: read('category', draft.category),
+            titleNe: read('titleNe', draft.titleNe),
+            titleEn: read('titleEn', draft.titleEn) || undefined,
+            deckNe: read('deckNe', draft.deckNe) || undefined,
+            deckEn: read('deckEn', draft.deckEn) || undefined,
+            workflowStage,
+            bodyNe: draft.bodyNe,
+            bodyEn: draft.bodyEn || undefined,
+            authorIds: [],
+            tagSlugs: selectedTags,
+            sourceType: read('sourceType', draft.sourceType) as 'original' | 'aggregated' | 'wire',
+            sourceName: read('sourceName', draft.sourceName) || undefined,
+            sourceUrl: read('sourceUrl', draft.sourceUrl) || undefined,
+            isBreaking: draft.isBreaking,
+            isFeatured: read('featuredState', draft.featuredState) as 'lead' | 'secondary' | 'none',
+            seoTitleNe: read('seoTitle', draft.seoTitle) || undefined,
+            seoDescriptionNe: read('seoDescription', draft.seoDescription) || undefined,
+            noIndex: workflowStage === 'published' ? false : draft.noIndex,
+            includeInNewsSitemap: workflowStage === 'published',
+            aiSummary: read('aiSummary', draft.aiSummary) || undefined,
+            premium: draft.premium,
+            commentsEnabled: draft.commentsEnabled,
+            heroImageUrl: read('heroImageUrl', draft.heroImageUrl) || undefined,
+            heroCaptionNe: read('heroCaption', draft.heroCaption) || undefined,
+            heroCredit: read('heroCredit', draft.heroCredit) || undefined,
+          }
+          const url = initial?.id ? `/api/admin/articles/${initial.id}` : '/api/admin/articles'
+          const res = await fetch(url, {
+            method: initial?.id ? 'PUT' : 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(body),
+          })
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}))
+            throw new Error(err?.error ?? err?.message ?? 'सुरक्षित गर्न सकिएन')
+          }
+          const saved = await res.json().catch(() => ({}))
+          setStatus({ kind: 'saved', msg: 'सुरक्षित भयो' })
+          if (isNew && saved?.id) {
+            router.push(`/admin/articles/${saved.id}/edit`)
+          } else {
+            router.refresh()
+          }
         } catch (e) {
           setStatus({ kind: 'error', msg: e instanceof Error ? e.message : 'त्रुटि' })
         }
@@ -210,16 +212,26 @@ export function ArticleEditor({
   const readingMinutes = Math.max(1, Math.round(wordCount / 200))
 
   return (
-    <form ref={formRef} className="grid gap-6 lg:grid-cols-[1fr_320px]" onSubmit={(event) => event.preventDefault()}>
+    <form
+      ref={formRef}
+      className="grid gap-6 lg:grid-cols-[1fr_320px]"
+      onSubmit={(event) => event.preventDefault()}
+    >
       {/* MAIN COLUMN — content */}
       <div className="space-y-5">
         {status.kind === 'error' && (
-          <div role="alert" className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong">
+          <div
+            role="alert"
+            className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+          >
             {status.msg}
           </div>
         )}
         {status.kind === 'saved' && (
-          <div role="status" className="rounded-md border border-up/30 bg-brand-tint/50 px-4 py-3 text-meta font-semibold text-brand-strong">
+          <div
+            role="status"
+            className="rounded-md border border-up/30 bg-brand-tint/50 px-4 py-3 text-meta font-semibold text-brand-strong"
+          >
             ✓ {status.msg}
           </div>
         )}
@@ -293,9 +305,15 @@ export function ArticleEditor({
             </summary>
             <ul className="mt-2 space-y-1 pl-4" lang="ne">
               <li>रिक्त लाइनले अनुच्छेद छुट्याउँछ</li>
-              <li><code>##</code> ले सह-शीर्षक</li>
-              <li><code>&gt;</code> ले उद्धरण बक्स</li>
-              <li><code>-</code> ले सूची वस्तु</li>
+              <li>
+                <code>##</code> ले सह-शीर्षक
+              </li>
+              <li>
+                <code>&gt;</code> ले उद्धरण बक्स
+              </li>
+              <li>
+                <code>-</code> ले सूची वस्तु
+              </li>
             </ul>
           </details>
         </div>
@@ -360,27 +378,16 @@ export function ArticleEditor({
             required
           />
           <div className="flex flex-wrap gap-2 pt-1">
-            <AdminButton
-              onClick={() => save('draft')}
-              variant="secondary"
-              disabled={pending}
-            >
+            <AdminButton onClick={() => save('draft')} variant="secondary" disabled={pending}>
               ड्राफ्ट सुरक्षित
             </AdminButton>
             {canEditArticle && (
-              <AdminButton
-                onClick={() => save('submitted')}
-                variant="secondary"
-                disabled={pending}
-              >
+              <AdminButton onClick={() => save('submitted')} variant="secondary" disabled={pending}>
                 पेश गर्नुहोस्
               </AdminButton>
             )}
             {canPublishArticle && (
-              <AdminButton
-                onClick={() => save('published')}
-                disabled={pending}
-              >
+              <AdminButton onClick={() => save('published')} disabled={pending}>
                 प्रकाशित गर्नुहोस्
               </AdminButton>
             )}

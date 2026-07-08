@@ -54,7 +54,10 @@ export default async function CategoryPage({
     <div className="mx-auto max-w-page px-4 py-8">
       <header className="border-b border-rule pb-6">
         <div>
-          <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={titleLang}>
+          <p
+            className="text-meta font-semibold uppercase tracking-wide text-brand-strong"
+            lang={titleLang}
+          >
             {dict.footerSections}
           </p>
           <h1 className="mt-0.5 font-display text-display text-ink" lang={titleLang}>
@@ -111,7 +114,10 @@ export default async function CategoryPage({
           {/* Sidebar: remaining items as compact text rails */}
           {rest.length > 4 && (
             <aside className="border-t border-rule pt-6 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-              <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang={titleLang}>
+              <p
+                className="text-meta font-bold uppercase tracking-wide text-brand-strong"
+                lang={titleLang}
+              >
                 {en ? 'More from ' + name : name + 'बाट थप'}
               </p>
               <ul className="mt-4 flex flex-col divide-y divide-rule">

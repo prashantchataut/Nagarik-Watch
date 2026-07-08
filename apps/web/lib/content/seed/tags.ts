@@ -106,7 +106,6 @@ export const tags: Tag[] = [
     descriptionNe: 'फोटो पत्रकारिता र दृश्य कथाका सामग्री।',
     descriptionEn: 'Photojournalism and visual-story packages.',
   },
-
 ]
 
 export const tagById = new Map(tags.map((t) => [t.id, t]))

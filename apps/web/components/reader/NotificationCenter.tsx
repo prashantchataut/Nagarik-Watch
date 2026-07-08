@@ -34,7 +34,9 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
 
     async function check() {
       try {
-        const response = await fetch(`/api/notifications/breaking?locale=${locale}`, { cache: 'no-store' })
+        const response = await fetch(`/api/notifications/breaking?locale=${locale}`, {
+          cache: 'no-store',
+        })
         const data = (await response.json()) as { alerts?: AlertItem[] }
         if (cancelled) return
         const first = data.alerts?.[0]
@@ -72,9 +74,16 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
   }
 
   return (
-    <aside className={className} lang={lang} aria-label={locale === 'en' ? 'Notification settings' : 'सूचना सेटिङ'}>
+    <aside
+      className={className}
+      lang={lang}
+      aria-label={locale === 'en' ? 'Notification settings' : 'सूचना सेटिङ'}
+    >
       <div className="h-full rounded-2xl border border-rule bg-surface-raised p-4 sm:p-5">
-        <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">
+        <p
+          className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
+          lang="en"
+        >
           Alerts
         </p>
         <h2 className="mt-1 font-display text-h2 font-extrabold text-ink">
@@ -95,7 +104,10 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
               : 'यो ब्राउजरमा Notification API उपलब्ध छैन।'}
         </div>
         {latest ? (
-          <a href={latest.url} className="mt-3 block rounded-lg border border-rule bg-surface p-3 text-meta font-semibold text-ink hover:border-brand hover:bg-brand-tint">
+          <a
+            href={latest.url}
+            className="mt-3 block rounded-lg border border-rule bg-surface p-3 text-meta font-semibold text-ink hover:border-brand hover:bg-brand-tint"
+          >
             {latest.title}
           </a>
         ) : null}
@@ -106,7 +118,13 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
             disabled={!supported || permission === 'denied'}
             className="inline-flex min-h-10 items-center rounded-full bg-brand px-4 text-meta font-semibold text-surface transition-colors hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {enabled ? (locale === 'en' ? 'Alerts on' : 'सूचना खुला') : (locale === 'en' ? 'Enable alerts' : 'सूचना खोल्नुहोस्')}
+            {enabled
+              ? locale === 'en'
+                ? 'Alerts on'
+                : 'सूचना खुला'
+              : locale === 'en'
+                ? 'Enable alerts'
+                : 'सूचना खोल्नुहोस्'}
           </button>
           {enabled ? (
             <button
@@ -126,12 +144,13 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
 function safeSeen(): string[] {
   try {
     const parsed = JSON.parse(localStorage.getItem(SEEN_KEY) ?? '[]') as unknown
-    return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string') : []
+    return Array.isArray(parsed)
+      ? parsed.filter((value): value is string => typeof value === 'string')
+      : []
   } catch {
     return []
   }
 }
-
 
 async function showNotification(item: AlertItem, locale: Locale) {
   const title = locale === 'en' ? 'Breaking from Nagarik Watch' : 'नागरिक वाच ब्रेकिङ'

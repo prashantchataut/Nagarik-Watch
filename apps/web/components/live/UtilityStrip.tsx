@@ -10,7 +10,13 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
     getRealNepse(locale),
   ])
 
-  const items: Array<{ label: string; value: string; note?: string; href?: string; tone?: string }> = []
+  const items: Array<{
+    label: string
+    value: string
+    note?: string
+    href?: string
+    tone?: string
+  }> = []
   if (weather.status === 'ok' && weather.data) {
     items.push({
       label: locale === 'en' ? weather.data.placeEn : weather.data.placeNe,
@@ -44,13 +50,19 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
       aria-label={locale === 'en' ? 'Daily reference line' : 'दैनिक सन्दर्भ लाइन'}
     >
       <div className="mx-auto flex max-w-page items-center gap-5 overflow-x-auto px-4 py-2 text-caption text-ink-soft [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <span className="shrink-0 font-bold uppercase tracking-[0.16em] text-brand-strong" lang={lang}>
+        <span
+          className="shrink-0 font-bold uppercase tracking-[0.16em] text-brand-strong"
+          lang={lang}
+        >
           {locale === 'en' ? 'Reference' : 'सन्दर्भ'}
         </span>
         {items.map((item) => {
           const inner = (
             <>
-              <span className="font-semibold uppercase tracking-wide text-mute" lang={item.label === 'NEPSE' || item.label === 'AQI' ? 'en' : lang}>
+              <span
+                className="font-semibold uppercase tracking-wide text-mute"
+                lang={item.label === 'NEPSE' || item.label === 'AQI' ? 'en' : lang}
+              >
                 {item.label}
               </span>
               <span className="font-semibold text-ink">{item.value}</span>
@@ -58,7 +70,11 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
             </>
           )
           return item.href ? (
-            <a key={item.label} href={item.href} className="inline-flex shrink-0 items-center gap-2 hover:text-brand-strong">
+            <a
+              key={item.label}
+              href={item.href}
+              className="inline-flex shrink-0 items-center gap-2 hover:text-brand-strong"
+            >
               {inner}
             </a>
           ) : (
@@ -67,7 +83,11 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
             </span>
           )
         })}
-        {updated ? <span className="ml-auto shrink-0 text-mute" lang={lang}>{updated}</span> : null}
+        {updated ? (
+          <span className="ml-auto shrink-0 text-mute" lang={lang}>
+            {updated}
+          </span>
+        ) : null}
       </div>
     </div>
   )

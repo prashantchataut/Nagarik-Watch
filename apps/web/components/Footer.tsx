@@ -19,13 +19,25 @@ export function Footer({ locale }: FooterProps) {
   const sectionLinks = [
     { href: localizeHref(locale, '/latest'), label: locale === 'en' ? 'Latest' : 'ताजा' },
     { href: localizeHref(locale, '/trending'), label: locale === 'en' ? 'Trending' : 'ट्रेन्डिङ' },
-    { href: localizeHref(locale, '/most-read'), label: locale === 'en' ? 'Most read' : 'धेरै पढिएको' },
-    { href: localizeHref(locale, '/editor-picks'), label: locale === 'en' ? "Editor's picks" : 'सम्पादकको रोजाइ' },
+    {
+      href: localizeHref(locale, '/most-read'),
+      label: locale === 'en' ? 'Most read' : 'धेरै पढिएको',
+    },
+    {
+      href: localizeHref(locale, '/editor-picks'),
+      label: locale === 'en' ? "Editor's picks" : 'सम्पादकको रोजाइ',
+    },
     { href: localizeHref(locale, '/exclusive'), label: locale === 'en' ? 'Exclusive' : 'विशेष' },
-    { href: localizeHref(locale, '/fact-check'), label: locale === 'en' ? 'Fact check' : 'तथ्य-जाँच' },
+    {
+      href: localizeHref(locale, '/fact-check'),
+      label: locale === 'en' ? 'Fact check' : 'तथ्य-जाँच',
+    },
     { href: localizeHref(locale, '/opinion'), label: locale === 'en' ? 'Opinion' : 'विचार' },
     { href: localizeHref(locale, '/market'), label: locale === 'en' ? 'Market' : 'बजार' },
-    { href: localizeHref(locale, '/utilities'), label: locale === 'en' ? 'Utilities' : 'उपयोगी सेवा' },
+    {
+      href: localizeHref(locale, '/utilities'),
+      label: locale === 'en' ? 'Utilities' : 'उपयोगी सेवा',
+    },
     { href: localizeHref(locale, '/rashifal'), label: locale === 'en' ? 'Rashifal' : 'राशिफल' },
   ]
 
@@ -33,9 +45,18 @@ export function Footer({ locale }: FooterProps) {
     { href: localizeHref(locale, '/about'), label: dict.footerAbout },
     { href: localizeHref(locale, '/team'), label: locale === 'en' ? 'Team' : 'टोली' },
     { href: localizeHref(locale, '/ethics'), label: dict.footerEthics },
-    { href: localizeHref(locale, '/editorial-policy'), label: locale === 'en' ? 'Editorial policy' : 'सम्पादकीय नीति' },
-    { href: localizeHref(locale, '/corrections-policy'), label: locale === 'en' ? 'Corrections' : 'सच्याइ' },
-    { href: localizeHref(locale, '/fact-check-policy'), label: locale === 'en' ? 'Fact-check policy' : 'तथ्य-जाँच नीति' },
+    {
+      href: localizeHref(locale, '/editorial-policy'),
+      label: locale === 'en' ? 'Editorial policy' : 'सम्पादकीय नीति',
+    },
+    {
+      href: localizeHref(locale, '/corrections-policy'),
+      label: locale === 'en' ? 'Corrections' : 'सच्याइ',
+    },
+    {
+      href: localizeHref(locale, '/fact-check-policy'),
+      label: locale === 'en' ? 'Fact-check policy' : 'तथ्य-जाँच नीति',
+    },
     { href: localizeHref(locale, '/privacy'), label: dict.footerPrivacy },
     { href: localizeHref(locale, '/terms'), label: locale === 'en' ? 'Terms' : 'सर्त' },
     { href: localizeHref(locale, '/advertise'), label: locale === 'en' ? 'Advertise' : 'विज्ञापन' },
@@ -54,7 +75,10 @@ export function Footer({ locale }: FooterProps) {
                 <span className="font-display text-h2 font-bold text-ink" lang="ne">
                   {dict.siteName}
                 </span>
-                <span className="mt-0.5 text-meta font-black uppercase tracking-[0.16em] text-brand-strong" lang="en">
+                <span
+                  className="mt-0.5 text-meta font-black uppercase tracking-[0.16em] text-brand-strong"
+                  lang="en"
+                >
                   Nagarik Watch
                 </span>
               </span>
@@ -82,13 +106,20 @@ export function Footer({ locale }: FooterProps) {
 
         <div className="grid gap-8 py-8 md:grid-cols-2 lg:grid-cols-4">
           <nav aria-label={locale === 'en' ? 'Sections' : 'विभाग'} className="lg:col-span-1">
-            <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={lang}>
+            <p
+              className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
+              lang={lang}
+            >
               {locale === 'en' ? 'Sections' : 'विभाग'}
             </p>
             <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
               {sectionLinks.map((s) => (
                 <li key={s.href}>
-                  <Link href={s.href} className="inline-block rounded-md text-body text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong" lang={lang}>
+                  <Link
+                    href={s.href}
+                    className="inline-block rounded-md text-body text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+                    lang={lang}
+                  >
                     {s.label}
                   </Link>
                 </li>
@@ -97,13 +128,20 @@ export function Footer({ locale }: FooterProps) {
           </nav>
 
           <nav aria-label={dict.footerSections} className="lg:col-span-1">
-            <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={lang}>
+            <p
+              className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
+              lang={lang}
+            >
               {locale === 'en' ? 'About & policy' : 'बारेमा र नीति'}
             </p>
             <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
               {aboutLinks.map((s) => (
                 <li key={s.href}>
-                  <Link href={s.href} className="inline-block rounded-md text-body text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong" lang={lang}>
+                  <Link
+                    href={s.href}
+                    className="inline-block rounded-md text-body text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+                    lang={lang}
+                  >
                     {s.label}
                   </Link>
                 </li>
@@ -112,20 +150,29 @@ export function Footer({ locale }: FooterProps) {
           </nav>
 
           <div className="lg:col-span-1">
-            <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={lang}>
+            <p
+              className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
+              lang={lang}
+            >
               {locale === 'en' ? 'Newsroom' : 'न्यूजरुम'}
             </p>
             <address className="mt-3 not-italic text-body text-ink-soft" lang={lang}>
               <p className="font-semibold text-ink">{PUBLICATION.publisherName}</p>
               <p className="mt-1">{PUBLICATION.address}</p>
               <p className="mt-1">
-                <a href={`mailto:${PUBLICATION.email}`} className="rounded-sm transition-colors duration-fast ease-out-quint hover:text-brand-strong">
+                <a
+                  href={`mailto:${PUBLICATION.email}`}
+                  className="rounded-sm transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+                >
                   {PUBLICATION.email}
                 </a>
               </p>
               {PUBLICATION.phone ? <p className="mt-1">{PUBLICATION.phone}</p> : null}
             </address>
-            <p className="mt-3 rounded-md border border-rule bg-surface-raised px-3 py-2 text-caption text-ink-soft" lang={lang}>
+            <p
+              className="mt-3 rounded-md border border-rule bg-surface-raised px-3 py-2 text-caption text-ink-soft"
+              lang={lang}
+            >
               <span className="font-semibold uppercase tracking-wide" lang={lang}>
                 {dict.footerRegistration}:
               </span>{' '}
@@ -133,7 +180,8 @@ export function Footer({ locale }: FooterProps) {
             </p>
             {PUBLICATION.editorInChief ? (
               <p className="mt-2 text-caption text-mute" lang={lang}>
-                {locale === 'en' ? 'Responsible editor' : 'जिम्मेवार सम्पादक'}: {PUBLICATION.editorInChief}
+                {locale === 'en' ? 'Responsible editor' : 'जिम्मेवार सम्पादक'}:{' '}
+                {PUBLICATION.editorInChief}
               </p>
             ) : null}
           </div>

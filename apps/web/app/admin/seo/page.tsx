@@ -4,10 +4,7 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { getStories } from '@/lib/content'
 import { SITE_URL } from '@/lib/site'
 import { formatDate } from '@nagarikwatch/db'
-import {
-  AdminPageHeader,
-  AdminCard,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'एसइओ',
@@ -94,12 +91,16 @@ export default async function SeoPage() {
               {e.labelNe}
             </p>
             <code className="mt-1 block font-mono text-caption text-mute" lang="en">
-              {SITE_URL}{e.path}
+              {SITE_URL}
+              {e.path}
             </code>
             <p className="mt-2 text-caption text-ink-soft" lang="ne">
               {e.descNe}
             </p>
-            <span className="mt-3 inline-flex items-center rounded-full bg-brand-tint px-2.5 py-0.5 text-caption font-semibold text-brand-strong" lang="ne">
+            <span
+              className="mt-3 inline-flex items-center rounded-full bg-brand-tint px-2.5 py-0.5 text-caption font-semibold text-brand-strong"
+              lang="ne"
+            >
               सक्रिय →
             </span>
           </Link>
@@ -117,9 +118,7 @@ export default async function SeoPage() {
               भर्खरका {articles.length} समाचारमध्ये {completeCount} वटा पूर्ण।
             </p>
           </div>
-          <p className="font-display text-display font-extrabold text-brand">
-            {score}%
-          </p>
+          <p className="font-display text-display font-extrabold text-brand">{score}%</p>
         </div>
       </AdminCard>
 
@@ -128,12 +127,24 @@ export default async function SeoPage() {
         <table className="min-w-full divide-y divide-rule text-left">
           <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
             <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">शीर्षक</th>
-              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="ne">मिति</th>
-              <th className="px-4 py-3 font-semibold text-center" lang="ne">मेटा शीर्षक</th>
-              <th className="px-4 py-3 font-semibold text-center" lang="ne">मेटा विवरण</th>
-              <th className="px-4 py-3 font-semibold text-center" lang="ne">OG तस्बिर</th>
-              <th className="px-4 py-3 font-semibold text-center" lang="ne">कुल</th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                शीर्षक
+              </th>
+              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="ne">
+                मिति
+              </th>
+              <th className="px-4 py-3 font-semibold text-center" lang="ne">
+                मेटा शीर्षक
+              </th>
+              <th className="px-4 py-3 font-semibold text-center" lang="ne">
+                मेटा विवरण
+              </th>
+              <th className="px-4 py-3 font-semibold text-center" lang="ne">
+                OG तस्बिर
+              </th>
+              <th className="px-4 py-3 font-semibold text-center" lang="ne">
+                कुल
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-rule">
@@ -156,32 +167,50 @@ export default async function SeoPage() {
                   </td>
                   <td className="px-4 py-3 text-center">
                     {r.hasMetaTitle ? (
-                      <span className="font-bold text-brand" aria-label="छ">✓</span>
+                      <span className="font-bold text-brand" aria-label="छ">
+                        ✓
+                      </span>
                     ) : (
-                      <span className="text-mute" aria-label="छैन">—</span>
+                      <span className="text-mute" aria-label="छैन">
+                        —
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
                     {r.hasMetaDesc ? (
-                      <span className="font-bold text-brand" aria-label="छ">✓</span>
+                      <span className="font-bold text-brand" aria-label="छ">
+                        ✓
+                      </span>
                     ) : (
-                      <span className="text-mute" aria-label="छैन">—</span>
+                      <span className="text-mute" aria-label="छैन">
+                        —
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
                     {r.hasOgImage ? (
-                      <span className="font-bold text-brand" aria-label="छ">✓</span>
+                      <span className="font-bold text-brand" aria-label="छ">
+                        ✓
+                      </span>
                     ) : (
-                      <span className="text-mute" aria-label="छैन">—</span>
+                      <span className="text-mute" aria-label="छैन">
+                        —
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
                     {r.complete ? (
-                      <span className="rounded-full bg-brand-tint px-2 py-0.5 text-caption font-semibold text-brand-strong" lang="ne">
+                      <span
+                        className="rounded-full bg-brand-tint px-2 py-0.5 text-caption font-semibold text-brand-strong"
+                        lang="ne"
+                      >
                         पूर्ण
                       </span>
                     ) : (
-                      <span className="rounded-full border border-rule px-2 py-0.5 text-caption font-semibold text-mute" lang="ne">
+                      <span
+                        className="rounded-full border border-rule px-2 py-0.5 text-caption font-semibold text-mute"
+                        lang="ne"
+                      >
                         अपूर्ण
                       </span>
                     )}

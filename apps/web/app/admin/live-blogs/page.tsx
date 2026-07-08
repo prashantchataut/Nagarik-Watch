@@ -1,10 +1,6 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import {
-  AdminPageHeader,
-  AdminButton,
-  AdminEmptyState,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminButton, AdminEmptyState } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'लाइभ ब्लग',
@@ -47,25 +43,33 @@ export default async function LiveBlogsPage() {
         </h2>
         <ul className="mt-3 space-y-2 text-body text-ink-soft" lang="ne">
           <li className="flex gap-2">
-            <span className="text-brand" aria-hidden="true">•</span>
+            <span className="text-brand" aria-hidden="true">
+              •
+            </span>
             ब्रेकिङ राजनीतिक वा कूटनीतिक घटना — संसद् अधिवेशन, सन्धि घोषणा, अविश्वास प्रस्ताव।
           </li>
           <li className="flex gap-2">
-            <span className="text-brand" aria-hidden="true">•</span>
+            <span className="text-brand" aria-hidden="true">
+              •
+            </span>
             निर्वाचन दिन — मतगणना, परिणाम, विश्लेषण एकै थानामा।
           </li>
           <li className="flex gap-2">
-            <span className="text-brand" aria-hidden="true">•</span>
+            <span className="text-brand" aria-hidden="true">
+              •
+            </span>
             प्राकृतिक प्रकोप — भूकम्प, बाढी, पहिरो — सत्कृत अपडेट प्रवाह।
           </li>
           <li className="flex gap-2">
-            <span className="text-brand" aria-hidden="true">•</span>
+            <span className="text-brand" aria-hidden="true">
+              •
+            </span>
             प्रमुख खेल — नेपाली टोलीको क्रिकेट / फुटबल खेलको क्षण-क्षण विवरण।
           </li>
         </ul>
         <p className="mt-4 text-caption text-mute" lang="ne">
-          सिर्जना प्रकाशन कार्यप्रवाह (LiveBlog + LiveBlogUpdate collection) जोडिएपछि
-          «नयाँ लाइभ ब्लग» बटन सक्रिय हुनेछ।
+          सिर्जना प्रकाशन कार्यप्रवाह (LiveBlog + LiveBlogUpdate collection) जोडिएपछि «नयाँ लाइभ
+          ब्लग» बटन सक्रिय हुनेछ।
         </p>
       </div>
     </div>

@@ -5,10 +5,34 @@ import { getStories } from '@/lib/content'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 
 const verdicts = [
-  { key: 'verified', ne: 'सही', en: 'Verified', bodyNe: 'दाबी प्रमाणसँग मिल्छ।', bodyEn: 'The claim matches the evidence.' },
-  { key: 'mixed', ne: 'मिश्रित', en: 'Mixed', bodyNe: 'केही अंश सही, केही अंश अपूर्ण वा भ्रामक।', bodyEn: 'Parts are true, parts are incomplete or misleading.' },
-  { key: 'false', ne: 'गलत', en: 'False', bodyNe: 'मुख्य दाबी प्रमाणबाट समर्थन हुँदैन।', bodyEn: 'The core claim is not supported by evidence.' },
-  { key: 'context', ne: 'सन्दर्भ चाहिन्छ', en: 'Needs context', bodyNe: 'दाबी बुझ्न थप समय, स्थान वा स्रोत चाहिन्छ।', bodyEn: 'The claim needs time, place or source context.' },
+  {
+    key: 'verified',
+    ne: 'सही',
+    en: 'Verified',
+    bodyNe: 'दाबी प्रमाणसँग मिल्छ।',
+    bodyEn: 'The claim matches the evidence.',
+  },
+  {
+    key: 'mixed',
+    ne: 'मिश्रित',
+    en: 'Mixed',
+    bodyNe: 'केही अंश सही, केही अंश अपूर्ण वा भ्रामक।',
+    bodyEn: 'Parts are true, parts are incomplete or misleading.',
+  },
+  {
+    key: 'false',
+    ne: 'गलत',
+    en: 'False',
+    bodyNe: 'मुख्य दाबी प्रमाणबाट समर्थन हुँदैन।',
+    bodyEn: 'The core claim is not supported by evidence.',
+  },
+  {
+    key: 'context',
+    ne: 'सन्दर्भ चाहिन्छ',
+    en: 'Needs context',
+    bodyNe: 'दाबी बुझ्न थप समय, स्थान वा स्रोत चाहिन्छ।',
+    bodyEn: 'The claim needs time, place or source context.',
+  },
 ]
 
 const workflow = [
@@ -23,14 +47,21 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
   const { items } = await getStories({ locale, perPage: 12 })
-  const candidates = items.filter((story) => /fact|दाबी|तथ्य|गलत|सही|भ्रम/i.test(`${story.titleNe} ${story.titleEn ?? ''} ${story.deckNe ?? ''}`))
+  const candidates = items.filter((story) =>
+    /fact|दाबी|तथ्य|गलत|सही|भ्रम/i.test(
+      `${story.titleNe} ${story.titleEn ?? ''} ${story.deckNe ?? ''}`,
+    ),
+  )
   const stories = candidates.length > 0 ? candidates : items.slice(0, 4)
 
   return (
     <div className="mx-auto max-w-page px-4 py-8" lang={lang}>
       <header className="grid gap-6 border-b border-rule pb-8 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,0.42fr)] lg:items-end">
         <div>
-          <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">
+          <p
+            className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
+            lang="en"
+          >
             Fact Check Desk
           </p>
           <h1 className="mt-2 font-display text-[clamp(2.05rem,9vw,4rem)] font-extrabold leading-tight text-ink">
@@ -46,9 +77,13 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
           href={localizeHref(locale, '/fact-check-policy')}
           className="rounded-lg border border-rule bg-surface-raised p-4 transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint"
         >
-          <span className="text-meta font-bold text-ink">{en ? 'Method first' : 'पहिले पद्धति'}</span>
+          <span className="text-meta font-bold text-ink">
+            {en ? 'Method first' : 'पहिले पद्धति'}
+          </span>
           <span className="mt-1 block text-meta leading-relaxed text-ink-soft">
-            {en ? 'Read how verdicts, corrections and source notes work.' : 'निर्णय, सच्याइ र स्रोत नोट कसरी काम गर्छ पढ्नुहोस्।'}
+            {en
+              ? 'Read how verdicts, corrections and source notes work.'
+              : 'निर्णय, सच्याइ र स्रोत नोट कसरी काम गर्छ पढ्नुहोस्।'}
           </span>
         </a>
       </header>
@@ -60,7 +95,10 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
           </h2>
           <div className="mt-4 grid gap-3">
             {verdicts.map((verdict) => (
-              <div key={verdict.key} className="grid grid-cols-[7.5rem_1fr] gap-3 border-t border-rule pt-3 first:border-t-0 first:pt-0">
+              <div
+                key={verdict.key}
+                className="grid grid-cols-[7.5rem_1fr] gap-3 border-t border-rule pt-3 first:border-t-0 first:pt-0"
+              >
                 <p className="font-bold text-brand-strong">{en ? verdict.en : verdict.ne}</p>
                 <p className="text-body text-ink-soft">{en ? verdict.bodyEn : verdict.bodyNe}</p>
               </div>
@@ -73,8 +111,13 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
           </h2>
           <ol className="mt-5 grid gap-4 sm:grid-cols-2">
             {workflow.map((item, index) => (
-              <li key={item.en} className="grid grid-cols-[2.5rem_1fr] gap-3 border-t border-rule pt-3 first:border-t-0 first:pt-0 sm:border-t sm:pt-3">
-                <span className="font-mono text-caption font-bold text-brand-strong">{String(index + 1).padStart(2, '0')}</span>
+              <li
+                key={item.en}
+                className="grid grid-cols-[2.5rem_1fr] gap-3 border-t border-rule pt-3 first:border-t-0 first:pt-0 sm:border-t sm:pt-3"
+              >
+                <span className="font-mono text-caption font-bold text-brand-strong">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
                 <span className="font-semibold text-ink">{en ? item.en : item.ne}</span>
               </li>
             ))}
@@ -85,14 +128,20 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
       <section className="mt-10">
         <div className="flex items-end justify-between gap-4 border-b border-rule pb-3">
           <div>
-            <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">
+            <p
+              className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
+              lang="en"
+            >
               Published checks
             </p>
             <h2 className="mt-1 font-display text-h1 font-extrabold text-ink">
               {en ? 'Recent verification work' : 'हालका तथ्य-जाँच सामग्री'}
             </h2>
           </div>
-          <a href={localizeHref(locale, '/submit-story')} className="text-meta font-semibold text-ink-soft underline-offset-4 hover:text-brand-strong hover:underline">
+          <a
+            href={localizeHref(locale, '/submit-story')}
+            className="text-meta font-semibold text-ink-soft underline-offset-4 hover:text-brand-strong hover:underline"
+          >
             {en ? 'Submit a claim' : 'दाबी पठाउनुहोस्'}
           </a>
         </div>

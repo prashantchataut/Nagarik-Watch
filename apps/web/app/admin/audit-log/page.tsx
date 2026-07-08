@@ -1,9 +1,6 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import {
-  AdminPageHeader,
-  AdminEmptyState,
-} from '@/components/admin/primitives'
+import { AdminPageHeader, AdminEmptyState } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'अडिट लग',
@@ -35,11 +32,21 @@ export default async function AuditLogPage() {
         <table className="min-w-full divide-y divide-rule text-left">
           <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
             <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">समय</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">कर्मी</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">कार्य</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">लक्ष्य</th>
-              <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">विवरण</th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                समय
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                कर्मी
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                कार्य
+              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">
+                लक्ष्य
+              </th>
+              <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">
+                विवरण
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -56,7 +63,10 @@ export default async function AuditLogPage() {
       </div>
 
       <p className="mt-4 text-caption text-mute" lang="ne">
-        अडिट घटना <code className="font-mono text-ink-soft" lang="en">AuditLog</code>{' '}
+        अडिट घटना{' '}
+        <code className="font-mono text-ink-soft" lang="en">
+          AuditLog
+        </code>{' '}
         इन्टरफेसमा लेखिन्छन् — प्रकाशन, फिर्ता, कड मेटाउने र भूमिका परिवर्तन स्वतः अभिलेखित हुनेछन्।
       </p>
     </div>

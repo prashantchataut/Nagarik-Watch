@@ -71,7 +71,13 @@ export function CommentSection({
         }
         // Optimistic: show as pending until a moderator approves.
         setComments((c) => [
-          { id: data.id, authorName, bodyNe, createdAt: new Date().toISOString(), status: 'pending' },
+          {
+            id: data.id,
+            authorName,
+            bodyNe,
+            createdAt: new Date().toISOString(),
+            status: 'pending',
+          },
           ...c,
         ])
         ;(e.target as HTMLFormElement).reset()
@@ -101,7 +107,10 @@ export function CommentSection({
       </h2>
 
       {/* Submit form */}
-      <form onSubmit={submit} className="mt-5 grid gap-3 rounded-lg border border-rule bg-surface-raised p-4">
+      <form
+        onSubmit={submit}
+        className="mt-5 grid gap-3 rounded-lg border border-rule bg-surface-raised p-4"
+      >
         <label className="grid gap-1 text-meta font-semibold text-ink">
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'नाम' : 'Name'}</span>
           <input
@@ -137,7 +146,7 @@ export function CommentSection({
           className="inline-flex h-10 items-center justify-center rounded-full bg-brand px-5 text-meta font-semibold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:cursor-not-allowed disabled:opacity-60"
           lang={ne ? 'ne' : 'en'}
         >
-          {pending ? (ne ? 'पठाइँदै…' : 'Posting…') : (ne ? 'टिप्पणी पठाउनुहोस्' : 'Post comment')}
+          {pending ? (ne ? 'पठाइँदै…' : 'Posting…') : ne ? 'टिप्पणी पठाउनुहोस्' : 'Post comment'}
         </button>
         <p className="text-caption text-mute" lang={ne ? 'ne' : 'en'}>
           {ne
@@ -167,11 +176,17 @@ export function CommentSection({
                   {new Date(c.createdAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}
                 </time>
               </div>
-              <p className="mt-2 text-body text-ink-soft whitespace-pre-wrap" lang={ne ? 'ne' : 'en'}>
+              <p
+                className="mt-2 text-body text-ink-soft whitespace-pre-wrap"
+                lang={ne ? 'ne' : 'en'}
+              >
                 {c.bodyNe}
               </p>
               {c.status === 'pending' && (
-                <p className="mt-2 inline-block rounded-full bg-brand-tint px-2 py-0.5 text-caption font-semibold text-brand-strong" lang={ne ? 'ne' : 'en'}>
+                <p
+                  className="mt-2 inline-block rounded-full bg-brand-tint px-2 py-0.5 text-caption font-semibold text-brand-strong"
+                  lang={ne ? 'ne' : 'en'}
+                >
                   {ne ? 'स्वीकृतिको प्रतीक्षा' : 'Awaiting approval'}
                 </p>
               )}

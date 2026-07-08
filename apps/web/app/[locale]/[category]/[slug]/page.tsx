@@ -71,7 +71,10 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         locale={locale}
         crumbs={[
           {
-            name: locale === 'en' && article.category.nameEn ? article.category.nameEn : article.category.nameNe,
+            name:
+              locale === 'en' && article.category.nameEn
+                ? article.category.nameEn
+                : article.category.nameNe,
             path: `${prefix}/${category}`,
           },
           { name: title, path: `/${category}/${slug}` },
@@ -81,8 +84,15 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
 
       <header className="mx-auto max-w-body px-4 pt-8 sm:pt-12">
         {/* Visible breadcrumb trail — schema is emitted separately above. */}
-        <nav aria-label="breadcrumb" className="mb-5 flex flex-wrap items-center gap-1.5 text-caption text-mute sm:mb-6">
-          <Link href={locale === 'en' ? '/en' : '/'} className="hover:text-brand-strong" lang={locale === 'en' ? 'en' : 'ne'}>
+        <nav
+          aria-label="breadcrumb"
+          className="mb-5 flex flex-wrap items-center gap-1.5 text-caption text-mute sm:mb-6"
+        >
+          <Link
+            href={locale === 'en' ? '/en' : '/'}
+            className="hover:text-brand-strong"
+            lang={locale === 'en' ? 'en' : 'ne'}
+          >
             {locale === 'en' ? 'Home' : 'गृह'}
           </Link>
           <span aria-hidden="true">/</span>
@@ -91,16 +101,24 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             className="hover:text-brand-strong"
             lang={locale === 'en' && article.category.nameEn ? 'en' : 'ne'}
           >
-            {locale === 'en' && article.category.nameEn ? article.category.nameEn : article.category.nameNe}
+            {locale === 'en' && article.category.nameEn
+              ? article.category.nameEn
+              : article.category.nameNe}
           </Link>
         </nav>
 
         <CategoryLabel category={article.category} locale={locale} as="span" className="mb-3" />
-        <h1 className="font-display text-[clamp(2rem,9vw,3.35rem)] font-extrabold leading-[1.12] tracking-[-0.01em] text-ink" lang={titleLang}>
+        <h1
+          className="font-display text-[clamp(2rem,9vw,3.35rem)] font-extrabold leading-[1.12] tracking-[-0.01em] text-ink"
+          lang={titleLang}
+        >
           {title}
         </h1>
         {deck && (
-          <p className="mt-4 text-[1.08rem] leading-[1.85] text-ink-soft sm:mt-5 sm:text-[1.25rem]" lang={titleLang}>
+          <p
+            className="mt-4 text-[1.08rem] leading-[1.85] text-ink-soft sm:mt-5 sm:text-[1.25rem]"
+            lang={titleLang}
+          >
             {deck}
           </p>
         )}
@@ -111,12 +129,18 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             publishedAt={article.publishedAt}
             source={article.source}
           />
-          <span aria-hidden="true" className="text-mute">·</span>
+          <span aria-hidden="true" className="text-mute">
+            ·
+          </span>
           <span lang={locale === 'en' ? 'en' : 'ne'}>{readingLabel}</span>
         </div>
         {locale === 'en' && !article.hasEnglish && (
-          <p className="mt-4 rounded-lg border border-rule bg-surface-raised px-4 py-3 text-meta text-ink-soft" lang="en">
-            This article is not available in English yet. Showing the Nepali edition so the language switch does not break the reading path.
+          <p
+            className="mt-4 rounded-lg border border-rule bg-surface-raised px-4 py-3 text-meta text-ink-soft"
+            lang="en"
+          >
+            This article is not available in English yet. Showing the Nepali edition so the language
+            switch does not break the reading path.
           </p>
         )}
       </header>
@@ -171,7 +195,11 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             </div>
 
             {article.corrections && article.corrections.length > 0 && (
-              <CorrectionNotice corrections={article.corrections} locale={locale} className="mt-6" />
+              <CorrectionNotice
+                corrections={article.corrections}
+                locale={locale}
+                className="mt-6"
+              />
             )}
 
             <ArticleBody blocks={body} locale={locale} source={article.source} className="mt-8" />
@@ -180,7 +208,12 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
               <TagRow tags={article.tags} locale={locale} className="mt-10" />
             )}
 
-            <AdSlot locale={locale} placementKey="article-native-related" variant="native" className="mt-10" />
+            <AdSlot
+              locale={locale}
+              placementKey="article-native-related"
+              variant="native"
+              className="mt-10"
+            />
 
             <div className="mt-12">
               <CommentSection
@@ -211,7 +244,6 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
           className="mx-auto mt-16 max-w-page px-4"
         />
       )}
-
     </article>
   )
 }
@@ -240,7 +272,10 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       canonical: article.canonicalUrl ?? canonical,
       languages: { ne: `/${category}/${slug}`, en: `/en/${category}/${slug}` },
     },
-    robots: article.noindex || (locale === 'en' && !article.hasEnglish) ? { index: false, follow: true } : undefined,
+    robots:
+      article.noindex || (locale === 'en' && !article.hasEnglish)
+        ? { index: false, follow: true }
+        : undefined,
     openGraph: {
       type: 'article',
       title,

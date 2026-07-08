@@ -77,7 +77,9 @@ async function ensureSchema(): Promise<Queryable | null> {
           confirmed_at timestamptz
         )
       `)
-      await pool.query(`CREATE INDEX IF NOT EXISTS nw_newsletter_status_idx ON nw_newsletter_subscribers(status, created_at DESC)`)
+      await pool.query(
+        `CREATE INDEX IF NOT EXISTS nw_newsletter_status_idx ON nw_newsletter_subscribers(status, created_at DESC)`,
+      )
     })()
   }
   await schemaReady
@@ -113,7 +115,10 @@ export async function addPendingSubscriber(email: string, token: string): Promis
 export async function removePendingSubscriber(token: string): Promise<void> {
   const pool = await ensureSchema()
   if (pool) {
-    await pool.query(`UPDATE nw_newsletter_subscribers SET token = NULL WHERE token = $1 AND status = 'pending'`, [token])
+    await pool.query(
+      `UPDATE nw_newsletter_subscribers SET token = NULL WHERE token = $1 AND status = 'pending'`,
+      [token],
+    )
     return
   }
   getSubscriberStore().pendingSubscribers.delete(token)
@@ -131,7 +136,8 @@ export async function getPendingSubscriber(token: string): Promise<PendingSubscr
     )
     const row = result.rows[0]
     if (!row?.token) return null
-    const createdAt = row.created_at instanceof Date ? row.created_at.getTime() : Date.parse(row.created_at)
+    const createdAt =
+      row.created_at instanceof Date ? row.created_at.getTime() : Date.parse(row.created_at)
     return { email: row.email, token: row.token, createdAt }
   }
   return getSubscriberStore().pendingSubscribers.get(token) ?? null

@@ -35,7 +35,8 @@ export function isTrustedWriteRequest(request: NextRequest): boolean {
 
 function safeOrigin(value: string): string | null {
   try {
-    const withProtocol = value.startsWith('http://') || value.startsWith('https://') ? value : `https://${value}`
+    const withProtocol =
+      value.startsWith('http://') || value.startsWith('https://') ? value : `https://${value}`
     return new URL(withProtocol).origin
   } catch {
     return null

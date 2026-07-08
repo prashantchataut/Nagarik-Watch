@@ -68,8 +68,7 @@ export function AdminButton({
 }) {
   const cls = cn(
     'inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-meta font-semibold transition-colors duration-fast ease-out-quint focus:outline-none focus:ring-2 focus:ring-brand-tint focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-    variant === 'primary' &&
-      'bg-brand text-surface hover:bg-brand-strong',
+    variant === 'primary' && 'bg-brand text-surface hover:bg-brand-strong',
     variant === 'secondary' &&
       'border border-rule text-ink hover:border-brand hover:text-brand-strong',
     variant === 'ghost' && 'text-ink-soft hover:bg-brand-tint hover:text-brand-strong',
