@@ -82,7 +82,7 @@ export default async function LiveAdminPage() {
               <div key={provider.key} className="rounded-md border border-rule bg-surface p-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-semibold text-ink" lang="en">{provider.label}</p>
-                  <span className={`rounded-full px-2.5 py-1 text-caption font-bold ${provider.status === 'ok' || provider.status === 'success' ? 'bg-brand-tint text-brand-strong' : 'bg-surface-raised text-ink-soft'}`}>
+                  <span className={`rounded-full px-2.5 py-1 text-caption font-bold ${provider.status === 'ok' ? 'bg-brand-tint text-brand-strong' : 'bg-surface-raised text-ink-soft'}`}>
                     {provider.status}
                   </span>
                 </div>

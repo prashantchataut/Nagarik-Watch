@@ -1,11 +1,11 @@
 import type { Locale } from '@nagarikwatch/db'
-import { getLaunchIssues } from '@/lib/launch-readiness'
+import { getLaunchChecks } from '@/lib/launch-readiness'
 
 export function LaunchReadinessBanner({ locale }: { locale: Locale }) {
-  const issues = getLaunchIssues()
+  const issues = getLaunchChecks()
   const status = process.env.NEXT_PUBLIC_LAUNCH_STATUS ?? 'preview'
-  const blockers = issues.filter((issue) => issue.severity === 'blocker')
-  const warnings = issues.filter((issue) => issue.severity === 'warning')
+  const blockers = issues.filter((issue) => issue.status === 'fail')
+  const warnings = issues.filter((issue) => issue.status === 'warn')
   const lang = locale === 'en' ? 'en' : 'ne'
 
   if (status === 'live' && blockers.length === 0) return null
@@ -40,7 +40,7 @@ export function LaunchReadinessBanner({ locale }: { locale: Locale }) {
                 key={issue.key}
                 className="rounded-full border border-rule bg-surface px-3 py-1 text-caption font-semibold text-ink"
               >
-                {locale === 'en' ? issue.labelEn : issue.labelNe}
+                {issue.label}
               </li>
             ))}
           </ul>

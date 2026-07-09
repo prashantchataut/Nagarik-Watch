@@ -35,7 +35,7 @@ export async function AdSlot({
   const placement = adPlacement(placementKey)
   const mode = getAdMode()
   const adLabel = dict.adLabel
-  const houseAd = mode === 'house' ? await getHouseAd(placement.key) : null
+  const houseAd = mode === 'house' ? await getHouseAd(placement.key as AdPlacementKey) : null
   const mediaKitHref = localizeHref(locale, '/advertise')
   const resolvedVariant = variant ?? resolveVariant(placement.size)
 

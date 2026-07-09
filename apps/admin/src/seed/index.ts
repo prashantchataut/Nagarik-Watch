@@ -55,7 +55,7 @@ async function main() {
 
 async function resetContent(payload: BasePayload) {
   payload.logger.info('--reset: wiping articles, tags, authors, categories, media…')
-  for (const slug of ['articles', 'tags', 'authors', 'categories', 'media']) {
+  for (const slug of ['articles', 'tags', 'authors', 'categories', 'media'] as const) {
     const { docs } = await payload.find({ collection: slug, limit: 1000, depth: 0 })
     for (const doc of docs) {
       await payload.delete({ collection: slug, id: doc.id }).catch(() => {})
@@ -135,20 +135,20 @@ async function seedArticles(
     }
     const authorRows = a.authors
       .map((au) => refs.authorIds.get(au.slug))
-      .filter((id): id is number | string => Boolean(id))
-      .map((id) => ({ author: id }))
+      .filter((id): id is NonNullable<typeof id> => Boolean(id))
+      .map((id) => ({ author: Number(id) }))
     if (!authorRows.length) {
       payload.logger.warn(`article ${a.slug}: no resolvable authors, skipping`)
       continue
     }
     const tagRows = a.tags
       .map((t) => refs.tagIds.get(t.slug))
-      .filter((id): id is number | string => Boolean(id))
-      .map((id) => ({ tag: id }))
+      .filter((id): id is NonNullable<typeof id> => Boolean(id))
+      .map((id) => ({ tag: Number(id) }))
 
     const heroMediaId = a.heroImage ? await ensureMedia(payload, a) : undefined
 
-    const sourceType = a.source?.sourceType ?? 'original'
+    const sourceType = a.source?.sourceType ?? ('original' as const)
     const data = {
       titleNe: a.titleNe,
       titleEn: a.titleEn,
@@ -157,27 +157,27 @@ async function seedArticles(
       deckEn: a.deckEn,
       bodyNe: a.bodyNe as ArticleBlock[],
       bodyEn: a.bodyEn,
-      englishStatus: a.hasEnglish ? 'published' : 'none',
-      category: categoryId,
+      englishStatus: a.hasEnglish ? ('published' as const) : ('none' as const),
+      category: Number(categoryId),
       tags: tagRows,
       authors: authorRows,
-      heroImage: heroMediaId,
+      heroImage: heroMediaId ? Number(heroMediaId) : undefined,
       heroCredit: a.heroCredit,
       sourceType,
       sourceName: a.source?.sourceName,
       sourceUrl: a.source?.sourceUrl,
       sourcePublishedAt: a.source?.sourcePublishedAt,
       isBreaking: a.isBreaking,
-      featuredState: 'none',
-      locale: 'ne',
+      featuredState: 'none' as const,
+      locale: 'ne' as const,
       publishedAt: a.publishedAt,
-      _status: PUBLISH ? 'published' : 'draft',
+      _status: PUBLISH ? ('published' as const) : ('draft' as const),
     }
 
     const existing = await findBySlug(payload, 'articles', a.slug)
     const result = existing
       ? await payload.update({ collection: 'articles', id: existing.id, data })
-      : await payload.create({ collection: 'articles', data })
+      : await payload.create({ collection: 'articles', data, draft: true })
     payload.logger.info(`article: ${a.slug} → ${result.id}`)
   }
 }
@@ -217,7 +217,7 @@ function imageNameFromUrl(url: string): string {
 
 async function findBySlug(
   payload: BasePayload,
-  collection: string,
+  collection: 'articles' | 'categories' | 'authors' | 'tags',
   slug: string,
 ): Promise<{ id: number | string } | null> {
   const { docs } = await payload.find({

@@ -3,7 +3,6 @@ import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Categories } from './collections/Categories'

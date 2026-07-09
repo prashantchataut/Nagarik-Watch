@@ -1,8 +1,6 @@
-import Link from 'next/link'
 import type { Article, Locale, StoryCardData } from '@nagarikwatch/db'
 import { StoryCard } from '@nagarikwatch/ui'
 import { getArticleBySlug, getStories } from '@/lib/content'
-import { localizeHref } from '@/lib/i18n/locales'
 import { rankStories } from '@/lib/ranking'
 import { localizedLead, localizedTitle, type StaticHub } from '@/lib/site'
 import { UtilityWidgetRail } from '@/components/live/LiveWidgets'
