@@ -34,9 +34,11 @@ export type NewsroomSession = ReaderSession & {
 }
 
 const NEWSROOM_ROLES: ReadonlySet<NewsroomRole> = new Set<NewsroomRole>([
+  'viewer',
   'contributor',
   'journalist',
   'photo_video_editor',
+  'reviewer',
   'copy_editor',
   'fact_checker',
   'assistant_editor',
@@ -104,9 +106,11 @@ export async function elevateUserToRole(email: string, role: string): Promise<bo
   // Reader is a valid role on the const but is NOT a newsroom role; reject it
   // here so a UI bug can't silently demote a staffer out of the newsroom.
   const newsroomRoles: ReadonlySet<string> = new Set([
+    'viewer',
     'contributor',
     'journalist',
     'photo_video_editor',
+    'reviewer',
     'copy_editor',
     'fact_checker',
     'assistant_editor',

@@ -6,6 +6,11 @@ export { wilsonScore }
 export type RankingSignals = {
   editorialPriority?: number
   viewsPerHour?: number
+  viewsLast10Min?: number
+  baselineViewsPer10Min?: number
+  impressions?: number
+  clicks?: number
+  conversions?: number
   sharesPerHour?: number
   commentsPerHour?: number
   shareVelocity?: number
@@ -21,6 +26,7 @@ export type RankingSignals = {
   diversityBoost?: number
   fatiguePenalty?: number
   qualityTrustScore?: number
+  ltvScore?: number
   premium?: boolean
   sponsored?: boolean
   doNotRecommend?: boolean
@@ -37,6 +43,11 @@ export type RankedStory<T extends StoryCardData = StoryCardData> = T & {
 const DEFAULT_SIGNALS: RankedStory['rankSignals'] = {
   editorialPriority: 0,
   viewsPerHour: 0,
+  viewsLast10Min: 0,
+  baselineViewsPer10Min: 0,
+  impressions: 0,
+  clicks: 0,
+  conversions: 0,
   sharesPerHour: 0,
   commentsPerHour: 0,
   shareVelocity: 0,
@@ -52,6 +63,7 @@ const DEFAULT_SIGNALS: RankedStory['rankSignals'] = {
   diversityBoost: 0,
   fatiguePenalty: 0,
   qualityTrustScore: 0,
+  ltvScore: 0,
   premium: false,
   sponsored: false,
   doNotRecommend: false,
@@ -68,6 +80,73 @@ export function timeDecayScore(publishedAt: string, now = new Date()): number {
   return 100 / Math.pow(1 + ageHours / 18, 1.35)
 }
 
+export function bayesianAverage({
+  clicks = 0,
+  impressions = 0,
+  priorMean = 0.08,
+  priorWeight = 50,
+}: {
+  clicks?: number
+  impressions?: number
+  priorMean?: number
+  priorWeight?: number
+}): number {
+  const safeImpressions = Math.max(0, impressions)
+  const safeClicks = Math.min(Math.max(0, clicks), safeImpressions)
+  return (priorMean * priorWeight + safeClicks) / (priorWeight + safeImpressions)
+}
+
+export function velocityScore({
+  viewsLast10Min = 0,
+  baselineViewsPer10Min = 1,
+}: Pick<RankingSignals, 'viewsLast10Min' | 'baselineViewsPer10Min'>): number {
+  const baseline = Math.max(1, baselineViewsPer10Min ?? 1)
+  return Math.log1p(Math.max(0, viewsLast10Min ?? 0) / baseline)
+}
+
+export function burstScore({
+  viewsLast10Min = 0,
+  baselineViewsPer10Min = 1,
+}: Pick<RankingSignals, 'viewsLast10Min' | 'baselineViewsPer10Min'>): number {
+  const baseline = Math.max(1, baselineViewsPer10Min ?? 1)
+  const ratio = Math.max(0, viewsLast10Min ?? 0) / baseline
+  return ratio >= 5 ? Math.min(3, Math.log(ratio)) : 0
+}
+
+export function banditExplorationScore({
+  impressions = 0,
+  clicks = 0,
+  totalImpressions = 1,
+}: {
+  impressions?: number
+  clicks?: number
+  totalImpressions?: number
+}): number {
+  const n = Math.max(1, impressions)
+  const total = Math.max(n + 1, totalImpressions)
+  const mean = clicks / n
+  return mean + Math.sqrt((2 * Math.log(total)) / n)
+}
+
+export function ltvEngagementScore({
+  dwellTimeSeconds = 0,
+  readingCompletion = 0,
+  bookmarkVelocity = 0,
+  shareVelocity = 0,
+  conversions = 0,
+}: Pick<
+  RankingSignals,
+  'dwellTimeSeconds' | 'readingCompletion' | 'bookmarkVelocity' | 'shareVelocity' | 'conversions'
+>): number {
+  return (
+    Math.min(1, (dwellTimeSeconds ?? 0) / 180) * 0.3 +
+    Math.min(1, readingCompletion ?? 0) * 0.3 +
+    Math.min(1, (bookmarkVelocity ?? 0) / 8) * 0.15 +
+    Math.min(1, (shareVelocity ?? 0) / 8) * 0.15 +
+    Math.min(1, (conversions ?? 0) / 3) * 0.1
+  )
+}
+
 export function weightedScore(
   story: StoryCardData,
   signals: RankingSignals = {},
@@ -76,8 +155,26 @@ export function weightedScore(
   const merged = { ...DEFAULT_SIGNALS, ...signals }
   if (merged.doNotRecommend) return Number.NEGATIVE_INFINITY
 
+  const bayesianCtr = bayesianAverage({
+    clicks: merged.clicks,
+    impressions: merged.impressions,
+  })
+  const velocity = velocityScore(merged)
+  const burst = burstScore(merged)
+  const bandit = banditExplorationScore({
+    impressions: merged.impressions,
+    clicks: merged.clicks,
+    totalImpressions: Math.max(1, merged.impressions + merged.viewsPerHour * 24),
+  })
+  const ltv = merged.ltvScore || ltvEngagementScore(merged)
+
   const engagementScore =
     Math.log1p(merged.viewsPerHour) * 4 +
+    bayesianCtr * 80 +
+    velocity * 14 +
+    burst * 18 +
+    bandit * 7 +
+    ltv * 16 +
     Math.log1p(merged.sharesPerHour) * 8 +
     Math.log1p(merged.commentsPerHour) * 3 +
     Math.log1p(merged.shareVelocity) * 6 +
@@ -169,13 +266,25 @@ export const ALGORITHM_ROADMAP = [
   'trending-detection',
   'velocity-ranking',
   'burst-detection',
-  'multi-armed-bandit-placeholder',
-  'bayesian-ranking-placeholder',
+  'multi-armed-bandit',
+  'bayesian-ranking',
   'wilson-score-ranking',
   'content-based-filtering',
-  'collaborative-filtering-placeholder',
-  'matrix-factorization-placeholder',
-  'embedding-similarity-placeholder',
   'session-based-recommendation',
   'hybrid-recommender',
+] as const
+
+
+export const ACTIVE_ALGORITHM_REGISTRY = [
+  { id: 'weighted-scoring-ranker', label: 'Weighted Scoring Ranker', surface: 'homepage/category/trending' },
+  { id: 'time-decay-ranking', label: 'Time Decay Algorithm', surface: 'latest and breaking news' },
+  { id: 'trending-detection', label: 'Trending Detection', surface: 'trending pages and admin live panel' },
+  { id: 'velocity-ranking', label: 'Velocity Ranking', surface: 'ranking engine' },
+  { id: 'burst-detection', label: 'Burst Detection', surface: 'breaking/election/disaster spikes' },
+  { id: 'multi-armed-bandit', label: 'Multi-Armed Bandit', surface: 'headline/layout experiments' },
+  { id: 'bayesian-ranking', label: 'Bayesian Ranking', surface: 'low-sample bias correction' },
+  { id: 'wilson-score-ranking', label: 'Wilson Score Ranking', surface: 'comments and community scores' },
+  { id: 'content-based-filtering', label: 'Content-Based Filtering', surface: 'related stories' },
+  { id: 'session-based-recommendation', label: 'Session-Based Recommendation', surface: 'saved/recommended modules' },
+  { id: 'ltv-engagement-score', label: 'LTV / Engagement Score', surface: 'admin live panel and recommendations' },
 ] as const

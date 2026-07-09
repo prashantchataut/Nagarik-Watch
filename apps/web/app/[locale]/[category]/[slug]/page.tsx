@@ -20,6 +20,9 @@ import { CommentSection } from '@/components/article/CommentSection'
 import { AdSlot } from '@/components/AdSlot'
 import { SITE_URL } from '@/lib/site'
 import { relatedByContent } from '@/lib/ranking'
+import { getSession } from '@/lib/auth/session'
+import { isPremiumSubscriber } from '@/lib/membership'
+import { PaywallNotice } from '@/components/article/PaywallNotice'
 
 type Params = { locale: string; category: string; slug: string }
 
@@ -56,6 +59,9 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const related = relatedByContent(article, relatedPool.items, 6)
 
   const readingLabel = dict.readingTime(article.readingMinutes)
+  const session = await getSession()
+  const canReadFullArticle = !article.premium || (await isPremiumSubscriber(session))
+  const visibleBody = canReadFullArticle ? body : body.slice(0, 3)
 
   return (
     <article>
@@ -107,7 +113,14 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
           </Link>
         </nav>
 
-        <CategoryLabel category={article.category} locale={locale} as="span" className="mb-3" />
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <CategoryLabel category={article.category} locale={locale} as="span" />
+          {article.premium ? (
+            <span className="rounded-full border border-brand/30 bg-brand-tint px-2.5 py-0.5 text-caption font-bold text-brand-strong" lang={locale === 'en' ? 'en' : 'ne'}>
+              {locale === 'en' ? 'Premium' : 'Premium'}
+            </span>
+          ) : null}
+        </div>
         <h1
           className="font-display text-[clamp(2rem,9vw,3.35rem)] font-extrabold leading-[1.12] tracking-[-0.01em] text-ink"
           lang={titleLang}
@@ -202,19 +215,24 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
               />
             )}
 
-            <ArticleBody blocks={body} locale={locale} source={article.source} className="mt-8" />
+            <ArticleBody blocks={visibleBody} locale={locale} source={article.source} className="mt-8" />
 
-            {article.tags.length > 0 && (
+            {!canReadFullArticle ? <PaywallNotice locale={locale} /> : null}
+
+            {canReadFullArticle && article.tags.length > 0 && (
               <TagRow tags={article.tags} locale={locale} className="mt-10" />
             )}
 
-            <AdSlot
-              locale={locale}
-              placementKey="article-native-related"
-              variant="native"
-              className="mt-10"
-            />
+            {canReadFullArticle ? (
+              <AdSlot
+                locale={locale}
+                placementKey="article-native-related"
+                variant="native"
+                className="mt-10"
+              />
+            ) : null}
 
+            {canReadFullArticle ? (
             <div className="mt-12">
               <CommentSection
                 articleSlug={slug}
@@ -223,6 +241,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
                 commentsEnabled={article.commentsEnabled !== false}
               />
             </div>
+            ) : null}
           </div>
 
           <aside

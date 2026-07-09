@@ -29,8 +29,8 @@ export type ProviderHealth = {
 }
 
 const PROVIDERS = [
-  { key: 'weather', label: 'Weather', envVars: ['WEATHER_API_KEY'], check: getWeather },
-  { key: 'aqi', label: 'AQI', envVars: ['AQI_API_KEY'], check: getAQI },
+  { key: 'weather', label: 'Weather', envVars: [], check: getWeather },
+  { key: 'aqi', label: 'AQI', envVars: [], check: getAQI },
   { key: 'nepse', label: 'NEPSE', envVars: ['NEPSE_API_KEY'], check: getNepseMarket },
   {
     key: 'bullion',
@@ -83,7 +83,7 @@ export async function getProviderHealth(): Promise<ProviderHealth[]> {
           label: provider.label,
           envVars: [...provider.envVars],
           status:
-            result.status === 'mock' && !configured(provider.envVars)
+            result.status === 'mock' && provider.envVars.length > 0 && !configured(provider.envVars)
               ? 'unconfigured'
               : result.status,
           source: result.source,

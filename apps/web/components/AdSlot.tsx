@@ -4,6 +4,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
 import { adPlacement, getAdMode, type AdPlacementKey, type AdSize } from '@/lib/ads'
 import { AdTracker } from '@/components/ads/AdTracker'
+import { getHouseAd } from '@/lib/house-ads'
 
 const SIZE_CLASS: Record<AdSize, string> = {
   leaderboard: 'min-h-[90px] w-full max-w-[728px]',
@@ -16,7 +17,7 @@ const SIZE_CLASS: Record<AdSize, string> = {
 
 type AdVariant = 'standard' | 'billboard' | 'rail' | 'inline' | 'native' | 'mobile'
 
-export function AdSlot({
+export async function AdSlot({
   locale,
   className = '',
   placementKey,
@@ -34,6 +35,7 @@ export function AdSlot({
   const placement = adPlacement(placementKey)
   const mode = getAdMode()
   const adLabel = dict.adLabel
+  const houseAd = mode === 'house' ? await getHouseAd(placement.key) : null
   const mediaKitHref = localizeHref(locale, '/advertise')
   const resolvedVariant = variant ?? resolveVariant(placement.size)
 
@@ -73,7 +75,23 @@ export function AdSlot({
             {placement.width} × {placement.height} · {placement.key}
           </span>
         </div>
-        {mode === 'network' ? (
+        {mode === 'house' && houseAd?.active ? (
+          <a
+            href={houseAd.href}
+            className={resolvedVariant === 'native' ? 'max-w-[28rem] text-left' : 'max-w-[24rem]'}
+            data-ad-click-target={placement.key}
+          >
+            <span className="block font-display text-body-lg font-bold text-ink">
+              {houseAd.title}
+            </span>
+            <span className="mt-1 block text-caption leading-relaxed text-ink-soft">
+              {houseAd.body}
+            </span>
+            <span className="mt-3 inline-flex rounded-full border border-rule bg-surface px-3 py-1.5 text-caption font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong">
+              {houseAd.cta}
+            </span>
+          </a>
+        ) : mode === 'network' ? (
           <span className="mt-2 max-w-[22rem] text-caption leading-relaxed text-ink-soft sm:mt-0">
             {description}
           </span>

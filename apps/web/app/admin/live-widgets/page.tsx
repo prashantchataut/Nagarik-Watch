@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
+import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getProviderHealth } from '@/lib/live/health'
+import { listManualLiveRecords, setManualLiveRecord } from '@/lib/live/manual'
 import { formatDate } from '@nagarikwatch/db'
 import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
 
@@ -11,19 +13,61 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-/**
- * Live widgets configuration. Calls getProviderHealth() — the same call
- * the dashboard uses — and renders the full provider table. The dashboard
- * shows the summary; this page is the detailed operations view: env vars,
- * source, last-updated timestamp, error message. The note at the top
- * explains the fallback policy: when an env var is missing, the widget
- * falls back to mock data so the homepage still renders.
- */
+const MANUAL_KEYS = [
+  {
+    key: 'nepse',
+    label: 'NEPSE',
+    example: '{"index":2840.25,"change":18.5,"changePercent":0.66,"open":true}',
+  },
+  {
+    key: 'forex',
+    label: 'Forex',
+    example: '[{"iso3":"USD","name":"US Dollar","buy":133.2,"sell":133.8,"unit":"NPR"}]',
+  },
+  {
+    key: 'gold-silver',
+    label: 'Gold/Silver',
+    example: '{"goldTolaNpr":158500,"silverTolaNpr":1850,"goldGramNpr":13600,"silverGramNpr":158,"unit":"NPR per tola"}',
+  },
+  {
+    key: 'football',
+    label: 'Football/FIFA',
+    example: '[{"league":"FIFA World Cup 2026","home":"Germany","away":"Japan","score":"2-1","minute":"FT","status":"finished"}]',
+  },
+  {
+    key: 'cricket',
+    label: 'Cricket',
+    example: '[{"league":"Nepal tour","home":"Nepal","away":"UAE","score":"142/6","status":"Live"}]',
+  },
+]
+
+async function saveManualLive(formData: FormData) {
+  'use server'
+  await requireNewsroomSession()
+  const key = String(formData.get('key') ?? '')
+  if (!MANUAL_KEYS.some((item) => item.key === key)) return
+  const raw = String(formData.get('data') ?? '').trim()
+  if (!raw) return
+  let data: unknown
+  try {
+    data = JSON.parse(raw)
+  } catch {
+    return
+  }
+  await setManualLiveRecord({
+    key,
+    source: String(formData.get('source') ?? '').trim() || 'Newsroom manual update',
+    data,
+  })
+  revalidatePath('/admin/live-widgets')
+}
+
 export default async function LiveWidgetsPage() {
-  const session = await requireNewsroomSession()
-  void session // auth gate; session unused on this surface
+  await requireNewsroomSession()
 
   const providers = await getProviderHealth().catch(() => [])
+  const manualRecords = await listManualLiveRecords().catch(() => [])
+  const manualByKey = new Map(manualRecords.map((record) => [record.key, record]))
 
   const statusLabel: Record<string, string> = {
     ok: 'सक्रिय',
@@ -42,100 +86,107 @@ export default async function LiveWidgetsPage() {
     <div>
       <AdminPageHeader
         title="लाइभ विजेट"
-        subtitle={`${providers.length} वटा बाह्य डाटा प्रदायकको स्थिति`}
+        subtitle={`${providers.length} वटा बाह्य डाटा प्रदायक + manual override`}
       />
 
       <AdminCard className="mb-5 border-l-4 border-l-brand">
         <p className="text-body text-ink" lang="ne">
-          प्रदायकको{' '}
-          <code className="font-mono text-ink-soft" lang="en">
-            API_KEY
-          </code>{' '}
-          नकन्फिगर गरिएको अवस्थामा विजेट स्वतः नमुना डाटामा फर्कन्छ — गृहपृष्ठ खण्डित हुँदैन। तलको
-          तालिकामा प्रत्येक प्रदायकको स्थिति, आवश्यक पर्ने env चर, स्रोत र अन्तिम अपडेट समय देखिन्छ।
+          Weather/AQI keyless Open-Meteo बाट चल्छ। NEPSE, FIFA/football, bullion वा forex provider fail भए fake-looking mock नदेखाउन editor ले तल manual JSON override राख्न सक्छ।
         </p>
       </AdminCard>
+
+      <section className="mb-6 rounded-lg border border-rule bg-surface-raised p-5">
+        <h2 className="font-display text-h1 text-ink" lang="ne">Manual live-data override</h2>
+        <p className="mt-2 max-w-body text-meta text-ink-soft" lang="ne">
+          API नभएको वा unstable भएको data यहाँबाट update गर्नुहोस्। JSON shape सही हुनुपर्छ; गलत JSON save हुँदैन।
+        </p>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          {MANUAL_KEYS.map((item) => {
+            const current = manualByKey.get(item.key)
+            return (
+              <form key={item.key} action={saveManualLive} className="rounded-xl border border-rule bg-surface p-4">
+                <input type="hidden" name="key" value={item.key} />
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-display text-h2 text-ink" lang="en">{item.label}</h3>
+                    <p className="mt-1 text-caption text-mute" lang="en">
+                      key: {item.key}
+                    </p>
+                  </div>
+                  {current ? (
+                    <span className="rounded-full bg-brand-tint px-2.5 py-1 text-caption font-semibold text-brand-strong">
+                      Manual active
+                    </span>
+                  ) : null}
+                </div>
+                <label className="mt-3 grid gap-1 text-caption font-semibold text-ink-soft">
+                  Source label
+                  <input
+                    name="source"
+                    defaultValue={current?.source ?? 'Newsroom manual update'}
+                    className="h-10 rounded-md border border-rule bg-surface-raised px-3 text-body text-ink"
+                  />
+                </label>
+                <label className="mt-3 grid gap-1 text-caption font-semibold text-ink-soft">
+                  JSON data
+                  <textarea
+                    name="data"
+                    defaultValue={current ? JSON.stringify(current.data, null, 2) : item.example}
+                    className="min-h-36 rounded-md border border-rule bg-surface-raised px-3 py-2 font-mono text-caption text-ink"
+                  />
+                </label>
+                <button className="mt-3 h-10 rounded-full bg-brand px-5 text-meta font-semibold text-surface hover:bg-brand-strong" type="submit">
+                  Save {item.label}
+                </button>
+              </form>
+            )
+          })}
+        </div>
+      </section>
 
       <div className="overflow-hidden rounded-lg border border-rule bg-surface-raised">
         <table className="min-w-full divide-y divide-rule text-left">
           <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
             <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">
-                प्रदायक
-              </th>
-              <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">
-                आवश्यक env
-              </th>
-              <th className="px-4 py-3 font-semibold" lang="ne">
-                स्थिति
-              </th>
-              <th className="hidden px-4 py-3 font-semibold lg:table-cell" lang="ne">
-                स्रोत
-              </th>
-              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="ne">
-                अन्तिम अपडेट
-              </th>
-              <th className="px-4 py-3 font-semibold" lang="ne">
-                त्रुटि
-              </th>
+              <th className="px-4 py-3 font-semibold" lang="ne">प्रदायक</th>
+              <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">आवश्यक env</th>
+              <th className="px-4 py-3 font-semibold" lang="ne">स्थिति</th>
+              <th className="hidden px-4 py-3 font-semibold lg:table-cell" lang="ne">स्रोत</th>
+              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="ne">अन्तिम अपडेट</th>
+              <th className="px-4 py-3 font-semibold" lang="ne">त्रुटि</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-rule">
             {providers.map((p) => (
               <tr key={p.key} className="hover:bg-brand-tint/30">
                 <td className="px-4 py-3 align-top">
-                  <p className="font-display font-semibold text-ink" lang="ne">
-                    {p.label}
-                  </p>
-                  <code className="font-mono text-caption text-mute" lang="en">
-                    {p.key}
-                  </code>
+                  <p className="font-display font-semibold text-ink" lang="ne">{p.label}</p>
+                  <code className="font-mono text-caption text-mute" lang="en">{p.key}</code>
                 </td>
                 <td className="hidden px-4 py-3 align-top md:table-cell">
                   <ul className="flex flex-col gap-1">
-                    {p.envVars.map((v) => (
-                      <li key={v}>
-                        <code className="font-mono text-caption text-ink-soft" lang="en">
-                          {v}
-                        </code>
-                      </li>
-                    ))}
+                    {p.envVars.length ? p.envVars.map((v) => (
+                      <li key={v}><code className="font-mono text-caption text-ink-soft" lang="en">{v}</code></li>
+                    )) : <li className="text-caption text-mute">No key required</li>}
                   </ul>
                 </td>
                 <td className="px-4 py-3 align-top">
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-caption font-semibold ${statusTone[p.status] ?? 'border border-rule text-mute'}`}
-                    lang="ne"
-                  >
+                  <span className={`rounded-full px-2.5 py-0.5 text-caption font-semibold ${statusTone[p.status] ?? 'border border-rule text-mute'}`} lang="ne">
                     {statusLabel[p.status] ?? p.status}
                   </span>
                 </td>
-                <td
-                  className="hidden px-4 py-3 align-top text-meta text-ink-soft lg:table-cell"
-                  lang="en"
-                >
-                  {p.source}
-                </td>
-                <td
-                  className="hidden px-4 py-3 align-top text-caption text-mute sm:table-cell"
-                  lang="ne"
-                >
+                <td className="hidden px-4 py-3 align-top text-meta text-ink-soft lg:table-cell" lang="en">{p.source}</td>
+                <td className="hidden px-4 py-3 align-top text-caption text-mute sm:table-cell" lang="ne">
                   {p.updatedAt ? formatDate(p.updatedAt, 'ne') : '—'}
                 </td>
                 <td className="px-4 py-3 align-top text-caption text-breaking" lang="ne">
-                  {p.error ? (
-                    <span className="line-clamp-2">{p.error}</span>
-                  ) : (
-                    <span className="text-mute">—</span>
-                  )}
+                  {p.error ? <span className="line-clamp-2">{p.error}</span> : <span className="text-mute">—</span>}
                 </td>
               </tr>
             ))}
             {providers.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-body text-mute" lang="ne">
-                  कुनै प्रदायक जाँच्न सकिएन।
-                </td>
+                <td colSpan={6} className="px-4 py-6 text-center text-body text-mute" lang="ne">कुनै प्रदायक जाँच्न सकिएन।</td>
               </tr>
             )}
           </tbody>

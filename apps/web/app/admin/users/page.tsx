@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
+import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import { NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
-import { AdminPageHeader, AdminCard, AdminButton, StatusBadge } from '@/components/admin/primitives'
+import { NEWSROOM_ROLES, NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
+import { createNewsroomInvite, listNewsroomInvites, listNewsroomUsers, updateUserRoleByEmail } from '@/lib/newsroom-users'
+import { recordAuditEvent } from '@/lib/audit-log'
+import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'प्रयोगकर्ता',
@@ -10,108 +13,57 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-/**
- * User management. Better Auth is the source of truth for users, so this
- * page surfaces only the currently-signed-in account (the only guaranteed
- * row). Invite is gated behind an email provider — Better Auth needs SMTP
- * to send the invite link — so the button stays disabled with a tooltip
- * until that is wired. No fake users are rendered.
- */
+async function inviteUser(formData: FormData) {
+  'use server'
+  const session = await requireNewsroomSession()
+  if (!['admin', 'super_admin'].includes(session.newsroomRole)) return
+  const invite = await createNewsroomInvite({ email: formData.get('email'), role: formData.get('role'), invitedBy: session.email })
+  if (invite) await recordAuditEvent({ session, action: 'create', targetType: 'user_invite', targetId: invite.email, summary: `Invited ${invite.email} as ${invite.role}` })
+  revalidatePath('/admin/users')
+}
+
+async function promoteUser(formData: FormData) {
+  'use server'
+  const session = await requireNewsroomSession()
+  if (!['admin', 'super_admin'].includes(session.newsroomRole)) return
+  const email = String(formData.get('email') ?? '')
+  const role = String(formData.get('role') ?? '')
+  const ok = await updateUserRoleByEmail(email, role)
+  if (ok) await recordAuditEvent({ session, action: 'role_change', targetType: 'user', targetId: email, summary: `Role changed to ${role}` })
+  revalidatePath('/admin/users')
+}
+
 export default async function UsersPage() {
   const session = await requireNewsroomSession()
-
-  const emailConfigured = Boolean(
-    process.env.SMTP_HOST || process.env.EMAIL_SERVER || process.env.RESEND_API_KEY,
-  )
-
-  const users = [
-    {
-      id: session.userId,
-      name: session.displayName ?? session.email.split('@')[0]!,
-      email: session.email,
-      role: session.newsroomRole,
-      status: 'active',
-    },
-  ]
+  const [users, invites] = await Promise.all([
+    listNewsroomUsers({ id: session.userId, email: session.email, name: session.displayName ?? session.email, role: session.newsroomRole, status: 'active' }),
+    listNewsroomInvites(),
+  ])
+  const canManage = ['admin', 'super_admin'].includes(session.newsroomRole)
 
   return (
     <div>
-      <AdminPageHeader
-        title="प्रयोगकर्ता"
-        subtitle="Better Auth द्वारा व्यवस्थित प्रयोगकर्ता खाता"
-        action={
-          <AdminButton
-            disabled
-            title="प्रयोगकर्ता निमन्त्रणाका लागि इमेल प्रदायक कन्फिगर गर्नुहोस्"
-          >
-            + निमन्त्रणा पठाउनुहोस्
-          </AdminButton>
-        }
-      />
-
-      <AdminCard className="mb-5 border-l-4 border-l-brand">
-        <p className="text-body text-ink" lang="ne">
-          प्रयोगकर्ता खाता Better Auth ले व्यवस्थापन गर्छ। खाता सिर्जना, पासवर्ड रिसेट, र सत्र
-          व्यवस्थापन सबै Better Auth API मार्फत हुन्छ — यो पृष्ठले अवलोकन मात्र देखाउँछ। हालको
-          सत्रका प्रयोगकर्ता मात्र तल देखिन्छन्।
-        </p>
-        {!emailConfigured && (
-          <p className="mt-3 text-caption text-mute" lang="ne">
-            निमन्त्रणा पठाउन{' '}
-            <code className="font-mono text-ink-soft" lang="en">
-              SMTP_HOST
-            </code>{' '}
-            वा{' '}
-            <code className="font-mono text-ink-soft" lang="en">
-              RESEND_API_KEY
-            </code>{' '}
-            कन्फिगर गर्नुहोस्।
-          </p>
-        )}
-      </AdminCard>
-
-      <div className="overflow-hidden rounded-lg border border-rule bg-surface-raised">
-        <table className="min-w-full divide-y divide-rule text-left">
-          <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
-            <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">
-                नाम
-              </th>
-              <th className="px-4 py-3 font-semibold" lang="ne">
-                इमेल
-              </th>
-              <th className="px-4 py-3 font-semibold" lang="ne">
-                भूमिका
-              </th>
-              <th className="px-4 py-3 font-semibold" lang="ne">
-                स्थिति
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-rule">
-            {users.map((u) => (
-              <tr key={u.id} className="hover:bg-brand-tint/30">
-                <td className="px-4 py-3 font-display font-semibold text-ink" lang="ne">
-                  {u.name}
-                </td>
-                <td className="px-4 py-3 text-meta text-ink-soft" lang="en">
-                  {u.email}
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className="rounded-full bg-brand-tint px-2.5 py-0.5 text-caption font-semibold text-brand-strong"
-                    lang="ne"
-                  >
-                    {NEWSROOM_ROLE_LABELS_NE[u.role]}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <StatusBadge status="published" />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <AdminPageHeader title="प्रयोगकर्ता" subtitle="Staff accounts, invites and role assignment" />
+      {canManage ? (
+        <AdminCard className="mb-5">
+          <form action={inviteUser} className="grid gap-3 lg:grid-cols-[1fr_220px_auto] lg:items-end">
+            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Email<input name="email" type="email" required className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" /></label>
+            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Role<select name="role" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink">{NEWSROOM_ROLES.filter((role) => role !== 'reader').map((role) => <option key={role} value={role}>{NEWSROOM_ROLE_LABELS_NE[role]}</option>)}</select></label>
+            <button className="rounded-md bg-brand px-4 py-2 text-meta font-bold text-surface hover:bg-brand-strong">Create invite</button>
+          </form>
+        </AdminCard>
+      ) : null}
+      <div className="grid gap-5 xl:grid-cols-[1.4fr_0.9fr]">
+        <AdminCard>
+          <h2 className="font-display text-h2 text-ink">Users</h2>
+          <div className="mt-4 overflow-hidden rounded-lg border border-rule">
+            <table className="min-w-full divide-y divide-rule text-left"><thead className="bg-surface text-caption uppercase tracking-wide text-mute"><tr><th className="px-4 py-3">User</th><th className="px-4 py-3">Role</th><th className="px-4 py-3">Change</th></tr></thead><tbody className="divide-y divide-rule">{users.map((user) => (<tr key={user.id}><td className="px-4 py-3"><p className="font-display font-semibold text-ink">{user.name}</p><p className="text-caption text-mute">{user.email}</p></td><td className="px-4 py-3 text-meta text-ink-soft">{user.role}</td><td className="px-4 py-3">{canManage ? <form action={promoteUser} className="flex gap-2"><input type="hidden" name="email" value={user.email} /><select name="role" defaultValue={user.role} className="h-9 rounded-md border border-rule bg-surface px-2 text-caption text-ink">{NEWSROOM_ROLES.map((role) => <option key={role} value={role}>{role}</option>)}</select><button className="rounded-md border border-rule px-2 text-caption font-bold text-ink-soft hover:border-brand hover:text-brand-strong">Save</button></form> : '—'}</td></tr>))}</tbody></table>
+          </div>
+        </AdminCard>
+        <AdminCard>
+          <h2 className="font-display text-h2 text-ink">Pending invites</h2>
+          <div className="mt-4 grid gap-3">{invites.length ? invites.map((invite) => <div key={invite.id} className="rounded-lg border border-rule bg-surface p-3"><p className="font-semibold text-ink">{invite.email}</p><p className="text-caption text-mute">{invite.role} · {invite.status}</p></div>) : <p className="rounded-lg border border-dashed border-rule p-5 text-center text-meta text-mute">No pending invites.</p>}</div>
+        </AdminCard>
       </div>
     </div>
   )

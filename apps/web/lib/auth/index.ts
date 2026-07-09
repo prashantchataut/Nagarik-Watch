@@ -37,7 +37,7 @@ if (
   )
 }
 
-const EFFECTIVE_AUTH_SECRET = AUTH_SECRET || 'dev-only-secret-change-me-please-32-chars-minimum'
+const EFFECTIVE_AUTH_SECRET = AUTH_SECRET ?? 'local-dev-auth-secret-change-before-production-32'
 
 function normalizeOrigin(value: string | undefined): string | null {
   if (!value) return null
@@ -64,8 +64,7 @@ function trustedOrigins(): string[] {
     process.env.VERCEL_URL,
     process.env.VERCEL_BRANCH_URL,
     process.env.VERCEL_PROJECT_PRODUCTION_URL,
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
+    ...(process.env.NODE_ENV === 'production' ? [] : ['http://localhost:3000', 'http://127.0.0.1:3000']),
   ]
   return Array.from(
     new Set(
@@ -147,13 +146,11 @@ async function buildAuth(): Promise<AuthInstance> {
     },
   }) as unknown as AuthInstance
 
-  // Seed the founder accounts from env on first boot. Fire-and-forget:
-  // getAuth() must resolve to the auth instance immediately so requests can
-  // be served, while the seeds run in the background. Duplicate seeds are
-  // no-ops (email conflict → skip). See MANUAL.md "First boot".
-  void seedBootAccounts(auth).catch(() => {
-    // Swallowed: a failed seed must never block auth from serving requests.
-  })
+  // Seed founder accounts before returning the auth singleton. This removes the
+  // login race where /admin/login is submitted before the boot accounts exist.
+  // If the database is down, surface the boot problem instead of silently
+  // pretending admin login works.
+  await seedBootAccounts(auth)
 
   return auth
 }
@@ -221,7 +218,7 @@ async function seedOne(
     // role update below so existing boot users stay aligned with env.
   }
 
-  await assignBootRole(email, role, displayName).catch(() => undefined)
+  await assignBootRole(email, role, displayName)
 }
 
 async function assignBootRole(email: string, role: string, displayName: string): Promise<void> {

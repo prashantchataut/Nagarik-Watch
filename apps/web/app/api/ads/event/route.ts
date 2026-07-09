@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { AD_PLACEMENTS, type AdMode } from '@/lib/ads'
+import { recordAdEvent } from '@/lib/ad-events'
 
 const events = new Set(['impression', 'click'])
 const modes = new Set<AdMode>(['off', 'house', 'network'])
@@ -14,10 +15,7 @@ export async function POST(request: Request) {
 
   if (!isAdEvent(body)) return NextResponse.json({ ok: false }, { status: 400 })
 
-  if (process.env.NODE_ENV !== 'production') {
-    console.info('[ad-event]', body.event, body.placementKey, body.mode)
-  }
-
+  await recordAdEvent(body)
   return NextResponse.json({ ok: true })
 }
 

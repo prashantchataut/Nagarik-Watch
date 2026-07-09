@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -50,6 +51,7 @@ const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
       { label: 'विषय', href: '/admin/topics', icon: 'topic' },
       { label: 'प्रदेश', href: '/admin/provinces', icon: 'province' },
       { label: 'लेखक', href: '/admin/authors', icon: 'author' },
+      { label: 'पत्रकार workspace', href: '/admin/journalists', icon: 'author' },
     ],
   },
   {
@@ -64,8 +66,11 @@ const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
   {
     heading: 'सञ्चालन',
     items: [
+      { label: 'लाइभ प्यानल', href: '/admin/live', icon: 'signal' },
+      { label: 'एल्गोरिदम', href: '/admin/algorithms', icon: 'algorithm' },
       { label: 'लाइभ विजेट', href: '/admin/live-widgets', icon: 'widget' },
       { label: 'विज्ञापन', href: '/admin/ads', icon: 'ad' },
+      { label: 'सदस्यता', href: '/admin/paywall', icon: 'membership' },
       { label: 'एसइओ', href: '/admin/seo', icon: 'seo' },
       {
         label: 'प्रयोगकर्ता',
@@ -86,6 +91,7 @@ const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
         roles: new Set(['admin', 'super_admin']),
       },
       { label: 'सेटिङ', href: '/admin/settings', icon: 'settings' },
+      { label: 'लन्च चेक', href: '/admin/launch', icon: 'audit' },
     ],
   },
 ]
@@ -97,7 +103,7 @@ export function AdminShell({
 }: {
   session: NewsroomSession
   pathname?: string
-  children: React.ReactNode
+  children: ReactNode
 }) {
   const clientPath = usePathname() ?? initialPathname ?? ''
   const router = useRouter()
@@ -267,12 +273,15 @@ function pageTitle(pathname: string): string {
     '/admin/topics': 'विषय',
     '/admin/provinces': 'प्रदेश',
     '/admin/authors': 'लेखक',
+    '/admin/journalists': 'पत्रकार workspace',
     '/admin/comments': 'टिप्पणी',
     '/admin/submissions': 'टिप',
     '/admin/polls': 'मतदान',
     '/admin/newsletter': 'न्युजलेटर',
     '/admin/live-blogs': 'लाइभ ब्लग',
     '/admin/wire': 'वायर र RSS',
+    '/admin/live': 'लाइभ प्यानल',
+    '/admin/algorithms': 'एल्गोरिदम',
     '/admin/live-widgets': 'लाइभ विजेट',
     '/admin/ads': 'विज्ञापन',
     '/admin/seo': 'एसइओ',
@@ -399,6 +408,18 @@ function NavIcon({ name }: { name: string }) {
         <svg {...props}>
           <rect x="3" y="5" width="18" height="14" rx="2" />
           <path d="m3 7 9 6 9-6" />
+        </svg>
+      )
+    case 'signal':
+      return (
+        <svg {...props}>
+          <path d="M4 19V5M10 19v-9M16 19V8M22 19v-5" />
+        </svg>
+      )
+    case 'algorithm':
+      return (
+        <svg {...props}>
+          <path d="M6 4h12v5H6zM4 15h6v5H4zM14 15h6v5h-6zM12 9v3M7 12h10M7 12v3M17 12v3" />
         </svg>
       )
     case 'widget':

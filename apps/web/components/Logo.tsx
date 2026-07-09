@@ -97,12 +97,6 @@ export function Logo({
         >
           Nagarik Watch
         </span>
-        <span
-          className="mt-0.5 hidden text-[0.54rem] font-bold uppercase tracking-[0.18em] text-gold md:block"
-          lang="en"
-        >
-          Public Interest News
-        </span>
       </span>
     </span>
   )

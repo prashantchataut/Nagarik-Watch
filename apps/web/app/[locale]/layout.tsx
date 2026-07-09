@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import '../globals.css'
 import { fontVariables } from '../fonts'
@@ -56,7 +57,7 @@ export default async function LocaleLayout({
   children,
   params,
 }: {
-  children: React.ReactNode
+  children: ReactNode
   params: Promise<{ locale: string }>
 }) {
   const { locale: rawLocale } = await params
@@ -71,12 +72,12 @@ export default async function LocaleLayout({
       <head>
         <SiteJsonLd siteName={getDictionary(locale).siteName} />
         <script
-          // Resolve the initial theme before paint so there is no flash of the wrong scheme.
-          // Order: persisted choice (nw-theme) wins; otherwise fall back to prefers-color-scheme.
-          // Runs synchronously in <head>, ahead of body render, and is the only place that sets
-          // the attribute on first load — ThemeToggle.tsx reads it after mount.
+          // Resolve the initial theme before paint so locale navigation never flips the colour scheme.
+          // Only an explicit reader choice stored in nw-theme can set dark mode; otherwise the site
+          // starts in light mode. This avoids the reported bug where changing English/Nepali
+          // appeared to inherit the OS dark preference and unexpectedly changed the site theme.
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=localStorage.getItem('nw-theme');var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var t=s==='dark'||s==='light'?s:(m?'dark':'light');document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}catch(e){document.documentElement.setAttribute('data-theme','light');document.documentElement.style.colorScheme='light';}})();`,
+            __html: `(function(){try{var s=localStorage.getItem('nw-theme');var t=s==='dark'?'dark':'light';document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}catch(e){document.documentElement.setAttribute('data-theme','light');document.documentElement.style.colorScheme='light';}})();`,
           }}
         />
       </head>

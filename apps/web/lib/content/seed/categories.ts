@@ -2,7 +2,7 @@ import type { Category } from '@nagarikwatch/db'
 
 /**
  * Seed categories (content-model.md §2). The final list per PRODUCT.md: Politics, Society,
- * Business, Sports, Entertainment, World, Opinion, plus a catch-all Diaspora section. Slugs
+ * Business, Sports, Entertainment, World, Opinion, Literature, Technology, Health, Education, Interview, Photo Story, Video, plus a catch-all Diaspora section. Slugs
  * are Latin (URL segment), labels are Devanagari-primary + English.
  */
 export const categories: Category[] = [
@@ -76,6 +76,77 @@ export const categories: Category[] = [
     navOrder: 7,
     showInNav: true,
   },
+
+  {
+    id: 'cat-literature',
+    slug: 'literature',
+    nameNe: 'साहित्य',
+    nameEn: 'Literature',
+    descriptionNe: 'कविता, कथा, निबन्ध, पुस्तक समीक्षा र साहित्यिक विमर्श।',
+    descriptionEn: 'Poetry, fiction, essays, book reviews and literary criticism.',
+    navOrder: 8,
+    showInNav: true,
+  },
+  {
+    id: 'cat-technology',
+    slug: 'technology',
+    nameNe: 'प्रविधि',
+    nameEn: 'Technology',
+    descriptionNe: 'डिजिटल सेवा, एआई, साइबर सुरक्षा, स्टार्टअप र विज्ञान प्रविधि।',
+    descriptionEn: 'Digital services, AI, cybersecurity, startups, science and technology.',
+    navOrder: 9,
+    showInNav: true,
+  },
+  {
+    id: 'cat-health',
+    slug: 'health',
+    nameNe: 'स्वास्थ्य',
+    nameEn: 'Health',
+    descriptionNe: 'जनस्वास्थ्य, अस्पताल, औषधि, जीवनशैली र स्वास्थ्य नीति।',
+    descriptionEn: 'Public health, hospitals, medicine, lifestyle and health policy.',
+    navOrder: 10,
+    showInNav: true,
+  },
+  {
+    id: 'cat-education',
+    slug: 'education',
+    nameNe: 'शिक्षा',
+    nameEn: 'Education',
+    descriptionNe: 'विद्यालय, विश्वविद्यालय, परीक्षा, छात्रवृत्ति र शिक्षा नीतिका समाचार।',
+    descriptionEn: 'Schools, universities, examinations, scholarships and education policy.',
+    navOrder: 11,
+    showInNav: true,
+  },
+  {
+    id: 'cat-interview',
+    slug: 'interview',
+    nameNe: 'अन्तर्वार्ता',
+    nameEn: 'Interview',
+    descriptionNe: 'समाचार निर्माता, विज्ञ, लेखक र नागरिकसँगका प्रश्नोत्तर।',
+    descriptionEn: 'Q&A with newsmakers, experts, writers and citizens.',
+    navOrder: 12,
+    showInNav: true,
+  },
+  {
+    id: 'cat-photo-story',
+    slug: 'photo-story',
+    nameNe: 'फोटो फिचर',
+    nameEn: 'Photo Story',
+    descriptionNe: 'तस्वीरमार्फत भनिएका सार्वजनिक जीवन, संस्कृति र घटनाका कथा।',
+    descriptionEn: 'Visual reporting on public life, culture and events.',
+    navOrder: 13,
+    showInNav: true,
+  },
+  {
+    id: 'cat-video',
+    slug: 'video',
+    nameNe: 'भिडियो',
+    nameEn: 'Video',
+    descriptionNe: 'भिडियो रिपोर्ट, व्याख्या, अन्तर्वार्ता र मल्टिमिडिया सामग्री।',
+    descriptionEn: 'Video reports, explainers, interviews and multimedia stories.',
+    navOrder: 14,
+    showInNav: true,
+  },
   {
     id: 'cat-diaspora',
     slug: 'diaspora',
@@ -83,7 +154,7 @@ export const categories: Category[] = [
     nameEn: 'Diaspora',
     descriptionNe: 'विदेशमा रहेका नेपालीहरूका समाचार र अनुभव।',
     descriptionEn: 'News and voices of Nepalis living abroad.',
-    navOrder: 8,
+    navOrder: 15,
     showInNav: false,
   },
 ]

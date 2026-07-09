@@ -1,13 +1,9 @@
 import type { Metadata } from 'next'
+import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import {
-  AdminPageHeader,
-  AdminCard,
-  AdminInput,
-  AdminTextarea,
-  AdminSelect,
-  AdminButton,
-} from '@/components/admin/primitives'
+import { createNewsletterIssue, listNewsletterIssues, listNewsletterSubscribers, upsertNewsletterSubscriber } from '@/lib/newsletter-admin'
+import { recordAuditEvent } from '@/lib/audit-log'
+import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'न्युजलेटर',
@@ -16,117 +12,72 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-/**
- * Newsletter composer. The form is fully laid out — subject, body, audience,
- * send button — but the send action and the subscriber-count readout are
- * intentionally gated behind NEWSLETTER_API_KEY. Until that key is set,
- * the button stays disabled with a tooltip and the count placeholder
- * reads "configure provider to see count". No fake subscriber numbers.
- */
-export default async function NewsletterPage() {
+async function saveIssue(formData: FormData) {
+  'use server'
   const session = await requireNewsroomSession()
-  void session // auth gate; session unused on this surface
+  const issue = await createNewsletterIssue({
+    subject: formData.get('subject'),
+    body: formData.get('body'),
+    segment: formData.get('segment'),
+    sendNow: formData.get('sendNow') === 'on',
+  })
+  await recordAuditEvent({ session, action: 'newsletter_queue', targetType: 'newsletter', targetId: issue.id, summary: `Newsletter ${issue.status}: ${issue.subject}` })
+  revalidatePath('/admin/newsletter')
+}
 
-  const apiKeyConfigured = Boolean(process.env.NEWSLETTER_API_KEY)
+async function addSubscriber(formData: FormData) {
+  'use server'
+  const session = await requireNewsroomSession()
+  const subscriber = await upsertNewsletterSubscriber({ email: formData.get('email'), source: 'admin' })
+  if (subscriber) {
+    await recordAuditEvent({ session, action: 'create', targetType: 'newsletter_subscriber', targetId: subscriber.email, summary: `Subscriber added: ${subscriber.email}` })
+  }
+  revalidatePath('/admin/newsletter')
+}
+
+export default async function NewsletterPage() {
+  await requireNewsroomSession()
+  const [issues, subscribers] = await Promise.all([listNewsletterIssues(), listNewsletterSubscribers()])
+  const providerReady = Boolean(process.env.RESEND_API_KEY || process.env.SMTP_HOST || process.env.NEWSLETTER_API_KEY)
 
   return (
     <div>
-      <AdminPageHeader title="न्युजलेटर" subtitle="इमेल अभियान तयार गर्नुहोस् र पठाउनुहोस्" />
-
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <AdminPageHeader title="न्युजलेटर" subtitle="Draft, queue and subscriber management" />
+      <div className="mb-5 grid gap-4 sm:grid-cols-3">
+        <AdminCard><p className="text-caption uppercase tracking-wide text-mute">Subscribers</p><p className="font-display text-h1 text-ink">{subscribers.length}</p></AdminCard>
+        <AdminCard><p className="text-caption uppercase tracking-wide text-mute">Issues</p><p className="font-display text-h1 text-ink">{issues.length}</p></AdminCard>
+        <AdminCard><p className="text-caption uppercase tracking-wide text-mute">Provider</p><p className="font-display text-h2 text-ink">{providerReady ? 'Ready' : 'Local queue'}</p></AdminCard>
+      </div>
+      <div className="grid gap-5 xl:grid-cols-[0.9fr_1.3fr]">
         <AdminCard>
-          <form className="grid gap-4">
-            <AdminInput
-              label="विषय"
-              name="subject"
-              placeholder="उदा: नागरिक वाच — आजको समाचार सारांश"
-              required
-              hint="पाठकको इनबक्समा देखिने शीर्षक। ८० अक्षरभित्र राख्नुहोस्।"
-            />
-            <AdminSelect
-              label="श्रोता"
-              name="audience"
-              defaultValue="all"
-              options={[
-                { value: 'all', label: 'सबै सदस्य' },
-                { value: 'breaking', label: 'ब्रेकिङ मात्र' },
-                { value: 'weekly', label: 'साप्ताहिक सारांश' },
-              ]}
-              hint="कुन सदस्य समूहले यो इमेल पाउने छन् छान्नुहोस्।"
-            />
-            <AdminTextarea
-              label="मूल सामग्री"
-              name="body"
-              rows={10}
-              placeholder="मार्कडाउन समर्थित छ। सामग्री यहाँ लेख्नुहोस्।"
-              required
-              hint="मुख्य समाचार, लिंक र सम्पादकीय नोट समावेश गर्नुहोस्।"
-            />
-
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <AdminButton
-                type="submit"
-                disabled={!apiKeyConfigured}
-                title={apiKeyConfigured ? undefined : 'NEWSLETTER_API_KEY कन्फिगर गर्नुहोस्'}
-              >
-                ▶ पठाउनुहोस्
-              </AdminButton>
-              {!apiKeyConfigured && (
-                <span className="text-caption text-mute" lang="ne">
-                  पठाउनका लागि{' '}
-                  <code className="font-mono text-ink-soft" lang="en">
-                    NEWSLETTER_API_KEY
-                  </code>{' '}
-                  कन्फिगर गर्नुहोस्।
-                </span>
-              )}
-            </div>
+          <h2 className="font-display text-h2 text-ink" lang="ne">Issue लेख्नुहोस्</h2>
+          <form action={saveIssue} className="mt-4 grid gap-3">
+            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Subject<input name="subject" required className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" /></label>
+            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Segment<select name="segment" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink"><option value="all">All readers</option><option value="members">Members</option><option value="newsroom">Newsroom</option></select></label>
+            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Body<textarea name="body" rows={8} required className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink" /></label>
+            <label className="flex items-center gap-2 text-meta font-semibold text-ink-soft"><input name="sendNow" type="checkbox" /> Queue for send</label>
+            <button className="rounded-md bg-brand px-4 py-2 text-meta font-bold text-surface hover:bg-brand-strong">Save newsletter</button>
+          </form>
+          <form action={addSubscriber} className="mt-6 grid gap-2 rounded-lg border border-rule bg-surface p-3">
+            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Add subscriber<input name="email" type="email" required className="h-10 rounded-md border border-rule bg-surface-raised px-3 text-body text-ink" /></label>
+            <button className="rounded-md border border-rule px-3 py-2 text-caption font-bold text-ink-soft hover:border-brand hover:text-brand-strong">Add email</button>
           </form>
         </AdminCard>
-
-        <div className="space-y-4">
-          <AdminCard>
-            <h2 className="font-display text-h2 text-ink" lang="ne">
-              सदस्य संख्या
-            </h2>
-            {apiKeyConfigured ? (
-              <p className="mt-2 font-display text-display font-extrabold text-brand">—</p>
-            ) : (
-              <p className="mt-2 text-body text-mute" lang="ne">
-                प्रदायक कन्फिगर गर्नुहोस् सदस्य संख्या देख्न।
-              </p>
-            )}
-            <p className="mt-3 text-caption text-mute" lang="ne">
-              <code className="font-mono text-ink-soft" lang="en">
-                NEWSLETTER_API_KEY
-              </code>{' '}
-              जोडिएपछि यो संख्या प्रदायकबाट ताजा हुनेछ।
-            </p>
-          </AdminCard>
-
-          <AdminCard>
-            <h2 className="font-display text-h2 text-ink" lang="ne">
-              प्रदायक स्थिति
-            </h2>
-            <p className="mt-2 text-body text-ink-soft" lang="ne">
-              इमेल पठाउने प्रदायक:{' '}
-              <span
-                className={`rounded-full px-2 py-0.5 text-caption font-semibold ${
-                  apiKeyConfigured
-                    ? 'bg-brand-tint text-brand-strong'
-                    : 'border border-rule text-mute'
-                }`}
-                lang="ne"
-              >
-                {apiKeyConfigured ? 'कन्फिगर भएको' : 'अव्यवस्थित'}
-              </span>
-            </p>
-            <p className="mt-3 text-caption text-mute" lang="ne">
-              हाल Mailchimp / Buttondown / Resend मध्ये कुनै पनि प्रदायक जोड्न सकिन्छ — env चर
-              कन्फिगर गरेपछि स्वतः पहिचान हुन्छ।
-            </p>
-          </AdminCard>
-        </div>
+        <AdminCard>
+          <h2 className="font-display text-h2 text-ink" lang="ne">Queue</h2>
+          <div className="mt-4 grid gap-3">
+            {issues.length ? issues.map((issue) => (
+              <article key={issue.id} className="rounded-lg border border-rule bg-surface p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div><h3 className="font-display text-h3 text-ink">{issue.subject}</h3><p className="mt-1 text-caption text-mute">{new Date(issue.createdAt).toLocaleString()}</p></div>
+                  <span className="rounded-full bg-brand-tint px-2 py-0.5 text-caption font-bold text-brand-strong">{issue.status}</span>
+                </div>
+                <p className="mt-2 line-clamp-3 text-meta text-ink-soft">{issue.body}</p>
+                {issue.providerMessage ? <p className="mt-2 text-caption text-mute">{issue.providerMessage}</p> : null}
+              </article>
+            )) : <p className="rounded-lg border border-dashed border-rule p-6 text-center text-meta text-mute">No newsletter issues yet.</p>}
+          </div>
+        </AdminCard>
       </div>
     </div>
   )

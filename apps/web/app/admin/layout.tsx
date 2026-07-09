@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import { headers } from 'next/headers'
 import '../globals.css'
 import { fontVariables } from '../fonts'
@@ -28,7 +29,7 @@ export const dynamic = 'force-dynamic'
  * the flag" notice. When set, the session check takes over. The login page is
  * always reachable so the founder can configure auth.
  */
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
   const h = await headers()
   const pathname = h.get('x-pathname') ?? ''
   const isLogin = pathname === '/admin/login' || pathname.startsWith('/admin/login/')
@@ -42,8 +43,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     )
   }
 
-  // Scaffold flag gate: when off, show the enable notice instead of 404.
-  if (process.env.ENABLE_WEB_ADMIN_SCAFFOLD !== 'true') {
+  // Scaffold flag gate: launch builds should not accidentally hide the admin panel.
+  // Only an explicit "false" disables the custom newsroom admin; unset/default means enabled.
+  if (process.env.ENABLE_WEB_ADMIN_SCAFFOLD === 'false') {
     return (
       <html lang="en" className={fontVariables} suppressHydrationWarning>
         <body className="min-h-screen bg-surface text-ink font-sans antialiased">

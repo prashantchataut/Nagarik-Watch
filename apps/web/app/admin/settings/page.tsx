@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
+import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import { SITE_URL, PUBLICATION } from '@/lib/site'
-import { getAdMode, isNetworkAdsReady } from '@/lib/ads'
+import { listAdminSettings, setAdminSetting } from '@/lib/admin-settings'
+import { recordAuditEvent } from '@/lib/audit-log'
 import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
@@ -11,297 +12,65 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-/**
- * Settings — read-mostly overview. None of these values are editable from
- * apps/web on purpose: site identity, publication registration and
- * provider wiring all live in env vars so they survive redeploys and
- * can't be accidentally changed from a UI. Each AdminCard surfaces the
- * relevant env var name as a code snippet so the founder can find what
- * to set.
- */
-export default async function SettingsPage() {
+async function saveSetting(formData: FormData) {
+  'use server'
   const session = await requireNewsroomSession()
-  void session // auth gate; session unused on this surface
+  const setting = await setAdminSetting({
+    key: formData.get('key'),
+    value: formData.get('value'),
+    label: formData.get('label'),
+    group: formData.get('group'),
+  })
+  await recordAuditEvent({ session, action: 'settings_change', targetType: 'setting', targetId: setting.key, summary: `Setting updated: ${setting.key}` })
+  revalidatePath('/admin/settings')
+}
 
-  const doibSet = Boolean(process.env.NEXT_PUBLIC_DOIB_NUMBER)
-  const emailConfigured = Boolean(
-    process.env.SMTP_HOST || process.env.EMAIL_SERVER || process.env.RESEND_API_KEY,
-  )
-  const storageConfigured = Boolean(
-    process.env.R2_ACCOUNT_ID || process.env.S3_ENDPOINT || process.env.STORAGE_BUCKET,
-  )
-  const analyticsConfigured = Boolean(
-    process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN ||
-    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ||
-    process.env.NEXT_PUBLIC_POSTHOG_KEY,
-  )
-  const adMode = getAdMode()
-  const adNetworkReady = isNetworkAdsReady()
+export default async function SettingsPage() {
+  await requireNewsroomSession()
+  const settings = await listAdminSettings()
+  const groups = settings.reduce<Record<string, typeof settings>>((acc, setting) => {
+    acc[setting.group] = [...(acc[setting.group] ?? []), setting]
+    return acc
+  }, {})
 
   return (
     <div>
-      <AdminPageHeader title="सेटिङ" subtitle="साइट परिचय, प्रकाशन दर्ता र प्रदायक स्थिति" />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Site identity */}
+      <AdminPageHeader title="सेटिङ" subtitle="Publication identity, contact details, social links and operational text" />
+      <div className="grid gap-5 xl:grid-cols-[0.9fr_1.4fr]">
         <AdminCard>
-          <h2 className="font-display text-h2 text-ink" lang="ne">
-            साइट परिचय
-          </h2>
-          <p className="mt-1 text-caption text-mute" lang="ne">
-            env चरबाट पढिन्छ — UI बाट सम्पादन हुँदैन।
-          </p>
-          <dl className="mt-4 space-y-3">
-            <div>
-              <dt
-                className="text-caption font-semibold uppercase tracking-wide text-ink-soft"
-                lang="ne"
-              >
-                प्रकाशक नाम
-              </dt>
-              <dd className="mt-0.5 text-body text-ink" lang="ne">
-                {PUBLICATION.publisherName}
-              </dd>
-            </div>
-            <div>
-              <dt
-                className="text-caption font-semibold uppercase tracking-wide text-ink-soft"
-                lang="ne"
-              >
-                साइट URL
-              </dt>
-              <dd className="mt-0.5">
-                <code className="font-mono text-body text-ink" lang="en">
-                  {SITE_URL}
-                </code>
-                <span className="ml-2 text-caption text-mute" lang="ne">
-                  ←{' '}
-                  <code className="font-mono text-ink-soft" lang="en">
-                    NEXT_PUBLIC_SITE_URL
-                  </code>
-                </span>
-              </dd>
-            </div>
-            <div>
-              <dt
-                className="text-caption font-semibold uppercase tracking-wide text-ink-soft"
-                lang="ne"
-              >
-                सम्पर्क इमेल
-              </dt>
-              <dd className="mt-0.5 text-body text-ink" lang="en">
-                {PUBLICATION.email}
-              </dd>
-            </div>
-          </dl>
+          <h2 className="font-display text-h2 text-ink" lang="ne">सेटिङ थप्नुहोस्</h2>
+          <form action={saveSetting} className="mt-4 grid gap-3">
+            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Key<input name="key" required placeholder="publication.taglineNe" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" /></label>
+            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Label<input name="label" required className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" /></label>
+            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Group<input name="group" defaultValue="identity" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" /></label>
+            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Value<textarea name="value" rows={5} className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink" /></label>
+            <button className="rounded-md bg-brand px-4 py-2 text-meta font-bold text-surface hover:bg-brand-strong" lang="ne">Save setting</button>
+          </form>
         </AdminCard>
-
-        {/* Publication registration */}
-        <AdminCard>
-          <h2 className="font-display text-h2 text-ink" lang="ne">
-            प्रकाशन दर्ता
-          </h2>
-          <p className="mt-1 text-caption text-mute" lang="ne">
-            प्रेस परिषद् / सूचना विभाग (DoIB) दर्ता।
-          </p>
-          <div className="mt-4">
-            <p
-              className="text-caption font-semibold uppercase tracking-wide text-ink-soft"
-              lang="ne"
-            >
-              दर्ता नम्बर
-            </p>
-            {doibSet ? (
-              <p className="mt-1 font-display text-h2 text-brand-strong" lang="ne">
-                {process.env.NEXT_PUBLIC_DOIB_NUMBER}
-              </p>
-            ) : (
-              <p
-                className="mt-1 inline-flex items-center gap-2 rounded-full border border-rule bg-surface px-3 py-1 text-meta text-mute"
-                lang="ne"
-              >
-                <span className="h-2 w-2 rounded-full bg-mute" aria-hidden="true" />
-                विचाराधीन
-              </p>
-            )}
-            <p className="mt-3 text-caption text-mute" lang="ne">
-              <code className="font-mono text-ink-soft" lang="en">
-                NEXT_PUBLIC_DOIB_NUMBER
-              </code>{' '}
-              नसेट भएसम्म «विचाराधीन» देखिन्छ।
-            </p>
-          </div>
-        </AdminCard>
-
-        {/* Email provider */}
-        <AdminCard>
-          <h2 className="font-display text-h2 text-ink" lang="ne">
-            इमेल प्रदायक
-          </h2>
-          <p className="mt-1 text-caption text-mute" lang="ne">
-            निमन्त्रणा, न्युजलेटर र सूचनाका लागि।
-          </p>
-          <div className="mt-4 flex items-center gap-3">
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-caption font-semibold ${
-                emailConfigured ? 'bg-brand-tint text-brand-strong' : 'border border-rule text-mute'
-              }`}
-              lang="ne"
-            >
-              {emailConfigured ? 'कन्फिगर भएको' : 'अव्यवस्थित'}
-            </span>
-            <span className="text-caption text-mute" lang="ne">
-              {emailConfigured ? 'इमेल पठाउन सकिन्छ।' : 'इमेल पठाउन सकिँदैन।'}
-            </span>
-          </div>
-          <ul className="mt-3 space-y-1 text-caption text-ink-soft" lang="en">
-            <li>
-              <code className="font-mono text-mute">SMTP_HOST</code>
-            </li>
-            <li>
-              <code className="font-mono text-mute">EMAIL_SERVER</code>
-            </li>
-            <li>
-              <code className="font-mono text-mute">RESEND_API_KEY</code>
-            </li>
-            <li>
-              <code className="font-mono text-mute">NEWSLETTER_API_KEY</code>
-            </li>
-          </ul>
-        </AdminCard>
-
-        {/* Storage provider */}
-        <AdminCard>
-          <h2 className="font-display text-h2 text-ink" lang="ne">
-            भण्डारण प्रदायक
-          </h2>
-          <p className="mt-1 text-caption text-mute" lang="ne">
-            मिडिया अपलोडका लागि (R2 / S3)।
-          </p>
-          <div className="mt-4 flex items-center gap-3">
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-caption font-semibold ${
-                storageConfigured
-                  ? 'bg-brand-tint text-brand-strong'
-                  : 'border border-rule text-mute'
-              }`}
-              lang="ne"
-            >
-              {storageConfigured ? 'कन्फिगर भएको' : 'अव्यवस्थित'}
-            </span>
-            <span className="text-caption text-mute" lang="ne">
-              {storageConfigured ? 'मिडिया अपलोड सक्षम।' : 'अपलोड असक्षम — Unsplash मा आधारित।'}
-            </span>
-          </div>
-          <ul className="mt-3 space-y-1 text-caption text-ink-soft" lang="en">
-            <li>
-              <code className="font-mono text-mute">R2_ACCOUNT_ID</code>
-            </li>
-            <li>
-              <code className="font-mono text-mute">R2_ACCESS_KEY_ID</code>
-            </li>
-            <li>
-              <code className="font-mono text-mute">R2_SECRET_ACCESS_KEY</code>
-            </li>
-            <li>
-              <code className="font-mono text-mute">R2_BUCKET</code>
-            </li>
-          </ul>
-        </AdminCard>
-
-        {/* Analytics */}
-        <AdminCard>
-          <h2 className="font-display text-h2 text-ink" lang="ne">
-            एनालिटिक्स
-          </h2>
-          <p className="mt-1 text-caption text-mute" lang="ne">
-            पाठक गतिविधि ट्र्याकिङ।
-          </p>
-          <div className="mt-4 flex items-center gap-3">
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-caption font-semibold ${
-                analyticsConfigured
-                  ? 'bg-brand-tint text-brand-strong'
-                  : 'border border-rule text-mute'
-              }`}
-              lang="ne"
-            >
-              {analyticsConfigured ? 'कन्फिगर भएको' : 'अव्यवस्थित'}
-            </span>
-            <span className="text-caption text-mute" lang="ne">
-              {analyticsConfigured ? 'ट्र्याकिङ सक्रिय।' : 'कुनै ट्र्याकर जोडिएको छैन।'}
-            </span>
-          </div>
-          <ul className="mt-3 space-y-1 text-caption text-ink-soft" lang="en">
-            <li>
-              <code className="font-mono text-mute">NEXT_PUBLIC_PLAUSIBLE_DOMAIN</code>
-            </li>
-            <li>
-              <code className="font-mono text-mute">NEXT_PUBLIC_GA_MEASUREMENT_ID</code>
-            </li>
-            <li>
-              <code className="font-mono text-mute">NEXT_PUBLIC_POSTHOG_KEY</code>
-            </li>
-          </ul>
-        </AdminCard>
-
-        {/* Ads */}
-        <AdminCard>
-          <h2 className="font-display text-h2 text-ink" lang="ne">
-            विज्ञापन
-          </h2>
-          <p className="mt-1 text-caption text-mute" lang="ne">
-            विज्ञापन मोड र नेटवर्क कन्फिगरेसन।
-          </p>
-          <div className="mt-4 flex items-center gap-3">
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-caption font-semibold ${
-                adMode !== 'off'
-                  ? 'bg-brand-tint text-brand-strong'
-                  : 'border border-rule text-mute'
-              }`}
-              lang="ne"
-            >
-              {adMode === 'network'
-                ? adNetworkReady
-                  ? 'नेटवर्क तयार'
-                  : 'नेटवर्क अधुरो'
-                : adMode === 'house'
-                  ? 'हाउस मोड'
-                  : 'बन्द'}
-            </span>
-            <span className="text-caption text-mute" lang="ne">
-              {adMode === 'network'
-                ? adNetworkReady
-                  ? 'नेटवर्क प्लेसमेन्ट सुरक्षित।'
-                  : 'नेटवर्क मोडमा प्रदायक नाम चाहिन्छ।'
-                : adMode === 'house'
-                  ? 'प्रत्यक्ष बिक्रीका लेबल भएका स्थान सक्रिय।'
-                  : 'विज्ञापन स्थान बन्द।'}
-            </span>
-          </div>
-          <ul className="mt-3 space-y-1 text-caption text-ink-soft" lang="en">
-            <li>
-              <code className="font-mono text-mute">NEXT_PUBLIC_ADS_MODE</code>
-            </li>
-            <li>
-              <code className="font-mono text-mute">NEXT_PUBLIC_AD_NETWORK</code>
-            </li>
-            <li>
-              <code className="font-mono text-mute">NEXT_PUBLIC_ADSENSE_CLIENT</code>
-            </li>
-          </ul>
-          <p className="mt-3 text-caption text-mute" lang="ne">
-            विस्तृत व्यवस्थापनका लागि{' '}
-            <a
-              href="/admin/ads"
-              className="font-semibold text-brand hover:text-brand-strong"
-              lang="ne"
-            >
-              विज्ञापन पृष्ठ →
-            </a>
-          </p>
-        </AdminCard>
+        <div className="grid gap-5">
+          {Object.entries(groups).map(([group, items]) => (
+            <AdminCard key={group}>
+              <h2 className="font-display text-h2 capitalize text-ink" lang="en">{group}</h2>
+              <div className="mt-4 grid gap-3">
+                {items.map((setting) => (
+                  <form key={setting.key} action={saveSetting} className="rounded-lg border border-rule bg-surface p-4">
+                    <input type="hidden" name="key" value={setting.key} />
+                    <input type="hidden" name="label" value={setting.label} />
+                    <input type="hidden" name="group" value={setting.group} />
+                    <label className="grid gap-1 text-caption font-semibold text-ink-soft">
+                      {setting.label}
+                      <textarea name="value" defaultValue={setting.value} rows={setting.value.length > 120 ? 4 : 2} className="rounded-md border border-rule bg-surface-raised px-3 py-2 text-body text-ink" />
+                    </label>
+                    <div className="mt-3 flex items-center justify-between gap-3">
+                      <code className="text-caption text-mute" lang="en">{setting.key}</code>
+                      <button className="rounded-md border border-rule px-3 py-1.5 text-caption font-bold text-ink-soft hover:border-brand hover:text-brand-strong" lang="ne">Update</button>
+                    </div>
+                  </form>
+                ))}
+              </div>
+            </AdminCard>
+          ))}
+        </div>
       </div>
     </div>
   )

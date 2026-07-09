@@ -13,6 +13,7 @@
  */
 import 'server-only'
 import type { CricketScore, FootballScore, LiveDataEnvelope } from '@/lib/live-data'
+import { getManualLiveRecord } from '@/lib/live/manual'
 
 const TTL_MS = 60_000
 type CacheEntry = { at: number; value: LiveDataEnvelope<unknown> }
@@ -81,6 +82,8 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
 
   const apiKey = process.env.FOOTBALL_API_KEY
   if (!apiKey) {
+    const manual = await getManualLiveRecord<FootballScore[]>('football')
+    if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
     return mock('Football feed pending verification', MOCK_FOOTBALL)
   }
 
@@ -129,6 +132,8 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
       data: scores,
     })
   } catch (error) {
+    const manual = await getManualLiveRecord<FootballScore[]>('football')
+    if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
     return mock(
       `Football feed pending verification — ${error instanceof Error ? error.message : 'fetch failed'}`,
       MOCK_FOOTBALL,
@@ -157,6 +162,8 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
 
   const apiKey = process.env.CRICKET_API_KEY
   if (!apiKey) {
+    const manual = await getManualLiveRecord<CricketScore[]>('cricket')
+    if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
     return mock('Cricket feed pending verification', MOCK_CRICKET)
   }
 
@@ -202,6 +209,8 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
       data: scores,
     })
   } catch (error) {
+    const manual = await getManualLiveRecord<CricketScore[]>('cricket')
+    if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
     return mock(
       `Cricket feed pending verification — ${error instanceof Error ? error.message : 'fetch failed'}`,
       MOCK_CRICKET,

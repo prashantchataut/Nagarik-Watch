@@ -7,6 +7,7 @@ import { rankStories } from '@/lib/ranking'
 import { localizedLead, localizedTitle, type StaticHub } from '@/lib/site'
 import { UtilityWidgetRail } from '@/components/live/LiveWidgets'
 import { AdStack, AdSlot } from '@/components/AdSlot'
+import { ReaderSubmissionForm } from '@/components/forms/ReaderSubmissionForm'
 
 export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: Locale }) {
   const { items } = await getStories({ locale, perPage: 40 })
@@ -126,12 +127,12 @@ function ReaderSubmissionWorkflow({ locale }: { locale: Locale }) {
           </li>
         ))}
       </ol>
-      <Link
-        href={localizeHref(locale, '/contact')}
-        className="mt-5 inline-flex rounded-full bg-brand px-5 py-2.5 text-body font-semibold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong"
-      >
-        {locale === 'en' ? 'Contact newsroom' : 'न्यूजरुमलाई सम्पर्क गर्नुहोस्'}
-      </Link>
+      <p className="mt-5 max-w-body text-meta leading-relaxed text-ink-soft">
+        {locale === 'en'
+          ? 'Use the form below for story tips, public-service notices, documents, photos, videos or correction requests. Nothing is published automatically; editors verify every submission first.'
+          : 'समाचार टिप, सार्वजनिक सूचना, कागजात, फोटो, भिडियो वा सच्याउने अनुरोधका लागि तलको फारम प्रयोग गर्नुहोस्। कुनै कुरा स्वतः प्रकाशित हुँदैन; सम्पादकले पहिला प्रमाणित गर्छन्।'}
+      </p>
+      <ReaderSubmissionForm locale={locale} />
     </section>
   )
 }

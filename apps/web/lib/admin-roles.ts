@@ -9,11 +9,13 @@
  */
 export const NEWSROOM_ROLES = [
   'reader',
+  'viewer',
   'contributor',
   'journalist',
   'photo_video_editor',
   'copy_editor',
   'fact_checker',
+  'reviewer',
   'assistant_editor',
   'sub_editor',
   'section_editor',
@@ -33,9 +35,11 @@ export type NewsroomRole = (typeof NEWSROOM_ROLES)[number]
 
 export const NEWSROOM_ROLE_LABELS_NE: Record<NewsroomRole, string> = {
   reader: 'पाठक',
+  viewer: 'दर्शक',
   contributor: 'योगदानकर्ता',
   journalist: 'पत्रकार',
   photo_video_editor: 'फोटो/भिडियो सम्पादक',
+  reviewer: 'समीक्षक',
   copy_editor: 'कपी सम्पादक',
   fact_checker: 'तथ्य-जाँचकर्ता',
   assistant_editor: 'सहायक सम्पादक',
@@ -55,9 +59,11 @@ export const NEWSROOM_ROLE_LABELS_NE: Record<NewsroomRole, string> = {
 
 export const NEWSROOM_ROLE_LABELS_EN: Record<NewsroomRole, string> = {
   reader: 'Reader',
+  viewer: 'Viewer',
   contributor: 'Contributor',
   journalist: 'Journalist / Reporter',
   photo_video_editor: 'Photo / Video Editor',
+  reviewer: 'Reviewer',
   copy_editor: 'Copy Editor',
   fact_checker: 'Fact Checker',
   assistant_editor: 'Assistant Editor',
@@ -96,6 +102,7 @@ export const CONTRIBUTOR_ROLES: ReadonlySet<NewsroomRole> = new Set([
 
 /** Roles that can edit any article and move it through the workflow. */
 export const EDITOR_ROLES: ReadonlySet<NewsroomRole> = new Set([
+  'reviewer',
   'assistant_editor',
   'sub_editor',
   'section_editor',
@@ -124,6 +131,7 @@ export const HARD_DELETE_ROLES: ReadonlySet<NewsroomRole> = new Set(['super_admi
 /** Roles that can moderate reader comments. */
 export const COMMENT_MODERATOR_ROLES: ReadonlySet<NewsroomRole> = new Set([
   'moderator',
+  'reviewer',
   'assistant_editor',
   'sub_editor',
   'section_editor',
@@ -156,6 +164,27 @@ export function canManageUsers(role: NewsroomRole): boolean {
   return USER_MANAGER_ROLES.has(role)
 }
 
+/** Roles allowed into the admin shell at all. Journalists/contributors use /journalist/* instead. */
+export const ADMIN_BASE_ROLES: ReadonlySet<NewsroomRole> = new Set([
+  'viewer',
+  'reviewer',
+  'copy_editor',
+  'fact_checker',
+  'assistant_editor',
+  'sub_editor',
+  'section_editor',
+  'province_editor',
+  'managing_editor',
+  'editor_in_chief',
+  'seo_manager',
+  'moderator',
+  'ad_manager',
+  'analyst',
+  'publisher',
+  'admin',
+  'super_admin',
+])
+
 /** Server-side route access matrix for the custom web admin. */
 export const ADMIN_PATH_ROLE_RULES: ReadonlyArray<{
   prefix: string
@@ -164,6 +193,9 @@ export const ADMIN_PATH_ROLE_RULES: ReadonlyArray<{
   { prefix: '/admin/users', roles: USER_MANAGER_ROLES },
   { prefix: '/admin/roles', roles: USER_MANAGER_ROLES },
   { prefix: '/admin/audit-log', roles: USER_MANAGER_ROLES },
+  { prefix: '/admin/algorithms', roles: new Set<NewsroomRole>(['analyst', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
+  { prefix: '/admin/journalists', roles: new Set<NewsroomRole>(['reviewer', 'assistant_editor', 'sub_editor', 'section_editor', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
+  { prefix: '/admin/live', roles: new Set<NewsroomRole>(['viewer', 'reviewer', 'analyst', 'moderator', 'ad_manager', 'seo_manager', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
   { prefix: '/admin/comments', roles: COMMENT_MODERATOR_ROLES },
   {
     prefix: '/admin/ads',
@@ -205,6 +237,7 @@ export function canAccessAdminPath(role: NewsroomRole, pathname: string): boolea
   const rule = ADMIN_PATH_ROLE_RULES.find(
     (item) => pathname === item.prefix || pathname.startsWith(`${item.prefix}/`),
   )
+  if (!ADMIN_BASE_ROLES.has(role)) return false
   if (!rule) return true
   return rule.roles.has(role)
 }

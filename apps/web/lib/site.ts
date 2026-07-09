@@ -1,11 +1,14 @@
 import type { Locale } from '@nagarikwatch/db'
 
-const fallbackSiteUrl =
-  process.env.NODE_ENV === 'production'
-    ? 'https://nagarik-watch.vercel.app'
-    : 'http://localhost:3000'
+function requiredSiteUrl(): string {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('NEXT_PUBLIC_SITE_URL is required in production')
+  }
+  return 'http://localhost:3000'
+}
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? fallbackSiteUrl).replace(/\/$/, '')
+export const SITE_URL = requiredSiteUrl().replace(/\/$/, '')
 
 export const PUBLICATION = {
   publisherName: process.env.NEXT_PUBLIC_PUBLICATION_NAME?.trim() || 'Nagarik Watch',

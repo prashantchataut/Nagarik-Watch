@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import type { FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PasswordField } from '@/components/forms/PasswordField'
@@ -18,7 +19,7 @@ export function ReaderSignupForm({ locale }: { locale: 'ne' | 'en' }) {
   const [pending, startTransition] = useTransition()
   const ne = locale === 'ne'
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
     const form = new FormData(e.currentTarget)
@@ -152,7 +153,7 @@ export function ReaderSignupForm({ locale }: { locale: 'ne' | 'en' }) {
           {ne ? 'पहिले नै खाता छ? ' : 'Already have an account? '}
         </span>
         <Link
-          href={ne ? '/auth/login' : '/en/auth/login'}
+          href={ne ? '/login' : '/en/login'}
           className="font-semibold text-brand underline-offset-2 hover:underline"
         >
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'लगइन गर्नुहोस्' : 'Sign in'}</span>

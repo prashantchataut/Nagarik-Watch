@@ -27,6 +27,7 @@ import {
   type NepseReading,
   type WeatherReading,
 } from './mock'
+import { getManualLiveRecord } from './manual'
 
 const KTM_LAT = 27.7172
 const KTM_LON = 85.324
@@ -334,6 +335,10 @@ export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate
     }
     return remember(key, value)
   } catch {
+    const manual = await getManualLiveRecord<ForexRate[]>('forex')
+    if (manual) {
+      return { status: 'ok', data: manual.data, source: manual.source, updatedAt: manual.updatedAt, mock: false }
+    }
     return {
       status: 'ok',
       data: [],
@@ -428,6 +433,10 @@ export async function getRealNepse(locale: Locale): Promise<LiveValue<NepseReadi
     }
     return remember(key, value)
   } catch {
+    const manual = await getManualLiveRecord<NepseReading>('nepse')
+    if (manual) {
+      return { status: 'ok', data: manual.data, source: manual.source, updatedAt: manual.updatedAt, mock: false }
+    }
     return getMockNepse(locale)
   }
 }
@@ -472,6 +481,10 @@ export type GoldSilverReading = {
  * panel. When a licensed feed is contracted, swap the fetch here.
  */
 export async function getRealGoldSilver(_locale: Locale): Promise<LiveValue<GoldSilverReading>> {
+  const manual = await getManualLiveRecord<GoldSilverReading>('gold-silver')
+  if (manual) {
+    return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, mock: false, data: manual.data }
+  }
   const updatedAt = new Date().toISOString()
   const source = 'Nepal Gold & Silver Dealers Association (approx.)'
   return {

@@ -26,8 +26,10 @@ export function isTrustedWriteRequest(request: NextRequest): boolean {
     allowed.add(`https://${host}`)
     allowed.add(`http://${host}`)
   }
-  allowed.add('http://localhost:3000')
-  allowed.add('http://127.0.0.1:3000')
+  if (process.env.NODE_ENV !== 'production') {
+    allowed.add('http://localhost:3000')
+    allowed.add('http://127.0.0.1:3000')
+  }
 
   const normalized = safeOrigin(origin)
   return Boolean(normalized && allowed.has(normalized))
