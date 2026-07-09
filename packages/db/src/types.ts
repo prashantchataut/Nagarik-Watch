@@ -193,6 +193,7 @@ export interface Article extends StoryCardData {
   sponsored?: boolean
   sponsorName?: string
   exclusive?: boolean
+  premium?: boolean
   factCheckStatus?:
     | 'not_fact_check'
     | 'in_review'

@@ -349,6 +349,7 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
     updatedAt: doc.updatedAt ? String(doc.updatedAt) : undefined,
     seoTitleNe: doc.seoTitle ? String(doc.seoTitle) : undefined,
     seoDescriptionNe: doc.seoDescription ? String(doc.seoDescription) : undefined,
+    premium: doc.premium === true,
     commentsEnabled: doc.commentsEnabled !== false,
     readingMinutes: Number(doc.readingMinutes ?? Math.max(1, Math.ceil((bodyNe?.length ?? 1) / 4))),
   }
