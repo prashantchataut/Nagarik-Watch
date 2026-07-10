@@ -44,8 +44,8 @@ export function JournalistLoginForm({ locale }: Props) {
           )
           return
         }
+        router.replace(localizeHref(locale, '/journalist/dashboard'))
         router.refresh()
-        router.push(localizeHref(locale, '/journalist/dashboard'))
       } catch {
         setError(ne ? 'नेटवर्क त्रुटि। पुनः प्रयास गर्नुहोस्।' : 'Network error. Try again.')
       }

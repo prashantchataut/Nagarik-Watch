@@ -12,7 +12,10 @@ export function getLaunchChecks(): LaunchCheck[] {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
   const authUrl = process.env.BETTER_AUTH_URL ?? ''
   const dbMode = operationalStorageMode()
-  const hasSecret = Boolean(process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET)
+  const authSecret = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET || ''
+  const hasSecret = authSecret.length >= 32
+  const minimumPublished = Number(process.env.LAUNCH_MIN_PUBLISHED_ARTICLES ?? '0')
+  const newsroomAddress = process.env.NEXT_PUBLIC_NEWSROOM_ADDRESS?.trim() ?? ''
   const checks: LaunchCheck[] = [
     {
       key: 'site-url',
@@ -36,7 +39,22 @@ export function getLaunchChecks(): LaunchCheck[] {
       key: 'secret',
       label: 'Auth secret',
       status: hasSecret ? 'pass' : 'fail',
-      detail: hasSecret ? 'Auth secret present' : 'AUTH_SECRET or BETTER_AUTH_SECRET is missing',
+      detail: hasSecret ? 'Auth secret is at least 32 characters' : 'AUTH_SECRET or BETTER_AUTH_SECRET must be at least 32 characters',
+    },
+    {
+      key: 'minimum-content',
+      label: 'Minimum published content threshold',
+      status: Number.isFinite(minimumPublished) && minimumPublished > 0 ? 'pass' : 'fail',
+      detail:
+        Number.isFinite(minimumPublished) && minimumPublished > 0
+          ? `Launch requires at least ${minimumPublished} published articles`
+          : 'LAUNCH_MIN_PUBLISHED_ARTICLES must be a positive number',
+    },
+    {
+      key: 'newsroom-address',
+      label: 'Public newsroom address',
+      status: newsroomAddress.length >= 8 ? 'pass' : 'fail',
+      detail: newsroomAddress || 'NEXT_PUBLIC_NEWSROOM_ADDRESS is missing',
     },
     {
       key: 'email',

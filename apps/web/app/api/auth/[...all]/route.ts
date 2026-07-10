@@ -1,44 +1,38 @@
-/**
- * Better Auth catch-all API route. All auth requests (/api/auth/sign-in,
- * /api/auth/sign-up, /api/auth/sign-out, /api/auth/get-session, …) flow
- * through here. Better Auth handles the routing, validation, rate-limiting,
- * and cookie signing; we just bridge Next.js Request/Response.
- *
- * The auth instance is async (PGlite/Postgres init), so the handlers are built
- * lazily on the first request — never at module-eval time (which would break
- * `next build`'s page-data collection, since PGlite can't boot in the build
- * sandbox).
- */
-import 'server-only'
-import type { NextRequest } from 'next/server'
-import { getAuth } from '@/lib/auth'
+import { toNextJsHandler } from 'better-auth/next-js'
+import { NextResponse, type NextRequest } from 'next/server'
+import { getAuth, waitForBootAccounts } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
-type RouteHandler = (req: NextRequest) => Promise<Response>
+type AuthHandlers = ReturnType<typeof toNextJsHandler>
+let handlersPromise: Promise<AuthHandlers> | null = null
 
-let handlerPromise: Promise<{ GET: RouteHandler; POST: RouteHandler }> | null = null
-
-async function getHandler() {
-  if (!handlerPromise) {
-    handlerPromise = getAuth().then(async (auth) => {
-      const { toNextJsHandler } = await import('better-auth/next-js')
-      const h = toNextJsHandler(auth) as unknown as {
-        GET: RouteHandler
-        POST: RouteHandler
-      }
-      return h
-    })
+function getHandlers(): Promise<AuthHandlers> {
+  if (!handlersPromise) {
+    handlersPromise = getAuth()
+      .then((auth) => toNextJsHandler(auth))
+      .catch((error) => {
+        handlersPromise = null
+        throw error
+      })
   }
-  return handlerPromise
+  return handlersPromise
 }
 
-export async function GET(request: NextRequest) {
-  const handler = await getHandler()
-  return handler.GET(request)
+async function dispatch(request: NextRequest): Promise<Response> {
+  try {
+    const handlers = await getHandlers()
+    if (request.method === 'POST') await waitForBootAccounts()
+    const handler = request.method === 'GET' ? handlers.GET : handlers.POST
+    return await handler(request)
+  } catch (error) {
+    console.error('[auth] request failed:', error instanceof Error ? error.message : String(error))
+    return NextResponse.json(
+      { code: 'AUTH_TEMPORARILY_UNAVAILABLE', message: 'Authentication is temporarily unavailable.' },
+      { status: 503 },
+    )
+  }
 }
 
-export async function POST(request: NextRequest) {
-  const handler = await getHandler()
-  return handler.POST(request)
-}
+export const GET = dispatch
+export const POST = dispatch

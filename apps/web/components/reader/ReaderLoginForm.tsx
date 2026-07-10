@@ -46,8 +46,8 @@ export function ReaderLoginForm({ locale }: { locale: 'ne' | 'en' }) {
           )
           return
         }
+        router.replace(ne ? '/saved' : '/en/saved')
         router.refresh()
-        router.push(ne ? '/saved' : '/en/saved')
       } catch {
         setError(ne ? 'नेटवर्क त्रुटि।' : 'Network error.')
       }

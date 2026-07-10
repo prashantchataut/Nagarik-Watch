@@ -1,9 +1,9 @@
 /* THIS FILE IS GENERATED FROM THE PAYLOAD TEMPLATE. */
-/* IT CAN BE REGENERATED IF NEEDED. */
+/* IT CAN BE REGENERATED VIA `payload generate:importmap` IF NEEDED. */
 import type { Metadata } from 'next'
 import config from '@payload-config'
 import { RootPage, generatePageMetadata } from '@payloadcms/next/views'
-import { importMap } from '../importMap'
+import { importMap } from './importMap'
 
 type Args = {
   params: Promise<{ segments: string[] }>

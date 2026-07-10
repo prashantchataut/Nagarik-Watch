@@ -1,0 +1,216 @@
+{
+  "uploaded_archive": "/mnt/data/nagarik-watch-fix.zip",
+  "zip_entries": 672,
+  "unique_entry_names": 482,
+  "duplicate_name_groups": 27,
+  "duplicate_entries_beyond_first": 190,
+  "entries_with_directory_paths": 0,
+  "largest_duplicate_groups": [
+    [
+      "SKILL.md",
+      95
+    ],
+    [
+      "page.tsx",
+      31
+    ],
+    [
+      "route.ts",
+      20
+    ],
+    [
+      "index.ts",
+      9
+    ],
+    [
+      "package.json",
+      8
+    ],
+    [
+      "tsconfig.json",
+      6
+    ],
+    [
+      "tsconfig.tsbuildinfo",
+      6
+    ],
+    [
+      "index.test.ts",
+      3
+    ],
+    [
+      "layout.tsx",
+      3
+    ],
+    [
+      ".env.local",
+      2
+    ],
+    [
+      ".gitignore",
+      2
+    ],
+    [
+      "README.md",
+      2
+    ],
+    [
+      "configuration.md",
+      2
+    ],
+    [
+      "globals.css",
+      2
+    ],
+    [
+      "layout.md",
+      2
+    ],
+    [
+      "next-env.d.ts",
+      2
+    ],
+    [
+      "next.config.ts",
+      2
+    ],
+    [
+      "performance-testing.md",
+      2
+    ],
+    [
+      "performance.md",
+      2
+    ],
+    [
+      "reading.test.ts",
+      2
+    ],
+    [
+      "reading.ts",
+      2
+    ],
+    [
+      "report-template.md",
+      2
+    ],
+    [
+      "server-components.md",
+      2
+    ],
+    [
+      "specification-template.md",
+      2
+    ],
+    [
+      "store.ts",
+      2
+    ],
+    [
+      "ux-writing.md",
+      2
+    ],
+    [
+      "vercel.json",
+      2
+    ]
+  ],
+  "recovered_entries": 672,
+  "web_expected_local_files_from_tsbuildinfo": 266,
+  "web_missing_files_from_tsbuildinfo": [
+    "app/[locale]/[category]/[slug]/loading.tsx",
+    "app/[locale]/[category]/[slug]/page.tsx",
+    "app/[locale]/[category]/loading.tsx",
+    "app/[locale]/[category]/page.tsx",
+    "app/[locale]/about/page.tsx",
+    "app/[locale]/advertise/page.tsx",
+    "app/[locale]/archive/page.tsx",
+    "app/[locale]/auth/login/page.tsx",
+    "app/[locale]/auth/profile/page.tsx",
+    "app/[locale]/auth/signup/page.tsx",
+    "app/[locale]/author/[slug]/loading.tsx",
+    "app/[locale]/author/[slug]/page.tsx",
+    "app/[locale]/contact/page.tsx",
+    "app/[locale]/corrections-policy/page.tsx",
+    "app/[locale]/data-stories/page.tsx",
+    "app/[locale]/disaster-alerts/page.tsx",
+    "app/[locale]/district/[slug]/page.tsx",
+    "app/[locale]/editor-picks/page.tsx",
+    "app/[locale]/editorial-policy/page.tsx",
+    "app/[locale]/election/page.tsx",
+    "app/[locale]/ethics/page.tsx",
+    "app/[locale]/exclusive/page.tsx",
+    "app/[locale]/fact-check-policy/page.tsx",
+    "app/[locale]/fact-check/page.tsx",
+    "app/[locale]/journalist/articles/new/page.tsx",
+    "app/[locale]/journalist/assignments/page.tsx",
+    "app/[locale]/journalist/dashboard/page.tsx",
+    "app/[locale]/journalist/feedback/page.tsx",
+    "app/[locale]/journalist/login/page.tsx",
+    "app/[locale]/journalist/profile/page.tsx",
+    "app/[locale]/latest/page.tsx",
+    "app/[locale]/layout.tsx",
+    "app/[locale]/loading.tsx",
+    "app/[locale]/login/page.tsx",
+    "app/[locale]/market/page.tsx",
+    "app/[locale]/membership/page.tsx",
+    "app/[locale]/most-read/page.tsx",
+    "app/[locale]/nepse/page.tsx",
+    "app/[locale]/newsletter-confirmed/page.tsx",
+    "app/[locale]/not-found.tsx",
+    "app/[locale]/page.tsx",
+    "app/[locale]/photos/page.tsx",
+    "app/[locale]/privacy/page.tsx",
+    "app/[locale]/profile/page.tsx",
+    "app/[locale]/province/[slug]/page.tsx",
+    "app/[locale]/rashifal/page.tsx",
+    "app/[locale]/reader-corner/page.tsx",
+    "app/[locale]/register/page.tsx",
+    "app/[locale]/results/page.tsx",
+    "app/[locale]/rss/page.tsx",
+    "app/[locale]/saved/page.tsx",
+    "app/[locale]/search/page.tsx",
+    "app/[locale]/sitemap/page.tsx",
+    "app/[locale]/sports/live/page.tsx",
+    "app/[locale]/sports/page.tsx",
+    "app/[locale]/submit-story/page.tsx",
+    "app/[locale]/tag/[slug]/page.tsx",
+    "app/[locale]/team/page.tsx",
+    "app/[locale]/terms/page.tsx",
+    "app/[locale]/topic/[slug]/loading.tsx",
+    "app/[locale]/topic/[slug]/page.tsx",
+    "app/[locale]/trending/page.tsx",
+    "app/[locale]/utilities/page.tsx",
+    "app/[locale]/video/page.tsx",
+    "app/admin/articles/[id]/edit/page.tsx",
+    "app/api/admin/articles/[id]/route.ts",
+    "app/api/admin/comments/[id]/route.ts",
+    "app/api/admin/submissions/[id]/route.ts"
+  ],
+  "admin_missing_files_from_tsbuildinfo": [
+    "src/app/(payload)/admin/page.tsx",
+    "src/app/(payload)/api/[payload]/route.ts"
+  ],
+  "verification": {
+    "recovery_static_audit": "passed",
+    "typescript_transpile_syntax": "passed (249 TS/TSX files)",
+    "public_surface_audit": "passed",
+    "ad_placement_audit": "failed: 14 required placements are absent because public route source files are missing from the upload",
+    "architecture_audit": "passed with warning: dev/preview memory fallback remains",
+    "launch_gate": "skipped strict checks because NEXT_PUBLIC_LAUNCH_STATUS is not live",
+    "pnpm_build": "not run: pnpm unavailable and registry network access blocked",
+    "docker_auth_smoke_test": "not run: Docker unavailable"
+  },
+  "fixes_applied": [
+    "auth singleton resets after initialization failure",
+    "boot account provisioning is failure-isolated and first credential POST waits for it",
+    "boot role assignment failure no longer rejects auth initialization",
+    "Better Auth catch-all route restored",
+    "duplicate NEXT_PUBLIC_SITE_URL removed",
+    "known time-dependent hydration mismatch paths stabilized",
+    "client timestamps fixed to Asia/Kathmandu",
+    "public/admin/global error boundaries added",
+    "mobile navigation focus trap and focus restoration fixed",
+    "launch readiness checks expanded"
+  ]
+}

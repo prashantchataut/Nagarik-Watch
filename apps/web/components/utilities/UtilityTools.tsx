@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { adToBs, bsToAd, formatBsFull, preetiToUnicode, unicodeToPreeti } from '@nagarikwatch/db'
 
@@ -87,8 +87,11 @@ function CopyButton({
 }
 
 function DateConverter({ locale }: { locale: Locale }) {
-  const todayISO = new Date().toISOString().slice(0, 10)
-  const [ad, setAd] = useState(todayISO)
+  const [ad, setAd] = useState('')
+
+  useEffect(() => {
+    setAd(new Date().toISOString().slice(0, 10))
+  }, [])
   const [bsYear, setBsYear] = useState('')
   const [bsMonth, setBsMonth] = useState('')
   const [bsDay, setBsDay] = useState('')

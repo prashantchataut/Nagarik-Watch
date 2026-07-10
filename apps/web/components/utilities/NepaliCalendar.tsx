@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import {
   BS_MONTHS,
@@ -25,10 +25,29 @@ const WEEKDAY_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
  */
 export function NepaliCalendar({ locale }: { locale: Locale }) {
   const en = locale === 'en'
-  const todayBs = useMemo(() => adToBs(new Date()), [])
+  const [todayBs, setTodayBs] = useState<ReturnType<typeof adToBs> | null>(null)
+  const [year, setYear] = useState(2083)
+  const [month, setMonth] = useState(1)
 
-  const [year, setYear] = useState(todayBs.year)
-  const [month, setMonth] = useState(todayBs.month)
+  useEffect(() => {
+    const today = adToBs(new Date())
+    setTodayBs(today)
+    setYear(today.year)
+    setMonth(today.month)
+  }, [])
+
+  if (!todayBs) {
+    return (
+      <section
+        className="mt-6 min-h-[32rem] rounded-lg border border-rule bg-surface-raised p-5"
+        aria-busy="true"
+        aria-label={en ? 'Loading Nepali calendar' : 'नेपाली पात्रो लोड हुँदैछ'}
+      >
+        <div className="h-8 w-48 animate-pulse rounded bg-brand-tint" />
+        <div className="mt-5 h-80 animate-pulse rounded-md bg-surface" />
+      </section>
+    )
+  }
 
   const length = bsMonthLength(year, month)
   const firstAd = bsToAd(year, month, 1)
