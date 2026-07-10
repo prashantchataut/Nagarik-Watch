@@ -77,7 +77,7 @@ export function WireBrowser({ items }: { items: WireItem[] }) {
                     मूल स्रोत हेर्नुहोस् →
                   </a>
                   {' · '}
-                  {new Date(item.sourcePublishedAt).toLocaleString('ne-NP', { timeZone: 'Asia/Kathmandu' })}
+                  {new Date(item.sourcePublishedAt).toLocaleString('ne-NP')}
                 </p>
               </div>
               <button

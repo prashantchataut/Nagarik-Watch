@@ -78,17 +78,11 @@ function trustedOrigins(): string[] {
 type AuthInstance = ReturnType<typeof betterAuth>
 
 let authPromise: Promise<AuthInstance> | null = null
-let bootSeedPromise: Promise<void> | null = null
-
-function messageFrom(error: unknown): string {
-  return error instanceof Error ? error.message : String(error)
-}
 
 export function getAuth(): Promise<AuthInstance> {
   if (!authPromise) {
     authPromise = buildAuth().catch((error) => {
-      // Do not permanently cache a failed initialization. A transient database
-      // or adapter failure must be recoverable on the next request.
+      // Allow a later request to recover after a transient database failure.
       authPromise = null
       throw error
     })
@@ -158,32 +152,14 @@ async function buildAuth(): Promise<AuthInstance> {
     },
   }) as unknown as AuthInstance
 
-  // Account provisioning is operational work, not a prerequisite for creating
-  // the auth handler. Keep it out of static generation and isolate failures so
-  // reader authentication is never taken down by a boot-account update.
-  if (!isBuild) startBootSeeding(auth)
+  // Account provisioning must never make the auth service unavailable. A failed
+  // boot-role update previously rejected the singleton promise permanently and
+  // turned every auth endpoint into a 500 until the process restarted.
+  void seedBootAccounts(auth).catch((error) => {
+    console.error('[auth] boot account provisioning failed', error)
+  })
 
   return auth
-}
-
-function startBootSeeding(auth: AuthInstance): Promise<void> {
-  if (!bootSeedPromise) {
-    bootSeedPromise = seedBootAccounts(auth).catch((error) => {
-      console.error('[auth] boot-account provisioning failed:', messageFrom(error))
-    })
-  }
-  return bootSeedPromise
-}
-
-/**
- * Route handlers can await this on the first credential POST. Auth instance
- * creation remains non-blocking, while the first admin login cannot race the
- * idempotent boot-account provisioning task.
- */
-export async function waitForBootAccounts(): Promise<void> {
-  if (isBuild) return
-  const auth = await getAuth()
-  await startBootSeeding(auth)
 }
 
 /**
@@ -210,17 +186,11 @@ async function seedBootAccounts(auth: AuthInstance): Promise<void> {
     ['NEWSROOM_ADMIN_EMAIL', 'NEWSROOM_ADMIN_PASSWORD', 'admin', 'एडमिन'],
   ]
 
-  const results = await Promise.allSettled(
+  await Promise.all(
     BOOT_ACCOUNTS.map(([emailKey, pwKey, role, displayName]) =>
       seedOne(auth, emailKey, pwKey, role, displayName),
     ),
   )
-
-  for (const result of results) {
-    if (result.status === 'rejected') {
-      console.error('[auth] boot-account task failed:', messageFrom(result.reason))
-    }
-  }
 }
 
 async function seedOne(
@@ -250,20 +220,17 @@ async function seedOne(
         displayName,
       },
     })
-  } catch (error) {
-    // Existing accounts normally reach this branch. Keep the message server-side
-    // and continue to the idempotent role update.
-    if (process.env.NODE_ENV !== 'production') {
-      console.info(`[auth] boot signup skipped for ${email}:`, messageFrom(error))
-    }
+  } catch {
+    // Account already exists, or adapter not ready yet. Either way, attempt the
+    // role update below so existing boot users stay aligned with env.
   }
 
   try {
     await assignBootRole(email, role, displayName)
   } catch (error) {
-    // Most importantly, never let a role-maintenance failure reject getAuth().
-    // The next process boot will retry after the database is healthy.
-    console.error(`[auth] could not assign ${role} to ${email}:`, messageFrom(error))
+    // Keep sign-in and reader registration healthy when the role promotion
+    // query cannot run. The next process boot will retry provisioning.
+    console.error(`[auth] could not assign ${role} role to ${email}`, error)
   }
 }
 

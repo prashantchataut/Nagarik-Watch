@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
@@ -21,11 +20,7 @@ const ICON_BTN =
 export function Masthead({ locale, navCategories }: MastheadProps) {
   const dict = getDictionary(locale)
   const pathname = usePathname() ?? '/'
-  const [dateLabel, setDateLabel] = useState<string | null>(null)
-
-  useEffect(() => {
-    setDateLabel(formatDate(new Date().toISOString(), locale))
-  }, [locale])
+  const dateLabel = formatDate(new Date().toISOString(), locale)
   const homeHref = localizeHref(locale, '/')
   const searchHref = localizeHref(locale, '/search')
   const savedHref = localizeHref(locale, '/saved')
@@ -37,7 +32,7 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
       <div className="border-b border-rule bg-surface-raised">
         <div className="mx-auto hidden max-w-page items-center justify-between gap-3 px-4 py-2 text-caption text-ink-soft sm:flex">
           <p lang={lang} className="truncate">
-            {dateLabel ? dict.mastheadDate(dateLabel) : '\u00A0'}
+            {dict.mastheadDate(dateLabel)}
           </p>
           <div className="hidden items-center gap-3 sm:flex">
             <Link

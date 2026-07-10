@@ -32,7 +32,6 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
   const dict = getDictionary(locale)
   const [open, setOpen] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
-  const triggerRef = useRef<HTMLButtonElement>(null)
   const closeBtnRef = useRef<HTMLButtonElement>(null)
   const titleId = useId()
 
@@ -48,44 +47,19 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
     }
   }, [open])
 
-  // Move focus into the drawer, trap keyboard focus while it is open, and
-  // restore focus to the trigger when the drawer closes.
+  // On open, move focus to the close button; on Escape, close. Focus is trapped loosely:
+  // Tab cycles within the dialog because the overlay covers everything behind it.
   useEffect(() => {
     if (!open) return
-    const trigger = triggerRef.current
     closeBtnRef.current?.focus()
-
-    function onKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        event.preventDefault()
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.preventDefault()
         setOpen(false)
-        return
-      }
-      if (event.key !== 'Tab' || !dialogRef.current) return
-
-      const focusable = Array.from(
-        dialogRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ),
-      ).filter((element) => !element.hasAttribute('hidden'))
-      if (focusable.length === 0) return
-
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault()
-        last.focus()
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault()
-        first.focus()
       }
     }
-
     document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      trigger?.focus()
-    }
+    return () => document.removeEventListener('keydown', onKey)
   }, [open])
 
   const pathname = usePathname() ?? '/'
@@ -97,7 +71,6 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
   return (
     <div className="md:hidden">
       <button
-        ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
         aria-label={dict.openMenu}
@@ -125,7 +98,6 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
           />
 
           <div
-            id={titleId}
             ref={dialogRef}
             className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-surface shadow-overlay"
           >

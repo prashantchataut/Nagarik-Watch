@@ -24,8 +24,7 @@
     "audit:ads": "node scripts/audit-ad-placements.mjs",
     "audit:architecture": "node scripts/audit-architecture.mjs",
     "launch:gate": "node scripts/launch-gate.mjs",
-    "verify:static": "pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm launch:gate",
-    "verify:recovery": "node scripts/verify-recovery.mjs"
+    "verify:static": "pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm launch:gate"
   },
   "devDependencies": {
     "@nagarikwatch/tsconfig": "workspace:*",

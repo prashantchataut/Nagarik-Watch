@@ -5,104 +5,39 @@ import { getAuth } from '@/lib/auth'
 import { Logo } from '@/components/Logo'
 import { AdminLoginForm } from './AdminLoginForm'
 
-export const metadata: Metadata = {
-  title: 'Newsroom Login',
-  description: 'Staff-only sign in to the Nagarik Watch newsroom.',
-  robots: { index: false, follow: false },
-}
-
+export const metadata: Metadata = { title: 'Newsroom Login', description: 'Staff-only sign in to the Nagarik Watch newsroom.', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
 
 export default async function AdminLoginPage() {
-  let session = null
   try {
     const auth = await getAuth()
-    session = await auth.api.getSession({ headers: await headers() })
-  } catch {
-    session = null
-  }
-  if (session?.user) {
-    const role = (session.user as { role?: string }).role ?? 'reader'
-    if (role !== 'reader') redirect('/admin/dashboard')
-  }
+    const session = await auth.api.getSession({ headers: await headers() })
+    const role = (session?.user as { role?: string } | undefined)?.role
+    if (session?.user && role && role !== 'reader') redirect('/admin/dashboard')
+  } catch {}
 
-  const workflow = [
-    'Draft, review, schedule and publish articles',
-    'Manage media credits, alt text and source attribution',
-    'Moderate comments, tips, polls and newsletter queues',
-    'Check SEO, live widgets, roles and audit history',
-  ]
-
-  return (
-    <main className="min-h-screen bg-surface lg:grid lg:grid-cols-[0.92fr_1.08fr]">
-      <section className="hidden border-r border-rule bg-surface-raised px-10 py-10 lg:flex lg:flex-col lg:justify-between">
-        <a href="/" className="inline-flex w-fit rounded-md" aria-label="Nagarik Watch home">
-          <Logo siteName="नागरिक वाच" />
-        </a>
-
-        <div className="max-w-lg">
-          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="en">
-            Staff-only newsroom
-          </p>
-          <h1
-            className="mt-4 font-display text-[3.2rem] font-extrabold leading-[1.04] text-ink"
-            lang="ne"
-          >
-            समाचार प्रकाशन गर्ने ठाउँ, पाठक लगइन होइन।
-          </h1>
-          <p className="mt-5 text-body-lg leading-relaxed text-ink-soft" lang="ne">
-            यो पृष्ठ सम्पादक, लेखक र प्रशासनिक कर्मचारीका लागि हो। पाठकले समाचार पढ्न वा संग्रह गर्न
-            अलग पाठक खाता प्रयोग गर्छन्।
-          </p>
-          <ul className="mt-7 grid gap-2 text-body text-ink-soft" lang="en">
-            {workflow.map((item) => (
-              <li key={item} className="flex items-start gap-2">
-                <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 rounded-full bg-brand" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <p className="text-caption text-mute" lang="ne">
-          गलत ठाउँमा हुनुहुन्छ?{' '}
-          <a href="/auth/login" className="font-semibold text-ink-soft hover:text-brand-strong">
-            पाठक लगइन
-          </a>{' '}
-          प्रयोग गर्नुहोस्।
-        </p>
-      </section>
-
-      <section className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-8">
-        <div className="w-full max-w-md">
-          <a
-            href="/"
-            className="mx-auto mb-8 flex w-fit rounded-md lg:hidden"
-            aria-label="Nagarik Watch home"
-          >
-            <Logo siteName="नागरिक वाच" />
-          </a>
-          <div>
-            <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="en">
-              Newsroom access
-            </p>
-            <h2
-              className="mt-2 font-display text-h1 font-extrabold leading-tight text-ink"
-              lang="ne"
-            >
-              स्टाफ लगइन
-            </h2>
-            <p className="mt-2 text-body text-ink-soft" lang="ne">
-              केवल स्वीकृत न्युजरुम खाताबाट प्रवेश हुन्छ। सफल लगइनपछि ड्यासबोर्डमा जानु सामान्य
-              व्यवहार हो।
-            </p>
-          </div>
-
-          <div className="mt-7 rounded-lg border border-rule bg-surface-raised p-5 shadow-card sm:p-6">
-            <AdminLoginForm />
-          </div>
-        </div>
-      </section>
-    </main>
-  )
+  return <main className="auth-shell">
+    <section className="auth-editorial" aria-label="Newsroom introduction">
+      <a href="/" className="relative z-10 w-fit" aria-label="Nagarik Watch home"><Logo siteName="नागरिक वाच" /></a>
+      <div className="relative z-10 max-w-xl">
+        <p className="text-meta font-extrabold uppercase tracking-[.16em] text-[oklch(0.82_0.09_28)]" lang="en">Nagarik Watch newsroom</p>
+        <h1 className="mt-5 font-display text-[clamp(2.7rem,5vw,4.8rem)] font-extrabold leading-[.98] text-[oklch(0.97_0.005_28)]" lang="ne">समाचारलाई प्रमाण, सन्दर्भ र जिम्मेवारीसँग प्रकाशित गर्नुहोस्।</h1>
+        <p className="mt-6 max-w-lg text-body-lg leading-relaxed text-[oklch(0.82_0.012_28)]" lang="ne">सम्पादक, पत्रकार र प्रकाशन टोलीका लागि सुरक्षित कार्यक्षेत्र। पाठक खाता र न्युजरुम पहुँच अलग राखिएको छ।</p>
+      </div>
+      <div className="relative z-10 grid grid-cols-2 gap-x-8 gap-y-5 border-t border-[oklch(0.5_0.035_28)] pt-6 text-meta text-[oklch(0.82_0.012_28)]" lang="ne">
+        <p><strong className="block text-[oklch(0.97_0.005_28)]">सम्पादकीय कार्यप्रवाह</strong> ड्राफ्टदेखि प्रकाशनसम्म</p>
+        <p><strong className="block text-[oklch(0.97_0.005_28)]">उत्तरदायित्व</strong> भूमिका र अडिट इतिहास</p>
+      </div>
+    </section>
+    <section className="auth-form-column">
+      <div className="auth-form-wrap">
+        <a href="/" className="mb-10 block w-fit lg:hidden"><Logo siteName="नागरिक वाच" /></a>
+        <p className="admin-eyebrow" lang="en">Staff access</p>
+        <h2 className="mt-2 font-display text-[2.35rem] font-extrabold leading-tight text-ink" lang="ne">न्युजरुममा प्रवेश</h2>
+        <p className="mt-3 max-w-md text-body leading-relaxed text-ink-soft" lang="ne">तपाईंको संस्थागत इमेल र पासवर्ड प्रयोग गर्नुहोस्। पहुँच तपाईंको भूमिकाअनुसार सीमित हुन्छ।</p>
+        <div className="auth-form-surface"><AdminLoginForm /></div>
+        <p className="mt-8 text-caption text-mute" lang="ne">पाठक हुनुहुन्छ? <a href="/ne/auth/login" className="font-bold text-brand-strong hover:underline">पाठक लगइनमा जानुहोस्</a></p>
+      </div>
+    </section>
+  </main>
 }

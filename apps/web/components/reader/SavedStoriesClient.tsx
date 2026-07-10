@@ -104,7 +104,7 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
                 {title}
               </a>
               <p className="mt-2 text-caption text-mute" lang="en">
-                {story.savedAt ? `Saved ${new Date(story.savedAt).toLocaleString('en-GB', { timeZone: 'Asia/Kathmandu' })}` : 'Saved locally on this device'}
+                {story.savedAt ? `Saved ${new Date(story.savedAt).toLocaleString()}` : 'Saved locally on this device'}
               </p>
             </article>
           )

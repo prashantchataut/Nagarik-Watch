@@ -65,8 +65,8 @@ export function ReaderSignupForm({ locale }: { locale: 'ne' | 'en' }) {
           setError(String(msg))
           return
         }
-        router.replace(ne ? '/saved' : '/en/saved')
         router.refresh()
+        router.push(ne ? '/saved' : '/en/saved')
       } catch {
         setError(ne ? 'नेटवर्क त्रुटि। पुनः प्रयास गर्नुहोस्।' : 'Network error. Please retry.')
       }

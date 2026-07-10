@@ -173,7 +173,7 @@ export function CommentSection({
                   {c.authorName}
                 </p>
                 <time className="text-caption text-mute">
-                  {new Date(c.createdAt).toLocaleString(ne ? 'ne-NP' : 'en-GB', { timeZone: 'Asia/Kathmandu' })}
+                  {new Date(c.createdAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}
                 </time>
               </div>
               <p

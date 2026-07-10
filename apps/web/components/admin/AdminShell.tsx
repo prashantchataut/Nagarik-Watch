@@ -132,7 +132,7 @@ export function AdminShell({
   })).filter((g) => g.items.length > 0)
 
   const sidebar = (
-    <aside className="flex h-full w-64 flex-col border-r border-rule bg-surface-raised">
+    <aside className="flex h-full w-[17.5rem] flex-col border-r border-rule bg-surface-raised">
       <div className="flex h-16 items-center gap-2.5 border-b border-rule px-5">
         <Link href="/admin/dashboard" className="flex items-center gap-2.5">
           <LogoMark title="नागरिक वाच / Nagarik Watch" className="h-9 w-9" />
@@ -168,8 +168,8 @@ export function AdminShell({
                       onClick={() => setDrawerOpen(false)}
                       className={
                         active
-                          ? 'flex items-center gap-3 rounded-md bg-brand-tint px-3 py-2 text-meta font-semibold text-brand-strong'
-                          : 'flex items-center gap-3 rounded-md px-3 py-2 text-meta font-medium text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint/60 hover:text-brand-strong'
+                          ? 'flex min-h-10 items-center gap-3 rounded-md bg-brand-tint px-3 py-2 text-meta font-bold text-brand-strong'
+                          : 'flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-meta font-medium text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-surface hover:text-ink'
                       }
                       lang="ne"
                     >
@@ -215,7 +215,7 @@ export function AdminShell({
   )
 
   return (
-    <div className="flex min-h-screen bg-surface">
+    <div className="admin-shell-surface flex min-h-screen">
       {/* Desktop sidebar — fixed width, hidden on mobile. */}
       <div className="hidden lg:block lg:sticky lg:top-0 lg:h-screen">{sidebar}</div>
 
@@ -233,7 +233,7 @@ export function AdminShell({
 
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-rule bg-surface-raised/95 px-4 backdrop-blur lg:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-rule bg-surface-raised px-4 lg:px-7">
           <button
             onClick={() => setDrawerOpen(true)}
             className="inline-flex h-11 w-11 items-center justify-center rounded-md text-ink-soft hover:bg-brand-tint hover:text-brand-strong lg:hidden"
@@ -248,7 +248,7 @@ export function AdminShell({
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden items-center gap-1.5 rounded-full border border-rule px-3.5 py-1.5 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong sm:inline-flex"
+            className="hidden items-center gap-1.5 rounded-md border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong sm:inline-flex"
             lang="ne"
           >
             <NavIcon name="external" />
@@ -256,7 +256,7 @@ export function AdminShell({
           </a>
         </header>
 
-        <main className="flex-1 overflow-x-hidden p-4 lg:p-6">{children}</main>
+        <main className="flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   )

@@ -47,8 +47,8 @@ export function AdminLoginForm() {
           return
         }
         // Force a fresh server render so the session cookie is read.
-        router.replace('/admin/dashboard')
         router.refresh()
+        router.push('/admin/dashboard')
       } catch {
         setError('नेटवर्क त्रुटि। कृपया पुनः प्रयास गर्नुहोस्।')
       }
