@@ -35,6 +35,7 @@ let poolPromise: Promise<Queryable | null> | null = null
 let schemaReady: Promise<void> | null = null
 
 async function getPool(): Promise<Queryable | null> {
+  if (process.env.NEXT_PHASE === 'phase-production-build') return null
   if (!process.env.DATABASE_URL?.startsWith('postgres')) return null
   if (!poolPromise) {
     poolPromise = (async () => {
@@ -46,26 +47,31 @@ async function getPool(): Promise<Queryable | null> {
 }
 
 async function ensureSchema(): Promise<Queryable | null> {
-  const pool = await getPool()
-  if (!pool) return null
-  if (!schemaReady) {
-    schemaReady = (async () => {
-      await pool.query(`
-        CREATE TABLE IF NOT EXISTS nw_house_ads (
-          placement_key text PRIMARY KEY,
-          active boolean NOT NULL DEFAULT false,
-          title text NOT NULL,
-          body text NOT NULL,
-          cta text NOT NULL,
-          href text NOT NULL,
-          image_url text,
-          updated_at timestamptz NOT NULL DEFAULT now()
-        )
-      `)
-    })()
+  try {
+    const pool = await getPool()
+    if (!pool) return null
+    if (!schemaReady) {
+      schemaReady = (async () => {
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS nw_house_ads (
+            placement_key text PRIMARY KEY,
+            active boolean NOT NULL DEFAULT false,
+            title text NOT NULL,
+            body text NOT NULL,
+            cta text NOT NULL,
+            href text NOT NULL,
+            image_url text,
+            updated_at timestamptz NOT NULL DEFAULT now()
+          )
+        `)
+      })()
+    }
+    await schemaReady
+    return pool
+  } catch {
+    memory.clear()
+    return null
   }
-  await schemaReady
-  return pool
 }
 
 function rowToAd(row: Row): HouseAd {
@@ -82,12 +88,16 @@ function rowToAd(row: Row): HouseAd {
 }
 
 export async function getHouseAd(placementKey: AdPlacementKey): Promise<HouseAd | null> {
-  const pool = await ensureSchema()
-  if (pool) {
-    const result = await pool.query<Row>(`SELECT * FROM nw_house_ads WHERE placement_key = $1`, [placementKey])
-    return result.rows[0] ? rowToAd(result.rows[0]) : null
+  try {
+    const pool = await ensureSchema()
+    if (pool) {
+      const result = await pool.query<Row>(`SELECT * FROM nw_house_ads WHERE placement_key = $1`, [placementKey])
+      return result.rows[0] ? rowToAd(result.rows[0]) : null
+    }
+    return memory.get(placementKey) ?? null
+  } catch {
+    return null
   }
-  return memory.get(placementKey) ?? null
 }
 
 export async function listHouseAds(): Promise<HouseAd[]> {

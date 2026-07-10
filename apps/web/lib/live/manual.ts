@@ -21,6 +21,7 @@ let poolPromise: Promise<Queryable | null> | null = null
 let schemaReady: Promise<void> | null = null
 
 async function getPool(): Promise<Queryable | null> {
+  if (process.env.NEXT_PHASE === 'phase-production-build') return null
   if (!process.env.DATABASE_URL?.startsWith('postgres')) return null
   if (!poolPromise) {
     poolPromise = (async () => {

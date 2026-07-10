@@ -62,6 +62,7 @@ export function submissionsStorageMode(): 'postgres' | 'memory' {
 }
 
 async function getPool(): Promise<Queryable | null> {
+  if (process.env.NEXT_PHASE === 'phase-production-build') return null
   if (submissionsStorageMode() !== 'postgres') return null
   if (!poolPromise) {
     poolPromise = (async () => {

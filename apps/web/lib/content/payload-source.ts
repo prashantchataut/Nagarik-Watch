@@ -131,16 +131,21 @@ function asCard(doc: PayloadDoc): StoryCardData {
   }
 }
 
+let _payload: any = null
+
 async function getPayload() {
-  const { getPayload } = await import('payload')
+  if (_payload) return _payload
+  const { getPayload: getPayloadImport } = await import('payload')
   const config = (await import('@payload-config')).default
-  return getPayload({ config })
+  _payload = await getPayloadImport({ config })
+  return _payload
 }
 
-export function createPayloadContentSource(): ContentSource {
+export async function createPayloadContentSource(): Promise<ContentSource> {
+  const payload = await getPayload()
+
   const source: ContentSource = {
     async getArticleBySlug(category, slug, locale) {
-      const payload = await getPayload()
       const { docs } = await payload.find({
         collection: 'articles',
         where: { slug: { equals: slug }, _status: { equals: 'published' } },

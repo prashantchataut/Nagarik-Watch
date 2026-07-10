@@ -25,8 +25,14 @@ import { createStoreContentSource } from './store/store-source'
 
 async function resolveSource(): Promise<ContentSource> {
   if (process.env.PAYLOAD_CONTENT_SOURCE === 'payload') {
-    const { createPayloadContentSource } = await import('./payload-source')
-    return createPayloadContentSource()
+    try {
+      const { createPayloadContentSource } = await import('./payload-source')
+      return await createPayloadContentSource()
+    } catch {
+      console.warn(
+        '[content] Payload unavailable (unreachable DB?), falling back to JSON store for this process',
+      )
+    }
   }
   return createStoreContentSource()
 }

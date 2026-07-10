@@ -27,6 +27,7 @@ let poolPromise: Promise<Queryable | null> | null = null
 let schemaReady: Promise<void> | null = null
 
 async function getPool(): Promise<Queryable | null> {
+  if (process.env.NEXT_PHASE === 'phase-production-build') return null
   if (!process.env.DATABASE_URL?.startsWith('postgres')) return null
   if (!poolPromise) {
     poolPromise = (async () => {
@@ -38,12 +39,13 @@ async function getPool(): Promise<Queryable | null> {
 }
 
 async function ensureSchema(): Promise<Queryable | null> {
-  const pool = await getPool()
-  if (!pool) return null
-  if (!schemaReady) {
-    schemaReady = (async () => {
-      await pool.query(`
-        CREATE TABLE IF NOT EXISTS nw_ad_events (
+  try {
+    const pool = await getPool()
+    if (!pool) return null
+    if (!schemaReady) {
+      schemaReady = (async () => {
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS nw_ad_events (
           id bigserial PRIMARY KEY,
           placement_key text NOT NULL,
           mode text NOT NULL,
@@ -56,8 +58,11 @@ async function ensureSchema(): Promise<Queryable | null> {
       )
     })()
   }
-  await schemaReady
-  return pool
+    await schemaReady
+    return pool
+  } catch {
+    return null
+  }
 }
 
 export async function recordAdEvent(input: {

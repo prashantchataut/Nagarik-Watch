@@ -118,6 +118,7 @@ export function engagementStorageMode(): 'postgres' | 'memory' {
 }
 
 async function getPool(): Promise<Queryable | null> {
+  if (process.env.NEXT_PHASE === 'phase-production-build') return null
   if (engagementStorageMode() !== 'postgres') return null
   if (!poolPromise) {
     poolPromise = (async () => {

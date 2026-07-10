@@ -17,6 +17,13 @@ let cached: Dialect | null = null
 export async function createDialect(): Promise<Dialect> {
   if (cached) return cached
 
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    const { PGlite } = await import('@electric-sql/pglite')
+    const pglite = await PGlite.create()
+    cached = new PGliteDialect({ pglite })
+    return cached
+  }
+
   const dbUrl = process.env.DATABASE_URL
   if (dbUrl && dbUrl.startsWith('postgres')) {
     const { Pool } = await import('pg')

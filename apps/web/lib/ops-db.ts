@@ -20,6 +20,7 @@ export function operationalStorageMode(): 'postgres' | 'memory' {
 }
 
 export async function getOperationalPool(): Promise<Queryable | null> {
+  if (process.env.NEXT_PHASE === 'phase-production-build') return null
   if (operationalStorageMode() !== 'postgres') return null
   if (!poolPromise) {
     poolPromise = (async () => {
