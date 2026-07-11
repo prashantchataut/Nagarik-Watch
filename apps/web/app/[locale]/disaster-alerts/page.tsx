@@ -1,20 +1,4 @@
-import type { Metadata } from 'next'
-import type { Locale } from '@nagarikwatch/db'
-import { PublicHubPage } from '@/components/PublicHubPage'
-import { asLocale, localizeHref } from '@/lib/i18n/locales'
-import { STATIC_HUBS, localizedTitle } from '@/lib/site'
-const hub = STATIC_HUBS.find((item) => item.key === 'disaster-alerts')!
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
-  return <PublicHubPage hub={hub} locale={asLocale((await params).locale)} />
-}
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}): Promise<Metadata> {
-  const locale: Locale = asLocale((await params).locale)
-  return {
-    title: localizedTitle(locale, hub),
-    alternates: { canonical: localizeHref(locale, hub.path) },
-  }
-}
+import { asLocale } from '@/lib/i18n/locales'
+import { getDisasterAlerts } from '@/lib/live/disaster'
+export const dynamic='force-dynamic'
+export default async function DisasterAlertsPage({params}:{params:Promise<{locale:string}>}){const locale=asLocale((await params).locale);const en=locale==='en';const alerts=await getDisasterAlerts();return <div className="live-page"><header><p className="section-kicker">{en?'Public safety':'सार्वजनिक सुरक्षा'}</p><h1>{en?'Disaster alerts':'विपद् सूचना'}</h1><p>{en?'Verified newsroom notices and earthquakes detected in the Nepal region. Always follow official local instructions.':'समाचार कक्षबाट प्रमाणित सूचना र नेपाल क्षेत्रमा मापन गरिएका भूकम्प। स्थानीय आधिकारिक निर्देशन पालना गर्नुहोस्।'}</p></header><section className="alert-section"><div className="score-section__head"><h2>{en?'Current notices':'हालका सूचना'}</h2><span>{alerts.source}</span></div>{alerts.data.length?<div className="alert-list">{alerts.data.map((a,i)=><article key={a.id??i} data-severity={a.severity}><div><span>{String(a.severity).toUpperCase()}</span><h2>{a.title}</h2><p>{a.area}</p></div>{a.occurredAt&&<time>{new Date(a.occurredAt).toLocaleString(en?'en-GB':'ne-NP')}</time>}</article>)}</div>:<div className="live-empty"><strong>{en?'No active verified alerts':'हाल सक्रिय प्रमाणित सूचना छैन'}</strong><p>{en?'The feed is reachable but has no Nepal-region alert, or the provider is temporarily unavailable.':'नेपाल क्षेत्रको सूचना छैन वा प्रदायक अस्थायी रूपमा उपलब्ध छैन।'}</p></div>}</section></div>}

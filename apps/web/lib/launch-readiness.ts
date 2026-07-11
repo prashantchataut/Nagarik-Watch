@@ -39,6 +39,18 @@ export function getLaunchChecks(): LaunchCheck[] {
       detail: hasSecret ? 'Auth secret present' : 'AUTH_SECRET or BETTER_AUTH_SECRET is missing',
     },
     {
+      key: 'content-volume',
+      label: 'Published content threshold',
+      status: Number(process.env.PUBLISHED_ARTICLE_COUNT ?? 0) >= Number(process.env.LAUNCH_MIN_PUBLISHED_ARTICLES ?? 30) ? 'pass' : 'warn',
+      detail: `Launch target: ${process.env.LAUNCH_MIN_PUBLISHED_ARTICLES ?? '30'} published articles`,
+    },
+    {
+      key: 'newsroom-contact',
+      label: 'Newsroom contact',
+      status: process.env.NEXT_PUBLIC_NEWSROOM_ADDRESS ? 'pass' : 'warn',
+      detail: process.env.NEXT_PUBLIC_NEWSROOM_ADDRESS || 'NEXT_PUBLIC_NEWSROOM_ADDRESS is missing',
+    },
+    {
       key: 'email',
       label: 'Email provider',
       status: process.env.RESEND_API_KEY || process.env.SMTP_HOST ? 'pass' : 'warn',

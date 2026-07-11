@@ -1,359 +1,520 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Locale } from '@nagarikwatch/db'
-import { adToBs, bsToAd, formatBsFull, preetiToUnicode, unicodeToPreeti } from '@nagarikwatch/db'
+import {
+  adToBs,
+  bsToAd,
+  formatBsFull,
+  preetiToUnicode,
+  unicodeToPreeti,
+} from '@nagarikwatch/db'
 
-// Local structural type matching the ForexRate returned by the server-side live feed.
-// Defined here (not imported from lib/live/real.ts) because that module is 'server-only'
-// and this is a client component — we only ever receive the values as props.
-type ForexRate = { iso3: string; name: string; buy: number; sell: number; unit: string }
-
-type UtilityToolsProps = {
-  locale: Locale
-  /** Today's NPR forex rates. When empty, the currency tool clearly says rates are unavailable. */
-  forexRates?: ForexRate[]
-  /** Source label for the rate provenance line (e.g. "Nepal Rastra Bank"). */
-  forexSource?: string
+type ForexRate = {
+  iso3: string
+  name: string
+  buy: number
+  sell: number
+  unit: string
 }
 
-/**
- * Reader-facing utility converters — the daily tools Nepali portals compete on.
- * All four are pure client-side math (no fetch on interaction), so they stay instant
- * and work offline once the page is loaded:
- *   1. AD ⇄ BS date converter (bidirectional, verified against the founder anchor).
- *   2. Preeti ⇄ Unicode (full keyboard map, both directions).
- *   3. Currency converter against the live NPR rate (passed in from the server).
- *   4. Age calculator.
- */
-export function UtilityTools({ locale, forexRates = [], forexSource }: UtilityToolsProps) {
+function ToolPanel({
+  locale,
+  title,
+  summary,
+  children,
+}: {
+  locale: Locale
+  title: string
+  summary: string
+  children: ReactNode
+}) {
   return (
-    <section className="mt-10 grid gap-6 lg:grid-cols-2">
-      <DateConverter locale={locale} />
-      <PreetiConverter locale={locale} />
-      <CurrencyConverter locale={locale} rates={forexRates} source={forexSource} />
-      <AgeCalculator locale={locale} />
+    <section className="utility-tool" lang={locale === 'en' ? 'en' : 'ne'}>
+      <header>
+        <h2>{title}</h2>
+        <p>{summary}</p>
+      </header>
+      <div className="utility-tool-body">{children}</div>
     </section>
   )
 }
 
-function Card({
-  title,
-  subtitle,
-  locale,
+function Field({
+  label,
   children,
+  hint,
 }: {
-  title: string
-  subtitle?: string
-  locale: Locale
-  children: React.ReactNode
+  label: string
+  children: ReactNode
+  hint?: string
 }) {
-  const lang = locale === 'en' ? 'en' : 'ne'
   return (
-    <div className="rounded-lg border border-rule bg-surface-raised p-5" lang={lang}>
-      <h2 className="font-display text-h2 text-ink">{title}</h2>
-      {subtitle && <p className="mt-1 text-body text-ink-soft">{subtitle}</p>}
-      <div className="mt-4">{children}</div>
-    </div>
-  )
-}
-
-function ResultBox({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mt-4 rounded-md bg-brand-tint p-3 text-body font-semibold text-brand-strong">
+    <label className="utility-field">
+      <span>{label}</span>
       {children}
-    </p>
+      {hint ? <small>{hint}</small> : null}
+    </label>
   )
 }
 
-function CopyButton({
-  onClick,
-  copied,
-  en,
-}: {
-  onClick: () => void
-  copied: boolean
-  en: boolean
-}) {
+function Result({ label, value }: { label: string; value: string }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="mt-2 inline-flex items-center rounded-full border border-rule px-3 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
-    >
-      {copied ? (en ? 'Copied' : 'प्रति लिइयो') : en ? 'Copy' : 'प्रति लिनुहोस्'}
-    </button>
+    <output className="utility-result" aria-live="polite">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </output>
   )
 }
 
-function DateConverter({ locale }: { locale: Locale }) {
-  const todayISO = new Date().toISOString().slice(0, 10)
-  const [ad, setAd] = useState(todayISO)
-  const [bsYear, setBsYear] = useState('')
-  const [bsMonth, setBsMonth] = useState('')
-  const [bsDay, setBsDay] = useState('')
+export function DateConverterTool({ locale }: { locale: Locale }) {
+  const en = locale === 'en'
+  const [ad, setAd] = useState('')
+  const [year, setYear] = useState('2083')
+  const [month, setMonth] = useState('1')
+  const [day, setDay] = useState('1')
 
-  const adToBsResult = useMemo(() => {
-    const d = new Date(`${ad}T00:00:00Z`)
-    if (Number.isNaN(d.getTime())) return null
-    const bs = adToBs(d)
-    return formatBsFull(bs, locale)
+  useEffect(() => setAd(new Date().toISOString().slice(0, 10)), [])
+
+  const bs = useMemo(() => {
+    if (!ad) return ''
+    try {
+      const value = new Date(`${ad}T00:00:00`)
+      if (Number.isNaN(value.getTime())) return ''
+      return formatBsFull(adToBs(value), locale)
+    } catch {
+      return ''
+    }
   }, [ad, locale])
 
-  const bsToAdResult = useMemo(() => {
-    const y = Number(bsYear)
-    const m = Number(bsMonth)
-    const d = Number(bsDay)
-    if (!y || !m || !d) return null
-    const result = bsToAd(y, m, d)
-    if (!result) return locale === 'en' ? 'Out of supported range (2000–2099)' : 'सीमित (२०००–२०९९)'
-    return result.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-  }, [bsYear, bsMonth, bsDay, locale])
+  const gregorian = useMemo(() => {
+    try {
+      const result = bsToAd(Number(year), Number(month), Number(day))
+      return result
+        ? result.toLocaleDateString(en ? 'en-GB' : 'ne-NP', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })
+        : ''
+    } catch {
+      return ''
+    }
+  }, [year, month, day, en])
 
-  const en = locale === 'en'
   return (
-    <Card
+    <ToolPanel
       locale={locale}
-      title={en ? 'AD ⇄ BS date converter' : 'अंग्रेजी ⇄ बि.सं. मिति'}
-      subtitle={en ? 'Bikram Sambat, supported 2000–2099' : 'विक्रम संवत्, २०००–२०९९'}
+      title={en ? 'Convert dates in both directions' : 'दुवै दिशामा मिति रूपान्तरण'}
+      summary={
+        en
+          ? 'Uses the verified Bikram Sambat date table for years 2000–2099 BS.'
+          : 'बि.सं. २००० देखि २०९९ सम्मको प्रमाणित मिति तालिका प्रयोग हुन्छ।'
+      }
     >
-      <label className="block text-meta font-semibold text-ink" htmlFor="ad-input">
-        {en ? 'Gregorian (AD) date' : 'अंग्रेजी (AD) मिति'}
-      </label>
-      <input
-        id="ad-input"
-        type="date"
-        value={ad}
-        onChange={(e) => setAd(e.target.value)}
-        className="mt-2 w-full rounded-md border border-rule bg-surface p-3 text-body text-ink outline-none focus:border-brand"
-      />
-      <ResultBox>{adToBsResult ?? (en ? 'Pick a date' : 'मिति छान्नुहोस्')}</ResultBox>
-
-      <label className="mt-5 block text-meta font-semibold text-ink" htmlFor="bs-y">
-        {en ? 'BS date (year / month / day)' : 'बि.सं. मिति (वर्ष / महिना / दिन)'}
-      </label>
-      <div className="mt-2 flex gap-2">
-        <input
-          id="bs-y"
-          inputMode="numeric"
-          placeholder="2083"
-          value={bsYear}
-          onChange={(e) => setBsYear(e.target.value.replace(/[^0-9]/g, ''))}
-          className="w-full rounded-md border border-rule bg-surface p-3 text-body text-ink outline-none focus:border-brand"
-        />
-        <input
-          inputMode="numeric"
-          placeholder={en ? 'mm' : 'महिना'}
-          value={bsMonth}
-          onChange={(e) => setBsMonth(e.target.value.replace(/[^0-9]/g, ''))}
-          className="w-24 rounded-md border border-rule bg-surface p-3 text-body text-ink outline-none focus:border-brand"
-        />
-        <input
-          inputMode="numeric"
-          placeholder={en ? 'dd' : 'दिन'}
-          value={bsDay}
-          onChange={(e) => setBsDay(e.target.value.replace(/[^0-9]/g, ''))}
-          className="w-24 rounded-md border border-rule bg-surface p-3 text-body text-ink outline-none focus:border-brand"
+      <div className="utility-form-grid">
+        <Field label={en ? 'Gregorian date (AD)' : 'इस्वी संवत् मिति (AD)'}>
+          <input type="date" value={ad} onChange={(event) => setAd(event.target.value)} />
+        </Field>
+        <Result
+          label={en ? 'Bikram Sambat' : 'विक्रम संवत्'}
+          value={bs || (en ? 'Choose a supported date' : 'समर्थित मिति छान्नुहोस्')}
         />
       </div>
-      <ResultBox>{bsToAdResult ?? (en ? 'Enter a BS date' : 'बि.सं. मिति राख्नुहोस्')}</ResultBox>
-    </Card>
+
+      <hr />
+
+      <div className="utility-form-grid">
+        <fieldset>
+          <legend>{en ? 'Bikram Sambat date' : 'विक्रम संवत् मिति'}</legend>
+          <div className="utility-three-fields">
+            <Field label={en ? 'Year' : 'वर्ष'}>
+              <input
+                inputMode="numeric"
+                value={year}
+                onChange={(event) => setYear(event.target.value.replace(/\D/g, ''))}
+              />
+            </Field>
+            <Field label={en ? 'Month' : 'महिना'}>
+              <input
+                inputMode="numeric"
+                value={month}
+                onChange={(event) => setMonth(event.target.value.replace(/\D/g, ''))}
+              />
+            </Field>
+            <Field label={en ? 'Day' : 'दिन'}>
+              <input
+                inputMode="numeric"
+                value={day}
+                onChange={(event) => setDay(event.target.value.replace(/\D/g, ''))}
+              />
+            </Field>
+          </div>
+        </fieldset>
+        <Result
+          label={en ? 'Gregorian date' : 'इस्वी संवत्'}
+          value={gregorian || (en ? 'Check the BS date' : 'बि.सं. मिति जाँच्नुहोस्')}
+        />
+      </div>
+    </ToolPanel>
   )
 }
 
-function PreetiConverter({ locale }: { locale: Locale }) {
+export function PreetiUnicodeTool({ locale }: { locale: Locale }) {
+  const en = locale === 'en'
   const [preeti, setPreeti] = useState('')
   const [unicode, setUnicode] = useState('')
-  const [copied, setCopied] = useState<'p' | 'u' | null>(null)
-  const en = locale === 'en'
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle')
 
-  const copy = async (which: 'p' | 'u', text: string) => {
-    if (!text) return
+  async function copy() {
+    if (!unicode) return
     try {
-      await navigator.clipboard.writeText(text)
-      setCopied(which)
-      setTimeout(() => setCopied(null), 1500)
+      await navigator.clipboard.writeText(unicode)
+      setCopyState('copied')
     } catch {
-      // clipboard blocked — silently ignore; the field stays selectable.
+      setCopyState('failed')
     }
+    window.setTimeout(() => setCopyState('idle'), 1800)
   }
 
-  return (
-    <Card
-      locale={locale}
-      title={en ? 'Preeti ⇄ Unicode' : 'प्रिती ⇄ युनिकोड'}
-      subtitle={en ? 'Full Preeti keyboard map, both directions' : 'पूर्ण प्रिती नक्सा, दुवै दिशा'}
-    >
-      <label className="block text-meta font-semibold text-ink" htmlFor="preeti-in">
-        {en ? 'Preeti' : 'प्रिती'}
-      </label>
-      <textarea
-        id="preeti-in"
-        value={preeti}
-        onChange={(e) => {
-          setPreeti(e.target.value)
-          setUnicode(preetiToUnicode(e.target.value))
-        }}
-        className="mt-2 min-h-24 w-full rounded-md border border-rule bg-surface p-3 text-body text-ink outline-none focus:border-brand"
-        placeholder="g]kfn"
-      />
-      <CopyButton onClick={() => copy('p', preeti)} copied={copied === 'p'} en={en} />
+  const copyLabel =
+    copyState === 'copied'
+      ? en
+        ? 'Copied'
+        : 'प्रति लिइयो'
+      : copyState === 'failed'
+        ? en
+          ? 'Copy failed'
+          : 'प्रति लिन सकिएन'
+        : en
+          ? 'Copy Unicode'
+          : 'युनिकोड प्रति लिनुहोस्'
 
-      <label className="mt-4 block text-meta font-semibold text-ink" htmlFor="uni-out">
-        {en ? 'Unicode' : 'युनिकोड'}
-      </label>
-      <textarea
-        id="uni-out"
-        value={unicode}
-        onChange={(e) => {
-          setUnicode(e.target.value)
-          setPreeti(unicodeToPreeti(e.target.value))
-        }}
-        className="mt-2 min-h-24 w-full rounded-md border border-rule bg-surface p-3 text-body text-ink outline-none focus:border-brand"
-        placeholder="नेपाल"
-      />
-      <CopyButton onClick={() => copy('u', unicode)} copied={copied === 'u'} en={en} />
-    </Card>
+  return (
+    <ToolPanel
+      locale={locale}
+      title={en ? 'Convert legacy Preeti text to Unicode' : 'प्रिती पाठलाई युनिकोडमा बदल्नुहोस्'}
+      summary={
+        en
+          ? 'The conversion happens in your browser. Text is not uploaded or stored.'
+          : 'रूपान्तरण तपाईंको ब्राउजरमै हुन्छ। पाठ अपलोड वा भण्डारण हुँदैन।'
+      }
+    >
+      <div className="utility-split-editor">
+        <Field label="Preeti">
+          <textarea
+            value={preeti}
+            onChange={(event) => {
+              const next = event.target.value
+              setPreeti(next)
+              setUnicode(preetiToUnicode(next))
+            }}
+            placeholder="g]kfn"
+          />
+        </Field>
+        <Field label={en ? 'Unicode Nepali' : 'युनिकोड नेपाली'}>
+          <textarea
+            value={unicode}
+            onChange={(event) => {
+              const next = event.target.value
+              setUnicode(next)
+              setPreeti(unicodeToPreeti(next))
+            }}
+            placeholder="नेपाल"
+          />
+        </Field>
+      </div>
+      <button type="button" className="utility-action" onClick={copy}>
+        {copyLabel}
+      </button>
+    </ToolPanel>
   )
 }
 
-function CurrencyConverter({
+export function CurrencyConverterTool({
   locale,
-  rates,
+  rates = [],
   source,
 }: {
   locale: Locale
-  rates: ForexRate[]
+  rates?: ForexRate[]
   source?: string
 }) {
   const en = locale === 'en'
-  const sorted = useMemo(() => [...rates].sort((a, b) => a.iso3.localeCompare(b.iso3)), [rates])
-  const [currency, setCurrency] = useState('USD')
+  const [iso, setIso] = useState('USD')
   const [amount, setAmount] = useState('100')
-  const [direction, setDirection] = useState<'toNpr' | 'fromNpr'>('toNpr')
+  const [direction, setDirection] = useState<'foreign-to-npr' | 'npr-to-foreign'>(
+    'foreign-to-npr',
+  )
+  const rate = rates.find((item) => item.iso3 === iso) ?? rates[0]
 
-  const rate = sorted.find((r) => r.iso3 === currency)
-  const amountNum = Number(amount) || 0
+  useEffect(() => {
+    if (rates.length && !rates.some((item) => item.iso3 === iso)) setIso(rates[0]!.iso3)
+  }, [rates, iso])
 
-  const result = useMemo(() => {
-    if (!rate) return null
+  const value = useMemo(() => {
+    if (!rate) return ''
+    const number = Number(amount)
+    if (!Number.isFinite(number)) return ''
     const mid = (rate.buy + rate.sell) / 2
-    if (direction === 'toNpr') return amountNum * mid
-    return mid === 0 ? 0 : amountNum / mid
-  }, [rate, amountNum, direction])
+    return (direction === 'foreign-to-npr' ? number * mid : number / mid).toLocaleString(
+      'en-US',
+      { maximumFractionDigits: 2 },
+    )
+  }, [rate, amount, direction])
 
   return (
-    <Card
+    <ToolPanel
       locale={locale}
-      title={en ? 'Currency converter' : 'मुद्रा रूपान्तरण'}
-      subtitle={
-        rates.length === 0
-          ? en
-            ? 'Official rate feed is not available right now'
-            : 'आधिकारिक दर फिड अहिले उपलब्ध छैन'
-          : source
-            ? `${en ? 'Rate source' : 'दर स्रोत'}: ${source}`
-            : undefined
+      title={en ? 'Convert with the latest verified NPR rate' : 'पछिल्लो प्रमाणित NPR दरमा रूपान्तरण'}
+      summary={
+        source
+          ? `${en ? 'Source' : 'स्रोत'}: ${source}. ${
+              en
+                ? 'Indicative only; banks may apply different spreads.'
+                : 'संकेतात्मक मात्र; बैंकको खरिद–बिक्री अन्तर फरक हुन सक्छ।'
+            }`
+          : en
+            ? 'A verified exchange-rate feed is not available right now.'
+            : 'प्रमाणित विनिमय दर अहिले उपलब्ध छैन।'
       }
     >
-      {rates.length === 0 ? (
-        <p className="text-body text-ink-soft">
-          {en
-            ? 'NPR conversion will appear when the newsroom enables a licensed foreign-exchange feed.'
-            : 'न्यूजरुमले स्वीकृत विदेशी मुद्रा फिड सक्रिय गरेपछि रूपान्तरण देखिन्छ।'}
-        </p>
-      ) : (
+      {rate ? (
         <>
-          <div className="flex gap-2">
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="w-full rounded-md border border-rule bg-surface p-3 text-body text-ink outline-none focus:border-brand"
-            >
-              {sorted.map((r) => (
-                <option key={r.iso3} value={r.iso3}>
-                  {r.iso3} — {r.name}
-                </option>
-              ))}
-            </select>
-            <select
-              value={direction}
-              onChange={(e) => setDirection(e.target.value as 'toNpr' | 'fromNpr')}
-              className="w-32 rounded-md border border-rule bg-surface p-3 text-body text-ink outline-none focus:border-brand"
-            >
-              <option value="toNpr">→ NPR</option>
-              <option value="fromNpr">NPR →</option>
-            </select>
+          <div className="utility-form-grid">
+            <fieldset>
+              <legend>{en ? 'Conversion' : 'रूपान्तरण'}</legend>
+              <div className="utility-three-fields">
+                <Field label={en ? 'Currency' : 'मुद्रा'}>
+                  <select value={iso} onChange={(event) => setIso(event.target.value)}>
+                    {rates.map((item) => (
+                      <option key={item.iso3} value={item.iso3}>
+                        {item.iso3} · {item.name}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label={en ? 'Direction' : 'दिशा'}>
+                  <select
+                    value={direction}
+                    onChange={(event) => setDirection(event.target.value as typeof direction)}
+                  >
+                    <option value="foreign-to-npr">{iso} → NPR</option>
+                    <option value="npr-to-foreign">NPR → {iso}</option>
+                  </select>
+                </Field>
+                <Field label={en ? 'Amount' : 'रकम'}>
+                  <input
+                    inputMode="decimal"
+                    value={amount}
+                    onChange={(event) => setAmount(event.target.value.replace(/[^0-9.]/g, ''))}
+                  />
+                </Field>
+              </div>
+            </fieldset>
+            <Result label={direction === 'foreign-to-npr' ? 'NPR' : iso} value={value || '0'} />
           </div>
-          <label className="mt-3 block text-meta font-semibold text-ink" htmlFor="fx-amt">
-            {direction === 'toNpr' ? currency : 'NPR'}
-          </label>
-          <input
-            id="fx-amt"
-            inputMode="decimal"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ''))}
-            className="mt-2 w-full rounded-md border border-rule bg-surface p-3 text-body text-ink outline-none focus:border-brand"
-          />
-          <ResultBox>
-            {result === null
-              ? en
-                ? 'Select a currency'
-                : 'मुद्रा छान्नुहोस्'
-              : `${result.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${
-                  direction === 'toNpr' ? 'NPR' : currency
-                }`}
-          </ResultBox>
-          {rate && (
-            <p className="mt-2 text-caption text-mute">
-              {en ? 'Mid rate' : 'मध्य दर'}: 1 {currency} ={' '}
-              {((rate.buy + rate.sell) / 2).toLocaleString('en-US', {
-                maximumFractionDigits: 2,
-              })}{' '}
-              NPR
-            </p>
-          )}
+          <p className="utility-source-line">
+            {en ? 'Buy' : 'खरिद'} {rate.buy.toFixed(2)} · {en ? 'Sell' : 'बिक्री'}{' '}
+            {rate.sell.toFixed(2)}
+          </p>
         </>
+      ) : (
+        <p className="editorial-empty">
+          {en
+            ? 'The converter activates automatically when the Nepal Rastra Bank feed is reachable.'
+            : 'नेपाल राष्ट्र बैंकको फिड उपलब्ध भएपछि रूपान्तरण स्वतः सक्रिय हुन्छ।'}
+        </p>
       )}
-    </Card>
+    </ToolPanel>
   )
 }
 
-function AgeCalculator({ locale }: { locale: Locale }) {
+export function AgeCalculatorTool({ locale }: { locale: Locale }) {
   const en = locale === 'en'
   const [birth, setBirth] = useState('')
+  const [today, setToday] = useState('')
+
+  useEffect(() => setToday(new Date().toISOString().slice(0, 10)), [])
+
   const age = useMemo(() => {
-    if (!birth) return null
-    const b = new Date(birth)
-    if (!Number.isFinite(b.getTime())) return null
-    const now = new Date()
-    let years = now.getFullYear() - b.getFullYear()
-    const monthDelta = now.getMonth() - b.getMonth()
-    if (monthDelta < 0 || (monthDelta === 0 && now.getDate() < b.getDate())) years -= 1
-    return Math.max(0, years)
-  }, [birth])
+    if (!birth || !today) return null
+    const start = new Date(`${birth}T00:00:00`)
+    const end = new Date(`${today}T00:00:00`)
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start > end) return null
+
+    let years = end.getFullYear() - start.getFullYear()
+    let months = end.getMonth() - start.getMonth()
+    let days = end.getDate() - start.getDate()
+    if (days < 0) {
+      months -= 1
+      days += new Date(end.getFullYear(), end.getMonth(), 0).getDate()
+    }
+    if (months < 0) {
+      years -= 1
+      months += 12
+    }
+    return { years, months, days }
+  }, [birth, today])
 
   return (
-    <Card locale={locale} title={en ? 'Age calculator' : 'उमेर क्याल्कुलेटर'}>
-      <label className="block text-meta font-semibold text-ink" htmlFor="birth">
-        {en ? 'Date of birth' : 'जन्म मिति'}
-      </label>
-      <input
-        id="birth"
-        type="date"
-        value={birth}
-        onChange={(e) => setBirth(e.target.value)}
-        className="mt-2 w-full rounded-md border border-rule bg-surface p-3 text-body text-ink outline-none focus:border-brand"
-      />
-      <ResultBox>
-        {age === null
-          ? en
-            ? 'Choose a date'
-            : 'मिति छान्नुहोस्'
-          : en
-            ? `${age} years`
-            : `${age} वर्ष`}
-      </ResultBox>
-    </Card>
+    <ToolPanel
+      locale={locale}
+      title={en ? 'Calculate completed age precisely' : 'पूरा उमेर स्पष्ट रूपमा निकाल्नुहोस्'}
+      summary={
+        en
+          ? 'See completed years, months and days for any valid date range.'
+          : 'मान्य मिति अवधिका पूरा वर्ष, महिना र दिन हेर्नुहोस्।'
+      }
+    >
+      <div className="utility-form-grid">
+        <fieldset>
+          <legend>{en ? 'Dates' : 'मिति'}</legend>
+          <div className="utility-two-fields">
+            <Field label={en ? 'Date of birth' : 'जन्म मिति'}>
+              <input type="date" value={birth} onChange={(event) => setBirth(event.target.value)} />
+            </Field>
+            <Field label={en ? 'Calculate on' : 'गणना मिति'}>
+              <input type="date" value={today} onChange={(event) => setToday(event.target.value)} />
+            </Field>
+          </div>
+        </fieldset>
+        <Result
+          label={en ? 'Completed age' : 'पूरा उमेर'}
+          value={
+            age
+              ? en
+                ? `${age.years} years, ${age.months} months, ${age.days} days`
+                : `${age.years} वर्ष, ${age.months} महिना, ${age.days} दिन`
+              : en
+                ? 'Enter a valid birth date'
+                : 'मान्य जन्म मिति राख्नुहोस्'
+          }
+        />
+      </div>
+    </ToolPanel>
+  )
+}
+
+type UnitGroup = 'length' | 'weight' | 'temperature'
+
+const unitGroups = {
+  length: {
+    units: { metre: 1, kilometre: 1000, foot: 0.3048, mile: 1609.344 },
+    ne: 'लम्बाइ',
+    en: 'Length',
+  },
+  weight: {
+    units: { kilogram: 1, gram: 0.001, pound: 0.45359237, tola: 0.0116638125 },
+    ne: 'तौल',
+    en: 'Weight',
+  },
+  temperature: {
+    units: { celsius: 1, fahrenheit: 1, kelvin: 1 },
+    ne: 'तापक्रम',
+    en: 'Temperature',
+  },
+} as const
+
+function convertTemperature(value: number, from: string, to: string): number {
+  const celsius =
+    from === 'fahrenheit' ? ((value - 32) * 5) / 9 : from === 'kelvin' ? value - 273.15 : value
+  return to === 'fahrenheit' ? (celsius * 9) / 5 + 32 : to === 'kelvin' ? celsius + 273.15 : celsius
+}
+
+export function UnitConverterTool({ locale }: { locale: Locale }) {
+  const en = locale === 'en'
+  const [group, setGroup] = useState<UnitGroup>('length')
+  const keys = Object.keys(unitGroups[group].units)
+  const [from, setFrom] = useState('metre')
+  const [to, setTo] = useState('kilometre')
+  const [amount, setAmount] = useState('1')
+
+  useEffect(() => {
+    const next = Object.keys(unitGroups[group].units)
+    setFrom(next[0]!)
+    setTo(next[1]!)
+  }, [group])
+
+  const result = useMemo(() => {
+    const number = Number(amount)
+    if (!Number.isFinite(number)) return ''
+    const converted =
+      group === 'temperature'
+        ? convertTemperature(number, from, to)
+        : (number * (unitGroups[group].units as Record<string, number>)[from]!) /
+          (unitGroups[group].units as Record<string, number>)[to]!
+    return converted.toLocaleString('en-US', { maximumFractionDigits: 6 })
+  }, [amount, from, to, group])
+
+  return (
+    <ToolPanel
+      locale={locale}
+      title={en ? 'Convert everyday measurements' : 'दैनिक मापन रूपान्तरण'}
+      summary={
+        en
+          ? 'Length, weight and temperature conversions run locally in your browser.'
+          : 'लम्बाइ, तौल र तापक्रमको रूपान्तरण तपाईंको ब्राउजरमै हुन्छ।'
+      }
+    >
+      <div className="utility-form-grid">
+        <fieldset>
+          <legend>{en ? 'Measurement' : 'मापन'}</legend>
+          <div className="utility-three-fields">
+            <Field label={en ? 'Type' : 'प्रकार'}>
+              <select value={group} onChange={(event) => setGroup(event.target.value as UnitGroup)}>
+                {Object.entries(unitGroups).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {en ? value.en : value.ne}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label={en ? 'From' : 'बाट'}>
+              <select value={from} onChange={(event) => setFrom(event.target.value)}>
+                {keys.map((key) => (
+                  <option key={key}>{key}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label={en ? 'To' : 'मा'}>
+              <select value={to} onChange={(event) => setTo(event.target.value)}>
+                {keys.map((key) => (
+                  <option key={key}>{key}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
+          <Field label={en ? 'Amount' : 'परिमाण'}>
+            <input
+              inputMode="decimal"
+              value={amount}
+              onChange={(event) => setAmount(event.target.value.replace(/[^0-9.-]/g, ''))}
+            />
+          </Field>
+        </fieldset>
+        <Result label={to} value={result || '—'} />
+      </div>
+    </ToolPanel>
+  )
+}
+
+export function UtilityTools({
+  locale,
+  forexRates = [],
+  forexSource,
+}: {
+  locale: Locale
+  forexRates?: ForexRate[]
+  forexSource?: string
+}) {
+  return (
+    <div className="space-y-8">
+      <DateConverterTool locale={locale} />
+      <PreetiUnicodeTool locale={locale} />
+      <CurrencyConverterTool locale={locale} rates={forexRates} source={forexSource} />
+      <AgeCalculatorTool locale={locale} />
+      <UnitConverterTool locale={locale} />
+    </div>
   )
 }

@@ -1,15 +1,12 @@
 /**
- * Live sports scores — provider-aware, with the same mock-fallback contract as the
- * rest of the live-data layer. Two providers are supported:
+ * Provider-aware live sports scores.
  *
- *   Football: football-data.org  (free tier, 10 req/min, covers FIFA World Cup + majors)
- *   Cricket:  api-sports.io      (free tier, 100 req/day, covers ICC + Nepal matches)
+ * Football uses football-data.org. Cricket uses the configured API-Sports-compatible
+ * endpoint. When credentials are absent or an upstream fails, the service checks the
+ * newsroom's verified manual override and otherwise returns an attributed empty/error
+ * state. It never fabricates a score.
  *
- * When a provider's env vars are unset, the fetcher returns the existing mock values
- * (mock: true) so the widget never breaks and is honestly labelled. See
- * docs/sports-api-setup.md for key registration.
- *
- * Server-only: licensed feed credentials live in process.env and must never reach the client.
+ * Server-only: provider credentials live in process.env and never reach the client.
  */
 import 'server-only'
 import type { CricketScore, FootballScore, LiveDataEnvelope } from '@/lib/live-data'
@@ -36,33 +33,9 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([promise, timer])
 }
 
-function mock<T>(source: string, data: T): LiveDataEnvelope<T> {
-  return { status: 'mock', source, updatedAt: new Date().toISOString(), data }
+function unavailable<T>(source: string, error?: string): LiveDataEnvelope<T[]> {
+  return { status: error ? 'error' : 'empty', source, updatedAt: new Date().toISOString(), data: [], error }
 }
-
-const MOCK_FOOTBALL: FootballScore[] = [
-  {
-    league: 'FIFA World Cup 2026',
-    home: 'Nepal',
-    away: 'UAE',
-    score: '—',
-    minute: '',
-    status: 'fixture',
-  },
-  {
-    league: 'Premier League',
-    home: 'Arsenal',
-    away: 'Liverpool',
-    score: '—',
-    minute: '',
-    status: 'fixture',
-  },
-]
-
-const MOCK_CRICKET: CricketScore[] = [
-  { league: 'Nepal tour', home: 'Nepal', away: 'UAE', score: '—', status: 'Upcoming' },
-  { league: 'ICC T20', home: 'India', away: 'Australia', score: '—', status: 'Upcoming' },
-]
 
 type FootballDataMatch = {
   competition?: { name?: string }
@@ -74,7 +47,7 @@ type FootballDataMatch = {
   matchday?: number
 }
 
-/** Football live scores. football-data.org free tier when keyed; mock otherwise. */
+/** Football live scores with verified manual fallback. */
 export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScore[]>> {
   const key = 'football'
   const hit = cached<FootballScore[]>(key)
@@ -84,7 +57,7 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
   if (!apiKey) {
     const manual = await getManualLiveRecord<FootballScore[]>('football')
     if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return mock('Football feed pending verification', MOCK_FOOTBALL)
+    return unavailable<FootballScore>('Football provider is not configured')
   }
 
   try {
@@ -134,10 +107,7 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
   } catch (error) {
     const manual = await getManualLiveRecord<FootballScore[]>('football')
     if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return mock(
-      `Football feed pending verification — ${error instanceof Error ? error.message : 'fetch failed'}`,
-      MOCK_FOOTBALL,
-    )
+    return unavailable<FootballScore>('football-data.org', error instanceof Error ? error.message : 'Football fetch failed')
   }
 }
 
@@ -154,7 +124,7 @@ type ApiSportsFixture = {
   }
 }
 
-/** Cricket live scores. api-sports.io free tier when keyed; mock otherwise. */
+/** Cricket live scores with verified manual fallback. */
 export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[]>> {
   const key = 'cricket'
   const hit = cached<CricketScore[]>(key)
@@ -164,12 +134,13 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
   if (!apiKey) {
     const manual = await getManualLiveRecord<CricketScore[]>('cricket')
     if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return mock('Cricket feed pending verification', MOCK_CRICKET)
+    return unavailable<CricketScore>('Cricket provider is not configured')
   }
 
   try {
     // api-sports cricket. Free tier: 100 req/day. Fetch recent + upcoming fixtures.
-    const url = 'https://v3.cricket.api-sports.io/fixtures?timezone=Asia/Kathmandu'
+    const base = process.env.CRICKET_API_BASE ?? 'https://v1.cricket.api-sports.io'
+    const url = `${base.replace(/\/$/, '')}/fixtures?timezone=Asia/Kathmandu`
     const res = await withTimeout(
       fetch(url, {
         headers: { 'x-apisports-key': apiKey },
@@ -211,14 +182,11 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
   } catch (error) {
     const manual = await getManualLiveRecord<CricketScore[]>('cricket')
     if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return mock(
-      `Cricket feed pending verification — ${error instanceof Error ? error.message : 'fetch failed'}`,
-      MOCK_CRICKET,
-    )
+    return unavailable<CricketScore>('Configured cricket provider', error instanceof Error ? error.message : 'Cricket fetch failed')
   }
 }
 
-/** Whether the configured sports providers would return live (non-mock) data. */
+/** Whether external sports providers are configured. Manual newsroom entries may still be available. */
 export function sportsConfigured(): { football: boolean; cricket: boolean } {
   return {
     football: Boolean(process.env.FOOTBALL_API_KEY),

@@ -1,75 +1,34 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { DEFAULT_LOCALE, LOCALE_COOKIE } from './lib/i18n/locales'
 
 /**
- * Locale + admin-path middleware.
- *
- * Two jobs:
- *   1. Locale routing: Nepali is served from the site root (the /ne segment is
- *      an internal routing detail); English is served from /en/*. Unknown
- *      locales fall back to ne. The chosen locale is written to a cookie so
- *      server components can read the user's last choice on root paths.
- *   2. Admin path stamping: every /admin/* request gets an x-pathname header so
- *      the admin layout can branch (the login page renders standalone; all
- *      other admin routes are session-gated). Next.js does not expose the
- *      pathname to layouts by default, so we stamp it here.
- *
- * Excluded from locale routing: Next internals, the API, the admin app, and
- * root-level files (sitemap, robots, favicons) which are not localized.
+ * Public URLs keep Nepali at the root and English under /en. Internally the App Router
+ * receives an explicit /ne segment so one typed route tree can render both languages.
+ * Admin requests also receive a stable pathname header for the protected admin layout.
  */
-const PUBLIC_FILE = /\.(?!well-known)[a-zA-Z0-9]{1,}$/
-
-function stampPath(request: NextRequest): NextResponse {
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-pathname', request.nextUrl.pathname)
-  return NextResponse.next({ request: { headers: requestHeaders } })
-}
-
 export function middleware(request: NextRequest) {
-  const { pathname, search } = request.nextUrl
+  const { pathname } = request.nextUrl
 
-  // Admin routes: stamp the pathname and pass through (no locale rewrite).
-  if (pathname.startsWith('/admin')) {
-    return stampPath(request)
+  if (pathname === '/ne' || pathname.startsWith('/ne/')) {
+    const canonical = request.nextUrl.clone()
+    canonical.pathname = pathname.slice(3) || '/'
+    return NextResponse.redirect(canonical, 308)
   }
 
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname === '/sitemap.xml' ||
-    pathname === '/robots.txt' ||
-    PUBLIC_FILE.test(pathname)
-  ) {
-    return NextResponse.next()
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-pathname', pathname)
+    return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
-  const isEn = pathname === '/en' || pathname.startsWith('/en/')
-  const locale = isEn ? 'en' : DEFAULT_LOCALE
+  if (pathname === '/en' || pathname.startsWith('/en/')) return NextResponse.next()
 
-  if (!isEn && !pathname.startsWith(`/${DEFAULT_LOCALE}`)) {
-    const url = request.nextUrl.clone()
-    url.pathname = `/${DEFAULT_LOCALE}${pathname === '/' ? '' : pathname}`
-    url.search = search
-    const response = NextResponse.rewrite(url)
-    response.cookies.set(LOCALE_COOKIE, locale, {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: 'lax',
-    })
-    return response
-  }
-
-  const response = NextResponse.next()
-  response.cookies.set(LOCALE_COOKIE, locale, {
-    path: '/',
-    maxAge: 60 * 60 * 24 * 365,
-    sameSite: 'lax',
-  })
-  return response
+  const internal = request.nextUrl.clone()
+  internal.pathname = `/ne${pathname === '/' ? '' : pathname}`
+  return NextResponse.rewrite(internal)
 }
 
 export const config = {
-  // Match everything except Next internals and static files. /admin is now
-  // included so we can stamp the pathname for the admin layout.
-  matcher: ['/((?!_next|api|sitemap\\.xml|robots\\.txt|.*\\..*).*)'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|news-sitemap.xml|rss.xml|llms.txt|llms-full.txt|manifest.webmanifest|sw.js|icon.svg|apple-icon.png|opengraph-image.png).*)',
+  ],
 }
