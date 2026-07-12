@@ -1,4 +1,4 @@
-export type LiveDataStatus = 'ok' | 'mock' | 'error'
+export type LiveDataStatus = 'ok' | 'mock' | 'error' | 'empty'
 
 export type LiveDataEnvelope<T> = {
   status: LiveDataStatus
@@ -19,7 +19,7 @@ export type SportsScore = {
   score: string
   status: string
 }
-export type AlertData = { severity: 'info' | 'watch' | 'warning'; title: string; area: string }
+export type AlertData = { severity: 'info' | 'watch' | 'warning'; title: string; area: string; id?: string; occurredAt?: string; url?: string; detail?: string }
 
 function mock<T>(source: string, data: T): LiveDataEnvelope<T> {
   return {

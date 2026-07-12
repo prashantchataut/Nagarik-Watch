@@ -50,7 +50,7 @@ const inputs: SeedInput[] = [
   { category: 'diaspora', slug: 'send-documents-home-safely', titleNe: 'विदेशबाट कागजात सुरक्षित रूपमा घर पठाउने तरिका', titleEn: 'How to send important documents home safely', deckNe: 'प्रतिलिपि, ट्र्याकिङ, गोपनीयता र प्राप्तिको पुष्टि गर्ने अभ्यास।', deckEn: 'Practical steps for copies, tracking, privacy and proof of receipt.', label: 'सुरक्षित कागजात' },
 ]
 
-export const serviceArticles: Article[] = inputs.map((input, index) => {
+export const articlesBatch3: Article[] = inputs.map((input, index) => {
   const category = categoryBySlug.get(input.category)!
   const date = new Date(Date.parse(published) - index * 55 * 60_000).toISOString()
   return {
