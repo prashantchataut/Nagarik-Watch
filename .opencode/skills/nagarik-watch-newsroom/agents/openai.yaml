@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nagarik Watch Newsroom"
+  short_description: "Audit and improve the Nepali-first news portal"
+  default_prompt: "Audit and improve Nagarik Watch using the newsroom product, content-integrity, and Nepali-language standards."

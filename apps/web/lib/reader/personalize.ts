@@ -45,7 +45,7 @@ export function recommendForReader(
   return recommend(catalog, toProfile(bookmarks, history), {
     limit,
     maxPerCategory: 2,
-  }).map(({ recScore: _score, recStrategy: _strategy, ...story }) => story)
+  }).map(({ recScore: _score, recStrategy: _strategy, recVersion: _version, ...story }) => story)
 }
 
 export function continueReadingForReader(

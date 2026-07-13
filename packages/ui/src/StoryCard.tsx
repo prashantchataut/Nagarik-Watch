@@ -44,7 +44,7 @@ function isDataUrl(url: string): boolean {
 
 function PremiumBadge({ locale }: { locale: Locale }) {
   return (
-    <span className="inline-flex rounded-full bg-ink px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-surface">
+    <span className="inline-flex rounded-sm bg-ink px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-surface">
       {locale === 'en' ? 'Premium' : 'सदस्य'}
     </span>
   )
@@ -86,7 +86,6 @@ export function StoryCard({
   if (variant === 'text-led') {
     return (
       <article className={cn('group relative flex flex-col', className)}>
-        <span className="mb-2 h-0.5 w-8 bg-brand" aria-hidden="true" />
         <div className="mb-1.5 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" />{story.premium ? <PremiumBadge locale={locale} /> : null}</div>
         <h3
           className="font-display text-h2 leading-snug text-ink group-hover:text-brand-strong transition-colors duration-fast ease-out-quint"
@@ -111,7 +110,7 @@ export function StoryCard({
   // scrim so the white text always meets AA contrast.
   if (variant === 'overlay' && story.heroImage) {
     return (
-      <article className={cn('group relative overflow-hidden rounded-lg', className)}>
+      <article className={cn('group relative overflow-hidden rounded-sm', className)}>
         <div className="relative aspect-[4/3] sm:aspect-[3/4]">
           <Image
             src={story.heroImage.url}
@@ -155,7 +154,7 @@ export function StoryCard({
     return (
       <article className={cn('group relative flex gap-4', className)}>
         {story.heroImage && (
-          <div className="relative block w-28 shrink-0 overflow-hidden rounded-md aspect-[4/3]">
+          <div className="relative block w-28 shrink-0 overflow-hidden rounded-sm aspect-[4/3]">
             <Image
               src={story.heroImage.url}
               alt=""
@@ -197,7 +196,7 @@ export function StoryCard({
       {story.heroImage && (
         <div
           className={cn(
-            'relative block overflow-hidden rounded-lg mb-3',
+            'relative block overflow-hidden rounded-sm mb-3',
             isFeatured ? 'aspect-[16/9]' : 'aspect-[4/3]',
           )}
         >

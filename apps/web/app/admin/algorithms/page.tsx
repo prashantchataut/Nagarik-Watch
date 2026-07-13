@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { RECOMMENDER_VERSION } from '@nagarikwatch/db'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { ACTIVE_ALGORITHM_REGISTRY, ALGORITHM_ROADMAP } from '@/lib/ranking'
 import { AdminCard, AdminPageHeader } from '@/components/admin/primitives'
@@ -43,16 +44,27 @@ export default async function AlgorithmsPage() {
         <AdminCard>
           <p className="text-caption font-semibold uppercase tracking-wide text-mute">Analytics status</p>
           <p className="mt-2 font-display text-h1 text-brand-strong">Partial</p>
+          <p className="mt-1 text-caption text-mute">{RECOMMENDER_VERSION}</p>
         </AdminCard>
       </section>
 
-      <AdminCard className="mt-6">
-        <h2 className="font-display text-h2 text-ink">Known boundary</h2>
-        <p className="mt-2 max-w-4xl text-meta leading-relaxed text-ink-soft">
-          Recommendations, related stories, time decay, trending and reader-history signals are connected.
-          Bayesian A/B assignment, conversion tracking, credible intervals, unique live visitors and revenue LTV still require a consent-aware event collector and experiment store. They are not presented as live metrics.
-        </p>
-      </AdminCard>
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <AdminCard>
+          <h2 className="font-display text-h2 text-ink">लागू भएका सुरक्षा नियम</h2>
+          <ul className="mt-3 space-y-2 text-meta leading-relaxed text-ink-soft">
+            <li>• हालै पढिएको, भविष्य मिति र do-not-recommend सामग्री हटाइन्छ।</li>
+            <li>• प्रायोजित सामग्री सम्पादकीय सिफारिसमा पूर्वनिर्धारित रूपमा आउँदैन।</li>
+            <li>• विभाग, लेखक र स्रोत दोहोरिने सीमा लागू हुन्छ।</li>
+            <li>• प्रत्येक नतिजामा प्रमुख कारण र ranker version जोडिन्छ।</li>
+          </ul>
+        </AdminCard>
+        <AdminCard>
+          <h2 className="font-display text-h2 text-ink">Known boundary</h2>
+          <p className="mt-2 text-meta leading-relaxed text-ink-soft">
+            This is a transparent hybrid ranker, not a trained recommendation model. Collaborative filtering, embeddings, Bayesian experiments, conversion attribution and revenue LTV still require a consent-aware event store and sufficient traffic. They are not presented as live capabilities.
+          </p>
+        </AdminCard>
+      </div>
 
       <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {ACTIVE_ALGORITHM_REGISTRY.map((algorithm) => {

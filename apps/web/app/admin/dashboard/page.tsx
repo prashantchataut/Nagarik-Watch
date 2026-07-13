@@ -15,8 +15,9 @@ export const dynamic = 'force-dynamic'
 
 /**
  * Newsroom dashboard. Real metrics from the content source (no placeholder
- * numbers): total published articles, drafts (articles without a publishedAt
- * in the future), category count, and the provider-health board. The recent-
+ * numbers): published articles, scheduled publications, category count, and
+ * provider health. Draft workflow totals are intentionally not inferred from
+ * the public feed; they belong to the canonical CMS workflow API. The recent-
  * stories rail shows the last 8 published items so an editor lands on a live
  * view of the newsroom, not an empty scaffold.
  *
@@ -34,8 +35,8 @@ export default async function DashboardPage() {
   ])
 
   const published = allStories.items
-  const draftCount = published.filter(
-    (s) => !s.publishedAt || Date.parse(s.publishedAt) > Date.now(),
+  const scheduledCount = published.filter(
+    (story) => Number.isFinite(Date.parse(story.publishedAt)) && Date.parse(story.publishedAt) > Date.now(),
   ).length
   const breakingCount = published.filter((s) => 'isBreaking' in s && s.isBreaking).length
 
@@ -48,10 +49,10 @@ export default async function DashboardPage() {
       href: '/admin/articles',
     },
     {
-      label: 'कार्यप्रवाहमा',
-      value: draftCount,
+      label: 'निर्धारित प्रकाशन',
+      value: scheduledCount,
       tone: 'mute' as const,
-      href: '/admin/articles?status=draft',
+      href: '/admin/articles?status=scheduled',
     },
     {
       label: 'ब्रेकिङ',

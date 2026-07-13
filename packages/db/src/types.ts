@@ -14,7 +14,21 @@ export type SourceType = 'original' | 'aggregated' | 'wire'
 export type EnglishStatus = 'none' | 'requested' | 'in_progress' | 'ready' | 'published'
 
 /** Editorial publish-flow stage (editorial-workflow.md §2). */
-export type WorkflowStage = 'draft' | 'review' | 'scheduled' | 'published' | 'unpublished'
+export type WorkflowStage =
+  | 'idea'
+  | 'assigned'
+  | 'draft'
+  | 'submitted'
+  | 'fact_check'
+  | 'copy_edit'
+  | 'seo_review'
+  | 'legal_review'
+  | 'ready'
+  | 'scheduled'
+  | 'published'
+  | 'updated'
+  | 'archived'
+  | 'retracted'
 
 export interface MediaRef {
   url: string
@@ -528,6 +542,10 @@ export interface RecommendationEvent {
   candidateIds: string[]
   shownIds: string[]
   clickedId?: string
+  /** Ranker version recorded with the impression for reproducible audits. */
+  algorithmVersion?: string
+  /** Dominant strategy by shown article id; contains no personal data. */
+  strategies?: Record<string, 'content' | 'session' | 'freshness' | 'follow' | 'editorial' | 'cold-start'>
   at: string
 }
 

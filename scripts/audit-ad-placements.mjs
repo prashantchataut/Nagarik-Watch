@@ -5,7 +5,7 @@ const root = process.cwd()
 const adsFile = join(root, 'apps/web/lib/ads.ts')
 const adsText = readFileSync(adsFile, 'utf8')
 const keys = [...adsText.matchAll(/'([a-z0-9-]+)'\s*:\s*\{/g)].map((m) => m[1])
-const required = [
+const requiredRegistered = [
   'home-top',
   'home-billboard',
   'home-hero-rail',
@@ -21,14 +21,30 @@ const required = [
   'latest-inline',
   'trending-top',
   'trending-inline',
-  'hub-top',
   'hub-inline',
   'sidebar-rectangle',
   'sidebar-tower',
   'mobile-sticky',
 ]
 
-const missing = required.filter((key) => !keys.includes(key))
+const requiredRendered = [
+  'home-billboard',
+  'home-mid',
+  'article-top-billboard',
+  'article-sidebar-top',
+  'article-sidebar-sticky',
+  'article-native-related',
+  'category-top',
+  'category-inline',
+  'latest-top',
+  'latest-inline',
+  'trending-top',
+  'trending-inline',
+  'hub-inline',
+  'mobile-sticky',
+]
+
+const missing = requiredRegistered.filter((key) => !keys.includes(key))
 const duplicates = keys.filter((key, idx) => keys.indexOf(key) !== idx)
 const failures = []
 if (missing.length) failures.push(`Missing required placements: ${missing.join(', ')}`)
@@ -58,8 +74,8 @@ for (const file of sourceFiles) {
   }
 }
 
-for (const key of required) {
-  if (!used.has(key) && !['sidebar-rectangle', 'sidebar-tower'].includes(key)) {
+for (const key of requiredRendered) {
+  if (!used.has(key)) {
     failures.push(`Required placement is registered but not rendered: ${key}`)
   }
 }

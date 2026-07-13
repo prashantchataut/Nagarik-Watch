@@ -18,10 +18,11 @@
 import 'server-only'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import type { ArticleBlock, Locale } from '@nagarikwatch/db'
+import type { ArticleBlock, Locale, WorkflowStage } from '@nagarikwatch/db'
 
 const DATA_DIR = path.resolve(process.cwd(), 'data')
 const STORE_FILE = path.join(DATA_DIR, 'articles.json')
+const PUBLIC_WORKFLOW_STAGES: readonly WorkflowStage[] = ['published', 'updated']
 
 export type StoredArticle = {
   id: string
@@ -43,19 +44,7 @@ export type StoredArticle = {
   updatedAt: string
   isBreaking: boolean
   isFeatured: 'lead' | 'secondary' | 'none'
-  workflowStage:
-    | 'idea'
-    | 'assigned'
-    | 'draft'
-    | 'submitted'
-    | 'fact_check'
-    | 'copy_edit'
-    | 'seo_review'
-    | 'legal_review'
-    | 'ready'
-    | 'scheduled'
-    | 'published'
-    | 'archived'
+  workflowStage: WorkflowStage
   sourceType: 'original' | 'aggregated' | 'wire'
   sourceName?: string
   sourceUrl?: string
@@ -146,7 +135,7 @@ export async function listArticles(
   if (opts.category) items = items.filter((a) => a.categorySlug === opts.category)
   if (opts.locale === 'en') items = items.filter((a) => a.hasEnglish)
   if (opts.status) items = items.filter((a) => a.workflowStage === opts.status)
-  else items = items.filter((a) => a.workflowStage === 'published')
+  else items = items.filter((a) => PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage))
   if (opts.breaking) items = items.filter((a) => a.isBreaking)
   items = items.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
   const total = items.length
@@ -180,7 +169,7 @@ export async function getArticleBySlug(
   const store = await read()
   const article = store.articles.find((a) => a.categorySlug === category && a.slug === slug)
   if (!article) return null
-  if (article.workflowStage !== 'published') return null
+  if (!PUBLIC_WORKFLOW_STAGES.includes(article.workflowStage)) return null
   return article
 }
 
@@ -202,7 +191,7 @@ export async function getHomepageData(): Promise<{
 }> {
   const store = await read()
   const published = store.articles
-    .filter((a) => a.workflowStage === 'published')
+    .filter((a) => PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage))
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
 
   const breaking = published.filter((a) => a.isBreaking).slice(0, 5)
@@ -289,8 +278,9 @@ export async function createArticle(input: {
     sourceUrl: input.sourceUrl,
     seoTitleNe: input.seoTitleNe,
     seoDescriptionNe: input.seoDescriptionNe,
-    noIndex: input.noIndex ?? input.workflowStage !== 'published',
-    includeInNewsSitemap: input.includeInNewsSitemap ?? input.workflowStage === 'published',
+    noIndex: input.noIndex ?? !PUBLIC_WORKFLOW_STAGES.includes(input.workflowStage ?? 'draft'),
+    includeInNewsSitemap:
+      input.includeInNewsSitemap ?? PUBLIC_WORKFLOW_STAGES.includes(input.workflowStage ?? 'draft'),
     aiSummary: input.aiSummary,
     premium: input.premium ?? false,
     commentsEnabled: input.commentsEnabled ?? true,
@@ -348,8 +338,8 @@ export async function getArticleCounts(): Promise<{
   const store = await read()
   return {
     total: store.articles.length,
-    published: store.articles.filter((a) => a.workflowStage === 'published').length,
-    drafts: store.articles.filter((a) => a.workflowStage !== 'published').length,
-    breaking: store.articles.filter((a) => a.isBreaking && a.workflowStage === 'published').length,
+    published: store.articles.filter((a) => PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage)).length,
+    drafts: store.articles.filter((a) => !PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage)).length,
+    breaking: store.articles.filter((a) => a.isBreaking && PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage)).length,
   }
 }

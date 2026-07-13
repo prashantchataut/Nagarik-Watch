@@ -11,7 +11,6 @@ export type AuditAction =
   | 'approve'
   | 'login'
   | 'role_change'
-  | 'status_change'
   | 'settings_change'
   | 'manual_live_update'
   | 'ad_change'

@@ -27,7 +27,9 @@ const STAGE_LABELS: Record<StoredArticle['workflowStage'], string> = {
   ready: 'तयार',
   scheduled: 'तालिका',
   published: 'प्रकाशित',
+  updated: 'अद्यावधिक',
   archived: 'अभिलेख',
+  retracted: 'फिर्ता लिइएको',
 }
 
 export default async function ArticlesPage({

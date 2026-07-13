@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { Byline, CategoryLabel } from '@nagarikwatch/ui'
-import { recommend, type ArticleBlock } from '@nagarikwatch/db'
+import { formatDate, recommend, type ArticleBlock } from '@nagarikwatch/db'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getArticleBySlug, getStories } from '@/lib/content'
 import { ArticleBody, CorrectionNotice, TagRow } from '@/components/article/ArticleBody'
@@ -29,6 +29,16 @@ function previewBlocks(blocks: ArticleBlock[]): ArticleBlock[] {
     if (paragraphs >= 3) break
   }
   return preview
+}
+
+function splitAfterParagraphs(blocks: ArticleBlock[], count = 3): [ArticleBlock[], ArticleBlock[]] {
+  let paragraphs = 0
+  const splitAt = blocks.findIndex((block) => {
+    if (block.type === 'paragraph') paragraphs += 1
+    return paragraphs >= count
+  })
+  if (splitAt < 0) return [blocks, []]
+  return [blocks.slice(0, splitAt + 1), blocks.slice(splitAt + 1)]
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; category: string; slug: string }> }): Promise<Metadata> {
@@ -59,6 +69,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
   const canReadFull = !article.premium || (await isPremiumSubscriber(session))
   const body = english && article.bodyEn ? article.bodyEn : article.bodyNe
   const visibleBody = canReadFull ? body : previewBlocks(body)
+  const [openingBody, remainingBody] = splitAfterParagraphs(visibleBody)
   const title = english && article.titleEn ? article.titleEn : article.titleNe
   const deck = english && article.deckEn ? article.deckEn : article.deckNe
   const href = localizeHref(locale, `/${category}/${slug}`)
@@ -78,22 +89,27 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
       ],
     },
     { limit: 5, excludeIds: [article.id], maxPerCategory: 3 },
-  ).map(({ recScore: _score, recStrategy: _strategy, ...story }) => story)
+  ).map(({ recScore: _score, recStrategy: _strategy, recVersion: _version, ...story }) => story)
 
   return (
     <article className="pb-12">
       <ReadingProgress locale={locale} />
       <ArticleJsonLd article={article} locale={locale} url={canonical} siteUrl={SITE_URL} siteName={PUBLICATION.publisherName} />
-      <AdSlot locale={locale} placementKey="article-top-billboard" variant="billboard" />
-      <header className="mx-auto max-w-[58rem] px-4 pb-7 pt-10 sm:pt-14" lang={english ? 'en' : 'ne'}>
+      <header className="mx-auto max-w-[62rem] px-4 pb-7 pt-10 sm:pt-14" lang={english ? 'en' : 'ne'}>
         <div className="flex flex-wrap items-center gap-2">
           <CategoryLabel category={article.category} locale={locale} />
           {article.premium ? <span className="rounded-full bg-ink px-3 py-1 text-caption font-bold uppercase tracking-wide text-surface">{english ? 'Premium' : 'सदस्य'}</span> : null}
         </div>
-        <h1 className="mt-5 font-display text-[clamp(2.35rem,7vw,5.5rem)] font-extrabold leading-[1.02] tracking-[-0.025em] text-ink">{title}</h1>
+        <h1 className="mt-5 max-w-[19ch] font-display text-[clamp(2.3rem,6vw,4.5rem)] font-black leading-[1.04] tracking-[-0.025em] text-ink">{title}</h1>
         {deck ? <p className="mt-5 max-w-[48rem] text-[1.2rem] leading-relaxed text-ink-soft sm:text-[1.4rem]">{deck}</p> : null}
         <div className="mt-6 border-y border-rule py-4">
           <Byline authors={article.authors} locale={locale} publishedAt={article.publishedAt} source={article.source} />
+          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-caption font-semibold text-ink-soft">
+            <span>{english ? `${article.readingMinutes} min read` : `${article.readingMinutes} मिनेट पढाइ`}</span>
+            {article.updatedAt ? <span>{english ? 'Updated' : 'अद्यावधिक'}: {formatDate(article.updatedAt, locale)}</span> : null}
+            {article.factCheckStatus === 'verified' ? <span className="text-up">{english ? 'Facts verified' : 'तथ्य प्रमाणित'}</span> : null}
+            {article.source ? <span>{english ? 'Source-linked report' : 'स्रोत लिंक गरिएको समाचार'}</span> : <span>{english ? 'Nagarik Watch newsroom' : 'नागरिक वाच न्युजरुम'}</span>}
+          </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2"><BookmarkButton story={article} locale={locale} variant="pill" /><FontSizeControl locale={locale} /></div>
             <ShareBar url={canonical} title={title} locale={locale} />
@@ -103,7 +119,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
 
       {article.heroImage ? (
         <figure className="mx-auto max-w-[76rem] px-0 sm:px-4">
-          <div className="relative aspect-[16/9] overflow-hidden bg-surface-raised sm:rounded-lg">
+          <div className="relative aspect-[16/9] overflow-hidden bg-surface-raised">
             <Image src={article.heroImage.url} alt={article.heroImage.alt} fill priority unoptimized={article.heroImage.url.startsWith('data:')} sizes="(min-width: 1280px) 1216px, 100vw" className="object-cover" />
           </div>
           {(article.heroCaptionNe || article.heroCredit) ? <figcaption className="px-4 pt-2 text-caption leading-relaxed text-ink-soft sm:px-0">{article.heroCaptionNe}{article.heroCaptionNe && article.heroCredit ? ' · ' : ''}{article.heroCredit}</figcaption> : null}
@@ -113,7 +129,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
       <div className="mx-auto mt-8 grid max-w-[76rem] gap-10 px-4 lg:grid-cols-[minmax(0,43rem)_18rem] lg:justify-center">
         <div>
           <ReaderArticleControls story={article} locale={locale} title={title} href={href} readingMinutes={article.readingMinutes} />
-          <ArticleBody blocks={visibleBody} locale={locale} source={article.source} className="mt-8" />
+          <ArticleBody blocks={openingBody} locale={locale} source={article.source} className="mt-8" />
+          <AdSlot locale={locale} placementKey="article-top-billboard" variant="billboard" />
+          {remainingBody.length ? <ArticleBody blocks={remainingBody} locale={locale} className="mt-8" /> : null}
           <AdSlot locale={locale} placementKey="article-native-related" variant="native" />
           {!canReadFull ? <PaywallNotice locale={locale} /> : null}
           {article.corrections?.length ? <CorrectionNotice corrections={article.corrections} locale={locale} className="mt-8" /> : null}

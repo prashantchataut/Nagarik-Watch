@@ -76,7 +76,9 @@ const WORKFLOW_STAGES = [
   { value: 'ready', label: 'प्रकाशन तयार' },
   { value: 'scheduled', label: 'तालिका' },
   { value: 'published', label: 'प्रकाशित' },
+  { value: 'updated', label: 'अद्यावधिक' },
   { value: 'archived', label: 'अभिलेख' },
+  { value: 'retracted', label: 'फिर्ता लिइएको' },
 ]
 
 const SOURCE_TYPES = [

@@ -182,7 +182,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
   const source: ContentSource = {
     async getArticleBySlug(category, slug, locale) {
       const { docs } = await payloadFind<PayloadDoc>('articles', {
-        where: { slug: { equals: slug }, _status: { equals: 'published' } },
+        where: { slug: { equals: slug }, _status: { equals: 'published' }, workflowStage: { in: ['published', 'updated'] } },
         limit: 1,
         depth: 2,
       })
@@ -196,7 +196,10 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
     async getStories(opts: StoryListOptions): Promise<PaginatedStories> {
       const page = opts.page ?? 1
       const perPage = opts.limit && !opts.page ? opts.limit : (opts.perPage ?? PER_PAGE)
-      const where: Record<string, Record<string, unknown>> = { _status: { equals: 'published' } }
+      const where: Record<string, Record<string, unknown>> = {
+        _status: { equals: 'published' },
+        workflowStage: { in: ['published', 'updated'] },
+      }
       if (opts.category) where['category.slug'] = { equals: opts.category }
       if (opts.author) where['authors.author.slug'] = { equals: opts.author }
       if (opts.tag) where['tags.tag.slug'] = { equals: opts.tag }
@@ -220,7 +223,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
 
     async getHomepage(): Promise<HomepageData | null> {
       const { docs } = await payloadFind<PayloadDoc>('articles', {
-        where: { _status: { equals: 'published' } },
+        where: { _status: { equals: 'published' }, workflowStage: { in: ['published', 'updated'] } },
         sort: '-publishAt',
         limit: 60,
         depth: 1,
@@ -313,7 +316,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
 
     async getFeatured() {
       const { docs } = await payloadFind<PayloadDoc>('articles', {
-        where: { _status: { equals: 'published' } },
+        where: { _status: { equals: 'published' }, workflowStage: { in: ['published', 'updated'] } },
         sort: '-publishAt',
         limit: 5,
         depth: 1,

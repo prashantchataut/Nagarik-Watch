@@ -20,7 +20,9 @@ const WORKFLOW_STAGES: StoredArticle['workflowStage'][] = [
   'ready',
   'scheduled',
   'published',
+  'updated',
   'archived',
+  'retracted',
 ]
 
 function asWorkflowStage(value: unknown): StoredArticle['workflowStage'] {

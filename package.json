@@ -27,7 +27,6 @@
     "verify:static": "pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm launch:gate"
   },
   "devDependencies": {
-    "@eslint/js": "^9.15.0",
     "@nagarikwatch/tsconfig": "workspace:*",
     "@playwright/test": "^1.49.0",
     "eslint": "^9.15.0",

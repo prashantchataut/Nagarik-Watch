@@ -15,7 +15,7 @@ import { STATIC_HUBS } from '@/lib/site'
 
 type MastheadProps = { locale: Locale; navCategories: Category[] }
 const ICON_BTN =
-  'inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
+  'inline-flex h-10 w-10 items-center justify-center border-l border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
 
 export function Masthead({ locale, navCategories }: MastheadProps) {
   const dict = getDictionary(locale)
@@ -34,17 +34,17 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
           <p lang={lang} className="truncate">
             {dict.mastheadDate(dateLabel)}
           </p>
-          <div className="hidden items-center gap-3 sm:flex">
+          <div className="flex items-center divide-x divide-rule">
             <Link
               href={localizeHref(locale, '/latest')}
-              className="font-semibold text-ink-soft hover:text-brand-strong"
+              className="px-3 font-bold text-ink hover:text-brand-strong"
               lang={lang}
             >
               {locale === 'en' ? 'Latest' : 'ताजा'}
             </Link>
             <Link
               href={localizeHref(locale, '/contact')}
-              className="font-semibold text-ink-soft hover:text-brand-strong"
+              className="px-3 font-semibold text-ink-soft hover:text-brand-strong"
               lang={lang}
             >
               {locale === 'en' ? 'Contact' : 'सम्पर्क'}
@@ -53,15 +53,15 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-page px-3 py-2.5 sm:px-4 sm:py-5">
-        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 md:grid-cols-[1fr_auto_1fr]">
-          <div className="flex items-center gap-1 md:hidden">
+      <div className="mx-auto max-w-page px-3 sm:px-4">
+        <div className="grid min-h-[5.75rem] grid-cols-[auto_1fr_auto] items-center gap-2 md:grid-cols-[1fr_auto_1fr]">
+          <div className="flex items-center md:hidden">
             <MobileNav locale={locale} navCategories={navCategories} />
           </div>
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center md:flex">
             <Link
               href={savedHref}
-              className="rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+              className="border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-ink"
               lang={lang}
             >
               {dict.navSaved}
@@ -70,20 +70,20 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
 
           <Link
             href={homeHref}
-            className="min-w-0 justify-self-center rounded-md transition-opacity hover:opacity-90"
+            className="min-w-0 justify-self-center transition-opacity hover:opacity-85"
             aria-label={dict.siteName}
           >
-            <Logo siteName={dict.siteName} className="max-w-[11.5rem] sm:max-w-none" />
+            <Logo siteName={dict.siteName} className="max-w-[12.5rem] sm:max-w-none" />
           </Link>
 
-          <div className="flex items-center justify-end gap-0.5 sm:gap-1">
+          <div className="flex items-center justify-end border-r border-rule">
             <Link href={searchHref} className={ICON_BTN} aria-label={dict.search}>
               <SearchIcon />
             </Link>
-            <ThemeToggle locale={locale} />
+            <ThemeToggle locale={locale} className="h-10 w-10 !rounded-none border-l border-rule" />
             <Link
               href={toggleHref}
-              className="inline-flex h-10 min-w-10 items-center justify-center rounded-full border border-rule px-2.5 text-meta font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong sm:h-9 sm:px-3.5"
+              className="inline-flex h-10 min-w-10 items-center justify-center border-l border-rule px-3 text-meta font-black text-ink transition-colors hover:bg-brand-tint hover:text-brand-strong"
               lang={locale === 'en' ? 'ne' : 'en'}
               aria-label={dict.localeToggleAria}
             >
@@ -97,10 +97,10 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
 
       <nav
         aria-label={dict.primaryNav}
-        className="sticky top-0 z-40 hidden border-t border-rule bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/88 md:block"
+        className="sticky top-0 z-40 hidden border-t border-rule bg-surface/96 backdrop-blur supports-[backdrop-filter]:bg-surface/90 md:block"
       >
-        <div className="mx-auto max-w-page px-2 sm:px-4">
-          <ul className="flex flex-nowrap items-center gap-x-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="mx-auto max-w-page px-4">
+          <ul className="flex flex-nowrap items-center gap-x-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <li>
               <NavLink href={homeHref} active={pathname === '/' || pathname === '/en'}>
                 {dict.home}
@@ -158,14 +158,15 @@ function NavLink({
       aria-current={active ? 'page' : undefined}
       className={
         active
-          ? 'inline-flex min-h-10 items-center whitespace-nowrap rounded-full bg-brand px-3.5 py-1.5 text-body font-bold text-surface'
-          : 'inline-flex min-h-10 items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-body font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
+          ? 'inline-flex min-h-12 items-center whitespace-nowrap border-b-[3px] border-brand pt-[3px] text-body font-black text-ink'
+          : 'inline-flex min-h-12 items-center whitespace-nowrap border-b-[3px] border-transparent pt-[3px] text-body font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-rule hover:text-ink'
       }
     >
       {children}
     </Link>
   )
 }
+
 function SearchIcon() {
   return (
     <svg

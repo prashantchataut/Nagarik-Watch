@@ -35,6 +35,7 @@ export const PUBLICATION = {
 
 export type StaticHubKey =
   | 'latest'
+  | 'wire'
   | 'trending'
   | 'most-read'
   | 'editor-picks'
@@ -69,6 +70,15 @@ export type StaticHub = {
 
 export const STATIC_HUBS: StaticHub[] = [
   {
+    key: 'wire',
+    path: '/wire',
+    titleNe: 'स्रोत डेस्क',
+    titleEn: 'Source Desk',
+    leadNe: 'सार्वजनिक RSS स्रोतका शीर्षक र मूल प्रकाशकको लिङ्क मात्र।',
+    leadEn: 'Headlines and original-publisher links from registered public RSS sources.',
+    mode: 'latest',
+  },
+  {
     key: 'latest',
     path: '/latest',
     titleNe: 'ताजा समाचार',
@@ -82,8 +92,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/trending',
     titleNe: 'ट्रेन्डिङ',
     titleEn: 'Trending',
-    leadNe: 'हालैका पाठक संकेत, ताजापन र सम्पादकीय प्राथमिकताका आधारमा अद्यावधिक हुने सूची।',
-    leadEn: 'An updated list based on recent reader signals, freshness and editorial priority.',
+    leadNe: 'प्रमाणित पाठक तथ्याङ्क जोडिएपछि त्यसका आधारमा चल्ने सूची; हाल प्रकाशन समय र सम्पादकीय प्राथमिकताअनुसार।',
+    leadEn: 'A reader-signal ranking once verified telemetry is connected; currently ordered by time and editorial priority.',
     mode: 'trending',
   },
   {
@@ -91,8 +101,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/most-read',
     titleNe: 'धेरै पढिएको',
     titleEn: 'Most Read',
-    leadNe: 'पाठक चासो, ताजापन र सम्पादकीय महत्त्वका आधारमा धेरै पढिएका सामग्री।',
-    leadEn: 'Most-read stories ranked by reader interest, freshness and editorial importance.',
+    leadNe: 'प्रमाणित पढाइ तथ्याङ्क उपलब्ध भएपछि धेरै पढिएका सामग्री; हाल ताजा र सम्पादकीय रूपमा प्राथमिक कथा।',
+    leadEn: 'Most-read stories once verified readership data is available; currently the newest editorially prioritised stories.',
     mode: 'trending',
   },
   {
@@ -326,6 +336,7 @@ export const PROVINCES = [
  *  section nav (eKantipur / OnlineKhabar pattern). Drawn from STATIC_HUBS so
  *  the rail stays in sync with the hub registry. */
 export const SECONDARY_NAV_HUBS = [
+  'wire',
   'market',
   'utilities',
   'sports-live',
