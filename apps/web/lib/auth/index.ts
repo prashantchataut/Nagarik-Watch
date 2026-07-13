@@ -9,8 +9,8 @@
  *      comments, and poll votes.
  *
  * The database dialect is chosen at boot: Postgres when DATABASE_URL is set
- * (production, shared with Payload), PGlite (in-memory Postgres via WASM) when
- * not. Both speak real SQL, so Better Auth's schema + queries are identical.
+ * (production, shared with Payload), or a filesystem-backed PGlite database in
+ * local development. Production refuses an ephemeral authentication database.
  *
  * Secrets: AUTH_SECRET (32+ chars) signs sessions. BETTER_AUTH_SECRET is
  * accepted as an alias for compatibility with the existing .env.example.
@@ -137,6 +137,11 @@ async function buildAuth(): Promise<AuthInstance> {
       },
     },
     advanced: {
+      ipAddress: {
+        // Trust only single-value headers set by the CDN/origin proxy. Do not
+        // accept a client-controlled comma-separated X-Forwarded-For chain.
+        ipAddressHeaders: ['cf-connecting-ip', 'x-real-ip'],
+      },
       crossSubDomainCookies: { enabled: false },
       defaultCookieAttributes: {
         sameSite: 'lax',
@@ -146,19 +151,21 @@ async function buildAuth(): Promise<AuthInstance> {
       useSecureCookies: process.env.NODE_ENV === 'production',
     },
     rateLimit: {
+      enabled: process.env.NODE_ENV === 'production',
       window: 60,
       max: 20,
-      storage: 'memory',
+      storage: 'database',
+      modelName: 'rateLimit',
     },
   }) as unknown as AuthInstance
 
-  // Account provisioning must never make the auth service unavailable. A failed
-  // boot-role update previously rejected the singleton promise permanently and
-  // turned every auth endpoint into a 500 until the process restarted.
-  void seedBootAccounts(auth).catch((error) => {
-    console.error('[auth] boot account provisioning failed', error)
-  })
+  if (process.env.AUTH_AUTO_MIGRATE !== 'false') {
+    const { getMigrations } = await import('better-auth/db/migration')
+    const { runMigrations } = await getMigrations(auth.options)
+    await runMigrations()
+  }
 
+  await seedBootAccounts(auth)
   return auth
 }
 
@@ -179,18 +186,35 @@ async function buildAuth(): Promise<AuthInstance> {
  * readers, so /admin/* would be permanently locked.
  */
 async function seedBootAccounts(auth: AuthInstance): Promise<void> {
-  // Each entry: [emailEnv, passwordEnv, role, displayNameNe]. Processed in
-  // order; the first matching env pair wins for a given email.
-  const BOOT_ACCOUNTS: Array<[string, string, string, string]> = [
+  const bootAccounts: Array<[string, string, string, string]> = [
     ['NEWSROOM_SUPERADMIN_EMAIL', 'NEWSROOM_SUPERADMIN_PASSWORD', 'super_admin', 'मुख्य एडमिन'],
     ['NEWSROOM_ADMIN_EMAIL', 'NEWSROOM_ADMIN_PASSWORD', 'admin', 'एडमिन'],
   ]
+  const configured = bootAccounts.filter(([emailKey, passwordKey]) =>
+    Boolean(process.env[emailKey]?.trim() && process.env[passwordKey]),
+  )
+  if (configured.length === 0) return
 
-  await Promise.all(
-    BOOT_ACCOUNTS.map(([emailKey, pwKey, role, displayName]) =>
-      seedOne(auth, emailKey, pwKey, role, displayName),
+  const results = await Promise.allSettled(
+    configured.map(([emailKey, passwordKey, role, displayName]) =>
+      seedOne(auth, emailKey, passwordKey, role, displayName),
     ),
   )
+  const failures = results
+    .map((result, index) => ({ result, account: configured[index] }))
+    .filter((entry): entry is { result: PromiseRejectedResult; account: [string, string, string, string] } =>
+      entry.result.status === 'rejected',
+    )
+  if (failures.length > 0) {
+    for (const failure of failures) {
+      const email = process.env[failure.account[0]] ?? failure.account[0]
+      console.error(`[auth] boot account provisioning failed for ${email}`, failure.result.reason)
+    }
+    throw new AggregateError(
+      failures.map((failure) => failure.result.reason),
+      'Configured newsroom boot accounts could not be provisioned.',
+    )
+  }
 }
 
 async function seedOne(
@@ -205,10 +229,6 @@ async function seedOne(
   if (!email || !password) return
 
   try {
-    // Better Auth's email/password sign-up. On conflict (account exists) it
-    // rejects — we treat that as success and move on. The static body type
-    // doesn't include additionalFields (role/displayName), but they ARE
-    // persisted because we declared them input:true above — hence the cast.
     const signUp = auth.api.signUpEmail as unknown as (args: {
       body: Record<string, unknown>
     }) => Promise<unknown>
@@ -216,32 +236,36 @@ async function seedOne(
       body: {
         email,
         password,
-        name: email.split('@')[0] ?? 'Newsroom',
+        name: process.env[`${emailKey.replace('_EMAIL', '')}_NAME`]?.trim() || email.split('@')[0] || 'Newsroom',
         displayName,
       },
     })
-  } catch {
-    // Account already exists, or adapter not ready yet. Either way, attempt the
-    // role update below so existing boot users stay aligned with env.
+  } catch (error) {
+    if (!(await bootUserExists(email))) {
+      throw new Error(`Could not create configured boot account ${email}.`, { cause: error })
+    }
   }
 
-  try {
-    await assignBootRole(email, role, displayName)
-  } catch (error) {
-    // Keep sign-in and reader registration healthy when the role promotion
-    // query cannot run. The next process boot will retry provisioning.
-    console.error(`[auth] could not assign ${role} role to ${email}`, error)
-  }
+  const assigned = await assignBootRole(email, role, displayName)
+  if (!assigned) throw new Error(`Could not assign ${role} to configured boot account ${email}.`)
 }
 
-async function assignBootRole(email: string, role: string, displayName: string): Promise<void> {
+async function bootUserExists(email: string): Promise<boolean> {
   const dialect = await createDialect()
   const db = new Kysely<{ user: Record<string, unknown> }>({ dialect })
-  await db
+  const row = await db.selectFrom('user').select('id').where('email', '=', email).executeTakeFirst()
+  return Boolean(row)
+}
+
+async function assignBootRole(email: string, role: string, displayName: string): Promise<boolean> {
+  const dialect = await createDialect()
+  const db = new Kysely<{ user: Record<string, unknown> }>({ dialect })
+  const result = await db
     .updateTable('user')
     .set({ role, displayName })
     .where('email', '=', email)
     .executeTakeFirst()
+  return Number(result.numUpdatedRows ?? 0) > 0
 }
 
 export type Session = Awaited<ReturnType<AuthInstance['api']['getSession']>>

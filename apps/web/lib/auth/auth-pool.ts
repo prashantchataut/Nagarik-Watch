@@ -1,46 +1,47 @@
-/**
- * Database dialect for Better Auth. Picks the right Kysely dialect at runtime:
- *   - DATABASE_URL present → PostgresDialect (production, shared with Payload).
- *   - absent → PGliteDialect (in-memory Postgres via WASM). Survives for the
- *     life of the server process; resets on restart. Perfect for dev/preview
- *     and for the local preview mode where reader accounts are ephemeral.
- *
- * Both dialects speak real SQL, so Better Auth's schema creation + queries
- * work identically. No code branches on the auth layer.
- */
 import 'server-only'
+import path from 'node:path'
 import { PostgresDialect, PGliteDialect } from 'kysely'
 import type { Dialect } from 'kysely'
 
 let cached: Dialect | null = null
+
+function pgliteDataDir(): string {
+  const configured = process.env.PGLITE_DATA_DIR?.trim()
+  const value = configured || path.join(process.cwd(), '.data', 'auth-pglite')
+  return path.isAbsolute(value) ? value : path.resolve(process.cwd(), value)
+}
 
 export async function createDialect(): Promise<Dialect> {
   if (cached) return cached
 
   if (process.env.NEXT_PHASE === 'phase-production-build') {
     const { PGlite } = await import('@electric-sql/pglite')
-    const pglite = await PGlite.create()
-    cached = new PGliteDialect({ pglite })
+    cached = new PGliteDialect({ pglite: await PGlite.create('memory://') })
     return cached
   }
 
-  const dbUrl = process.env.DATABASE_URL
-  if (dbUrl && dbUrl.startsWith('postgres')) {
+  const dbUrl = process.env.DATABASE_URL?.trim()
+  if (dbUrl) {
+    if (!/^postgres(?:ql)?:\/\//i.test(dbUrl)) {
+      throw new Error('DATABASE_URL must be a PostgreSQL connection URL.')
+    }
     const { Pool } = await import('pg')
     cached = new PostgresDialect({
       pool: new Pool({
         connectionString: dbUrl,
-        max: 5,
+        max: Number(process.env.NW_DB_POOL_MAX || 5),
         idleTimeoutMillis: 30_000,
         connectionTimeoutMillis: 5_000,
       }),
     })
-  } else {
-    // PGlite runs Postgres in-process via WASM. The instance is lazy and
-    // shared; Better Auth creates its tables on first request.
-    const { PGlite } = await import('@electric-sql/pglite')
-    const pglite = await PGlite.create()
-    cached = new PGliteDialect({ pglite })
+    return cached
   }
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('DATABASE_URL is required for authentication in production.')
+  }
+
+  const { PGlite } = await import('@electric-sql/pglite')
+  cached = new PGliteDialect({ pglite: await PGlite.create(pgliteDataDir()) })
   return cached
 }

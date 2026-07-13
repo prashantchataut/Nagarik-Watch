@@ -55,6 +55,8 @@ export interface StoryCardData {
   /** True only when englishStatus === 'published' AND English fields exist (ADR-007). */
   hasEnglish: boolean
   isBreaking: boolean
+  /** Paid-membership story; cards render a visible access marker. */
+  premium?: boolean
   /** Optional reading-time, used by some card variants. */
   readingMinutes?: number
 }

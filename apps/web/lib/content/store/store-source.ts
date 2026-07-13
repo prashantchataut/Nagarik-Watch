@@ -51,6 +51,7 @@ function toCard(a: StoredArticle, locale: Locale): StoryCardData {
     publishedAt: a.publishedAt,
     hasEnglish: a.hasEnglish,
     isBreaking: a.isBreaking,
+    premium: a.premium,
     readingMinutes: a.readingMinutes,
   } as StoryCardData
 }
@@ -198,6 +199,12 @@ export function createStoreContentSource(): ContentSource {
       return categories
         .filter((c) => c.navOrder !== undefined)
         .sort((a, b) => (a.navOrder ?? 0) - (b.navOrder ?? 0))
+    },
+    async getAuthors(): Promise<Author[]> {
+      return authors.filter((author) => author.isActive)
+    },
+    async getTags(): Promise<Tag[]> {
+      return tags
     },
     async getFeatured(): Promise<{ lead?: StoryCardData; secondary: StoryCardData[] }> {
       const data = await store.getHomepageData()

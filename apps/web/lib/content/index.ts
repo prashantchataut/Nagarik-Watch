@@ -1,15 +1,3 @@
-/**
- * Content-source façade. Single import for pages: `import { getHomepage } from '@/lib/content'`.
- *
- * v3 selection is environment-driven:
- *  - `PAYLOAD_CONTENT_SOURCE=payload` → Payload CMS (prod, needs DATABASE_URL).
- *  - Otherwise → the JSON-file store source. Editors create articles via /admin;
- *    they persist to data/articles.json (dev) or in-memory (prod read-only FS).
- *    The site renders honest empty states when no articles exist — never fake content.
- *
- * The seed source is gone (v3 removed all copyrighted seed articles). The store
- * source is the default; it reads from the JSON store which starts empty.
- */
 import 'server-only'
 import type {
   Article,
@@ -23,23 +11,34 @@ import type {
 import type { ContentSource, StoryListOptions } from './source'
 import { createStoreContentSource } from './store/store-source'
 
+function selectedSource(): 'payload' | 'json' {
+  const configured = process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim()
+  return configured === 'payload' ? 'payload' : 'json'
+}
+
 async function resolveSource(): Promise<ContentSource> {
-  if (process.env.PAYLOAD_CONTENT_SOURCE === 'payload') {
-    try {
-      const { createPayloadContentSource } = await import('./payload-source')
-      return await createPayloadContentSource()
-    } catch {
-      console.warn(
-        '[content] Payload unavailable (unreachable DB?), falling back to JSON store for this process',
-      )
-    }
+  const selected = selectedSource()
+  if (process.env.NODE_ENV === 'production' && selected !== 'payload') {
+    throw new Error('Production requires CONTENT_SOURCE=payload and a reachable Payload database.')
   }
+
+  if (selected === 'payload') {
+    const { createPayloadContentSource } = await import('./payload-source')
+    return createPayloadContentSource()
+  }
+
   return createStoreContentSource()
 }
 
-let cached: ContentSource | null = null
+let cached: Promise<ContentSource> | null = null
+
 async function source(): Promise<ContentSource> {
-  if (!cached) cached = await resolveSource()
+  if (!cached) {
+    cached = resolveSource().catch((error) => {
+      cached = null
+      throw error
+    })
+  }
   return cached
 }
 
@@ -69,6 +68,14 @@ export async function getCategory(slug: string): Promise<Category | null> {
 
 export async function getNavCategories(): Promise<Category[]> {
   return (await source()).getNavCategories()
+}
+
+export async function getAuthors(): Promise<Author[]> {
+  return (await source()).getAuthors()
+}
+
+export async function getTags(): Promise<Tag[]> {
+  return (await source()).getTags()
 }
 
 export async function getStories(opts: StoryListOptions): Promise<PaginatedStories> {

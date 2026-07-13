@@ -1,5 +1,4 @@
-import { getStories, getNavCategories } from '@/lib/content'
-import { seedTags, seedAuthors } from '@/lib/content/seed-source'
+import { getAuthors, getNavCategories, getStories, getTags } from '@/lib/content'
 import { PUBLICATION, SITE_URL, PROVINCES } from '@/lib/site'
 
 export const revalidate = 3600
@@ -16,8 +15,10 @@ export const revalidate = 3600
  * pipelines can split on `\n\n---\n`.
  */
 export async function GET() {
-  const [categories, storiesResult] = await Promise.all([
+  const [categories, authors, tags, storiesResult] = await Promise.all([
     getNavCategories(),
+    getAuthors(),
+    getTags(),
     getStories({ locale: 'ne', perPage: 1000 }),
   ])
 
@@ -35,12 +36,12 @@ export async function GET() {
     ),
     ``,
     `## Authors`,
-    ...seedAuthors.map(
+    ...authors.map(
       (a) => `- ${a.name}${a.slug ? ` (${a.slug})` : ''}: ${SITE_URL}/author/${a.slug}`,
     ),
     ``,
     `## Topics (tags)`,
-    ...seedTags.map(
+    ...tags.map(
       (t) => `- ${t.nameNe}${t.nameEn ? ` / ${t.nameEn}` : ''}: ${SITE_URL}/topic/${t.slug}`,
     ),
     ``,

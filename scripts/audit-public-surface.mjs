@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
 const root = process.cwd()
@@ -7,8 +7,8 @@ const scanRoots = [
   'apps/web/components',
   'apps/web/lib/site.ts',
   'apps/web/lib/i18n/dictionaries.ts',
-  'apps/web/lib/live-data.ts',
-  'apps/web/lib/live/mock.ts',
+  'apps/web/lib/live/types.ts',
+  'apps/web/lib/live/real.ts',
 ]
 const extensions = new Set(['.ts', '.tsx', '.js', '.jsx', '.mdx'])
 const excludedSegments = new Set(['admin', 'api', '__tests__', 'test', 'tests'])
@@ -43,6 +43,13 @@ const banned = [
 
 const localhostAllowed = new Set(['apps/web/lib/site.ts'])
 const failures = []
+
+if (existsSync(join(root, 'apps/web/app/page.tsx'))) {
+  const rootPage = readFileSync(join(root, 'apps/web/app/page.tsx'), 'utf8')
+  if (/admin\/login|AdminIndexPage/.test(rootPage)) {
+    failures.push('Root public page is an accidental duplicate of the admin redirect.')
+  }
+}
 
 function extname(file) {
   const idx = file.lastIndexOf('.')

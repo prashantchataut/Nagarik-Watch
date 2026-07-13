@@ -1,5 +1,5 @@
 import 'server-only'
-import type { AlertData, LiveDataEnvelope } from '@/lib/live-data'
+import type { AlertData, LiveDataEnvelope } from '@/lib/live/types'
 import { getManualLiveRecord } from './manual'
 
 const NEPAL = { minLat: 25.8, maxLat: 31.5, minLon: 80, maxLon: 89.5 }

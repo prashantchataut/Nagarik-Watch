@@ -6,6 +6,8 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { getSession } from '@/lib/auth/session'
 import { ReaderProfileCard } from '@/components/reader/ReaderProfileCard'
+import { ReaderActivityPanel } from '@/components/reader/ReaderActivityPanel'
+import { NotificationCenter } from '@/components/reader/NotificationCenter'
 
 export const dynamic = 'force-dynamic'
 
@@ -98,19 +100,20 @@ export default async function ReaderProfilePage({
               : 'तपाईंको पाठक खाता, सुरक्षित समाचार, पढाइ बाटो र भाषा पहुँच एउटै ठाउँबाट हेर्नुहोस्।'}
           </p>
         </div>
-        <div
-          className="rounded-lg border border-rule bg-surface-raised p-4 text-meta text-ink-soft"
-          lang={lang}
-        >
+        <div className="rounded-lg border border-rule bg-surface-raised p-4 text-meta text-ink-soft" lang={lang}>
           {locale === 'en'
-            ? 'Profile editing stays read-only until the account settings endpoint is connected.'
-            : 'Account settings endpoint जोडिएपछि मात्र profile editing खुल्छ।'}
+            ? 'Reading history remains on this device; signed-in bookmarks also sync through the engagement store.'
+            : 'पढाइ इतिहास यो उपकरणमै रहन्छ; लगइन गरिएको bookmark engagement store मार्फत पनि सिंक हुन्छ।'}
         </div>
       </header>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.42fr)]">
-        <ReaderProfileCard session={session} locale={locale} />
-        <aside className="rounded-lg border border-rule bg-surface-raised p-5" lang={lang}>
+        <div className="grid gap-6">
+          <ReaderProfileCard session={session} locale={locale} />
+          <ReaderActivityPanel locale={locale} />
+        </div>
+        <div className="grid content-start gap-6">
+          <aside className="rounded-lg border border-rule bg-surface-raised p-5" lang={lang}>
           <p
             className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong"
             lang="en"
@@ -130,7 +133,9 @@ export default async function ReaderProfilePage({
               </li>
             ))}
           </ul>
-        </aside>
+          </aside>
+          <NotificationCenter locale={locale} />
+        </div>
       </div>
     </div>
   )

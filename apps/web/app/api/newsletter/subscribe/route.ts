@@ -1,33 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { SITE_URL } from '@/lib/site'
+import { enforceRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
-const RATE_LIMIT = new Map<string, { count: number; resetAt: number }>()
-
-function rateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = RATE_LIMIT.get(ip)
-  if (!entry || entry.resetAt < now) {
-    RATE_LIMIT.set(ip, { count: 1, resetAt: now + 60_000 })
-    return true
-  }
-  if (entry.count >= 3) return false
-  entry.count++
-  return true
-}
-
-// In-memory pending-confirmation list. When a provider (Resend/Listmonk) is
-// configured, this is replaced by a real provider call. Double opt-in: the
-// subscriber gets a confirmation email with a token link; clicking it moves
-// them to confirmed.
-//
-// Shared with the confirm route (app/api/newsletter/confirm/route.ts) via a
-// module-level singleton accessor so both routes read/write the same maps
-// within a single long-lived server process (dev / single-instance preview).
-// For multi-instance production, swap `getSubscriberStore()` for a Redis or
-// Postgres-backed implementation — the call sites stay identical.
+// Double opt-in state is durable in Postgres in production and uses a local
+// process store only during development without DATABASE_URL.
 import { addPendingSubscriber, isConfirmedSubscriber, removePendingSubscriber } from '../store'
 
 /**
@@ -35,7 +14,7 @@ import { addPendingSubscriber, isConfirmedSubscriber, removePendingSubscriber } 
  *
  * Flow:
  *   1. Reader submits email.
- *   2. We store { email, token } in pendingSubscribers.
+ *   2. We store { email, token } in the subscriber store.
  *   3. If NEWSLETTER_API_KEY + NEWSLETTER_API_BASE are set, we call the
  *      provider to send a confirmation email. Otherwise we log the token so
  *      the founder can confirm manually during dev.
@@ -51,10 +30,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
 
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  if (!rateLimit(ip)) {
-    return NextResponse.json({ error: 'धेरै प्रयास।' }, { status: 429 })
-  }
+  const limited = await enforceRateLimit(request, 'newsletter', 3, 60_000)
+  if (limited) return limited
 
   let body: Record<string, unknown>
   try {

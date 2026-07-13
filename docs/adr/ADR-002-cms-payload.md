@@ -1,6 +1,6 @@
 # ADR-002: Headless CMS, Payload CMS (self-hosted)
 
-- **Status:** Accepted
+- **Status:** Accepted; deployment topology amended by ADR-014
 - **Date:** 2026-06-18
 - **Decision owner:** Architect
 - **Supersedes:** none
@@ -42,8 +42,9 @@ Drizzle adapter.
   and `apps/web` automatically, one contract across the whole monorepo.
 - **Self-hosted in our own infrastructure** → no vendor lock-in, no per-editor licensing,
   data residency under our control (matters if ADR-004 chooses a Nepal VPS).
-- **Co-locates with the web app** → reads use Payload's **Local API** (in-process, no HTTP
-  hop) for the fastest SSR.
+- **Runs in the same monorepo but deploys independently from the reader app.** ADR-014
+  supersedes the original co-location assumption: public reads use Payload REST, while
+  shared TypeScript contracts preserve the integration boundary.
 - **Native editorial features** we'd otherwise build: drafts/revisions, role-based access
   control, scheduling, hooks, rich-text + blocks, media library with field validation
   (we enforce alt text at the field level).
@@ -53,7 +54,7 @@ Drizzle adapter.
 ## Consequences
 
 - **Positive:** One TS codebase; type-safe end-to-end; no editor-seat cost; full data
-  ownership; fast SSR via Local API; rich editorial features out of the box.
+  ownership; explicit REST integration with the reader deployment; rich editorial features out of the box.
 - **Negative:** We operate the CMS (backups, updates) ourselves, bounded by choosing
   managed Postgres (ADR-005) and a managed origin (ADR-004 leans that way). Payload's
   editor UX is good but not as polished as Sanity's; acceptable for a newsroom that values

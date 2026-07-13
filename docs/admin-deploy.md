@@ -1,113 +1,79 @@
-# Admin (Payload CMS) — Production Deployment
+# Payload CMS and web application deployment
 
-This deploys `apps/admin` (Payload 3 CMS with built-in email/password auth, sessions, JWT,
-and the full newsroom RBAC role system) as a **second Vercel project**, separate from the
-public web app. The web app's `/admin/*` demo scaffold stays gated off — this is the real
-newsroom CMS.
+Nagarik Watch deploys as two applications from one repository:
 
-## What's already done (code)
+| Project | Root | Purpose |
+|---|---|---|
+| Reader/web | `apps/web` (or root Vercel config) | Public portal, Better Auth, journalist desk, operations admin |
+| Newsroom | `apps/admin` | Payload CMS, editorial workflow, media and public content REST API |
 
-- `apps/admin` is a complete Payload-on-Next.js app: admin UI, REST + GraphQL API,
-  Users/Media/Categories/Authors/Tags/Articles collections, RBAC access control.
-- `apps/admin/vercel.json` — Vercel build config for the admin project.
-- `payload.config.ts` — `push` is now env-driven (`PAYLOAD_DB_PUSH`): `true` in dev,
-  `false` in prod (migrations become source of truth).
-- `packages/db/src/env.ts` — storage vars made optional so a fresh prod deploy without
-  an R2 bucket boots (uploads degrade gracefully; media is not required to launch).
+Payload is the canonical production content source. The web app reads the separately
+deployed CMS through server-side REST requests; it does not import `@payload-config`.
 
-## What you must provision (cannot be code)
+## 1. Provision shared infrastructure
 
-### 1. Managed Postgres database (required)
+Provision managed Postgres with backups and point-in-time recovery. Both applications need
+`DATABASE_URL`: Payload owns editorial tables while the web app uses the same database for
+Better Auth and namespaced `nw_*` operational tables.
 
-Payload's postgres adapter needs a real DB. Pick one — all have free tiers:
+Provision durable S3-compatible object storage before editors upload production media.
+Configure `STORAGE_ENDPOINT`, `STORAGE_REGION`, `STORAGE_BUCKET`, credentials, and
+`STORAGE_PUBLIC_BASE_URL`.
 
-- **Neon** (recommended): <https://neon.tech> — serverless Postgres, branching, generous free tier.
-- **Supabase**: <https://supabase.com> — Postgres + extras.
-- **Vercel Postgres**: integrated into Vercel (Neon-backed).
+## 2. Deploy Payload (`apps/admin`)
 
-Create a project, copy the **connection string** (it looks like
-`postgresql://user:pass@ep-xxx.region.aws.neon.tech/dbname?sslmode=require`).
+Required values:
 
-### 2. (Optional) Object storage for media (R2)
+- `DATABASE_URL`
+- `PAYLOAD_SECRET` (unique, at least 32 random characters)
+- `PAYLOAD_PUBLIC_SERVER_URL=https://admin.example.com`
+- `PAYLOAD_DB_PUSH=false`
+- `NEXT_PUBLIC_SITE_URL=https://example.com`
+- `REVALIDATE_SECRET` shared with the web project
+- object-storage values
 
-Only needed when editors upload images. Skip to launch, add later.
-
-- **Cloudflare R2**: <https://dash.cloudflare.com> → R2 → create bucket.
-- Copy the S3-compatible endpoint, access key, secret, public URL.
-
-### 3. Two Vercel projects
-
-In <https://vercel.com> → Add New → Project, import this repo **twice**:
-
-| Project               | Root Directory | Build command                   | Output         |
-| --------------------- | -------------- | ------------------------------- | -------------- |
-| `nagarik-watch`       | (repo root)    | (from root `vercel.json`)       | `../web/.next` |
-| `nagarik-watch-admin` | `apps/admin`   | (from `apps/admin/vercel.json`) | `.next`        |
-
-For the **admin** project, set the Root Directory to `apps/admin` in Vercel project
-settings so it picks up `apps/admin/vercel.json`.
-
-### 4. Admin project environment variables
-
-In Vercel → `nagarik-watch-admin` → Settings → Environment Variables:
-
-| Variable                    | Value                                                  |
-| --------------------------- | ------------------------------------------------------ |
-| `DATABASE_URL`              | (the Neon/Supabase connection string from step 1)      |
-| `PAYLOAD_SECRET`            | a random ≥32-char string: `openssl rand -base64 32`    |
-| `PAYLOAD_PUBLIC_SERVER_URL` | `https://admin.nagarikwatch.com` (your admin domain)   |
-| `PAYLOAD_DB_PUSH`           | `false` (use migrations in prod — see step 5)          |
-| `NEXT_PUBLIC_SITE_URL`      | `https://nagarikwatch.com`                             |
-| `REVALIDATE_SECRET`         | a random ≥16-char string (shared with the web project) |
-
-Optional (only when wiring media uploads):
-`STORAGE_ENDPOINT`, `STORAGE_REGION`, `STORAGE_BUCKET`, `STORAGE_ACCESS_KEY_ID`,
-`STORAGE_SECRET_ACCESS_KEY`, `STORAGE_PUBLIC_BASE_URL`.
-
-### 5. Generate and run the first migration (one-time)
-
-Payload's `push: true` syncs schema in dev. In prod (`push: false`), schema changes go
-through migrations. Generate the first one against a _dev_ DB (your local docker Postgres
-or a Neon dev branch):
+Apply migrations before or during the controlled deployment:
 
 ```bash
-# With DATABASE_URL pointing at a dev DB and the app running:
-pnpm --filter @nagarikwatch/admin generate:types
-pnpm --filter @nagarikwatch/admin migrate:create   # name it "initial"
+DATABASE_URL="<production-url>" pnpm --filter @nagarikwatch/admin migrate
 ```
 
-Then apply it to the **production** DB once (Payload runs pending migrations on boot, but
-you can run them explicitly against the prod connection string):
+Create the first super-admin through Payload's first-user flow. Then create newsroom users
+with the minimum required roles.
 
-```bash
-DATABASE_URL="<prod connection string>" pnpm --filter @nagarikwatch/admin migrate
-```
+For the journalist bridge, create a dedicated Payload user, enable its API key, grant only
+article-create access, and place the key in the web project's `PAYLOAD_API_TOKEN`. Each
+journalist also needs an active Authors document whose email matches the Better Auth account.
 
-Commit the generated `src/migrations/` files — they become the prod schema source of truth.
+## 3. Deploy the web application
 
-### 6. Create the first admin user
+Required values include:
 
-After the first deploy, Payload's `/admin` will show a "create first user" screen. Create
-your super-admin account there with a strong password. That account gets full access;
-subsequent users are created inside the CMS with appropriate roles.
+- `DATABASE_URL`
+- `AUTH_SECRET`, `BETTER_AUTH_SECRET`, `REVALIDATE_SECRET`
+- `CONTENT_SOURCE=payload`
+- `PAYLOAD_PUBLIC_SERVER_URL=https://admin.example.com`
+- `PAYLOAD_ADMIN_URL=https://admin.example.com/admin`
+- `PAYLOAD_API_TOKEN` for journalist draft creation
+- `NEXT_PUBLIC_SITE_URL=https://example.com`
+- verified publication identity and storage/provider configuration
 
-### 7. Wire the web app to read from the CMS (optional, separate task)
+Set `ENABLE_WEB_ADMIN_SCAFFOLD=true` only when the role-gated operations dashboard should be
+available. Content links in that dashboard redirect to Payload in canonical mode.
 
-The web app currently renders from in-repo seed data (`PAYLOAD_CONTENT_SOURCE` unset).
-To serve real CMS content on the public site, set `PAYLOAD_CONTENT_SOURCE=payload` on the
-**web** Vercel project and point it at the admin's REST API. That's a follow-up task — the
-admin can deploy and operate independently first.
+## 4. Verify the boundary
 
-## Verify
+1. Payload `/api/articles?where[_status][equals]=published` returns only intended public data.
+2. The web homepage and article routes render Payload content and CMS-hosted media.
+3. A journalist can create a draft; it appears in Payload with the matching Author.
+4. Direct POSTs to the web shadow article API return a conflict in Payload mode.
+5. A journalist cannot open privileged `/admin/*` routes or invoke their actions.
+6. The launch gate and full test/build/e2e suite pass.
 
-1. Visit `https://<admin-domain>/admin` → Payload login screen (not a 404).
-2. Create the first user, log in, see the dashboard.
-3. `users` collection enforces auth; RBAC roles drive collection access per `apps/admin/src/access/`.
+## Security
 
-## Security notes
-
-- Payload's auth is on by default for the `users` collection (hashed passwords, sessions,
-  JWT, optional licensed feed credentials). No custom auth code to write or audit.
-- `robots: { index: false }` keeps the admin out of search engines.
-- Restrict the admin domain in production (Cloudflare WAF / Vercel access protection)
-  before launch for defense in depth.
+- Rotate every credential that appeared in an archive, terminal log, or chat attachment.
+- Never expose `PAYLOAD_API_TOKEN` or database credentials through `NEXT_PUBLIC_*` variables.
+- Protect the CMS domain with rate limiting/WAF and use MFA/SSO when available.
+- Keep `PAYLOAD_DB_PUSH=false` in production and review every migration.
+- Restrict media licenses and preserve alt text, credit, caption, and source metadata.

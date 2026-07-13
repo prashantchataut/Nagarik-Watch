@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
+import { assertNewsroomRole, NEWSLETTER_MANAGER_ROLES } from '@/lib/admin-roles'
 import { createNewsletterIssue, listNewsletterIssues, listNewsletterSubscribers, upsertNewsletterSubscriber } from '@/lib/newsletter-admin'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
@@ -15,6 +16,7 @@ export const dynamic = 'force-dynamic'
 async function saveIssue(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, NEWSLETTER_MANAGER_ROLES)
   const issue = await createNewsletterIssue({
     subject: formData.get('subject'),
     body: formData.get('body'),
@@ -28,6 +30,7 @@ async function saveIssue(formData: FormData) {
 async function addSubscriber(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, NEWSLETTER_MANAGER_ROLES)
   const subscriber = await upsertNewsletterSubscriber({ email: formData.get('email'), source: 'admin' })
   if (subscriber) {
     await recordAuditEvent({ session, action: 'create', targetType: 'newsletter_subscriber', targetId: subscriber.email, summary: `Subscriber added: ${subscriber.email}` })
@@ -36,7 +39,8 @@ async function addSubscriber(formData: FormData) {
 }
 
 export default async function NewsletterPage() {
-  await requireNewsroomSession()
+  const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, NEWSLETTER_MANAGER_ROLES)
   const [issues, subscribers] = await Promise.all([listNewsletterIssues(), listNewsletterSubscribers()])
   const providerReady = Boolean(process.env.RESEND_API_KEY || process.env.SMTP_HOST || process.env.NEWSLETTER_API_KEY)
 

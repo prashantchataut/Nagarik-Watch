@@ -39,11 +39,8 @@ export default async function ProvincesPage() {
         title="प्रदेश"
         subtitle="नेपालका सात प्रदेश — प्रदेश सम्पादक कार्यप्रवाहका लागि आधार"
         action={
-          <AdminButton
-            disabled
-            title="प्रदेश सम्पादक नियुक्तिका लागि प्रयोगकर्ता व्यवस्थापन आवश्यक छ"
-          >
-            + प्रदेश सम्पादक
+          <AdminButton href="/admin/users" title="प्रयोगकर्ता व्यवस्थापनमा प्रदेश सम्पादक भूमिका दिनुहोस्">
+            + प्रदेश सम्पादक नियुक्ति
           </AdminButton>
         }
       />

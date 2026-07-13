@@ -51,12 +51,39 @@ for (const base of publicRoots) {
   }
 }
 
+
+const payloadSource = readFileSync(join(root, 'apps/web/lib/content/payload-source.ts'), 'utf8')
+if (!/\/api\/\$\{collection\}/.test(payloadSource) || !/payloadServerUrl\(\)/.test(payloadSource)) {
+  failures.push('Payload content source is not using the separate CMS REST boundary.')
+}
+if (/@payload-config|getPayload\(/.test(payloadSource) || existsSync(join(root, 'apps/web/payload-config.d.ts'))) {
+  failures.push('Web app still contains the impossible cross-deployment Payload Local API shim.')
+}
+
+const operationalDb = readFileSync(join(root, 'apps/web/lib/ops-db.ts'), 'utf8')
+if (!/DATABASE_URL must point to Postgres for production operational storage/.test(operationalDb)) {
+  failures.push('Operational stores can still silently fall back to memory in production.')
+}
+
+const rateLimit = readFileSync(join(root, 'apps/web/lib/rate-limit.ts'), 'utf8')
+if (!/CREATE TABLE IF NOT EXISTS nw_rate_limits/.test(rateLimit)) {
+  failures.push('Public write rate limiting is not shared through Postgres.')
+}
+
+const payloadAdminClient = readFileSync(join(root, 'apps/web/lib/content/payload-admin-client.ts'), 'utf8')
+if (!/users API-Key/.test(payloadAdminClient) || !/assertLocalContentAdmin/.test(payloadAdminClient)) {
+  failures.push('Payload journalist bridge or shadow-store production guard is missing.')
+}
+
 const auth = readFileSync(join(root, 'apps/web/lib/auth/index.ts'), 'utf8')
 if (/defaultValue:\s*'reader'[\s\S]{0,120}input:\s*true/.test(auth)) {
   failures.push('Auth role field still accepts public input; role self-escalation risk remains.')
 }
 if (!/AUTH_SECRET.*required in production/.test(auth)) {
   failures.push('Auth secret production hard-fail is missing.')
+}
+if (!/storage:\s*'database'/.test(auth) || !/ipAddressHeaders/.test(auth)) {
+  failures.push('Better Auth rate limits are not using database storage and trusted proxy IP headers.')
 }
 
 const middleware = readFileSync(join(root, 'apps/web/middleware.ts'), 'utf8')

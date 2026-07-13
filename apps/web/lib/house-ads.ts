@@ -1,5 +1,6 @@
 import 'server-only'
 import type { AdPlacementKey } from '@/lib/ads'
+import { isProductionRuntime } from '@/lib/ops-db'
 
 export type HouseAd = {
   placementKey: string
@@ -36,7 +37,12 @@ let schemaReady: Promise<void> | null = null
 
 async function getPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
-  if (!process.env.DATABASE_URL?.startsWith('postgres')) return null
+  if (!process.env.DATABASE_URL?.startsWith('postgres')) {
+    if (isProductionRuntime()) {
+      throw new Error('DATABASE_URL must point to Postgres for production house ads.')
+    }
+    return null
+  }
   if (!poolPromise) {
     poolPromise = (async () => {
       const { Pool } = await import('pg')
@@ -68,8 +74,9 @@ async function ensureSchema(): Promise<Queryable | null> {
     }
     await schemaReady
     return pool
-  } catch {
-    memory.clear()
+  } catch (error) {
+    schemaReady = null
+    if (isProductionRuntime()) throw error
     return null
   }
 }
@@ -95,7 +102,8 @@ export async function getHouseAd(placementKey: AdPlacementKey): Promise<HouseAd 
       return result.rows[0] ? rowToAd(result.rows[0]) : null
     }
     return memory.get(placementKey) ?? null
-  } catch {
+  } catch (error) {
+    if (isProductionRuntime()) throw error
     return null
   }
 }

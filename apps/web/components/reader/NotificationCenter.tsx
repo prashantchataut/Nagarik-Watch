@@ -18,6 +18,7 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
   const [permission, setPermission] = useState<NotificationPermission>('default')
   const [enabled, setEnabled] = useState(false)
   const [latest, setLatest] = useState<AlertItem | null>(null)
+  const [pollError, setPollError] = useState(false)
   const lang = locale === 'en' ? 'en' : 'ne'
 
   useEffect(() => {
@@ -37,8 +38,10 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
         const response = await fetch(`/api/notifications/breaking?locale=${locale}`, {
           cache: 'no-store',
         })
+        if (!response.ok) throw new Error(`Breaking-alert request failed: ${response.status}`)
         const data = (await response.json()) as { alerts?: AlertItem[] }
         if (cancelled) return
+        setPollError(false)
         const first = data.alerts?.[0]
         if (!first) return
         setLatest(first)
@@ -47,7 +50,10 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
           await showNotification(first, locale)
           localStorage.setItem(SEEN_KEY, JSON.stringify([first.id, ...seen].slice(0, 50)))
         }
-      } catch {}
+      } catch (error) {
+        if (!cancelled) setPollError(true)
+        void error
+      }
     }
 
     check()
@@ -103,6 +109,13 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
               ? 'This browser does not expose the Notification API.'
               : 'यो ब्राउजरमा Notification API उपलब्ध छैन।'}
         </div>
+        {pollError ? (
+          <p className="mt-3 rounded-lg border border-rule bg-surface p-3 text-caption text-ink-soft" role="status">
+            {locale === 'en'
+              ? 'Breaking alerts could not refresh. The page will try again automatically.'
+              : 'ब्रेकिङ सूचना ताजा गर्न सकिएन। पृष्ठले स्वतः फेरि प्रयास गर्नेछ।'}
+          </p>
+        ) : null}
         {latest ? (
           <a
             href={latest.url}
@@ -167,10 +180,14 @@ async function showNotification(item: AlertItem, locale: Locale) {
       const registration = await navigator.serviceWorker.ready
       await registration.showNotification(title, options)
       return
-    } catch {}
+    } catch (error) {
+      void error
+    }
   }
 
   try {
     new Notification(title, options)
-  } catch {}
+  } catch (error) {
+    void error
+  }
 }

@@ -7,7 +7,16 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { NewsroomSession } from '@/lib/auth/session'
 import type { NewsroomRole } from '@/lib/admin-roles'
-import { NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
+import {
+  COMMUNITY_MANAGER_ROLES,
+  EDITOR_ROLES,
+  MEDIA_MANAGER_ROLES,
+  MEMBERSHIP_MANAGER_ROLES,
+  NEWSLETTER_MANAGER_ROLES,
+  NEWSROOM_ROLE_LABELS_NE,
+  SETTINGS_MANAGER_ROLES,
+  TAXONOMY_MANAGER_ROLES,
+} from '@/lib/admin-roles'
 import { LogoMark } from '@/components/Logo'
 
 type NavItem = {
@@ -39,28 +48,29 @@ const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
       { label: 'समाचार', href: '/admin/articles', icon: 'article' },
       { label: 'नयाँ समाचार', href: '/admin/articles/new', icon: 'plus' },
       { label: 'वायर र RSS', href: '/admin/wire', icon: 'wire' },
-      { label: 'मिडिया', href: '/admin/media', icon: 'media' },
-      { label: 'लाइभ ब्लग', href: '/admin/live-blogs', icon: 'live' },
+      { label: 'मिडिया', href: '/admin/media', icon: 'media', roles: MEDIA_MANAGER_ROLES },
+      { label: 'लाइभ ब्लग', href: '/admin/live-blogs', icon: 'live', roles: EDITOR_ROLES },
     ],
   },
   {
     heading: 'वर्गीकरण',
     items: [
-      { label: 'विभाग', href: '/admin/categories', icon: 'category' },
-      { label: 'ट्याग', href: '/admin/tags', icon: 'tag' },
-      { label: 'विषय', href: '/admin/topics', icon: 'topic' },
-      { label: 'प्रदेश', href: '/admin/provinces', icon: 'province' },
-      { label: 'लेखक', href: '/admin/authors', icon: 'author' },
+      { label: 'विभाग', href: '/admin/categories', icon: 'category', roles: TAXONOMY_MANAGER_ROLES },
+      { label: 'ट्याग', href: '/admin/tags', icon: 'tag', roles: TAXONOMY_MANAGER_ROLES },
+      { label: 'विषय', href: '/admin/topics', icon: 'topic', roles: TAXONOMY_MANAGER_ROLES },
+      { label: 'प्रदेश', href: '/admin/provinces', icon: 'province', roles: TAXONOMY_MANAGER_ROLES },
+      { label: 'लेखक', href: '/admin/authors', icon: 'author', roles: TAXONOMY_MANAGER_ROLES },
       { label: 'पत्रकार workspace', href: '/admin/journalists', icon: 'author' },
     ],
   },
   {
     heading: 'समुदाय',
     items: [
-      { label: 'टिप्पणी', href: '/admin/comments', icon: 'comment' },
-      { label: 'टिप', href: '/admin/submissions', icon: 'tip' },
-      { label: 'मतदान', href: '/admin/polls', icon: 'poll' },
-      { label: 'न्युजलेटर', href: '/admin/newsletter', icon: 'newsletter' },
+      { label: 'टिप्पणी', href: '/admin/comments', icon: 'comment', roles: COMMUNITY_MANAGER_ROLES },
+      { label: 'टिप', href: '/admin/submissions', icon: 'tip', roles: COMMUNITY_MANAGER_ROLES },
+      { label: 'सम्पर्क', href: '/admin/contact', icon: 'comment', roles: COMMUNITY_MANAGER_ROLES },
+      { label: 'मतदान', href: '/admin/polls', icon: 'poll', roles: COMMUNITY_MANAGER_ROLES },
+      { label: 'न्युजलेटर', href: '/admin/newsletter', icon: 'newsletter', roles: NEWSLETTER_MANAGER_ROLES },
     ],
   },
   {
@@ -70,7 +80,7 @@ const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
       { label: 'एल्गोरिदम', href: '/admin/algorithms', icon: 'algorithm' },
       { label: 'लाइभ विजेट', href: '/admin/live-widgets', icon: 'widget' },
       { label: 'विज्ञापन', href: '/admin/ads', icon: 'ad' },
-      { label: 'सदस्यता', href: '/admin/paywall', icon: 'membership' },
+      { label: 'सदस्यता', href: '/admin/paywall', icon: 'membership', roles: MEMBERSHIP_MANAGER_ROLES },
       { label: 'एसइओ', href: '/admin/seo', icon: 'seo' },
       {
         label: 'प्रयोगकर्ता',
@@ -90,7 +100,7 @@ const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
         icon: 'audit',
         roles: new Set(['admin', 'super_admin']),
       },
-      { label: 'सेटिङ', href: '/admin/settings', icon: 'settings' },
+      { label: 'सेटिङ', href: '/admin/settings', icon: 'settings', roles: SETTINGS_MANAGER_ROLES },
       { label: 'लन्च चेक', href: '/admin/launch', icon: 'audit' },
     ],
   },
@@ -109,6 +119,7 @@ export function AdminShell({
   const router = useRouter()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [signingOut, startSignOut] = useTransition()
+  const [signOutError, setSignOutError] = useState<string | null>(null)
 
   const role = session.newsroomRole
   const roleLabel = NEWSROOM_ROLE_LABELS_NE[role] ?? role
@@ -119,10 +130,16 @@ export function AdminShell({
     .join('')
 
   function signOut() {
+    setSignOutError(null)
     startSignOut(async () => {
-      await fetch('/api/auth/sign-out', { method: 'POST' }).catch(() => {})
-      router.refresh()
-      router.push('/admin/login')
+      try {
+        const response = await fetch('/api/auth/sign-out', { method: 'POST' })
+        if (!response.ok) throw new Error(`Sign-out failed: ${response.status}`)
+        router.refresh()
+        router.push('/admin/login')
+      } catch {
+        setSignOutError('साइन आउट गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।')
+      }
     })
   }
 
@@ -256,6 +273,11 @@ export function AdminShell({
           </a>
         </header>
 
+        {signOutError ? (
+          <p role="alert" className="mx-4 mt-4 rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong sm:mx-6 lg:mx-8" lang="ne">
+            {signOutError}
+          </p>
+        ) : null}
         <main className="flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
@@ -275,6 +297,7 @@ function pageTitle(pathname: string): string {
     '/admin/authors': 'लेखक',
     '/admin/journalists': 'पत्रकार workspace',
     '/admin/comments': 'टिप्पणी',
+    '/admin/contact': 'सम्पर्क सन्देश',
     '/admin/submissions': 'टिप',
     '/admin/polls': 'मतदान',
     '/admin/newsletter': 'न्युजलेटर',

@@ -11,6 +11,7 @@
  * directly, so the persistence strategy stays centralized.
  */
 import 'server-only'
+import { isProductionRuntime } from '@/lib/ops-db'
 
 type PendingSubscriber = { email: string; token: string; createdAt: number }
 
@@ -49,7 +50,12 @@ export function getSubscriberStore(): SubscriberStore {
 
 async function getPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
-  if (newsletterStorageMode() !== 'postgres') return null
+  if (newsletterStorageMode() !== 'postgres') {
+    if (isProductionRuntime()) {
+      throw new Error('DATABASE_URL must point to Postgres for production newsletter subscriptions.')
+    }
+    return null
+  }
   if (!poolPromise) {
     poolPromise = (async () => {
       const { Pool } = await import('pg')

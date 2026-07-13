@@ -9,7 +9,7 @@
  * Server-only: provider credentials live in process.env and never reach the client.
  */
 import 'server-only'
-import type { CricketScore, FootballScore, LiveDataEnvelope } from '@/lib/live-data'
+import type { CricketScore, FootballScore, LiveDataEnvelope } from '@/lib/live/types'
 import { getManualLiveRecord } from '@/lib/live/manual'
 
 const TTL_MS = 60_000

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
+import { assertNewsroomRole, COMMUNITY_MANAGER_ROLES } from '@/lib/admin-roles'
 import { asSubmissionStatus, listSubmissions, type SubmissionStatus } from '@/lib/submissions'
 import { AdminPageHeader, AdminEmptyState } from '@/components/admin/primitives'
 import { SubmissionModerationActions } from '@/components/admin/SubmissionModerationActions'
@@ -35,7 +36,8 @@ export default async function SubmissionsPage({
 }: {
   searchParams: Promise<{ status?: string }>
 }) {
-  await requireNewsroomSession()
+  const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, COMMUNITY_MANAGER_ROLES)
   const sp = await searchParams
   const selected = asSubmissionStatus(sp.status)
   const submissions = await listSubmissions({

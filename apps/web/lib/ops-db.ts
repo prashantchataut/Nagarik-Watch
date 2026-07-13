@@ -15,13 +15,22 @@ export type Queryable = {
 let poolPromise: Promise<Queryable | null> | null = null
 const readySchemas = new Map<string, Promise<void>>()
 
+export function isProductionRuntime(): boolean {
+  return process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE !== 'phase-production-build'
+}
+
 export function operationalStorageMode(): 'postgres' | 'memory' {
   return process.env.DATABASE_URL?.startsWith('postgres') ? 'postgres' : 'memory'
 }
 
 export async function getOperationalPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
-  if (operationalStorageMode() !== 'postgres') return null
+  if (operationalStorageMode() !== 'postgres') {
+    if (isProductionRuntime()) {
+      throw new Error('DATABASE_URL must point to Postgres for production operational storage.')
+    }
+    return null
+  }
   if (!poolPromise) {
     poolPromise = (async () => {
       const { Pool } = await import('pg')

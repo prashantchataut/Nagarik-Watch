@@ -145,6 +145,49 @@ export const COMMENT_MODERATOR_ROLES: ReadonlySet<NewsroomRole> = new Set([
 /** Roles that can manage users and roles. */
 export const USER_MANAGER_ROLES: ReadonlySet<NewsroomRole> = new Set(['admin', 'super_admin'])
 
+/** Roles that can change public taxonomy and author directories. */
+export const TAXONOMY_MANAGER_ROLES: ReadonlySet<NewsroomRole> = new Set([
+  ...EDITOR_ROLES,
+  'seo_manager',
+])
+
+/** Roles that can review reader messages, submissions, comments and polls. */
+export const COMMUNITY_MANAGER_ROLES: ReadonlySet<NewsroomRole> = new Set([
+  ...COMMENT_MODERATOR_ROLES,
+  ...EDITOR_ROLES,
+])
+
+/** Roles that can add or edit newsroom media metadata. */
+export const MEDIA_MANAGER_ROLES: ReadonlySet<NewsroomRole> = new Set([
+  'photo_video_editor',
+  ...EDITOR_ROLES,
+])
+
+/** Roles that can change publication-wide settings. */
+export const SETTINGS_MANAGER_ROLES: ReadonlySet<NewsroomRole> = new Set([
+  'publisher',
+  'admin',
+  'super_admin',
+])
+
+/** Roles that can manage premium access and manual subscriptions. */
+export const MEMBERSHIP_MANAGER_ROLES: ReadonlySet<NewsroomRole> = SETTINGS_MANAGER_ROLES
+
+/** Roles that can create and queue newsletter issues. */
+export const NEWSLETTER_MANAGER_ROLES: ReadonlySet<NewsroomRole> = new Set([
+  'analyst',
+  'publisher',
+  'admin',
+  'super_admin',
+])
+
+export function assertNewsroomRole(
+  role: NewsroomRole,
+  allowed: ReadonlySet<NewsroomRole>,
+): void {
+  if (!allowed.has(role)) throw new Error('Permission denied for this newsroom role.')
+}
+
 export function canCreate(role: NewsroomRole): boolean {
   return CONTRIBUTOR_ROLES.has(role)
 }
@@ -197,13 +240,25 @@ export const ADMIN_PATH_ROLE_RULES: ReadonlyArray<{
   { prefix: '/admin/journalists', roles: new Set<NewsroomRole>(['reviewer', 'assistant_editor', 'sub_editor', 'section_editor', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
   { prefix: '/admin/live', roles: new Set<NewsroomRole>(['viewer', 'reviewer', 'analyst', 'moderator', 'ad_manager', 'seo_manager', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
   { prefix: '/admin/comments', roles: COMMENT_MODERATOR_ROLES },
+  { prefix: '/admin/contact', roles: COMMUNITY_MANAGER_ROLES },
+  { prefix: '/admin/submissions', roles: COMMUNITY_MANAGER_ROLES },
+  { prefix: '/admin/polls', roles: COMMUNITY_MANAGER_ROLES },
+  { prefix: '/admin/categories', roles: TAXONOMY_MANAGER_ROLES },
+  { prefix: '/admin/tags', roles: TAXONOMY_MANAGER_ROLES },
+  { prefix: '/admin/topics', roles: TAXONOMY_MANAGER_ROLES },
+  { prefix: '/admin/provinces', roles: TAXONOMY_MANAGER_ROLES },
+  { prefix: '/admin/authors', roles: TAXONOMY_MANAGER_ROLES },
+  { prefix: '/admin/media', roles: MEDIA_MANAGER_ROLES },
+  { prefix: '/admin/live-blogs', roles: EDITOR_ROLES },
+  { prefix: '/admin/settings', roles: SETTINGS_MANAGER_ROLES },
+  { prefix: '/admin/paywall', roles: MEMBERSHIP_MANAGER_ROLES },
   {
     prefix: '/admin/ads',
     roles: new Set<NewsroomRole>(['ad_manager', 'publisher', 'admin', 'super_admin']),
   },
   {
     prefix: '/admin/newsletter',
-    roles: new Set<NewsroomRole>(['analyst', 'publisher', 'admin', 'super_admin']),
+    roles: NEWSLETTER_MANAGER_ROLES,
   },
   {
     prefix: '/admin/seo',

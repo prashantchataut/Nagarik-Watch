@@ -11,7 +11,7 @@ import {
   type BookmarkRecord,
   type ReadingHistoryRecord,
 } from '@/lib/reader/state'
-import { recommendForReader } from '@/lib/reader/personalize'
+import { continueReadingForReader, recommendForReader } from '@/lib/reader/personalize'
 
 export function RecommendedForYou({
   locale,
@@ -46,6 +46,10 @@ export function RecommendedForYou({
     if (!enabled) return catalog.slice(0, 5)
     return recommendForReader(catalog, bookmarks, history, 5)
   }, [bookmarks, catalog, enabled, history])
+  const unfinished = useMemo(
+    () => (enabled ? continueReadingForReader(catalog, history) : null),
+    [catalog, enabled, history],
+  )
 
   function enable() {
     writeConsent({
@@ -98,7 +102,21 @@ export function RecommendedForYou({
           ) : null}
         </div>
         <div className="grid gap-4 md:grid-cols-[minmax(0,1.1fr)_minmax(15rem,0.9fr)]">
-          <StoryCard story={recommendations[0]!} locale={locale} variant="featured" />
+          <div>
+            {unfinished ? (
+              <a
+                href={`${locale === 'en' ? '/en' : ''}/${unfinished.category.slug}/${unfinished.slug}`}
+                className="mb-4 block border-l-2 border-brand pl-3 text-meta font-semibold text-ink hover:text-brand-strong"
+                lang={lang}
+              >
+                <span className="block text-caption font-bold uppercase tracking-[0.14em] text-brand-strong">
+                  {locale === 'en' ? 'Continue reading' : 'पढाइ जारी राख्नुहोस्'}
+                </span>
+                {locale === 'en' && unfinished.titleEn ? unfinished.titleEn : unfinished.titleNe}
+              </a>
+            ) : null}
+            <StoryCard story={recommendations[0]!} locale={locale} variant="featured" />
+          </div>
           <ol className="divide-y divide-rule border-y border-rule">
             {recommendations.slice(1).map((story, index) => (
               <li

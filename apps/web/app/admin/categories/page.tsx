@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
+import { assertLocalContentAdmin, isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
+import { assertNewsroomRole, TAXONOMY_MANAGER_ROLES } from '@/lib/admin-roles'
 import { archiveTaxonomyTerm, listTaxonomyTerms, upsertTaxonomyTerm } from '@/lib/taxonomy-admin'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
@@ -15,6 +18,8 @@ export const dynamic = 'force-dynamic'
 async function saveTerm(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, TAXONOMY_MANAGER_ROLES)
+  assertLocalContentAdmin()
   const term = await upsertTaxonomyTerm({
     kind: 'category',
     slug: formData.get('slug'),
@@ -33,6 +38,8 @@ async function saveTerm(formData: FormData) {
 async function archiveTerm(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, TAXONOMY_MANAGER_ROLES)
+  assertLocalContentAdmin()
   const slug = String(formData.get('slug') ?? '')
   await archiveTaxonomyTerm('category', slug)
   await recordAuditEvent({ session, action: 'delete', targetType: 'category', targetId: slug, summary: `विभाग archived: ${slug}` })
@@ -40,7 +47,9 @@ async function archiveTerm(formData: FormData) {
 }
 
 export default async function Page() {
-  await requireNewsroomSession()
+  const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, TAXONOMY_MANAGER_ROLES)
+  if (isPayloadCanonical()) redirect(payloadCollectionAdminUrl('categories'))
   const terms = await listTaxonomyTerms('category')
   const active = terms.filter((term) => term.status !== 'archived')
 

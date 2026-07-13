@@ -1,68 +1,105 @@
 # Nagarik Watch (नागरिक वाच)
 
-A modern, Devanagari-first **web news portal for Nepal**. Nepali primary, with a dedicated
-**author-reviewed English** section (never machine translation). Hybrid editorial model
-(original + aggregated-with-attribution + wire). Ad-supported, free to read.
+**नेपाली-प्रथम नागरिक पत्रकारिता प्लेटफर्म · A Devanagari-first civic news platform**
 
-This repository contains the **full planning foundation** (spec, architecture, ADRs,
-content model, editorial workflow, phased task lists) plus the monorepo scaffolding.
-Reader app + CMS code lands in the phased builds.
+Nagarik Watch is a bilingual Nepali news portal with Nepali at `/` and editor-reviewed
+English at `/en/`. The repository is a pnpm/Turborepo monorepo containing the public
+Next.js application, a separate Payload CMS newsroom, and shared content, infrastructure,
+ingestion, UI, and TypeScript packages.
 
-## Status
+## Current status / हालको अवस्था
 
-🟢 **Planning complete · Phase 0 (foundation) in progress.**
-See [docs/phase-0-tasks.md](docs/phase-0-tasks.md) for current work.
+The repository is no longer a planning-only scaffold. It contains working reader,
+journalist, operations-admin, auth, content, live-data, submission, newsletter, poll,
+bookmark, recommendation, SEO, and trust-page surfaces.
 
-## Tech stack (summary)
+It is **not ready to be labelled live until the launch gate passes**. Real publication
+credentials, production secrets, Postgres, object storage, approved data providers, and a
+full dependency-backed verification run are still operator responsibilities. See
+[`FINAL_AUDIT.md`](FINAL_AUDIT.md), [`CONTINUATION_PROMPT.md`](CONTINUATION_PROMPT.md),
+and [`MANUAL.md`](MANUAL.md).
 
-- **Next.js** (App Router) + **TypeScript** (strict) + **Tailwind CSS**, reader portal
-- **Payload CMS** (self-hosted, in-repo), editorial tool
-- **PostgreSQL**, content + full-text search
-- **Edge/CDN + object storage** behind a swappable adapter (default: Cloudflare; ADR-003)
-- **Plausible + GA4** analytics · **AdSense → GAM** ads
+## Architecture / संरचना
 
-## Repository layout
-
-```
+```text
 apps/
-  web/      Next.js reader portal
-  admin/    Payload CMS (editorial)
+  web/      Reader site + reader auth + journalist desk + role-gated operations admin
+  admin/    Payload CMS 3 editorial source of truth
 packages/
-  db/       shared content types + Zod schemas
-  ui/       design system (Civic Crimson tokens, primitives)
-  infra/    swappable edge + storage adapters (ADR-003)
-  ingest/   RSS/wire ingestion
-  tsconfig/ shared TS configs
-docs/       architecture, ADRs, content model, editorial workflow, phase task lists
-PRODUCT.md  DESIGN.md  SPEC.md   impeccable + spec-driven context
+  db/       Shared content contracts, schemas, ranking/recommendation utilities
+  ui/       Civic Crimson design system
+  infra/    Storage and CDN adapters
+  ingest/   Feed normalization and ingestion helpers
+  tsconfig/ Shared TypeScript configuration
+docs/       Architecture, ADRs, workflows, deployment and provider guidance
 ```
 
-## Planning documents (read these first)
+### Production boundary
 
-1. [PRODUCT.md](PRODUCT.md), brand, users, tone, anti-references, principles
-2. [DESIGN.md](DESIGN.md), **Civic Crimson** palette, Devanagari type, design laws
-3. [SPEC.md](SPEC.md), master spec (objective, stack, testing, boundaries)
-4. [docs/architecture.md](docs/architecture.md), system design + NFRs + hosting framework
-5. [docs/adr/](docs/adr/), ADR-001 (name risk) … ADR-007 (bilingual model)
-6. [docs/content-model.md](docs/content-model.md) + [docs/editorial-workflow.md](docs/editorial-workflow.md)
-7. [docs/phase-0-tasks.md](docs/phase-0-tasks.md) → [phase-5-tasks.md](docs/phase-5-tasks.md)
-8. [MANUAL.md](MANUAL.md), launch blockers, provider setup, env vars and mock/demo inventory
+- **Payload (`apps/admin`) owns editorial content**: articles, categories, tags, authors,
+  media, revisions, and publishing workflow.
+- **The reader app consumes Payload through its REST API**. The two apps may be deployed
+  independently; the web app does not import Payload configuration or open a second CMS
+  connection.
+- **The web operations admin does not maintain a shadow production content store**.
+  Content routes redirect to Payload when `CONTENT_SOURCE=payload`.
+- **Postgres is mandatory at runtime in production** for Better Auth and operational state.
+  Development may use persistent local PGlite/auth files and explicit local data files.
 
-## Getting started (once apps are scaffolded)
+The decision is recorded in [`docs/adr/ADR-014-canonical-cms.md`](docs/adr/ADR-014-canonical-cms.md).
+
+## Local development / स्थानीय विकास
+
+Requirements: Node.js 22 and pnpm 10.17.1.
 
 ```bash
+corepack enable
 pnpm install
-cp .env.example .env.local      # fill in real values
-pnpm dev                        # runs web + admin via turbo
+cp .env.example .env.local
+# Fill local-only values; never commit the file.
+pnpm dev
 ```
 
-Node ≥ 20.11 · pnpm ≥ 9.
+Default ports:
 
-## Working on this repo
+- Reader and web operations: `http://localhost:3000`
+- Payload newsroom: `http://localhost:3001/admin`
 
-- **Skills:** this project is built with the impeccable, spec-driven-development,
-  architecture-designer, and planning-and-task-breakdown skills. Follow the workflow in
-  the relevant `docs/` and ADR files.
-- **Spec is living:** update SPEC.md + the relevant ADR _before_ implementing a decision
-  change.
-- **Boundaries:** see SPEC.md §Boundaries (always / ask first / never).
+For a lightweight web-only development session, omit `DATABASE_URL`; Better Auth uses the
+persistent PGlite directory configured by `PGLITE_DATA_DIR`. Payload itself still requires
+Postgres.
+
+## Required verification / अनिवार्य जाँच
+
+Before deployment, run from a networked environment with dependencies installed:
+
+```bash
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm verify:static
+pnpm --filter @nagarikwatch/web build
+pnpm --filter @nagarikwatch/admin build
+pnpm test:e2e
+```
+
+For live configuration validation:
+
+```bash
+NEXT_PUBLIC_LAUNCH_STATUS=live pnpm launch:gate
+```
+
+Never bypass a failing launch gate. The current repair environment could run the
+repository-native static audits but could not install pnpm dependencies; exact evidence is
+recorded in [`VERIFICATION_LOG_CURRENT.md`](VERIFICATION_LOG_CURRENT.md).
+
+## Source documents
+
+- [`PRODUCT.md`](PRODUCT.md) — audience, editorial promise, anti-references
+- [`DESIGN.md`](DESIGN.md) — Civic Crimson visual system and editorial hierarchy
+- [`SPEC.md`](SPEC.md) — product and engineering boundaries
+- [`docs/architecture.md`](docs/architecture.md) — runtime architecture
+- [`docs/content-model.md`](docs/content-model.md) — shared content contract
+- [`docs/editorial-workflow.md`](docs/editorial-workflow.md) — newsroom workflow
+- [`MANUAL.md`](MANUAL.md) — owner setup, credentials, providers, launch checklist

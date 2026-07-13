@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
+import { assertNewsroomRole, COMMUNITY_MANAGER_ROLES } from '@/lib/admin-roles'
 import { createPoll, listPolls } from '@/lib/polls-admin'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
@@ -11,13 +12,15 @@ export const dynamic = 'force-dynamic'
 async function savePoll(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, COMMUNITY_MANAGER_ROLES)
   const poll = await createPoll({ question: formData.get('question'), options: formData.get('options'), status: formData.get('status') })
   if (poll) await recordAuditEvent({ session, action: 'create', targetType: 'poll', targetId: poll.id, summary: `Poll created: ${poll.question}` })
   revalidatePath('/admin/polls')
 }
 
 export default async function PollsPage() {
-  await requireNewsroomSession()
+  const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, COMMUNITY_MANAGER_ROLES)
   const polls = await listPolls()
   return (
     <div>

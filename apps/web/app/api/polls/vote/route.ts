@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { recordPollVote } from '@/lib/engagement/store'
 import { getSession } from '@/lib/auth/session'
+import { getPollForVoting } from '@/lib/polls-admin'
+import { enforceRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,6 +20,8 @@ export async function POST(request: NextRequest) {
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
+  const limited = await enforceRateLimit(request, 'poll-vote', 20, 60 * 60_000)
+  if (limited) return limited
 
   let body: Record<string, unknown>
   try {
@@ -30,17 +34,22 @@ export async function POST(request: NextRequest) {
   const optionId = String(body.optionId ?? '').trim()
   const fingerprint = String(body.fingerprint ?? '').trim()
 
-  if (!pollId || !optionId || !fingerprint) {
+  if (!pollId || !/^\d+$/.test(optionId) || !fingerprint || fingerprint.length > 160) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
   }
 
+  const poll = await getPollForVoting(pollId)
+  if (!poll || !poll.options[Number(optionId)]) {
+    return NextResponse.json({ error: 'Poll or option is not open for voting.' }, { status: 404 })
+  }
+
   const session = await getSession().catch(() => null)
-  const { recorded } = await recordPollVote({
+  const { recorded, results } = await recordPollVote({
     pollId,
     optionId,
     voterFingerprint: session?.userId ?? fingerprint,
     voterUserId: session?.userId,
   })
 
-  return NextResponse.json({ recorded }, { status: recorded ? 201 : 200 })
+  return NextResponse.json({ recorded, results }, { status: recorded ? 201 : 200 })
 }

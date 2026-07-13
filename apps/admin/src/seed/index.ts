@@ -58,7 +58,12 @@ async function resetContent(payload: BasePayload) {
   for (const slug of ['articles', 'tags', 'authors', 'categories', 'media'] as const) {
     const { docs } = await payload.find({ collection: slug, limit: 1000, depth: 0 })
     for (const doc of docs) {
-      await payload.delete({ collection: slug, id: doc.id }).catch(() => {})
+      try {
+        await payload.delete({ collection: slug, id: doc.id })
+      } catch (error) {
+        payload.logger.error({ err: error, collection: slug, id: doc.id }, 'Seed reset delete failed')
+        throw error
+      }
     }
   }
 }

@@ -31,6 +31,7 @@ export function ReaderArticleControls({
   const [personalized, setPersonalized] = useState(false)
   const [speechSupported, setSpeechSupported] = useState(false)
   const [speaking, setSpeaking] = useState(false)
+  const [historySyncFailed, setHistorySyncFailed] = useState(false)
   const lang = locale === 'en' ? 'en' : 'ne'
 
   useEffect(() => {
@@ -91,7 +92,7 @@ export function ReaderArticleControls({
       })
       localStorage.setItem(READER_HISTORY_KEY, JSON.stringify(next))
       window.dispatchEvent(new Event('nw-reader-state-change'))
-      fetch('/api/reading', {
+      void fetch('/api/reading', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
@@ -102,7 +103,12 @@ export function ReaderArticleControls({
           readPercent,
         }),
         keepalive: true,
-      }).catch(() => {})
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error(`Reading sync failed: ${response.status}`)
+          setHistorySyncFailed(false)
+        })
+        .catch(() => setHistorySyncFailed(true))
     }
 
     record()
@@ -182,6 +188,11 @@ export function ReaderArticleControls({
       <span className="rounded-full bg-surface-raised px-3 py-2 text-caption text-mute">
         {locale === 'en' ? `${remaining} min left` : `${remaining} मिनेट बाँकी`}
       </span>
+      {historySyncFailed ? (
+        <span role="status" className="rounded-full border border-rule px-3 py-2 text-caption text-mute">
+          {locale === 'en' ? 'History saved on this device only' : 'इतिहास यो उपकरणमा मात्र सुरक्षित भयो'}
+        </span>
+      ) : null}
       {!personalized ? (
         <span className="rounded-full border border-rule px-3 py-2 text-caption text-mute">
           {locale === 'en' ? 'History off' : 'इतिहास बन्द'}

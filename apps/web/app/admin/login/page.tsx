@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
-import { getAuth } from '@/lib/auth'
+import { getNewsroomSession } from '@/lib/auth/session'
 import { Logo } from '@/components/Logo'
 import { AdminLoginForm } from './AdminLoginForm'
 
@@ -9,12 +8,8 @@ export const metadata: Metadata = { title: 'Newsroom Login', description: 'Staff
 export const dynamic = 'force-dynamic'
 
 export default async function AdminLoginPage() {
-  try {
-    const auth = await getAuth()
-    const session = await auth.api.getSession({ headers: await headers() })
-    const role = (session?.user as { role?: string } | undefined)?.role
-    if (session?.user && role && role !== 'reader') redirect('/admin/dashboard')
-  } catch {}
+  const session = await getNewsroomSession()
+  if (session) redirect('/admin/dashboard')
 
   return <main className="auth-shell">
     <section className="auth-editorial" aria-label="Newsroom introduction">
@@ -36,7 +31,7 @@ export default async function AdminLoginPage() {
         <h2 className="mt-2 font-display text-[2.35rem] font-extrabold leading-tight text-ink" lang="ne">न्युजरुममा प्रवेश</h2>
         <p className="mt-3 max-w-md text-body leading-relaxed text-ink-soft" lang="ne">तपाईंको संस्थागत इमेल र पासवर्ड प्रयोग गर्नुहोस्। पहुँच तपाईंको भूमिकाअनुसार सीमित हुन्छ।</p>
         <div className="auth-form-surface"><AdminLoginForm /></div>
-        <p className="mt-8 text-caption text-mute" lang="ne">पाठक हुनुहुन्छ? <a href="/ne/auth/login" className="font-bold text-brand-strong hover:underline">पाठक लगइनमा जानुहोस्</a></p>
+        <p className="mt-8 text-caption text-mute" lang="ne">पाठक हुनुहुन्छ? <a href="/login" className="font-bold text-brand-strong hover:underline">पाठक लगइनमा जानुहोस्</a></p>
       </div>
     </section>
   </main>

@@ -4,6 +4,7 @@ import { createArticle } from '@/lib/content/store/json-store'
 import type { StoredArticle } from '@/lib/content/store/json-store'
 import { canCreate, canPublish } from '@/lib/admin-roles'
 import { blocksFromShorthand } from '@/lib/content/blocks'
+import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,6 +41,12 @@ export async function POST(request: NextRequest) {
   const session = await requireNewsroomSession()
   if (!canCreate(session.newsroomRole)) {
     return NextResponse.json({ error: 'अनुमति छैन।' }, { status: 403 })
+  }
+  if (isPayloadCanonical()) {
+    return NextResponse.json(
+      { error: 'Production content is managed in Payload CMS.', cmsUrl: `${payloadCollectionAdminUrl('articles')}/create` },
+      { status: 409 },
+    )
   }
 
   let body: Record<string, unknown>

@@ -1,7 +1,7 @@
 /**
- * REAL live-data source — replaces the mock feed with genuine free, credential-free
+ * Live-data providers using genuine public or configured upstreams
  * public endpoints, while preserving the LiveValue<T> contract so the widgets,
- * trust lines, and MOCK badges all keep working unchanged.
+ * trust lines and failure states remain consistent across widgets.
  *
  * Sources wired (all free, no key, attribution-grade):
  *   - Weather:  Open-Meteo Forecast API   https://open-meteo.com/en/docs
@@ -9,24 +9,23 @@
  *   - Forex:    Nepal Rastra Bank Forex API https://www.nrb.org.np/api-docs-v1/
  *
  * Resilience policy: every fetch is wrapped so a network/parse failure degrades
- * to the mock value with `mock: true` rather than throwing — a failed upstream
+ * to an explicit error/empty state rather than fabricating a reading — a failed upstream
  * must never break the homepage render (SPEC.md: non-blocking live widgets).
  *
  * Caching: a short in-process TTL cache (default 5 min) per key so a single
  * homepage render does not hammer the upstreams, and so the UtilityStrip +
- * HomeLiveBoard (both server components) share one fetch per refresh window.
+ * the utility strip and utility hubs share one fetch per refresh window.
  */
 import 'server-only'
 import type { Locale } from '@nagarikwatch/db'
 import {
-  getMockWeather,
-  getMockAqi,
-  getMockNepse,
+  failedLiveValue,
+  emptyLiveValue,
   type AqiReading,
   type LiveValue,
   type NepseReading,
   type WeatherReading,
-} from './mock'
+} from './types'
 import { getManualLiveRecord } from './manual'
 
 const KTM_LAT = 27.7172
@@ -84,8 +83,8 @@ function weatherCodeToCondition(code: number): WeatherReading['condition'] {
 
 /** REAL weather. Provider-aware: uses WEATHER_PROVIDER + WEATHER_API_KEY when set
  *  (meteosource | openweather | weatherstack), otherwise the keyless Open-Meteo feed.
- *  Any failure degrades to the mock so the homepage never breaks on an upstream error. */
-export async function getRealWeather(locale: Locale): Promise<LiveValue<WeatherReading>> {
+ *  Any failure returns an explicit error state so the homepage remains resilient without invented data. */
+export async function getRealWeather(_locale: Locale): Promise<LiveValue<WeatherReading>> {
   const key = 'weather'
   const hit = cached<WeatherReading>(key)
   if (hit) return hit
@@ -124,8 +123,8 @@ export async function getRealWeather(locale: Locale): Promise<LiveValue<WeatherR
       mock: false,
     }
     return remember(key, value)
-  } catch {
-    return getMockWeather(locale)
+  } catch (error) {
+    return failedLiveValue<WeatherReading>('Open-Meteo weather', error)
   }
 }
 
@@ -223,8 +222,8 @@ function descriptionToCondition(desc?: string): WeatherReading['condition'] {
   return 'clouds'
 }
 
-/** REAL AQI (US AQI + PM2.5) from Open-Meteo Air Quality. Falls back to mock. */
-export async function getRealAqi(locale: Locale): Promise<LiveValue<AqiReading>> {
+/** REAL AQI (US AQI + PM2.5) from Open-Meteo Air Quality. Returns an explicit error state on failure. */
+export async function getRealAqi(_locale: Locale): Promise<LiveValue<AqiReading>> {
   const key = 'aqi'
   const hit = cached<AqiReading>(key)
   if (hit) return hit
@@ -251,8 +250,8 @@ export async function getRealAqi(locale: Locale): Promise<LiveValue<AqiReading>>
       mock: false,
     }
     return remember(key, value)
-  } catch {
-    return getMockAqi(locale)
+  } catch (error) {
+    return failedLiveValue<AqiReading>('Open-Meteo Air Quality', error)
   }
 }
 
@@ -334,18 +333,12 @@ export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate
       mock: false,
     }
     return remember(key, value)
-  } catch {
+  } catch (error) {
     const manual = await getManualLiveRecord<ForexRate[]>('forex')
     if (manual) {
       return { status: 'ok', data: manual.data, source: manual.source, updatedAt: manual.updatedAt, mock: false }
     }
-    return {
-      status: 'ok',
-      data: [],
-      source: 'Verified feed pending',
-      updatedAt: new Date().toISOString(),
-      mock: true,
-    }
+    return failedLiveValue<ForexRate[]>('Nepal Rastra Bank', error)
   }
 }
 
@@ -390,14 +383,12 @@ async function fetchFxrateapisForex(apiKey: string): Promise<LiveValue<ForexRate
 /**
  * NEPSE — scraped from the public nepalstock.com homepage snippet (no official
  * JSON API exists free of charge). This is intentionally best-effort: any
- * layout change upstream degrades cleanly to the mock value. The mock is kept
- * so the widget never renders an empty market slot mid-session.
+ * layout change upstream degrades to a verified newsroom manual override or an explicit error state.
  *
  * Note: fetch target is confirmed at wire-time. If nepalstock.com blocks the
- * edge runtime or changes markup, the catch returns mock — no reader-facing
- * breakage.
+ * edge runtime or changes markup, the catch returns an attributed error — no fabricated reader-facing quote.
  */
-export async function getRealNepse(locale: Locale): Promise<LiveValue<NepseReading>> {
+export async function getRealNepse(_locale: Locale): Promise<LiveValue<NepseReading>> {
   const key = 'nepse'
   const hit = cached<NepseReading>(key)
   if (hit) return hit
@@ -432,12 +423,12 @@ export async function getRealNepse(locale: Locale): Promise<LiveValue<NepseReadi
       mock: false,
     }
     return remember(key, value)
-  } catch {
+  } catch (error) {
     const manual = await getManualLiveRecord<NepseReading>('nepse')
     if (manual) {
       return { status: 'ok', data: manual.data, source: manual.source, updatedAt: manual.updatedAt, mock: false }
     }
-    return getMockNepse(locale)
+    return failedLiveValue<NepseReading>('NEPSE (nepalstock.com)', error)
   }
 }
 
@@ -476,28 +467,13 @@ export type GoldSilverReading = {
 /**
  * Gold/Silver prices. No free API exists for Nepal bullion rates; the Nepal
  * Gold & Silver Dealers Association publishes rates daily but without a stable
- * public feed. We return a clearly-marked fallback (status: 'mock') with the
- * last known approximate rate, and an admin can override via the live-widgets
- * panel. When a licensed feed is contracted, swap the fetch here.
+ * public feed. Editors must enter a verified manual rate in the live-widgets panel;
+ * until then the widget renders an attributed empty state. When a licensed feed is contracted, swap the fetch here.
  */
 export async function getRealGoldSilver(_locale: Locale): Promise<LiveValue<GoldSilverReading>> {
   const manual = await getManualLiveRecord<GoldSilverReading>('gold-silver')
   if (manual) {
     return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, mock: false, data: manual.data }
   }
-  const updatedAt = new Date().toISOString()
-  const source = 'Nepal Gold & Silver Dealers Association (approx.)'
-  return {
-    status: 'ok',
-    source,
-    updatedAt,
-    mock: true,
-    data: {
-      goldTolaNpr: 158500,
-      silverTolaNpr: 1850,
-      goldGramNpr: 13600,
-      silverGramNpr: 158,
-      unit: 'NPR per tola (11.664g)',
-    },
-  }
+  return emptyLiveValue<GoldSilverReading>('Newsroom bullion rate not entered')
 }

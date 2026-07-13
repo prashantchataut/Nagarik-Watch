@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
+import { assertNewsroomRole, MEMBERSHIP_MANAGER_ROLES } from '@/lib/admin-roles'
 import { listManualSubscriptions, setManualSubscription } from '@/lib/paywall-admin'
 import { membershipMode } from '@/lib/membership'
 import { recordAuditEvent } from '@/lib/audit-log'
@@ -16,6 +17,7 @@ export const dynamic = 'force-dynamic'
 async function saveSubscription(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, MEMBERSHIP_MANAGER_ROLES)
   const subscription = await setManualSubscription({
     email: formData.get('email'),
     status: formData.get('status'),
@@ -30,7 +32,8 @@ async function saveSubscription(formData: FormData) {
 }
 
 export default async function PaywallPage() {
-  await requireNewsroomSession()
+  const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, MEMBERSHIP_MANAGER_ROLES)
   const subscriptions = await listManualSubscriptions()
   const mode = membershipMode()
 

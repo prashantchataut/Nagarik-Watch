@@ -1,173 +1,183 @@
-# Nagarik Watch Owner Manual
+# Nagarik Watch Owner Manual / सञ्चालक पुस्तिका
 
-This manual separates what is functional in the repository from work that needs owner credentials, editorial approval, licensing, or a paid provider. Do not treat demo fallback data as live reporting.
+This manual distinguishes code-complete paths from launch-time configuration and from
+work that still requires a licensed provider or business decision. **Do not present the
+preview environment, seed stories, or manual fallback values as live reporting.**
 
-## Required Environment
+## 1. Runtime topology / चल्ने संरचना
 
-- `DATABASE_URL`: PostgreSQL connection string for Payload CMS.
-- `PAYLOAD_SECRET`: minimum 32 characters, generated per environment.
-- `PAYLOAD_PUBLIC_SERVER_URL`: public URL for the Payload admin app.
-- `NEXT_PUBLIC_SITE_URL`: public reader-site URL.
-- `AUTH_SECRET` and `BETTER_AUTH_SECRET`: generated session secrets.
-- `REVALIDATE_SECRET`: shared secret for publish/revalidation hooks.
-- `PAYLOAD_CONTENT_SOURCE`: set to `payload` only when the CMS database and collections are ready.
-- `NEXT_PUBLIC_DOIB_NUMBER`: Department of Information and Broadcasting registration number when granted.
-- `ENABLE_WEB_ADMIN_SCAFFOLD`: leave unset in production unless server-side auth guards are fully reviewed.
+| Surface | Responsibility | Production source |
+|---|---|---|
+| `apps/web` | Public portal, reader accounts, journalist desk, operations admin | Payload REST + Postgres operational tables |
+| `apps/admin` | Editorial CMS, media, taxonomy, revisions, publishing | Payload + Postgres + object storage |
+| Local JSON/PGlite files | Developer convenience only | Never accepted by live launch gate |
 
-## Live Data Providers
+Payload is the sole production content authority. When `CONTENT_SOURCE=payload`, content
+editing links in `/admin/*` redirect to Payload and direct shadow-store mutations return a
+conflict instead of pretending to save.
 
-- Weather: `WEATHER_PROVIDER=open-meteo` works without an licensed feed credential for basic weather. If changing providers, set `WEATHER_API_KEY` and document the license.
-- AQI: `AQI_PROVIDER=open-meteo-air-quality` works without an licensed feed credential for basic air-quality readings.
-- Disaster alerts: use a manual CMS feed or an official public warning source. Set `DISASTER_ALERT_PROVIDER` and `DISASTER_ALERT_API_KEY` only for a licensed or official provider.
-- NEPSE: use an official or licensed market-data vendor. Do not rely on scraping for production market reporting. Set `NEPSE_PROVIDER` and `NEPSE_API_KEY` after contract approval.
-- Gold/silver: use a licensed bullion-rate source or a verified manual editorial feed. Set `GOLD_SILVER_PROVIDER` and `GOLD_SILVER_API_KEY`.
-- Forex: prefer Nepal Rastra Bank or a licensed provider. Set `FOREX_PROVIDER` and `FOREX_API_KEY`.
-- Sports: set `SPORTS_PROVIDER`, `FOOTBALL_PROVIDER`, `CRICKET_PROVIDER`, and licensed feed credentials only for licensed feeds that allow public redistribution.
-- Elections: use Election Commission Nepal or a manual verified CMS feed. Never display unverified election numbers as live results.
-- Exam results: use NEB or official result channels. Never publish unofficial SEE or Grade XII result data.
-- Parliament and YouTube live: set `PARLIAMENT_LIVE_URL`, `YOUTUBE_PROVIDER`, and `YOUTUBE_API_KEY` after confirming embed rights.
-- Cache: tune `LIVE_WIDGET_CACHE_TTL_SECONDS` by provider rate limits. Keep widgets non-blocking and visibly timestamped.
+## 2. Secrets and environment / गोप्य कन्फिगरेसन
 
-## CMS And RBAC Setup
+Start from `.env.example`. Store real values only in the hosting provider's secret vault or
+an ignored local file.
 
-- Create the first `super_admin` directly in the database or with a one-off trusted seed script, then remove the script.
-- Assign `admin` for user/settings management and reserve `super_admin` for permanent deletion.
-- Use `journalist` or `contributor` for draft/submission work.
-- Use `copy_editor`, `fact_checker`, `seo_manager`, and editor roles for review queues.
-- Keep reader accounts separate from newsroom accounts.
-- Review Payload collection access before enabling public writes or staff invites in production.
+Mandatory for a live deployment:
 
-## Google News And SEO
+- `DATABASE_URL` — durable Postgres for Payload, Better Auth, and operational records.
+- `PAYLOAD_SECRET`, `AUTH_SECRET`, `BETTER_AUTH_SECRET`, `REVALIDATE_SECRET` — unique,
+  non-placeholder secrets.
+- `PAYLOAD_PUBLIC_SERVER_URL` — public/internal-reachable CMS origin used by server-side
+  REST reads.
+- `PAYLOAD_ADMIN_URL` — optional explicit newsroom URL; otherwise derived from the CMS
+  origin.
+- `CONTENT_SOURCE=payload` and `PAYLOAD_DB_PUSH=false`.
+- Durable object storage (`STORAGE_BUCKET` or another launch-gate-supported adapter).
+- Verified publisher name, editor-in-chief, registration number, phone, email, and address.
 
-- Verify `sitemap.xml`, `news-sitemap.xml`, `rss.xml`, and `robots.txt` after the production domain is live.
-- Configure Google Search Console and Google Publisher Center manually.
-- Confirm publisher name, logo, contact, ownership, editorial policy, corrections policy, fact-check policy, privacy policy, terms, and accessibility pages.
-- Use `ClaimReview` schema only for real fact-check articles with approved evidence.
-- Do not index drafts, previews, admin routes, private routes, search filters, or unreviewed AI output.
+`PAYLOAD_API_TOKEN` is required for the journalist desk to create Payload drafts. Use an
+API key owned by a least-privilege Payload service account with article-create access. A
+matching active Author record must exist for each journalist's Better Auth email.
 
-## Email, Newsletter, Push And CAPTCHA
+### Secret incident response
 
-- Choose an email provider such as Resend, Buttondown, Listmonk, Postmark, or SES.
-- Configure double opt-in before importing any newsletter list.
-- Add unsubscribe and preference-center links to every campaign.
-- Choose OneSignal or FCM for push. Confirm consent copy in Nepali and English.
-- Configure `CAPTCHA_PROVIDER=turnstile`, `TURNSTILE_SITE_KEY`, and `TURNSTILE_SECRET_KEY` before opening comments, submissions, login/signup, or tips to untrusted traffic.
+The supplied archive previously contained real-looking local environment files. Those
+files have been removed from the repaired repository, but **every value that ever appeared
+in the archive must be rotated by its owner**. Code cannot rotate third-party credentials.
 
-## Analytics And Consent
-
-- Configure Plausible and optionally GA4.
-- Confirm cookie-consent copy with legal counsel before using non-essential tracking.
-- Track article views, search, share, bookmark, comment, newsletter signup, notification preferences, poll vote, ad impression/click, reading progress, completion, and utility interactions.
-
-## Media And Licensing
-
-- Replace temporary external images with owned, licensed, or agency-cleared assets.
-- Require alt text, captions, credits, source, and license fields for published images.
-- Strip EXIF for sensitive images when legally and ethically required.
-- Reserve layout space for ads and embeds to prevent Cumulative Layout Shift.
-
-## Production Database Checklist
-
-- Provision PostgreSQL with backups, point-in-time recovery, monitoring, and least-privilege credentials.
-- Run Payload migrations in a staging environment before production.
-- Disable development schema push when migrations are the source of truth.
-- Verify seed data is not presented as live reporting.
-
-## Launch Blockers
-
-- Confirm legal registration, publisher identity, address, phone, and DoIB number.
-- Replace placeholder contact data in `apps/web/lib/site.ts`.
-- Contract or approve official providers for market, bullion, sports, election, and exam widgets.
-- Create and verify the first `super_admin` account.
-- Review RBAC with the newsroom owner and editor-in-chief.
-- Configure production database, storage, CDN purge, email, CAPTCHA, analytics, and push providers.
-- Replace placeholder/demo imagery and verify media licenses.
-- Run production `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build` on the deployment environment.
-
-## Functional Versus Scaffolded
-
-- Functional: Next.js public portal routes, RSS, sitemap, news sitemap, seed-backed content source, Payload core collections, RBAC helper, reading-time utility, search tests, ranking utilities, live-widget envelope contracts, and visible mock status boundaries.
-- Scaffolded: reader accounts, synced bookmarks/history, comments, polls, push notifications, newsletter campaigns, payment/subscription flows, real market/sports/election/exam providers, AI editorial assistants, advanced analytics, and production moderation queues.
-- Mock/demo fallback: seed articles, some live data widgets, placeholder legal/contact details, and provider health surfaces until credentials and approved providers are configured.
-
-## Newsroom Admin + Reader Auth (Better Auth)
-
-The newsroom admin and reader accounts are powered by Better Auth. The auth
-database is **Postgres when `DATABASE_URL` is set** (production, shared with
-Payload CMS), and **PGlite (in-memory Postgres via WASM) when it is not**
-(dev/preview — sessions reset on restart, which is fine for the seed-backed demo).
-
-### First-boot admin setup
-
-1. Set `ENABLE_WEB_ADMIN_SCAFFOLD=true` in your environment.
-2. Set `NEWSROOM_ADMIN_EMAIL`, `NEWSROOM_ADMIN_PASSWORD` (min 8 chars), and
-   `NEWSROOM_ADMIN_NAME`.
-3. Visit `/admin/login` and sign in with those credentials.
-4. **Change the password immediately** via the profile screen, then remove
-   the `NEWSROOM_ADMIN_*` env vars so they cannot leak.
-
-If you do NOT set the env vars: sign up as a reader at `/auth/signup`, then
-manually elevate that account's `role` column to `super_admin` in the
-`user` table (Better Auth stores additional fields as JSON columns). After
-elevation, log out and back in at `/admin/login`.
+## 3. Authentication / प्रमाणीकरण
 
 ### Reader accounts
 
-Reader signups are open at `/auth/signup` (Nepali) and `/en/auth/signup`
-(English). Readers get bookmarks, reading history, and can comment + vote in
-polls. Reader accounts never see `/admin/*` — the session gate rejects any
-account whose role is `reader`.
+- Nepali: `/register`, `/login`, `/profile`, `/saved`
+- English: `/en/register`, `/en/login`, `/en/profile`, `/en/saved`
+- Better Auth stores accounts and sessions in Postgres in production.
+- When `DATABASE_URL` is omitted during local development, auth uses persistent PGlite at
+  `PGLITE_DATA_DIR`; it is not process-memory auth.
 
-### Engagement backend
+### Newsroom operations admin
 
-- **Comments**: `POST /api/comments` (rate-limited 5/min/IP). Comments are
-  created in `pending` status; approve in `/admin/comments`.
-- **Polls**: `POST /api/polls/vote`. One vote per fingerprint per poll.
-- **Bookmarks**: `GET/POST /api/bookmarks`. Logged-in readers sync across
-  devices; anonymous readers use a localStorage fingerprint.
-- **Reading history**: `POST /api/reading` (called by ReadingProgress). 50
-  most-recent entries per reader.
-- **Newsletter**: `POST /api/newsletter/subscribe` (double opt-in). Confirm
-  via `GET /api/newsletter/confirm?token=…`. Requires `NEWSLETTER_API_KEY`
-  - `NEWSLETTER_API_BASE` to send the confirmation email; without them the
-    confirm link is logged to the server console in dev.
+1. Set `ENABLE_WEB_ADMIN_SCAFFOLD=true` only when the operations dashboard is intended to
+   be reachable.
+2. Configure `NEWSROOM_SUPERADMIN_*` for initial provisioning.
+3. Start the web app after the auth database is reachable. Schema migration and boot-account
+   provisioning are awaited; failures stop auth initialization rather than being swallowed.
+4. Sign in at `/admin/login`, change the password, then remove the bootstrap password from
+   the environment.
 
-All engagement data lives in the same in-memory/Postgres store. When
-`DATABASE_URL` is set, migrate these to Postgres tables (the store module
-is the single seam to update).
+### Journalist desk
 
-## V11 reader personalization, cookies and notifications
+- Login: `/journalist/login` or `/en/journalist/login`
+- Dashboard: `/journalist/dashboard`
+- Journalists see assignments, their draft flow, feedback, and profile—not the full admin.
+- Admin-level newsroom roles may enter the journalist desk; journalist roles cannot enter
+  privileged admin routes.
 
-### Cookie consent
+Payload CMS has its own newsroom account system at the CMS origin. Keep its service-account
+API key and human editor credentials separate from Better Auth reader/newsroom credentials.
 
-The public cookie banner now separates:
+## 4. Content and publication / सामग्री तथा प्रकाशन
 
-- essential cookies, always required for the site to run;
-- personalization, used for local reading history, bookmarks, continue-reading and recommendations;
-- analytics, used only after explicit consent.
+- Articles, authors, categories, tags, and media are managed in Payload in production.
+- Nepali is the canonical article language. English listing visibility requires
+  `englishStatus=published`.
+- Publishing stamps `publishAt` when it is absent; public ordering and article timestamps
+  use this field.
+- Premium stories show three paragraph blocks before the membership gate unless the reader
+  is entitled through the configured membership mechanism.
+- Corrections, attribution, author links, dates, and publisher schema are rendered from the
+  content contract.
 
-Personalized recommendations must not use reading history unless the personalization switch is enabled.
+Do not turn `NEXT_PUBLIC_LAUNCH_STATUS` to `live` while publication identity fields still
+contain “placeholder”, “pending”, “change-me”, or dummy registration/phone values.
 
-### Notifications
+## 5. Operational data / सञ्चालन डेटा
 
-The current implementation supports foreground browser alerts for breaking stories while the site is open. It also includes `/manifest.webmanifest` and `/sw.js` with service-worker push handlers.
+The following records use Postgres in production and may use explicit memory/file fallback
+only in local development:
 
-This is not yet a complete production background push system. Before launch, configure one of:
+- comments, poll votes, bookmarks, reading history;
+- newsletter subscriptions and newsroom newsletter issues;
+- reader submissions and contact messages;
+- live-blog entries and manual live-data overrides;
+- audit events, settings, taxonomy helpers, ads, analytics events, paywall grants;
+- journalist draft metadata and newsroom invitations.
 
-- direct Web Push with `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`;
-- Firebase Cloud Messaging;
-- OneSignal.
+A missing database or schema failure now surfaces as an error in production. It must not
+silently “succeed” into process memory.
 
-Then add persistent subscription storage, unsubscribe handling, topic/province preferences, fatigue limits and an admin trigger when breaking news is published.
+## 6. Live data / प्रत्यक्ष डेटा
 
-### Mobile QA required
+Every widget must communicate source, timestamp, status, and whether an editor supplied a
+manual fallback.
 
-Before production, manually test:
+- Weather and AQI: Open-Meteo keyless endpoints.
+- Forex: Nepal Rastra Bank daily feed.
+- Disaster: verified manual override plus configured official feed; the code can use USGS
+  earthquake data filtered to Nepal when appropriate.
+- NEPSE, bullion, football, cricket, elections, exams, parliament, and other licensed data:
+  configure an approved provider or maintain a clearly attributed manual newsroom value.
 
-- 320px narrow Android;
-- 375px iPhone SE;
-- 390px iPhone 14;
-- 414px large phones;
-- 768px tablet.
+The application no longer fabricates plausible-looking values when a provider fails. A
+provider outage produces an unavailable/error state and must not take down the homepage.
 
-Check masthead, drawer, bottom nav, article hero, article body, utilities, fact-check, auth, saved, search, comments and footer. No page should create horizontal overflow or hide content behind the bottom nav.
+## 7. Reader submissions and contact / पाठक सम्पर्क
+
+- `/submit-story` accepts tips and evidence references with consent and anonymity choices.
+- `/contact` stores messages for `/admin/contact` review.
+- `/admin/submissions` is a moderated queue; publication is never automatic.
+- Current evidence intake accepts a URL/reference. Secure binary upload, malware scanning,
+  retention rules, and source-protection procedures remain launch work if direct file upload
+  is required.
+
+## 8. Newsletter, polls, membership / न्यूजलेटर, मतसर्वेक्षण, सदस्यता
+
+- Newsletter signup uses double opt-in and durable Postgres state in production.
+- Newsroom issues can be drafted/queued without a provider; actual delivery requires
+  Resend, SMTP, or another configured adapter and unsubscribe compliance.
+- Poll definitions and votes persist through the operational store; one-vote controls are
+  fingerprint/account based, not a substitute for high-assurance election polling.
+- Membership/paywall UX is implemented. Real recurring billing, webhooks, refunds, tax,
+  and entitlement reconciliation require a selected payment provider.
+
+## 9. SEO and trust / SEO तथा विश्वसनीयता
+
+Verify after deploying the real domain:
+
+- `/sitemap.xml`, `/news-sitemap.xml`, `/rss.xml`, `/robots.txt`;
+- article `NewsArticle` JSON-LD, author and publisher data;
+- About, Team, Editorial Policy, Ethics, Corrections, Fact-check, Privacy, Terms, Contact;
+- canonical URLs and English/Nepali alternate links;
+- Google Search Console and Publisher Center ownership.
+
+Do not place placeholder legal identity or generic “team” copy into structured data. The
+launch gate rejects known placeholder patterns.
+
+## 10. Deployment sequence / परिनियोजन क्रम
+
+1. Rotate exposed credentials.
+2. Provision managed Postgres and object storage with backups.
+3. Install dependencies from the checked-in lockfile.
+4. Apply checked-in Payload migrations with `PAYLOAD_DB_PUSH=false`.
+5. Deploy `apps/admin`; create human users and the least-privilege journalist bridge account.
+6. Seed/enter verified categories, authors, and launch inventory in Payload.
+7. Deploy `apps/web` with `CONTENT_SOURCE=payload` and reachable CMS URLs.
+8. Run the full verification suite and browser/e2e tests.
+9. Fill legal identity, provider, email, analytics, and ad configuration.
+10. Run `NEXT_PUBLIC_LAUNCH_STATUS=live pnpm launch:gate`; launch only when it passes.
+
+## 11. Required manual QA / अनिवार्य मानव परीक्षण
+
+Test at minimum 320, 375, 390, 414, and 768 CSS pixels plus desktop:
+
+- masthead, locale/theme controls, nav drawer, footer, bottom navigation;
+- homepage hierarchy, category/latest/trending, search, article reading and premium gate;
+- login/signup/profile/saved, bookmark and reading sync;
+- journalist draft submission into Payload;
+- all role boundaries and direct API mutation attempts;
+- contact/submission moderation, live widgets, newsletter, polls, admin logout;
+- keyboard-only navigation, focus visibility, contrast, screen-reader names and error text.
+
+The repair environment could not execute Playwright or dependency-backed builds because it
+had no pnpm installation and no package-registry network access. Treat
+`VERIFICATION_LOG_CURRENT.md` as evidence of static verification—not a substitute for this
+launch QA.

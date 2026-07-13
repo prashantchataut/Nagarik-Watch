@@ -14,7 +14,6 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
   const dict = getDictionary(locale)
   const lang = locale === 'en' ? 'en' : 'ne'
   const en = locale === 'en'
-  const showMock = true
   const labels = {
     mock: dict.liveMock,
     sourcePrefix: dict.liveSourcePrefix,
@@ -57,11 +56,11 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
           status={nepse.status}
           source={sourceFor(nepse.source, locale)}
           updatedLabel={relativeTime(nepse.updatedAt, locale)}
-          mock={showMock && nepse.mock}
+          mock={false}
           labels={labels}
           tone={nepse.data && nepse.data.change >= 0 ? 'up' : 'down'}
         >
-          {!nepse.mock && nepse.data ? (
+          {nepse.data ? (
             <div>
               <p className="font-display text-h1 font-bold text-ink">
                 {localizeNumber(nepse.data.index.toFixed(2), locale)}
@@ -88,10 +87,10 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
           status={goldSilver.status}
           source={sourceFor(goldSilver.source, locale)}
           updatedLabel={relativeTime(goldSilver.updatedAt, locale)}
-          mock={showMock && goldSilver.mock}
+          mock={false}
           labels={labels}
         >
-          {!goldSilver.mock && goldSilver.data ? (
+          {goldSilver.data ? (
             <div>
               <p className="font-display text-h1 font-bold text-ink">
                 रु. {localizeNumber(goldSilver.data.goldTolaNpr.toLocaleString(), locale)}
@@ -110,10 +109,10 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
           status={goldSilver.status}
           source={sourceFor(goldSilver.source, locale)}
           updatedLabel={relativeTime(goldSilver.updatedAt, locale)}
-          mock={showMock && goldSilver.mock}
+          mock={false}
           labels={labels}
         >
-          {!goldSilver.mock && goldSilver.data ? (
+          {goldSilver.data ? (
             <div>
               <p className="font-display text-h1 font-bold text-ink">
                 रु. {localizeNumber(goldSilver.data.silverTolaNpr.toLocaleString(), locale)}
@@ -133,13 +132,9 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
         </h2>
         <p className="mt-1 text-caption text-mute" lang={lang}>
           {sourceFor(forex.source, locale)} ·{' '}
-          {forex.mock
-            ? en
-              ? 'Awaiting verified feed'
-              : 'प्रमाणित फिड प्रतीक्षामा'
-            : relativeTime(forex.updatedAt, locale)}
+          {relativeTime(forex.updatedAt, locale)}
         </p>
-        {!forex.mock && forex.data && forex.data.length > 0 ? (
+        {forex.data && forex.data.length > 0 ? (
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-full divide-y divide-rule text-left text-body">
               <thead className="text-caption uppercase tracking-wide text-mute">
@@ -191,9 +186,9 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
 }
 
 function sourceFor(source: string, locale: Locale): string {
-  if (/mock/i.test(source))
-    return locale === 'en' ? 'Verified feed pending' : 'प्रमाणित फिड प्रतीक्षामा'
-  return source
+  const cleaned = source.trim()
+  if (cleaned) return cleaned
+  return locale === 'en' ? 'Source unavailable' : 'स्रोत उपलब्ध छैन'
 }
 
 export async function generateMetadata({

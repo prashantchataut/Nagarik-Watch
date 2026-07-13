@@ -1,10 +1,58 @@
-import Link from 'next/link'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { StoryCard } from '@nagarikwatch/ui'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
-import { categories } from '@/lib/content/seed/categories'
-import { articlesBatch1 } from '@/lib/content/seed/articles-1'
-import { articlesBatch2 } from '@/lib/content/seed/articles-2'
+import { getCategory, getCategoryPage } from '@/lib/content'
+import { Pagination } from '@/components/Pagination'
 import { AdSlot } from '@/components/AdSlot'
-import { articlesBatch3 } from '@/lib/content/seed/articles-3'
-const articles=[...articlesBatch1,...articlesBatch2,...articlesBatch3]
-export default async function CategoryPage({params}:{params:Promise<{locale:string;category:string}>}){const {locale:raw,category}=await params;const locale=asLocale(raw);const en=locale==='en';const cat=categories.find(c=>c.slug===category);if(!cat)notFound();const list=articles.filter(a=>a.category.slug===category&&(!en||a.hasEnglish));return <div className="section-page"><AdSlot locale={locale} placementKey="category-top"/><header><p className="section-kicker">{en?'News desk':'समाचार विभाग'}</p><h1>{en?cat.nameEn:cat.nameNe}</h1><p>{en?cat.descriptionEn:cat.descriptionNe}</p></header><div className="story-river">{list.map(a=><article key={a.id}><img src={a.heroImage?.url} alt={a.heroImage?.alt||''}/><div><p className="section-kicker">{a.byline}</p><h2><Link href={localizeHref(locale,`/${category}/${a.slug}`)}>{en&&a.titleEn?a.titleEn:a.titleNe}</Link></h2><p>{en&&a.deckEn?a.deckEn:a.deckNe}</p></div></article>)}<AdSlot locale={locale} placementKey="category-inline" variant="inline"/></div>{!list.length&&<p className="empty-news">{en?'No reviewed stories are available yet.':'यो विभागमा सामग्री चाँडै थपिँदैछ।'}</p>}</div>}
+
+function pageNumber(value: string | string[] | undefined): number {
+  const raw = Array.isArray(value) ? value[0] : value
+  const parsed = Number.parseInt(raw || '1', 10)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; category: string }> }): Promise<Metadata> {
+  const { locale: raw, category: slug } = await params
+  const locale = asLocale(raw)
+  const category = await getCategory(slug)
+  if (!category) return {}
+  const title = locale === 'en' ? category.nameEn : category.nameNe
+  const description = locale === 'en' ? category.descriptionEn : category.descriptionNe
+  return { title, description }
+}
+
+export default async function CategoryPage({ params, searchParams }: { params: Promise<{ locale: string; category: string }>; searchParams: Promise<{ page?: string | string[] }> }) {
+  const { locale: raw, category: slug } = await params
+  const locale = asLocale(raw)
+  const english = locale === 'en'
+  const page = pageNumber((await searchParams).page)
+  const [category, result] = await Promise.all([getCategory(slug), getCategoryPage(slug, page, locale)])
+  if (!category || !result || page > result.totalPages) notFound()
+  const name = english ? category.nameEn : category.nameNe
+  const description = english ? category.descriptionEn : category.descriptionNe
+
+  return (
+    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
+      <AdSlot locale={locale} placementKey="category-top" />
+      <header className="mt-6 max-w-3xl border-y border-rule py-7" lang={english ? 'en' : 'ne'}>
+        <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong">{english ? 'News desk' : 'समाचार विभाग'}</p>
+        <h1 className="mt-2 font-display text-display leading-tight text-ink">{name}</h1>
+        {description ? <p className="mt-3 text-body-lg leading-relaxed text-ink-soft">{description}</p> : null}
+      </header>
+      {result.items.length ? (
+        <>
+          <div className="mt-8 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            {result.items.map((story, index) => <StoryCard key={story.id} story={story} locale={locale} variant={index === 0 ? 'featured' : 'default'} priority={index === 0} className={index === 0 ? 'sm:col-span-2' : undefined} />)}
+          </div>
+          <AdSlot locale={locale} placementKey="category-inline" variant="inline" />
+          <Pagination page={result.page} totalPages={result.totalPages} basePath={localizeHref(locale, `/${slug}`)} locale={locale} className="mt-10" />
+        </>
+      ) : (
+        <p className="mt-10 max-w-body border-t border-rule pt-6 text-body-lg text-ink-soft" lang={english ? 'en' : 'ne'}>
+          {english ? 'No reviewed stories are published in this desk yet.' : 'यस विभागमा सम्पादकीय समीक्षा पूरा भएको समाचार अझै प्रकाशित छैन।'}
+        </p>
+      )}
+    </div>
+  )
+}

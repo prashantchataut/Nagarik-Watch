@@ -1,50 +1,66 @@
-import { existsSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
-
 const live = process.env.NEXT_PUBLIC_LAUNCH_STATUS === 'live'
 const blockers = []
 const warnings = []
-const minPublished = Number(process.env.LAUNCH_MIN_PUBLISHED_ARTICLES ?? 40)
-const minLeads = Number(process.env.LAUNCH_MIN_LEAD_READY_ARTICLES ?? 8)
-const minCategories = Number(process.env.LAUNCH_MIN_CATEGORIES_WITH_CONTENT ?? 6)
 
-function requiredEnv(name, message) {
-  if (!process.env[name]?.trim()) blockers.push(message ?? `${name} is missing`)
+function value(name) {
+  return process.env[name]?.trim() ?? ''
+}
+
+function looksUnverified(input) {
+  const lower = input.toLowerCase()
+  return (
+    !input ||
+    lower.includes('placeholder') ||
+    lower.includes('pending') ||
+    lower.includes('replace-before-launch') ||
+    lower.includes('change-me') ||
+    lower.includes('0000000')
+  )
+}
+
+function requiredVerified(name, message) {
+  if (looksUnverified(value(name))) blockers.push(message ?? `${name} is missing or still a placeholder`)
+}
+
+function requiredSecret(name, message) {
+  const secret = value(name)
+  if (secret.length < 32 || looksUnverified(secret)) {
+    blockers.push(message ?? `${name} must be a non-placeholder secret of at least 32 characters`)
+  }
 }
 
 if (live) {
-  requiredEnv('NEXT_PUBLIC_PUBLICATION_LEGAL_NAME', 'Legal publisher name is missing')
-  requiredEnv('NEXT_PUBLIC_EDITOR_IN_CHIEF', 'Editor-in-chief is missing')
-  requiredEnv('NEXT_PUBLIC_DOIB_NUMBER', 'Publication registration number is missing')
-  requiredEnv('NEXT_PUBLIC_NEWSROOM_PHONE', 'Newsroom phone is missing')
-  requiredEnv('NEXT_PUBLIC_NEWSROOM_ADDRESS', 'Newsroom address is missing')
-  requiredEnv('DATABASE_URL', 'DATABASE_URL is required for durable production state')
-  if (!(process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET))
-    blockers.push('AUTH_SECRET or BETTER_AUTH_SECRET is missing')
-  if (process.env.PAYLOAD_CONTENT_SOURCE !== 'payload')
-    warnings.push('PAYLOAD_CONTENT_SOURCE is not payload; checking JSON store thresholds instead')
-  if (process.env.NEXT_PUBLIC_ADS_MODE !== 'off' && !process.env.NEXT_PUBLIC_AD_SALES_EMAIL)
-    blockers.push('Advertising sales email is missing')
-  if (!process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN) blockers.push('Analytics domain is missing')
-}
+  requiredVerified('NEXT_PUBLIC_SITE_URL', 'Canonical site URL is missing or unverified')
+  requiredVerified('NEXT_PUBLIC_PUBLICATION_LEGAL_NAME', 'Legal publisher name is missing or unverified')
+  requiredVerified('NEXT_PUBLIC_EDITOR_IN_CHIEF', 'Editor-in-chief is missing or unverified')
+  requiredVerified('NEXT_PUBLIC_DOIB_NUMBER', 'Publication registration number is missing or unverified')
+  requiredVerified('NEXT_PUBLIC_NEWSROOM_PHONE', 'Newsroom phone is missing or unverified')
+  requiredVerified('NEXT_PUBLIC_NEWSROOM_ADDRESS', 'Newsroom address is missing or unverified')
+  requiredVerified('NEXT_PUBLIC_NEWSROOM_EMAIL', 'Newsroom email is missing or unverified')
+  requiredVerified('DATABASE_URL', 'DATABASE_URL is required for durable production state')
+  requiredVerified('PAYLOAD_PUBLIC_SERVER_URL', 'Payload CMS server URL is missing or unverified')
+  requiredVerified('PAYLOAD_API_TOKEN', 'Journalist-to-Payload service-account API key is missing or unverified')
+  requiredSecret('AUTH_SECRET')
+  requiredSecret('PAYLOAD_SECRET')
+  requiredSecret('REVALIDATE_SECRET')
+  requiredSecret('SUBMISSION_IP_SALT', 'SUBMISSION_IP_SALT must be a non-placeholder secret of at least 32 characters')
 
-if (live && process.env.PAYLOAD_CONTENT_SOURCE !== 'payload') {
-  const candidates = [
-    join(process.cwd(), 'apps/web/data/articles.json'),
-    join(process.cwd(), 'data/articles.json'),
-  ]
-  const file = candidates.find(existsSync)
-  const data = file ? JSON.parse(readFileSync(file, 'utf8')) : { articles: [] }
-  const articles = Array.isArray(data.articles) ? data.articles : []
-  const published = articles.filter((a) => a.workflowStage === 'published' && !a.noIndex)
-  const leads = published.filter((a) => a.isFeatured === 'lead' || a.isFeatured === 'secondary')
-  const categories = new Set(published.map((a) => a.categorySlug).filter(Boolean))
-  if (published.length < minPublished)
-    blockers.push(`Only ${published.length}/${minPublished} published launch stories found`)
-  if (leads.length < minLeads)
-    blockers.push(`Only ${leads.length}/${minLeads} lead-ready stories found`)
-  if (categories.size < minCategories)
-    blockers.push(`Only ${categories.size}/${minCategories} categories have published content`)
+  const contentSource = value('CONTENT_SOURCE') || value('PAYLOAD_CONTENT_SOURCE')
+  if (contentSource !== 'payload') {
+    blockers.push('CONTENT_SOURCE=payload is mandatory for a live deployment')
+  }
+  if (value('PAYLOAD_DB_PUSH') !== 'false') {
+    blockers.push('PAYLOAD_DB_PUSH must be false in production; apply checked-in migrations instead')
+  }
+  if (value('NEXT_PUBLIC_ADS_MODE') !== 'off' && !value('NEXT_PUBLIC_AD_SALES_EMAIL')) {
+    blockers.push('Advertising sales email is missing')
+  }
+  if (!value('NEXT_PUBLIC_PLAUSIBLE_DOMAIN') && !value('NEXT_PUBLIC_GA4_ID')) {
+    warnings.push('No analytics provider is configured')
+  }
+  if (!value('STORAGE_BUCKET') && !value('BLOB_READ_WRITE_TOKEN') && !value('S3_BUCKET')) {
+    blockers.push('Durable media/object storage is not configured')
+  }
 }
 
 if (warnings.length) {

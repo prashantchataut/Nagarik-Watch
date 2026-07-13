@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canCreate, canEdit, canPublish } from '@/lib/admin-roles'
 import { listArticlesForAdmin, type StoredArticle } from '@/lib/content/store/json-store'
 import { categoryBySlug } from '@/lib/content/seed/categories'
+import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 import { AdminButton, AdminCard, AdminPageHeader } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
@@ -34,44 +36,21 @@ export default async function ArticlesPage({
   searchParams: Promise<{ status?: string }>
 }) {
   const session = await requireNewsroomSession()
+  if (isPayloadCanonical()) redirect(payloadCollectionAdminUrl('articles'))
   const sp = await searchParams
   const status = normalizeStatus(sp.status)
   const { items, total } = await listArticlesForAdmin({ status, limit: 80 })
-  const payloadCanonical = process.env.PAYLOAD_CONTENT_SOURCE === 'payload'
-
   return (
     <div>
       <AdminPageHeader
         title="समाचार"
-        subtitle={
-          payloadCanonical
-            ? 'Production content source Payload CMS हो। यो सूची JSON-store/dev fallback का सामग्रीका लागि मात्र हो।'
-            : `JSON-store/dev content queue — कुल ${total} सामग्री`
-        }
+        subtitle={`Local development content queue — कुल ${total} सामग्री`}
         action={
           canCreate(session.newsroomRole) ? (
             <AdminButton href="/admin/articles/new">नयाँ समाचार</AdminButton>
           ) : null
         }
       />
-
-      {payloadCanonical ? (
-        <AdminCard className="mb-5 border-brand/30 bg-brand-tint/40">
-          <p className="text-body font-semibold text-ink" lang="ne">
-            Canonical CMS: Payload
-          </p>
-          <p className="mt-1 text-meta text-ink-soft" lang="ne">
-            लेख लेख्ने, मिडिया अपलोड गर्ने र प्रकाशन गर्ने मुख्य स्थान Payload admin हो। Web admin
-            मा देखिने editor dev/ops fallback मात्र हो।
-          </p>
-          <a
-            href={process.env.PAYLOAD_ADMIN_URL ?? 'http://localhost:3001/admin'}
-            className="mt-3 inline-flex rounded-full bg-brand px-4 py-2 text-meta font-semibold text-surface"
-          >
-            Payload admin खोल्नुहोस्
-          </a>
-        </AdminCard>
-      ) : null}
 
       <div className="mb-4 flex flex-wrap gap-2">
         <FilterLink href="/admin/articles" active={!status}>

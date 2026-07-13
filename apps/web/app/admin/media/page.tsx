@@ -1,7 +1,10 @@
 import Image from 'next/image'
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
+import { assertLocalContentAdmin, isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
+import { assertNewsroomRole, MEDIA_MANAGER_ROLES } from '@/lib/admin-roles'
 import { createMediaItem, listMediaItems } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
@@ -12,13 +15,17 @@ export const dynamic = 'force-dynamic'
 async function saveMedia(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, MEDIA_MANAGER_ROLES)
+  assertLocalContentAdmin()
   const item = await createMediaItem({ url: formData.get('url'), alt: formData.get('alt'), caption: formData.get('caption'), credit: formData.get('credit') })
   if (item) await recordAuditEvent({ session, action: 'create', targetType: 'media', targetId: item.id, summary: `Media added: ${item.alt}` })
   revalidatePath('/admin/media')
 }
 
 export default async function MediaPage() {
-  await requireNewsroomSession()
+  const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, MEDIA_MANAGER_ROLES)
+  if (isPayloadCanonical()) redirect(payloadCollectionAdminUrl('media'))
   const items = await listMediaItems()
   const persistentStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.S3_BUCKET || process.env.STORAGE_BUCKET)
   return (

@@ -62,7 +62,7 @@ graph TD
     CDN, >|cache HIT| Reader
     CDN, >|MISS / ISR revalidate| Origin["Next.js Origin<br/>App Router · Node runtime"]
 
-    Origin, >|read content| CMS["Payload CMS<br/>(self-hosted, in-repo)<br/>REST/GraphQL + Local API"]
+    Origin, >|read content| CMS["Payload CMS<br/>(self-hosted, separate app)<br/>REST/GraphQL"]
     CMS, > PG[("PostgreSQL<br/>articles, media, taxonomy,<br/>users, revisions, FTS index")]
     CMS, > OBJ["Object Storage<br/>(adapter default: Cloudflare R2, S3-compatible)<br/>images, ePaper PDFs"]
 
@@ -102,8 +102,8 @@ graph TD
 ### Component responsibilities
 
 - **`apps/web` (Next.js):** the reader-facing portal. Server Components by default,
-  fetches content via Payload's **Local API** (in-process, no HTTP hop when co-located) or
-  REST/GraphQL when deployed separately. Renders SSR + ISR. Owns SEO, JSON-LD, sitemaps,
+  fetches content through Payload's server-side **REST API**. The CMS is a separate
+  deployment; shared types and explicit response mapping keep the contract stable. Renders SSR + ISR. Owns SEO, JSON-LD, sitemaps,
   og images, ads, analytics. Locale-routed (`/ne`, `/en` with `ne` default at `/`).
 - **`apps/admin` (Payload CMS):** the editorial tool. Defines collections (Article,
   Category, Author, Media, Tag, Menu, AdSlot, etc.), access control by role, hooks (slug
@@ -129,8 +129,8 @@ graph TD
 
 1. Browser → Cloudflare edge.
 2. Cache HIT (ISR page) → served from edge, sub-100ms TTFB even in Nepal. ✅
-3. Cache MISS → Cloudflare fetches origin; Next.js renders from Postgres via Payload Local
-   API; response cached per ISR revalidation window (e.g. articles revalidate every 60s or
+3. Cache MISS → Cloudflare fetches origin; Next.js renders from Payload REST; the CMS reads Postgres and the web response is cached
+   per ISR revalidation window (e.g. articles revalidate every 60s or
    on-demand via publish webhook).
 
 **Editor publishes a story:**
@@ -153,7 +153,7 @@ graph TD
 |, , , , , , -|, , , , , , , , , |-, , , , , , , , , , , , -|
 | Topology | Modular monolith (web + admin + libs) | Solo team; microservices add ops for no gain here |
 | Rendering | SSR + ISR (App Router) | SEO + freshness + cache economy for news |
-| Data fetching | Payload Local API (co-located) | No HTTP hop, type-safe, fast SSR |
+| Data fetching | Payload REST (separate CMS deployment) | One content authority, explicit deploy boundary, independently scalable |
 | Content storage | Relational (Postgres) | Editorial data is relational; FTS avoids a 2nd store |
 | Media | Object storage + CDN transforms | Decouples binary blobs from DB; CDN-served |
 | Search | Postgres FTS → Meilisearch later | Don't add infra before traffic justifies it |

@@ -1,8 +1,128 @@
+import type { Metadata } from 'next'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { asLocale } from '@/lib/i18n/locales'
-import { articlesBatch1 } from '@/lib/content/seed/articles-1'
-import { articlesBatch2 } from '@/lib/content/seed/articles-2'
+import { Byline, CategoryLabel } from '@nagarikwatch/ui'
+import { recommend, type ArticleBlock } from '@nagarikwatch/db'
+import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import { getArticleBySlug, getStories } from '@/lib/content'
+import { ArticleBody, CorrectionNotice, TagRow } from '@/components/article/ArticleBody'
+import { ArticleJsonLd } from '@/components/article/ArticleJsonLd'
+import { PaywallNotice } from '@/components/article/PaywallNotice'
+import { RelatedStories } from '@/components/article/RelatedStories'
+import { ShareBar } from '@/components/article/ShareBar'
+import { FontSizeControl } from '@/components/article/FontSizeControl'
+import { ReadingProgress } from '@/components/article/ReadingProgress'
+import { BookmarkButton } from '@/components/reader/BookmarkButton'
+import { ReaderArticleControls } from '@/components/reader/ReaderArticleControls'
 import { AdSlot } from '@/components/AdSlot'
-import { articlesBatch3 } from '@/lib/content/seed/articles-3'
-const articles=[...articlesBatch1,...articlesBatch2,...articlesBatch3]
-export default async function ArticlePage({params}:{params:Promise<{locale:string;category:string;slug:string}>}){const {locale:raw,category,slug}=await params;const locale=asLocale(raw);const en=locale==='en';const a=articles.find(x=>x.category.slug===category&&x.slug===slug);if(!a||en&&!a.hasEnglish)notFound();const body=en&&a.bodyEn?a.bodyEn:a.bodyNe;return <article className="article-page"><AdSlot locale={locale} placementKey="article-top-billboard" variant="billboard"/><header><p className="section-kicker">{en?a.category.nameEn:a.category.nameNe}</p><h1>{en&&a.titleEn?a.titleEn:a.titleNe}</h1><p className="article-deck">{en&&a.deckEn?a.deckEn:a.deckNe}</p><div className="article-meta">{a.byline} · {new Date(a.publishedAt).toLocaleDateString(en?'en-GB':'ne-NP')}</div></header>{a.heroImage&&<figure><img src={a.heroImage.url} alt={a.heroImage.alt}/>{a.heroImage.credit&&<figcaption>{a.heroImage.credit}</figcaption>}</figure>}<AdSlot locale={locale} placementKey="article-sidebar-top" variant="rail"/><AdSlot locale={locale} placementKey="article-sidebar-sticky" variant="rail"/><div className="article-body">{body.map((b,i)=>{if(b.type==='paragraph')return <p key={i}>{b.text}</p>;if(b.type==='heading2')return <h2 key={i}>{b.text}</h2>;if(b.type==='heading3')return <h3 key={i}>{b.text}</h3>;if(b.type==='list')return b.ordered?<ol key={i}>{b.items.map(x=><li key={x}>{x}</li>)}</ol>:<ul key={i}>{b.items.map(x=><li key={x}>{x}</li>)}</ul>;if(b.type==='pullQuote')return <blockquote key={i}>{en&&b.quoteEn?b.quoteEn:b.quoteNe}</blockquote>;return null})}<AdSlot locale={locale} placementKey="article-native-related" variant="native"/></div></article>}
+import { CommentSection } from '@/components/article/CommentSection'
+import { getSession } from '@/lib/auth/session'
+import { isPremiumSubscriber } from '@/lib/membership'
+import { PUBLICATION, SITE_URL } from '@/lib/site'
+
+function previewBlocks(blocks: ArticleBlock[]): ArticleBlock[] {
+  let paragraphs = 0
+  const preview: ArticleBlock[] = []
+  for (const block of blocks) {
+    if (block.type === 'paragraph') paragraphs += 1
+    preview.push(block)
+    if (paragraphs >= 3) break
+  }
+  return preview
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; category: string; slug: string }> }): Promise<Metadata> {
+  const { locale: raw, category, slug } = await params
+  const locale = asLocale(raw)
+  const article = await getArticleBySlug(category, slug, locale)
+  if (!article) return {}
+  const title = locale === 'en' && article.seoTitleEn ? article.seoTitleEn : locale === 'en' && article.titleEn ? article.titleEn : article.seoTitleNe || article.titleNe
+  const description = locale === 'en' && article.seoDescriptionEn ? article.seoDescriptionEn : article.seoDescriptionNe || (locale === 'en' ? article.deckEn : article.deckNe)
+  const canonical = `${SITE_URL}${localizeHref(locale, `/${category}/${slug}`)}`
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    robots: article.noindex ? { index: false, follow: false } : undefined,
+    openGraph: { type: 'article', title, description, url: canonical, publishedTime: article.publishedAt, modifiedTime: article.updatedAt, images: article.heroImage ? [{ url: article.heroImage.url, alt: article.heroImage.alt }] : undefined },
+  }
+}
+
+export default async function ArticlePage({ params }: { params: Promise<{ locale: string; category: string; slug: string }> }) {
+  const { locale: raw, category, slug } = await params
+  const locale = asLocale(raw)
+  const english = locale === 'en'
+  const article = await getArticleBySlug(category, slug, locale)
+  if (!article || (english && !article.hasEnglish)) notFound()
+
+  const session = article.premium ? await getSession() : null
+  const canReadFull = !article.premium || (await isPremiumSubscriber(session))
+  const body = english && article.bodyEn ? article.bodyEn : article.bodyNe
+  const visibleBody = canReadFull ? body : previewBlocks(body)
+  const title = english && article.titleEn ? article.titleEn : article.titleNe
+  const deck = english && article.deckEn ? article.deckEn : article.deckNe
+  const href = localizeHref(locale, `/${category}/${slug}`)
+  const canonical = `${SITE_URL}${href}`
+  const relatedPool = await getStories({ locale, limit: 40 })
+  const related = recommend(
+    [...relatedPool.items, article],
+    {
+      history: [
+        {
+          id: `current:${article.id}`,
+          userId: session?.userId ?? 'anonymous',
+          articleId: article.id,
+          readAt: new Date().toISOString(),
+          completed: true,
+        },
+      ],
+    },
+    { limit: 5, excludeIds: [article.id], maxPerCategory: 3 },
+  ).map(({ recScore: _score, recStrategy: _strategy, ...story }) => story)
+
+  return (
+    <article className="pb-12">
+      <ReadingProgress locale={locale} />
+      <ArticleJsonLd article={article} locale={locale} url={canonical} siteUrl={SITE_URL} siteName={PUBLICATION.publisherName} />
+      <AdSlot locale={locale} placementKey="article-top-billboard" variant="billboard" />
+      <header className="mx-auto max-w-[58rem] px-4 pb-7 pt-10 sm:pt-14" lang={english ? 'en' : 'ne'}>
+        <div className="flex flex-wrap items-center gap-2">
+          <CategoryLabel category={article.category} locale={locale} />
+          {article.premium ? <span className="rounded-full bg-ink px-3 py-1 text-caption font-bold uppercase tracking-wide text-surface">{english ? 'Premium' : 'सदस्य'}</span> : null}
+        </div>
+        <h1 className="mt-5 font-display text-[clamp(2.35rem,7vw,5.5rem)] font-extrabold leading-[1.02] tracking-[-0.025em] text-ink">{title}</h1>
+        {deck ? <p className="mt-5 max-w-[48rem] text-[1.2rem] leading-relaxed text-ink-soft sm:text-[1.4rem]">{deck}</p> : null}
+        <div className="mt-6 border-y border-rule py-4">
+          <Byline authors={article.authors} locale={locale} publishedAt={article.publishedAt} source={article.source} />
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2"><BookmarkButton story={article} locale={locale} variant="pill" /><FontSizeControl locale={locale} /></div>
+            <ShareBar url={canonical} title={title} locale={locale} />
+          </div>
+        </div>
+      </header>
+
+      {article.heroImage ? (
+        <figure className="mx-auto max-w-[76rem] px-0 sm:px-4">
+          <div className="relative aspect-[16/9] overflow-hidden bg-surface-raised sm:rounded-lg">
+            <Image src={article.heroImage.url} alt={article.heroImage.alt} fill priority unoptimized={article.heroImage.url.startsWith('data:')} sizes="(min-width: 1280px) 1216px, 100vw" className="object-cover" />
+          </div>
+          {(article.heroCaptionNe || article.heroCredit) ? <figcaption className="px-4 pt-2 text-caption leading-relaxed text-ink-soft sm:px-0">{article.heroCaptionNe}{article.heroCaptionNe && article.heroCredit ? ' · ' : ''}{article.heroCredit}</figcaption> : null}
+        </figure>
+      ) : null}
+
+      <div className="mx-auto mt-8 grid max-w-[76rem] gap-10 px-4 lg:grid-cols-[minmax(0,43rem)_18rem] lg:justify-center">
+        <div>
+          <ReaderArticleControls story={article} locale={locale} title={title} href={href} readingMinutes={article.readingMinutes} />
+          <ArticleBody blocks={visibleBody} locale={locale} source={article.source} className="mt-8" />
+          <AdSlot locale={locale} placementKey="article-native-related" variant="native" />
+          {!canReadFull ? <PaywallNotice locale={locale} /> : null}
+          {article.corrections?.length ? <CorrectionNotice corrections={article.corrections} locale={locale} className="mt-8" /> : null}
+          <TagRow tags={article.tags} locale={locale} className="mt-8 border-t border-rule pt-6" />
+          <CommentSection articleSlug={article.slug} articleCategory={article.category.slug} locale={locale} commentsEnabled={article.commentsEnabled !== false} />
+        </div>
+        <aside className="hidden space-y-8 lg:block" aria-label={english ? 'Advertisement' : 'विज्ञापन'}><AdSlot locale={locale} placementKey="article-sidebar-top" variant="rail" /><div className="sticky top-24"><AdSlot locale={locale} placementKey="article-sidebar-sticky" variant="rail" /></div></aside>
+      </div>
+      <div className="mx-auto mt-14 max-w-page px-4"><RelatedStories stories={related} locale={locale} /></div>
+    </article>
+  )
+}

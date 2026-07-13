@@ -5,6 +5,7 @@ import type { StoredArticle } from '@/lib/content/store/json-store'
 import { canEdit, canDelete, canPublish } from '@/lib/admin-roles'
 import type { ArticleBlock } from '@nagarikwatch/db'
 import { blocksFromShorthand } from '@/lib/content/blocks'
+import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,6 +34,12 @@ function isWorkflowStage(value: unknown): value is StoredArticle['workflowStage'
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   await requireNewsroomSession()
   const { id } = await params
+  if (isPayloadCanonical()) {
+    return NextResponse.json(
+      { error: 'Production content is managed in Payload CMS.', cmsUrl: payloadCollectionAdminUrl('articles', id) },
+      { status: 409 },
+    )
+  }
   const article = await getArticleById(id)
   if (!article) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
   return NextResponse.json(article)
@@ -45,6 +52,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'सम्पादन अनुमति छैन।' }, { status: 403 })
   }
   const { id } = await params
+  if (isPayloadCanonical()) {
+    return NextResponse.json(
+      { error: 'Production content is managed in Payload CMS.', cmsUrl: payloadCollectionAdminUrl('articles', id) },
+      { status: 409 },
+    )
+  }
   let body: Record<string, unknown>
   try {
     body = await request.json()
@@ -95,6 +108,12 @@ export async function DELETE(
     return NextResponse.json({ error: 'मेटाउन अनुमति छैन। केवल मुख्य एडमिन।' }, { status: 403 })
   }
   const { id } = await params
+  if (isPayloadCanonical()) {
+    return NextResponse.json(
+      { error: 'Production content is managed in Payload CMS.', cmsUrl: payloadCollectionAdminUrl('articles', id) },
+      { status: 409 },
+    )
+  }
   const existing = await getArticleById(id)
   if (!existing) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
   const ok = await deleteArticle(id)

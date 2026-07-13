@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
-  const limited = enforceRateLimit(request, 'submission', 3, 60 * 60_000)
+  const limited = await enforceRateLimit(request, 'submission', 3, 60 * 60_000)
   if (limited) return limited
 
   let body: Record<string, unknown>

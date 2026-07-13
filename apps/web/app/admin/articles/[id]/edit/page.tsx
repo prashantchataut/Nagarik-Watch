@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { getNavCategories } from '@/lib/content'
 import { findArticleForAdmin } from '@/lib/content/store/json-store'
 import { seedTags } from '@/lib/content/seed-source'
@@ -6,6 +7,7 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditor } from '@/components/admin/ArticleEditor'
 import type { ArticleBlock } from '@nagarikwatch/db'
+import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 
 export const metadata: Metadata = {
   title: 'Edit Article',
@@ -23,6 +25,7 @@ export const dynamic = 'force-dynamic'
 export default async function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireNewsroomSession()
   const { id } = await params
+  if (isPayloadCanonical()) redirect(payloadCollectionAdminUrl('articles', id))
 
   const [categories, tags] = await Promise.all([getNavCategories(), Promise.resolve(seedTags)])
   const article = await findArticleForAdmin(id)

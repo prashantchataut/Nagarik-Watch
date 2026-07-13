@@ -1,33 +1,63 @@
 # ADR-014: Canonical CMS and admin boundary
 
-Date: 2026-07-06
-Status: Accepted for v14
+- **Date:** 2026-07-06
+- **Status:** Accepted and implemented (updated 2026-07-12)
 
 ## Decision
 
-Payload CMS (`apps/admin`) is the canonical source of truth for newsroom content in production.
+Payload CMS (`apps/admin`) is the sole source of truth for production editorial content.
+It is deployed as a separate application. `apps/web` consumes public content through
+Payload's server-side REST API using `PAYLOAD_PUBLIC_SERVER_URL`.
 
-The custom admin inside `apps/web/app/admin` remains only for operational surfaces that are not full article authoring: launch readiness, ad placements, comments, live widgets, SEO checks, wire review, account roles, and diagnostics.
+The custom admin in `apps/web/app/admin` is an operations surface for auth/users, launch
+readiness, comments, submissions, contact, live data, live blogs, newsletters, polls, ads,
+audit records, settings, and diagnostics. When Payload is canonical, article, category,
+tag, author, and media routes redirect to Payload and web shadow-store mutations are
+rejected.
 
-Production must set:
+The dedicated journalist desk remains in `apps/web`. It creates Payload drafts through a
+least-privilege service-account API key. The Better Auth journalist email must match an
+active Payload Authors document.
 
-- `PAYLOAD_CONTENT_SOURCE=payload`
+Production requires:
+
+- `CONTENT_SOURCE=payload`
+- `PAYLOAD_PUBLIC_SERVER_URL=<cms origin>`
 - `DATABASE_URL=<postgres url>`
-- `ENABLE_WEB_ADMIN_SCAFFOLD=true` only when the operations dashboard is intended to be reachable.
+- `PAYLOAD_DB_PUSH=false`
+- `PAYLOAD_API_TOKEN=<least-privilege bridge key>` when the journalist desk is enabled
 
 ## Why
 
-V13 had two competing content-authoring paths: Payload and the custom web admin JSON store. That creates drift in workflow stages, fields, permissions, and SEO behavior. A real newsroom needs one editorial source of truth.
+Earlier revisions had three incompatible assumptions:
+
+1. Payload was a separate deployment.
+2. The web app attempted to import `@payload-config` and use the Local API despite not
+   depending on Payload or sharing its build context.
+3. The web admin could write a JSON/operational article store that the public Payload
+   reader never consumed.
+
+That topology could produce successful-looking writes that never appeared publicly, and
+the Local API import could not resolve in the web deployment. A real newsroom needs one
+content authority and an explicit network boundary.
 
 ## Consequences
 
-- Payload owns article bodies, categories, media, authors, workflow and publishing.
-- The JSON store remains a preview/dev fallback and is launch-gated out of live mode.
-- `/admin/articles` in the web app should be treated as legacy/dev unless the team explicitly keeps it as an operations shortcut.
-- Launch gate and launch banner block live deployments unless Payload is active.
+- Payload owns article bodies, taxonomy, authors, media, revisions, workflow, and publish
+  state.
+- The public web app depends on Payload REST availability; failures surface as errors rather
+  than falling back to invented or stale production content.
+- CMS media URLs are resolved against the Payload origin, while object-storage hosts are
+  explicitly admitted by the web image configuration.
+- The local JSON store remains a development-only seam and is rejected in production.
+- Better Auth and operational `nw_*` data remain web concerns, backed by Postgres in
+  production.
+- Shared `@nagarikwatch/db` types remain the rendering contract, but mapping at the REST
+  boundary is explicit and testable.
 
-## Follow-up work
+## Follow-up
 
-- Add direct links from the web operations admin to the Payload admin.
-- Remove or hide duplicate article-authoring screens after migration acceptance.
-- Ensure Payload collections map one-to-one to `@nagarikwatch/db` shared types.
+- Add contract tests against a disposable Payload/Postgres environment.
+- Add signed on-demand revalidation hooks after Payload publish/update.
+- Replace lazy operational DDL with reviewed migrations.
+- Evaluate a private service URL for web-to-CMS reads to reduce public-hop latency.

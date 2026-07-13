@@ -1,5 +1,6 @@
 import 'server-only'
 import type { Locale } from '@nagarikwatch/db'
+import { isProductionRuntime } from '@/lib/ops-db'
 
 export type SubmissionType = 'tip' | 'document' | 'photo' | 'video' | 'psa' | 'correction' | 'other'
 export type SubmissionStatus = 'new' | 'in_review' | 'accepted' | 'rejected'
@@ -63,7 +64,12 @@ export function submissionsStorageMode(): 'postgres' | 'memory' {
 
 async function getPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
-  if (submissionsStorageMode() !== 'postgres') return null
+  if (submissionsStorageMode() !== 'postgres') {
+    if (isProductionRuntime()) {
+      throw new Error('DATABASE_URL must point to Postgres for production reader submissions.')
+    }
+    return null
+  }
   if (!poolPromise) {
     poolPromise = (async () => {
       const { Pool } = await import('pg')

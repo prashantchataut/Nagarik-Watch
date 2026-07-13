@@ -1,6 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { getStories, getNavCategories } from '@/lib/content'
-import { seedTags, seedAuthors } from '@/lib/content/seed-source'
+import { getAuthors, getNavCategories, getStories, getTags } from '@/lib/content'
 import { SITE_URL, STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
 
 /**
@@ -9,9 +8,7 @@ import { SITE_URL, STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
  * bilingual corpus. lastmod comes from the article's updatedAt/publishedAt where available.
  *
  * The article, category, and author lists are read through the content façade so this stays
- * correct when the source swaps from the JSON store to Payload. Tags and authors currently come from
- * the shared reference exports because the façade has no list-tags/list-authors method yet; this is
- * the single place to update when those lists move fully to the CMS.
+ * correct when the source swaps from the local development store to Payload.
  */
 const LOCALES = ['ne', 'en'] as const
 type SLocale = (typeof LOCALES)[number]
@@ -64,7 +61,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Categories (nav-visible). Locale-specific names resolve on the page itself.
-  const categories = await getNavCategories()
+  const [categories, authors, tags] = await Promise.all([
+    getNavCategories(),
+    getAuthors(),
+    getTags(),
+  ])
   for (const locale of LOCALES) {
     for (const c of categories) {
       entries.push({
@@ -106,7 +107,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Authors.
   for (const locale of LOCALES) {
-    for (const a of seedAuthors) {
+    for (const a of authors) {
       entries.push({
         url: `${SITE_URL}${prefix(locale)}/author/${a.slug}`,
         changeFrequency: 'weekly',
@@ -123,7 +124,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Topics (tags).
   for (const locale of LOCALES) {
-    for (const t of seedTags) {
+    for (const t of tags) {
       entries.push({
         url: `${SITE_URL}${prefix(locale)}/topic/${t.slug}`,
         changeFrequency: 'weekly',

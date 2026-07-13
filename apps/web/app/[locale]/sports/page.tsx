@@ -38,7 +38,7 @@ export default async function SportsPage({ params }: { params: Promise<{ locale:
       </section>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <ScoreCard title="Football / FIFA" source={football.source} updatedAt={football.updatedAt} mock={football.status !== 'ok'}>
+        <ScoreCard title="Football / FIFA" source={football.source} updatedAt={football.updatedAt} available={football.status === 'ok' && football.data.length > 0} locale={locale}>
           {football.data.map((match, index) => (
             <li key={`${match.home}-${match.away}-${index}`} className="rounded-lg border border-rule bg-surface p-4">
               <p className="text-caption font-semibold uppercase tracking-wide text-mute">{match.league}</p>
@@ -49,7 +49,7 @@ export default async function SportsPage({ params }: { params: Promise<{ locale:
             </li>
           ))}
         </ScoreCard>
-        <ScoreCard title="Cricket" source={cricket.source} updatedAt={cricket.updatedAt} mock={cricket.status !== 'ok'}>
+        <ScoreCard title="Cricket" source={cricket.source} updatedAt={cricket.updatedAt} available={cricket.status === 'ok' && cricket.data.length > 0} locale={locale}>
           {cricket.data.map((match, index) => (
             <li key={`${match.home}-${match.away}-${index}`} className="rounded-lg border border-rule bg-surface p-4">
               <p className="text-caption font-semibold uppercase tracking-wide text-mute">{match.league}</p>
@@ -88,15 +88,40 @@ function isSportsStory(story: unknown): story is SportsStory {
   return Boolean(candidate.slug && (candidate.category?.slug === 'sports' || candidate.categorySlug === 'sports'))
 }
 
-function ScoreCard({ title, source, updatedAt, mock, children }: { title: string; source: string; updatedAt: string; mock: boolean; children: ReactNode }) {
+function ScoreCard({
+  title,
+  source,
+  updatedAt,
+  available,
+  locale,
+  children,
+}: {
+  title: string
+  source: string
+  updatedAt: string
+  available: boolean
+  locale: Locale
+  children?: ReactNode
+}) {
+  const ne = locale === 'ne'
   return (
     <section className="rounded-2xl border border-rule bg-surface-raised p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-display text-h1 text-ink" lang="en">{title}</h2>
-        {mock ? <span className="rounded-full border border-rule px-2.5 py-1 text-caption font-semibold text-mute">Manual/mock fallback</span> : null}
+        <span className={`rounded-full border px-2.5 py-1 text-caption font-semibold ${available ? 'border-rule text-ink-soft' : 'border-warning/40 text-warning'}`}>
+          {available ? (ne ? 'सत्यापित फिड' : 'Verified feed') : (ne ? 'डाटा उपलब्ध छैन' : 'Data unavailable')}
+        </span>
       </div>
-      <p className="mt-1 text-caption text-mute" lang="en">{source} · {new Date(updatedAt).toLocaleString()}</p>
-      <ul className="mt-4 grid gap-3">{children}</ul>
+      <p className="mt-1 text-caption text-mute" lang="en">{source} · {new Date(updatedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB', { timeZone: 'Asia/Kathmandu' })}</p>
+      {available ? (
+        <ul className="mt-4 grid gap-3">{children}</ul>
+      ) : (
+        <p className="mt-4 border-y border-rule py-5 text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
+          {ne
+            ? 'प्रदायक फिड वा सम्पादकीय म्यानुअल स्कोरबोर्ड अहिले उपलब्ध छैन।'
+            : 'Neither a provider feed nor an editorial manual scoreboard is available right now.'}
+        </p>
+      )}
     </section>
   )
 }

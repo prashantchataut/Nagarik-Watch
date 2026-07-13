@@ -126,8 +126,8 @@ export const dictionary = {
       'नागरिक वाच (Nagarik Watch) — नेपालका लागि देवनागरी-पहिलो डिजिटल समाचार पोर्टल।',
     mastheadDate: (date: string) => date,
 
-    // Live widgets (weather / AQI / NEPSE / utility strip). MOCK label is shown until a
-    // real feed is wired (see apps/web/lib/live/mock.ts).
+    // Live widgets (weather / AQI / NEPSE / utility strip). Fallback labels are explicit;
+    // unavailable providers render empty/error states instead of invented readings.
     liveMock: 'फिड प्रतीक्षामा',
     liveSourcePrefix: 'स्रोत',
     liveLoading: 'लोड हुँदै…',

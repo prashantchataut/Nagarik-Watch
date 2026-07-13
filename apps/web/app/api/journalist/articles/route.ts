@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getSession } from '@/lib/auth/session'
 import { createArticle } from '@/lib/content/store/json-store'
-import type { StoredArticle } from '@/lib/content/store/json-store'
 import { blocksFromShorthand } from '@/lib/content/blocks'
 import { saveJournalistDraftMeta } from '@/lib/journalist-workspace'
+import { createPayloadJournalistDraft, isPayloadCanonical } from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +24,7 @@ const WRITER_ROLES = new Set([
   'super_admin',
 ])
 
-function asWorkflowStage(value: unknown): StoredArticle['workflowStage'] {
+function asWorkflowStage(value: unknown): 'draft' | 'submitted' {
   return value === 'submitted' ? 'submitted' : 'draft'
 }
 
@@ -51,32 +51,59 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const article = await createArticle({
-      slug,
-      categorySlug,
-      titleNe,
-      titleEn: String(body.titleEn ?? '').trim() || undefined,
-      deckNe: String(body.deckNe ?? '').trim() || undefined,
-      bodyNe: blocksFromShorthand(bodyNe, titleNe),
-      heroImageUrl: String(body.heroImageUrl ?? '').trim() || undefined,
-      heroImageAlt: String(body.heroImageAlt ?? '').trim() || titleNe,
-      authorIds: [],
-      tagSlugs: Array.isArray(body.tagSlugs)
-        ? body.tagSlugs.map(String)
-        : String(body.tags ?? '')
-            .split(',')
-            .map((tag) => tag.trim())
-            .filter(Boolean),
-      workflowStage: asWorkflowStage(body.workflowStage),
-      sourceType: 'original',
-      noIndex: true,
-      includeInNewsSitemap: false,
-      aiSummary: String(body.editorPitch ?? '').trim() || undefined,
-      premium: false,
-      commentsEnabled: true,
-      locale: body.locale === 'en' ? 'en' : 'ne',
-      createdBy: session.userId,
-    })
+    const workflowStage = asWorkflowStage(body.workflowStage)
+    const tagSlugs = Array.isArray(body.tagSlugs)
+      ? body.tagSlugs.map(String)
+      : String(body.tags ?? '')
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean)
+    const bodyBlocks = blocksFromShorthand(bodyNe, titleNe)
+    const editorPitch = String(body.editorPitch ?? '').trim() || undefined
+    const handoffNotes = [
+      String(body.sourceNote ?? '').trim() ? `Source note: ${String(body.sourceNote).trim()}` : '',
+      String(body.reportingLocation ?? '').trim() ? `Reporting location: ${String(body.reportingLocation).trim()}` : '',
+      String(body.heroImageUrl ?? '').trim() ? `Hero image candidate: ${String(body.heroImageUrl).trim()}` : '',
+      String(body.customHomepageText ?? '').trim() ? `Homepage text: ${String(body.customHomepageText).trim()}` : '',
+      String(body.customSocialText ?? '').trim() ? `Social text: ${String(body.customSocialText).trim()}` : '',
+    ].filter(Boolean).join('\n\n') || undefined
+
+    const article = isPayloadCanonical()
+      ? await createPayloadJournalistDraft({
+          reporterEmail: session.email,
+          titleNe,
+          titleEn: String(body.titleEn ?? '').trim() || undefined,
+          slug,
+          categorySlug,
+          deckNe: String(body.deckNe ?? '').trim() || undefined,
+          bodyNe: bodyBlocks,
+          tagSlugs,
+          workflowStage,
+          editorPitch,
+          internalNotes: handoffNotes,
+          locale: body.locale === 'en' ? 'en' : 'ne',
+        })
+      : await createArticle({
+          slug,
+          categorySlug,
+          titleNe,
+          titleEn: String(body.titleEn ?? '').trim() || undefined,
+          deckNe: String(body.deckNe ?? '').trim() || undefined,
+          bodyNe: bodyBlocks,
+          heroImageUrl: String(body.heroImageUrl ?? '').trim() || undefined,
+          heroImageAlt: String(body.heroImageAlt ?? '').trim() || titleNe,
+          authorIds: [],
+          tagSlugs,
+          workflowStage,
+          sourceType: 'original',
+          noIndex: true,
+          includeInNewsSitemap: false,
+          aiSummary: editorPitch,
+          premium: false,
+          commentsEnabled: true,
+          locale: body.locale === 'en' ? 'en' : 'ne',
+          createdBy: session.userId,
+        })
 
     await saveJournalistDraftMeta({
       articleSlug: slug,

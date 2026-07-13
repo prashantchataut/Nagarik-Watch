@@ -6,6 +6,7 @@ import { canCreate } from '@/lib/admin-roles'
 import { redirect } from 'next/navigation'
 import { AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditor } from '@/components/admin/ArticleEditor'
+import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 
 export const metadata: Metadata = {
   title: 'New Article',
@@ -19,6 +20,7 @@ export default async function NewArticlePage() {
   if (!canCreate(session.newsroomRole)) {
     redirect('/admin/articles')
   }
+  if (isPayloadCanonical()) redirect(`${payloadCollectionAdminUrl('articles')}/create`)
 
   const [categories, tags] = await Promise.all([getNavCategories(), Promise.resolve(seedTags)])
 

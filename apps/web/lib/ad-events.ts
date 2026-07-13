@@ -1,5 +1,6 @@
 import 'server-only'
 import type { AdMode, AdPlacementKey } from '@/lib/ads'
+import { isProductionRuntime } from '@/lib/ops-db'
 
 export type AdEventType = 'impression' | 'click'
 export type AdEventSummary = {
@@ -28,7 +29,12 @@ let schemaReady: Promise<void> | null = null
 
 async function getPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
-  if (!process.env.DATABASE_URL?.startsWith('postgres')) return null
+  if (!process.env.DATABASE_URL?.startsWith('postgres')) {
+    if (isProductionRuntime()) {
+      throw new Error('DATABASE_URL must point to Postgres for production ad analytics.')
+    }
+    return null
+  }
   if (!poolPromise) {
     poolPromise = (async () => {
       const { Pool } = await import('pg')
@@ -46,21 +52,23 @@ async function ensureSchema(): Promise<Queryable | null> {
       schemaReady = (async () => {
         await pool.query(`
           CREATE TABLE IF NOT EXISTS nw_ad_events (
-          id bigserial PRIMARY KEY,
-          placement_key text NOT NULL,
-          mode text NOT NULL,
-          event text NOT NULL,
-          created_at timestamptz NOT NULL DEFAULT now()
+            id bigserial PRIMARY KEY,
+            placement_key text NOT NULL,
+            mode text NOT NULL,
+            event text NOT NULL,
+            created_at timestamptz NOT NULL DEFAULT now()
+          )
+        `)
+        await pool.query(
+          `CREATE INDEX IF NOT EXISTS nw_ad_events_placement_idx ON nw_ad_events(placement_key, created_at DESC)`,
         )
-      `)
-      await pool.query(
-        `CREATE INDEX IF NOT EXISTS nw_ad_events_placement_idx ON nw_ad_events(placement_key, created_at DESC)`,
-      )
-    })()
-  }
+      })()
+    }
     await schemaReady
     return pool
-  } catch {
+  } catch (error) {
+    schemaReady = null
+    if (isProductionRuntime()) throw error
     return null
   }
 }

@@ -1,6 +1,6 @@
 import 'server-only'
 import { NEWSROOM_ROLES, type NewsroomRole } from '@/lib/admin-roles'
-import { cleanText, ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import { cleanText, ensureOperationalSchema, isProductionRuntime, toIso, type Queryable } from '@/lib/ops-db'
 
 type UserRow = {
   id: string
@@ -84,13 +84,16 @@ export async function listNewsroomUsers(fallback?: NewsroomUserRecord): Promise<
   const pool = await ensureSchema()
   if (pool) {
     const candidates = ['"user"', 'user']
+    let lastError: unknown
     for (const table of candidates) {
       try {
         const result = await pool.query<UserRow>(`SELECT id, email, name, role, created_at FROM ${table} ORDER BY created_at DESC LIMIT 500`)
         return result.rows.map(userFromRow)
-      } catch {
+      } catch (error) {
+        lastError = error
       }
     }
+    if (isProductionRuntime()) throw new Error('Unable to read Better Auth users.', { cause: lastError })
   }
   return fallback ? [fallback] : []
 }
@@ -134,12 +137,15 @@ export async function updateUserRoleByEmail(emailValue: unknown, roleValue: unkn
   if (!email.includes('@')) return false
   const pool = await ensureSchema()
   if (!pool) return false
+  let lastError: unknown
   for (const table of ['"user"', 'user']) {
     try {
       const result = await pool.query(`UPDATE ${table} SET role = $1 WHERE email = $2`, [role, email])
       return Number(result.rowCount ?? 0) > 0
-    } catch {
+    } catch (error) {
+      lastError = error
     }
   }
+  if (isProductionRuntime()) throw new Error('Unable to update Better Auth user role.', { cause: lastError })
   return false
 }

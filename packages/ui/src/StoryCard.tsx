@@ -42,6 +42,14 @@ function isDataUrl(url: string): boolean {
   return url.startsWith('data:')
 }
 
+function PremiumBadge({ locale }: { locale: Locale }) {
+  return (
+    <span className="inline-flex rounded-full bg-ink px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-surface">
+      {locale === 'en' ? 'Premium' : 'सदस्य'}
+    </span>
+  )
+}
+
 export function StoryCard({
   story,
   locale,
@@ -58,7 +66,7 @@ export function StoryCard({
   if (variant === 'compact') {
     return (
       <article className={cn('group relative', className)}>
-        <CategoryLabel category={story.category} locale={locale} as="span" className="mb-1" />
+        <div className="mb-1 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" />{story.premium ? <PremiumBadge locale={locale} /> : null}</div>
         <h3
           className="text-h3 font-display text-ink group-hover:text-brand-strong transition-colors duration-fast ease-out-quint"
           lang={titleLang}
@@ -79,7 +87,7 @@ export function StoryCard({
     return (
       <article className={cn('group relative flex flex-col', className)}>
         <span className="mb-2 h-0.5 w-8 bg-brand" aria-hidden="true" />
-        <CategoryLabel category={story.category} locale={locale} as="span" className="mb-1.5" />
+        <div className="mb-1.5 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" />{story.premium ? <PremiumBadge locale={locale} /> : null}</div>
         <h3
           className="font-display text-h2 leading-snug text-ink group-hover:text-brand-strong transition-colors duration-fast ease-out-quint"
           lang={titleLang}
@@ -121,12 +129,10 @@ export function StoryCard({
           />
         </div>
         <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-          <CategoryLabel
-            category={story.category}
-            locale={locale}
-            as="span"
-            className="mb-2 bg-surface/90 px-2 py-0.5"
-          />
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <CategoryLabel category={story.category} locale={locale} as="span" className="bg-surface/90 px-2 py-0.5" />
+            {story.premium ? <PremiumBadge locale={locale} /> : null}
+          </div>
           <h3
             className="font-display text-h2 leading-tight text-surface group-hover:opacity-90 transition-opacity duration-fast ease-out-quint"
             lang={titleLang}
@@ -162,7 +168,7 @@ export function StoryCard({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <CategoryLabel category={story.category} locale={locale} as="span" className="mb-1" />
+          <div className="mb-1 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" />{story.premium ? <PremiumBadge locale={locale} /> : null}</div>
           <h3
             className="text-body-lg font-display text-ink leading-snug group-hover:text-brand-strong transition-colors duration-fast ease-out-quint"
             lang={titleLang}
@@ -207,7 +213,7 @@ export function StoryCard({
           />
         </div>
       )}
-      <CategoryLabel category={story.category} locale={locale} as="span" className="mb-2" />
+      <div className="mb-2 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" />{story.premium ? <PremiumBadge locale={locale} /> : null}</div>
       <HeadingTag
         className={cn(
           'font-display text-ink group-hover:text-brand-strong transition-colors duration-fast ease-out-quint',

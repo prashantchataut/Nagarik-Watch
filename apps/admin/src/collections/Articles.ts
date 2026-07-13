@@ -11,7 +11,7 @@ export const Articles: CollectionConfig = {
   slug: 'articles',
   admin: {
     useAsTitle: 'titleNe',
-    defaultColumns: ['titleNe', 'category', '_status', 'publishedAt', 'sourceType'],
+    defaultColumns: ['titleNe', 'category', '_status', 'publishAt', 'sourceType'],
     group: 'Content',
   },
   access: {
@@ -392,6 +392,14 @@ export const Articles: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeChange: [
+      ({ data }) => {
+        if (data?._status === 'published' && !data.publishAt) {
+          return { ...data, publishAt: new Date().toISOString(), workflowStage: 'published' }
+        }
+        return data
+      },
+    ],
     beforeValidate: [
       ({ data }) => {
         if (data && data.sourceType && data.sourceType !== 'original') {

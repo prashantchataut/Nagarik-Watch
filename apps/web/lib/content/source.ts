@@ -2,7 +2,7 @@
  * Content source contract — the seam between the reader site and where content lives.
  *
  * Two implementations ship today:
- *  - Payload content source: reads the live CMS via Payload Local API (prod, with DB).
+ *  - Payload content source: reads the separately deployed live CMS via server-side REST.
  *  - Store content source: reads the JSON article store and renders honest empty states.
  *
  * Pages and components depend only on this contract and the `@nagarikwatch/db` types, so
@@ -52,6 +52,10 @@ export type ContentSource = {
   getStories(opts: StoryListOptions): Promise<PaginatedStories>
   /** Categories that should appear in primary navigation, ordered by navOrder. */
   getNavCategories(): Promise<Category[]>
+  /** Public author directory, sourced from the active content backend. */
+  getAuthors(): Promise<Author[]>
+  /** Public topic directory, sourced from the active content backend. */
+  getTags(): Promise<Tag[]>
   /** Lead/secondary picks for the homepage hero band. */
   getFeatured(): Promise<{ lead?: StoryCardData; secondary: StoryCardData[] }>
 }

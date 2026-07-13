@@ -3,14 +3,11 @@ import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localePrefix } from '@/lib/i18n/locales'
 import { InfoSection, InfoPageHeader } from '@/components/InfoPage'
+import { ContactForm } from '@/components/forms/ContactForm'
 
 type Params = { locale: string }
 
-/**
- * Contact page. Routes readers to news tips, correction requests and general email. There is
- * no form submission yet (Phase 3 newsletter/forms) so the page lists direct email channels
- * and the correction workflow, which is what readers and sources actually need today.
- */
+/** Reader contact page with a persisted newsroom review workflow. */
 export default async function ContactPage({ params }: { params: Promise<Params> }) {
   const { locale: rawLocale } = await params
   const locale: Locale = asLocale(rawLocale)
@@ -30,7 +27,19 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
         </InfoSection>
       </div>
 
-      <div className="mt-10 border-t border-rule pt-6">
+      <section className="mt-10 border-y border-rule py-8" aria-labelledby="contact-form-title">
+        <h2 id="contact-form-title" className="font-display text-h1 text-ink" lang={lang}>
+          {locale === 'en' ? 'Send a message' : 'सन्देश पठाउनुहोस्'}
+        </h2>
+        <p className="mt-2 max-w-2xl text-body text-ink-soft" lang={lang}>
+          {locale === 'en'
+            ? 'Messages are stored for newsroom review. Sending a message does not guarantee publication or an immediate reply.'
+            : 'सन्देश न्युजरुम समीक्षाका लागि सुरक्षित हुन्छ। सन्देश पठाउँदैमा प्रकाशन वा तत्काल जवाफ सुनिश्चित हुँदैन।'}
+        </p>
+        <div className="mt-6"><ContactForm locale={locale} /></div>
+      </section>
+
+      <div className="mt-8">
         <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={lang}>
           {dict.contactEmailLabel}
         </p>

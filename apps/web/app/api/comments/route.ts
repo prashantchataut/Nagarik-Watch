@@ -2,22 +2,9 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { createComment, getCommentsForArticle } from '@/lib/engagement/store'
 import { getSession } from '@/lib/auth/session'
+import { enforceRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
-
-const RATE_LIMIT = new Map<string, { count: number; resetAt: number }>()
-
-function rateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = RATE_LIMIT.get(ip)
-  if (!entry || entry.resetAt < now) {
-    RATE_LIMIT.set(ip, { count: 1, resetAt: now + 60_000 })
-    return true
-  }
-  if (entry.count >= 5) return false
-  entry.count++
-  return true
-}
 
 /**
  * GET /api/comments?articleSlug=… — list approved comments for an article.
@@ -40,13 +27,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
 
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  if (!rateLimit(ip)) {
-    return NextResponse.json(
-      { error: 'धेरै प्रयास। केही समयपछि प्रयास गर्नुहोस्।' },
-      { status: 429 },
-    )
-  }
+  const limited = await enforceRateLimit(request, 'comment', 5, 60_000)
+  if (limited) return limited
 
   let body: Record<string, unknown>
   try {

@@ -57,3 +57,6 @@ live.css
 nul
 
 .vercel
+
+# Local persistent development data
+.data/

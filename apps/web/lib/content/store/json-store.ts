@@ -93,19 +93,16 @@ async function read(): Promise<StoreShape> {
 }
 
 async function write(store: StoreShape): Promise<void> {
-  cache = store
-  // Serialize writes so concurrent requests don't clobber each other.
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'The JSON article store is disabled in production. Configure CONTENT_SOURCE=payload.',
+    )
+  }
+
   writeLock = writeLock.then(async () => {
-    try {
-      await fs.mkdir(DATA_DIR, { recursive: true })
-      await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
-    } catch (err) {
-      // In production (read-only FS), writes silently no-op. The store stays
-      // in-memory for the life of the process. Document this limitation.
-      if (process.env.NODE_ENV !== 'production') {
-        console.error('[article-store] write failed:', err)
-      }
-    }
+    await fs.mkdir(DATA_DIR, { recursive: true })
+    await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
+    cache = store
   })
   await writeLock
 }
@@ -303,8 +300,7 @@ export async function createArticle(input: {
     createdBy: input.createdBy,
     updatedBy: input.createdBy,
   }
-  store.articles.push(article)
-  await write(store)
+  await write({ ...store, articles: [...store.articles, article] })
   return article
 }
 
@@ -329,8 +325,9 @@ export async function updateArticle(
     ),
     readingMinutes: estimateReadingMinutes(patch.bodyNe ?? existing.bodyNe),
   }
-  store.articles[idx] = updated
-  await write(store)
+  const articles = [...store.articles]
+  articles[idx] = updated
+  await write({ ...store, articles })
   return updated
 }
 
@@ -338,8 +335,7 @@ export async function deleteArticle(id: string): Promise<boolean> {
   const store = await read()
   const idx = store.articles.findIndex((a) => a.id === id)
   if (idx === -1) return false
-  store.articles.splice(idx, 1)
-  await write(store)
+  await write({ ...store, articles: store.articles.filter((article) => article.id !== id) })
   return true
 }
 

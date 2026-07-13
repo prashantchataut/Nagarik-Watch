@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
+import { assertNewsroomRole, SETTINGS_MANAGER_ROLES } from '@/lib/admin-roles'
 import { listAdminSettings, setAdminSetting } from '@/lib/admin-settings'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
@@ -15,6 +16,7 @@ export const dynamic = 'force-dynamic'
 async function saveSetting(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, SETTINGS_MANAGER_ROLES)
   const setting = await setAdminSetting({
     key: formData.get('key'),
     value: formData.get('value'),
@@ -26,7 +28,8 @@ async function saveSetting(formData: FormData) {
 }
 
 export default async function SettingsPage() {
-  await requireNewsroomSession()
+  const session = await requireNewsroomSession()
+  assertNewsroomRole(session.newsroomRole, SETTINGS_MANAGER_ROLES)
   const settings = await listAdminSettings()
   const groups = settings.reduce<Record<string, typeof settings>>((acc, setting) => {
     acc[setting.group] = [...(acc[setting.group] ?? []), setting]

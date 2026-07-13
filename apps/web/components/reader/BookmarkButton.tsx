@@ -24,6 +24,7 @@ export function BookmarkButton({
 }) {
   const [bookmarked, setBookmarked] = useState(false)
   const [pending, startTransition] = useTransition()
+  const [syncError, setSyncError] = useState(false)
 
   useEffect(() => {
     const local = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))
@@ -37,7 +38,10 @@ export function BookmarkButton({
       .then((data: { bookmarks?: { articleSlug: string }[] }) => {
         if ((data.bookmarks ?? []).some((b) => b.articleSlug === story.slug)) setBookmarked(true)
       })
-      .catch(() => {})
+      .catch((error) => {
+        setSyncError(true)
+        void error
+      })
   }, [story.id, story.slug])
 
   function persistLocal(nextBookmarked: boolean) {
@@ -54,9 +58,10 @@ export function BookmarkButton({
     persistLocal(nextBookmarked)
     const fp = getOrCreateReaderId()
     if (!fp) return
+    setSyncError(false)
     startTransition(async () => {
       try {
-        await fetch('/api/bookmarks', {
+        const response = await fetch('/api/bookmarks', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
@@ -67,12 +72,21 @@ export function BookmarkButton({
             articleTitleNe: story.titleNe,
           }),
         })
-      } catch {}
+        if (!response.ok) throw new Error(`Bookmark sync failed: ${response.status}`)
+      } catch (error) {
+        setSyncError(true)
+        void error
+      }
     })
   }
 
   const en = locale === 'en'
   const label = bookmarked ? (en ? 'Saved' : 'सुरक्षित') : en ? 'Save' : 'सुरक्षित गर्नुहोस्'
+  const syncNote = syncError
+    ? en
+      ? ' Saved on this device; account sync is pending.'
+      : ' यो उपकरणमा सुरक्षित भयो; खाता सिंक बाँकी छ।'
+    : ''
 
   if (variant === 'pill') {
     return (
@@ -83,9 +97,11 @@ export function BookmarkButton({
         aria-pressed={bookmarked}
         className={`inline-flex h-10 items-center gap-1.5 rounded-full px-3.5 text-meta font-semibold transition-colors duration-fast ease-out-quint focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-50 ${bookmarked ? 'bg-brand text-surface' : 'border border-rule text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong'}`}
         lang={en ? 'en' : 'ne'}
+        title={`${label}${syncNote}`}
       >
         <BookmarkIcon filled={bookmarked} />
         {label}
+        {syncError ? <span className="sr-only">{syncNote}</span> : null}
       </button>
     )
   }
@@ -96,7 +112,7 @@ export function BookmarkButton({
       disabled={pending}
       aria-pressed={bookmarked}
       aria-label={label}
-      title={label}
+      title={`${label}${syncNote}`}
       className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-fast ease-out-quint focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-50 ${bookmarked ? 'bg-brand-tint text-brand-strong' : 'text-ink-soft hover:bg-brand-tint hover:text-brand-strong'}`}
     >
       <BookmarkIcon filled={bookmarked} />

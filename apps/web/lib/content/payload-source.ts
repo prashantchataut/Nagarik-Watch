@@ -1,15 +1,11 @@
 /**
- * Payload-backed {@link ContentSource}. Reads the live CMS via Payload's Local API and maps
- * the persisted documents onto the shared `@nagarikwatch/db` shapes — the same shared shapes the
- * store source returns — so rendering code is identical across sources.
+ * Payload-backed {@link ContentSource}. The CMS is a separate application, so
+ * the reader app consumes Payload's public REST API instead of importing the
+ * Payload config or opening a second database connection.
  *
- * The Payload config lives in apps/admin; apps/web imports it lazily via
- * `@payload-config` (resolved by the `payload` tsconfig path at build time). The Local API
- * bypasses HTTP entirely (in-process), keeping server reads fast and authentication-free
- * for public read access.
- *
- * Visibility rules: listing pages filter `/en` to reviewed English stories. Direct article
- * URLs can fall back to Nepali with a visible notice so the language toggle never dead-ends.
+ * Visibility rules: listing pages filter `/en` to reviewed English stories.
+ * Direct article URLs can fall back to Nepali with a visible notice so the
+ * language toggle never dead-ends.
  */
 import 'server-only'
 import type {
@@ -25,6 +21,7 @@ import type {
   Tag,
 } from '@nagarikwatch/db'
 import type { ContentSource, StoryListOptions } from './source'
+import { payloadServerUrl } from './payload-admin-client'
 
 const PER_PAGE = 12
 
@@ -57,8 +54,9 @@ type TagField = { id: string | number; slug?: string; nameNe?: string; nameEn?: 
 
 function asMedia(m: MediaField | undefined, fallbackAlt?: string): MediaRef | undefined {
   if (!m || (!m.url && !m.filename)) return undefined
-  const url = m.url ?? (m.filename ? String(m.filename) : '')
-  if (!url) return undefined
+  const rawUrl = m.url ?? (m.filename ? String(m.filename) : '')
+  if (!rawUrl) return undefined
+  const url = rawUrl.startsWith('/') ? `${payloadServerUrl()}${rawUrl}` : rawUrl
   return {
     url,
     alt: m.alt ?? fallbackAlt ?? '',
@@ -108,6 +106,11 @@ function asTag(t: TagField | undefined): Tag | null {
 function asCard(doc: PayloadDoc): StoryCardData {
   const category = asCategoryRef(doc.category as CategoryField)
   const media = asMedia(doc.heroImage as MediaField)
+  const authors = Array.isArray(doc.authors)
+    ? (doc.authors as { author?: AuthorField }[])
+        .map((row) => asAuthor(row.author))
+        .filter((author): author is { id: string; slug: string; name: string } => author !== null)
+    : []
   return {
     id: String(doc.id),
     slug: String(doc.slug ?? ''),
@@ -118,36 +121,67 @@ function asCard(doc: PayloadDoc): StoryCardData {
     deckNe: doc.deckNe ? String(doc.deckNe) : undefined,
     deckEn: doc.deckEn ? String(doc.deckEn) : undefined,
     heroImage: media,
-    byline: String(doc.byline ?? ''),
-    authors: Array.isArray(doc.authors)
-      ? (doc.authors as { author?: AuthorField }[])
-          .map((row) => asAuthor(row.author))
-          .filter((a): a is { id: string; slug: string; name: string } => a !== null)
-      : [],
-    publishedAt: String(doc.publishedAt ?? doc.updatedAt ?? new Date().toISOString()),
+    byline: String(doc.byline ?? authors.map((author) => author.name).join(', ')),
+    authors,
+    publishedAt: String(doc.publishAt ?? doc.updatedAt ?? new Date().toISOString()),
     hasEnglish: String(doc.englishStatus ?? 'none') === 'published',
     isBreaking: Boolean(doc.isBreaking),
+    premium: doc.premium === true,
     readingMinutes: doc.readingMinutes ? Number(doc.readingMinutes) : undefined,
   }
 }
 
-let _payload: any = null
+type PayloadFindOptions = {
+  where?: Record<string, Record<string, unknown>>
+  sort?: string
+  limit?: number
+  page?: number
+  depth?: number
+}
 
-async function getPayload() {
-  if (_payload) return _payload
-  const { getPayload: getPayloadImport } = await import('payload')
-  const config = (await import('@payload-config')).default
-  _payload = await getPayloadImport({ config })
-  return _payload
+type PayloadFindResult<T> = {
+  docs: T[]
+  totalDocs?: number
+  totalPages?: number
+  page?: number
+}
+
+async function payloadFind<T extends PayloadDoc>(
+  collection: 'articles' | 'categories' | 'authors' | 'tags',
+  options: PayloadFindOptions = {},
+): Promise<PayloadFindResult<T>> {
+  const params = new URLSearchParams()
+  if (options.sort) params.set('sort', options.sort)
+  if (options.limit !== undefined) params.set('limit', String(options.limit))
+  if (options.page !== undefined) params.set('page', String(options.page))
+  if (options.depth !== undefined) params.set('depth', String(options.depth))
+
+  for (const [field, operators] of Object.entries(options.where ?? {})) {
+    for (const [operator, rawValue] of Object.entries(operators)) {
+      const value = Array.isArray(rawValue) ? rawValue.join(',') : String(rawValue)
+      params.set(`where[${field}][${operator}]`, value)
+    }
+  }
+
+  const response = await fetch(
+    `${payloadServerUrl()}/api/${collection}?${params.toString()}`,
+    { cache: 'no-store', headers: { accept: 'application/json' } },
+  )
+  const body = (await response.json().catch(() => ({}))) as PayloadFindResult<T> & {
+    errors?: Array<{ message?: string }>
+    message?: string
+  }
+  if (!response.ok) {
+    const message = body.errors?.[0]?.message || body.message || `Payload read failed: ${response.status}`
+    throw new Error(message)
+  }
+  return { ...body, docs: Array.isArray(body.docs) ? body.docs : [] }
 }
 
 export async function createPayloadContentSource(): Promise<ContentSource> {
-  const payload = await getPayload()
-
   const source: ContentSource = {
     async getArticleBySlug(category, slug, locale) {
-      const { docs } = await payload.find({
-        collection: 'articles',
+      const { docs } = await payloadFind<PayloadDoc>('articles', {
         where: { slug: { equals: slug }, _status: { equals: 'published' } },
         limit: 1,
         depth: 2,
@@ -160,21 +194,19 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
     },
 
     async getStories(opts: StoryListOptions): Promise<PaginatedStories> {
-      const payload = await getPayload()
       const page = opts.page ?? 1
       const perPage = opts.limit && !opts.page ? opts.limit : (opts.perPage ?? PER_PAGE)
-      const where: Record<string, unknown> = { _status: { equals: 'published' } }
+      const where: Record<string, Record<string, unknown>> = { _status: { equals: 'published' } }
       if (opts.category) where['category.slug'] = { equals: opts.category }
       if (opts.author) where['authors.author.slug'] = { equals: opts.author }
       if (opts.tag) where['tags.tag.slug'] = { equals: opts.tag }
       if (opts.locale === 'en') where.englishStatus = { equals: 'published' }
       if (opts.exclude?.length) where.slug = { not_in: opts.exclude }
-      const { docs, totalDocs, totalPages } = await payload.find({
-        collection: 'articles',
+      const { docs, totalDocs, totalPages } = await payloadFind<PayloadDoc>('articles', {
         where,
         limit: perPage,
         page,
-        sort: '-publishedAt',
+        sort: '-publishAt',
         depth: 1,
       })
       const items = (docs as unknown as PayloadDoc[]).map(asCard)
@@ -187,11 +219,9 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
     },
 
     async getHomepage(): Promise<HomepageData | null> {
-      const payload = await getPayload()
-      const { docs } = await payload.find({
-        collection: 'articles',
+      const { docs } = await payloadFind<PayloadDoc>('articles', {
         where: { _status: { equals: 'published' } },
-        sort: '-publishedAt',
+        sort: '-publishAt',
         limit: 60,
         depth: 1,
       })
@@ -200,8 +230,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
       const lead = cards[0]
       if (!lead) return null
       const breaking = cards.filter((c) => c.isBreaking).slice(0, 6)
-      const { docs: catDocs } = await payload.find({
-        collection: 'categories',
+      const { docs: catDocs } = await payloadFind<PayloadDoc>('categories', {
         where: { showInNav: { equals: true } },
         sort: 'navOrder',
         limit: 50,
@@ -223,9 +252,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
     },
 
     async getCategory(slug) {
-      const payload = await getPayload()
-      const { docs } = await payload.find({
-        collection: 'categories',
+      const { docs } = await payloadFind<PayloadDoc>('categories', {
         where: { slug: { equals: slug } },
         limit: 1,
         depth: 0,
@@ -241,9 +268,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
     },
 
     async getNavCategories() {
-      const payload = await getPayload()
-      const { docs } = await payload.find({
-        collection: 'categories',
+      const { docs } = await payloadFind<PayloadDoc>('categories', {
         where: { showInNav: { equals: true } },
         sort: 'navOrder',
         limit: 50,
@@ -252,12 +277,44 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
       return (docs as unknown as PayloadDoc[]).map((c) => asCategory(c as CategoryField))
     },
 
+    async getAuthors() {
+      const { docs } = await payloadFind<PayloadDoc>('authors', {
+        where: { isActive: { equals: true } },
+        sort: 'name',
+        limit: 500,
+        depth: 1,
+      })
+      return (docs as unknown as Array<PayloadDoc & {
+        role?: string
+        bio?: string
+        photo?: MediaField
+        isActive?: boolean
+      }>).map((doc) => ({
+        id: String(doc.id),
+        slug: String(doc.slug ?? ''),
+        name: String(doc.name ?? ''),
+        role: (doc.role as Author['role']) ?? 'staff',
+        bioNe: doc.bio,
+        photo: asMedia(doc.photo),
+        isActive: Boolean(doc.isActive ?? true),
+      }))
+    },
+
+    async getTags() {
+      const { docs } = await payloadFind<PayloadDoc>('tags', {
+        sort: 'nameNe',
+        limit: 1000,
+        depth: 0,
+      })
+      return (docs as unknown as PayloadDoc[])
+        .map((doc) => asTag(doc as TagField))
+        .filter((tag): tag is Tag => tag !== null)
+    },
+
     async getFeatured() {
-      const payload = await getPayload()
-      const { docs } = await payload.find({
-        collection: 'articles',
+      const { docs } = await payloadFind<PayloadDoc>('articles', {
         where: { _status: { equals: 'published' } },
-        sort: '-publishedAt',
+        sort: '-publishAt',
         limit: 5,
         depth: 1,
       })
@@ -266,9 +323,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
     },
 
     async getAuthor(slug, locale) {
-      const payload = await getPayload()
-      const { docs } = await payload.find({
-        collection: 'authors',
+      const { docs } = await payloadFind<PayloadDoc>('authors', {
         where: { slug: { equals: slug } },
         limit: 1,
         depth: 1,
@@ -296,9 +351,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
     },
 
     async getTag(slug, locale) {
-      const payload = await getPayload()
-      const { docs } = await payload.find({
-        collection: 'tags',
+      const { docs } = await payloadFind<PayloadDoc>('tags', {
         where: { slug: { equals: slug } },
         limit: 1,
         depth: 0,
@@ -336,7 +389,7 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
             sourceType: sourceType as 'aggregated' | 'wire',
             sourceName: String(doc.sourceName),
             sourceUrl: String(doc.sourceUrl ?? ''),
-            sourcePublishedAt: String(doc.sourcePublishedAt ?? doc.publishedAt ?? ''),
+            sourcePublishedAt: String(doc.sourcePublishedAt ?? doc.publishAt ?? ''),
           }
         : undefined,
     tags: Array.isArray(doc.tags)
@@ -344,6 +397,7 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
           .map((row) => asTag(row.tag))
           .filter((t): t is Tag => t !== null)
       : [],
+    heroCaptionNe: doc.heroCaption ? String(doc.heroCaption) : undefined,
     heroCredit: doc.heroCredit ? String(doc.heroCredit) : undefined,
     corrections: Array.isArray(doc.corrections)
       ? (doc.corrections as { at?: string; summary?: string }[]).map((c) => ({
@@ -355,6 +409,8 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
     seoTitleNe: doc.seoTitle ? String(doc.seoTitle) : undefined,
     seoDescriptionNe: doc.seoDescription ? String(doc.seoDescription) : undefined,
     premium: doc.premium === true,
+    noindex: doc.noIndex === true,
+    doNotRecommend: doc.doNotRecommend === true,
     commentsEnabled: doc.commentsEnabled !== false,
     readingMinutes: Number(doc.readingMinutes ?? Math.max(1, Math.ceil((bodyNe?.length ?? 1) / 4))),
   }

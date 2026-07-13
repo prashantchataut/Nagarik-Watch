@@ -1,34 +1,36 @@
-# ADR-015: Durable engagement and subscriber storage
+# ADR-015: Durable engagement and operational storage
 
-Date: 2026-07-06
-Status: Accepted for v14
+- **Status:** Accepted
+- **Date:** 2026-07-06
+- **Last reviewed:** 2026-07-12
 
 ## Decision
 
-Reader engagement state uses Postgres when `DATABASE_URL` is configured:
+Postgres is mandatory for live runtime state, including reader engagement, contact messages, submissions, newsroom live overrides, polls, newsletters, advertisements, audit records, journalist workflow metadata, and distributed rate-limit counters.
 
-- `nw_comments`
-- `nw_poll_votes`
-- `nw_bookmarks`
-- `nw_reading_history`
-- `nw_newsletter_subscribers`
+Representative tables include:
 
-When `DATABASE_URL` is absent, the app uses process-local memory for development and preview only. Live launch is blocked without Postgres.
+- `nw_comments`, `nw_poll_votes`, `nw_bookmarks`, `nw_reading`
+- `nw_newsletter_subscribers`, newsletter drafts and delivery queue state
+- `nw_contact_messages`, `nw_submissions`, `nw_polls`
+- newsroom live-data override and live-blog records
+- `nw_rate_limits`
+
+When `DATABASE_URL` is absent, local development uses `.data/` files or process memory according to the module. Production code fails loudly instead of silently falling back to ephemeral state. The launch gate blocks live status without Postgres.
 
 ## Why
 
-Comments, bookmarks, reading history, poll votes and newsletter confirmations cannot be process-local in a production news site. Server restarts, serverless cold starts and multi-instance deployments would otherwise lose user data.
+Server restarts, serverless cold starts, and multi-instance deployments make local filesystem and process memory unsuitable for production newsroom and reader data.
 
 ## Consequences
 
-- Public write APIs keep the same route contract.
-- Tables are created lazily by the server module to keep setup simple for the current scaffold.
-- A future migration system should replace lazy DDL before high-traffic launch.
-- Launch readiness flags `DATABASE_URL` as a live blocker.
+- Public API contracts remain stable while persistence is durable.
+- Operational state does not compete with Payload’s role as canonical editorial content storage.
+- Lazy table setup remains a bootstrap convenience, not the desired long-term migration strategy.
 
 ## Follow-up work
 
-- Move lazy DDL to formal migrations.
-- Add moderation/audit tables for all comment state changes.
-- Add newsletter unsubscribe and export flows.
-- Add retention policy and privacy tooling for reader data deletion.
+- Replace lazy DDL with reviewed, versioned migrations before high-traffic launch.
+- Add retention, export, and deletion tooling for privacy requests.
+- Add newsletter unsubscribe and delivery-provider reconciliation.
+- Add database integration tests for concurrent voting, rate limits, and moderation transitions.
