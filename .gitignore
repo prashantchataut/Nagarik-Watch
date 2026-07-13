@@ -60,3 +60,6 @@ nul
 
 # Local persistent development data
 .data/
+
+# Build/export artifacts — local zip archives, not source
+*.zip
