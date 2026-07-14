@@ -1,6 +1,7 @@
 import 'server-only'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { postgresPoolConfig } from '@/lib/db-url'
 
 export type ManualLiveRecord<T = unknown> = {
   key: string
@@ -40,7 +41,9 @@ async function getPool(): Promise<Queryable | null> {
   if (!poolPromise) {
     poolPromise = (async () => {
       const { Pool } = await import('pg')
-      return new Pool({ connectionString: process.env.DATABASE_URL, max: 5 }) as Queryable
+      const config = postgresPoolConfig({ max: 5 })
+      if (!config) return null
+      return new Pool(config) as Queryable
     })()
   }
   return poolPromise

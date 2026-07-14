@@ -1,5 +1,5 @@
 import 'server-only'
-import { resolveDatabaseUrl } from '@/lib/db-url'
+import { postgresPoolConfig, resolveDatabaseUrl } from '@/lib/db-url'
 
 export type QueryResult<T extends Record<string, unknown>> = {
   rows: T[]
@@ -38,12 +38,9 @@ export async function getOperationalPool(): Promise<Queryable | null> {
   if (!poolPromise) {
     poolPromise = (async () => {
       const { Pool } = await import('pg')
-      return new Pool({
-        connectionString: resolveDatabaseUrl(),
-        max: Number(process.env.NW_DB_POOL_MAX ?? 5),
-        idleTimeoutMillis: 30_000,
-        connectionTimeoutMillis: 5_000,
-      }) as Queryable
+      const config = postgresPoolConfig()
+      if (!config) return null
+      return new Pool(config) as Queryable
     })().catch((error) => {
       poolPromise = null
       throw error

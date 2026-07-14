@@ -1,5 +1,6 @@
 import 'server-only'
 import type { AdMode, AdPlacementKey } from '@/lib/ads'
+import { postgresPoolConfig } from '@/lib/db-url'
 import { isProductionRuntime } from '@/lib/ops-db'
 
 export type AdEventType = 'impression' | 'click'
@@ -38,7 +39,9 @@ async function getPool(): Promise<Queryable | null> {
   if (!poolPromise) {
     poolPromise = (async () => {
       const { Pool } = await import('pg')
-      return new Pool({ connectionString: process.env.DATABASE_URL, max: 5 }) as Queryable
+      const config = postgresPoolConfig({ max: 5 })
+      if (!config) return null
+      return new Pool(config) as Queryable
     })()
   }
   return poolPromise

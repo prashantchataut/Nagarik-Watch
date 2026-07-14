@@ -4,6 +4,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import pg from 'pg'
 import type { EngagementSample } from '@nagarikwatch/db'
+import { postgresPoolConfig } from '@/lib/db-url'
 
 type BookmarkInput = {
   anonymousId: string
@@ -87,17 +88,16 @@ let schemaReady: Promise<void> | null = null
 
 function getPool() {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
-  if (!process.env.DATABASE_URL) {
+  const config = postgresPoolConfig({
+    max: Number(process.env.ENGAGEMENT_DB_POOL_MAX || 5),
+  })
+  if (!config) {
     if (process.env.NODE_ENV === 'production') {
       throw new Error('DATABASE_URL is required for persistent reader engagement in production.')
     }
     return null
   }
-  pool ??= new pg.Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-    max: Number(process.env.ENGAGEMENT_DB_POOL_MAX || 5),
-  })
+  pool ??= new pg.Pool(config)
   return pool
 }
 

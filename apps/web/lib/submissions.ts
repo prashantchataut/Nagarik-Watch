@@ -1,5 +1,6 @@
 import 'server-only'
 import type { Locale } from '@nagarikwatch/db'
+import { postgresPoolConfig, resolveDatabaseUrl } from '@/lib/db-url'
 import { isProductionRuntime } from '@/lib/ops-db'
 
 export type SubmissionType = 'tip' | 'document' | 'photo' | 'video' | 'psa' | 'correction' | 'other'
@@ -59,7 +60,7 @@ let poolPromise: Promise<Queryable | null> | null = null
 let schemaReady: Promise<void> | null = null
 
 export function submissionsStorageMode(): 'postgres' | 'memory' {
-  return process.env.DATABASE_URL?.startsWith('postgres') ? 'postgres' : 'memory'
+  return resolveDatabaseUrl() ? 'postgres' : 'memory'
 }
 
 async function getPool(): Promise<Queryable | null> {
@@ -73,12 +74,11 @@ async function getPool(): Promise<Queryable | null> {
   if (!poolPromise) {
     poolPromise = (async () => {
       const { Pool } = await import('pg')
-      return new Pool({
-        connectionString: process.env.DATABASE_URL,
+      const config = postgresPoolConfig({
         max: Number(process.env.SUBMISSIONS_DB_POOL_MAX ?? 5),
-        idleTimeoutMillis: 30_000,
-        connectionTimeoutMillis: 5_000,
-      }) as Queryable
+      })
+      if (!config) return null
+      return new Pool(config) as Queryable
     })()
   }
   return poolPromise

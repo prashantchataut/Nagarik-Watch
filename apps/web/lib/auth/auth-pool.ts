@@ -2,7 +2,7 @@ import 'server-only'
 import path from 'node:path'
 import { PostgresDialect, PGliteDialect } from 'kysely'
 import type { Dialect } from 'kysely'
-import { resolveDatabaseUrl } from '@/lib/db-url'
+import { postgresPoolConfig } from '@/lib/db-url'
 
 let cached: Dialect | null = null
 
@@ -21,16 +21,11 @@ export async function createDialect(): Promise<Dialect> {
     return cached
   }
 
-  const dbUrl = resolveDatabaseUrl()
-  if (dbUrl) {
+  const poolConfig = postgresPoolConfig()
+  if (poolConfig) {
     const { Pool } = await import('pg')
     cached = new PostgresDialect({
-      pool: new Pool({
-        connectionString: dbUrl,
-        max: Number(process.env.NW_DB_POOL_MAX || 5),
-        idleTimeoutMillis: 30_000,
-        connectionTimeoutMillis: 5_000,
-      }),
+      pool: new Pool(poolConfig),
     })
     return cached
   }
@@ -43,3 +38,4 @@ export async function createDialect(): Promise<Dialect> {
   cached = new PGliteDialect({ pglite: await PGlite.create(pgliteDataDir()) })
   return cached
 }
+
