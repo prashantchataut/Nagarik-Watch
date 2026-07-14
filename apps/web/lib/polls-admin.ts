@@ -96,22 +96,27 @@ export async function listPolls(): Promise<Poll[]> {
 }
 
 export async function getActivePoll(): Promise<PublicPoll | null> {
-  const pool = await ensureSchema()
-  let poll: Poll | null = null
+  try {
+    const pool = await ensureSchema()
+    let poll: Poll | null = null
 
-  if (pool) {
-    const result = await pool.query<Row>(
-      `SELECT * FROM nw_polls WHERE status = 'active' ORDER BY updated_at DESC LIMIT 1`,
-    )
-    poll = result.rows[0] ? rowToPoll(result.rows[0]) : null
-  } else {
-    poll = (await readLocal())
-      .filter((candidate) => candidate.status === 'active')
-      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0] ?? null
+    if (pool) {
+      const result = await pool.query<Row>(
+        `SELECT * FROM nw_polls WHERE status = 'active' ORDER BY updated_at DESC LIMIT 1`,
+      )
+      poll = result.rows[0] ? rowToPoll(result.rows[0]) : null
+    } else {
+      poll = (await readLocal())
+        .filter((candidate) => candidate.status === 'active')
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0] ?? null
+    }
+
+    if (!poll) return null
+    return { ...poll, results: await getPollVoteCounts(poll.id) }
+  } catch (error) {
+    console.error('[polls] getActivePoll failed', error instanceof Error ? error.message : error)
+    return null
   }
-
-  if (!poll) return null
-  return { ...poll, results: await getPollVoteCounts(poll.id) }
 }
 
 export async function getPollForVoting(pollId: string): Promise<Poll | null> {

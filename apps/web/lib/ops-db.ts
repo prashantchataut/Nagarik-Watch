@@ -28,7 +28,10 @@ export async function getOperationalPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
   if (operationalStorageMode() !== 'postgres') {
     if (isProductionRuntime()) {
-      throw new Error('DATABASE_URL must point to Postgres for production operational storage.')
+      // Public pages (polls, nav session, etc.) must stay up even when the
+      // operator has not provisioned Postgres yet. Callers fall back to local
+      // files / empty results; auth still refuses ephemeral production DBs.
+      console.error('[ops-db] DATABASE_URL is missing in production; operational features use local fallbacks.')
     }
     return null
   }
@@ -41,19 +44,43 @@ export async function getOperationalPool(): Promise<Queryable | null> {
         idleTimeoutMillis: 30_000,
         connectionTimeoutMillis: 5_000,
       }) as Queryable
-    })()
+    })().catch((error) => {
+      poolPromise = null
+      throw error
+    })
   }
-  return poolPromise
+  try {
+    return await poolPromise
+  } catch (error) {
+    console.error('[ops-db] could not create Postgres pool', error instanceof Error ? error.message : error)
+    return null
+  }
 }
 
 export async function ensureOperationalSchema(key: string, setup: (pool: Queryable) => Promise<void>) {
-  const pool = await getOperationalPool()
-  if (!pool) return null
-  if (!readySchemas.has(key)) {
-    readySchemas.set(key, setup(pool))
+  try {
+    const pool = await getOperationalPool()
+    if (!pool) return null
+    if (!readySchemas.has(key)) {
+      readySchemas.set(
+        key,
+        setup(pool).catch((error) => {
+          readySchemas.delete(key)
+          throw error
+        }),
+      )
+    }
+    await readySchemas.get(key)
+    return pool
+  } catch (error) {
+    // DNS / TLS / connection failures (e.g. deleted Aiven host) must not crash
+    // Server Components that only need optional operational data.
+    console.error(
+      `[ops-db] schema "${key}" unavailable`,
+      error instanceof Error ? error.message : error,
+    )
+    return null
   }
-  await readySchemas.get(key)
-  return pool
 }
 
 export function toIso(value: Date | string): string {

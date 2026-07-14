@@ -15,7 +15,10 @@ import { localizeHref } from '@/lib/i18n/locales'
 
 export async function PublicShell({ locale, children }: { locale: Locale; children: ReactNode }) {
   const english = locale === 'en'
-  const [navCategories, session] = await Promise.all([getNavCategories(), getSession()])
+  const [navCategories, session] = await Promise.all([
+    getNavCategories(),
+    getSession().catch(() => null),
+  ])
   const account = session
     ? {
         displayName: session.displayName || session.email.split('@')[0] || session.email,
