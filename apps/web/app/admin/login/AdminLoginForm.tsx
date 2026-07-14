@@ -14,7 +14,13 @@ import { PasswordField } from '@/components/forms/PasswordField'
  * Password recovery uses the same audited Better Auth reset flow as readers;
  * newsroom roles are preserved because only the credential is replaced.
  */
-export function AdminLoginForm({ resetComplete = false }: { resetComplete?: boolean }) {
+export function AdminLoginForm({
+  resetComplete = false,
+  databaseOnline = true,
+}: {
+  resetComplete?: boolean
+  databaseOnline?: boolean
+}) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -22,6 +28,10 @@ export function AdminLoginForm({ resetComplete = false }: { resetComplete?: bool
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+    if (!databaseOnline) {
+      setError('खाता डाटाबेस अफलाइन छ। DATABASE_URL मिलाएपछि मात्र लगइन सम्भव छ।')
+      return
+    }
     const form = new FormData(e.currentTarget)
     const email = String(form.get('email') ?? '').trim()
     const password = String(form.get('password') ?? '')
@@ -56,7 +66,6 @@ export function AdminLoginForm({ resetComplete = false }: { resetComplete?: bool
           )
           return
         }
-        // Force a fresh server render so the session cookie is read.
         router.refresh()
         router.push('/admin/dashboard')
       } catch {
@@ -89,7 +98,7 @@ export function AdminLoginForm({ resetComplete = false }: { resetComplete?: bool
           type="email"
           autoComplete="email"
           required
-          disabled={pending}
+          disabled={pending || !databaseOnline}
           placeholder="editor@nagarikwatch.com"
           className="rounded-md border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
         />
@@ -101,7 +110,7 @@ export function AdminLoginForm({ resetComplete = false }: { resetComplete?: bool
           label="पासवर्ड"
           autoComplete="current-password"
           required
-          disabled={pending}
+          disabled={pending || !databaseOnline}
           showLabel="देखाउनुहोस्"
           hideLabel="लुकाउनुहोस्"
         />
@@ -109,7 +118,7 @@ export function AdminLoginForm({ resetComplete = false }: { resetComplete?: bool
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || !databaseOnline}
         className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {pending ? (

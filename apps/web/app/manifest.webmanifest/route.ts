@@ -1,4 +1,9 @@
-export function GET() {
+import type { NextRequest } from 'next/server'
+
+export const dynamic = 'force-dynamic'
+
+export function GET(request: NextRequest) {
+  const origin = request.nextUrl.origin
   const manifest = {
     name: 'Nagarik Watch',
     short_name: 'Nagarik Watch',
@@ -8,8 +13,7 @@ export function GET() {
     display: 'standalone',
     background_color: '#f7f2ef',
     theme_color: '#8d1f17',
-    // Path-relative id so preview/custom hosts stay same-origin with the document.
-    id: '/',
+    id: `${origin}/`,
     categories: ['news', 'magazines'],
     lang: 'ne',
     dir: 'ltr',
@@ -21,7 +25,7 @@ export function GET() {
 
   return Response.json(manifest, {
     headers: {
-      'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
+      'Cache-Control': 'public, max-age=300, stale-while-revalidate=86400',
       'X-Content-Type-Options': 'nosniff',
     },
   })

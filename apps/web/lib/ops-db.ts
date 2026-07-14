@@ -1,4 +1,5 @@
 import 'server-only'
+import { resolveDatabaseUrl } from '@/lib/db-url'
 
 export type QueryResult<T extends Record<string, unknown>> = {
   rows: T[]
@@ -20,7 +21,7 @@ export function isProductionRuntime(): boolean {
 }
 
 export function operationalStorageMode(): 'postgres' | 'memory' {
-  return process.env.DATABASE_URL?.startsWith('postgres') ? 'postgres' : 'memory'
+  return resolveDatabaseUrl() ? 'postgres' : 'memory'
 }
 
 export async function getOperationalPool(): Promise<Queryable | null> {
@@ -35,7 +36,7 @@ export async function getOperationalPool(): Promise<Queryable | null> {
     poolPromise = (async () => {
       const { Pool } = await import('pg')
       return new Pool({
-        connectionString: process.env.DATABASE_URL,
+        connectionString: resolveDatabaseUrl(),
         max: Number(process.env.NW_DB_POOL_MAX ?? 5),
         idleTimeoutMillis: 30_000,
         connectionTimeoutMillis: 5_000,

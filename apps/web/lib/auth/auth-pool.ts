@@ -2,6 +2,7 @@ import 'server-only'
 import path from 'node:path'
 import { PostgresDialect, PGliteDialect } from 'kysely'
 import type { Dialect } from 'kysely'
+import { resolveDatabaseUrl } from '@/lib/db-url'
 
 let cached: Dialect | null = null
 
@@ -20,11 +21,8 @@ export async function createDialect(): Promise<Dialect> {
     return cached
   }
 
-  const dbUrl = process.env.DATABASE_URL?.trim()
+  const dbUrl = resolveDatabaseUrl()
   if (dbUrl) {
-    if (!/^postgres(?:ql)?:\/\//i.test(dbUrl)) {
-      throw new Error('DATABASE_URL must be a PostgreSQL connection URL.')
-    }
     const { Pool } = await import('pg')
     cached = new PostgresDialect({
       pool: new Pool({
