@@ -20,15 +20,17 @@ async function resolveSource(): Promise<ContentSource> {
   const selected = selectedSource()
   const isProductionBuild = process.env.NEXT_PHASE === 'phase-production-build'
 
-  // Runtime production must use Payload. During `next build`, fall back to the
-  // JSON store so static generation (sitemap, etc.) can finish without a live DB.
-  if (process.env.NODE_ENV === 'production' && selected !== 'payload' && !isProductionBuild) {
-    throw new Error('Production requires CONTENT_SOURCE=payload and a reachable Payload database.')
-  }
-
   if (selected === 'payload' && !isProductionBuild) {
     const { createPayloadContentSource } = await import('./payload-source')
     return createPayloadContentSource()
+  }
+
+  // Payload is preferred for production, but the JSON store keeps the site
+  // bootable when CONTENT_SOURCE is unset / still "json" (local preview deploys).
+  if (process.env.NODE_ENV === 'production' && selected !== 'payload' && !isProductionBuild) {
+    console.warn(
+      '[content] CONTENT_SOURCE is not "payload"; serving from the JSON store. Set CONTENT_SOURCE=payload plus Payload URL/DB env vars for the CMS-backed site.',
+    )
   }
 
   return createStoreContentSource()
