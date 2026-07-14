@@ -14,19 +14,16 @@ for (const entry of requiredEntries) {
 if (workspaceText.includes("'apps/*'") || workspaceText.includes('"apps/*"')) {
   problems.push("pnpm-workspace.yaml must not use apps/* because it re-enables the retired apps/cms workspace")
 }
+if (existsSync(legacyManifest)) {
+  problems.push(
+    'legacy apps/cms/package.json is still present; canonical CMS is apps/admin. Delete it with: git rm -r apps/cms',
+  )
+}
 
 if (problems.length) {
   console.error('Canonical workspace verification failed:')
   for (const problem of problems) console.error(`- ${problem}`)
   process.exit(1)
-}
-
-if (existsSync(legacyManifest)) {
-  console.warn([
-    'WARNING: legacy apps/cms/package.json is still present.',
-    'It is excluded from pnpm by the explicit workspace list, so installation can continue.',
-    'Delete it permanently with: git rm -r apps/cms',
-  ].join('\n'))
 }
 
 console.log('Canonical workspaces verified: apps/web, apps/admin, and packages/*.')
