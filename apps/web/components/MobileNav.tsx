@@ -183,6 +183,15 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
               >
                 <li>
                   <Link
+                    href={localizeHref(locale, '/auth/login')}
+                    onClick={() => setOpen(false)}
+                    className={DRAWER_LINK}
+                  >
+                    {locale === 'en' ? 'Sign in / Account' : 'लगइन / खाता'}
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href={readerCornerHref}
                     onClick={() => setOpen(false)}
                     className={DRAWER_LINK}

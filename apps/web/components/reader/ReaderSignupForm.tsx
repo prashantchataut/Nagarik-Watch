@@ -5,6 +5,8 @@ import type { FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PasswordField } from '@/components/forms/PasswordField'
+import { SocialAuthButtons } from '@/components/auth/SocialAuthButtons'
+import { authClientErrorMessage } from '@/lib/auth/client-errors'
 
 /**
  * Reader sign-up form. Posts to Better Auth's /api/auth/sign-up/email endpoint.
@@ -58,11 +60,7 @@ export function ReaderSignupForm({ locale, next }: { locale: 'ne' | 'en'; next?:
         })
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
-          const msg =
-            body?.message ??
-            body?.error?.message ??
-            (ne ? 'खाता बनाउन सकिएन।' : 'Could not create account.')
-          setError(String(msg))
+          setError(authClientErrorMessage(res.status, body, locale))
           return
         }
         router.refresh()
@@ -147,6 +145,8 @@ export function ReaderSignupForm({ locale, next }: { locale: 'ne' | 'en'; next?:
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'खाता बनाउनुहोस्' : 'Create account'}</span>
         )}
       </button>
+
+      <SocialAuthButtons locale={locale} />
 
       <p className="text-center text-caption text-ink-soft">
         <span lang={ne ? 'ne' : 'en'}>

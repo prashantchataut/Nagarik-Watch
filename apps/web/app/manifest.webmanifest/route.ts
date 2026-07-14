@@ -1,7 +1,3 @@
-import { SITE_URL } from '@/lib/site'
-
-export const dynamic = 'force-static'
-
 export function GET() {
   const manifest = {
     name: 'Nagarik Watch',
@@ -12,7 +8,8 @@ export function GET() {
     display: 'standalone',
     background_color: '#f7f2ef',
     theme_color: '#8d1f17',
-    id: SITE_URL,
+    // Path-relative id so preview/custom hosts stay same-origin with the document.
+    id: '/',
     categories: ['news', 'magazines'],
     lang: 'ne',
     dir: 'ltr',

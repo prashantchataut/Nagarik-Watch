@@ -161,7 +161,9 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
               {ne ? 'तपाईंका सुरक्षित समाचार' : 'Your saved stories'}
             </h1>
             <p className="mt-2 text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
-              {ne ? 'खातामा सिंक भएका र यो उपकरणमा सुरक्षित गरिएका समाचार एउटै सूचीमा।' : 'Account-synced and device-saved stories in one list.'}
+              {ne
+                ? 'तपाईंले सुरक्षित गरेका वास्तविक लेख मात्र यहाँ आउँछन् — डेमो सूची होइन।'
+                : 'Only stories you actually save appear here — this is not a demo list.'}
             </p>
           </div>
           <span className="rounded-full border border-rule px-3 py-1.5 text-meta font-semibold text-ink-soft">{countLabel}</span>

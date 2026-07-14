@@ -4,7 +4,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
 import { NewsletterInline } from '@/components/NewsletterInline'
-import { PUBLICATION } from '@/lib/site'
+import { PUBLICATION, isPublicPublicationValue } from '@/lib/site'
 
 type FooterProps = {
   locale: Locale
@@ -166,7 +166,9 @@ export function Footer({ locale }: FooterProps) {
             </p>
             <address className="mt-3 not-italic text-body text-ink-soft" lang={lang}>
               <p className="font-semibold text-ink">{PUBLICATION.publisherName}</p>
-              <p className="mt-1">{PUBLICATION.address}</p>
+              {isPublicPublicationValue(PUBLICATION.address) ? (
+                <p className="mt-1">{PUBLICATION.address}</p>
+              ) : null}
               <p className="mt-1">
                 <a
                   href={`mailto:${PUBLICATION.email}`}
@@ -175,18 +177,22 @@ export function Footer({ locale }: FooterProps) {
                   {PUBLICATION.email}
                 </a>
               </p>
-              {PUBLICATION.phone ? <p className="mt-1">{PUBLICATION.phone}</p> : null}
+              {isPublicPublicationValue(PUBLICATION.phone) ? (
+                <p className="mt-1">{PUBLICATION.phone}</p>
+              ) : null}
             </address>
-            <p
-              className="mt-3 rounded-md border border-rule bg-surface-raised px-3 py-2 text-caption text-ink-soft"
-              lang={lang}
-            >
-              <span className="font-semibold uppercase tracking-wide" lang={lang}>
-                {dict.footerRegistration}:
-              </span>{' '}
-              {registration || dict.footerRegistrationPending}
-            </p>
-            {PUBLICATION.editorInChief ? (
+            {isPublicPublicationValue(registration) ? (
+              <p
+                className="mt-3 rounded-md border border-rule bg-surface-raised px-3 py-2 text-caption text-ink-soft"
+                lang={lang}
+              >
+                <span className="font-semibold uppercase tracking-wide" lang={lang}>
+                  {dict.footerRegistration}:
+                </span>{' '}
+                {registration}
+              </p>
+            ) : null}
+            {isPublicPublicationValue(PUBLICATION.editorInChief) ? (
               <p className="mt-2 text-caption text-mute" lang={lang}>
                 {locale === 'en' ? 'Responsible editor' : 'जिम्मेवार सम्पादक'}:{' '}
                 {PUBLICATION.editorInChief}

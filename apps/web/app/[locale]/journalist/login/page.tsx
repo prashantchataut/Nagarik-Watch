@@ -40,10 +40,13 @@ export default async function JournalistLoginPage({ params }: { params: Promise<
           <header>
             <p className="editorial-kicker" lang="en">Newsroom access</p>
             <h2>{ne ? 'आफ्नो काममा फर्कनुहोस्' : 'Return to your desk'}</h2>
-            <p>{ne ? 'पत्रकार वा योगदानकर्ता भूमिका भएको इमेल प्रयोग गर्नुहोस्।' : 'Use an email with journalist or contributor access.'}</p>
+            <p>{ne
+              ? 'पत्रकार वा योगदानकर्ता भूमिका भएको इमेल प्रयोग गर्नुहोस्। नयाँ खाता बनाएपछि सम्पादकबाट निमन्त्रणा चाहिन्छ।'
+              : 'Use an email with journalist or contributor access. New accounts need an editor invitation after sign-up.'}</p>
           </header>
           <JournalistLoginForm locale={locale} />
           <footer>
+            <Link href={localizeHref(locale, '/auth/signup')}>{ne ? 'नयाँ खाता बनाउनुहोस्' : 'Create an account'}</Link>
             <Link href={localizeHref(locale, '/auth/forgot-password')}>{ne ? 'पासवर्ड बिर्सनुभयो?' : 'Forgot password?'}</Link>
             <Link href={localizeHref(locale, '/auth/login')}>{ne ? 'पाठक लगइन' : 'Reader login'}</Link>
           </footer>

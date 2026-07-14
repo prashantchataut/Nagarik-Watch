@@ -33,6 +33,12 @@ export const PUBLICATION = {
   logoPath: '/icon.svg',
 } as const
 
+/** Hide unverified launch placeholders from the public footer/chrome. */
+export function isPublicPublicationValue(value: string | undefined): boolean {
+  if (!value?.trim()) return false
+  return !/pending verification|launch placeholder/i.test(value)
+}
+
 export type StaticHubKey =
   | 'latest'
   | 'wire'

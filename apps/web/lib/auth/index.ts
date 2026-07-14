@@ -111,7 +111,7 @@ async function buildAuth(): Promise<AuthInstance> {
     secret: EFFECTIVE_AUTH_SECRET,
     baseURL: authBaseUrl(),
     trustedOrigins: trustedOrigins(),
-    database: { dialect },
+    database: { dialect, type: 'postgres' },
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,

@@ -214,6 +214,13 @@
   .auth-form-column { display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 2rem 1rem; }
   .auth-form-wrap { width: 100%; max-width: 28rem; }
   .auth-form-surface { margin-top: 1.5rem; border-top: 1px solid var(--rule); padding-top: 1.5rem; }
+  .auth-social { display: grid; gap: .75rem; margin-top: .25rem; }
+  .auth-social__divider { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .75rem; color: var(--mute); font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .auth-social__divider::before, .auth-social__divider::after { content: ''; height: 1px; background: var(--rule); }
+  .auth-social__google { min-height: 3rem; display: inline-flex; align-items: center; justify-content: center; gap: .65rem; border: 1px solid var(--rule); background: var(--surface); padding: .7rem 1rem; color: var(--ink); font-size: .9rem; font-weight: 800; border-radius: 999px; }
+  .auth-social__google:hover:not(:disabled) { border-color: var(--brand); color: var(--brand-strong); }
+  .auth-social__google:disabled { opacity: .72; cursor: not-allowed; }
+  .auth-social__hint { color: var(--mute); font-size: .72rem; line-height: 1.45; text-align: center; }
   @media (min-width: 640px) { .admin-page-header { flex-direction: row; align-items: end; justify-content: space-between; } }
   @media (min-width: 1024px) { .auth-shell { grid-template-columns: minmax(25rem,.88fr) minmax(30rem,1.12fr); } .auth-editorial { display: flex; flex-direction: column; justify-content: space-between; padding: 2.5rem 3rem; } .auth-form-column { padding: 3rem; } }
 }
@@ -589,7 +596,7 @@
   .newsroom-login-form__submit { min-height: 3.25rem; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--brand); background: var(--brand); padding: .75rem 1rem; color: var(--surface); font-size: .86rem; font-weight: 850; }
   .newsroom-login-form__submit:hover { background: var(--brand-strong); }
   .newsroom-login-form__error { border: 1px solid color-mix(in oklch,var(--down) 40%,var(--rule)); background: color-mix(in oklch,var(--down) 10%,var(--surface)); padding: .8rem; color: var(--down); font-size: .8rem; font-weight: 750; }
-  .newsroom-login__form footer { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
+  .newsroom-login__form footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
   .newsroom-login__form footer a { color: var(--ink-soft); font-size: .76rem; font-weight: 750; }
 
   @media (min-width: 720px) {

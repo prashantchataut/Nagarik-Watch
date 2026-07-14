@@ -5,6 +5,8 @@ import type { FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PasswordField } from '@/components/forms/PasswordField'
+import { SocialAuthButtons } from '@/components/auth/SocialAuthButtons'
+import { authClientErrorMessage } from '@/lib/auth/client-errors'
 
 /**
  * Reader login form. Same shape as AdminLoginForm but reader-scoped: on
@@ -39,11 +41,7 @@ export function ReaderLoginForm({ locale, next, notice }: { locale: 'ne' | 'en';
         })
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
-          setError(
-            body?.message ??
-              body?.error?.message ??
-              (ne ? 'इमेल वा पासवर्ड मेल खाएन।' : 'Email or password is incorrect.'),
-          )
+          setError(authClientErrorMessage(res.status, body, locale))
           return
         }
         router.refresh()
@@ -108,6 +106,8 @@ export function ReaderLoginForm({ locale, next, notice }: { locale: 'ne' | 'en';
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'लगइन गर्नुहोस्' : 'Sign in'}</span>
         )}
       </button>
+
+      <SocialAuthButtons locale={locale} />
 
       <div className="flex items-center justify-between text-caption">
         <Link

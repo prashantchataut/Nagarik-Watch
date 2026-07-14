@@ -9,7 +9,13 @@ async function handler(request: Request) {
   } catch (error) {
     console.error('[auth] request failed', error)
     return Response.json(
-      { error: { code: 'AUTH_UNAVAILABLE', message: 'Authentication is temporarily unavailable.' } },
+      {
+        error: {
+          code: 'AUTH_UNAVAILABLE',
+          message:
+            'Authentication is temporarily unavailable. The account database could not be reached — check DATABASE_URL and that Postgres is online.',
+        },
+      },
       { status: 503, headers: { 'cache-control': 'no-store' } },
     )
   }

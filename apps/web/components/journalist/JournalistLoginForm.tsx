@@ -5,6 +5,7 @@ import type { FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { PasswordField } from '@/components/forms/PasswordField'
 import { localizeHref } from '@/lib/i18n/locales'
+import { authClientErrorMessage } from '@/lib/auth/client-errors'
 
 type Props = { locale: 'ne' | 'en' }
 
@@ -35,13 +36,7 @@ export function JournalistLoginForm({ locale }: Props) {
         })
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
-          setError(
-            String(
-              body?.message ??
-                body?.error?.message ??
-                (ne ? 'इमेल वा पासवर्ड मिलेन।' : 'Email or password is incorrect.'),
-            ),
-          )
+          setError(authClientErrorMessage(res.status, body, locale))
           return
         }
         router.refresh()

@@ -6,7 +6,6 @@ import { BottomNav } from '@/components/BottomNav'
 import { CookieConsent } from '@/components/CookieConsent'
 import { PwaBoot } from '@/components/PwaBoot'
 import { SiteJsonLd } from '@/components/SiteJsonLd'
-import { LaunchReadinessBanner } from '@/components/LaunchReadinessBanner'
 import { AnalyticsGate } from '@/components/analytics/AnalyticsGate'
 import { getNavCategories } from '@/lib/content'
 import { PUBLICATION } from '@/lib/site'
@@ -21,7 +20,6 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
         {english ? 'Skip to content' : 'मुख्य सामग्रीमा जानुहोस्'}
       </a>
       <SiteJsonLd siteName={PUBLICATION.publisherName} />
-      <LaunchReadinessBanner locale={locale} />
       <Masthead locale={locale} navCategories={navCategories} />
       <main id="main" className="min-h-[55vh] pb-16 lg:pb-0">
         {children}

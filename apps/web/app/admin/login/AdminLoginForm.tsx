@@ -40,11 +40,20 @@ export function AdminLoginForm({ resetComplete = false }: { resetComplete?: bool
         })
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
-          const msg =
-            body?.message ??
-            body?.error?.message ??
-            'इमेल वा पासवर्ड मेल खाएन। कृपया पुनः प्रयास गर्नुहोस्।'
-          setError(String(msg))
+          const code = typeof body?.error?.code === 'string' ? body.error.code : ''
+          if (res.status === 503 || code === 'AUTH_UNAVAILABLE') {
+            setError(
+              'लगइन उपलब्ध छैन। खाता डाटाबेस पुग्न सकेन — Vercel मा DATABASE_URL जाँच गर्नुहोस्।',
+            )
+            return
+          }
+          setError(
+            String(
+              body?.message ??
+                body?.error?.message ??
+                'इमेल वा पासवर्ड मेल खाएन। कृपया पुनः प्रयास गर्नुहोस्।',
+            ),
+          )
           return
         }
         // Force a fresh server render so the session cookie is read.
