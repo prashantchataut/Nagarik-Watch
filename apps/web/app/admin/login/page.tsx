@@ -75,7 +75,7 @@ export default async function AdminLoginPage({
                   : database.code === 'ENOTFOUND'
                     ? `होस्ट \`${database.host}\` DNS बाट फेला परेन। सेवा अनलाइन भएपछि पुनः प्रयास गर्नुहोस्।`
                     : database.code === 'SSL' || /certificate|TLS/i.test(database.detail)
-                      ? `होस्ट \`${database.host}\` पुग्यो तर TLS प्रमाणपत्र अस्वीकार भयो। Redeploy पछि Aiven SSL फिक्स लागू हुन्छ।`
+                      ? `होस्ट \`${database.host}\` मा जडान भइरहेको छ तर SSL मिलाउँदै छौँ — यो पृष्ठ केही मिनेटमा आफैँ ठीक हुनुपर्छ।`
                       : `होस्ट \`${database.host}\` मा जडान असफल। सेवा, पासवर्ड र SSL जाँच्नुहोस्।`}
               </p>
               <p className="mt-2 text-caption text-ink-soft" lang="en">

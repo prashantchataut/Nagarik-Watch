@@ -29,38 +29,65 @@ export function databaseHostHint(url = resolveDatabaseUrl()): string | null {
   }
 }
 
-/**
- * Aiven (and similar managed Postgres) presents a CA that Node's newer
- * `sslmode=require` → verify-full path rejects as "self-signed certificate in
- * certificate chain". Relax verification for those hosts unless the operator
- * explicitly opts into strict TLS via DATABASE_SSL_REJECT_UNAUTHORIZED=true.
- */
-export function postgresSslConfig(url = resolveDatabaseUrl()): PoolConfig['ssl'] {
-  if (!url) return undefined
-  if (process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true') return undefined
-  if (process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'false') {
-    return { rejectUnauthorized: false }
-  }
+function hostOf(url: string): string | null {
   try {
-    const host = new URL(url).hostname.toLowerCase()
-    if (host.endsWith('.aivencloud.com') || host.endsWith('.aiven.io')) {
-      return { rejectUnauthorized: false }
-    }
+    return new URL(url).hostname.toLowerCase()
   } catch {
-    // Fall through — leave ssl undefined for malformed URLs.
+    return null
   }
-  return undefined
+}
+
+/**
+ * Aiven ships a CA that Node's newer pg treats as verify-full when the URL
+ * contains sslmode=require. That rejects with "self-signed certificate in
+ * certificate chain" unless we both (1) neutralize sslmode on the URL and
+ * (2) pass ssl.rejectUnauthorized=false.
+ */
+export function shouldRelaxPostgresSsl(url = resolveDatabaseUrl()): boolean {
+  if (!url) return false
+  if (process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true') return false
+  if (process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'false') return true
+  const host = hostOf(url)
+  return Boolean(host && (host.endsWith('.aivencloud.com') || host.endsWith('.aiven.io')))
+}
+
+/** Strip sslmode / ssl query flags without mangling password special chars via URL(). */
+function stripSslQueryParams(url: string): string {
+  const [base, query = ''] = url.split('?', 2)
+  if (!query) return base
+  const kept = query
+    .split('&')
+    .filter((part) => {
+      const key = part.split('=', 1)[0]?.toLowerCase()
+      return key !== 'sslmode' && key !== 'ssl' && key !== 'uselibpqcompat'
+    })
+    .filter(Boolean)
+  return kept.length ? `${base}?${kept.join('&')}` : base
+}
+
+export function normalizeDatabaseUrl(url: string): string {
+  if (!shouldRelaxPostgresSsl(url)) return url
+  const cleaned = stripSslQueryParams(url)
+  const join = cleaned.includes('?') ? '&' : '?'
+  // no-verify is the explicit "encrypt but don't validate CA" mode in modern pg.
+  return `${cleaned}${join}sslmode=no-verify`
+}
+
+export function postgresSslConfig(url = resolveDatabaseUrl()): PoolConfig['ssl'] {
+  if (!url || !shouldRelaxPostgresSsl(url)) return undefined
+  return { rejectUnauthorized: false }
 }
 
 export function postgresPoolConfig(
   overrides: Omit<PoolConfig, 'connectionString' | 'ssl'> & { connectionString?: string } = {},
 ): PoolConfig | null {
-  const connectionString = overrides.connectionString?.trim() || resolveDatabaseUrl()
-  if (!connectionString) return null
+  const raw = overrides.connectionString?.trim() || resolveDatabaseUrl()
+  if (!raw) return null
+  const connectionString = normalizeDatabaseUrl(raw)
   const { connectionString: _ignored, ...rest } = overrides
   return {
     connectionString,
-    ssl: postgresSslConfig(connectionString),
+    ssl: postgresSslConfig(raw),
     max: Number(process.env.NW_DB_POOL_MAX ?? 5),
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 5_000,
@@ -128,9 +155,8 @@ export async function probeDatabase(): Promise<DatabaseProbe> {
       return {
         ok: false,
         host,
-        code: code || 'SSL',
-        detail:
-          'TLS rejected the database certificate. Aiven needs relaxed SSL (app fix) or sslmode=no-verify on DATABASE_URL.',
+        code: 'SSL',
+        detail: `Still failing TLS after relax (${message.slice(0, 120)}). Check Aiven "Public Access" and that DATABASE_URL password is current.`,
       }
     }
 
