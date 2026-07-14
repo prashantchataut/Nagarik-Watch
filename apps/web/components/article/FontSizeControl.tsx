@@ -63,7 +63,7 @@ export function FontSizeControl({ locale }: { locale: Locale }) {
     <div
       role="radiogroup"
       aria-label={dict.fontSizeLabel}
-      className="inline-flex items-center gap-1 rounded-full border border-rule p-0.5"
+      className="article-font-control"
     >
       {steps.map((s) => {
         const active = size === s.value
@@ -75,11 +75,7 @@ export function FontSizeControl({ locale }: { locale: Locale }) {
             aria-checked={active}
             aria-label={s.aria}
             onClick={() => choose(s.value)}
-            className={`inline-flex h-9 w-9 items-center justify-center rounded-full font-display font-bold leading-none transition-colors duration-fast ease-out-quint ${s.cls} ${
-              active
-                ? 'bg-brand-tint text-brand-strong'
-                : 'text-ink-soft hover:bg-brand-tint/60 hover:text-brand-strong'
-            }`}
+            className={`article-font-control__step ${s.cls} ${active ? 'article-font-control__step--active' : ''}`}
           >
             {s.label}
           </button>

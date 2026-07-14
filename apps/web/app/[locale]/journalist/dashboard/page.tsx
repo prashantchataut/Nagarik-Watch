@@ -2,110 +2,35 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import type { Locale } from '@nagarikwatch/db'
-import { getStories } from '@/lib/content'
-import { getSession } from '@/lib/auth/session'
+import { getNewsroomSession } from '@/lib/auth/session'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
-import { NEWSROOM_ROLE_LABELS_EN, NEWSROOM_ROLE_LABELS_NE, type NewsroomRole } from '@/lib/admin-roles'
+import { CONTRIBUTOR_ROLES, NEWSROOM_ROLE_LABELS_EN, NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
+import { listJournalistDraftMeta } from '@/lib/journalist-workspace'
+import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
 
-export const metadata: Metadata = {
-  title: 'Journalist Dashboard',
-  robots: { index: false, follow: false },
-}
+export const metadata: Metadata = { title: 'Journalist dashboard', robots: { index: false, follow: false } }
+export const dynamic = 'force-dynamic'
 
-const JOURNALIST_ROLES: ReadonlySet<string> = new Set([
-  'contributor',
-  'journalist',
-  'photo_video_editor',
-  'copy_editor',
-  'fact_checker',
-  'assistant_editor',
-  'sub_editor',
-  'section_editor',
-  'province_editor',
-  'managing_editor',
-  'editor_in_chief',
-  'publisher',
-  'admin',
-  'super_admin',
-])
-
-type Params = { locale: string }
-
-export default async function JournalistDashboard({ params }: { params: Promise<Params> }) {
-  const { locale: rawLocale } = await params
-  const locale: Locale = asLocale(rawLocale)
+export default async function JournalistDashboard({ params }: { params: Promise<{ locale: string }> }) {
+  const locale: Locale = asLocale((await params).locale)
   const ne = locale === 'ne'
-  const session = await getSession()
-  if (!session) redirect(localizeHref(locale, '/journalist/login'))
-
-  if (!JOURNALIST_ROLES.has(session.role)) {
-    return (
-      <main className="mx-auto max-w-2xl px-4 py-12">
-        <div className="rounded-2xl border border-rule bg-surface-raised p-6 shadow-card">
-          <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={ne ? 'ne' : 'en'}>
-            {ne ? 'अनुमति चाहिन्छ' : 'Access required'}
-          </p>
-          <h1 className="mt-2 font-display text-h1 text-ink" lang={ne ? 'ne' : 'en'}>
-            {ne ? 'यो पत्रकार डेस्क हो।' : 'This is the journalist desk.'}
-          </h1>
-          <p className="mt-3 text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
-            {ne ? 'तपाईंको खातामा पत्रकार वा योगदानकर्ता भूमिका छैन।' : 'Your account does not have a journalist or contributor role.'}
-          </p>
-          <Link href={localizeHref(locale, '/')} className="mt-5 inline-flex rounded-full bg-brand px-5 py-2.5 text-body font-semibold text-surface">
-            {ne ? 'गृहपृष्ठमा फर्कनुहोस्' : 'Back to home'}
-          </Link>
+  const session = await getNewsroomSession()
+  if (!session || !CONTRIBUTOR_ROLES.has(session.newsroomRole)) redirect(localizeHref(locale, '/journalist/login'))
+  const drafts = await listJournalistDraftMeta(session.userId)
+  const roleLabel = ne ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole] : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
+  const review = drafts.filter((item) => item.workflowStage === 'submitted').length
+  const revisions = drafts.filter((item) => item.revisionRequestedAt).length
+  const latest = drafts.slice(0, 5)
+  return (
+    <JournalistWorkspaceShell locale={locale} name={session.displayName || session.email} roleLabel={roleLabel} active="dashboard">
+      <main className="newsroom-page">
+        <header className="newsroom-page__header newsroom-page__header--hero"><div><p className="editorial-kicker" lang="en">Morning desk</p><h1>{ne ? `नमस्कार, ${session.displayName || 'रिपोर्टर'}` : `Good to see you, ${session.displayName || 'reporter'}`}</h1><p>{ne ? 'आजको लक्ष्य: प्रमाणित, स्पष्ट र सार्वजनिक महत्त्वको समाचार।' : 'Today’s brief: verified, clear, public-interest journalism.'}</p></div><Link href={localizeHref(locale, '/journalist/articles/new')} className="newsroom-primary-action">{ne ? 'नयाँ समाचार लेख्नुहोस्' : 'Write a new story'}</Link></header>
+        <section className="newsroom-pulse" aria-label={ne ? 'कार्य स्थिति' : 'Work status'}><div><span>{ne ? 'कुल सामग्री' : 'All stories'}</span><strong>{drafts.length}</strong></div><div><span>{ne ? 'समीक्षामा' : 'In review'}</span><strong>{review}</strong></div><div><span>{ne ? 'संशोधन माग' : 'Revisions'}</span><strong>{revisions}</strong></div><div><span>{ne ? 'प्रकाशन अधिकार' : 'Publish access'}</span><strong>{['publisher','editor_in_chief','admin','super_admin'].includes(session.newsroomRole) ? (ne ? 'छ' : 'Yes') : (ne ? 'छैन' : 'No')}</strong></div></section>
+        <div className="newsroom-dashboard-grid">
+          <section className="newsroom-dashboard-grid__main"><div className="newsroom-section-title"><div><p className="editorial-kicker" lang="en">Your queue</p><h2>{ne ? 'हालका समाचार' : 'Recent stories'}</h2></div><Link href={localizeHref(locale, '/journalist/assignments')}>{ne ? 'सबै हेर्नुहोस्' : 'View all'}</Link></div>{latest.length ? <ol className="newsroom-recent-list">{latest.map((draft, index) => <li key={draft.articleSlug}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{draft.titleNe}</strong><p>{draft.categorySlug} · {draft.workflowStage}</p></div>{draft.articleId ? <Link href={localizeHref(locale, `/journalist/articles/${draft.articleId}/edit`)}>{ne ? 'सम्पादन' : 'Edit'}</Link> : null}</li>)}</ol> : <div className="newsroom-empty"><strong>{ne ? 'अहिले कुनै ड्राफ्ट छैन' : 'No drafts yet'}</strong><p>{ne ? 'पहिलो रिपोर्ट तयार गर्न नयाँ समाचार खोल्नुहोस्।' : 'Open a new story to start reporting.'}</p></div>}</section>
+          <aside className="newsroom-brief"><p className="editorial-kicker" lang="en">Editorial standard</p><h2>{ne ? 'पेश गर्नुअघि चार प्रश्न' : 'Four questions before review'}</h2><ol><li><span>01</span>{ne ? 'समाचारको दाबी कुन प्रमाणमा टिकेको छ?' : 'What evidence supports the central claim?'}</li><li><span>02</span>{ne ? 'सम्बन्धित पक्षलाई प्रतिक्रिया दिन अवसर दिइयो?' : 'Was the affected party offered a response?'}</li><li><span>03</span>{ne ? 'शीर्षकले सामग्रीभन्दा बढी दाबी त गर्दैन?' : 'Does the headline overstate the reporting?'}</li><li><span>04</span>{ne ? 'ट्याग र विभाग सही छन्?' : 'Are the desk and tags accurate?'}</li></ol></aside>
         </div>
       </main>
-    )
-  }
-
-  const { items } = await getStories({ locale, perPage: 8 })
-  const role = session.role as NewsroomRole
-  const roleLabel = ne ? NEWSROOM_ROLE_LABELS_NE[role] : NEWSROOM_ROLE_LABELS_EN[role]
-
-  return (
-    <main className="mx-auto max-w-page px-4 py-8">
-      <header className="rounded-2xl border border-rule bg-surface-raised p-6 shadow-card">
-        <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={ne ? 'ne' : 'en'}>
-          {ne ? 'पत्रकार डेस्क' : 'Journalist desk'}
-        </p>
-        <div className="mt-2 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="font-display text-display leading-tight text-ink" lang={ne ? 'ne' : 'en'}>
-              {ne ? 'स्वागत छ' : 'Welcome'}, {session.displayName || session.email}
-            </h1>
-            <p className="mt-2 text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>{roleLabel}</p>
-          </div>
-          <Link href={localizeHref(locale, '/journalist/articles/new')} className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong">
-            {ne ? 'नयाँ लेख सुरु गर्नुहोस्' : 'Create new article'}
-          </Link>
-        </div>
-      </header>
-
-      <section className="mt-8 grid gap-5 lg:grid-cols-3">
-        {[
-          [ne ? 'ड्राफ्ट लेख्नुहोस्' : 'Write drafts', ne ? 'सरल editor बाट ड्राफ्ट सुरक्षित गर्नुहोस्।' : 'Use the simplified editor to save drafts.'],
-          [ne ? 'समीक्षामा पठाउनुहोस्' : 'Submit for review', ne ? 'पत्रकारले Draft → Submitted मात्र देख्छ।' : 'Journalists only see Draft → Submitted.'],
-          [ne ? 'प्रोफाइल' : 'Profile', session.email],
-        ].map(([label, hint]) => (
-          <article key={label} className="rounded-xl border border-rule bg-surface-raised p-5">
-            <p className="font-display text-h1 text-ink" lang={ne ? 'ne' : 'en'}>{label}</p>
-            <p className="mt-2 text-caption text-mute" lang={ne ? 'ne' : 'en'}>{hint}</p>
-          </article>
-        ))}
-      </section>
-
-      <section className="mt-8 rounded-2xl border border-rule bg-surface-raised p-6">
-        <h2 className="font-display text-h1 text-ink" lang={ne ? 'ne' : 'en'}>{ne ? 'समाचार सन्दर्भ' : 'Newsroom reference'}</h2>
-        <div className="mt-5 divide-y divide-rule">
-          {items.map((story) => (
-            <Link key={story.slug} href={localizeHref(locale, `/${story.category.slug}/${story.slug}`)} className="block py-4 hover:text-brand-strong">
-              <p className="font-display text-body-lg font-semibold text-ink" lang={ne ? 'ne' : 'en'}>{ne ? story.titleNe : story.titleEn || story.titleNe}</p>
-              <p className="mt-1 text-caption text-mute">{story.category.nameNe}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-    </main>
+    </JournalistWorkspaceShell>
   )
 }

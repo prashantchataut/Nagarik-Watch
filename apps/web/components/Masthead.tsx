@@ -59,13 +59,22 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
             <MobileNav locale={locale} navCategories={navCategories} />
           </div>
           <div className="hidden items-center md:flex">
-            <Link
-              href={savedHref}
-              className="border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-ink"
-              lang={lang}
-            >
-              {dict.navSaved}
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                href={localizeHref(locale, '/reader-corner')}
+                className="border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-ink"
+                lang={lang}
+              >
+                {locale === 'en' ? 'My news desk' : 'मेरो समाचार डेस्क'}
+              </Link>
+              <Link
+                href={savedHref}
+                className="border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-ink"
+                lang={lang}
+              >
+                {dict.navSaved}
+              </Link>
+            </div>
           </div>
 
           <Link

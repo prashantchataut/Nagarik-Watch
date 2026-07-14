@@ -80,7 +80,11 @@ export function scoreNotification(
   now = new Date(),
 ): ScoredNotification {
   const base = KIND_WEIGHT[candidate.kind]
-  const ageMinutes = (now.getTime() - Date.parse(candidate.at)) / 60_000
+  const eventTime = Date.parse(candidate.at)
+  if (!Number.isFinite(eventTime)) {
+    return { ...candidate, score: 0, reason: 'suppressed-pref', willSend: false }
+  }
+  const ageMinutes = Math.max(0, (now.getTime() - eventTime) / 60_000)
   const freshness = Math.exp(-ageMinutes / 60)
 
   let reason: ScoredNotification['reason'] =
@@ -146,9 +150,20 @@ export function planSends(
   policy: NotificationPolicy = DEFAULT_POLICY,
   now = new Date(),
 ): ScoredNotification[] {
-  const scored = candidates.map((c) => {
-    const prefs = prefsByUser.get(c.userId) ?? {
-      userId: c.userId,
+  const priority = (candidate: NotificationCandidate) => {
+    const eventTime = Date.parse(candidate.at)
+    const ageMinutes = Number.isFinite(eventTime)
+      ? Math.max(0, (now.getTime() - eventTime) / 60_000)
+      : Number.POSITIVE_INFINITY
+    return KIND_WEIGHT[candidate.kind] * Math.exp(-ageMinutes / 60)
+  }
+
+  const ordered = [...candidates].sort((a, b) => priority(b) - priority(a))
+  const plan: ScoredNotification[] = []
+
+  for (const candidate of ordered) {
+    const prefs = prefsByUser.get(candidate.userId) ?? {
+      userId: candidate.userId,
       breaking: true,
       followedTopics: true,
       followedAuthors: true,
@@ -156,26 +171,19 @@ export function planSends(
       marketing: false,
       channels: { push: true, email: true, sms: false },
     }
-    const win = windowByUser.get(c.userId) ?? { userId: c.userId, sent24h: 0 }
-    return scoreNotification(c, prefs, win, policy, now)
-  })
+    const window = windowByUser.get(candidate.userId) ?? {
+      userId: candidate.userId,
+      sent24h: 0,
+    }
+    const scored = scoreNotification(candidate, prefs, window, policy, now)
+    plan.push(scored)
+    if (!scored.willSend) continue
 
-  const plan: ScoredNotification[] = []
-  for (const s of scored.sort((a, b) => b.score - a.score)) {
-    if (!s.willSend) {
-      plan.push(s)
-      continue
-    }
-    const win = windowByUser.get(s.userId) ?? { userId: s.userId, sent24h: 0 }
-    if (win.sent24h >= policy.maxPerDay) {
-      plan.push({ ...s, willSend: false, reason: 'suppressed-quota' })
-      continue
-    }
-    win.sent24h += 1
-    win.lastSentAt = now.toISOString()
-    windowByUser.set(s.userId, win)
-    plan.push(s)
+    window.sent24h += 1
+    window.lastSentAt = now.toISOString()
+    windowByUser.set(candidate.userId, window)
   }
+
   return plan
 }
 

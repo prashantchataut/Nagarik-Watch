@@ -44,3 +44,19 @@ export function blocksFromShorthand(input: unknown, fallbackText = ''): ArticleB
       ? [{ type: 'paragraph', text: fallbackText }]
       : []
 }
+
+export function shorthandFromBlocks(blocks: ArticleBlock[] | undefined): string {
+  if (!Array.isArray(blocks)) return ''
+  return blocks.map((block) => {
+    switch (block.type) {
+      case 'paragraph': return block.text
+      case 'heading2': return `## ${block.text}`
+      case 'heading3': return `### ${block.text}`
+      case 'pullQuote': return `> ${block.quoteNe}`
+      case 'list': return block.items.map((item) => `${block.ordered ? '1.' : '-'} ${item}`).join('\n')
+      case 'image': return block.caption ? `[Image: ${block.caption}]` : '[Image]'
+      case 'embed': return `[Embed: ${block.url}]`
+      case 'adSlot': return ''
+    }
+  }).filter(Boolean).join('\n\n')
+}

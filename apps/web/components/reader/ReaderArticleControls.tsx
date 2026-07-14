@@ -32,6 +32,9 @@ export function ReaderArticleControls({
   const [speechSupported, setSpeechSupported] = useState(false)
   const [speaking, setSpeaking] = useState(false)
   const [historySyncFailed, setHistorySyncFailed] = useState(false)
+  const [readingSessionId] = useState(() =>
+    globalThis.crypto?.randomUUID?.() ?? `read-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  )
   const lang = locale === 'en' ? 'en' : 'ne'
 
   useEffect(() => {
@@ -82,6 +85,8 @@ export function ReaderArticleControls({
         articleId: story.id,
         slug: story.slug,
         categorySlug: story.category.slug,
+        tagSlugs: story.tags?.map((tag) => typeof tag === 'string' ? tag : tag.slug) ?? [],
+        authorSlugs: story.authors.map((author) => author.slug),
         title,
         href,
         readAt: new Date().toISOString(),
@@ -89,6 +94,7 @@ export function ReaderArticleControls({
         completed: maxDepth >= 92,
         readingMinutes,
         dwellSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+        sessionId: readingSessionId,
       })
       localStorage.setItem(READER_HISTORY_KEY, JSON.stringify(next))
       window.dispatchEvent(new Event('nw-reader-state-change'))
@@ -101,6 +107,9 @@ export function ReaderArticleControls({
           articleCategory: story.category.slug,
           articleTitleNe: story.titleNe,
           readPercent,
+          dwellSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+          completed: maxDepth >= 92,
+          sessionId: readingSessionId,
         }),
         keepalive: true,
       })
@@ -121,7 +130,7 @@ export function ReaderArticleControls({
       window.removeEventListener('pagehide', persist)
       window.clearInterval(interval)
     }
-  }, [href, readingMinutes, story.category.slug, story.id, story.slug, story.titleNe, title])
+  }, [href, readingMinutes, story.category.slug, story.id, story.slug, story.titleNe, title, readingSessionId])
 
   useEffect(() => {
     document.documentElement.classList.toggle('reader-focus-mode', readingMode)
@@ -161,43 +170,20 @@ export function ReaderArticleControls({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2" lang={lang}>
-      <button
-        type="button"
-        onClick={() => setReadingMode((value) => !value)}
-        aria-pressed={readingMode}
-        className="inline-flex min-h-10 items-center rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong active:scale-[0.98]"
-      >
-        {modeLabel}
-      </button>
-      <button
-        type="button"
-        onClick={toggleNarrator}
-        disabled={!speechSupported}
-        aria-pressed={speaking}
-        className="inline-flex min-h-10 items-center rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
-      >
-        {speaking
-          ? locale === 'en'
-            ? 'Stop audio'
-            : 'आवाज रोक्नुहोस्'
-          : locale === 'en'
-            ? 'Listen'
-            : 'सुन्नुहोस्'}
-      </button>
-      <span className="rounded-full bg-surface-raised px-3 py-2 text-caption text-mute">
-        {locale === 'en' ? `${remaining} min left` : `${remaining} मिनेट बाँकी`}
-      </span>
-      {historySyncFailed ? (
-        <span role="status" className="rounded-full border border-rule px-3 py-2 text-caption text-mute">
-          {locale === 'en' ? 'History saved on this device only' : 'इतिहास यो उपकरणमा मात्र सुरक्षित भयो'}
-        </span>
-      ) : null}
-      {!personalized ? (
-        <span className="rounded-full border border-rule px-3 py-2 text-caption text-mute">
-          {locale === 'en' ? 'History off' : 'इतिहास बन्द'}
-        </span>
-      ) : null}
+    <div className="article-utility-bar" lang={lang} aria-label={locale === 'en' ? 'Article reading tools' : 'समाचार पढाइ उपकरण'}>
+      <div className="article-utility-bar__actions">
+        <button type="button" onClick={() => setReadingMode((value) => !value)} aria-pressed={readingMode}>
+          <span>{modeLabel}</span>
+        </button>
+        <button type="button" onClick={toggleNarrator} disabled={!speechSupported} aria-pressed={speaking}>
+          <span>{speaking ? (locale === 'en' ? 'Stop audio' : 'आवाज रोक्नुहोस्') : (locale === 'en' ? 'Listen' : 'सुन्नुहोस्')}</span>
+        </button>
+      </div>
+      <div className="article-utility-bar__status" aria-live="polite">
+        <span><strong>{remaining}</strong> {locale === 'en' ? 'min left' : 'मिनेट बाँकी'}</span>
+        {historySyncFailed ? <span data-warning="true">{locale === 'en' ? 'Device-only history' : 'इतिहास उपकरणमा मात्र'}</span> : null}
+        {!personalized ? <span>{locale === 'en' ? 'History off' : 'इतिहास बन्द'}</span> : null}
+      </div>
     </div>
   )
 }

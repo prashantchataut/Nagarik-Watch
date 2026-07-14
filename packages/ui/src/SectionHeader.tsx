@@ -38,7 +38,7 @@ export function SectionHeader({
       {href && moreLabel && (
         <Link
           href={href}
-          className="shrink-0 rounded-full px-3 py-1 text-meta font-semibold text-brand transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+          className="shrink-0 border-b border-current pb-0.5 text-meta font-semibold text-brand transition-colors duration-fast ease-out-quint hover:text-brand-strong"
           lang={locale === 'en' ? 'en' : 'ne'}
         >
           {moreLabel}

@@ -24,11 +24,12 @@
     "audit:ads": "node scripts/audit-ad-placements.mjs",
     "audit:architecture": "node scripts/audit-architecture.mjs",
     "launch:gate": "node scripts/launch-gate.mjs",
-    "verify:static": "pnpm verify:lockfile && pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm launch:gate",
+    "verify:static": "pnpm verify:workspaces && pnpm verify:lockfile && pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm launch:gate",
     "verify:lockfile": "node scripts/verify-workspace-lock.mjs",
-    "build:web": "pnpm --filter @nagarikwatch/web... build",
-    "build:admin": "pnpm --filter @nagarikwatch/admin... build",
-    "verify:deploy": "pnpm verify:lockfile && pnpm build:web && pnpm build:admin"
+    "build:web": "pnpm verify:workspaces && pnpm --filter @nagarikwatch/web... build",
+    "build:admin": "pnpm verify:workspaces && pnpm --filter @nagarikwatch/admin... build",
+    "verify:deploy": "pnpm verify:lockfile && pnpm build:web && pnpm build:admin",
+    "verify:workspaces": "node scripts/verify-canonical-workspaces.mjs"
   },
   "devDependencies": {
     "@nagarikwatch/tsconfig": "workspace:*",

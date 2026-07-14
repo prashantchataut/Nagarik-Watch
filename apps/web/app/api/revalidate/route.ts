@@ -1,6 +1,9 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
+import { after } from 'next/server'
 import { NextResponse, type NextRequest } from 'next/server'
+import { recordNotificationEvent } from '@/lib/notifications/store'
+import { deliverPushEvent } from '@/lib/notifications/subscriptions'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -13,6 +16,14 @@ type RevalidateMessage = {
   slug?: string
   categorySlug?: string
   status?: string
+  titleNe?: string
+  titleEn?: string
+  isBreaking?: boolean
+  notificationMode?: 'none' | 'followers' | 'breaking'
+  notificationTagSlugs?: string[]
+  publishedAt?: string
+  authorSlugs?: string[]
+  tagSlugs?: string[]
 }
 
 function validSignature(body: string, timestamp: string, received: string, secret: string): boolean {
@@ -73,6 +84,27 @@ export async function POST(request: NextRequest) {
   }
 
   for (const path of paths) revalidatePath(path)
+
+  if (slug && category && message.titleNe && message.articleId) {
+    const event = await recordNotificationEvent({
+      articleId: cleanSegment(message.articleId),
+      articleSlug: slug,
+      categorySlug: category,
+      titleNe: String(message.titleNe).trim().slice(0, 240),
+      titleEn: message.titleEn ? String(message.titleEn).trim().slice(0, 240) : undefined,
+      authorSlugs: Array.isArray(message.authorSlugs) ? message.authorSlugs.map(cleanSegment).filter(Boolean) : [],
+      tagSlugs: Array.isArray(message.tagSlugs) ? message.tagSlugs.map(cleanSegment).filter(Boolean) : [],
+      isBreaking: Boolean(message.isBreaking),
+      notificationMode: message.notificationMode === 'breaking' || message.notificationMode === 'followers' ? message.notificationMode : 'none',
+      notificationTagSlugs: Array.isArray(message.notificationTagSlugs) ? message.notificationTagSlugs.map(cleanSegment).filter(Boolean) : [],
+      publishedAt: Number.isFinite(Date.parse(String(message.publishedAt ?? '')))
+        ? new Date(String(message.publishedAt)).toISOString()
+        : new Date().toISOString(),
+    })
+    after(async () => {
+      await deliverPushEvent(event).catch(() => undefined)
+    })
+  }
 
   return NextResponse.json({
     ok: true,

@@ -82,6 +82,35 @@ describe('recommend', () => {
     )
     expect(result.map((item) => item.id)).toEqual(['one', 'three'])
   })
+
+  it('retains category, topic and byline signals when the read story has left the catalog', () => {
+    const followedCategory = { ...category, id: 'cat-economy', slug: 'economy', nameNe: 'अर्थ', nameEn: 'Economy' }
+    const result = recommend(
+      [
+        story('generic', { authors: [authorB] }),
+        story('history-match', {
+          category: followedCategory,
+          tags: ['banking'],
+          authors: [authorA],
+        }),
+      ],
+      {
+        history: [{
+          id: 'old-history',
+          userId: 'reader',
+          articleId: 'no-longer-in-catalog',
+          categorySlug: 'economy',
+          tagSlugs: ['banking'],
+          authorSlugs: ['a'],
+          readAt: '2026-07-13T09:00:00.000Z',
+          completed: true,
+        }],
+      },
+      { now, limit: 2 },
+    )
+    expect(result[0]?.id).toBe('history-match')
+    expect(result[0]?.recStrategy).toBe('content')
+  })
 })
 
 // Compile-time assertion that the public card contract remains recommendable.

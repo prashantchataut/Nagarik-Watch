@@ -105,13 +105,12 @@ export function StoryCard({
     )
   }
 
-  // overlay: headline sits ON the image (image-led, magazine-style). For
-  // featured rails and photo-driven stories. The image carries a gradient
-  // scrim so the white text always meets AA contrast.
+  // image-led: keep photography and copy in separate, legible planes. This avoids
+  // the generic gradient-overlay treatment and preserves headline contrast at every crop.
   if (variant === 'overlay' && story.heroImage) {
     return (
-      <article className={cn('group relative overflow-hidden rounded-sm', className)}>
-        <div className="relative aspect-[4/3] sm:aspect-[3/4]">
+      <article className={cn('group relative border-t-4 border-ink pt-3', className)}>
+        <div className="relative aspect-[4/3] overflow-hidden rounded-sm sm:aspect-[3/4]">
           <Image
             src={story.heroImage.url}
             alt=""
@@ -119,32 +118,21 @@ export function StoryCard({
             priority={priority}
             unoptimized={unoptimized}
             sizes="(min-width: 768px) 33vw, 100vw"
-            className="object-cover transition-transform duration-slow ease-out-quint group-hover:scale-[1.04]"
-            aria-hidden="true"
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent"
+            className="object-cover transition-transform duration-slow ease-out-quint group-hover:scale-[1.025]"
             aria-hidden="true"
           />
         </div>
-        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+        <div className="border-b border-rule bg-ink px-4 py-4 text-surface sm:px-5 sm:py-5">
           <div className="mb-2 flex flex-wrap items-center gap-2">
-            <CategoryLabel category={story.category} locale={locale} as="span" className="bg-surface/90 px-2 py-0.5" />
+            <CategoryLabel category={story.category} locale={locale} as="span" className="bg-surface px-2 py-0.5 text-ink" />
             {story.premium ? <PremiumBadge locale={locale} /> : null}
           </div>
-          <h3
-            className="font-display text-h2 leading-tight text-surface group-hover:opacity-90 transition-opacity duration-fast ease-out-quint"
-            lang={titleLang}
-          >
-            <Link href={href} className="after:absolute after:inset-0 after:content-['']">
+          <h3 className="font-display text-h2 leading-tight text-surface" lang={titleLang}>
+            <Link href={href} className="transition-opacity duration-fast ease-out-quint hover:opacity-80">
               {title}
             </Link>
           </h3>
-          {deck && (
-            <p className="mt-1.5 text-meta text-surface/80 line-clamp-2" lang={titleLang}>
-              {deck}
-            </p>
-          )}
+          {deck && <p className="mt-2 line-clamp-2 text-meta leading-relaxed text-surface/80" lang={titleLang}>{deck}</p>}
         </div>
       </article>
     )

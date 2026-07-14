@@ -377,6 +377,9 @@ export interface ReadingHistory {
   id: string
   userId: string
   articleId: string
+  categorySlug?: string
+  tagSlugs?: string[]
+  authorSlugs?: string[]
   readAt: string
   scrollDepth?: number
   readingSeconds?: number

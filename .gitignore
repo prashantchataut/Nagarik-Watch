@@ -60,3 +60,7 @@ nul
 
 # Local persistent development data
 .data/
+
+# Retired legacy CMS path. The canonical Payload app is apps/admin.
+# This does not remove an already tracked folder; run: git rm -r apps/cms
+apps/cms/

@@ -34,7 +34,26 @@ type ReadingInput = {
   articleSlug: string
   articleCategory: string
   articleTitleNe: string
+  articleTagSlugs: string[]
+  articleAuthorSlugs: string[]
   readPercent: number
+  dwellSeconds: number
+  completed: boolean
+  sessionId: string
+}
+
+export type ReadingHistoryItem = {
+  articleSlug: string
+  articleCategory: string
+  articleTitleNe: string
+  articleTagSlugs: string[]
+  articleAuthorSlugs: string[]
+  readPercent: number
+  dwellSeconds: number
+  completed: boolean
+  sessions: number
+  firstReadAt: string
+  readAt: string
 }
 
 export type CommentStatus = 'pending' | 'approved' | 'rejected' | 'flagged'
@@ -46,7 +65,12 @@ export type ModerationComment = CommentInput & {
 
 type StoredBookmark = BookmarkInput & { createdAt: string }
 type StoredVote = PollVoteInput & { id: string; createdAt: string }
-type StoredReading = ReadingInput & { readAt: string }
+type StoredReading = ReadingInput & {
+  readAt: string
+  firstReadAt: string
+  sessions: number
+  lastSessionSeconds: number
+}
 type LocalEngagementStore = {
   version: 1
   bookmarks: Record<string, StoredBookmark>
@@ -118,10 +142,27 @@ CREATE TABLE IF NOT EXISTS nw_reading(
   article_slug text not null,
   article_category text,
   article_title_ne text,
+  article_tag_slugs text[] not null default '{}',
+  article_author_slugs text[] not null default '{}',
   read_percent integer not null,
+  dwell_seconds integer not null default 0,
+  completed boolean not null default false,
+  sessions integer not null default 1,
+  first_read_at timestamptz default now(),
+  last_session_id text,
+  last_session_seconds integer not null default 0,
   read_at timestamptz default now(),
   unique(owner_key,article_slug)
-);`)
+);
+ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS dwell_seconds integer NOT NULL DEFAULT 0;
+ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS completed boolean NOT NULL DEFAULT false;
+ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS sessions integer NOT NULL DEFAULT 1;
+ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS first_read_at timestamptz DEFAULT now();
+ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS last_session_id text;
+ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS last_session_seconds integer NOT NULL DEFAULT 0;
+ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS article_tag_slugs text[] NOT NULL DEFAULT '{}';
+ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS article_author_slugs text[] NOT NULL DEFAULT '{}';
+CREATE INDEX IF NOT EXISTS nw_reading_owner_recent_idx ON nw_reading(owner_key, read_at DESC);`)
     .then(() => undefined)
     .catch((error) => {
       schemaReady = null
@@ -228,19 +269,19 @@ export async function mergeAnonymousBookmarks(anonymousId: string, userId: strin
 }
 
 /** A reply may reference only an approved parent on the same public article. */
-export async function isValidCommentParent(articleSlug: string, parentId: string): Promise<boolean> {
+export async function isValidCommentParent(articleSlug: string, articleCategory: string, parentId: string): Promise<boolean> {
   const database = getPool()
   if (database) {
     await ensureSchema()
     const result = await database.query(
-      `select 1 from nw_comments where id=$1 and article_slug=$2 and status='approved' limit 1`,
-      [parentId, articleSlug],
+      `select 1 from nw_comments where id=$1 and article_slug=$2 and article_category=$3 and status='approved' limit 1`,
+      [parentId, articleSlug, articleCategory],
     )
     return Number(result.rowCount ?? 0) > 0
   }
   return (await readLocal()).comments.some(
     (comment) =>
-      comment.id === parentId && comment.articleSlug === articleSlug && comment.status === 'approved',
+      comment.id === parentId && comment.articleSlug === articleSlug && comment.articleCategory === articleCategory && comment.status === 'approved',
   )
 }
 
@@ -311,19 +352,19 @@ export async function createComment(input: CommentInput): Promise<ModerationComm
   return item
 }
 
-export async function getCommentsForArticle(articleSlug: string) {
+export async function getCommentsForArticle(articleSlug: string, articleCategory: string) {
   const database = getPool()
   if (database) {
     await ensureSchema()
     const result = await database.query(
-      `select id, author_name as "authorName", body_ne as "bodyNe", parent_id as "parentId",
+      `select id, author_name as "authorName", author_user_id as "authorUserId", body_ne as "bodyNe", parent_id as "parentId",
               locale, status, created_at as "createdAt"
-       from nw_comments where article_slug=$1 and status='approved' order by created_at asc`,
-      [articleSlug],
+       from nw_comments where article_slug=$1 and article_category=$2 and status='approved' order by created_at asc`,
+      [articleSlug, articleCategory],
     )
-    return result.rows as Array<Pick<ModerationComment, 'id' | 'authorName' | 'bodyNe' | 'parentId' | 'locale' | 'status' | 'createdAt'>>
+    return result.rows as Array<Pick<ModerationComment, 'id' | 'authorName' | 'authorUserId' | 'bodyNe' | 'parentId' | 'locale' | 'status' | 'createdAt'>>
   }
-  return (await readLocal()).comments.filter((comment) => comment.articleSlug === articleSlug && comment.status === 'approved')
+  return (await readLocal()).comments.filter((comment) => comment.articleSlug === articleSlug && comment.articleCategory === articleCategory && comment.status === 'approved')
 }
 
 export async function listCommentsForModeration(status: CommentStatus | 'all' = 'pending', limit = 200): Promise<ModerationComment[]> {
@@ -353,16 +394,84 @@ export async function updateCommentStatus(commentId: string, status: CommentStat
   const database = getPool()
   if (database) {
     await ensureSchema()
-    const result = await database.query('update nw_comments set status=$2 where id=$1', [commentId, status])
-    return Number(result.rowCount ?? 0) > 0
+    const client = await database.connect()
+    try {
+      await client.query('begin')
+      const result = await client.query<{ parent_id: string | null }>(
+        `update nw_comments as comment set status=$2
+         where comment.id=$1
+           and ($2 <> 'approved' or comment.parent_id is null or exists(
+             select 1 from nw_comments as parent
+             where parent.id=comment.parent_id and parent.status='approved'
+           ))
+         returning parent_id`,
+        [commentId, status],
+      )
+      if (!result.rowCount) {
+        await client.query('rollback')
+        return false
+      }
+      if (status === 'rejected' || status === 'flagged') {
+        await client.query(
+          `update nw_comments set status=$2 where parent_id=$1 and status <> 'rejected'`,
+          [commentId, status],
+        )
+      }
+      await client.query('commit')
+      return true
+    } catch (error) {
+      await client.query('rollback')
+      throw error
+    } finally {
+      client.release()
+    }
   }
   const store = await readLocal()
   const index = store.comments.findIndex((comment) => comment.id === commentId)
   if (index === -1) return false
-  const comments = [...store.comments]
-  comments[index] = { ...comments[index]!, status }
+  const current = store.comments[index]!
+  if (status === 'approved' && current.parentId) {
+    const parent = store.comments.find((comment) => comment.id === current.parentId)
+    if (!parent || parent.status !== 'approved') return false
+  }
+  const comments = store.comments.map((comment) => {
+    if (comment.id === commentId) return { ...comment, status }
+    if ((status === 'rejected' || status === 'flagged') && comment.parentId === commentId) {
+      return { ...comment, status }
+    }
+    return comment
+  })
   await writeLocal({ ...store, comments })
   return true
+}
+
+export type DeleteOwnCommentResult = 'deleted' | 'has_replies' | 'not_found'
+
+export async function deleteOwnComment(commentId: string, userId: string): Promise<DeleteOwnCommentResult> {
+  const database = getPool()
+  if (database) {
+    await ensureSchema()
+    const owned = await database.query<{ id: string }>(
+      `select id from nw_comments where id=$1 and author_user_id=$2 limit 1`,
+      [commentId, userId],
+    )
+    if (!owned.rowCount) return 'not_found'
+    const replies = await database.query(
+      `select 1 from nw_comments where parent_id=$1 and status='approved' limit 1`,
+      [commentId],
+    )
+    if (replies.rowCount) return 'has_replies'
+    await database.query(`delete from nw_comments where id=$1 and author_user_id=$2`, [commentId, userId])
+    return 'deleted'
+  }
+  const store = await readLocal()
+  const target = store.comments.find((comment) => comment.id === commentId && comment.authorUserId === userId)
+  if (!target) return 'not_found'
+  if (store.comments.some((comment) => comment.parentId === commentId && comment.status === 'approved')) {
+    return 'has_replies'
+  }
+  await writeLocal({ ...store, comments: store.comments.filter((comment) => comment.id !== commentId) })
+  return 'deleted'
 }
 
 export async function getPollVoteCounts(pollId: string): Promise<Record<string, number>> {
@@ -404,20 +513,223 @@ export async function recordPollVote(input: PollVoteInput) {
 }
 
 export async function recordReading(input: ReadingInput) {
+  const safePercent = Math.max(0, Math.min(100, Math.round(input.readPercent)))
+  const safeSeconds = Math.max(0, Math.min(86_400, Math.round(input.dwellSeconds)))
   const database = getPool()
   if (database) {
     await ensureSchema()
     await database.query(
-      `insert into nw_reading(id,owner_key,article_slug,article_category,article_title_ne,read_percent)
-       values($1,$2,$3,$4,$5,$6)
-       on conflict(owner_key,article_slug) do update set read_percent=excluded.read_percent,read_at=now()`,
-      [randomUUID(), owner(input.anonymousId, input.userId), input.articleSlug, input.articleCategory, input.articleTitleNe, Math.round(input.readPercent)],
+      `insert into nw_reading(
+         id,owner_key,article_slug,article_category,article_title_ne,article_tag_slugs,
+         article_author_slugs,read_percent,dwell_seconds,completed,sessions,first_read_at,
+         last_session_id,last_session_seconds
+       ) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,1,now(),$11,$9)
+       on conflict(owner_key,article_slug) do update set
+         article_category=excluded.article_category,
+         article_title_ne=excluded.article_title_ne,
+         article_tag_slugs=excluded.article_tag_slugs,
+         article_author_slugs=excluded.article_author_slugs,
+         read_percent=greatest(nw_reading.read_percent, excluded.read_percent),
+         completed=nw_reading.completed or excluded.completed,
+         dwell_seconds=case
+           when nw_reading.last_session_id=excluded.last_session_id
+             then greatest(0, nw_reading.dwell_seconds - nw_reading.last_session_seconds) + excluded.last_session_seconds
+           else nw_reading.dwell_seconds + excluded.last_session_seconds
+         end,
+         sessions=case when nw_reading.last_session_id=excluded.last_session_id then nw_reading.sessions else nw_reading.sessions + 1 end,
+         last_session_id=excluded.last_session_id,
+         last_session_seconds=excluded.last_session_seconds,
+         read_at=now()`,
+      [
+        randomUUID(),
+        owner(input.anonymousId, input.userId),
+        input.articleSlug,
+        input.articleCategory,
+        input.articleTitleNe,
+        input.articleTagSlugs,
+        input.articleAuthorSlugs,
+        safePercent,
+        safeSeconds,
+        input.completed,
+        input.sessionId,
+      ],
     )
     return
   }
   const store = await readLocal()
   const key = `${owner(input.anonymousId, input.userId)}:${input.articleSlug}`
-  await writeLocal({ ...store, readings: { ...store.readings, [key]: { ...input, readAt: new Date().toISOString() } } })
+  const previous = store.readings[key]
+  const sameSession = previous?.sessionId === input.sessionId
+  const previousLastSessionSeconds = previous?.lastSessionSeconds ?? previous?.dwellSeconds ?? 0
+  const previousTotal = previous?.dwellSeconds ?? 0
+  const dwellSeconds = sameSession
+    ? Math.max(0, previousTotal - previousLastSessionSeconds) + safeSeconds
+    : previousTotal + safeSeconds
+  const now = new Date().toISOString()
+  await writeLocal({
+    ...store,
+    readings: {
+      ...store.readings,
+      [key]: {
+        ...input,
+        readPercent: Math.max(previous?.readPercent ?? 0, safePercent),
+        dwellSeconds,
+        completed: Boolean(previous?.completed || input.completed),
+        sessions: sameSession ? (previous?.sessions ?? 1) : (previous?.sessions ?? 0) + 1,
+        firstReadAt: previous?.firstReadAt ?? previous?.readAt ?? now,
+        lastSessionSeconds: safeSeconds,
+        readAt: now,
+      },
+    },
+  })
+}
+
+export async function mergeAnonymousReading(anonymousId: string, userId: string): Promise<void> {
+  if (!anonymousId.trim()) return
+  const anonymousOwner = owner(anonymousId)
+  const userOwner = owner('', userId)
+  const database = getPool()
+  if (database) {
+    await ensureSchema()
+    const client = await database.connect()
+    try {
+      await client.query('begin')
+      await client.query(
+        `insert into nw_reading(
+           id,owner_key,article_slug,article_category,article_title_ne,article_tag_slugs,
+           article_author_slugs,read_percent,dwell_seconds,completed,sessions,first_read_at,
+           last_session_id,last_session_seconds,read_at
+         )
+         select $2 || ':' || article_slug,$2,article_slug,article_category,article_title_ne,
+                article_tag_slugs,article_author_slugs,read_percent,dwell_seconds,completed,
+                sessions,first_read_at,last_session_id,last_session_seconds,read_at
+         from nw_reading where owner_key=$1
+         on conflict(owner_key,article_slug) do update set
+           article_category=excluded.article_category,
+           article_title_ne=excluded.article_title_ne,
+           article_tag_slugs=excluded.article_tag_slugs,
+           article_author_slugs=excluded.article_author_slugs,
+           read_percent=greatest(nw_reading.read_percent, excluded.read_percent),
+           dwell_seconds=case
+             when nw_reading.last_session_id is not null and nw_reading.last_session_id=excluded.last_session_id
+               then greatest(nw_reading.dwell_seconds, excluded.dwell_seconds)
+             else nw_reading.dwell_seconds + excluded.dwell_seconds
+           end,
+           completed=nw_reading.completed or excluded.completed,
+           sessions=case
+             when nw_reading.last_session_id is not null and nw_reading.last_session_id=excluded.last_session_id
+               then greatest(nw_reading.sessions, excluded.sessions)
+             else nw_reading.sessions + excluded.sessions
+           end,
+           first_read_at=least(nw_reading.first_read_at, excluded.first_read_at),
+           last_session_id=case when excluded.read_at >= nw_reading.read_at then excluded.last_session_id else nw_reading.last_session_id end,
+           last_session_seconds=case when excluded.read_at >= nw_reading.read_at then excluded.last_session_seconds else nw_reading.last_session_seconds end,
+           read_at=greatest(nw_reading.read_at, excluded.read_at)`,
+        [anonymousOwner, userOwner],
+      )
+      await client.query('delete from nw_reading where owner_key=$1', [anonymousOwner])
+      await client.query('commit')
+    } catch (error) {
+      await client.query('rollback')
+      throw error
+    } finally {
+      client.release()
+    }
+    return
+  }
+  const store = await readLocal()
+  const readings = { ...store.readings }
+  for (const [key, item] of Object.entries(store.readings)) {
+    if (!key.startsWith(`${anonymousOwner}:`)) continue
+    const targetKey = `${userOwner}:${item.articleSlug}`
+    const existing = readings[targetKey]
+    const sameSession = Boolean(existing?.sessionId && existing.sessionId === item.sessionId)
+    const itemIsNewer = !existing || item.readAt >= existing.readAt
+    readings[targetKey] = {
+      ...(itemIsNewer ? item : existing),
+      anonymousId: '',
+      userId,
+      readPercent: Math.max(existing?.readPercent ?? 0, item.readPercent),
+      dwellSeconds: sameSession
+        ? Math.max(existing?.dwellSeconds ?? 0, item.dwellSeconds ?? 0)
+        : (existing?.dwellSeconds ?? 0) + (item.dwellSeconds ?? 0),
+      completed: Boolean(existing?.completed || item.completed),
+      sessions: sameSession
+        ? Math.max(existing?.sessions ?? 0, item.sessions ?? 1)
+        : (existing?.sessions ?? 0) + (item.sessions ?? 1),
+      firstReadAt: [existing?.firstReadAt, item.firstReadAt, item.readAt].filter(Boolean).sort()[0] ?? item.readAt,
+      readAt: [existing?.readAt, item.readAt].filter(Boolean).sort().at(-1) ?? item.readAt,
+    }
+    delete readings[key]
+  }
+  await writeLocal({ ...store, readings })
+}
+
+export async function getReadingHistory(
+  anonymousId: string,
+  userId?: string,
+  limit = 100,
+): Promise<ReadingHistoryItem[]> {
+  const safeLimit = Math.max(1, Math.min(limit, 200))
+  const database = getPool()
+  if (database) {
+    await ensureSchema()
+    const result = await database.query(
+      `select article_slug as "articleSlug", article_category as "articleCategory",
+              article_title_ne as "articleTitleNe", article_tag_slugs as "articleTagSlugs",
+              article_author_slugs as "articleAuthorSlugs", read_percent as "readPercent",
+              dwell_seconds as "dwellSeconds", completed, sessions,
+              first_read_at as "firstReadAt", read_at as "readAt"
+       from nw_reading where owner_key=$1 order by read_at desc limit $2`,
+      [owner(anonymousId, userId), safeLimit],
+    )
+    return result.rows.map((row) => ({
+      articleSlug: String(row.articleSlug),
+      articleCategory: String(row.articleCategory ?? ''),
+      articleTitleNe: String(row.articleTitleNe ?? ''),
+      articleTagSlugs: Array.isArray(row.articleTagSlugs) ? row.articleTagSlugs.map(String) : [],
+      articleAuthorSlugs: Array.isArray(row.articleAuthorSlugs) ? row.articleAuthorSlugs.map(String) : [],
+      readPercent: Number(row.readPercent ?? 0),
+      dwellSeconds: Number(row.dwellSeconds ?? 0),
+      completed: Boolean(row.completed),
+      sessions: Number(row.sessions ?? 1),
+      firstReadAt: new Date(row.firstReadAt as Date | string).toISOString(),
+      readAt: new Date(row.readAt as Date | string).toISOString(),
+    }))
+  }
+  const prefix = `${owner(anonymousId, userId)}:`
+  return Object.entries((await readLocal()).readings)
+    .filter(([key]) => key.startsWith(prefix))
+    .map(([, item]) => ({
+      articleSlug: item.articleSlug,
+      articleCategory: item.articleCategory,
+      articleTitleNe: item.articleTitleNe,
+      articleTagSlugs: item.articleTagSlugs ?? [],
+      articleAuthorSlugs: item.articleAuthorSlugs ?? [],
+      readPercent: item.readPercent,
+      dwellSeconds: item.dwellSeconds ?? 0,
+      completed: Boolean(item.completed),
+      sessions: item.sessions ?? 1,
+      firstReadAt: item.firstReadAt ?? item.readAt,
+      readAt: item.readAt,
+    }))
+    .sort((a, b) => b.readAt.localeCompare(a.readAt))
+    .slice(0, safeLimit)
+}
+
+export async function clearReadingHistory(anonymousId: string, userId?: string): Promise<void> {
+  const database = getPool()
+  if (database) {
+    await ensureSchema()
+    await database.query('delete from nw_reading where owner_key=$1', [owner(anonymousId, userId)])
+    return
+  }
+  const store = await readLocal()
+  const prefix = `${owner(anonymousId, userId)}:`
+  const readings = Object.fromEntries(
+    Object.entries(store.readings).filter(([key]) => !key.startsWith(prefix)),
+  )
+  await writeLocal({ ...store, readings })
 }
 
 

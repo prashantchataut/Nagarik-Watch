@@ -34,7 +34,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
     <div className="mx-auto max-w-page px-4 py-8">
       <header className="flex flex-col gap-6 border-b border-rule pb-8 sm:flex-row sm:items-start">
         {author.photo && (
-          <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full">
+          <div className="relative h-28 w-28 shrink-0 overflow-hidden border-b-4 border-brand">
             <Image
               src={author.photo.url}
               alt={author.photo.alt || author.name}
@@ -61,7 +61,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
           )}
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <span
-              className="inline-flex items-center rounded-full bg-brand-tint px-3.5 py-1 text-meta font-semibold text-brand-strong"
+              className="inline-flex items-center border-l-2 border-brand pl-3 text-meta font-bold text-brand-strong"
               lang={lang}
             >
               {dict.storyCount(stories.total)}
@@ -71,7 +71,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
                 href={author.social.twitter}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-rule px-3.5 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+                className="inline-flex items-center gap-1.5 border-b border-rule pb-1 text-meta font-semibold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
               >
                 <XIcon /> X
               </a>
@@ -81,7 +81,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
                 href={author.social.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-rule px-3.5 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+                className="inline-flex items-center gap-1.5 border-b border-rule pb-1 text-meta font-semibold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
               >
                 <FacebookIcon /> Facebook
               </a>
@@ -104,7 +104,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
                       <Link
                         href={localizeHref(locale, `/${c.slug}`)}
                         lang={catLang}
-                        className="inline-flex items-center rounded-full border border-rule px-3.5 py-1 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+                        className="inline-flex items-center border-b border-rule pb-1 text-meta font-semibold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
                       >
                         {label}
                       </Link>

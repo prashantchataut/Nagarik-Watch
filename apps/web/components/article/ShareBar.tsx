@@ -56,7 +56,7 @@ export function ShareBar({ url, title, locale, className }: ShareBarProps) {
       <button
         type="button"
         onClick={onCopy}
-        className="inline-flex items-center gap-1.5 rounded-full border border-rule px-3.5 py-1.5 text-meta font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+        className="article-action-link"
         lang={locale === 'en' ? 'en' : 'ne'}
       >
         <LinkIcon />
@@ -66,7 +66,7 @@ export function ShareBar({ url, title, locale, className }: ShareBarProps) {
         href={fb}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rule text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+        className="article-icon-action"
         aria-label={dict.shareFacebook}
       >
         <FacebookIcon />
@@ -75,7 +75,7 @@ export function ShareBar({ url, title, locale, className }: ShareBarProps) {
         href={x}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rule text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+        className="article-icon-action"
         aria-label={dict.shareTwitter}
       >
         <XIcon />

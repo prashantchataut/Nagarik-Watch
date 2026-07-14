@@ -6,149 +6,87 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { getSession } from '@/lib/auth/session'
 import { ReaderProfileCard } from '@/components/reader/ReaderProfileCard'
-import { ReaderActivityPanel } from '@/components/reader/ReaderActivityPanel'
-import { NotificationCenter } from '@/components/reader/NotificationCenter'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Profile',
-  description: 'Your Nagarik Watch reader profile.',
+  title: 'Account',
+  description: 'Your Nagarik Watch account and security settings.',
   robots: { index: false, follow: false },
 }
 
-export default async function ReaderProfilePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
-  const { locale: rawLocale } = await params
-  const locale: Locale = asLocale(rawLocale)
+export default async function ReaderProfilePage({ params }: { params: Promise<{ locale: string }> }) {
+  const locale: Locale = asLocale((await params).locale)
   const dict = getDictionary(locale)
   const session = await getSession()
-  const lang = locale === 'en' ? 'en' : 'ne'
-
-  if (!session) {
-    redirect(locale === 'en' ? '/en/auth/login' : '/auth/login')
-  }
+  const english = locale === 'en'
+  if (!session) redirect(localizeHref(locale, '/auth/login'))
 
   const cards = [
     {
+      href: localizeHref(locale, '/reader-corner'),
+      title: english ? 'Personal news desk' : 'व्यक्तिगत समाचार डेस्क',
+      body: english ? 'History, interests, recommendations and alerts.' : 'इतिहास, रुचि, सिफारिस र सूचना।',
+      index: '01',
+    },
+    {
       href: localizeHref(locale, '/saved'),
       title: dict.navSaved,
-      body: locale === 'en' ? 'Stories you saved to read later.' : 'पछि पढ्न संग्रह गरेका समाचार।',
-    },
-    {
-      href: localizeHref(locale, '/latest'),
-      title: locale === 'en' ? 'Continue reading' : 'पढ्न जारी',
-      body:
-        locale === 'en'
-          ? 'Return to the latest desk and keep reading.'
-          : 'ताजा डेस्कमा फर्किएर पढ्न जारी राख्नुहोस्।',
-    },
-    {
-      href: localizeHref(locale, '/trending'),
-      title: dict.navTrending,
-      body:
-        locale === 'en'
-          ? 'See what readers are following now.'
-          : 'अहिले पाठकले के पछ्याइरहेका छन् हेर्नुहोस्।',
+      body: english ? 'Your cross-device reading queue.' : 'उपकरणहरूबीच सिङ्क हुने पढाइ सूची।',
+      index: '02',
     },
     {
       href: localizeHref(locale, '/auth/change-password'),
-      title: locale === 'en' ? 'Account security' : 'खाता सुरक्षा',
-      body:
-        locale === 'en'
-          ? 'Change your password and revoke other sessions.'
-          : 'पासवर्ड परिवर्तन गरेर अन्य उपकरणका सत्र बन्द गर्नुहोस्।',
-    },
-    {
-      href: locale === 'en' ? '/' : '/en',
-      title: locale === 'en' ? 'नेपाली संस्करण' : 'English edition',
-      body: locale === 'en' ? 'Switch to the Nepali edition.' : 'English edition मा जानुहोस्।',
+      title: english ? 'Password and sessions' : 'पासवर्ड र सत्र',
+      body: english ? 'Change your password and close other sessions.' : 'पासवर्ड परिवर्तन गरी अन्य सत्र बन्द गर्नुहोस्।',
+      index: '03',
     },
   ]
 
   return (
-    <div className="mx-auto max-w-page px-4 py-10">
-      <nav
-        aria-label={locale === 'en' ? 'Account navigation' : 'खाता नेभिगेसन'}
-        className="mb-6 flex flex-wrap gap-2"
-        lang={lang}
-      >
-        <Link
-          href={localizeHref(locale, '/auth/profile')}
-          aria-current="page"
-          className="rounded-full bg-brand px-3.5 py-2 text-meta font-bold text-surface"
-        >
-          {locale === 'en' ? 'Profile' : 'प्रोफाइल'}
-        </Link>
-        <Link
-          href={localizeHref(locale, '/saved')}
-          className="rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
-        >
-          {dict.navSaved}
-        </Link>
-        <Link
-          href={localizeHref(locale, '/auth/change-password')}
-          className="rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
-        >
-          {locale === 'en' ? 'Security' : 'खाता सुरक्षा'}
-        </Link>
-        <Link
-          href={localizeHref(locale, '/auth/login')}
-          className="rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
-        >
-          {locale === 'en' ? 'Login' : 'लगइन'}
-        </Link>
-      </nav>
+    <div className="reader-account-page" lang={english ? 'en' : 'ne'}>
+      <div className="reader-account-page__inner">
+        <nav aria-label={english ? 'Account navigation' : 'खाता नेभिगेसन'} className="reader-account-nav">
+          <Link href={localizeHref(locale, '/auth/profile')} aria-current="page">{english ? 'Account' : 'खाता'}</Link>
+          <Link href={localizeHref(locale, '/reader-corner')}>{english ? 'My news desk' : 'मेरो समाचार डेस्क'}</Link>
+          <Link href={localizeHref(locale, '/saved')}>{dict.navSaved}</Link>
+          <Link href={localizeHref(locale, '/auth/change-password')}>{english ? 'Security' : 'सुरक्षा'}</Link>
+        </nav>
 
-      <header className="grid gap-5 border-b border-rule pb-7 lg:grid-cols-[1fr_0.5fr] lg:items-end">
-        <div>
-          <h1 className="font-display text-display text-ink" lang={lang}>
-            {locale === 'en' ? 'Your profile' : 'तपाईंको प्रोफाइल'}
-          </h1>
-          <p className="mt-2 max-w-2xl text-body text-ink-soft" lang={lang}>
-            {locale === 'en'
-              ? 'Manage your reader account, saved stories, reading path and language access from one place.'
-              : 'तपाईंको पाठक खाता, सुरक्षित समाचार, पढाइ बाटो र भाषा पहुँच एउटै ठाउँबाट हेर्नुहोस्।'}
-          </p>
-        </div>
-        <div className="rounded-lg border border-rule bg-surface-raised p-4 text-meta text-ink-soft" lang={lang}>
-          {locale === 'en'
-            ? 'Reading history remains on this device; signed-in bookmarks also sync through the engagement store.'
-            : 'पढाइ इतिहास यो उपकरणमै रहन्छ; लगइन गरिएको bookmark engagement store मार्फत पनि सिंक हुन्छ।'}
-        </div>
-      </header>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.42fr)]">
-        <div className="grid gap-6">
-          <ReaderProfileCard session={session} locale={locale} />
-          <ReaderActivityPanel locale={locale} />
-        </div>
-        <div className="grid content-start gap-6">
-          <aside className="rounded-lg border border-rule bg-surface-raised p-5" lang={lang}>
-          <p
-            className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong"
-            lang="en"
-          >
-            Reader shortcuts
-          </p>
-          <ul className="mt-4 grid gap-3">
-            {cards.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="block rounded-lg border border-rule bg-surface p-3 transition hover:border-brand hover:bg-brand-tint/40"
-                >
-                  <span className="font-display text-h3 text-ink">{item.title}</span>
-                  <span className="mt-1 block text-meta text-ink-soft">{item.body}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+        <header className="reader-account-hero">
+          <div>
+            <p className="editorial-kicker" lang="en">Reader account</p>
+            <h1>{english ? 'Identity and security' : 'पहिचान र सुरक्षा'}</h1>
+            <p>{english
+              ? 'Keep account administration separate from the news you read. Personalization and alert controls live in your news desk; credentials and profile details live here.'
+              : 'खाता प्रशासन र पढ्ने समाचार छुट्टै राखिएको छ। व्यक्तिगत सिफारिस र सूचना नियन्त्रण समाचार डेस्कमा हुन्छ; परिचय र सुरक्षा यहाँ हुन्छ।'}</p>
+          </div>
+          <aside className="reader-account-hero__trust">
+            <strong>{english ? 'Signed-in sync is active' : 'लगइन सिङ्क सक्रिय छ'}</strong>
+            <span>{english
+              ? 'Bookmarks, reading history and preferences can follow this account across devices. You remain able to clear or change them from the reader desk.'
+              : 'bookmark, पढाइ इतिहास र रुचि यो खातासँग अन्य उपकरणमा पनि सिङ्क हुन सक्छन्। पाठक डेस्कबाट तिनलाई बदल्न वा मेटाउन सकिन्छ।'}</span>
           </aside>
-          <NotificationCenter locale={locale} />
+        </header>
+
+        <div className="reader-account-grid reader-account-grid--profile">
+          <main className="reader-account-grid__main">
+            <ReaderProfileCard session={session} locale={locale} />
+          </main>
+          <aside className="reader-account-grid__rail">
+            <section className="reader-shortcuts" aria-labelledby="account-shortcuts-title">
+              <p className="editorial-kicker" lang="en">Account map</p>
+              <h2 id="account-shortcuts-title">{english ? 'Choose the right workspace' : 'सही कार्यक्षेत्र छान्नुहोस्'}</h2>
+              <ol>
+                {cards.map((item) => (
+                  <li key={item.href}>
+                    <span aria-hidden="true">{item.index}</span>
+                    <Link href={item.href}><strong>{item.title}</strong><small>{item.body}</small></Link>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          </aside>
         </div>
       </div>
     </div>

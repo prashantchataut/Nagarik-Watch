@@ -1,93 +1,148 @@
 # Vercel deployment — Nagarik Watch
 
-Nagarik Watch is a monorepo with two independently deployed Next.js applications. Keep the repository root available during installation because both apps consume workspace packages.
+Nagarik Watch is a pnpm monorepo with two independently deployed Next.js applications. The reader and Payload CMS share workspace packages, so installation must run from the repository root.
 
-## Incident fixed: `ERR_PNPM_OUTDATED_LOCKFILE`
+## Current incident: `ERR_PNPM_OUTDATED_LOCKFILE`
 
-The failed deployment at commit `b6ae37e` stopped during dependency installation. Vercel reported that `apps/cms/package.json` declared 18 specifiers that were absent from that commit's `pnpm-lock.yaml` importer.
+The supplied deployment log for commit `b13a8ce` proves that Vercel is still building a stale repository tree:
 
-This delivery uses one canonical CMS directory: `apps/admin`. The duplicate/former `apps/cms` path is not part of the workspace. The checked-in lockfile is verified against every root, app and package manifest by:
-
-```bash
-node scripts/verify-workspace-lock.mjs
+```text
+Scope: all 9 workspace projects
+<ROOT>/apps/cms/package.json
+ERR_PNPM_OUTDATED_LOCKFILE
 ```
 
-A deployment of `b6ae37e` will remain broken. Commit and push this repaired tree, then deploy the new commit SHA.
+The canonical project has **eight** manifests and one CMS application at `apps/admin`. It uses an explicit workspace list:
 
-## Correct lockfile repair workflow
+```yaml
+packages:
+  - 'apps/web'
+  - 'apps/admin'
+  - 'packages/*'
+```
+
+That explicit list prevents a forgotten `apps/cms` directory from re-entering pnpm installation. The delivered tree also verifies the canonical layout before Vercel installs dependencies.
+
+### Required Git cleanup
+
+Replace the repository with the delivered tree and run:
+
+```bash
+git rm -r apps/cms 2>/dev/null || true
+git add -A
+git commit -m "retire legacy cms workspace and complete newsroom rebuild"
+git push origin main
+```
+
+Then verify the Vercel deployment screen shows the **new commit SHA**. Do not redeploy `b13a8ce`; an old commit cannot contain a new lockfile or workspace definition.
+
+The next install log must say:
+
+```text
+Canonical workspaces verified: apps/web, apps/admin, and packages/*.
+Scope: all 8 workspace projects
+```
+
+If it still says nine projects or names `apps/cms`, one of these is true:
+
+1. the new tree was not committed;
+2. `apps/cms` remains tracked in Git;
+3. Vercel is deploying an older SHA;
+4. Vercel is connected to a different repository or branch;
+5. the project root points at a stale subdirectory.
+
+## Lockfile repair workflow
 
 Run from the repository root on a connected machine:
 
 ```bash
 corepack enable
 corepack prepare pnpm@10.17.1 --activate
-pnpm install --lockfile-only
+node scripts/verify-canonical-workspaces.mjs
 node scripts/verify-workspace-lock.mjs
 pnpm install --frozen-lockfile
 ```
 
-Review and commit both the changed `package.json` file(s) and `pnpm-lock.yaml`. Do not set Vercel to `--no-frozen-lockfile`; that hides repository drift and makes installs non-reproducible.
+When intentionally changing dependencies:
+
+```bash
+pnpm install --lockfile-only
+node scripts/verify-workspace-lock.mjs
+git add package.json pnpm-lock.yaml apps packages
+git commit
+```
+
+Do not permanently replace `--frozen-lockfile` with `--no-frozen-lockfile`. That suppresses the repository defect rather than fixing it.
 
 ## Project 1 — reader web
 
-Use the repository root as the project root.
+Recommended Vercel settings:
 
-- Framework: Next.js
+- repository: the Nagarik Watch repository
+- branch: `main`
+- root directory: repository root
+- framework: Next.js
 - Node: 22.x
-- Install: `pnpm install --frozen-lockfile`
-- Build: `pnpm build:web`
-- Output: `apps/web/.next`
-- Health: `/api/health`
+- install: use `vercel.json`
+- build: use `vercel.json`
+- output: `apps/web/.next`
+- health: `/api/health`
 
-The root `vercel.json` already contains the reader build settings.
+The root `vercel.json` runs:
 
-Required production values include:
+```text
+node scripts/verify-canonical-workspaces.mjs && pnpm install --frozen-lockfile
+pnpm verify:workspaces && pnpm --filter @nagarikwatch/web... build
+```
+
+## Project 2 — Payload CMS
+
+Create a second Vercel project from the same repository.
+
+- root directory: `apps/admin`
+- framework: Next.js
+- Node: 22.x
+- install/build/output: use `apps/admin/vercel.json`
+- health: `/healthz`
+
+Before promoting a production CMS release:
+
+```bash
+pnpm --filter @nagarikwatch/admin migrate
+pnpm build:admin
+```
+
+Keep `PAYLOAD_DB_PUSH=false` in production.
+
+## Required reader environment
 
 - `CONTENT_SOURCE=payload`
 - `PAYLOAD_PUBLIC_SERVER_URL=https://<cms-domain>`
+- `PAYLOAD_API_TOKEN`
 - `NEXT_PUBLIC_SITE_URL=https://<reader-domain>`
 - `DATABASE_URL`
 - `AUTH_SECRET`
 - `BETTER_AUTH_SECRET`
-- `REVALIDATE_SECRET` (same value as CMS)
-- verified publication identity values from `.env.example`
+- `REVALIDATE_SECRET`
+- `CRON_SECRET`
+- verified publication/legal identity values from `.env.example`
+- email delivery configuration
+- Web Push configuration when background alerts are enabled
 
-## Project 2 — Payload CMS
-
-Create a second Vercel project from the same repository. Keep the monorepo root available to the build and set:
-
-- Framework: Next.js
-- Node: 22.x
-- Install: `pnpm install --frozen-lockfile`
-- Build: `pnpm build:admin`
-- Output: `apps/admin/.next`
-- Health: `/healthz`
-
-Required production values include:
+## Required CMS environment
 
 - `DATABASE_URL`
 - `PAYLOAD_SECRET`
 - `PAYLOAD_PUBLIC_SERVER_URL=https://<cms-domain>`
 - `NEXT_PUBLIC_SITE_URL=https://<reader-domain>`
-- `REVALIDATE_SECRET` (same value as reader)
+- `REVALIDATE_SECRET`
 - `PAYLOAD_DB_PUSH=false`
-- a supported Payload object-storage adapter plus its verified credentials
+- configured and tested Payload object-storage adapter
 
-Apply checked-in migrations against staging before production:
-
-```bash
-pnpm --filter @nagarikwatch/admin migrate
-```
-
-The July 13 migration adds `viewer`/`reviewer` CMS roles and enforces globally unique article slugs. Do not enable `PAYLOAD_DB_PUSH` to bypass a migration failure.
-
-## Publish-to-reader contract
-
-When a published or updated article changes, Payload signs an HMAC request to the reader's `/api/revalidate` endpoint. Both projects must share the same 32+ character `REVALIDATE_SECRET`. The webhook revalidates the homepage, latest list, category, article, RSS and sitemap paths.
-
-## Verification sequence
+## Release verification
 
 ```bash
+node scripts/verify-canonical-workspaces.mjs
 node scripts/verify-workspace-lock.mjs
 pnpm install --frozen-lockfile
 pnpm format:check
@@ -106,4 +161,4 @@ GET https://<reader-domain>/api/health
 GET https://<cms-domain>/healthz
 ```
 
-Do not promote the release if either endpoint is degraded. The current repository intentionally keeps the live launch gate blocked until Payload media is moved off local Vercel filesystem storage.
+Do not promote the release if the commit SHA is wrong, either health endpoint is degraded, migrations have not run, email cannot deliver, or Payload media still uses ephemeral local filesystem storage.

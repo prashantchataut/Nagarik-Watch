@@ -1,25 +1,18 @@
 'use client'
 
-import { useState, useTransition, useEffect } from 'react'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 
 type Comment = {
   id: string
   authorName: string
   bodyNe: string
+  parentId?: string
   createdAt: string
   status: string
+  canDelete?: boolean
 }
 
-/**
- * CommentSection — the article-page comment block. Fetches approved comments
- * on mount, shows a submit form, and optimistically prepends new comments
- * with a "pending moderation" note.
- *
- * Rate-limited server-side (5/min/IP). Comments are created in 'pending'
- * status; a moderator approves them in /admin/comments before they appear
- * publicly.
- */
 export function CommentSection({
   articleSlug,
   articleCategory,
@@ -34,166 +27,144 @@ export function CommentSection({
   const [comments, setComments] = useState<Comment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [replyTo, setReplyTo] = useState<Comment | null>(null)
+  const [signedIn, setSignedIn] = useState(false)
+  const [displayName, setDisplayName] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  const formRef = useRef<HTMLFormElement>(null)
   const ne = locale === 'ne'
 
   useEffect(() => {
-    fetch(`/api/comments?articleSlug=${encodeURIComponent(articleSlug)}`)
-      .then((r) => r.json())
-      .then((data: { comments?: Comment[] }) => {
-        setComments(data.comments ?? [])
-        setLoading(false)
+    let cancelled = false
+    fetch(`/api/comments?articleSlug=${encodeURIComponent(articleSlug)}&articleCategory=${encodeURIComponent(articleCategory)}`, { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`Comment request failed: ${response.status}`)
+        return response.json() as Promise<{ comments?: Comment[]; signedIn?: boolean; displayName?: string | null }>
       })
-      .catch(() => setLoading(false))
-  }, [articleSlug])
+      .then((data) => {
+        if (cancelled) return
+        setComments(data.comments ?? [])
+        setSignedIn(Boolean(data.signedIn))
+        setDisplayName(data.displayName ?? null)
+      })
+      .catch(() => setError(ne ? 'टिप्पणी लोड गर्न सकिएन।' : 'Comments could not be loaded.'))
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [articleCategory, articleSlug, ne])
 
-  function submit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  const roots = useMemo(() => comments.filter((comment) => !comment.parentId), [comments])
+  const replies = useMemo(() => {
+    const map = new Map<string, Comment[]>()
+    for (const comment of comments) {
+      if (!comment.parentId) continue
+      map.set(comment.parentId, [...(map.get(comment.parentId) ?? []), comment])
+    }
+    return map
+  }, [comments])
+
+  function chooseReply(comment: Comment) {
+    setReplyTo(comment)
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
+  function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
     setError(null)
-    const form = new FormData(e.currentTarget)
+    const form = new FormData(event.currentTarget)
     const authorName = String(form.get('authorName') ?? '').trim()
     const bodyNe = String(form.get('bodyNe') ?? '').trim()
-    if (!authorName || !bodyNe) {
-      setError(ne ? 'नाम र टिप्पणी दुवै आवश्यक।' : 'Name and comment are required.')
+    if ((!signedIn && !authorName) || bodyNe.length < 3) {
+      setError(ne ? 'नाम र कम्तीमा ३ अक्षरको टिप्पणी आवश्यक छ।' : 'Add your name and a comment of at least 3 characters.')
       return
     }
     startTransition(async () => {
       try {
-        const res = await fetch('/api/comments', {
+        const response = await fetch('/api/comments', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ articleSlug, articleCategory, authorName, bodyNe, locale }),
+          body: JSON.stringify({ articleSlug, articleCategory, authorName, bodyNe, parentId: replyTo?.id, locale }),
         })
-        const data = await res.json().catch(() => ({}))
-        if (!res.ok) {
-          setError(data?.error ?? (ne ? 'त्रुटि भयो।' : 'Error.'))
+        const data = await response.json().catch(() => ({}))
+        if (!response.ok) {
+          setError(String(data?.error ?? (ne ? 'टिप्पणी पठाउन सकिएन।' : 'Comment could not be posted.')))
           return
         }
-        // Optimistic: show as pending until a moderator approves.
-        setComments((c) => [
-          {
-            id: data.id,
-            authorName,
-            bodyNe,
-            createdAt: new Date().toISOString(),
-            status: 'pending',
-          },
-          ...c,
-        ])
-        ;(e.target as HTMLFormElement).reset()
+        setComments((current) => [...current, {
+          id: String(data.id),
+          authorName: String(data.authorName ?? displayName ?? authorName),
+          bodyNe,
+          parentId: replyTo?.id,
+          createdAt: new Date().toISOString(),
+          status: 'pending',
+          canDelete: Boolean(data.canDelete),
+        }])
+        formRef.current?.reset()
+        setReplyTo(null)
       } catch {
-        setError(ne ? 'नेटवर्क त्रुटि।' : 'Network error.')
+        setError(ne ? 'नेटवर्क त्रुटि। पुनः प्रयास गर्नुहोस्।' : 'Network error. Try again.')
       }
     })
   }
 
-  if (!commentsEnabled) {
-    return (
-      <section className="mt-12 border-t border-rule pt-8" aria-label={ne ? 'टिप्पणी' : 'Comments'}>
-        <p className="text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
-          {ne ? 'यो समाचारमा टिप्पणी बन्द छ।' : 'Comments are closed for this article.'}
-        </p>
-      </section>
-    )
+  function removeComment(id: string) {
+    startTransition(async () => {
+      const response = await fetch('/api/comments', {
+        method: 'DELETE',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (response.ok) {
+        setComments((current) => current.filter((comment) => comment.id !== id))
+        return
+      }
+      const body = await response.json().catch(() => ({})) as { error?: string }
+      setError(response.status === 409
+        ? (ne ? 'प्रकाशित जवाफ भएको टिप्पणी हटाउन मिल्दैन।' : 'A comment with published replies cannot be deleted.')
+        : String(body.error ?? (ne ? 'टिप्पणी हटाउन सकिएन।' : 'Comment could not be removed.')))
+    })
   }
 
-  return (
-    <section className="mt-12 border-t border-rule pt-8" aria-label={ne ? 'टिप्पणी' : 'Comments'}>
-      <h2 className="font-display text-h2 text-ink" lang={ne ? 'ne' : 'en'}>
-        {ne ? 'टिप्पणी' : 'Comments'}
-        {comments.length > 0 && (
-          <span className="ml-2 text-meta font-normal text-mute">({comments.length})</span>
-        )}
-      </h2>
+  if (!commentsEnabled) {
+    return <section className="comment-desk comment-desk--closed"><p>{ne ? 'यो समाचारमा टिप्पणी बन्द छ।' : 'Comments are closed for this article.'}</p></section>
+  }
 
-      {/* Submit form */}
-      <form
-        onSubmit={submit}
-        className="mt-5 grid gap-3 rounded-lg border border-rule bg-surface-raised p-4"
-      >
-        <label className="grid gap-1 text-meta font-semibold text-ink">
-          <span lang={ne ? 'ne' : 'en'}>{ne ? 'नाम' : 'Name'}</span>
-          <input
-            name="authorName"
-            type="text"
-            required
-            maxLength={80}
-            disabled={pending}
-            placeholder={ne ? 'तपाईंको नाम' : 'Your name'}
-            className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
-          />
-        </label>
-        <label className="grid gap-1 text-meta font-semibold text-ink">
-          <span lang={ne ? 'ne' : 'en'}>{ne ? 'टिप्पणी' : 'Comment'}</span>
-          <textarea
-            name="bodyNe"
-            required
-            maxLength={2000}
-            rows={4}
-            disabled={pending}
-            placeholder={ne ? 'आफ्नो विचार लेख्नुहोस्…' : 'Share your thoughts…'}
-            className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
-          />
-        </label>
-        {error && (
-          <p className="text-meta text-breaking" role="alert">
-            {error}
-          </p>
-        )}
-        <button
-          type="submit"
-          disabled={pending}
-          className="inline-flex h-10 items-center justify-center rounded-full bg-brand px-5 text-meta font-semibold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:cursor-not-allowed disabled:opacity-60"
-          lang={ne ? 'ne' : 'en'}
-        >
-          {pending ? (ne ? 'पठाइँदै…' : 'Posting…') : ne ? 'टिप्पणी पठाउनुहोस्' : 'Post comment'}
-        </button>
-        <p className="text-caption text-mute" lang={ne ? 'ne' : 'en'}>
-          {ne
-            ? 'टिप्पणी सम्पादकीय स्वीकृतिपछि प्रकाशित हुनेछ।'
-            : 'Comments are published after editorial approval.'}
-        </p>
+  const renderComment = (comment: Comment, nested = false) => (
+    <article key={comment.id} className="comment-item" data-nested={nested} data-pending={comment.status === 'pending'}>
+      <header>
+        <div><strong>{comment.authorName}</strong>{comment.status === 'pending' ? <span>{ne ? 'समीक्षामा' : 'In moderation'}</span> : null}</div>
+        <time dateTime={comment.createdAt}>{new Date(comment.createdAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}</time>
+      </header>
+      <p>{comment.bodyNe}</p>
+      <footer>
+        {comment.status === 'approved' && !nested ? <button type="button" onClick={() => chooseReply(comment)}>{ne ? 'जवाफ दिनुहोस्' : 'Reply'}</button> : null}
+        {comment.canDelete ? <button type="button" onClick={() => removeComment(comment.id)} disabled={pending}>{ne ? 'हटाउनुहोस्' : 'Delete'}</button> : null}
+      </footer>
+    </article>
+  )
+
+  return (
+    <section className="comment-desk" aria-labelledby="comment-desk-title" lang={ne ? 'ne' : 'en'}>
+      <header className="comment-desk__header">
+        <div>
+          <p className="editorial-kicker" lang="en">Reader conversation</p>
+          <h2 id="comment-desk-title">{ne ? 'तथ्यमा आधारित संवाद' : 'A conversation grounded in the story'}</h2>
+          <p>{ne ? 'असहमति स्वीकार्य छ; व्यक्तिगत आक्रमण, घृणा र अपुष्ट आरोप प्रकाशित हुँदैनन्।' : 'Disagreement is welcome; personal attacks, hate and unsupported allegations are not published.'}</p>
+        </div>
+        <span>{comments.length}</span>
+      </header>
+
+      <form ref={formRef} onSubmit={submit} className="comment-composer">
+        {replyTo ? <div className="comment-composer__reply"><span>{ne ? `${replyTo.authorName} लाई जवाफ` : `Replying to ${replyTo.authorName}`}</span><button type="button" onClick={() => setReplyTo(null)}>{ne ? 'रद्द' : 'Cancel'}</button></div> : null}
+        {!signedIn ? <label><span>{ne ? 'नाम' : 'Name'}</span><input name="authorName" required maxLength={80} disabled={pending} placeholder={ne ? 'तपाईंको सार्वजनिक नाम' : 'Your public name'} /></label> : <p className="comment-composer__identity">{ne ? `${displayName ?? 'पाठक'} को रूपमा टिप्पणी गर्दै` : `Commenting as ${displayName ?? 'reader'}`}</p>}
+        <label><span>{replyTo ? (ne ? 'जवाफ' : 'Reply') : (ne ? 'तपाईंको टिप्पणी' : 'Your comment')}</span><textarea name="bodyNe" required minLength={3} maxLength={2000} rows={5} disabled={pending} placeholder={ne ? 'समाचारको विषयमै केन्द्रित भएर लेख्नुहोस्…' : 'Stay specific to the reporting…'} /></label>
+        <div className="comment-composer__footer">
+          <p>{ne ? 'सम्पादकीय स्वीकृतिपछि सार्वजनिक हुन्छ।' : 'Published after editorial moderation.'}</p>
+          <button type="submit" disabled={pending}>{pending ? (ne ? 'पठाइँदै…' : 'Posting…') : replyTo ? (ne ? 'जवाफ पठाउनुहोस्' : 'Post reply') : (ne ? 'टिप्पणी पठाउनुहोस्' : 'Post comment')}</button>
+        </div>
+        {error ? <p className="comment-composer__error" role="alert">{error}</p> : null}
       </form>
 
-      {/* Comment list */}
-      {loading ? (
-        <p className="mt-6 text-body text-mute" lang={ne ? 'ne' : 'en'}>
-          {ne ? 'लोड हुँदै…' : 'Loading…'}
-        </p>
-      ) : comments.length === 0 ? (
-        <p className="mt-6 text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
-          {ne ? 'अहिलेसम्म कुनै टिप्पणी छैन। पहिलो बनाउनुहोस्।' : 'No comments yet. Be the first.'}
-        </p>
-      ) : (
-        <ul className="mt-6 space-y-4">
-          {comments.map((c) => (
-            <li key={c.id} className="rounded-lg border border-rule bg-surface-raised p-4">
-              <div className="flex items-center justify-between gap-2">
-                <p className="font-semibold text-ink" lang={ne ? 'ne' : 'en'}>
-                  {c.authorName}
-                </p>
-                <time className="text-caption text-mute">
-                  {new Date(c.createdAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}
-                </time>
-              </div>
-              <p
-                className="mt-2 text-body text-ink-soft whitespace-pre-wrap"
-                lang={ne ? 'ne' : 'en'}
-              >
-                {c.bodyNe}
-              </p>
-              {c.status === 'pending' && (
-                <p
-                  className="mt-2 inline-block rounded-full bg-brand-tint px-2 py-0.5 text-caption font-semibold text-brand-strong"
-                  lang={ne ? 'ne' : 'en'}
-                >
-                  {ne ? 'स्वीकृतिको प्रतीक्षा' : 'Awaiting approval'}
-                </p>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+      {loading ? <p className="comment-desk__state">{ne ? 'टिप्पणी लोड हुँदै…' : 'Loading comments…'}</p> : roots.length === 0 ? <div className="comment-desk__empty"><strong>{ne ? 'संवाद सुरु भएको छैन' : 'The conversation is open'}</strong><p>{ne ? 'समाचारको तथ्य, प्रभाव वा छुटेको सन्दर्भबारे पहिलो टिप्पणी गर्नुहोस्।' : 'Be the first to add context, question an implication, or respond to the reporting.'}</p></div> : <ol className="comment-thread">{roots.map((comment) => <li key={comment.id}>{renderComment(comment)}{(replies.get(comment.id) ?? []).length ? <ol>{replies.get(comment.id)!.map((reply) => <li key={reply.id}>{renderComment(reply, true)}</li>)}</ol> : null}</li>)}</ol>}
     </section>
   )
 }

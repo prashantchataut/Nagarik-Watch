@@ -91,8 +91,15 @@ export type PayloadJournalistDraftInput = {
   tagSlugs: string[]
   workflowStage: 'draft' | 'submitted'
   editorPitch?: string
+  homepageTeaserNe?: string
+  socialCopyNe?: string
+  reportingLocation?: string
+  sourceNote?: string
+  mediaReferenceUrl?: string
   internalNotes?: string
   locale: 'ne' | 'en'
+  notificationMode?: 'none' | 'followers' | 'breaking'
+  notificationTagSlugs?: string[]
 }
 
 export async function createPayloadJournalistDraft(
@@ -130,10 +137,17 @@ export async function createPayloadJournalistDraft(
       locale: input.locale,
       noIndex: true,
       includeInNewsSitemap: false,
-      aiSummary: input.editorPitch,
+      homepageTeaserNe: input.homepageTeaserNe,
+      socialCopyNe: input.socialCopyNe,
+      reportingLocation: input.reportingLocation,
+      sourceNote: input.sourceNote,
+      editorPitch: input.editorPitch,
+      mediaReferenceUrl: input.mediaReferenceUrl,
       internalNotes: input.internalNotes,
       premium: false,
       commentsEnabled: true,
+      notificationMode: input.notificationMode ?? 'none',
+      notificationTagSlugs: input.notificationTagSlugs ?? [],
       _status: 'draft',
     }),
   })
@@ -143,4 +157,115 @@ export async function createPayloadJournalistDraft(
     slug: String(created.slug ?? input.slug),
     workflowStage: String(created.workflowStage ?? input.workflowStage),
   }
+}
+
+export type PayloadJournalistDraft = {
+  id: string
+  slug: string
+  titleNe: string
+  titleEn?: string
+  deckNe?: string
+  categorySlug: string
+  bodyNe: ArticleBlock[]
+  tagSlugs: string[]
+  workflowStage: string
+  homepageTeaserNe?: string
+  socialCopyNe?: string
+  reportingLocation?: string
+  sourceNote?: string
+  editorPitch?: string
+  mediaReferenceUrl?: string
+  updatedAt?: string
+}
+
+type PayloadRelationship = string | number | { id?: string | number; slug?: string }
+type PayloadDraftDoc = PayloadDoc & {
+  titleNe?: string
+  titleEn?: string
+  deckNe?: string
+  bodyNe?: ArticleBlock[]
+  category?: PayloadRelationship
+  tags?: Array<{ tag?: PayloadRelationship }>
+  workflowStage?: string
+  homepageTeaserNe?: string
+  socialCopyNe?: string
+  reportingLocation?: string
+  sourceNote?: string
+  editorPitch?: string
+  mediaReferenceUrl?: string
+  updatedAt?: string
+}
+
+function relationshipSlug(value: PayloadRelationship | undefined): string {
+  return value && typeof value === 'object' ? String(value.slug ?? '') : ''
+}
+
+function draftFromPayload(doc: PayloadDraftDoc): PayloadJournalistDraft {
+  return {
+    id: String(doc.id),
+    slug: String(doc.slug ?? ''),
+    titleNe: String(doc.titleNe ?? ''),
+    titleEn: doc.titleEn ? String(doc.titleEn) : undefined,
+    deckNe: doc.deckNe ? String(doc.deckNe) : undefined,
+    categorySlug: relationshipSlug(doc.category),
+    bodyNe: Array.isArray(doc.bodyNe) ? doc.bodyNe : [],
+    tagSlugs: (doc.tags ?? []).map((item) => relationshipSlug(item.tag)).filter(Boolean),
+    workflowStage: String(doc.workflowStage ?? 'draft'),
+    homepageTeaserNe: doc.homepageTeaserNe ? String(doc.homepageTeaserNe) : undefined,
+    socialCopyNe: doc.socialCopyNe ? String(doc.socialCopyNe) : undefined,
+    reportingLocation: doc.reportingLocation ? String(doc.reportingLocation) : undefined,
+    sourceNote: doc.sourceNote ? String(doc.sourceNote) : undefined,
+    editorPitch: doc.editorPitch ? String(doc.editorPitch) : undefined,
+    mediaReferenceUrl: doc.mediaReferenceUrl ? String(doc.mediaReferenceUrl) : undefined,
+    updatedAt: doc.updatedAt ? String(doc.updatedAt) : undefined,
+  }
+}
+
+export async function getPayloadJournalistDraft(id: string): Promise<PayloadJournalistDraft> {
+  const params = new URLSearchParams({ draft: 'true', depth: '2' })
+  const doc = await payloadJson<PayloadDraftDoc>(
+    `/api/articles/${encodeURIComponent(id)}?${params.toString()}`,
+  )
+  return draftFromPayload(doc)
+}
+
+export async function updatePayloadJournalistDraft(
+  id: string,
+  input: Omit<PayloadJournalistDraftInput, 'reporterEmail'>,
+): Promise<PayloadJournalistDraft> {
+  const [category, tags] = await Promise.all([
+    findDocument('categories', 'slug', input.categorySlug),
+    Promise.all(input.tagSlugs.map((slug) => findDocument('tags', 'slug', slug))),
+  ])
+  if (!category) throw new Error(`Payload category not found for slug "${input.categorySlug}".`)
+  const doc = await payloadJson<PayloadDraftDoc>(
+    `/api/articles/${encodeURIComponent(id)}?draft=true&depth=2`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify({
+        titleNe: input.titleNe,
+        titleEn: input.titleEn,
+        slug: input.slug,
+        deckNe: input.deckNe,
+        bodyNe: input.bodyNe,
+        category: category.id,
+        tags: tags.filter((tag): tag is PayloadDoc => Boolean(tag)).map((tag) => ({ tag: tag.id })),
+        workflowStage: input.workflowStage,
+        homepageTeaserNe: input.homepageTeaserNe,
+        socialCopyNe: input.socialCopyNe,
+        reportingLocation: input.reportingLocation,
+        sourceNote: input.sourceNote,
+        editorPitch: input.editorPitch,
+        mediaReferenceUrl: input.mediaReferenceUrl,
+        internalNotes: input.internalNotes,
+        locale: input.locale,
+        noIndex: true,
+        includeInNewsSitemap: false,
+        notificationMode: input.notificationMode ?? 'none',
+        notificationTagSlugs: input.notificationTagSlugs ?? [],
+        _status: 'draft',
+      }),
+    },
+  )
+  return draftFromPayload(doc)
 }

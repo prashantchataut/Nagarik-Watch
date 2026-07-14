@@ -1,124 +1,80 @@
-# Deployment Triage — Nagarik Watch
+# Deployment triage — Nagarik Watch
 
-This guide separates repository defects from provider/network failures. Paste the exact deployment log beside this checklist before changing code.
+Use the first failing boundary in the log. Do not edit application code until the failure has reached application compilation.
 
+## Current Vercel failure
 
-## July 13 Vercel incident: exact root cause and fix
+**Commit:** `b13a8ce`  
+**Stage:** dependency installation  
+**Error:** `ERR_PNPM_OUTDATED_LOCKFILE`  
+**Evidence:** Vercel reports nine workspaces and `<ROOT>/apps/cms/package.json`.
 
-The supplied log failed before compilation:
+The delivered repository has eight manifests and explicitly includes only `apps/web`, `apps/admin` and `packages/*`. Therefore the current Vercel run is not using the delivered tree.
 
-- failing commit: `b6ae37e`
-- failing importer: `apps/cms/package.json`
-- error: `ERR_PNPM_OUTDATED_LOCKFILE`
-- root cause: that commit changed the CMS manifest/path without regenerating and committing the matching pnpm 10 lockfile importer
+### Resolution
 
-The current repaired repository uses `apps/admin`, contains no `apps/cms`, and passes `node scripts/verify-workspace-lock.mjs` across all eight package manifests. Retrying the old commit cannot apply this fix; push and deploy the repaired commit. The Node 24/22 message in the log is informational: the root `engines.node=22.x` intentionally selects Node 22.
+```bash
+git rm -r apps/cms 2>/dev/null || true
+git add -A
+git commit -m "retire legacy cms workspace and fix frozen install"
+git push origin main
+```
 
-See [`VERCEL_DEPLOYMENT.md`](VERCEL_DEPLOYMENT.md) for the two-project setup and health checks.
+Deploy the resulting new SHA. Clear the Vercel build cache once after the replacement. Cache clearing is not the root fix; it only removes stale artifacts after the correct commit is selected.
+
+Expected install evidence:
+
+```text
+Canonical workspaces verified: apps/web, apps/admin, and packages/*.
+Scope: all 8 workspace projects
+```
 
 ## Supported toolchain
 
-- Node.js: `22.x`
-- pnpm: `10.17.1`
-- install: `pnpm install --frozen-lockfile`
+- Node.js `22.x`
+- pnpm `10.17.1`
+- `pnpm install --frozen-lockfile`
 
-Do not use npm or Yarn to install this workspace. Do not delete or regenerate `pnpm-lock.yaml` as a first response to a failed build.
+The Vercel warning that project settings specify Node 24 while `package.json` specifies Node 22 is informational. The repository intentionally selects Node 22.
 
-## Deployment topology
+## Failure classes
 
-Deploy the monorepo as two services:
+### 1. Canonical workspace failure
 
-1. **Reader web**
-   - workspace package: `@nagarikwatch/web`
-   - application directory: `apps/web`
-   - build from monorepo root: `pnpm --filter @nagarikwatch/web build`
-   - start command: `pnpm --filter @nagarikwatch/web start`
+The pre-install verifier reports a missing canonical workspace or wildcard `apps/*` configuration. Restore the delivered `pnpm-workspace.yaml` and remove the legacy CMS directory.
 
-2. **Payload admin/CMS**
-   - workspace package: `@nagarikwatch/admin`
-   - application directory: `apps/admin`
-   - build from monorepo root: `pnpm --filter @nagarikwatch/admin build`
-   - run checked-in migrations before start
-   - start command: `pnpm --filter @nagarikwatch/admin start`
+### 2. Frozen-lockfile mismatch
 
-Both services need the full workspace during installation because they depend on internal packages.
+A tracked manifest differs from its lockfile importer. Use pnpm 10.17.1, regenerate the lockfile intentionally, review the importer diff, and commit the manifest and lockfile together.
 
-## Minimum live environment contract
+### 3. Registry/network failure
 
-The launch gate requires verified values for:
+Corepack or pnpm cannot resolve/fetch the npm registry. This happens before source code is evaluated. Check DNS, provider egress, registry settings and package-manager caching.
 
-- `NEXT_PUBLIC_SITE_URL`
-- `NEXT_PUBLIC_PUBLICATION_LEGAL_NAME`
-- `NEXT_PUBLIC_EDITOR_IN_CHIEF`
-- `NEXT_PUBLIC_DOIB_NUMBER`
-- `NEXT_PUBLIC_NEWSROOM_PHONE`
-- `NEXT_PUBLIC_NEWSROOM_ADDRESS`
-- `NEXT_PUBLIC_NEWSROOM_EMAIL`
-- `DATABASE_URL`
-- `PAYLOAD_PUBLIC_SERVER_URL`
-- `PAYLOAD_API_TOKEN`
-- `AUTH_SECRET` (at least 32 non-placeholder characters)
-- `PAYLOAD_SECRET` (at least 32 non-placeholder characters)
-- `REVALIDATE_SECRET` (at least 32 non-placeholder characters)
-- `SUBMISSION_IP_SALT` (at least 32 non-placeholder characters)
-- `CONTENT_SOURCE=payload`
-- `PAYLOAD_DB_PUSH=false`
-- a wired and verified Payload object-storage adapter (credentials alone are insufficient)
+### 4. TypeScript or Next build failure
 
-Never expose database, Payload API or server secrets through `NEXT_PUBLIC_*` variables.
+Capture the first source-level error. Fix it under the pinned toolchain, then rerun both reader and CMS builds; a reader-only green build is insufficient.
 
-## Required commands before release
+### 5. Payload migration failure
 
-```bash
-corepack enable
-corepack prepare pnpm@10.17.1 --activate
-node scripts/verify-workspace-lock.mjs
-pnpm install --frozen-lockfile
-pnpm format:check
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm verify:static
-pnpm --filter @nagarikwatch/web build
-pnpm --filter @nagarikwatch/admin build
-NEXT_PUBLIC_LAUNCH_STATUS=live pnpm launch:gate
-```
+Run checked-in migrations against staging first. Keep `PAYLOAD_DB_PUSH=false`. Do not enable schema push to bypass a failed migration.
 
-## Error classification
+### 6. Runtime provider failure
 
-### Package-manager fetch failure
+Use `/api/health`, `/healthz`, and authenticated provider-health diagnostics. Distinguish database, CMS, email, push and object-storage readiness.
 
-Symptoms include a Corepack error while requesting the pnpm tarball from the npm registry. This occurs before application dependencies or source code are evaluated. Check provider network/DNS, package-manager caching and registry access before editing application code.
+## Evidence required before declaring deployment fixed
 
-### Frozen-lockfile mismatch
-
-The log explicitly reports that `package.json` and `pnpm-lock.yaml` disagree. Reproduce locally with the same Node/pnpm versions, make intentional dependency changes, run install to update the lockfile, review the diff and commit both files.
-
-### Build-time database connection
-
-A Next build should not require a reachable production database merely to evaluate modules. Locate stack frames that create pools or execute queries during module import/static generation. Do not “fix” this by inserting fake production credentials or swallowing every database error.
-
-### Missing environment value
-
-The log names an environment variable or the launch gate reports it. Set the value in the correct service scope. Reader-public values and server-only CMS values must not be mixed.
-
-### Payload migration/schema failure
-
-Run checked-in migrations against a backup or disposable staging database first. Keep `PAYLOAD_DB_PUSH=false` in production. Never enable schema push merely to bypass a migration error.
-
-### Next.js type/compile failure
-
-Capture the first source-level error, not only the final non-zero exit. Fix it under the pinned toolchain, then run the full CI sequence because later failures may have been hidden.
-
-## Evidence to preserve from the provider
-
-- service/root directory
-- install command
-- build command
-- Node and pnpm versions printed in the log
-- commit SHA
-- environment name (preview/staging/production)
+- exact commit SHA shown by Vercel
+- branch and repository name
+- Vercel project root
+- install and build commands
+- printed Node and pnpm versions
 - first complete error stack
-- whether the failure occurs during install, build, migration or runtime start
+- successful frozen install
+- successful reader build
+- successful CMS build
+- successful staging migration
+- healthy reader and CMS endpoints
 
-Do not declare a deployment fixed until the same commit passes in CI and the provider reaches a healthy runtime check.
+See `VERCEL_DEPLOYMENT.md` for full topology and `NOTIFICATIONS.md` for alert-provider setup.

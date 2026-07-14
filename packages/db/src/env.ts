@@ -41,8 +41,10 @@ const EnvSchema = z.object({
   NEXT_PUBLIC_GA4_ID: z.string().optional(),
 
   // Phase 3+ (optional now)
-  NEXT_PUBLIC_ONESIGNAL_APP_ID: z.string().optional(),
-  ONESIGNAL_REST_API_KEY: z.string().optional(),
+  NEXT_PUBLIC_WEB_PUSH_VAPID_KEY: z.string().optional(),
+  WEB_PUSH_PROVIDER_URL: z.string().url().optional(),
+  WEB_PUSH_PROVIDER_API_KEY: z.string().optional(),
+  CRON_SECRET: z.string().min(32).optional(),
   NEWSLETTER_PROVIDER: z.string().optional(),
   NEWSLETTER_API_KEY: z.string().optional(),
   NEWSLETTER_API_BASE: z.string().url().optional(),

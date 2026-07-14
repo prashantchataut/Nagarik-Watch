@@ -43,7 +43,7 @@ function toCard(a: StoredArticle, locale: Locale): StoryCardData {
     categoryLabel: locale === 'en' ? (cat.nameEn ?? cat.nameNe) : cat.nameNe,
     titleNe: a.titleNe,
     titleEn: a.titleEn,
-    deckNe: a.deckNe,
+    deckNe: a.homepageTeaserNe ?? a.deckNe,
     deckEn: a.deckEn,
     heroImage,
     byline: cardAuthors.map((au) => au.name).join(', '),
@@ -69,6 +69,8 @@ function toFullArticle(a: StoredArticle, locale: Locale): Article {
       : undefined
   return {
     ...toCard(a, locale),
+    deckNe: a.deckNe,
+    deckEn: a.deckEn,
     bodyNe: a.bodyNe,
     bodyEn: a.bodyEn,
     source,

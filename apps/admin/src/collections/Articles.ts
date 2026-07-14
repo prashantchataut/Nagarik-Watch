@@ -184,6 +184,54 @@ export const Articles: CollectionConfig = {
       label: 'Deck (English)',
     },
     {
+      name: 'homepageTeaserNe',
+      type: 'textarea',
+      maxLength: 220,
+      label: 'Homepage teaser (Nepali)',
+      admin: {
+        description: 'Optional card copy. Keep factual; the article deck remains unchanged.',
+      },
+    },
+    {
+      name: 'socialCopyNe',
+      type: 'textarea',
+      maxLength: 280,
+      label: 'Social distribution copy (Nepali)',
+      access: { read: canReadInternalField },
+    },
+    {
+      name: 'reportingLocation',
+      type: 'text',
+      maxLength: 160,
+      label: 'Reporting location',
+      access: { read: canReadInternalField },
+    },
+    {
+      name: 'sourceNote',
+      type: 'textarea',
+      maxLength: 4000,
+      label: 'Source and evidence note',
+      access: { read: canReadInternalField },
+    },
+    {
+      name: 'editorPitch',
+      type: 'textarea',
+      maxLength: 2400,
+      label: 'Pitch to editor',
+      access: { read: canReadInternalField },
+    },
+    {
+      name: 'mediaReferenceUrl',
+      type: 'text',
+      maxLength: 2048,
+      label: 'Media reference URL',
+      validate: (value: unknown) => !value || isValidHttpUrl(value) || 'Use a valid http(s) URL.',
+      access: { read: canReadInternalField },
+      admin: {
+        description: 'Reference only. Editors must upload licensed media to the Media collection before publication.',
+      },
+    },
+    {
       name: 'bodyNe',
       type: 'json',
       required: true,
@@ -377,6 +425,47 @@ export const Articles: CollectionConfig = {
       type: 'checkbox',
       defaultValue: false,
       admin: { position: 'sidebar' },
+    },
+    {
+      name: 'notificationMode',
+      type: 'select',
+      defaultValue: 'none',
+      options: [
+        { label: 'No alert', value: 'none' },
+        { label: 'Followers of matching topics', value: 'followers' },
+        { label: 'Propose as breaking', value: 'breaking' },
+      ],
+      access: {
+        read: canReadInternalField,
+        create: canReadInternalField,
+        update: canReadInternalField,
+      },
+      admin: {
+        position: 'sidebar',
+        description: 'A newsroom recommendation. Publishing editors remain responsible for the final alert decision.',
+      },
+    },
+    {
+      name: 'notificationTagSlugs',
+      type: 'json',
+      defaultValue: [],
+      access: {
+        read: canReadInternalField,
+        create: canReadInternalField,
+        update: canReadInternalField,
+      },
+      admin: {
+        position: 'sidebar',
+        description: 'Optional topic slugs for follower alerts. Empty means use all article tags.',
+      },
+      validate: (value: unknown) => {
+        if (value == null) return true
+        if (!Array.isArray(value)) return 'Notification topic slugs must be an array.'
+        if (value.length > 30) return 'Use no more than 30 notification topic slugs.'
+        return value.every((item) => typeof item === 'string' && /^[a-z0-9-]{1,100}$/.test(item))
+          ? true
+          : 'Notification topic slugs must use lowercase letters, numbers and hyphens.'
+      },
     },
     {
       name: 'featuredState',

@@ -162,7 +162,9 @@ function asCard(doc: PayloadDoc): StoryCardData {
     categoryLabel: category.nameNe,
     titleNe: String(doc.titleNe ?? ''),
     titleEn: doc.titleEn ? String(doc.titleEn) : undefined,
-    deckNe: doc.deckNe ? String(doc.deckNe) : undefined,
+    deckNe: doc.homepageTeaserNe
+      ? String(doc.homepageTeaserNe)
+      : doc.deckNe ? String(doc.deckNe) : undefined,
     deckEn: doc.deckEn ? String(doc.deckEn) : undefined,
     heroImage: media,
     byline: String(doc.byline ?? authors.map((author) => author.name).join(', ')),
@@ -471,6 +473,8 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
   const sourceType = String(doc.sourceType ?? 'original')
   return {
     ...card,
+    deckNe: doc.deckNe ? String(doc.deckNe) : undefined,
+    deckEn: doc.deckEn ? String(doc.deckEn) : undefined,
     bodyNe,
     bodyEn,
     source:

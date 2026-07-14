@@ -1,70 +1,49 @@
-# Nagarik Watch — Reconstruction Progress
-
-**Status:** deployment lockfile incident repaired; product is suitable for connected CI and staging integration, but not yet a public production launch.
+# Nagarik Watch reconstruction progress — 2026-07-14
 
 ## Completed
 
-### Deployment and repository integrity
-- Removed the legacy `apps/cms`/`apps/admin` split and retained `apps/admin` as the canonical CMS package.
-- Repaired and verified the pnpm lockfile across all eight workspace manifests.
-- Added a lockfile-drift check before CI installation.
-- Added reader and CMS build jobs, migration instructions and health endpoints.
-- Documented the exact Vercel two-project topology.
+### Deployment and architecture
+- Canonical eight-workspace monorepo.
+- Legacy `apps/cms` retired and blocked from workspace discovery.
+- Frozen-lockfile and canonical-tree verifiers run before Vercel installation.
+- Separate reader and Payload deployment contracts and health endpoints.
+- Explicit migrations and production schema push disabled by default.
 
-### Public product
-- Rebuilt brand mark, masthead, navigation, homepage hierarchy, article flow and shared story surfaces.
-- Moved journalism above ads and removed fake popularity signals.
-- Added an attributed Source Desk instead of fabricated demo reporting.
-- Added explicit source, update, verification and correction cues.
+### Public product and UI
+- Distinct civic brand and Devanagari-first typography.
+- Editorial homepage hierarchy and article reading experience.
+- Rule-based cards, navigation and provenance signals.
+- Reader Corner converted into the personal news desk.
+- Membership, author/topic, pagination and recovery surfaces stripped of generic SaaS/pill styling.
+- Honest Source Desk and empty states.
 
-### Editorial system
-- Made Payload the only production editorial source of truth.
-- Unified workflow states and protected public visibility.
-- Added reporter assignment, publishing-role checks, unique slugs and a checked-in migration.
-- Hid internal notes, assignments, AI drafts, review timestamps and staff relationships from public responses.
-- Restricted public author contact fields.
+### Reader product
+- Authentication, password recovery/change and account security.
+- Bookmarks, anonymous merge, reading history, reading progress and clear controls.
+- Moderated comments, replies and owner deletion.
+- Interests, followed journalists, timezone and alert preferences.
+- Explainable personalized recommendations.
 
-### Reader and account functionality
-- Added real password reset emails, 30-minute reset tokens and session revocation.
-- Added authenticated password change with other-session revocation.
-- Added expiring, hashed and email-bound newsroom invitations.
-- Added invitation acceptance, role activation and super-admin escalation protections.
-- Verified article identity before bookmarks, comments and reading events are stored.
-- Added anonymous-to-account bookmark merging.
+### Journalist product
+- Separate login and role-gated workspace.
+- Owned/assigned draft create, reopen and revise flows.
+- Evidence, source, classification, distribution, teaser, social and alert recommendation fields.
+- Preview and tab-scoped recovery.
 
-### Operations
-- Unified newsletter storage and double opt-in behavior.
-- Added actual Resend/generic email delivery and honest delivery failures.
-- Added same-origin guards to newsroom mutations.
-- Added rate limits to ad telemetry.
-- Protected provider-health diagnostics behind newsroom authentication.
-- Aligned the operations launch dashboard with the strict release gate.
+### Newsroom and algorithms
+- Payload canonical content and protected internal fields.
+- Publisher-only public workflow and relationship-aware publish webhook.
+- Transparent hybrid ranker with history metadata, freshness and diversity guardrails.
+- In-app alerts and provider-backed Web Push delivery path.
+- Seen/read/delivered state separation, quotas, cooldowns, retries and reader-timezone quiet hours.
 
-## Current gates
+## Connected-environment work remaining
 
-| Gate | State |
-|---|---|
-| Workspace manifest/lockfile consistency | Pass, 8/8 |
-| Public-surface audit | Pass |
-| Ad-placement audit | Pass, 20 registered / 17 rendered |
-| Architecture audit | Pass |
-| Recovery verification | Pass |
-| Project skill audit | Pass, 0 failures / 0 warnings |
-| TypeScript syntax parse | Pass, 342 files |
-| Strict launch negative test | Pass: unconfigured launch blocked |
-| Frozen dependency install | Blocked by registry DNS in this environment |
-| Semantic typecheck/tests/Next builds | Must run in connected CI |
-| Durable Payload media storage | Hard blocker; adapter not yet wired |
-| Real newsroom content inventory | Required before public launch |
-| Verified legal/publication identity | Required before public launch |
-
-## Next gates
-
-1. Push this tree as a new commit and deploy that SHA, not `b6ae37e`.
-2. Run frozen install, format, lint, typecheck, tests and both Next builds in connected CI.
-3. Apply Payload migrations to staging Postgres.
-4. Add and verify a supported Payload S3/Vercel Blob storage adapter; regenerate the lockfile intentionally.
-5. Configure verified email senders and test reset, invitation and newsletter delivery.
-6. Publish real, sourced stories through draft → review → publish → update → correction/retraction.
-7. Run mobile visual regression, keyboard/accessibility and low-bandwidth checks.
-8. Enable live launch only when `NEXT_PUBLIC_LAUNCH_STATUS=live pnpm launch:gate` passes.
+1. Push a new Git SHA and verify Vercel builds eight workspaces.
+2. Run dependency install, formatting, lint, semantic typecheck, tests and both production builds.
+3. Run migrations against staging PostgreSQL.
+4. Add and test durable Payload object storage.
+5. Configure/test email and Web Push providers.
+6. Populate real sourced journalism and production media.
+7. Complete legal identity and launch configuration.
+8. Execute cross-device visual, accessibility, performance and end-to-end acceptance testing.

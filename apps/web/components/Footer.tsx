@@ -57,10 +57,18 @@ export function Footer({ locale }: FooterProps) {
       href: localizeHref(locale, '/fact-check-policy'),
       label: locale === 'en' ? 'Fact-check policy' : 'तथ्य-जाँच नीति',
     },
+    {
+      href: localizeHref(locale, '/how-recommendations-work'),
+      label: locale === 'en' ? 'Recommendation policy' : 'सिफारिस नीति',
+    },
     { href: localizeHref(locale, '/privacy'), label: dict.footerPrivacy },
     { href: localizeHref(locale, '/terms'), label: locale === 'en' ? 'Terms' : 'सर्त' },
     { href: localizeHref(locale, '/advertise'), label: locale === 'en' ? 'Advertise' : 'विज्ञापन' },
     { href: localizeHref(locale, '/contact'), label: dict.footerContact },
+    {
+      href: localizeHref(locale, '/journalist/login'),
+      label: locale === 'en' ? 'Journalist sign in' : 'पत्रकार लगइन',
+    },
     { href: '/rss.xml', label: 'RSS' },
   ]
 
@@ -117,7 +125,7 @@ export function Footer({ locale }: FooterProps) {
                 <li key={s.href}>
                   <Link
                     href={s.href}
-                    className="inline-block rounded-md text-body text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+                    className="inline-block border-b border-transparent text-body text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
                     lang={lang}
                   >
                     {s.label}
@@ -139,7 +147,7 @@ export function Footer({ locale }: FooterProps) {
                 <li key={s.href}>
                   <Link
                     href={s.href}
-                    className="inline-block rounded-md text-body text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+                    className="inline-block border-b border-transparent text-body text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
                     lang={lang}
                   >
                     {s.label}

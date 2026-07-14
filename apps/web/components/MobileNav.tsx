@@ -16,7 +16,10 @@ type MobileNavProps = {
 
 // 44×44 minimum touch target (WCAG 2.5.5).
 const ICON_BTN =
-  'inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
+  'inline-flex h-11 w-11 items-center justify-center border border-transparent text-ink-soft transition-colors duration-fast ease-out-quint hover:border-rule hover:bg-brand-tint hover:text-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand'
+
+const DRAWER_LINK =
+  'block border-b border-rule px-1 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand'
 
 /**
  * Mobile primary navigation. The masthead's inline category list wraps on small screens but
@@ -47,8 +50,8 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
     }
   }, [open])
 
-  // On open, move focus to the close button; on Escape, close. Focus is trapped loosely:
-  // Tab cycles within the dialog because the overlay covers everything behind it.
+  // On open, move focus to the close button; Escape closes and Tab is trapped
+  // inside the dialog. The overlay alone does not make background controls inert.
   useEffect(() => {
     if (!open) return
     closeBtnRef.current?.focus()
@@ -56,6 +59,24 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
       if (e.key === 'Escape') {
         e.preventDefault()
         setOpen(false)
+        return
+      }
+      if (e.key === 'Tab' && dialogRef.current) {
+        const focusable = Array.from(
+          dialogRef.current.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        ).filter((element) => !element.hasAttribute('hidden'))
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (!first || !last) return
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
       }
     }
     document.addEventListener('keydown', onKey)
@@ -66,6 +87,8 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
   const homeHref = localizeHref(locale, '/')
   const savedHref = localizeHref(locale, '/saved')
   const profileHref = localizeHref(locale, '/auth/profile')
+  const readerCornerHref = localizeHref(locale, '/reader-corner')
+  const journalistHref = localizeHref(locale, '/journalist/login')
   const toggleHref = swapLocale(pathname)
 
   return (
@@ -83,6 +106,7 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
 
       {open && (
         <div
+          id={titleId}
           className="fixed inset-0 z-50"
           role="dialog"
           aria-modal="true"
@@ -128,7 +152,8 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                   <Link
                     href={homeHref}
                     onClick={() => setOpen(false)}
-                    className="block rounded-md px-3 py-3 text-body-lg font-semibold text-ink transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+                    aria-current={pathname === homeHref ? 'page' : undefined}
+                    className={`${DRAWER_LINK} font-semibold text-ink`}
                   >
                     {dict.home}
                   </Link>
@@ -142,7 +167,8 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                         href={localizeHref(locale, `/${c.slug}`)}
                         onClick={() => setOpen(false)}
                         lang={catLang}
-                        className="block rounded-md px-3 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+                        aria-current={pathname === localizeHref(locale, `/${c.slug}`) || pathname.startsWith(`${localizeHref(locale, `/${c.slug}`)}/`) ? 'page' : undefined}
+                        className={DRAWER_LINK}
                       >
                         {label}
                       </Link>
@@ -157,9 +183,18 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
               >
                 <li>
                   <Link
+                    href={readerCornerHref}
+                    onClick={() => setOpen(false)}
+                    className={DRAWER_LINK}
+                  >
+                    {locale === 'en' ? 'My news desk' : 'मेरो समाचार डेस्क'}
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href={savedHref}
                     onClick={() => setOpen(false)}
-                    className="block rounded-md px-3 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+                    className={DRAWER_LINK}
                   >
                     {locale === 'en' ? 'Saved stories' : 'सुरक्षित समाचार'}
                   </Link>
@@ -168,7 +203,7 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                   <Link
                     href={profileHref}
                     onClick={() => setOpen(false)}
-                    className="block rounded-md px-3 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+                    className={DRAWER_LINK}
                   >
                     {locale === 'en' ? 'Profile' : 'प्रोफाइल'}
                   </Link>
@@ -179,7 +214,7 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                     onClick={() => setOpen(false)}
                     lang={locale === 'en' ? 'ne' : 'en'}
                     aria-label={dict.localeToggleAria}
-                    className="block rounded-md px-3 py-3 text-body-lg font-semibold text-brand-strong transition-colors duration-fast ease-out-quint hover:bg-brand-tint"
+                    className={`${DRAWER_LINK} font-semibold text-brand-strong`}
                   >
                     {locale === 'en' ? 'नेपालीमा पढ्नुहोस्' : 'Read in English'}
                   </Link>
@@ -207,12 +242,27 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
                       href={localizeHref(locale, hub.path)}
                       onClick={() => setOpen(false)}
                       lang={locale === 'en' ? 'en' : 'ne'}
-                      className="block rounded-md px-3 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+                      className={DRAWER_LINK}
                     >
                       {locale === 'en' ? hub.titleEn : hub.titleNe}
                     </Link>
                   </li>
                 ))}
+              </DrawerSection>
+
+              <DrawerSection
+                label={locale === 'en' ? 'Newsroom' : 'न्यूजरुम'}
+                lang={locale === 'en' ? 'en' : 'ne'}
+              >
+                <li>
+                  <Link
+                    href={journalistHref}
+                    onClick={() => setOpen(false)}
+                    className={`${DRAWER_LINK} font-semibold text-ink`}
+                  >
+                    {locale === 'en' ? 'Journalist sign in' : 'पत्रकार लगइन'}
+                  </Link>
+                </li>
               </DrawerSection>
             </nav>
           </div>

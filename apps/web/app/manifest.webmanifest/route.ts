@@ -13,8 +13,11 @@ export function GET() {
     background_color: '#f7f2ef',
     theme_color: '#8d1f17',
     id: SITE_URL,
+    categories: ['news', 'magazines'],
+    lang: 'ne',
+    dir: 'ltr',
     icons: [
-      { src: '/icon.png', sizes: '512x512', type: 'image/png' },
+      { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
       { src: '/apple-icon.png', sizes: '180x180', type: 'image/png', purpose: 'any' },
     ],
   }
@@ -22,6 +25,7 @@ export function GET() {
   return Response.json(manifest, {
     headers: {
       'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
+      'X-Content-Type-Options': 'nosniff',
     },
   })
 }

@@ -32,6 +32,12 @@ export type StoredArticle = {
   titleEn?: string
   deckNe?: string
   deckEn?: string
+  homepageTeaserNe?: string
+  socialCopyNe?: string
+  reportingLocation?: string
+  sourceNote?: string
+  editorPitch?: string
+  mediaReferenceUrl?: string
   bodyNe: ArticleBlock[]
   bodyEn?: ArticleBlock[]
   heroImageUrl?: string
@@ -220,6 +226,12 @@ export async function createArticle(input: {
   titleEn?: string
   deckNe?: string
   deckEn?: string
+  homepageTeaserNe?: string
+  socialCopyNe?: string
+  reportingLocation?: string
+  sourceNote?: string
+  editorPitch?: string
+  mediaReferenceUrl?: string
   bodyNe: ArticleBlock[]
   bodyEn?: ArticleBlock[]
   heroImageUrl?: string
@@ -260,6 +272,12 @@ export async function createArticle(input: {
     titleEn: input.titleEn,
     deckNe: input.deckNe,
     deckEn: input.deckEn,
+    homepageTeaserNe: input.homepageTeaserNe,
+    socialCopyNe: input.socialCopyNe,
+    reportingLocation: input.reportingLocation,
+    sourceNote: input.sourceNote,
+    editorPitch: input.editorPitch,
+    mediaReferenceUrl: input.mediaReferenceUrl,
     bodyNe: input.bodyNe,
     bodyEn: input.bodyEn,
     heroImageUrl: input.heroImageUrl,

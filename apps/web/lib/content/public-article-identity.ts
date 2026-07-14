@@ -5,6 +5,8 @@ export type PublicArticleIdentity = {
   slug: string
   category: string
   titleNe: string
+  tagSlugs: string[]
+  authorSlugs: string[]
 }
 
 type CacheEntry = {
@@ -36,6 +38,8 @@ export async function getPublicArticleIdentity(
             slug: article.slug,
             category: article.category.slug,
             titleNe: article.titleNe,
+            tagSlugs: article.tags.map((tag) => tag.slug),
+            authorSlugs: article.authors.map((author) => author.slug),
           }
         : null,
     )

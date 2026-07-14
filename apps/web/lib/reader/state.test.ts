@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { StoryCardData } from '@nagarikwatch/db'
-import { safeParseArray, toggleBookmark, upsertHistory, recentUnfinished } from './state'
+import { safeParseArray, setBookmark, toggleBookmark, upsertHistory, recentUnfinished } from './state'
 
 const story: StoryCardData = {
   id: 'a1',
@@ -23,9 +23,11 @@ describe('reader state helpers', () => {
     expect(safeParseArray<string>('not-json')).toEqual([])
   })
 
-  it('toggles bookmark records deterministically', () => {
-    const saved = toggleBookmark([], story, new Date('2026-06-22T00:00:00Z'))
+  it('sets and toggles bookmark records deterministically', () => {
+    const saved = setBookmark([], story, true, new Date('2026-06-22T00:00:00Z'))
     expect(saved).toHaveLength(1)
+    expect(setBookmark(saved, story, true)).toHaveLength(1)
+    expect(setBookmark(saved, story, false)).toHaveLength(0)
     expect(toggleBookmark(saved, story)).toHaveLength(0)
   })
 

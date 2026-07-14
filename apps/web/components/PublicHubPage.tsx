@@ -46,7 +46,7 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
             </h1>
           </div>
           {stories.length > 0 ? (
-            <p className="border-l-2 border-brand pl-3 text-meta text-ink-soft" lang={lang}>
+            <p className="border-b border-brand pb-1 text-meta font-semibold text-ink-soft" lang={lang}>
               {locale === 'en' ? `${stories.length} current items` : `हाल ${stories.length} सामग्री`}
             </p>
           ) : null}
@@ -57,7 +57,7 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
       </header>
 
       {hub.mode === 'trending' ? (
-        <aside className="mt-5 border-l-4 border-warning bg-surface-muted px-4 py-3 text-meta leading-relaxed text-ink-soft" lang={lang}>
+        <aside className="mt-5 border-y border-warning py-3 text-meta leading-relaxed text-ink-soft" lang={lang}>
           {rankingNotice}
         </aside>
       ) : null}
@@ -157,7 +157,7 @@ async function storiesForHub(
   cards: StoryCardData[],
   locale: Locale,
 ): Promise<StoryCardData[]> {
-  const taggedHub = new Set(['editor-picks', 'exclusive', 'data-stories', 'reader-corner'])
+  const taggedHub = new Set(['editor-picks', 'exclusive', 'data-stories'])
   if (!taggedHub.has(hubKey)) return cards
 
   const articles = await Promise.all(
@@ -171,7 +171,6 @@ async function storiesForHub(
       return Boolean(article.exclusive) || tagSlugs.has('exclusive-report')
     if (hubKey === 'data-stories')
       return tagSlugs.has('data-story') || article.bodyNe.some(isDataBlock)
-    if (hubKey === 'reader-corner') return tagSlugs.has('reader-submission')
     return true
   })
 }

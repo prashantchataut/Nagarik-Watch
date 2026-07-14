@@ -98,19 +98,19 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
       <header className="mx-auto max-w-[62rem] px-4 pb-7 pt-10 sm:pt-14" lang={english ? 'en' : 'ne'}>
         <div className="flex flex-wrap items-center gap-2">
           <CategoryLabel category={article.category} locale={locale} />
-          {article.premium ? <span className="rounded-full bg-ink px-3 py-1 text-caption font-bold uppercase tracking-wide text-surface">{english ? 'Premium' : 'सदस्य'}</span> : null}
+          {article.premium ? <span className="border border-ink bg-ink px-2 py-0.5 text-caption font-bold uppercase tracking-wide text-surface">{english ? 'Premium' : 'सदस्य'}</span> : null}
         </div>
         <h1 className="mt-5 max-w-[19ch] font-display text-[clamp(2.3rem,6vw,4.5rem)] font-black leading-[1.04] tracking-[-0.025em] text-ink">{title}</h1>
         {deck ? <p className="mt-5 max-w-[48rem] text-[1.2rem] leading-relaxed text-ink-soft sm:text-[1.4rem]">{deck}</p> : null}
-        <div className="mt-6 border-y border-rule py-4">
+        <div className="article-trust-ledger mt-6">
           <Byline authors={article.authors} locale={locale} publishedAt={article.publishedAt} source={article.source} />
-          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-caption font-semibold text-ink-soft">
+          <div className="article-trust-ledger__facts">
             <span>{english ? `${article.readingMinutes} min read` : `${article.readingMinutes} मिनेट पढाइ`}</span>
             {article.updatedAt ? <span>{english ? 'Updated' : 'अद्यावधिक'}: {formatDate(article.updatedAt, locale)}</span> : null}
             {article.factCheckStatus === 'verified' ? <span className="text-up">{english ? 'Facts verified' : 'तथ्य प्रमाणित'}</span> : null}
             {article.source ? <span>{english ? 'Source-linked report' : 'स्रोत लिंक गरिएको समाचार'}</span> : <span>{english ? 'Nagarik Watch newsroom' : 'नागरिक वाच न्युजरुम'}</span>}
           </div>
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="article-trust-ledger__tools">
             <div className="flex flex-wrap items-center gap-2"><BookmarkButton story={article} locale={locale} variant="pill" /><FontSizeControl locale={locale} /></div>
             <ShareBar url={canonical} title={title} locale={locale} />
           </div>

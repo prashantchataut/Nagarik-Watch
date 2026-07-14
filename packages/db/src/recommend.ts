@@ -110,18 +110,24 @@ export function buildInterestVector(
   const bump = (terms: Map<string, number>, weight: number) => {
     for (const [key, value] of terms) vector.set(key, (vector.get(key) ?? 0) + value * weight)
   }
+  const bumpHistoryMetadata = (item: ReadingHistory, weight: number) => {
+    if (item.categorySlug) vector.set(`cat:${item.categorySlug}`, (vector.get(`cat:${item.categorySlug}`) ?? 0) + 5 * weight)
+    for (const tag of item.tagSlugs ?? []) vector.set(`tag:${tag}`, (vector.get(`tag:${tag}`) ?? 0) + 4 * weight)
+    for (const author of item.authorSlugs ?? []) vector.set(`author:${author}`, (vector.get(`author:${author}`) ?? 0) + 4 * weight)
+  }
 
   const history = [...(profile.history ?? [])].sort((a, b) => b.readAt.localeCompare(a.readAt))
   history.forEach((item, index) => {
     const story = storiesById.get(item.articleId)
-    if (!story) return
     const readAt = Date.parse(item.readAt)
     if (!Number.isFinite(readAt)) return
     const ageHours = Math.max(0, (now.getTime() - readAt) / 3_600_000)
     const recency = Math.max(0, 1 - ageHours / windowHours)
     const position = 1 / (1 + index)
     const completion = item.completed ? 1 : 0.55
-    bump(storyTerms(story), recency * position * completion * 2)
+    const weight = recency * position * completion * 2
+    if (story) bump(storyTerms(story), weight)
+    else bumpHistoryMetadata(item, weight)
   })
 
   for (const bookmark of profile.bookmarks ?? []) {

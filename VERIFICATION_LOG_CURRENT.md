@@ -1,79 +1,47 @@
-# Nagarik Watch — Current Verification Log
+# Current verification log — 2026-07-14
 
-**Date:** 2026-07-13  
-**Scope:** deployment repair and second functionality/security pass
+## Repository-level checks
 
-## Verified in this environment
+| Check | Result |
+|---|---|
+| Canonical workspaces | Passed: `apps/web`, `apps/admin`, `packages/*` |
+| Package manifests vs lockfile | Passed: 8/8 |
+| Public-surface audit | Passed |
+| Ad-placement audit | Passed: 20 registered, 17 rendered |
+| Architecture audit | Passed |
+| Repository recovery audit | Passed |
+| Nagarik Watch project-skill audit | Passed: 0 failures, 0 warnings |
+| TS/TSX syntax parse | Passed: 370 files, 0 errors |
+| Recommendation/notification compiled smoke test | Passed |
+
+## Deployment incident verification
+
+The supplied Vercel log for `b13a8ce` still reports nine workspaces and `apps/cms/package.json`. This proves the deployed Git tree does not contain the canonical workspace repair. The delivered repository has no `apps/cms` manifest and prevents a stale legacy directory from joining the pnpm workspace.
+
+## Checks not runnable in this environment
+
+The npm registry could not be resolved, so dependencies could not be installed. The following require a connected CI or development machine:
 
 ```text
-node scripts/verify-workspace-lock.mjs
-Workspace lockfile verified for 8 package manifests.
-
-node scripts/audit-public-surface.mjs
-Public surface audit passed.
-
-node scripts/audit-ad-placements.mjs
-Ad placement audit passed (20 placements, 17 intentionally rendered).
-
-node scripts/audit-architecture.mjs
-Architecture audit passed.
-
-node scripts/verify-recovery.mjs
-Repository recovery verification passed.
-
-python nagarik-watch-newsroom/scripts/audit_newsroom.py
-0 failures, 0 warnings.
-
-TypeScript parser scan
-342 TypeScript/TSX files parsed; 0 syntax errors.
-
-node scripts/launch-gate.mjs
-Non-live mode correctly skipped strict release checks.
-
-NEXT_PUBLIC_LAUNCH_STATUS=live node scripts/launch-gate.mjs
-Exited 1 and blocked an unconfigured launch, as required.
-```
-
-## Deployment incident status
-
-The supplied Vercel build failed during dependency installation, before TypeScript or Next.js compilation. Commit `b6ae37e` contained an `apps/cms/package.json` importer that was out of sync with `pnpm-lock.yaml`. The repaired tree has one canonical CMS package at `apps/admin`, no legacy `apps/cms`, and a dependency-free verifier that confirms all eight workspace manifests match their lockfile importers.
-
-Deploying `b6ae37e` again will reproduce the same failure. The fix only applies after this repaired tree is committed and Vercel builds the new SHA.
-
-## Functionality added and statically verified
-
-- Payload as the canonical editorial CMS.
-- Signed CMS-to-reader revalidation.
-- Editorial workflow and RBAC alignment.
-- Public-field privacy for articles and author contacts.
-- Real provider-backed password reset and authenticated password change.
-- Expiring, hashed, email-bound newsroom invitations.
-- Role-escalation restrictions and protected staff changes.
-- Canonical article validation for bookmarks, comments and reading telemetry.
-- Real newsletter confirmation and honest provider failures.
-- Same-origin guards on state-changing newsroom APIs.
-- Rate-limited advertising telemetry.
-- Authenticated provider-health inspection.
-- Health endpoints for reader and CMS.
-- Honest launch gate for legal identity, secrets, database, CMS, email and storage.
-
-## Not executable here
-
-The environment cannot resolve `registry.npmjs.org`. Corepack therefore cannot download the pinned `pnpm@10.17.1` binary and exits with `getaddrinfo EAI_AGAIN`. Consequently these dependency-aware checks were not claimed as passed:
-
-```bash
 pnpm install --frozen-lockfile
 pnpm format:check
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm verify:static
 pnpm build:web
+pnpm --filter @nagarikwatch/admin migrate
 pnpm build:admin
 pnpm test:e2e
 ```
 
-A parser scan is not a substitute for a real typecheck or production build.
+## Production-only acceptance tests
 
-## Remaining hard launch blocker
-
-Payload media uploads still use local filesystem storage. That storage is ephemeral on Vercel. Storage credentials alone do not fix this; a supported Payload object-storage adapter must be added, the lockfile regenerated on a connected machine, and upload/read/delete behavior verified before a live launch. The release gate now fails explicitly for this condition.
+- Payload media upload/retrieval/delete through durable object storage;
+- email confirmation, password recovery and newsroom invitation delivery;
+- Web Push subscription, delivery, cooldown, quiet hours, retries and unsubscribe;
+- CMS publish/revalidation/notification event flow;
+- migration execution on a staging database snapshot;
+- 360 px, tablet and desktop visual QA;
+- keyboard, screen-reader, 200% zoom and reduced-motion checks;
+- Core Web Vitals under real images, analytics and traffic.

@@ -5,7 +5,7 @@ import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import {
   READER_BOOKMARKS_KEY,
   safeParseArray,
-  toggleBookmark,
+  setBookmark,
   type BookmarkRecord,
 } from '@/lib/reader/state'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
@@ -36,7 +36,16 @@ export function BookmarkButton({
     fetch(`/api/bookmarks?fingerprint=${encodeURIComponent(fp)}`)
       .then((r) => r.json())
       .then((data: { bookmarks?: { articleSlug: string }[] }) => {
-        if ((data.bookmarks ?? []).some((b) => b.articleSlug === story.slug)) setBookmarked(true)
+        if (!(data.bookmarks ?? []).some((b) => b.articleSlug === story.slug)) return
+        setBookmarked(true)
+        if ('authors' in story && 'publishedAt' in story) {
+          const records = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))
+          localStorage.setItem(
+            READER_BOOKMARKS_KEY,
+            JSON.stringify(setBookmark(records, story as StoryCardData, true)),
+          )
+          window.dispatchEvent(new Event('nw-reader-state-change'))
+        }
       })
       .catch((error) => {
         setSyncError(true)
@@ -45,9 +54,10 @@ export function BookmarkButton({
   }, [story.id, story.slug])
 
   function persistLocal(nextBookmarked: boolean) {
-    if (!('authors' in story) || !('publishedAt' in story)) return
     const records = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))
-    const next = toggleBookmark(records, story as StoryCardData)
+    const next = 'authors' in story && 'publishedAt' in story
+      ? setBookmark(records, story as StoryCardData, nextBookmarked)
+      : records.filter((record) => record.articleId !== story.id && record.story.slug !== story.slug)
     localStorage.setItem(READER_BOOKMARKS_KEY, JSON.stringify(next))
     setBookmarked(nextBookmarked)
     window.dispatchEvent(new Event('nw-reader-state-change'))
@@ -95,7 +105,7 @@ export function BookmarkButton({
         onClick={toggle}
         disabled={pending}
         aria-pressed={bookmarked}
-        className={`inline-flex h-10 items-center gap-1.5 rounded-full px-3.5 text-meta font-semibold transition-colors duration-fast ease-out-quint focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-50 ${bookmarked ? 'bg-brand text-surface' : 'border border-rule text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong'}`}
+        className={`article-action-link ${bookmarked ? 'article-action-link--active' : ''}`}
         lang={en ? 'en' : 'ne'}
         title={`${label}${syncNote}`}
       >
@@ -113,7 +123,7 @@ export function BookmarkButton({
       aria-pressed={bookmarked}
       aria-label={label}
       title={`${label}${syncNote}`}
-      className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-fast ease-out-quint focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-50 ${bookmarked ? 'bg-brand-tint text-brand-strong' : 'text-ink-soft hover:bg-brand-tint hover:text-brand-strong'}`}
+      className={`article-icon-action ${bookmarked ? 'article-icon-action--active' : ''}`}
     >
       <BookmarkIcon filled={bookmarked} />
     </button>

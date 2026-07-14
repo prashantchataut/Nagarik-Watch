@@ -18,35 +18,35 @@ export default async function JournalistLoginPage({ params }: { params: Promise<
   const ne = locale === 'ne'
 
   return (
-    <main className="min-h-screen bg-surface px-4 py-10">
-      <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_26rem] lg:items-center">
-        <section className="rounded-2xl border border-rule bg-surface-raised p-8 shadow-card">
-          <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
-          <p className="mt-8 text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={ne ? 'ne' : 'en'}>
-            {ne ? 'पत्रकार प्रवेश' : 'Journalist desk'}
-          </p>
-          <h1 className="mt-2 font-display text-display leading-tight text-ink" lang={ne ? 'ne' : 'en'}>
-            {ne ? 'लेख तयार पार्ने सरल ठाउँ।' : 'A focused writing desk, separate from admin.'}
-          </h1>
-          <p className="mt-4 max-w-body text-body-lg text-ink-soft" lang={ne ? 'ne' : 'en'}>
-            {ne
-              ? 'पत्रकार, योगदानकर्ता र सम्पादकीय सहयोगीले यहाँबाट आफ्ना ड्राफ्ट लेख्छन्, पेश गर्छन् र प्रोफाइल हेर्छन्। प्रणाली सेटिङ र प्रयोगकर्ता व्यवस्थापन admin panel मै रहन्छ।'
-              : 'Journalists, contributors and editorial staff write drafts, submit stories and check their profile here. System settings and user management remain in the admin panel.'}
-          </p>
-          <Link href={localizeHref(locale, '/auth/login')} className="mt-6 inline-flex text-meta font-semibold text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline">
-            {ne ? 'पाठक लगइन चाहिएको हो?' : 'Looking for reader login?'}
-          </Link>
+    <main className="newsroom-login" lang={ne ? 'ne' : 'en'}>
+      <div className="newsroom-login__mast">
+        <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
+        <span>{ne ? 'सुरक्षित रिपोर्टर डेस्क' : 'Secure reporter desk'}</span>
+      </div>
+      <div className="newsroom-login__grid">
+        <section className="newsroom-login__brief">
+          <p className="editorial-kicker" lang="en">Journalist workspace</p>
+          <h1>{ne ? 'समाचार लेख्ने, प्रमाण जोड्ने र समीक्षा पठाउने एउटै डेस्क।' : 'Write, evidence and submit reporting from one focused desk.'}</h1>
+          <p>{ne
+            ? 'यो सार्वजनिक पाठक खाता वा system admin होइन। पत्रकार र योगदानकर्ताले आफ्नै ड्राफ्ट, सम्पादकीय प्रतिक्रिया, ट्याग र सूचना प्रस्ताव यहाँ व्यवस्थापन गर्छन्।'
+            : 'This is separate from reader accounts and system administration. Reporters manage their own drafts, editorial feedback, tags and alert proposals here.'}</p>
+          <dl>
+            <div><dt>01</dt><dd>{ne ? 'आफ्नै ड्राफ्टमा मात्र पहुँच' : 'Access only your assigned drafts'}</dd></div>
+            <div><dt>02</dt><dd>{ne ? 'स्रोत र प्रमाण अनिवार्य' : 'Evidence-aware review workflow'}</dd></div>
+            <div><dt>03</dt><dd>{ne ? 'प्रकाशन अधिकार सम्पादकसँग' : 'Editors retain publishing authority'}</dd></div>
+          </dl>
         </section>
-        <section className="rounded-2xl border border-rule bg-surface-raised p-6 shadow-card">
-          <h2 className="font-display text-h1 text-ink" lang={ne ? 'ne' : 'en'}>
-            {ne ? 'साइन इन' : 'Sign in'}
-          </h2>
-          <p className="mt-1 text-meta text-ink-soft" lang={ne ? 'ne' : 'en'}>
-            {ne ? 'पत्रकार वा योगदानकर्ता भूमिका भएको खाता प्रयोग गर्नुहोस्।' : 'Use an account with journalist or contributor access.'}
-          </p>
-          <div className="mt-6">
-            <JournalistLoginForm locale={locale} />
-          </div>
+        <section className="newsroom-login__form">
+          <header>
+            <p className="editorial-kicker" lang="en">Newsroom access</p>
+            <h2>{ne ? 'आफ्नो काममा फर्कनुहोस्' : 'Return to your desk'}</h2>
+            <p>{ne ? 'पत्रकार वा योगदानकर्ता भूमिका भएको इमेल प्रयोग गर्नुहोस्।' : 'Use an email with journalist or contributor access.'}</p>
+          </header>
+          <JournalistLoginForm locale={locale} />
+          <footer>
+            <Link href={localizeHref(locale, '/auth/forgot-password')}>{ne ? 'पासवर्ड बिर्सनुभयो?' : 'Forgot password?'}</Link>
+            <Link href={localizeHref(locale, '/auth/login')}>{ne ? 'पाठक लगइन' : 'Reader login'}</Link>
+          </footer>
         </section>
       </div>
     </main>

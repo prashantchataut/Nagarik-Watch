@@ -53,6 +53,11 @@ export function getLaunchChecks(): LaunchCheck[] {
   // uses local upload storage, which is ephemeral on Vercel. Keep launch blocked
   // until a real Payload storage plugin is imported and configured.
   const storageAdapterWired = false
+  const pushConfigured = Boolean(
+    value('NEXT_PUBLIC_WEB_PUSH_VAPID_KEY') &&
+      value('WEB_PUSH_PROVIDER_URL') &&
+      value('WEB_PUSH_PROVIDER_API_KEY'),
+  )
 
   return [
     verifiedSetting('site-url', 'Public site URL', 'NEXT_PUBLIC_SITE_URL'),
@@ -122,6 +127,17 @@ export function getLaunchChecks(): LaunchCheck[] {
         ? 'Audience analytics configured'
         : 'Trending and Most Read remain conservative until verified telemetry is configured',
     },
+    {
+      key: 'background-push',
+      label: 'Background browser notifications',
+      status: pushConfigured ? 'pass' : 'fail',
+      detail: pushConfigured
+        ? 'VAPID subscription and provider-backed push delivery are configured'
+        : 'In-app alerts work, but background push needs a VAPID public key and an authenticated HTTPS delivery provider',
+    },
+    verifiedSetting('notification-cron', 'Notification delivery cron secret', 'CRON_SECRET', {
+      secret: true,
+    }),
     {
       key: 'payments',
       label: 'Payment provider',

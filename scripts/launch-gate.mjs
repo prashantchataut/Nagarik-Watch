@@ -67,6 +67,18 @@ if (live) {
   requiredVerified('AUTH_EMAIL_FROM', 'Verified account-email sender is missing')
   requiredVerified('NEWSLETTER_FROM', 'Verified newsletter sender is missing')
 
+  const pushConfigured = Boolean(
+    value('NEXT_PUBLIC_WEB_PUSH_VAPID_KEY') &&
+      value('WEB_PUSH_PROVIDER_URL') &&
+      value('WEB_PUSH_PROVIDER_API_KEY'),
+  )
+  if (!pushConfigured) {
+    blockers.push(
+      'Background browser notifications require NEXT_PUBLIC_WEB_PUSH_VAPID_KEY, WEB_PUSH_PROVIDER_URL and WEB_PUSH_PROVIDER_API_KEY',
+    )
+  }
+  requiredSecret('CRON_SECRET', 'CRON_SECRET must protect scheduled notification delivery')
+
   // The repository currently has no Payload object-storage plugin wired into
   // payload.config.ts. Credentials alone would be a false green on Vercel.
   blockers.push('Payload media still uses local ephemeral storage; wire and verify a durable storage adapter before launch')

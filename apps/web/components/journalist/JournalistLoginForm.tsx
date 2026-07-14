@@ -53,14 +53,14 @@ export function JournalistLoginForm({ locale }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-4" noValidate>
+    <form onSubmit={submit} className="newsroom-login-form" noValidate>
       {error ? (
-        <div role="alert" className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong">
+        <div role="alert" className="newsroom-login-form__error">
           {error}
         </div>
       ) : null}
 
-      <label className="grid gap-1.5 text-meta font-semibold text-ink">
+      <label className="newsroom-login-form__field">
         <span lang={ne ? 'ne' : 'en'}>{ne ? 'न्युजरुम इमेल' : 'Newsroom email'}</span>
         <input
           name="email"
@@ -69,7 +69,7 @@ export function JournalistLoginForm({ locale }: Props) {
           required
           disabled={pending}
           placeholder="reporter@nagarikwatch.com"
-          className="rounded-md border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
+          className="newsroom-login-form__input"
         />
       </label>
 
@@ -86,7 +86,7 @@ export function JournalistLoginForm({ locale }: Props) {
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface transition-colors hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:cursor-not-allowed disabled:opacity-60"
+        className="newsroom-login-form__submit"
       >
         {pending ? (ne ? 'लगइन हुँदै…' : 'Signing in…') : ne ? 'पत्रकार लगइन' : 'Journalist sign in'}
       </button>

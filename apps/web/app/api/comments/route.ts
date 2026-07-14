@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 import {
   createComment,
+  deleteOwnComment,
   getCommentsForArticle,
   isValidCommentParent,
 } from '@/lib/engagement/store'
@@ -13,9 +14,35 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   const articleSlug = request.nextUrl.searchParams.get('articleSlug')?.trim() ?? ''
-  if (!articleSlug || articleSlug.length > 160) return NextResponse.json({ comments: [] })
-  const comments = await getCommentsForArticle(articleSlug)
-  return NextResponse.json({ comments })
+  const articleCategory = request.nextUrl.searchParams.get('articleCategory')?.trim() ?? ''
+  if (!articleSlug || !articleCategory || articleSlug.length > 160 || articleCategory.length > 120) {
+    return NextResponse.json({ comments: [] })
+  }
+  let article
+  try {
+    article = await getPublicArticleIdentity(articleCategory, articleSlug)
+  } catch {
+    return NextResponse.json({ error: 'Content service is temporarily unavailable.' }, { status: 503 })
+  }
+  if (!article) return NextResponse.json({ comments: [] })
+  const [comments, session] = await Promise.all([
+    getCommentsForArticle(article.slug, article.category),
+    getSession().catch(() => null),
+  ])
+  return NextResponse.json({
+    comments: comments.map((comment) => ({
+      id: comment.id,
+      authorName: comment.authorName,
+      bodyNe: comment.bodyNe,
+      parentId: comment.parentId,
+      locale: comment.locale,
+      status: comment.status,
+      createdAt: comment.createdAt,
+      canDelete: Boolean(session?.userId && 'authorUserId' in comment && comment.authorUserId === session.userId),
+    })),
+    signedIn: Boolean(session),
+    displayName: session?.displayName ?? null,
+  })
 }
 
 export async function POST(request: NextRequest) {
@@ -39,21 +66,17 @@ export async function POST(request: NextRequest) {
   const bodyNe = String(body.bodyNe ?? '').trim()
   const parentId = body.parentId ? String(body.parentId).trim() : undefined
   const locale = body.locale === 'en' ? 'en' : 'ne'
+  const session = await getSession().catch(() => null)
 
   if (
-    !articleSlug ||
-    !articleCategory ||
-    !submittedName ||
-    !bodyNe ||
-    articleSlug.length > 160 ||
-    articleCategory.length > 120 ||
-    submittedName.length > 80 ||
+    !articleSlug || !articleCategory || !bodyNe || (!session && !submittedName) ||
+    articleSlug.length > 160 || articleCategory.length > 120 || submittedName.length > 80 ||
     (parentId?.length ?? 0) > 160
   ) {
-    return NextResponse.json({ error: 'आवश्यक क्षेत्रहरू ठीकसँग भर्नुहोस्।' }, { status: 400 })
+    return NextResponse.json({ error: locale === 'en' ? 'Complete all required fields.' : 'आवश्यक क्षेत्रहरू ठीकसँग भर्नुहोस्।' }, { status: 400 })
   }
-  if (bodyNe.length > 2000) {
-    return NextResponse.json({ error: 'टिप्पणी २००० अक्षरभन्दा छोटो हुनुपर्छ।' }, { status: 400 })
+  if (bodyNe.length < 3 || bodyNe.length > 2000) {
+    return NextResponse.json({ error: locale === 'en' ? 'Comment must be 3–2,000 characters.' : 'टिप्पणी ३ देखि २००० अक्षरभित्र हुनुपर्छ।' }, { status: 400 })
   }
 
   let article
@@ -63,11 +86,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Content service is temporarily unavailable.' }, { status: 503 })
   }
   if (!article) return NextResponse.json({ error: 'Article not found.' }, { status: 404 })
-  if (parentId && !(await isValidCommentParent(article.slug, parentId))) {
-    return NextResponse.json({ error: 'Reply target is not available.' }, { status: 400 })
+  if (parentId && !(await isValidCommentParent(article.slug, article.category, parentId))) {
+    return NextResponse.json({ error: locale === 'en' ? 'Reply target is not available.' : 'जवाफ दिन खोजिएको टिप्पणी उपलब्ध छैन।' }, { status: 400 })
   }
 
-  const session = await getSession().catch(() => null)
   const authorName = session?.displayName?.trim() || submittedName
   const comment = await createComment({
     articleSlug: article.slug,
@@ -80,12 +102,32 @@ export async function POST(request: NextRequest) {
     locale,
   })
 
-  return NextResponse.json(
-    {
-      id: comment.id,
-      status: comment.status,
-      message: 'टिप्पणी प्राप्त भयो। सम्पादकीय स्वीकृतिपछि प्रकाशित हुनेछ।',
-    },
-    { status: 201 },
-  )
+  return NextResponse.json({
+    id: comment.id,
+    status: comment.status,
+    authorName,
+    parentId: comment.parentId,
+    canDelete: Boolean(session?.userId),
+    message: locale === 'en' ? 'Comment received for moderation.' : 'टिप्पणी प्राप्त भयो। सम्पादकीय स्वीकृतिपछि प्रकाशित हुनेछ।',
+  }, { status: 201 })
+}
+
+export async function DELETE(request: NextRequest) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+  const limited = await enforceRateLimit(request, 'comment-delete', 20, 60_000)
+  if (limited) return limited
+  const session = await getSession().catch(() => null)
+  if (!session?.userId) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
+  let body: Record<string, unknown>
+  try { body = await request.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
+  const id = String(body.id ?? '').trim()
+  if (!id || id.length > 160) return NextResponse.json({ error: 'Invalid comment.' }, { status: 400 })
+  const result = await deleteOwnComment(id, session.userId)
+  if (result === 'deleted') return NextResponse.json({ ok: true })
+  if (result === 'has_replies') {
+    return NextResponse.json({ error: 'A comment with published replies cannot be deleted.' }, { status: 409 })
+  }
+  return NextResponse.json({ error: 'Comment not found.' }, { status: 404 })
 }

@@ -2,88 +2,56 @@ import Link from 'next/link'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { getNavCategories } from '@/lib/content'
 
-/**
- * Custom 404. Bilingual heading + body, a search box, and quick links to
- * popular sections so a lost reader finds their way back fast.
- */
+/** Bilingual recovery page with search and real editorial entry points. */
 export default async function NotFound() {
   const ne = getDictionary('ne')
   const en = getDictionary('en')
   const categories = await getNavCategories().catch(() => [])
 
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-page flex-col justify-center px-4 py-12 sm:py-16">
-      <div className="text-center">
-        <p className="font-display text-7xl font-bold text-brand sm:text-8xl" aria-hidden="true">
-          ४०४
-        </p>
-        <div className="mt-6">
-          <h1 className="font-display text-h1 text-ink sm:text-display" lang="ne">
-            {ne.notFoundHeading}
-          </h1>
-          <p className="mx-auto mt-2 font-display text-h2 text-ink-soft" lang="en">
-            {en.notFoundHeading}
-          </p>
-        </div>
-        <div className="mx-auto mt-4 max-w-prose space-y-1">
-          <p className="text-body leading-relaxed text-ink-soft sm:text-body-lg" lang="ne">
-            {ne.notFoundBody}
-          </p>
-          <p className="text-body leading-relaxed text-ink-soft sm:text-body-lg" lang="en">
-            {en.notFoundBody}
-          </p>
+    <main className="mx-auto min-h-[65vh] max-w-page px-4 py-12 sm:py-16">
+      <div className="grid gap-10 border-b-2 border-ink pb-10 lg:grid-cols-[12rem_1fr] lg:items-end">
+        <p className="font-display text-[clamp(5rem,14vw,10rem)] font-bold leading-none tracking-[-0.08em] text-brand" aria-hidden="true">४०४</p>
+        <div>
+          <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong">Page not found</p>
+          <h1 className="mt-2 font-display text-display text-ink" lang="ne">{ne.notFoundHeading}</h1>
+          <p className="mt-1 font-display text-h2 text-ink-soft" lang="en">{en.notFoundHeading}</p>
+          <div className="mt-4 max-w-body space-y-1 text-body-lg leading-relaxed text-ink-soft">
+            <p lang="ne">{ne.notFoundBody}</p>
+            <p lang="en">{en.notFoundBody}</p>
+          </div>
         </div>
       </div>
 
-      {/* Search */}
-      <form action="/search" className="mx-auto mt-8 flex w-full max-w-md gap-2">
-        <input
-          type="search"
-          name="q"
-          placeholder={ne.searchPlaceholder}
-          aria-label={ne.search}
-          className="w-full rounded-full border border-rule bg-surface px-5 py-3 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
-          lang="ne"
-        />
-        <button
-          type="submit"
-          className="inline-flex h-12 shrink-0 items-center rounded-full bg-brand px-5 text-meta font-semibold text-surface hover:bg-brand-strong"
-          lang="ne"
-        >
-          {ne.search}
-        </button>
-      </form>
+      <section className="grid gap-8 py-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div>
+          <h2 className="font-display text-h1 text-ink" lang="ne">समाचार खोज्नुहोस्</h2>
+          <form action="/search" className="mt-4 flex w-full max-w-2xl border-y border-rule">
+            <input
+              type="search"
+              name="q"
+              placeholder={ne.searchPlaceholder}
+              aria-label={ne.search}
+              className="min-h-13 min-w-0 flex-1 bg-surface px-4 text-body text-ink placeholder:text-mute focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand"
+              lang="ne"
+            />
+            <button type="submit" className="min-h-13 shrink-0 border-l border-rule bg-brand px-6 text-meta font-bold text-surface hover:bg-brand-strong" lang="ne">
+              {ne.search} →
+            </button>
+          </form>
+        </div>
 
-      {/* Quick links */}
-      <nav
-        aria-label="Popular sections"
-        className="mx-auto mt-8 flex flex-wrap items-center justify-center gap-2"
-      >
-        <Link
-          href="/"
-          className="inline-flex items-center rounded-full bg-brand px-5 py-2.5 text-meta font-semibold text-surface hover:bg-brand-strong"
-          lang="ne"
-        >
-          {ne.notFoundHome}
-        </Link>
-        <Link
-          href="/en"
-          className="inline-flex items-center rounded-full border border-rule px-5 py-2.5 text-meta font-semibold text-ink hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
-          lang="en"
-        >
-          {en.notFoundHome}
-        </Link>
-        {categories.slice(0, 5).map((c) => (
-          <Link
-            key={c.slug}
-            href={`/${c.slug}`}
-            className="inline-flex items-center rounded-full border border-rule px-4 py-2 text-meta font-medium text-ink-soft hover:border-brand hover:text-brand-strong"
-            lang="ne"
-          >
-            {c.nameNe}
-          </Link>
-        ))}
-      </nav>
-    </div>
+        <nav aria-label="Popular sections" className="border-l-4 border-brand pl-5">
+          <p className="text-caption font-bold uppercase tracking-[0.14em] text-ink-soft">Start again</p>
+          <div className="mt-3 grid gap-2">
+            <Link href="/" className="border-b border-rule pb-2 text-body font-bold text-ink hover:border-brand hover:text-brand-strong" lang="ne">{ne.notFoundHome} →</Link>
+            <Link href="/en" className="border-b border-rule pb-2 text-body font-bold text-ink hover:border-brand hover:text-brand-strong" lang="en">{en.notFoundHome} →</Link>
+            {categories.slice(0, 5).map((c) => (
+              <Link key={c.slug} href={`/${c.slug}`} className="border-b border-rule pb-2 text-body text-ink-soft hover:border-brand hover:text-brand-strong" lang="ne">{c.nameNe}</Link>
+            ))}
+          </div>
+        </nav>
+      </section>
+    </main>
   )
 }
