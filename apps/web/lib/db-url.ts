@@ -53,7 +53,10 @@ export function shouldRelaxPostgresSsl(url = resolveDatabaseUrl()): boolean {
 
 /** Strip sslmode / ssl query flags without mangling password special chars via URL(). */
 function stripSslQueryParams(url: string): string {
-  const [base, query = ''] = url.split('?', 2)
+  const question = url.indexOf('?')
+  if (question < 0) return url
+  const base = url.slice(0, question)
+  const query = url.slice(question + 1)
   if (!query) return base
   const kept = query
     .split('&')
