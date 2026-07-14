@@ -4,6 +4,10 @@ import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { Logo } from '@/components/Logo'
 import { JournalistLoginForm } from '@/components/journalist/JournalistLoginForm'
+import { getSession } from '@/lib/auth/session'
+import { CONTRIBUTOR_ROLES, type NewsroomRole } from '@/lib/admin-roles'
+import { redirect } from 'next/navigation'
+import { accountKindLabel, resolveAccountKind, roleDisplayLabel } from '@/lib/account-identity'
 
 export const metadata: Metadata = {
   title: 'Journalist Login',
@@ -12,10 +16,23 @@ export const metadata: Metadata = {
 
 type Params = { locale: string }
 
-export default async function JournalistLoginPage({ params }: { params: Promise<Params> }) {
-  const { locale: rawLocale } = await params
+export default async function JournalistLoginPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<Params>
+  searchParams: Promise<{ reason?: string }>
+}) {
+  const [{ locale: rawLocale }, query, session] = await Promise.all([params, searchParams, getSession()])
   const locale: Locale = asLocale(rawLocale)
   const ne = locale === 'ne'
+
+  if (session && CONTRIBUTOR_ROLES.has(session.role as NewsroomRole)) {
+    redirect(localizeHref(locale, '/journalist/dashboard'))
+  }
+
+  const notStaff = query.reason === 'not_staff' || (session != null && !CONTRIBUTOR_ROLES.has(session.role as NewsroomRole))
+  const kind = session ? resolveAccountKind(session.role) : null
 
   return (
     <main className="newsroom-login" lang={ne ? 'ne' : 'en'}>
@@ -44,7 +61,18 @@ export default async function JournalistLoginPage({ params }: { params: Promise<
               ? 'पत्रकार वा योगदानकर्ता भूमिका भएको इमेल प्रयोग गर्नुहोस्। नयाँ खाता बनाएपछि सम्पादकबाट निमन्त्रणा चाहिन्छ।'
               : 'Use an email with journalist or contributor access. New accounts need an editor invitation after sign-up.'}</p>
           </header>
-          <JournalistLoginForm locale={locale} />
+          {notStaff ? (
+            <div role="status" className="newsroom-login-form__error" style={{ marginBottom: '1rem' }}>
+              {ne
+                ? `यो खाता ${kind ? accountKindLabel(kind, 'ne') : 'पाठक खाता'} हो (${session ? roleDisplayLabel(session.role, 'ne') : 'पाठक'})। पत्रकार डेस्कका लागि सम्पादकबाट निमन्त्रणा चाहिन्छ।`
+                : `Signed in as ${kind ? accountKindLabel(kind, 'en') : 'a reader account'} (${session ? roleDisplayLabel(session.role, 'en') : 'Reader'}). Journalist desk access requires an editor invitation.`}
+              <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <Link href={localizeHref(locale, '/auth/profile')}>{ne ? 'प्रोफाइल' : 'Profile'}</Link>
+                <Link href={localizeHref(locale, '/')}>{ne ? 'गृहपृष्ठ' : 'Home'}</Link>
+              </div>
+            </div>
+          ) : null}
+          {!session || !notStaff ? <JournalistLoginForm locale={locale} /> : null}
           <footer>
             <Link href={localizeHref(locale, '/auth/signup')}>{ne ? 'नयाँ खाता बनाउनुहोस्' : 'Create an account'}</Link>
             <Link href={localizeHref(locale, '/auth/forgot-password')}>{ne ? 'पासवर्ड बिर्सनुभयो?' : 'Forgot password?'}</Link>

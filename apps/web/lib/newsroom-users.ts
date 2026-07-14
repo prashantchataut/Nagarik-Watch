@@ -10,6 +10,7 @@ type UserRow = {
   email: string
   name: string | null
   role: string | null
+  disabled?: boolean | null
   email_verified?: boolean | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
@@ -34,7 +35,8 @@ export type NewsroomUserRecord = {
   email: string
   name: string
   role: string
-  status: 'active' | 'invited'
+  status: 'active' | 'invited' | 'disabled'
+  disabled: boolean
   createdAt?: string
 }
 
@@ -58,7 +60,7 @@ const invites = new Map<string, StoredInvite>()
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return ensureOperationalSchema('newsroom-users-v2', async (pool) => {
+  return ensureOperationalSchema('newsroom-users-v3', async (pool) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_user_invites (
         id text PRIMARY KEY,
@@ -79,6 +81,14 @@ async function ensureSchema(): Promise<Queryable | null> {
     await pool.query(`ALTER TABLE nw_user_invites ADD COLUMN IF NOT EXISTS revoked_at timestamptz`)
     await pool.query(`CREATE INDEX IF NOT EXISTS nw_user_invites_email_idx ON nw_user_invites(email, status)`)
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS nw_user_invites_token_hash_idx ON nw_user_invites(token_hash) WHERE token_hash IS NOT NULL`)
+    for (const table of ['"user"', 'user']) {
+      try {
+        await pool.query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS disabled boolean NOT NULL DEFAULT false`)
+        break
+      } catch {
+        // Quoting differs by adapter; try the next candidate.
+      }
+    }
   })
 }
 
@@ -92,12 +102,14 @@ function normalizeRole(value: unknown): NewsroomRole {
 }
 
 function userFromRow(row: UserRow): NewsroomUserRecord {
+  const disabled = Boolean(row.disabled)
   return {
     id: row.id,
     email: row.email,
     name: row.name ?? row.email.split('@')[0] ?? row.email,
     role: row.role ?? 'reader',
-    status: 'active',
+    status: disabled ? 'disabled' : 'active',
+    disabled,
     createdAt: row.created_at ? toIso(row.created_at) : undefined,
   }
 }
@@ -135,15 +147,64 @@ export async function listNewsroomUsers(fallback?: NewsroomUserRecord): Promise<
     let lastError: unknown
     for (const table of candidates) {
       try {
-        const result = await pool.query<UserRow>(`SELECT id, email, name, role, created_at FROM ${table} ORDER BY created_at DESC LIMIT 500`)
+        const result = await pool.query<UserRow>(
+          `SELECT id, email, name, role, disabled, created_at FROM ${table} ORDER BY created_at DESC LIMIT 500`,
+        )
         return result.rows.map(userFromRow)
       } catch (error) {
         lastError = error
+        // Older schemas may lack disabled until ALTER runs; retry without it.
+        try {
+          const result = await pool.query<UserRow>(
+            `SELECT id, email, name, role, created_at FROM ${table} ORDER BY created_at DESC LIMIT 500`,
+          )
+          return result.rows.map(userFromRow)
+        } catch {
+          // Continue to next table quoting style.
+        }
       }
     }
     if (isProductionRuntime()) throw new Error('Unable to read Better Auth users.', { cause: lastError })
   }
-  return fallback ? [fallback] : []
+  return fallback ? [{ ...fallback, disabled: fallback.disabled ?? false }] : []
+}
+
+export async function setNewsroomUserDisabled(input: {
+  email: unknown
+  disabled: boolean
+  actorEmail: string
+  actorRole: NewsroomRole
+}): Promise<boolean> {
+  const email = validEmail(input.email)
+  if (!email || !['admin', 'super_admin'].includes(input.actorRole)) return false
+  if (email === input.actorEmail.toLowerCase()) return false
+
+  const users = await listNewsroomUsers()
+  const target = users.find((user) => user.email.toLowerCase() === email)
+  if (!target) return false
+  if (
+    input.actorRole !== 'super_admin' &&
+    ['admin', 'super_admin'].includes(target.role)
+  ) {
+    return false
+  }
+
+  const pool = await ensureSchema()
+  if (!pool) return false
+  let lastError: unknown
+  for (const table of ['"user"', 'user']) {
+    try {
+      const result = await pool.query(
+        `UPDATE ${table} SET disabled = $1 WHERE lower(email) = lower($2)`,
+        [input.disabled, email],
+      )
+      return Number(result.rowCount ?? 0) > 0
+    } catch (error) {
+      lastError = error
+    }
+  }
+  if (isProductionRuntime()) throw new Error('Unable to update account disabled state.', { cause: lastError })
+  return false
 }
 
 export async function listNewsroomInvites(): Promise<NewsroomInvite[]> {

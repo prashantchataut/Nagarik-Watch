@@ -19,12 +19,13 @@
  * via getAuth(). Callers await it once; the singleton is cached.
  */
 import 'server-only'
-import { betterAuth } from 'better-auth'
+import { APIError, betterAuth } from 'better-auth'
 import { after } from 'next/server'
 import { Kysely } from 'kysely'
 import { createDialect } from './auth-pool'
 import { SITE_URL } from '@/lib/site'
 import { sendEmail } from '@/lib/email-provider'
+import { isUserDisabledById } from './disabled-users'
 
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET
 
@@ -181,6 +182,27 @@ async function buildAuth(): Promise<AuthInstance> {
           required: false,
           defaultValue: 'ne',
           input: true,
+        },
+        // Admin panel can disable accounts. Never accept from client signup.
+        disabled: {
+          type: 'boolean',
+          required: false,
+          defaultValue: false,
+          input: false,
+        },
+      },
+    },
+    databaseHooks: {
+      session: {
+        create: {
+          before: async (session) => {
+            if (await isUserDisabledById(session.userId)) {
+              throw new APIError('FORBIDDEN', {
+                message: 'This account has been disabled by the newsroom.',
+                code: 'ACCOUNT_DISABLED',
+              })
+            }
+          },
         },
       },
     },

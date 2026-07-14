@@ -19,6 +19,12 @@ export function authClientErrorMessage(
       : 'Sign-in is temporarily unavailable. The account database could not be reached — check DATABASE_URL.'
   }
 
+  if (status === 403 || code === 'ACCOUNT_DISABLED') {
+    return locale === 'ne'
+      ? 'यो खाता न्यूजरुमद्वारा निष्क्रिय गरिएको छ।'
+      : 'This account has been disabled by the newsroom.'
+  }
+
   if (serverMessage && code === 'AUTH_UNAVAILABLE') return serverMessage
 
   return (

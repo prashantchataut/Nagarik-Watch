@@ -1,9 +1,17 @@
 'use client'
 
 import { useState, useTransition, type FormEvent } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { ReaderSession } from '@/lib/auth/session'
 import type { Locale } from '@nagarikwatch/db'
+import {
+  accountKindBadgeClass,
+  accountKindLabel,
+  deskLinksForRole,
+  resolveAccountKind,
+  roleDisplayLabel,
+} from '@/lib/account-identity'
 
 export function ReaderProfileCard({ session, locale }: { session: ReaderSession; locale: Locale }) {
   const router = useRouter()
@@ -12,6 +20,8 @@ export function ReaderProfileCard({ session, locale }: { session: ReaderSession;
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const ne = locale === 'ne'
+  const kind = resolveAccountKind(session.role)
+  const desks = deskLinksForRole(session.role, locale)
 
   function signOut() {
     setError(null)
@@ -70,9 +80,30 @@ export function ReaderProfileCard({ session, locale }: { session: ReaderSession;
         <div className="min-w-0 flex-1">
           <p className="truncate font-display text-h2 text-ink" lang={ne ? 'ne' : 'en'}>{session.displayName || session.email.split('@')[0]}</p>
           <p className="truncate text-meta text-ink-soft" lang="en">{session.email}</p>
-          <p className="mt-1 text-caption text-mute" lang={ne ? 'ne' : 'en'}>{ne ? 'पाठक खाता' : 'Reader account'} · {session.locale === 'ne' ? 'नेपाली' : 'English'}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className={`inline-flex rounded-md border px-2 py-0.5 text-caption font-bold ${accountKindBadgeClass(kind)}`} lang={ne ? 'ne' : 'en'}>
+              {accountKindLabel(kind, locale)}
+            </span>
+            <span className="text-caption text-mute" lang={ne ? 'ne' : 'en'}>
+              {roleDisplayLabel(session.role, locale)} · {session.locale === 'ne' ? 'नेपाली' : 'English'}
+            </span>
+          </div>
         </div>
       </div>
+
+      {desks.length > 1 ? (
+        <nav className="mt-5 flex flex-wrap gap-2 border-t border-rule pt-4" aria-label={ne ? 'डेस्क लिंक' : 'Desk links'}>
+          {desks.map((desk) => (
+            <Link
+              key={desk.href}
+              href={desk.href}
+              className="inline-flex h-9 items-center rounded-full border border-rule px-3 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong"
+            >
+              {ne ? desk.labelNe : desk.labelEn}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
 
       <form onSubmit={saveProfile} className="mt-6 grid gap-4 border-t border-rule pt-5" lang={ne ? 'ne' : 'en'}>
         <label className="grid gap-1.5 text-meta font-semibold text-ink">

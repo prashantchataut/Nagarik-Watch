@@ -15,7 +15,8 @@ export default async function JournalistFeedbackPage({ params }: { params: Promi
   const locale: Locale = asLocale((await params).locale)
   const ne = locale === 'ne'
   const session = await getNewsroomSession()
-  if (!session || !CONTRIBUTOR_ROLES.has(session.newsroomRole)) redirect(localizeHref(locale, '/journalist/login'))
+  if (!session) redirect(localizeHref(locale, '/journalist/login'))
+  if (!CONTRIBUTOR_ROLES.has(session.newsroomRole)) redirect(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
   const feedback = (await listJournalistDraftMeta(session.userId)).filter((item) => item.editorFeedback || item.revisionRequestedAt)
   const roleLabel = ne ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole] : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
   return (

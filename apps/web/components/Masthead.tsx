@@ -13,11 +13,22 @@ import { Logo } from '@/components/Logo'
 import { SecondaryNav } from '@/components/SecondaryNav'
 import { STATIC_HUBS } from '@/lib/site'
 
-type MastheadProps = { locale: Locale; navCategories: Category[] }
+type MastheadAccount = {
+  displayName: string
+  kindLabel: string
+  roleLabel: string
+  profileHref: string
+}
+
+type MastheadProps = {
+  locale: Locale
+  navCategories: Category[]
+  account?: MastheadAccount | null
+}
 const ICON_BTN =
   'inline-flex h-10 w-10 items-center justify-center border-l border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
 
-export function Masthead({ locale, navCategories }: MastheadProps) {
+export function Masthead({ locale, navCategories, account = null }: MastheadProps) {
   const dict = getDictionary(locale)
   const pathname = usePathname() ?? '/'
   const dateLabel = formatDate(new Date().toISOString(), locale)
@@ -26,6 +37,12 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
   const savedHref = localizeHref(locale, '/saved')
   const toggleHref = swapLocale(pathname)
   const lang = locale === 'en' ? 'en' : 'ne'
+  const accountHref = account?.profileHref ?? localizeHref(locale, '/auth/login')
+  const accountLabel = account
+    ? account.displayName
+    : locale === 'en'
+      ? 'Account'
+      : 'खाता'
 
   return (
     <header className="z-40 border-b border-rule bg-surface">
@@ -56,17 +73,23 @@ export function Masthead({ locale, navCategories }: MastheadProps) {
       <div className="mx-auto max-w-page px-3 sm:px-4">
         <div className="grid min-h-[5.75rem] grid-cols-[auto_1fr_auto] items-center gap-2 md:grid-cols-[1fr_auto_1fr]">
           <div className="flex items-center md:hidden">
-            <MobileNav locale={locale} navCategories={navCategories} />
+            <MobileNav locale={locale} navCategories={navCategories} account={account} />
           </div>
           <div className="hidden items-center md:flex">
             <div className="flex items-center gap-4">
               <Link
-                href={localizeHref(locale, '/auth/login')}
+                href={accountHref}
                 className="border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-ink"
                 lang={lang}
+                title={account ? `${account.kindLabel} · ${account.roleLabel}` : undefined}
               >
-                {locale === 'en' ? 'Account' : 'खाता'}
+                {accountLabel}
               </Link>
+              {account ? (
+                <span className="hidden text-caption text-mute lg:inline" lang={lang}>
+                  {account.kindLabel}
+                </span>
+              ) : null}
               <Link
                 href={localizeHref(locale, '/reader-corner')}
                 className="border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-ink"

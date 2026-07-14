@@ -19,7 +19,8 @@ export default async function JournalistEditPage({ params }: { params: Promise<{
   const { locale: rawLocale, id: rawId } = await params
   const locale: Locale = asLocale(rawLocale)
   const session = await getNewsroomSession()
-  if (!session || !CONTRIBUTOR_ROLES.has(session.newsroomRole)) redirect(localizeHref(locale, '/journalist/login'))
+  if (!session) redirect(localizeHref(locale, '/journalist/login'))
+  if (!CONTRIBUTOR_ROLES.has(session.newsroomRole)) redirect(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
   const id = decodeURIComponent(rawId)
   const meta = await getJournalistDraftMeta(id, session.userId)
   if (!meta) notFound()

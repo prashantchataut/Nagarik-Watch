@@ -14,7 +14,8 @@ export default async function JournalistProfilePage({ params }: { params: Promis
   const locale: Locale = asLocale((await params).locale)
   const ne = locale === 'ne'
   const session = await getNewsroomSession()
-  if (!session || !CONTRIBUTOR_ROLES.has(session.newsroomRole)) redirect(localizeHref(locale, '/journalist/login'))
+  if (!session) redirect(localizeHref(locale, '/journalist/login'))
+  if (!CONTRIBUTOR_ROLES.has(session.newsroomRole)) redirect(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
   const roleLabel = ne ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole] : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
   return (
     <JournalistWorkspaceShell locale={locale} name={session.displayName || session.email} roleLabel={roleLabel} active="profile">

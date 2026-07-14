@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { PasswordField } from '@/components/forms/PasswordField'
 import { localizeHref } from '@/lib/i18n/locales'
 import { authClientErrorMessage } from '@/lib/auth/client-errors'
+import { CONTRIBUTOR_ROLES, type NewsroomRole } from '@/lib/admin-roles'
 
 type Props = { locale: 'ne' | 'en' }
 
@@ -36,9 +37,31 @@ export function JournalistLoginForm({ locale }: Props) {
         })
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
+          const code = (body as { error?: { code?: string }; code?: string }).error?.code
+            ?? (body as { code?: string }).code
+          if (code === 'ACCOUNT_DISABLED' || res.status === 403) {
+            setError(
+              ne
+                ? 'यो खाता न्यूजरुमद्वारा निष्क्रिय गरिएको छ।'
+                : 'This account has been disabled by the newsroom.',
+            )
+            return
+          }
           setError(authClientErrorMessage(res.status, body, locale))
           return
         }
+
+        const sessionRes = await fetch('/api/auth/get-session', { cache: 'no-store' })
+        const sessionBody = (await sessionRes.json().catch(() => null)) as {
+          user?: { role?: string }
+        } | null
+        const role = sessionBody?.user?.role ?? 'reader'
+        if (!CONTRIBUTOR_ROLES.has(role as NewsroomRole)) {
+          router.refresh()
+          router.push(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
+          return
+        }
+
         router.refresh()
         router.push(localizeHref(locale, '/journalist/dashboard'))
       } catch {

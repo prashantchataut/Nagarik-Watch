@@ -12,6 +12,12 @@ import { STATIC_HUBS } from '@/lib/site'
 type MobileNavProps = {
   locale: Locale
   navCategories: Category[]
+  account?: {
+    displayName: string
+    kindLabel: string
+    roleLabel: string
+    profileHref: string
+  } | null
 }
 
 // 44×44 minimum touch target (WCAG 2.5.5).
@@ -31,7 +37,7 @@ const DRAWER_LINK =
  * closes it, and the page behind is inert (via the body-scroll lock + overlay). Routing happens
  * through plain Links, so a selection navigates and unmounts the drawer in one step.
  */
-export function MobileNav({ locale, navCategories }: MobileNavProps) {
+export function MobileNav({ locale, navCategories, account = null }: MobileNavProps) {
   const dict = getDictionary(locale)
   const [open, setOpen] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -178,18 +184,29 @@ export function MobileNav({ locale, navCategories }: MobileNavProps) {
               </DrawerSection>
 
               <DrawerSection
-                label={locale === 'en' ? 'Reader account' : 'पाठक खाता'}
+                label={account ? (locale === 'en' ? 'Your account' : 'तपाईंको खाता') : locale === 'en' ? 'Reader account' : 'पाठक खाता'}
                 lang={locale === 'en' ? 'en' : 'ne'}
               >
                 <li>
                   <Link
-                    href={localizeHref(locale, '/auth/login')}
+                    href={account?.profileHref ?? localizeHref(locale, '/auth/login')}
                     onClick={() => setOpen(false)}
                     className={DRAWER_LINK}
                   >
-                    {locale === 'en' ? 'Sign in / Account' : 'लगइन / खाता'}
+                    {account
+                      ? `${account.displayName} · ${account.kindLabel}`
+                      : locale === 'en'
+                        ? 'Sign in / Account'
+                        : 'लगइन / खाता'}
                   </Link>
                 </li>
+                {account ? (
+                  <li>
+                    <p className="border-b border-rule px-1 py-2 text-caption text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
+                      {account.roleLabel}
+                    </p>
+                  </li>
+                ) : null}
                 <li>
                   <Link
                     href={readerCornerHref}

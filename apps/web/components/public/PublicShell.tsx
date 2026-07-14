@@ -9,10 +9,21 @@ import { SiteJsonLd } from '@/components/SiteJsonLd'
 import { AnalyticsGate } from '@/components/analytics/AnalyticsGate'
 import { getNavCategories } from '@/lib/content'
 import { PUBLICATION } from '@/lib/site'
+import { getSession } from '@/lib/auth/session'
+import { accountKindLabel, resolveAccountKind, roleDisplayLabel } from '@/lib/account-identity'
+import { localizeHref } from '@/lib/i18n/locales'
 
 export async function PublicShell({ locale, children }: { locale: Locale; children: ReactNode }) {
   const english = locale === 'en'
-  const navCategories = await getNavCategories()
+  const [navCategories, session] = await Promise.all([getNavCategories(), getSession()])
+  const account = session
+    ? {
+        displayName: session.displayName || session.email.split('@')[0] || session.email,
+        kindLabel: accountKindLabel(resolveAccountKind(session.role), locale),
+        roleLabel: roleDisplayLabel(session.role, locale),
+        profileHref: localizeHref(locale, '/auth/profile'),
+      }
+    : null
 
   return (
     <>
@@ -20,7 +31,7 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
         {english ? 'Skip to content' : 'मुख्य सामग्रीमा जानुहोस्'}
       </a>
       <SiteJsonLd siteName={PUBLICATION.publisherName} />
-      <Masthead locale={locale} navCategories={navCategories} />
+      <Masthead locale={locale} navCategories={navCategories} account={account} />
       <main id="main" className="min-h-[55vh] pb-16 lg:pb-0">
         {children}
       </main>
@@ -35,3 +46,4 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
     </>
   )
 }
+

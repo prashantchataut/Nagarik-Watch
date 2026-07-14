@@ -61,9 +61,16 @@ export async function getSession(): Promise<ReaderSession | null> {
     const auth = await getAuth()
     const session = await auth.api.getSession({ headers: await headers() })
     if (!session?.user) return null
-    const role = (session.user as { role?: string }).role ?? 'reader'
-    const displayName = (session.user as { displayName?: string }).displayName ?? null
-    const locale = (session.user as { locale?: string }).locale === 'en' ? 'en' : 'ne'
+    const user = session.user as {
+      role?: string
+      displayName?: string
+      locale?: string
+      disabled?: boolean | null
+    }
+    if (user.disabled === true) return null
+    const role = user.role ?? 'reader'
+    const displayName = user.displayName ?? null
+    const locale = user.locale === 'en' ? 'en' : 'ne'
     return {
       userId: session.user.id,
       email: session.user.email,

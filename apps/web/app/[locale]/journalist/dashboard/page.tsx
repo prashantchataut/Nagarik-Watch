@@ -15,7 +15,8 @@ export default async function JournalistDashboard({ params }: { params: Promise<
   const locale: Locale = asLocale((await params).locale)
   const ne = locale === 'ne'
   const session = await getNewsroomSession()
-  if (!session || !CONTRIBUTOR_ROLES.has(session.newsroomRole)) redirect(localizeHref(locale, '/journalist/login'))
+  if (!session) redirect(localizeHref(locale, '/journalist/login'))
+  if (!CONTRIBUTOR_ROLES.has(session.newsroomRole)) redirect(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
   const drafts = await listJournalistDraftMeta(session.userId)
   const roleLabel = ne ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole] : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
   const review = drafts.filter((item) => item.workflowStage === 'submitted').length
