@@ -1,23 +1,27 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
-import { addBookmark, removeBookmark, getBookmarks } from '@/lib/engagement/store'
+import {
+  addBookmark,
+  removeBookmark,
+  getBookmarks,
+  mergeAnonymousBookmarks,
+} from '@/lib/engagement/store'
 import { getSession } from '@/lib/auth/session'
+import { enforceRateLimit } from '@/lib/rate-limit'
+import { getPublicArticleIdentity } from '@/lib/content/public-article-identity'
 
 export const dynamic = 'force-dynamic'
 
-/**
- * Bookmarks API. Three methods:
- *   GET  /api/bookmarks?fingerprint=…       → list bookmarks for this reader
- *   POST /api/bookmarks { action: 'add'|'remove', articleSlug, … }
- *
- * Logged-in readers are keyed by userId (so bookmarks sync across devices).
- * Anonymous readers are keyed by a client-generated fingerprint stored in
- * localStorage. When an anonymous reader later signs in, a migration hook
- * (Phase 3) will merge their anonymous bookmarks into their user account.
- */
 export async function GET(request: NextRequest) {
-  const fingerprint = request.nextUrl.searchParams.get('fingerprint') ?? ''
+  const fingerprint = request.nextUrl.searchParams.get('fingerprint')?.trim() ?? ''
   const session = await getSession().catch(() => null)
+
+  if (!session && !fingerprint) return NextResponse.json({ bookmarks: [] })
+  if (fingerprint.length > 160) {
+    return NextResponse.json({ error: 'Invalid reader identifier.' }, { status: 400 })
+  }
+  if (session && fingerprint) await mergeAnonymousBookmarks(fingerprint, session.userId)
+
   const list = await getBookmarks(fingerprint, session?.userId)
   return NextResponse.json({ bookmarks: list })
 }
@@ -26,6 +30,9 @@ export async function POST(request: NextRequest) {
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
+
+  const limited = await enforceRateLimit(request, 'bookmark', 30, 60_000)
+  if (limited) return limited
 
   let body: Record<string, unknown>
   try {
@@ -38,27 +45,46 @@ export async function POST(request: NextRequest) {
   const fingerprint = String(body.fingerprint ?? '').trim()
   const articleSlug = String(body.articleSlug ?? '').trim()
   const articleCategory = String(body.articleCategory ?? '').trim()
-  const articleTitleNe = String(body.articleTitleNe ?? '').trim()
-
-  if (!fingerprint || !articleSlug) {
-    return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
-  }
-
   const session = await getSession().catch(() => null)
 
+  if (
+    !articleSlug ||
+    articleSlug.length > 160 ||
+    articleCategory.length > 120 ||
+    fingerprint.length > 160 ||
+    (!session && !fingerprint)
+  ) {
+    return NextResponse.json({ error: 'Missing or invalid fields.' }, { status: 400 })
+  }
+
+  if (session && fingerprint) await mergeAnonymousBookmarks(fingerprint, session.userId)
+
   if (action === 'add') {
+    if (!articleCategory) {
+      return NextResponse.json({ error: 'Article category is required.' }, { status: 400 })
+    }
+    let article
+    try {
+      article = await getPublicArticleIdentity(articleCategory, articleSlug)
+    } catch {
+      return NextResponse.json({ error: 'Content service is temporarily unavailable.' }, { status: 503 })
+    }
+    if (!article) return NextResponse.json({ error: 'Article not found.' }, { status: 404 })
+
     await addBookmark({
       anonymousId: fingerprint,
       userId: session?.userId,
-      articleSlug,
-      articleCategory,
-      articleTitleNe,
+      articleSlug: article.slug,
+      articleCategory: article.category,
+      articleTitleNe: article.titleNe,
     })
     return NextResponse.json({ ok: true }, { status: 201 })
   }
+
   if (action === 'remove') {
     await removeBookmark(fingerprint, session?.userId, articleSlug)
     return NextResponse.json({ ok: true })
   }
+
   return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
 }

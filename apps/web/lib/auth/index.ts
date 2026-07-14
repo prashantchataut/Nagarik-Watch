@@ -20,9 +20,11 @@
  */
 import 'server-only'
 import { betterAuth } from 'better-auth'
+import { after } from 'next/server'
 import { Kysely } from 'kysely'
 import { createDialect } from './auth-pool'
 import { SITE_URL } from '@/lib/site'
+import { sendEmail } from '@/lib/email-provider'
 
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET
 
@@ -75,6 +77,19 @@ function trustedOrigins(): string[] {
   )
 }
 
+function escapeEmailHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => {
+    const entities: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }
+    return entities[character] ?? character
+  })
+}
+
 type AuthInstance = ReturnType<typeof betterAuth>
 
 let authPromise: Promise<AuthInstance> | null = null
@@ -103,6 +118,39 @@ async function buildAuth(): Promise<AuthInstance> {
       maxPasswordLength: 128,
       autoSignIn: true,
       requireEmailVerification: false,
+      resetPasswordTokenExpiresIn: 60 * 30,
+      revokeSessionsOnPasswordReset: true,
+      sendResetPassword: async ({ user, url }) => {
+        // Better Auth deliberately does not reveal whether an account exists.
+        // Schedule delivery after the HTTP response so a slow provider does not
+        // turn account recovery into a timing oracle or a serverless timeout.
+        after(async () => {
+          const displayName = user.name?.trim() || user.email.split('@')[0] || 'पाठक'
+          try {
+            await sendEmail({
+              to: user.email,
+              from: process.env.AUTH_EMAIL_FROM?.trim() || undefined,
+              subject: 'नागरिक वाच पासवर्ड पुनः सेट गर्नुहोस्',
+              text: [
+                `${displayName},`,
+                '',
+                'तपाईंले नागरिक वाच खाताको पासवर्ड परिवर्तन गर्न अनुरोध गर्नुभएको छ।',
+                `नयाँ पासवर्ड बनाउन यो सुरक्षित लिंक खोल्नुहोस्: ${url}`,
+                '',
+                'यो लिंक ३० मिनेटसम्म मात्र मान्य हुन्छ। तपाईंले यो अनुरोध नगर्नुभएको हो भने यस इमेललाई बेवास्ता गर्नुहोस्।',
+                '',
+                '— नागरिक वाच',
+              ].join('\n'),
+              html: `<p>${escapeEmailHtml(displayName)},</p><p>तपाईंले नागरिक वाच खाताको पासवर्ड परिवर्तन गर्न अनुरोध गर्नुभएको छ।</p><p><a href="${escapeEmailHtml(url)}">नयाँ पासवर्ड बनाउनुहोस्</a></p><p>यो लिंक ३० मिनेटसम्म मात्र मान्य हुन्छ। तपाईंले यो अनुरोध नगर्नुभएको हो भने यस इमेललाई बेवास्ता गर्नुहोस्।</p><p>— नागरिक वाच</p>`,
+            })
+          } catch (error) {
+            console.error('[auth] password reset email delivery failed', {
+              userId: user.id,
+              error,
+            })
+          }
+        })
+      },
     },
     session: {
       expiresIn: 60 * 60 * 24 * 30,

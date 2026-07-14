@@ -20,7 +20,7 @@
     "@nagarikwatch/ui": "workspace:*",
     "better-auth": "^1.6.23",
     "kysely": "^0.29.2",
-    "next": "^15.1.3",
+    "next": "15.4.11",
     "pg": "^8.22.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

@@ -1,11 +1,17 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { AD_PLACEMENTS, type AdMode } from '@/lib/ads'
 import { recordAdEvent } from '@/lib/ad-events'
+import { enforceRateLimit } from '@/lib/rate-limit'
+import { isTrustedWriteRequest } from '@/lib/security/origin'
 
 const events = new Set(['impression', 'click'])
 const modes = new Set<AdMode>(['off', 'house', 'network'])
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+
   let body: unknown
   try {
     body = await request.json()
@@ -14,6 +20,14 @@ export async function POST(request: Request) {
   }
 
   if (!isAdEvent(body)) return NextResponse.json({ ok: false }, { status: 400 })
+
+  const limited = await enforceRateLimit(
+    request,
+    `ad-${body.event}`,
+    body.event === 'click' ? 20 : 120,
+    60_000,
+  )
+  if (limited) return limited
 
   await recordAdEvent(body)
   return NextResponse.json({ ok: true })

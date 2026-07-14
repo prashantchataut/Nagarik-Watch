@@ -36,8 +36,7 @@ const DATABASE_URL =
   (isBuild ? 'postgres://build-placeholder.not.used.at.runtime/db' : undefined)
 const SERVER_URL =
   process.env.PAYLOAD_PUBLIC_SERVER_URL ??
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  'http://localhost:3000'
+  (isBuild ? 'http://localhost:3001' : undefined)
 
 /**
  * Validate env at runtime (NOT at build). Called once on first server boot
@@ -52,10 +51,9 @@ function validateAtBoot() {
 /**
  * Payload CMS root config for Nagarik Watch.
  *
- * Phase 1 lands the core content model (content-model.md §1–5): Users, Media,
- * Category, Author, Tag and Article. Access control is open in dev (tightened
- * in Slice 6 / Phase 2); the Article source-attribution hook is already in
- * place.
+ * Canonical editorial configuration: Users, Media, Category, Author, Tag and
+ * Article with role-aware access, drafts, provenance validation, scheduling,
+ * versions and publish-to-reader revalidation.
  */
 export default buildConfig({
   secret: PAYLOAD_SECRET as string,
@@ -87,7 +85,10 @@ export default buildConfig({
     // Dev pushes the schema live (fast iteration). Prod runs against generated
     // migrations (source of truth) so schema changes are reviewed and ordered.
     // Set PAYLOAD_DB_PUSH=false in production; defaults to true for local dev.
-    push: (process.env.PAYLOAD_DB_PUSH ?? 'true') === 'true',
+    push:
+      process.env.PAYLOAD_DB_PUSH !== undefined
+        ? process.env.PAYLOAD_DB_PUSH === 'true'
+        : process.env.NODE_ENV !== 'production',
   }),
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

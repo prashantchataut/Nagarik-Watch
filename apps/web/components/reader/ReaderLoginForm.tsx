@@ -10,9 +10,9 @@ import { PasswordField } from '@/components/forms/PasswordField'
  * Reader login form. Same shape as AdminLoginForm but reader-scoped: on
  * success redirects to the locale's /saved page (the reader's home for
  * bookmarks + history), and the "forgot password" link points at the
- * reader-facing reset flow (mailto for now; self-serve reset is Phase 3).
+ * reader-facing recovery flow backed by Better Auth and the configured email provider.
  */
-export function ReaderLoginForm({ locale }: { locale: 'ne' | 'en' }) {
+export function ReaderLoginForm({ locale, next, notice }: { locale: 'ne' | 'en'; next?: string | null; notice?: 'reset' | 'invite' | null }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -47,7 +47,7 @@ export function ReaderLoginForm({ locale }: { locale: 'ne' | 'en' }) {
           return
         }
         router.refresh()
-        router.push(ne ? '/saved' : '/en/saved')
+        router.push(safeNext(next) ?? (ne ? '/saved' : '/en/saved'))
       } catch {
         setError(ne ? 'नेटवर्क त्रुटि।' : 'Network error.')
       }
@@ -56,6 +56,13 @@ export function ReaderLoginForm({ locale }: { locale: 'ne' | 'en' }) {
 
   return (
     <form onSubmit={onSubmit} className="grid gap-4" noValidate>
+      {notice ? (
+        <div role="status" className="rounded-md border border-rule bg-surface-raised px-4 py-3 text-meta font-semibold text-ink" lang={ne ? 'ne' : 'en'}>
+          {notice === 'reset'
+            ? (ne ? 'पासवर्ड परिवर्तन भयो। नयाँ पासवर्ड प्रयोग गरेर लगइन गर्नुहोस्।' : 'Password updated. Sign in with your new password.')
+            : (ne ? 'न्युजरुम निमन्त्रणा स्वीकार भयो। भूमिका सक्रिय गर्न फेरि लगइन गर्नुहोस्।' : 'Newsroom invitation accepted. Sign in again to activate your role.')}
+        </div>
+      ) : null}
       {error && (
         <div
           role="alert"
@@ -103,14 +110,14 @@ export function ReaderLoginForm({ locale }: { locale: 'ne' | 'en' }) {
       </button>
 
       <div className="flex items-center justify-between text-caption">
-        <a
-          href="mailto:contact@nagarikwatch.com?subject=Reader%20password%20reset"
+        <Link
+          href={ne ? '/auth/forgot-password' : '/en/auth/forgot-password'}
           className="text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline"
         >
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'पासवर्ड भुल्नुभयो?' : 'Forgot password?'}</span>
-        </a>
+        </Link>
         <Link
-          href={ne ? '/register' : '/en/register'}
+          href={`${ne ? '' : '/en'}/auth/signup${safeNext(next) ? `?next=${encodeURIComponent(safeNext(next)!)}` : ''}`}
           className="font-semibold text-brand underline-offset-2 hover:underline"
         >
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'नयाँ खाता' : 'Sign up'}</span>
@@ -118,4 +125,14 @@ export function ReaderLoginForm({ locale }: { locale: 'ne' | 'en' }) {
       </div>
     </form>
   )
+}
+
+function safeNext(value: string | null | undefined): string | null {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) return null
+  try {
+    const url = new URL(value, 'https://nagarikwatch.local')
+    return url.origin === 'https://nagarikwatch.local' ? `${url.pathname}${url.search}${url.hash}` : null
+  } catch {
+    return null
+  }
 }

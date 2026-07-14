@@ -2,6 +2,20 @@
 
 This guide separates repository defects from provider/network failures. Paste the exact deployment log beside this checklist before changing code.
 
+
+## July 13 Vercel incident: exact root cause and fix
+
+The supplied log failed before compilation:
+
+- failing commit: `b6ae37e`
+- failing importer: `apps/cms/package.json`
+- error: `ERR_PNPM_OUTDATED_LOCKFILE`
+- root cause: that commit changed the CMS manifest/path without regenerating and committing the matching pnpm 10 lockfile importer
+
+The current repaired repository uses `apps/admin`, contains no `apps/cms`, and passes `node scripts/verify-workspace-lock.mjs` across all eight package manifests. Retrying the old commit cannot apply this fix; push and deploy the repaired commit. The Node 24/22 message in the log is informational: the root `engines.node=22.x` intentionally selects Node 22.
+
+See [`VERCEL_DEPLOYMENT.md`](VERCEL_DEPLOYMENT.md) for the two-project setup and health checks.
+
 ## Supported toolchain
 
 - Node.js: `22.x`
@@ -49,7 +63,7 @@ The launch gate requires verified values for:
 - `SUBMISSION_IP_SALT` (at least 32 non-placeholder characters)
 - `CONTENT_SOURCE=payload`
 - `PAYLOAD_DB_PUSH=false`
-- one durable media backend: `STORAGE_BUCKET`, `BLOB_READ_WRITE_TOKEN`, or `S3_BUCKET`
+- a wired and verified Payload object-storage adapter (credentials alone are insufficient)
 
 Never expose database, Payload API or server secrets through `NEXT_PUBLIC_*` variables.
 
@@ -58,6 +72,7 @@ Never expose database, Payload API or server secrets through `NEXT_PUBLIC_*` var
 ```bash
 corepack enable
 corepack prepare pnpm@10.17.1 --activate
+node scripts/verify-workspace-lock.mjs
 pnpm install --frozen-lockfile
 pnpm format:check
 pnpm lint

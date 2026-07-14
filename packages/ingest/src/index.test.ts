@@ -66,6 +66,25 @@ describe('parseFeed', () => {
     expect(items[0]?.sourceUrl).toBe('https://example.test/atom/one')
   })
 
+  it('decodes XML entities without copying article bodies', () => {
+    const xml = `<rss><channel><item><title>Nepal &amp; South Asia &#x2014; update</title><link>https://example.test/news/entities?x=1&amp;y=2</link></item></channel></rss>`
+    const items = parseFeed(xml, SOURCE)
+    expect(items).toHaveLength(1)
+    expect(items[0]?.titleNe).toBe('Nepal & South Asia — update')
+    expect(items[0]?.sourceUrl).toBe('https://example.test/news/entities?x=1&y=2')
+    expect(items[0]?.bodyHtml).toBe('')
+  })
+
+  it('resolves relative links against the official feed URL', () => {
+    const xml = `<rss><channel><item><title>Relative story</title><link>/news/relative</link></item></channel></rss>`
+    expect(parseFeed(xml, SOURCE)[0]?.sourceUrl).toBe('https://example.test/news/relative')
+  })
+
+  it('rejects non-http URLs from an upstream feed', () => {
+    const xml = `<rss><channel><item><title>Unsafe link</title><link>javascript:alert(1)</link></item></channel></rss>`
+    expect(parseFeed(xml, SOURCE)).toEqual([])
+  })
+
   it('returns empty on malformed input', () => {
     expect(parseFeed('not xml at all', SOURCE)).toEqual([])
     expect(parseFeed('', SOURCE)).toEqual([])
@@ -87,10 +106,14 @@ describe('fetchAggregatedFeed', () => {
     })
     expect(deduped).toHaveLength(a.length)
     const sorted = [...deduped].sort((x, y) =>
-      y.sourcePublishedAt.localeCompare(x.sourcePublishedAt),
+      (y.sourcePublishedAt ?? '').localeCompare(x.sourcePublishedAt ?? ''),
     )
     const newest = sorted[0]
     const oldest = sorted[sorted.length - 1]
-    expect(newest && oldest && newest.sourcePublishedAt >= oldest.sourcePublishedAt).toBe(true)
+    expect(
+      newest &&
+        oldest &&
+        (newest.sourcePublishedAt ?? '') >= (oldest.sourcePublishedAt ?? ''),
+    ).toBe(true)
   })
 })

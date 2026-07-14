@@ -55,6 +55,14 @@ export default async function ReaderProfilePage({
           : 'अहिले पाठकले के पछ्याइरहेका छन् हेर्नुहोस्।',
     },
     {
+      href: localizeHref(locale, '/auth/change-password'),
+      title: locale === 'en' ? 'Account security' : 'खाता सुरक्षा',
+      body:
+        locale === 'en'
+          ? 'Change your password and revoke other sessions.'
+          : 'पासवर्ड परिवर्तन गरेर अन्य उपकरणका सत्र बन्द गर्नुहोस्।',
+    },
+    {
       href: locale === 'en' ? '/' : '/en',
       title: locale === 'en' ? 'नेपाली संस्करण' : 'English edition',
       body: locale === 'en' ? 'Switch to the Nepali edition.' : 'English edition मा जानुहोस्।',
@@ -80,6 +88,12 @@ export default async function ReaderProfilePage({
           className="rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
         >
           {dict.navSaved}
+        </Link>
+        <Link
+          href={localizeHref(locale, '/auth/change-password')}
+          className="rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+        >
+          {locale === 'en' ? 'Security' : 'खाता सुरक्षा'}
         </Link>
         <Link
           href={localizeHref(locale, '/auth/login')}

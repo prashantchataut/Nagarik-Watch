@@ -21,7 +21,7 @@ export function PaywallNotice({ locale }: { locale: Locale }) {
         <Link href={localizeHref(locale, '/membership')} className="inline-flex h-11 items-center rounded-full bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong">
           {ne ? 'सदस्यता हेर्नुहोस्' : 'View membership'}
         </Link>
-        <Link href={localizeHref(locale, '/login')} className="inline-flex h-11 items-center rounded-full border border-rule px-5 text-body font-bold text-ink hover:border-brand hover:text-brand-strong">
+        <Link href={localizeHref(locale, '/auth/login')} className="inline-flex h-11 items-center rounded-full border border-rule px-5 text-body font-bold text-ink hover:border-brand hover:text-brand-strong">
           {ne ? 'पहिले नै सदस्य? लगइन' : 'Already a member? Sign in'}
         </Link>
       </div>

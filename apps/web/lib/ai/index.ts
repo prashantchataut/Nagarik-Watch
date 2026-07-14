@@ -1,5 +1,5 @@
 /**
- * AI features scaffold (Phase 9).
+ * Human-reviewed editorial assistance.
  *
  * HARD POLICY (PRODUCT.md + spec Phase 9):
  *   - AI output is ALWAYS a draft. Nothing auto-publishes.
@@ -11,11 +11,11 @@
  * Two execution modes:
  *   - `extractive` (default, no key needed): deterministic heuristics that pull
  *     real signal from the article text. Honest and cheap, never hallucinates.
- *   - `llm` (when AI_PROVIDER_KEY is wired): calls a provider through the
- *     AiProvider interface. The editor still approves before publish.
+ *   - `llm`: a provider contract reserved for a separately configured, audited
+ *     integration. No route silently falls back to an external model.
  *
- * The extractive implementations are real and useful today; the LLM path is a
- * typed seam waiting for a key. Nothing here pretends to be more than it is.
+ * The shipped implementation is extractive and deterministic. The provider
+ * interface is not presented to editors as active until an integration exists.
  */
 import type { Article, ArticleBlock } from '@nagarikwatch/db'
 

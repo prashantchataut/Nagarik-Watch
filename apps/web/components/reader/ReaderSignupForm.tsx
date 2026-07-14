@@ -13,7 +13,7 @@ import { PasswordField } from '@/components/forms/PasswordField'
  *
  * Display name is optional; if omitted we derive from the email local part.
  */
-export function ReaderSignupForm({ locale }: { locale: 'ne' | 'en' }) {
+export function ReaderSignupForm({ locale, next }: { locale: 'ne' | 'en'; next?: string | null }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -66,7 +66,7 @@ export function ReaderSignupForm({ locale }: { locale: 'ne' | 'en' }) {
           return
         }
         router.refresh()
-        router.push(ne ? '/saved' : '/en/saved')
+        router.push(safeNext(next) ?? (ne ? '/saved' : '/en/saved'))
       } catch {
         setError(ne ? 'नेटवर्क त्रुटि। पुनः प्रयास गर्नुहोस्।' : 'Network error. Please retry.')
       }
@@ -153,7 +153,7 @@ export function ReaderSignupForm({ locale }: { locale: 'ne' | 'en' }) {
           {ne ? 'पहिले नै खाता छ? ' : 'Already have an account? '}
         </span>
         <Link
-          href={ne ? '/login' : '/en/login'}
+          href={`${ne ? '' : '/en'}/auth/login${safeNext(next) ? `?next=${encodeURIComponent(safeNext(next)!)}` : ''}`}
           className="font-semibold text-brand underline-offset-2 hover:underline"
         >
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'लगइन गर्नुहोस्' : 'Sign in'}</span>
@@ -161,4 +161,14 @@ export function ReaderSignupForm({ locale }: { locale: 'ne' | 'en' }) {
       </p>
     </form>
   )
+}
+
+function safeNext(value: string | null | undefined): string | null {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) return null
+  try {
+    const url = new URL(value, 'https://nagarikwatch.local')
+    return url.origin === 'https://nagarikwatch.local' ? `${url.pathname}${url.search}${url.hash}` : null
+  } catch {
+    return null
+  }
 }

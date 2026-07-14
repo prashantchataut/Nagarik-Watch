@@ -163,6 +163,87 @@ function owner(anonymousId: string, userId?: string) {
   return userId ? `user:${userId}` : `anon:${anonymousId}`
 }
 
+
+/** Merge anonymous bookmarks into the signed-in account on the first authenticated request. */
+export async function mergeAnonymousBookmarks(anonymousId: string, userId: string): Promise<void> {
+  if (!anonymousId.trim()) return
+  const anonymousOwner = owner(anonymousId)
+  const userOwner = owner('', userId)
+  const database = getPool()
+  if (database) {
+    await ensureSchema()
+    const client = await database.connect()
+    try {
+      await client.query('begin')
+      const anonymous = await client.query<{
+        article_slug: string
+        article_category: string | null
+        article_title_ne: string | null
+        created_at: Date | string
+      }>(
+        `select article_slug, article_category, article_title_ne, created_at
+         from nw_bookmarks where owner_key=$1`,
+        [anonymousOwner],
+      )
+      for (const bookmark of anonymous.rows) {
+        await client.query(
+          `insert into nw_bookmarks(id,owner_key,article_slug,article_category,article_title_ne,created_at)
+           values($1,$2,$3,$4,$5,$6)
+           on conflict(owner_key,article_slug) do update set
+             article_category=excluded.article_category,
+             article_title_ne=excluded.article_title_ne`,
+          [
+            randomUUID(),
+            userOwner,
+            bookmark.article_slug,
+            bookmark.article_category,
+            bookmark.article_title_ne,
+            bookmark.created_at,
+          ],
+        )
+      }
+      await client.query('delete from nw_bookmarks where owner_key=$1', [anonymousOwner])
+      await client.query('commit')
+    } catch (error) {
+      await client.query('rollback')
+      throw error
+    } finally {
+      client.release()
+    }
+    return
+  }
+
+  const store = await readLocal()
+  const bookmarks = { ...store.bookmarks }
+  for (const [key, bookmark] of Object.entries(store.bookmarks)) {
+    if (!key.startsWith(`${anonymousOwner}:`)) continue
+    bookmarks[`${userOwner}:${bookmark.articleSlug}`] = {
+      ...bookmark,
+      anonymousId: '',
+      userId,
+    }
+    delete bookmarks[key]
+  }
+  await writeLocal({ ...store, bookmarks })
+}
+
+/** A reply may reference only an approved parent on the same public article. */
+export async function isValidCommentParent(articleSlug: string, parentId: string): Promise<boolean> {
+  const database = getPool()
+  if (database) {
+    await ensureSchema()
+    const result = await database.query(
+      `select 1 from nw_comments where id=$1 and article_slug=$2 and status='approved' limit 1`,
+      [parentId, articleSlug],
+    )
+    return Number(result.rowCount ?? 0) > 0
+  }
+  return (await readLocal()).comments.some(
+    (comment) =>
+      comment.id === parentId && comment.articleSlug === articleSlug && comment.status === 'approved',
+  )
+}
+
 export async function addBookmark(input: BookmarkInput) {
   const database = getPool()
   if (database) {
@@ -337,6 +418,82 @@ export async function recordReading(input: ReadingInput) {
   const store = await readLocal()
   const key = `${owner(input.anonymousId, input.userId)}:${input.articleSlug}`
   await writeLocal({ ...store, readings: { ...store.readings, [key]: { ...input, readAt: new Date().toISOString() } } })
+}
+
+
+export type MostReadStat = {
+  articleSlug: string
+  articleCategory: string
+  articleTitleNe: string
+  uniqueReaders: number
+  averageReadPercent: number
+  lastReadAt: string
+}
+
+/** Aggregate privacy-preserving first-party reading activity. Owner keys never leave storage. */
+export async function getMostReadStats(windowDays = 7, limit = 50): Promise<MostReadStat[]> {
+  const safeDays = Math.max(1, Math.min(windowDays, 30))
+  const safeLimit = Math.max(1, Math.min(limit, 200))
+  const cutoff = new Date(Date.now() - safeDays * 86_400_000)
+  const database = getPool()
+  if (database) {
+    await ensureSchema()
+    const result = await database.query(
+      `select article_slug as "articleSlug",
+              max(article_category) as "articleCategory",
+              max(article_title_ne) as "articleTitleNe",
+              count(distinct owner_key)::int as "uniqueReaders",
+              round(avg(read_percent))::int as "averageReadPercent",
+              max(read_at) as "lastReadAt"
+       from nw_reading
+       where read_at >= $1 and read_percent >= 10
+       group by article_slug
+       order by count(distinct owner_key) desc, avg(read_percent) desc, max(read_at) desc
+       limit $2`,
+      [cutoff.toISOString(), safeLimit],
+    )
+    return result.rows.map((row) => ({
+      articleSlug: String(row.articleSlug),
+      articleCategory: String(row.articleCategory ?? ''),
+      articleTitleNe: String(row.articleTitleNe ?? ''),
+      uniqueReaders: Number(row.uniqueReaders ?? 0),
+      averageReadPercent: Number(row.averageReadPercent ?? 0),
+      lastReadAt: new Date(row.lastReadAt as string | Date).toISOString(),
+    }))
+  }
+
+  const rows = Object.values((await readLocal()).readings).filter(
+    (item) => Date.parse(item.readAt) >= cutoff.getTime() && item.readPercent >= 10,
+  )
+  const grouped = new Map<string, MostReadStat>()
+  for (const item of rows) {
+    const current = grouped.get(item.articleSlug)
+    if (!current) {
+      grouped.set(item.articleSlug, {
+        articleSlug: item.articleSlug,
+        articleCategory: item.articleCategory,
+        articleTitleNe: item.articleTitleNe,
+        uniqueReaders: 1,
+        averageReadPercent: Math.round(item.readPercent),
+        lastReadAt: item.readAt,
+      })
+      continue
+    }
+    const nextCount = current.uniqueReaders + 1
+    current.averageReadPercent = Math.round(
+      (current.averageReadPercent * current.uniqueReaders + item.readPercent) / nextCount,
+    )
+    current.uniqueReaders = nextCount
+    if (item.readAt > current.lastReadAt) current.lastReadAt = item.readAt
+  }
+  return Array.from(grouped.values())
+    .sort(
+      (a, b) =>
+        b.uniqueReaders - a.uniqueReaders ||
+        b.averageReadPercent - a.averageReadPercent ||
+        b.lastReadAt.localeCompare(a.lastReadAt),
+    )
+    .slice(0, safeLimit)
 }
 
 

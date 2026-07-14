@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canModerateComments } from '@/lib/admin-roles'
 import { updateCommentStatus, type CommentStatus } from '@/lib/engagement/store'
@@ -8,6 +9,10 @@ export const dynamic = 'force-dynamic'
 const STATUSES = new Set<CommentStatus>(['pending', 'approved', 'rejected', 'flagged'])
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+
   const session = await requireNewsroomSession()
   if (!canModerateComments(session.newsroomRole)) {
     return NextResponse.json({ error: 'टिप्पणी मध्यस्थता अनुमति छैन।' }, { status: 403 })

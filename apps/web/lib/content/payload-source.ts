@@ -50,7 +50,13 @@ type CategoryField = {
 
 type AuthorField = { id: string | number; slug?: string; name?: string } | null
 
-type TagField = { id: string | number; slug?: string; nameNe?: string; nameEn?: string } | null
+type TagField = {
+  id: string | number
+  slug?: string
+  nameNe?: string
+  nameEn?: string
+  description?: string
+} | null
 
 function asMedia(m: MediaField | undefined, fallbackAlt?: string): MediaRef | undefined {
   if (!m || (!m.url && !m.filename)) return undefined
@@ -100,7 +106,45 @@ function asTag(t: TagField | undefined): Tag | null {
     slug: String(t.slug ?? ''),
     nameNe: String(t.nameNe ?? ''),
     nameEn: t.nameEn,
+    descriptionNe: t.description,
   }
+}
+
+function stablePublicationDate(doc: PayloadDoc): string {
+  for (const candidate of [doc.publishAt, doc.createdAt, doc.updatedAt]) {
+    if (typeof candidate !== 'string') continue
+    const timestamp = Date.parse(candidate)
+    if (Number.isFinite(timestamp)) return new Date(timestamp).toISOString()
+  }
+  // Content without a trustworthy date sorts to the bottom instead of pretending to be fresh.
+  return '1970-01-01T00:00:00.000Z'
+}
+
+function publicArticleWhere(): Record<string, Record<string, unknown>> {
+  return {
+    _status: { equals: 'published' },
+    workflowStage: { in: ['scheduled', 'published', 'updated'] },
+    publishAt: { less_than_equal: new Date().toISOString() },
+    noIndex: { not_equals: true },
+  }
+}
+
+function countArticleWords(blocks: unknown): number {
+  if (!Array.isArray(blocks)) return 0
+  const text = blocks
+    .flatMap((rawBlock) => {
+      if (!rawBlock || typeof rawBlock !== 'object') return []
+      const block = rawBlock as Record<string, unknown>
+      if (typeof block.text === 'string') return [block.text]
+      if (typeof block.quoteNe === 'string') return [block.quoteNe]
+      if (Array.isArray(block.items)) {
+        return block.items.filter((item): item is string => typeof item === 'string')
+      }
+      return []
+    })
+    .join(' ')
+    .trim()
+  return text ? text.split(/\s+/).length : 0
 }
 
 function asCard(doc: PayloadDoc): StoryCardData {
@@ -123,7 +167,7 @@ function asCard(doc: PayloadDoc): StoryCardData {
     heroImage: media,
     byline: String(doc.byline ?? authors.map((author) => author.name).join(', ')),
     authors,
-    publishedAt: String(doc.publishAt ?? doc.updatedAt ?? new Date().toISOString()),
+    publishedAt: stablePublicationDate(doc),
     hasEnglish: String(doc.englishStatus ?? 'none') === 'published',
     isBreaking: Boolean(doc.isBreaking),
     premium: doc.premium === true,
@@ -182,7 +226,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
   const source: ContentSource = {
     async getArticleBySlug(category, slug, locale) {
       const { docs } = await payloadFind<PayloadDoc>('articles', {
-        where: { slug: { equals: slug }, _status: { equals: 'published' }, workflowStage: { in: ['published', 'updated'] } },
+        where: { ...publicArticleWhere(), slug: { equals: slug } },
         limit: 1,
         depth: 2,
       })
@@ -196,10 +240,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
     async getStories(opts: StoryListOptions): Promise<PaginatedStories> {
       const page = opts.page ?? 1
       const perPage = opts.limit && !opts.page ? opts.limit : (opts.perPage ?? PER_PAGE)
-      const where: Record<string, Record<string, unknown>> = {
-        _status: { equals: 'published' },
-        workflowStage: { in: ['published', 'updated'] },
-      }
+      const where: Record<string, Record<string, unknown>> = publicArticleWhere()
       if (opts.category) where['category.slug'] = { equals: opts.category }
       if (opts.author) where['authors.author.slug'] = { equals: opts.author }
       if (opts.tag) where['tags.tag.slug'] = { equals: opts.tag }
@@ -222,36 +263,60 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
     },
 
     async getHomepage(): Promise<HomepageData | null> {
-      const { docs } = await payloadFind<PayloadDoc>('articles', {
-        where: { _status: { equals: 'published' }, workflowStage: { in: ['published', 'updated'] } },
-        sort: '-publishAt',
-        limit: 60,
-        depth: 1,
-      })
+      const publishedWhere = publicArticleWhere()
+      const [{ docs }, { docs: leadDocs }, { docs: secondaryDocs }, { docs: catDocs }] =
+        await Promise.all([
+          payloadFind<PayloadDoc>('articles', {
+            where: publishedWhere,
+            sort: '-publishAt',
+            limit: 60,
+            depth: 1,
+          }),
+          payloadFind<PayloadDoc>('articles', {
+            where: { ...publishedWhere, featuredState: { equals: 'lead' } },
+            sort: '-publishAt',
+            limit: 1,
+            depth: 1,
+          }),
+          payloadFind<PayloadDoc>('articles', {
+            where: { ...publishedWhere, featuredState: { equals: 'secondary' } },
+            sort: '-publishAt',
+            limit: 4,
+            depth: 1,
+          }),
+          payloadFind<PayloadDoc>('categories', {
+            where: { showInNav: { equals: true } },
+            sort: 'navOrder',
+            limit: 50,
+            depth: 0,
+          }),
+        ])
+
       const rows = docs as unknown as PayloadDoc[]
       const cards = rows.map(asCard)
-      const lead = cards[0]
-      if (!lead) return null
-      const breaking = cards.filter((c) => c.isBreaking).slice(0, 6)
-      const { docs: catDocs } = await payloadFind<PayloadDoc>('categories', {
-        where: { showInNav: { equals: true } },
-        sort: 'navOrder',
-        limit: 50,
-        depth: 0,
-      })
+      if (!cards.length) return null
+
+      const editorialLead = (leadDocs as unknown as PayloadDoc[]).map(asCard)[0]
+      const lead = editorialLead ?? cards[0]!
+      const editorialSecondary = (secondaryDocs as unknown as PayloadDoc[]).map(asCard)
+      const fallbackSecondary = cards.filter((card) => card.id !== lead.id)
+      const secondary = Array.from(
+        new Map([...editorialSecondary, ...fallbackSecondary].map((card) => [card.id, card])).values(),
+      ).slice(0, 4)
+      const breaking = cards.filter((card) => card.isBreaking).slice(0, 6)
       const sections = (catDocs as unknown as PayloadDoc[])
-        .map((c) => {
+        .map((categoryDoc) => {
           const items = cards.filter(
-            (x) => x.category.slug === String((c as { slug?: string }).slug),
+            (card) => card.category.slug === String((categoryDoc as { slug?: string }).slug),
           )
           return {
-            category: asCategoryRef(c as CategoryField),
+            category: asCategoryRef(categoryDoc as CategoryField),
             lead: items[0],
             items: items.slice(1, 5),
           }
         })
-        .filter((s) => s.items.length > 0 || s.lead)
-      return { lead, secondary: cards.slice(1, 5), sections, breaking }
+        .filter((section) => section.items.length > 0 || section.lead)
+      return { lead, secondary, sections, breaking }
     },
 
     async getCategory(slug) {
@@ -315,14 +380,40 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
     },
 
     async getFeatured() {
-      const { docs } = await payloadFind<PayloadDoc>('articles', {
-        where: { _status: { equals: 'published' }, workflowStage: { in: ['published', 'updated'] } },
-        sort: '-publishAt',
-        limit: 5,
-        depth: 1,
-      })
-      const cards = (docs as unknown as PayloadDoc[]).map(asCard)
-      return { lead: cards[0], secondary: cards.slice(1, 5) }
+      const publishedWhere = publicArticleWhere()
+      const [{ docs: latestDocs }, { docs: leadDocs }, { docs: secondaryDocs }] =
+        await Promise.all([
+          payloadFind<PayloadDoc>('articles', {
+            where: publishedWhere,
+            sort: '-publishAt',
+            limit: 5,
+            depth: 1,
+          }),
+          payloadFind<PayloadDoc>('articles', {
+            where: { ...publishedWhere, featuredState: { equals: 'lead' } },
+            sort: '-publishAt',
+            limit: 1,
+            depth: 1,
+          }),
+          payloadFind<PayloadDoc>('articles', {
+            where: { ...publishedWhere, featuredState: { equals: 'secondary' } },
+            sort: '-publishAt',
+            limit: 4,
+            depth: 1,
+          }),
+        ])
+      const latest = (latestDocs as unknown as PayloadDoc[]).map(asCard)
+      const lead = (leadDocs as unknown as PayloadDoc[]).map(asCard)[0] ?? latest[0]
+      if (!lead) return { lead: undefined, secondary: [] }
+      const secondary = Array.from(
+        new Map(
+          [
+            ...(secondaryDocs as unknown as PayloadDoc[]).map(asCard),
+            ...latest.filter((card) => card.id !== lead.id),
+          ].map((card) => [card.id, card]),
+        ).values(),
+      ).slice(0, 4)
+      return { lead, secondary }
     },
 
     async getAuthor(slug, locale) {
@@ -361,12 +452,8 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
       })
       const doc = docs[0] as unknown as PayloadDoc | undefined
       if (!doc) return null
-      const tag: Tag = {
-        id: String(doc.id),
-        slug: String(doc.slug ?? slug),
-        nameNe: String(doc.nameNe ?? ''),
-        nameEn: doc.nameEn ? String(doc.nameEn) : undefined,
-      }
+      const tag = asTag(doc as TagField)
+      if (!tag) return null
       const stories = await source.getStories({ tag: slug, locale })
       return { tag, stories }
     },
@@ -392,7 +479,7 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
             sourceType: sourceType as 'aggregated' | 'wire',
             sourceName: String(doc.sourceName),
             sourceUrl: String(doc.sourceUrl ?? ''),
-            sourcePublishedAt: String(doc.sourcePublishedAt ?? doc.publishAt ?? ''),
+            sourcePublishedAt: String(doc.sourcePublishedAt ?? ''),
           }
         : undefined,
     tags: Array.isArray(doc.tags)
@@ -415,6 +502,8 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
     noindex: doc.noIndex === true,
     doNotRecommend: doc.doNotRecommend === true,
     commentsEnabled: doc.commentsEnabled !== false,
-    readingMinutes: Number(doc.readingMinutes ?? Math.max(1, Math.ceil((bodyNe?.length ?? 1) / 4))),
+    readingMinutes: Number(
+      doc.readingMinutes ?? Math.max(1, Math.ceil(countArticleWords(bodyNe) / 180)),
+    ),
   }
 }

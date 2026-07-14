@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { PasswordField } from '@/components/forms/PasswordField'
 
 /**
@@ -10,10 +11,10 @@ import { PasswordField } from '@/components/forms/PasswordField'
  * inline (no alert() — impeccable UX). Loading state disables the submit
  * button and swaps its label so the click is acknowledged.
  *
- * The "Forgot password?" link points at a mailto: because the self-serve
- * reset flow is Phase 3. Solo founders can reset via the env var directly.
+ * Password recovery uses the same audited Better Auth reset flow as readers;
+ * newsroom roles are preserved because only the credential is replaced.
  */
-export function AdminLoginForm() {
+export function AdminLoginForm({ resetComplete = false }: { resetComplete?: boolean }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -57,6 +58,11 @@ export function AdminLoginForm() {
 
   return (
     <form onSubmit={onSubmit} className="grid gap-4" noValidate>
+      {resetComplete ? (
+        <div role="status" className="rounded-md border border-rule bg-surface-raised px-4 py-3 text-meta font-semibold text-ink" lang="ne">
+          पासवर्ड परिवर्तन भयो। नयाँ पासवर्ड प्रयोग गरेर लगइन गर्नुहोस्।
+        </div>
+      ) : null}
       {error && (
         <div
           role="alert"
@@ -107,13 +113,13 @@ export function AdminLoginForm() {
       </button>
 
       <div className="mt-1 flex items-center justify-between text-caption">
-        <a
-          href="mailto:contact@nagarikwatch.com?subject=Newsroom%20password%20reset"
+        <Link
+          href="/auth/forgot-password?next=%2Fadmin%2Flogin"
           className="text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline"
           lang="ne"
         >
           पासवर्ड भुल्नुभयो?
-        </a>
+        </Link>
         <span className="text-mute" lang="ne">
           स्टाफ खाता मालिकले मात्र बनाउँछ
         </span>

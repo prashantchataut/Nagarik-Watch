@@ -11,9 +11,8 @@ import { withPayload } from '@payloadcms/next/withPayload'
  * sandbox where the DB isn't reachable. withPayload marks those routes dynamic
  * and applies the right output/webpack settings.
  *
- * Security headers, CSP, and image config are tightened in Phase 5
- * (architecture.md §6); for now the config is minimal so the admin boots
- * against the verified foundation.
+ * Keep this host narrowly scoped to the Payload admin/API surface. Reader-site
+ * security headers and public image policy live in apps/web.
  */
 const nextConfig: NextConfig = {
   reactStrictMode: true,

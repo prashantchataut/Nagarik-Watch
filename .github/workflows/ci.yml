@@ -27,6 +27,9 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
 
+      - name: Verify workspace lockfile
+        run: node scripts/verify-workspace-lock.mjs
+
       - name: Install
         run: pnpm install --frozen-lockfile
 
@@ -46,7 +49,10 @@ jobs:
         run: pnpm verify:static
 
       - name: Web build
-        run: pnpm --filter @nagarikwatch/web build
+        run: pnpm build:web
+
+      - name: Admin build
+        run: pnpm build:admin
 
       - name: DB tests
         run: pnpm --filter @nagarikwatch/db test

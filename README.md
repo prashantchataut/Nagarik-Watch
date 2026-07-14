@@ -74,6 +74,7 @@ Postgres.
 Before deployment, run from a networked environment with dependencies installed:
 
 ```bash
+node scripts/verify-workspace-lock.mjs
 pnpm format:check
 pnpm lint
 pnpm typecheck
@@ -103,3 +104,4 @@ recorded in [`VERIFICATION_LOG_CURRENT.md`](VERIFICATION_LOG_CURRENT.md).
 - [`docs/content-model.md`](docs/content-model.md) — shared content contract
 - [`docs/editorial-workflow.md`](docs/editorial-workflow.md) — newsroom workflow
 - [`MANUAL.md`](MANUAL.md) — owner setup, credentials, providers, launch checklist
+- [`docs/VERCEL_DEPLOYMENT.md`](docs/VERCEL_DEPLOYMENT.md) — reader/CMS deployment and lockfile recovery

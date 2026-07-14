@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { requireNewsroomSession, type NewsroomSession } from '@/lib/auth/session'
 import { canAccessAdminPath } from '@/lib/admin-roles'
+import { isPayloadCanonical, payloadAdminUrl } from '@/lib/content/payload-admin-client'
 
 export const metadata: Metadata = {
   title: 'Newsroom Admin',
@@ -30,5 +31,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const session: NewsroomSession = await requireNewsroomSession()
   if (!canAccessAdminPath(session.newsroomRole, pathname)) notFound()
   const { AdminShell } = await import('@/components/admin/AdminShell')
-  return <AdminShell session={session} pathname={pathname}>{children}</AdminShell>
+  const contentAdminUrl = isPayloadCanonical() ? payloadAdminUrl() : undefined
+  return (
+    <AdminShell session={session} pathname={pathname} contentAdminUrl={contentAdminUrl}>
+      {children}
+    </AdminShell>
+  )
 }

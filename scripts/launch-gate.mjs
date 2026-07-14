@@ -58,9 +58,18 @@ if (live) {
   if (!value('NEXT_PUBLIC_PLAUSIBLE_DOMAIN') && !value('NEXT_PUBLIC_GA4_ID')) {
     warnings.push('No analytics provider is configured')
   }
-  if (!value('STORAGE_BUCKET') && !value('BLOB_READ_WRITE_TOKEN') && !value('S3_BUCKET')) {
-    blockers.push('Durable media/object storage is not configured')
+  const emailProviderReady = Boolean(
+    value('RESEND_API_KEY') || (value('NEWSLETTER_API_KEY') && value('NEWSLETTER_API_BASE')),
+  )
+  if (!emailProviderReady) {
+    blockers.push('Outbound email provider is required for password recovery, invitations and newsletter confirmation')
   }
+  requiredVerified('AUTH_EMAIL_FROM', 'Verified account-email sender is missing')
+  requiredVerified('NEWSLETTER_FROM', 'Verified newsletter sender is missing')
+
+  // The repository currently has no Payload object-storage plugin wired into
+  // payload.config.ts. Credentials alone would be a false green on Vercel.
+  blockers.push('Payload media still uses local ephemeral storage; wire and verify a durable storage adapter before launch')
 }
 
 if (warnings.length) {

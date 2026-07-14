@@ -1,0 +1,18 @@
+import { getSession } from '@/lib/auth/session'
+import { acceptNewsroomInvite } from '@/lib/newsroom-users'
+import { isTrustedWriteRequest } from '@/lib/request-security'
+
+export async function POST(request: Request) {
+  if (!isTrustedWriteRequest(request)) {
+    return Response.json({ error: 'Untrusted request origin.' }, { status: 403 })
+  }
+  const session = await getSession()
+  if (!session) return Response.json({ error: 'Sign in before accepting the invitation.' }, { status: 401 })
+  const body = await request.json().catch(() => ({})) as { token?: unknown }
+  const result = await acceptNewsroomInvite({ token: body.token, email: session.email })
+  if (!result.ok) {
+    const status = result.reason === 'email_mismatch' ? 403 : result.reason === 'account_missing' ? 409 : 400
+    return Response.json({ error: result.reason }, { status })
+  }
+  return Response.json({ ok: true, role: result.role }, { headers: { 'cache-control': 'no-store' } })
+}

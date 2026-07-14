@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { getSession } from '@/lib/auth/session'
 import { createArticle } from '@/lib/content/store/json-store'
 import { blocksFromShorthand } from '@/lib/content/blocks'
@@ -29,6 +30,10 @@ function asWorkflowStage(value: unknown): 'draft' | 'submitted' {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+
   const session = await getSession()
   if (!session || !WRITER_ROLES.has(session.role)) {
     return NextResponse.json({ error: 'Journalist access required.' }, { status: 403 })

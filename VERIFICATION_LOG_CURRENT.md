@@ -1,50 +1,65 @@
 # Nagarik Watch — Current Verification Log
 
-**Date:** 2026-07-12  
-**Scope:** Recovered and repaired source tree in this delivery
+**Date:** 2026-07-13  
+**Scope:** deployment repair and second functionality/security pass
 
-## नेपाली सारांश
-
-Repository-native static checks सबै पास भएका छन्। तर यो execution environment मा `pnpm` र installed `node_modules` उपलब्ध छैनन्, र npm/GitHub network resolution बन्द छ। त्यसैले dependency-aware `typecheck`, ESLint, Vitest, Next build र Playwright E2E चलाउन सकिएन। ती नचलाएको अवस्थामा “पूर्ण रूपमा verified” भनेर दाबी गरिएको छैन।
-
-## Passed checks
+## Verified in this environment
 
 ```text
-$ node syntax scan
-Parsed 326 TypeScript files; syntax diagnostics: 0
+node scripts/verify-workspace-lock.mjs
+Workspace lockfile verified for 8 package manifests.
 
-$ node scripts/audit-public-surface.mjs
+node scripts/audit-public-surface.mjs
 Public surface audit passed.
 
-$ node scripts/audit-architecture.mjs
+node scripts/audit-ad-placements.mjs
+Ad placement audit passed (20 placements, 17 intentionally rendered).
+
+node scripts/audit-architecture.mjs
 Architecture audit passed.
 
-$ node scripts/audit-ad-placements.mjs
-Ad placement audit passed (20 placements, 20 rendered).
+node scripts/verify-recovery.mjs
+Repository recovery verification passed.
 
-$ node scripts/verify-recovery.mjs
-Repository recovery verification passed
-- missing workspace source and lockfile restored
-- secret-bearing local files and nested archive excluded
-- persistent auth, explicit migrations, and boot provisioning verified
-- production content persistence and reader-shell wiring verified
+python nagarik-watch-newsroom/scripts/audit_newsroom.py
+0 failures, 0 warnings.
 
-$ node scripts/launch-gate.mjs
-Launch gate skipped strict checks because NEXT_PUBLIC_LAUNCH_STATUS is not live.
+TypeScript parser scan
+342 TypeScript/TSX files parsed; 0 syntax errors.
 
-$ empty catch scan
-No empty catch blocks found.
+node scripts/launch-gate.mjs
+Non-live mode correctly skipped strict release checks.
+
+NEXT_PUBLIC_LAUNCH_STATUS=live node scripts/launch-gate.mjs
+Exited 1 and blocked an unconfigured launch, as required.
 ```
 
-## Expected negative test: strict live launch
+## Deployment incident status
 
-The launch gate was executed with an otherwise empty environment and `NEXT_PUBLIC_LAUNCH_STATUS=live`. It exited with status `1`, as required, and blocked launch for missing canonical URL, verified publication credentials, Postgres, Payload service URL/token, strong secrets, durable storage, and production content mode.
+The supplied Vercel build failed during dependency installation, before TypeScript or Next.js compilation. Commit `b6ae37e` contained an `apps/cms/package.json` importer that was out of sync with `pnpm-lock.yaml`. The repaired tree has one canonical CMS package at `apps/admin`, no legacy `apps/cms`, and a dependency-free verifier that confirms all eight workspace manifests match their lockfile importers.
 
-This proves the app does not silently treat placeholder configuration as launch-ready.
+Deploying `b6ae37e` again will reproduce the same failure. The fix only applies after this repaired tree is committed and Vercel builds the new SHA.
 
-## Not executable in this environment
+## Functionality added and statically verified
 
-The following commands were **not** successfully run because the runtime has no pnpm installation or dependency tree, and external package registries are unreachable:
+- Payload as the canonical editorial CMS.
+- Signed CMS-to-reader revalidation.
+- Editorial workflow and RBAC alignment.
+- Public-field privacy for articles and author contacts.
+- Real provider-backed password reset and authenticated password change.
+- Expiring, hashed, email-bound newsroom invitations.
+- Role-escalation restrictions and protected staff changes.
+- Canonical article validation for bookmarks, comments and reading telemetry.
+- Real newsletter confirmation and honest provider failures.
+- Same-origin guards on state-changing newsroom APIs.
+- Rate-limited advertising telemetry.
+- Authenticated provider-health inspection.
+- Health endpoints for reader and CMS.
+- Honest launch gate for legal identity, secrets, database, CMS, email and storage.
+
+## Not executable here
+
+The environment cannot resolve `registry.npmjs.org`. Corepack therefore cannot download the pinned `pnpm@10.17.1` binary and exits with `getaddrinfo EAI_AGAIN`. Consequently these dependency-aware checks were not claimed as passed:
 
 ```bash
 pnpm install --frozen-lockfile
@@ -52,86 +67,13 @@ pnpm format:check
 pnpm lint
 pnpm typecheck
 pnpm test
-pnpm --filter @nagarikwatch/admin build
-pnpm --filter @nagarikwatch/web build
+pnpm build:web
+pnpm build:admin
 pnpm test:e2e
 ```
 
-A parser-only TypeScript scan is not a substitute for dependency-aware typechecking. Browser behavior, database migrations, authentication sessions, Payload REST calls, image optimization, and responsive rendering therefore remain runtime-verification items.
+A parser scan is not a substitute for a real typecheck or production build.
 
-## Required verification on a connected development machine
+## Remaining hard launch blocker
 
-```bash
-corepack enable
-corepack prepare pnpm@10.17.1 --activate
-pnpm install --frozen-lockfile
-
-# Start Postgres first, then:
-pnpm --filter @nagarikwatch/admin migrate
-pnpm --filter @nagarikwatch/admin seed
-
-pnpm format:check
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm verify:static
-pnpm --filter @nagarikwatch/admin build
-pnpm --filter @nagarikwatch/web build
-pnpm test:e2e
-```
-
-Run the strict launch gate only after filling production configuration:
-
-```bash
-NEXT_PUBLIC_LAUNCH_STATUS=live pnpm launch:gate
-```
-
-## Raw repository-native verification output
-
-```text
-$ node syntax scan
-Parsed 326 TypeScript files; syntax diagnostics: 0
-$ node scripts/audit-public-surface.mjs
-Public surface audit passed.
-$ node scripts/audit-architecture.mjs
-Architecture audit passed.
-$ node scripts/audit-ad-placements.mjs
-Ad placement audit passed (20 placements, 20 rendered).
-$ node scripts/verify-recovery.mjs
-Repository recovery verification passed
-- missing workspace source and lockfile restored
-- secret-bearing local files and nested archive excluded
-- persistent auth, explicit migrations, and boot provisioning verified
-- production content persistence and reader-shell wiring verified
-$ node scripts/launch-gate.mjs
-Launch gate skipped strict checks because NEXT_PUBLIC_LAUNCH_STATUS is not live.
-$ empty catch scan
-No empty catch blocks found.
-```
-
-## Raw strict launch negative-test output
-
-```text
-Launch gate warnings:
-- No analytics provider is configured
-Launch gate failed:
-- Canonical site URL is missing or unverified
-- Legal publisher name is missing or unverified
-- Editor-in-chief is missing or unverified
-- Publication registration number is missing or unverified
-- Newsroom phone is missing or unverified
-- Newsroom address is missing or unverified
-- Newsroom email is missing or unverified
-- DATABASE_URL is required for durable production state
-- Payload CMS server URL is missing or unverified
-- Journalist-to-Payload service-account API key is missing or unverified
-- AUTH_SECRET must be a non-placeholder secret of at least 32 characters
-- PAYLOAD_SECRET must be a non-placeholder secret of at least 32 characters
-- REVALIDATE_SECRET must be a non-placeholder secret of at least 32 characters
-- SUBMISSION_IP_SALT must be a non-placeholder secret of at least 32 characters
-- CONTENT_SOURCE=payload is mandatory for a live deployment
-- PAYLOAD_DB_PUSH must be false in production; apply checked-in migrations instead
-- Advertising sales email is missing
-- Durable media/object storage is not configured
-exit=1
-```
+Payload media uploads still use local filesystem storage. That storage is ephemeral on Vercel. Storage credentials alone do not fix this; a supported Payload object-storage adapter must be added, the lockfile regenerated on a connected machine, and upload/read/delete behavior verified before a live launch. The release gate now fails explicitly for this condition.

@@ -31,7 +31,9 @@ export interface NormalizedItem {
   titleEn?: string
   sourceName: string
   sourceUrl: string
-  sourcePublishedAt: string
+  sourcePublishedAt?: string
+  /** Time Nagarik Watch retrieved the feed item; never presented as source publication time. */
+  retrievedAt: string
   /** Always empty by policy — we never copy upstream body text. Kept on the type
    *  for compatibility with the original ingest contract; a future on-demand
    *  reader-preview could surface a short machine-excerpt, but only with licensing. */
@@ -127,10 +129,37 @@ export const INGEST_SOURCES: readonly IngestSource[] = [
 ] as const
 
 const CDATA_RE = /^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/
+function decodeXmlEntities(value: string): string {
+  return value.replace(/&(#x?[0-9a-f]+|amp|lt|gt|quot|apos);/gi, (entity, token: string) => {
+    const lower = token.toLowerCase()
+    if (lower === 'amp') return '&'
+    if (lower === 'lt') return '<'
+    if (lower === 'gt') return '>'
+    if (lower === 'quot') return '"'
+    if (lower === 'apos') return "'"
+    const numeric = lower.startsWith('#x')
+      ? Number.parseInt(lower.slice(2), 16)
+      : Number.parseInt(lower.slice(1), 10)
+    return Number.isFinite(numeric) ? String.fromCodePoint(numeric) : entity
+  })
+}
+
 function unwrap(s: string | null | undefined): string {
   if (!s) return ''
-  const m = s.trim().match(CDATA_RE)
-  return m?.[1] ? m[1].trim() : s.trim()
+  const trimmed = s.trim()
+  const m = trimmed.match(CDATA_RE)
+  return decodeXmlEntities((m?.[1] ?? trimmed).trim())
+}
+
+function normalizeSourceUrl(rawUrl: string, feedUrl: string): string | null {
+  try {
+    const url = new URL(rawUrl, feedUrl)
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return null
+    url.hash = ''
+    return url.toString()
+  } catch {
+    return null
+  }
 }
 
 const ItemSchema = z.object({
@@ -159,13 +188,17 @@ export function parseFeed(xml: string, source: IngestSource): NormalizedItem[] {
     const parsed = ItemSchema.safeParse({ title, link, pubDate, category })
     if (!parsed.success) continue
     if (!title || !link) continue
+    const sourceUrl = normalizeSourceUrl(link, source.feedUrl)
+    if (!sourceUrl) continue
 
-    const iso = toIso(pubDate)
+    const sourcePublishedAt = toIso(pubDate)
+    const retrievedAt = new Date().toISOString()
     items.push({
       titleNe: title,
       sourceName: source.name,
-      sourceUrl: link,
-      sourcePublishedAt: iso,
+      sourceUrl,
+      sourcePublishedAt,
+      retrievedAt,
       bodyHtml: '',
       sourceType: source.sourceType,
       category: category || undefined,
@@ -185,56 +218,98 @@ function extractHref(xml: string): string {
   return m?.[1] ?? ''
 }
 
-function toIso(date: string): string {
-  if (!date) return new Date().toISOString()
+function toIso(date: string): string | undefined {
+  if (!date) return undefined
   const t = Date.parse(date)
-  return Number.isFinite(t) ? new Date(t).toISOString() : new Date().toISOString()
+  return Number.isFinite(t) ? new Date(t).toISOString() : undefined
 }
 
-/** Fetch a single feed with a timeout; returns [] on any failure so one dead
- *  feed never breaks the rest of the aggregate. */
-export async function fetchFeed(source: IngestSource, timeoutMs = 5000): Promise<NormalizedItem[]> {
+export interface FeedFetchResult {
+  source: IngestSource
+  ok: boolean
+  items: NormalizedItem[]
+  error?: string
+}
+
+export interface AggregatedFeedResult {
+  items: NormalizedItem[]
+  successfulSources: number
+  failedSources: Array<{ id: string; name: string; error: string }>
+  retrievedAt: string
+}
+
+/** Fetch a single feed with an abortable timeout and explicit provider status. */
+export async function fetchFeedResult(
+  source: IngestSource,
+  timeoutMs = 5000,
+): Promise<FeedFetchResult> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    const res = await withTimeout(
-      fetch(source.feedUrl, {
-        headers: { 'user-agent': 'NagarikWatch/1.0 (+https://nagarikwatch.com)' },
-        cache: 'no-store',
-      }),
-      timeoutMs,
-    )
-    if (!res.ok) return []
+    const res = await fetch(source.feedUrl, {
+      headers: { 'user-agent': 'NagarikWatch/1.0 (+https://nagarikwatch.com)' },
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+    if (!res.ok) {
+      return { source, ok: false, items: [], error: `HTTP ${res.status}` }
+    }
     const xml = await res.text()
-    return parseFeed(xml, source)
-  } catch {
-    return []
+    return { source, ok: true, items: parseFeed(xml, source) }
+  } catch (error) {
+    const message =
+      error instanceof Error && error.name === 'AbortError'
+        ? `Timed out after ${timeoutMs}ms`
+        : error instanceof Error
+          ? error.message
+          : 'Feed request failed'
+    return { source, ok: false, items: [], error: message }
+  } finally {
+    clearTimeout(timeout)
   }
 }
 
-/** Fetch all configured feeds in parallel, normalize, dedupe by URL, sort
- *  newest-first, and cap. This is the entrypoint the homepage "From wires"
- *  section calls. */
+/** Backward-compatible item-only feed function. */
+export async function fetchFeed(source: IngestSource, timeoutMs = 5000): Promise<NormalizedItem[]> {
+  return (await fetchFeedResult(source, timeoutMs)).items
+}
+
+/** Fetch, normalize, deduplicate, and report provider health without copying article bodies. */
+export async function fetchAggregatedFeedWithStatus(
+  sources: readonly IngestSource[] = INGEST_SOURCES,
+  limit = 20,
+): Promise<AggregatedFeedResult> {
+  const results = await Promise.all(sources.map((source) => fetchFeedResult(source)))
+  const flat = results.flatMap((result) => result.items)
+
+  const seen = new Set<string>()
+  const items = flat
+    .filter((item) => {
+      if (seen.has(item.sourceUrl)) return false
+      seen.add(item.sourceUrl)
+      return true
+    })
+    .sort((a, b) => (b.sourcePublishedAt ?? '').localeCompare(a.sourcePublishedAt ?? ''))
+    .slice(0, limit)
+
+  return {
+    items,
+    successfulSources: results.filter((result) => result.ok).length,
+    failedSources: results
+      .filter((result) => !result.ok)
+      .map((result) => ({
+        id: result.source.id,
+        name: result.source.name,
+        error: result.error ?? 'Unknown provider failure',
+      })),
+    retrievedAt: new Date().toISOString(),
+  }
+}
+
+/** Item-only entrypoint used by public surfaces. */
 export async function fetchAggregatedFeed(
   sources: readonly IngestSource[] = INGEST_SOURCES,
   limit = 20,
 ): Promise<NormalizedItem[]> {
-  const results = await Promise.all(sources.map((s) => fetchFeed(s)))
-  const flat = results.flat()
-
-  const seen = new Set<string>()
-  const deduped = flat.filter((item) => {
-    if (seen.has(item.sourceUrl)) return false
-    seen.add(item.sourceUrl)
-    return true
-  })
-
-  return deduped
-    .sort((a, b) => b.sourcePublishedAt.localeCompare(a.sourcePublishedAt))
-    .slice(0, limit)
-}
-
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  const timer = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error('ingest timeout')), ms),
-  )
-  return Promise.race([promise, timer])
+  return (await fetchAggregatedFeedWithStatus(sources, limit)).items
 }

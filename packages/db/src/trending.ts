@@ -161,22 +161,3 @@ export function scopeSamples(
     return true
   })
 }
-
-/** Multi-armed-bandit and Bayesian-ranking placeholders. These need a persistent
- *  reward store (click-through per arm) that does not exist yet. Exposed here so
- *  the ingestion worker has a known import surface to wire later. */
-export function multiArmedBanditPlaceholder(
-  arms: string[],
-  rewards: Record<string, { pulls: number; wins: number }>,
-): string[] {
-  const epsilon = 0.1
-  return arms.slice().sort((a, b) => {
-    const explore = Math.random() < epsilon
-    if (explore) return Math.random() - 0.5
-    const ra = rewards[a]
-    const rb = rewards[b]
-    const ca = ra ? ra.wins / Math.max(1, ra.pulls) : 0
-    const cb = rb ? rb.wins / Math.max(1, rb.pulls) : 0
-    return cb - ca
-  })
-}

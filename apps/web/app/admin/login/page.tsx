@@ -7,8 +7,8 @@ import { AdminLoginForm } from './AdminLoginForm'
 export const metadata: Metadata = { title: 'Newsroom Login', description: 'Staff-only sign in to the Nagarik Watch newsroom.', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
 
-export default async function AdminLoginPage() {
-  const session = await getNewsroomSession()
+export default async function AdminLoginPage({ searchParams }: { searchParams: Promise<{ reset?: string }> }) {
+  const [session, query] = await Promise.all([getNewsroomSession(), searchParams])
   if (session) redirect('/admin/dashboard')
 
   return <main className="auth-shell">
@@ -30,8 +30,8 @@ export default async function AdminLoginPage() {
         <p className="admin-eyebrow" lang="en">Staff access</p>
         <h2 className="mt-2 font-display text-[2.35rem] font-extrabold leading-tight text-ink" lang="ne">न्युजरुममा प्रवेश</h2>
         <p className="mt-3 max-w-md text-body leading-relaxed text-ink-soft" lang="ne">तपाईंको संस्थागत इमेल र पासवर्ड प्रयोग गर्नुहोस्। पहुँच तपाईंको भूमिकाअनुसार सीमित हुन्छ।</p>
-        <div className="auth-form-surface"><AdminLoginForm /></div>
-        <p className="mt-8 text-caption text-mute" lang="ne">पाठक हुनुहुन्छ? <a href="/login" className="font-bold text-brand-strong hover:underline">पाठक लगइनमा जानुहोस्</a></p>
+        <div className="auth-form-surface"><AdminLoginForm resetComplete={query.reset === 'success'} /></div>
+        <p className="mt-8 text-caption text-mute" lang="ne">पाठक हुनुहुन्छ? <a href="/auth/login" className="font-bold text-brand-strong hover:underline">पाठक लगइनमा जानुहोस्</a></p>
       </div>
     </section>
   </main>

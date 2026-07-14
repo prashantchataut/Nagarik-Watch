@@ -15,6 +15,7 @@ export type AuditAction =
   | 'manual_live_update'
   | 'ad_change'
   | 'newsletter_queue'
+  | 'newsletter_process'
 
 export type AuditEvent = {
   id: string

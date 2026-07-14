@@ -18,7 +18,7 @@ const EnvSchema = z.object({
 
   // Web app
   NEXT_PUBLIC_SITE_URL: z.string().url(),
-  REVALIDATE_SECRET: z.string().min(16, 'REVALIDATE_SECRET must be at least 16 characters'),
+  REVALIDATE_SECRET: z.string().min(32, 'REVALIDATE_SECRET must be at least 32 characters'),
 
   // Object storage adapter (ADR-003) — default S3-compatible (R2).
   // Optional: uploads degrade gracefully when no bucket is configured (dev, preview,

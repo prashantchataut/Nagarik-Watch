@@ -116,8 +116,6 @@ export const EDITOR_ROLES: ReadonlySet<NewsroomRole> = new Set([
 
 /** Roles that can publish (move from ready → published). */
 export const PUBLISHER_ROLES: ReadonlySet<NewsroomRole> = new Set([
-  'section_editor',
-  'province_editor',
   'managing_editor',
   'editor_in_chief',
   'publisher',

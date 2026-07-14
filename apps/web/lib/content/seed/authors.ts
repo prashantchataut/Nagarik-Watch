@@ -1,82 +1,82 @@
 import type { Author } from '@nagarikwatch/db'
 
-/** Seed authors and columnists (content-model.md §3). Fictional bylines for the seed. */
+/**
+ * Development taxonomy only.
+ *
+ * These are newsroom desk identities, not fictional people. Real journalists
+ * must be created in Payload with verified names, bios, photos, and contact
+ * details before their bylines are used publicly.
+ */
 export const authors: Author[] = [
   {
-    id: 'aut-srijana',
-    slug: 'srijana-karki',
-    name: 'श्रीजना कार्की',
+    id: 'aut-newsroom-desk',
+    slug: 'nagarik-watch-desk',
+    name: 'नागरिक वाच डेस्क',
     role: 'staff',
-    bioNe: 'श्रीजना कार्की राजनीति शाखाकी वरिष्ठ पत्रकार हुन्, संसद् र शासनप्रशासनमा विशेष रुचि।',
+    bioNe: 'नागरिक वाचको साझा समाचार कक्ष पहिचान। व्यक्तिगत रिपोर्टिङमा सम्बन्धित पत्रकारको वास्तविक बाइलाइन प्रयोग गरिन्छ।',
     bioEn:
-      'Srijana Karki is a senior reporter on the politics desk, focused on parliament and governance.',
+      'The shared Nagarik Watch newsroom identity. Individually reported work must use the verified reporter byline.',
+    email: 'newsroom@nagarikwatch.com',
+    verified: true,
     isActive: true,
-    social: { twitter: 'https://twitter.com/' },
   },
   {
-    id: 'aut-bishal',
-    slug: 'bishal-thapa',
-    name: 'बिशाल थापा',
+    id: 'aut-fact-check-desk',
+    slug: 'fact-check-desk',
+    name: 'तथ्य जाँच डेस्क',
     role: 'staff',
-    bioNe: 'बिशाल थापा अर्थतन्त्र र बजारका समाचार तयार गर्छन्।',
-    bioEn: 'Bishal Thapa covers the economy and markets.',
+    bioNe: 'दाबी, प्रमाण, स्रोत र सन्दर्भको व्यवस्थित परीक्षण गर्ने सम्पादकीय डेस्क।',
+    bioEn: 'The editorial desk responsible for checking claims, evidence, sources and context.',
+    email: 'factcheck@nagarikwatch.com',
+    verified: true,
     isActive: true,
   },
   {
-    id: 'aut-anjana',
-    slug: 'anjana-ghimire',
-    name: 'अन्जना घिमिरे',
+    id: 'aut-data-desk',
+    slug: 'data-desk',
+    name: 'डाटा डेस्क',
     role: 'staff',
-    bioNe: 'अन्जना घिमिरे समाज शाखाकी पत्रकार हुन्, शिक्षा र स्वास्थ्यमा केन्द्रित।',
-    bioEn: 'Anjana Ghimire reports on society, with a focus on education and health.',
+    bioNe: 'सार्वजनिक तथ्यांक, पद्धति र दृश्य प्रमाणमा आधारित सामग्री तयार गर्ने डेस्क।',
+    bioEn: 'The desk producing work based on public data, transparent methods and visual evidence.',
+    email: 'data@nagarikwatch.com',
+    verified: true,
     isActive: true,
   },
   {
-    id: 'aut-roshan',
-    slug: 'roshan-maharjan',
-    name: 'रोशन महर्जन',
+    id: 'aut-province-desk',
+    slug: 'province-desk',
+    name: 'प्रदेश डेस्क',
     role: 'staff',
-    bioNe: 'रोशन महर्जन खेलकुद समाचार सम्पादक हुन्।',
-    bioEn: 'Roshan Maharjan is the sports desk editor.',
+    bioNe: 'प्रदेश र स्थानीय तहका सार्वजनिक सरोकारका विषय समेट्ने समन्वय डेस्क।',
+    bioEn: 'The coordination desk for province and local public-interest coverage.',
+    email: 'province@nagarikwatch.com',
+    verified: true,
     isActive: true,
   },
   {
-    id: 'aut-prakash',
-    slug: 'prakash-bhattarai',
-    name: 'प्रकाश भट्टराई',
-    role: 'columnist',
-    bioNe: 'प्रकाश भट्टराई लोकतान्त्रिक संस्था र विदेशी नीतिमा लेख्छन्।',
-    bioEn: 'Prakash Bhattarai writes on democratic institutions and foreign policy.',
-    isActive: true,
-  },
-  {
-    id: 'aut-meera',
-    slug: 'meera-rajbhandari',
-    name: 'मीरा राजभण्डारी',
-    role: 'columnist',
-    bioNe: 'मीरा राजभण्डारी संस्कृति, चलचित्र र सहरी जीवनमा लेख्छिन्।',
-    bioEn: 'Meera Rajbhandari writes on culture, film and urban life.',
-    isActive: true,
-  },
-  {
-    id: 'aut-diaspora',
-    slug: 'hemant-rijal',
-    name: 'हेमन्त रिजाल',
+    id: 'aut-reader-desk',
+    slug: 'reader-desk',
+    name: 'पाठक डेस्क',
     role: 'contributor',
-    bioNe: 'हेमन्त रिजाल खाडी मुलुकका नेपाली प्रवासका बारेमा लेख्छन्।',
-    bioEn: 'Hemant Rijal writes about the Nepali diaspora in the Gulf.',
+    bioNe: 'सम्पादकीय परीक्षणपछि स्वीकार गरिएका पाठक सूचना, प्रश्न र सार्वजनिक सरोकारका सामग्री व्यवस्थापन गर्ने डेस्क।',
+    bioEn: 'The desk handling reader tips, questions and public-interest submissions after editorial review.',
+    email: 'readers@nagarikwatch.com',
+    verified: true,
     isActive: true,
   },
   {
-    id: 'aut-agency',
-    slug: 'agency-report',
-    name: 'एजेन्सी रिपोर्ट',
+    id: 'aut-source-desk',
+    slug: 'source-desk',
+    name: 'स्रोत डेस्क',
     role: 'wire',
-    bioNe: 'समाचार एजेन्सीबाट संकलित तारा सामग्री।',
-    bioEn: 'Wire copy from partner news agencies.',
+    bioNe: 'बाह्य सार्वजनिक स्रोतका शीर्षक र मूल लिङ्कलाई स्पष्ट श्रेयसहित देखाउने डेस्क। यस पहिचानबाट मौलिक रिपोर्टिङ दाबी गरिँदैन।',
+    bioEn:
+      'The desk presenting externally sourced headlines and original links with explicit attribution. It never claims original reporting.',
+    email: 'sources@nagarikwatch.com',
+    verified: true,
     isActive: true,
   },
 ]
 
-export const authorById = new Map(authors.map((a) => [a.id, a]))
-export const authorBySlug = new Map(authors.map((a) => [a.slug, a]))
+export const authorById = new Map(authors.map((author) => [author.id, author]))
+export const authorBySlug = new Map(authors.map((author) => [author.slug, author]))

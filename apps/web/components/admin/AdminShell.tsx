@@ -40,6 +40,16 @@ type NavItem = {
  * never sees the Users or Ads sections; an ad manager never sees Editorial.
  * The server-side session check is the real gate; this is defence-in-depth.
  */
+
+const PAYLOAD_CONTENT_PATHS: Record<string, string> = {
+  '/admin/articles': '/collections/articles',
+  '/admin/articles/new': '/collections/articles/create',
+  '/admin/media': '/collections/media',
+  '/admin/categories': '/collections/categories',
+  '/admin/tags': '/collections/tags',
+  '/admin/authors': '/collections/authors',
+}
+
 const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
   {
     heading: 'सम्पादन',
@@ -110,10 +120,12 @@ export function AdminShell({
   session,
   pathname: initialPathname,
   children,
+  contentAdminUrl,
 }: {
   session: NewsroomSession
   pathname?: string
   children: ReactNode
+  contentAdminUrl?: string
 }) {
   const clientPath = usePathname() ?? initialPathname ?? ''
   const router = useRouter()
@@ -175,13 +187,19 @@ export function AdminShell({
             </p>
             <ul className="space-y-0.5">
               {group.items.map((item) => {
+                const payloadPath = contentAdminUrl ? PAYLOAD_CONTENT_PATHS[item.href] : undefined
+                const href = payloadPath ? `${contentAdminUrl}${payloadPath}` : item.href
+                const external = Boolean(payloadPath)
                 const active =
-                  clientPath === item.href ||
-                  (clientPath.startsWith(item.href + '/') && item.href !== '/admin/dashboard')
+                  !external &&
+                  (clientPath === item.href ||
+                    (clientPath.startsWith(item.href + '/') && item.href !== '/admin/dashboard'))
                 return (
                   <li key={item.href}>
                     <Link
-                      href={item.href}
+                      href={href}
+                      target={external ? '_blank' : undefined}
+                      rel={external ? 'noopener noreferrer' : undefined}
                       onClick={() => setDrawerOpen(false)}
                       className={
                         active
@@ -191,7 +209,8 @@ export function AdminShell({
                       lang="ne"
                     >
                       <NavIcon name={item.icon} />
-                      {item.label}
+                      <span className="min-w-0 flex-1">{item.label}</span>
+                      {external ? <span aria-hidden="true">↗</span> : null}
                     </Link>
                   </li>
                 )

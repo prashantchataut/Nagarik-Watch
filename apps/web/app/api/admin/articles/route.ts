@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { createArticle } from '@/lib/content/store/json-store'
 import type { StoredArticle } from '@/lib/content/store/json-store'
@@ -40,6 +41,10 @@ function asWorkflowStage(value: unknown): StoredArticle['workflowStage'] {
  * markdown-shorthand and are converted to ArticleBlock[] before persistence.
  */
 export async function POST(request: NextRequest) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+
   const session = await requireNewsroomSession()
   if (!canCreate(session.newsroomRole)) {
     return NextResponse.json({ error: 'अनुमति छैन।' }, { status: 403 })

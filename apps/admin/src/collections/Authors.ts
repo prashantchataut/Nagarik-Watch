@@ -1,5 +1,16 @@
 import type { CollectionConfig } from 'payload'
-import { anyone, hardDeleteRoles, taxonomyManagerRoles, withRoles } from '../access/rbac'
+import {
+  anyone,
+  hardDeleteRoles,
+  hasAnyRole,
+  newsroomInternalRoles,
+  taxonomyManagerRoles,
+  withRoles,
+} from '../access/rbac'
+
+function canReadPrivateAuthorField({ req }: { req: { user?: unknown } }): boolean {
+  return hasAnyRole(req.user, newsroomInternalRoles)
+}
 
 export const Authors: CollectionConfig = {
   slug: 'authors',
@@ -52,6 +63,10 @@ export const Authors: CollectionConfig = {
     {
       name: 'email',
       type: 'email',
+      access: { read: canReadPrivateAuthorField },
+      admin: {
+        description: 'Internal contact address. Never exposed through the public author API.',
+      },
     },
     {
       name: 'isActive',

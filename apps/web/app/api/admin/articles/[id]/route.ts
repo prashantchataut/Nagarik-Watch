@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { updateArticle, deleteArticle, getArticleById } from '@/lib/content/store/json-store'
 import type { StoredArticle } from '@/lib/content/store/json-store'
@@ -49,6 +50,10 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
 /** PUT /api/admin/articles/[id] — update an article. Editors+ can update. */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+
   const session = await requireNewsroomSession()
   if (!canEdit(session.newsroomRole)) {
     return NextResponse.json({ error: 'सम्पादन अनुमति छैन।' }, { status: 403 })
@@ -102,9 +107,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 /** DELETE /api/admin/articles/[id] — delete an article. Super admin only. */
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+
   const session = await requireNewsroomSession()
   if (!canDelete(session.newsroomRole)) {
     return NextResponse.json({ error: 'मेटाउन अनुमति छैन। केवल मुख्य एडमिन।' }, { status: 403 })

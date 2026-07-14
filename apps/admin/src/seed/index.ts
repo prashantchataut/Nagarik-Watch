@@ -1,19 +1,15 @@
 /**
- * Dev seed for Nagarik Watch (Task 1.1).
+ * Safe development seed for Nagarik Watch.
  *
- * Loads the bilingual sample content from apps/web/lib/content/seed into the Payload
- * collections via the Local API: Categories → Authors → Tags → Media → Articles, in
- * dependency order. Idempotent: existing slugs are skipped unless --reset wipes first.
+ * Default behavior seeds taxonomy and desk identities only. It does not create
+ * publishable journalism. Use `--demo-articles` to add unmistakably labelled
+ * draft fixtures for UI/workflow testing. Demo fixtures are always draft,
+ * no-index, excluded from recommendations, and blocked from `--publish`.
  *
- * Run: pnpm --filter @nagarikwatch/admin seed [--reset] [--publish]
- *
- * Without --publish, imported stories stay as drafts so sample/dev content cannot
- * accidentally appear on the public site. Use --publish only with editor-reviewed
- * original content.
- *
- * Media uploads are best-effort: the seed fetches each Unsplash hero into a buffer and
- * passes it to the Local API, so editors see real images. If the network is unavailable
- * the script logs and continues, leaving article.heroImage unset (the field is optional).
+ * Run:
+ *   pnpm --filter @nagarikwatch/admin seed
+ *   pnpm --filter @nagarikwatch/admin seed -- --reset
+ *   pnpm --filter @nagarikwatch/admin seed -- --demo-articles
  */
 import { getPayload } from 'payload'
 import type { BasePayload } from 'payload'
@@ -22,202 +18,167 @@ import configPromise from '../payload.config'
 import { categories } from '../../../web/lib/content/seed/categories'
 import { authors } from '../../../web/lib/content/seed/authors'
 import { tags } from '../../../web/lib/content/seed/tags'
-import { articlesBatch1 } from '../../../web/lib/content/seed/articles-1'
-import { articlesBatch2 } from '../../../web/lib/content/seed/articles-2'
-import type { Article, ArticleBlock } from '@nagarikwatch/db'
-
-const articles = [...articlesBatch1, ...articlesBatch2]
+import { demoArticleFixtures } from './fixtures'
 
 const RESET = process.argv.includes('--reset')
+const DEMO_ARTICLES = process.argv.includes('--demo-articles')
 const PUBLISH = process.argv.includes('--publish')
 
 type SlugToId = Map<string, number | string>
 
 async function main() {
+  if (PUBLISH) {
+    throw new Error(
+      'The development seed cannot publish articles. Create or import reviewed reporting through Payload CMS.',
+    )
+  }
+
   const payload = await getPayload({ config: configPromise })
 
-  if (RESET) {
-    await resetContent(payload)
-  }
+  if (RESET) await resetContent(payload)
 
   const categoryIds = await seedCategories(payload)
   const authorIds = await seedAuthors(payload)
   const tagIds = await seedTags(payload)
-  await seedArticles(payload, { categoryIds, authorIds, tagIds })
+
+  if (DEMO_ARTICLES) {
+    await seedDemoArticles(payload, { categoryIds, authorIds, tagIds })
+  }
 
   payload.logger.info(
-    PUBLISH
-      ? 'Seed complete: published content created.'
-      : 'Seed complete: draft content created. Use --publish only for reviewed original stories.',
+    DEMO_ARTICLES
+      ? 'Seed complete: taxonomy, desk identities and non-public demo drafts are ready.'
+      : 'Seed complete: taxonomy and desk identities are ready. No articles were created.',
   )
   process.exit(0)
 }
 
 async function resetContent(payload: BasePayload) {
-  payload.logger.info('--reset: wiping articles, tags, authors, categories, media…')
-  for (const slug of ['articles', 'tags', 'authors', 'categories', 'media'] as const) {
-    const { docs } = await payload.find({ collection: slug, limit: 1000, depth: 0 })
+  payload.logger.info('--reset: wiping articles, tags, authors, categories and media')
+  for (const collection of ['articles', 'tags', 'authors', 'categories', 'media'] as const) {
+    const { docs } = await payload.find({ collection, limit: 1000, depth: 0, overrideAccess: true })
     for (const doc of docs) {
-      try {
-        await payload.delete({ collection: slug, id: doc.id })
-      } catch (error) {
-        payload.logger.error({ err: error, collection: slug, id: doc.id }, 'Seed reset delete failed')
-        throw error
-      }
+      await payload.delete({ collection, id: doc.id, overrideAccess: true })
     }
   }
 }
 
 async function seedCategories(payload: BasePayload): Promise<SlugToId> {
-  const out: SlugToId = new Map()
-  for (const c of categories) {
-    const existing = await findBySlug(payload, 'categories', c.slug)
+  const ids: SlugToId = new Map()
+  for (const category of categories) {
+    const existing = await findBySlug(payload, 'categories', category.slug)
     const data = {
-      nameNe: c.nameNe,
-      nameEn: c.nameEn,
-      slug: c.slug,
-      description: c.descriptionNe,
-      navOrder: c.navOrder,
-      showInNav: c.showInNav,
+      nameNe: category.nameNe,
+      nameEn: category.nameEn,
+      slug: category.slug,
+      description: category.descriptionNe,
+      navOrder: category.navOrder,
+      showInNav: category.showInNav,
     }
-    const result = existing
-      ? await payload.update({ collection: 'categories', id: existing.id, data })
-      : await payload.create({ collection: 'categories', data })
-    out.set(c.slug, result.id)
-    payload.logger.info(`category: ${c.slug} → ${result.id}`)
+    const doc = existing
+      ? await payload.update({ collection: 'categories', id: existing.id, data, overrideAccess: true })
+      : await payload.create({ collection: 'categories', data, overrideAccess: true })
+    ids.set(category.slug, doc.id)
   }
-  return out
+  return ids
 }
 
 async function seedAuthors(payload: BasePayload): Promise<SlugToId> {
-  const out: SlugToId = new Map()
-  for (const a of authors) {
-    const existing = await findBySlug(payload, 'authors', a.slug)
+  const ids: SlugToId = new Map()
+  for (const author of authors) {
+    const existing = await findBySlug(payload, 'authors', author.slug)
     const data = {
-      name: a.name,
-      slug: a.slug,
-      role: a.role,
-      bio: a.bioNe,
-      isActive: a.isActive,
+      name: author.name,
+      slug: author.slug,
+      role: author.role,
+      bio: author.bioNe,
+      email: author.email,
+      isActive: author.isActive,
     }
-    const result = existing
-      ? await payload.update({ collection: 'authors', id: existing.id, data })
-      : await payload.create({ collection: 'authors', data })
-    out.set(a.slug, result.id)
-    payload.logger.info(`author: ${a.slug} → ${result.id}`)
+    const doc = existing
+      ? await payload.update({ collection: 'authors', id: existing.id, data, overrideAccess: true })
+      : await payload.create({ collection: 'authors', data, overrideAccess: true })
+    ids.set(author.slug, doc.id)
   }
-  return out
+  return ids
 }
 
 async function seedTags(payload: BasePayload): Promise<SlugToId> {
-  const out: SlugToId = new Map()
-  for (const t of tags) {
-    const existing = await findBySlug(payload, 'tags', t.slug)
+  const ids: SlugToId = new Map()
+  for (const tag of tags) {
+    const existing = await findBySlug(payload, 'tags', tag.slug)
     const data = {
-      nameNe: t.nameNe,
-      nameEn: t.nameEn,
-      slug: t.slug,
-      description: t.descriptionNe,
+      nameNe: tag.nameNe,
+      nameEn: tag.nameEn,
+      slug: tag.slug,
+      description: tag.descriptionNe,
     }
-    const result = existing
-      ? await payload.update({ collection: 'tags', id: existing.id, data })
-      : await payload.create({ collection: 'tags', data })
-    out.set(t.slug, result.id)
-    payload.logger.info(`tag: ${t.slug} → ${result.id}`)
+    const doc = existing
+      ? await payload.update({ collection: 'tags', id: existing.id, data, overrideAccess: true })
+      : await payload.create({ collection: 'tags', data, overrideAccess: true })
+    ids.set(tag.slug, doc.id)
   }
-  return out
+  return ids
 }
 
-async function seedArticles(
+async function seedDemoArticles(
   payload: BasePayload,
   refs: { categoryIds: SlugToId; authorIds: SlugToId; tagIds: SlugToId },
 ) {
-  for (const a of articles) {
-    const categoryId = refs.categoryIds.get(a.category.slug)
-    if (!categoryId) {
-      payload.logger.warn(`article ${a.slug}: category ${a.category.slug} missing, skipping`)
-      continue
+  for (const fixture of demoArticleFixtures) {
+    const category = refs.categoryIds.get(fixture.categorySlug)
+    const author = refs.authorIds.get(fixture.authorSlug)
+    if (!category || !author) {
+      throw new Error(`Demo fixture ${fixture.slug} has an unresolved category or author.`)
     }
-    const authorRows = a.authors
-      .map((au) => refs.authorIds.get(au.slug))
-      .filter((id): id is NonNullable<typeof id> => Boolean(id))
-      .map((id) => ({ author: Number(id) }))
-    if (!authorRows.length) {
-      payload.logger.warn(`article ${a.slug}: no resolvable authors, skipping`)
-      continue
-    }
-    const tagRows = a.tags
-      .map((t) => refs.tagIds.get(t.slug))
-      .filter((id): id is NonNullable<typeof id> => Boolean(id))
-      .map((id) => ({ tag: Number(id) }))
 
-    const heroMediaId = a.heroImage ? await ensureMedia(payload, a) : undefined
-
-    const sourceType = a.source?.sourceType ?? ('original' as const)
     const data = {
-      titleNe: a.titleNe,
-      titleEn: a.titleEn,
-      slug: a.slug,
-      deckNe: a.deckNe,
-      deckEn: a.deckEn,
-      bodyNe: a.bodyNe as ArticleBlock[],
-      bodyEn: a.bodyEn,
-      englishStatus: a.hasEnglish ? ('published' as const) : ('none' as const),
-      category: Number(categoryId),
-      tags: tagRows,
-      authors: authorRows,
-      heroImage: heroMediaId ? Number(heroMediaId) : undefined,
-      heroCredit: a.heroCredit,
-      sourceType,
-      sourceName: a.source?.sourceName,
-      sourceUrl: a.source?.sourceUrl,
-      sourcePublishedAt: a.source?.sourcePublishedAt,
-      isBreaking: a.isBreaking,
-      featuredState: 'none' as const,
+      titleNe: fixture.titleNe,
+      titleEn: fixture.titleEn,
+      slug: fixture.slug,
+      deckNe: fixture.deckNe,
+      deckEn: fixture.deckEn,
+      bodyNe: fixture.bodyNe,
+      bodyEn: fixture.bodyEn,
+      englishStatus: 'published' as const,
+      workflowStage: 'draft' as const,
+      category,
+      tags: fixture.tagSlugs
+        .map((slug) => refs.tagIds.get(slug))
+        .filter((id): id is number | string => id !== undefined)
+        .map((tag) => ({ tag })),
+      authors: [{ author }],
+      sourceType: 'original' as const,
       locale: 'ne' as const,
-      publishedAt: a.publishedAt,
-      _status: PUBLISH ? ('published' as const) : ('draft' as const),
+      noIndex: true,
+      includeInNewsSitemap: false,
+      doNotRecommend: true,
+      commentsEnabled: false,
+      isBreaking: false,
+      featuredState: 'none' as const,
+      internalNotes:
+        'DEVELOPMENT FIXTURE. Never publish. Replace with editor-reviewed reporting created in Payload.',
+      _status: 'draft' as const,
     }
 
-    const existing = await findBySlug(payload, 'articles', a.slug)
-    const result = existing
-      ? await payload.update({ collection: 'articles', id: existing.id, data })
-      : await payload.create({ collection: 'articles', data, draft: true })
-    payload.logger.info(`article: ${a.slug} → ${result.id}`)
+    const existing = await findBySlug(payload, 'articles', fixture.slug)
+    if (existing) {
+      await payload.update({
+        collection: 'articles',
+        id: existing.id,
+        data,
+        draft: true,
+        overrideAccess: true,
+      })
+    } else {
+      await payload.create({
+        collection: 'articles',
+        data,
+        draft: true,
+        overrideAccess: true,
+      })
+    }
   }
-}
-
-async function ensureMedia(payload: BasePayload, a: Article): Promise<number | undefined> {
-  const ref = a.heroImage
-  if (!ref) return undefined
-  try {
-    const buffer = await fetchImage(ref.url)
-    const name = imageNameFromUrl(ref.url)
-    const doc = (await payload.create({
-      collection: 'media',
-      data: { alt: ref.alt, credit: ref.credit ?? a.heroCredit },
-      file: { data: buffer, mimetype: 'image/jpeg', name, size: buffer.length },
-    })) as { id: number }
-    payload.logger.info(`  media: ${name} → ${doc.id}`)
-    return doc.id
-  } catch (err) {
-    payload.logger.warn(
-      `  media: skipped for ${a.slug} (${err instanceof Error ? err.message : 'fetch failed'})`,
-    )
-    return undefined
-  }
-}
-
-async function fetchImage(url: string): Promise<Buffer> {
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const arrayBuffer = await res.arrayBuffer()
-  return Buffer.from(arrayBuffer)
-}
-
-function imageNameFromUrl(url: string): string {
-  const match = /photo-([a-f0-9]+)/.exec(url)
-  return match ? `${match[1]}.jpg` : 'hero.jpg'
 }
 
 async function findBySlug(
@@ -230,12 +191,12 @@ async function findBySlug(
     where: { slug: { equals: slug } },
     limit: 1,
     depth: 0,
+    overrideAccess: true,
   })
-  const doc = docs[0]
-  return doc ? { id: doc.id } : null
+  return docs[0] ? { id: docs[0].id } : null
 }
 
-void main().catch(async (err) => {
-  console.error(err)
+void main().catch((error) => {
+  console.error(error)
   process.exit(1)
 })

@@ -24,7 +24,11 @@
     "audit:ads": "node scripts/audit-ad-placements.mjs",
     "audit:architecture": "node scripts/audit-architecture.mjs",
     "launch:gate": "node scripts/launch-gate.mjs",
-    "verify:static": "pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm launch:gate"
+    "verify:static": "pnpm verify:lockfile && pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm launch:gate",
+    "verify:lockfile": "node scripts/verify-workspace-lock.mjs",
+    "build:web": "pnpm --filter @nagarikwatch/web... build",
+    "build:admin": "pnpm --filter @nagarikwatch/admin... build",
+    "verify:deploy": "pnpm verify:lockfile && pnpm build:web && pnpm build:admin"
   },
   "devDependencies": {
     "@nagarikwatch/tsconfig": "workspace:*",
@@ -32,7 +36,7 @@
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "globals": "^15.15.0",
-    "next": "^15.1.3",
+    "next": "15.4.11",
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
     "turbo": "^2.3.3",

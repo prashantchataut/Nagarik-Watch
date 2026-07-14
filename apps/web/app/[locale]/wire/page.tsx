@@ -57,7 +57,13 @@ export default async function WireDigestPage({
                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-meta text-ink-soft">
                   <strong className="text-brand-strong">{item.sourceName}</strong>
                   <span aria-hidden="true">·</span>
-                  <time dateTime={item.sourcePublishedAt}>{formatDate(item.sourcePublishedAt, locale)}</time>
+                  {item.sourcePublishedAt ? (
+                    <time dateTime={item.sourcePublishedAt}>
+                      {formatDate(item.sourcePublishedAt, locale)}
+                    </time>
+                  ) : (
+                    <span>{english ? 'Source time unavailable' : 'स्रोत समय खुलेको छैन'}</span>
+                  )}
                   {item.category ? (
                     <>
                       <span aria-hidden="true">·</span>

@@ -1,22 +1,28 @@
 # @nagarikwatch/admin
 
-**Payload CMS**, the editorial tool. Scaffolded as a stub in Phase 0; the real Payload
-config (collections, globals, access policies, hooks) lands in Phase 0 Task 0.3 and Phase 2
-per `docs/phase-2-tasks.md`.
+Payload CMS is the canonical editorial system for Nagarik Watch. It owns articles, categories, tags, authors, media, editorial roles, drafts, versions, scheduling, corrections, provenance, and publication state.
 
-## Status (Phase 0)
+## Local development
 
-Placeholder. The Payload install + Postgres adapter + first `users` collection + admin UI
-happen in Phase 0 Task 0.3 (`docs/phase-0-tasks.md`).
+From the repository root:
 
-## What lives here (planned)
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+pnpm --filter @nagarikwatch/admin dev
+```
 
-- `src/payload.config.ts`, root config (DB adapter, collections, globals, plugins)
-- `src/collections/`, Articles, Categories, Authors, Tags, Media, AdSlots, Menus
-- `src/globals/`, SiteSettings, Menus, BreakingTicker, AdsConfig
-- `src/access/`, role-based access policies (editorial-workflow.md §1)
-- `src/hooks/`, slug generation, source-attribution validation, publish webhook
-- `migrations/`, Drizzle migrations (versioned)
-- `seed/`, dev sample content
+The admin runs on `http://localhost:3001/admin` by default. The first Payload account is bootstrapped as `super_admin`; later accounts require an administrator.
 
-See `docs/content-model.md` (the schema) and `docs/editorial-workflow.md` (the rules).
+## Production rules
+
+- Set `PAYLOAD_DB_PUSH=false` and apply reviewed migrations.
+- Use a 32+ character `PAYLOAD_SECRET`.
+- Configure durable object storage before accepting production uploads.
+- Share `REVALIDATE_SECRET` with the reader app.
+- Keep `CONTENT_SOURCE=payload` on the reader deployment.
+- Do not seed publishable journalism. `pnpm --filter @nagarikwatch/admin seed -- --demo-articles` creates unmistakable draft-only fixtures.
+
+## Ownership boundary
+
+Payload owns editorial content. The reader app owns reader accounts, comments, bookmarks, submissions, newsletters, ads, provider health, and privacy-preserving engagement telemetry. The web operations dashboard links editorial routes directly to Payload when Payload is canonical.

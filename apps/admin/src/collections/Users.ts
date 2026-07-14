@@ -1,27 +1,68 @@
 import type { CollectionConfig } from 'payload'
-import { hardDeleteRoles, userManagerRoles, withRoles } from '../access/rbac'
+import {
+  createUserOrBootstrap,
+  hardDeleteRoles,
+  hasAnyRole,
+  newsroomInternalRoles,
+  ownUserOrManager,
+  userManagerRoles,
+  withRoles,
+} from '../access/rbac'
+
+const canManageUsers = ({ req }: { req: { user?: unknown } }): boolean =>
+  hasAnyRole(req.user, userManagerRoles)
 
 /**
- * Users — CMS accounts. Roles are stored on the user and drive access control across all
- * collections (see src/access/, editorial-workflow.md §1).
- *
- * Newsroom roles follow the production RBAC model in AGENT.md. Legacy role strings are
- * mapped by access helpers so older seeded users do not get locked out during migration.
+ * Users — authenticated newsroom accounts. Reader identities live in the reader app and are
+ * intentionally not mixed with CMS credentials.
  */
 export const Users: CollectionConfig = {
   slug: 'users',
   access: {
-    read: withRoles(userManagerRoles),
-    create: withRoles(userManagerRoles),
-    update: withRoles(userManagerRoles),
+    read: ownUserOrManager,
+    create: createUserOrBootstrap,
+    update: ownUserOrManager,
     delete: withRoles(hardDeleteRoles),
+    admin: withRoles(newsroomInternalRoles),
+    unlock: withRoles(userManagerRoles),
   },
   auth: {
-    // Payload's default email/password with a strong minimum; 2FA lands in Phase 5.
     useAPIKey: true,
   },
+  hooks: {
+    beforeLogin: [
+      ({ user }) => {
+        if (user.isActive === false) {
+          throw new Error('This newsroom account has been disabled. Contact an administrator.')
+        }
+        return user
+      },
+    ],
+    beforeChange: [
+      async ({ data, operation, req }) => {
+        if (!data) return data
+
+        if (operation === 'create') {
+          const existing = await req.payload.count({
+            collection: 'users',
+            limit: 0,
+            overrideAccess: true,
+          })
+          if (existing.totalDocs === 0) {
+            return {
+              ...data,
+              roles: ['super_admin'],
+              isActive: true,
+            }
+          }
+        }
+
+        return data
+      },
+    ],
+  },
   admin: {
-    defaultColumns: ['name', 'email', 'roles'],
+    defaultColumns: ['name', 'email', 'roles', 'isActive'],
     useAsTitle: 'name',
     group: 'People',
   },
@@ -40,10 +81,16 @@ export const Users: CollectionConfig = {
       hasMany: true,
       required: true,
       defaultValue: ['journalist'],
+      access: {
+        create: canManageUsers,
+        update: canManageUsers,
+      },
       options: [
-        { label: 'Reader', value: 'reader' },
+        { label: 'Reader (legacy CMS account)', value: 'reader' },
+        { label: 'Read-only Newsroom Viewer', value: 'viewer' },
         { label: 'Contributor', value: 'contributor' },
         { label: 'Journalist / Reporter', value: 'journalist' },
+        { label: 'Reviewer', value: 'reviewer' },
         { label: 'Photo / Video Editor', value: 'photo_video_editor' },
         { label: 'Copy Editor', value: 'copy_editor' },
         { label: 'Fact Checker', value: 'fact_checker' },
@@ -63,14 +110,17 @@ export const Users: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
-        description:
-          'Drives access control across all collections. Publisher + admin require 2FA (Phase 5).',
+        description: 'Only administrators can change newsroom roles.',
       },
     },
     {
       name: 'section',
       type: 'select',
       hasMany: true,
+      access: {
+        create: canManageUsers,
+        update: canManageUsers,
+      },
       options: [
         { label: 'राजनीति (Politics)', value: 'politics' },
         { label: 'समाज (Society)', value: 'society' },
@@ -82,17 +132,22 @@ export const Users: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
-        description: 'Sections this user can edit. Editors are scoped to their section(s).',
+        description: 'Sections this user can edit. Only administrators can change scope.',
       },
     },
     {
       name: 'isActive',
       type: 'checkbox',
       defaultValue: true,
+      access: {
+        create: canManageUsers,
+        update: canManageUsers,
+      },
       admin: {
         position: 'sidebar',
-        description: 'Disable access without deleting the account.',
+        description: 'Disabled accounts cannot log in or pass role checks.',
       },
     },
   ],
 }
+

@@ -1,94 +1,70 @@
-# Nagarik Watch Revamp — Progress and Next Gates
+# Nagarik Watch — Reconstruction Progress
 
-**Status:** first extensive reconstruction pass completed; production release not yet verified.
+**Status:** deployment lockfile incident repaired; product is suitable for connected CI and staging integration, but not yet a public production launch.
 
-## Completed in this pass
+## Completed
 
-- Created and validated a reusable `nagarik-watch-newsroom` skill.
-- Rebuilt logo, masthead and primary/secondary navigation language.
-- Reworked homepage hierarchy so journalism precedes advertising.
-- Added a latest-story rail and clearer editorial grouping.
-- Reduced rounded-card/pill visual noise in core shared components.
-- Improved article headline scale, metadata, trust signals and ad placement.
-- Rebuilt generic hub behavior and removed fake trending metrics.
-- Added an attributed RSS Source Desk that links to original publishers.
-- Removed thirty fabricated demo-news records across three unsafe seed modules.
-- Repaired recommendation eligibility, author follows, fatigue and diversity.
-- Added recommendation tests and algorithm-version logging.
-- Unified workflow stages between shared types, JSON store and Payload.
-- Prevented retracted/intermediate workflow states from public queries.
-- Corrected misleading admin dashboard and algorithm descriptions.
-- Consolidated CI into the workflow GitHub actually runs.
-- Added project-specific content-integrity and Nepali-voice standards.
+### Deployment and repository integrity
+- Removed the legacy `apps/cms`/`apps/admin` split and retained `apps/admin` as the canonical CMS package.
+- Repaired and verified the pnpm lockfile across all eight workspace manifests.
+- Added a lockfile-drift check before CI installation.
+- Added reader and CMS build jobs, migration instructions and health endpoints.
+- Documented the exact Vercel two-project topology.
 
-## Current quality gates
+### Public product
+- Rebuilt brand mark, masthead, navigation, homepage hierarchy, article flow and shared story surfaces.
+- Moved journalism above ads and removed fake popularity signals.
+- Added an attributed Source Desk instead of fabricated demo reporting.
+- Added explicit source, update, verification and correction cues.
+
+### Editorial system
+- Made Payload the only production editorial source of truth.
+- Unified workflow states and protected public visibility.
+- Added reporter assignment, publishing-role checks, unique slugs and a checked-in migration.
+- Hid internal notes, assignments, AI drafts, review timestamps and staff relationships from public responses.
+- Restricted public author contact fields.
+
+### Reader and account functionality
+- Added real password reset emails, 30-minute reset tokens and session revocation.
+- Added authenticated password change with other-session revocation.
+- Added expiring, hashed and email-bound newsroom invitations.
+- Added invitation acceptance, role activation and super-admin escalation protections.
+- Verified article identity before bookmarks, comments and reading events are stored.
+- Added anonymous-to-account bookmark merging.
+
+### Operations
+- Unified newsletter storage and double opt-in behavior.
+- Added actual Resend/generic email delivery and honest delivery failures.
+- Added same-origin guards to newsroom mutations.
+- Added rate limits to ad telemetry.
+- Protected provider-health diagnostics behind newsroom authentication.
+- Aligned the operations launch dashboard with the strict release gate.
+
+## Current gates
 
 | Gate | State |
 |---|---|
+| Workspace manifest/lockfile consistency | Pass, 8/8 |
 | Public-surface audit | Pass |
-| Ad-placement audit | Pass |
+| Ad-placement audit | Pass, 20 registered / 17 rendered |
 | Architecture audit | Pass |
 | Recovery verification | Pass |
-| Newsroom skill audit | Pass with 6 warnings |
-| Modified TS/TSX syntax parse | Pass |
-| Frozen dependency install | Blocked by registry access in this environment |
-| Full typecheck/tests/build | Not yet run |
-| Live launch gate | Intentionally not enabled |
-| Real deployment error reproduction | Waiting for owner-provided logs |
+| Project skill audit | Pass, 0 failures / 0 warnings |
+| TypeScript syntax parse | Pass, 342 files |
+| Strict launch negative test | Pass: unconfigured launch blocked |
+| Frozen dependency install | Blocked by registry DNS in this environment |
+| Semantic typecheck/tests/Next builds | Must run in connected CI |
+| Durable Payload media storage | Hard blocker; adapter not yet wired |
+| Real newsroom content inventory | Required before public launch |
+| Verified legal/publication identity | Required before public launch |
 
-## Remaining warnings
+## Next gates
 
-- `disaster-alerts` is still a thin alias.
-- `login`, `register` and `profile` are thin wrappers around shared account surfaces.
-- `tag/[slug]` is a thin wrapper.
-- The local JSON article store is intentionally empty.
-
-A thin wrapper is not automatically a defect. It becomes a defect when navigation or marketing makes the page appear more capable than its shared implementation.
-
-## Progressive roadmap
-
-### Gate 1 — reproducible engineering baseline
-
-- Run the new GitHub CI in a connected environment.
-- Resolve all format, lint, type, test and build failures without bypass flags.
-- Reproduce the supplied deployment log exactly.
-- Decide and document separate deployment roots for reader and Payload admin.
-- Pin/reconcile Next.js versions and regenerate the lockfile intentionally.
-
-### Gate 2 — real newsroom pilot
-
-- Configure Postgres, Payload, object storage and secrets.
-- Enter verified publisher identity.
-- Publish a small set of real, sourced stories through the CMS.
-- Test correction, update, retraction and scheduled publishing.
-- Review every Nepali UI string with a native newsroom editor.
-
-### Gate 3 — reader functionality
-
-- Verify search indexing and filters against real content.
-- Test login, follows, bookmarks, reading history and newsletter persistence.
-- Add event contracts for impressions, clicks, completion, follows and hides.
-- Keep popularity pages in fallback/disclosure mode until telemetry is trustworthy.
-
-### Gate 4 — public-service and growth surfaces
-
-- Connect official, attributable sources for disaster alerts, results and markets.
-- Add stale-data, error and last-updated states.
-- Activate ads only after editorial hierarchy and performance budgets pass.
-- Launch membership only with real entitlements, support and policy terms.
-
-### Gate 5 — algorithm iteration
-
-- Establish offline datasets and online success metrics.
-- Measure source/author/category concentration and filter-bubble risk.
-- Add explainable ranking diagnostics for editors.
-- Consider collaborative or semantic retrieval only after data quality is proven.
-
-## Non-negotiable newsroom rules
-
-- Never publish generated reporting as fact.
-- Never invent quotes, bylines, sources, popularity or “live” status.
-- Never copy RSS article bodies; retain attribution and original links.
-- Never let ads outrank the lead story.
-- Never call a ranking “personalized,” “trending” or “most read” without real evidence.
-- Never use unnatural translated Nepali merely to fill space.
+1. Push this tree as a new commit and deploy that SHA, not `b6ae37e`.
+2. Run frozen install, format, lint, typecheck, tests and both Next builds in connected CI.
+3. Apply Payload migrations to staging Postgres.
+4. Add and verify a supported Payload S3/Vercel Blob storage adapter; regenerate the lockfile intentionally.
+5. Configure verified email senders and test reset, invitation and newsletter delivery.
+6. Publish real, sourced stories through draft → review → publish → update → correction/retraction.
+7. Run mobile visual regression, keyboard/accessibility and low-bandwidth checks.
+8. Enable live launch only when `NEXT_PUBLIC_LAUNCH_STATUS=live pnpm launch:gate` passes.

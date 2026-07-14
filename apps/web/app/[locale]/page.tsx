@@ -10,14 +10,17 @@ import { AdSlot } from '@/components/AdSlot'
 import { RecommendedForYou } from '@/components/reader/RecommendedForYou'
 import { PollOfDay } from '@/components/home/PollOfDay'
 import { getActivePoll } from '@/lib/polls-admin'
+import { getSourceDeskHeadlines } from '@/lib/source-desk'
+import { SourceDeskPreview } from '@/components/home/SourceDeskPreview'
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const english = locale === 'en'
-  const [homepage, categories, activePoll] = await Promise.all([
+  const [homepage, categories, activePoll, sourceHeadlines] = await Promise.all([
     getHomepage(),
     getNavCategories(),
     getActivePoll(),
+    getSourceDeskHeadlines(8),
   ])
 
   if (!homepage) {
@@ -44,6 +47,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             {english ? 'How Nagarik Watch works' : 'नागरिक वाच कसरी काम गर्छ'}
           </Link>
         </section>
+        <div className="mt-12">
+          <SourceDeskPreview items={sourceHeadlines} locale={locale} />
+        </div>
         <section className="mt-12" aria-labelledby="desks-title">
           <h2 id="desks-title" className="font-display text-h1 text-ink">
             {english ? 'News desks' : 'समाचार विभाग'}
@@ -125,6 +131,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               layout={index % 3 === 0 ? 'lead-rail' : index % 3 === 1 ? 'default-grid' : 'text-led'}
             />
           ))}
+        </div>
+        <div className="mt-16">
+          <SourceDeskPreview items={sourceHeadlines} locale={locale} />
         </div>
         <AdSlot locale={locale} placementKey="home-mid" variant="inline" />
       </div>

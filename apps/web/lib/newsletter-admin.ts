@@ -1,24 +1,23 @@
 import 'server-only'
 import { cleanMultiline, cleanText, ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import { getEmailProviderState, sendEmail } from '@/lib/email-provider'
+import {
+  listNewsletterSubscribers as listSubscribers,
+  upsertConfirmedNewsletterSubscriber,
+  type NewsletterSubscriber,
+} from '@/lib/newsletter-subscribers'
 
-export type NewsletterIssueStatus = 'draft' | 'queued' | 'sent' | 'failed'
+export type NewsletterIssueStatus = 'draft' | 'queued' | 'sending' | 'sent' | 'failed'
 
 export type NewsletterIssue = {
   id: string
   subject: string
   body: string
-  segment: string
+  segment: 'all'
   status: NewsletterIssueStatus
   providerMessage?: string
   createdAt: string
   updatedAt: string
-}
-
-export type NewsletterSubscriber = {
-  email: string
-  status: 'active' | 'unsubscribed'
-  source: string
-  createdAt: string
 }
 
 type IssueRow = {
@@ -32,13 +31,11 @@ type IssueRow = {
   updated_at: Date | string
 }
 
-type SubscriberRow = { email: string; status: 'active' | 'unsubscribed'; source: string; created_at: Date | string }
-
 const issues = new Map<string, NewsletterIssue>()
-const subscribers = new Map<string, NewsletterSubscriber>()
+const MAX_DIRECT_RECIPIENTS = 100
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return ensureOperationalSchema('newsletter-admin', async (pool) => {
+  return ensureOperationalSchema('newsletter-admin-v2', async (pool) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_newsletter_issues (
         id text PRIMARY KEY,
@@ -51,14 +48,7 @@ async function ensureSchema(): Promise<Queryable | null> {
         updated_at timestamptz NOT NULL DEFAULT now()
       )
     `)
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS nw_newsletter_subscribers (
-        email text PRIMARY KEY,
-        status text NOT NULL DEFAULT 'active',
-        source text NOT NULL DEFAULT 'site',
-        created_at timestamptz NOT NULL DEFAULT now()
-      )
-    `)
+    await pool.query(`CREATE INDEX IF NOT EXISTS nw_newsletter_issue_status_idx ON nw_newsletter_issues(status, created_at)`)
   })
 }
 
@@ -71,7 +61,7 @@ function issueFromRow(row: IssueRow): NewsletterIssue {
     id: row.id,
     subject: row.subject,
     body: row.body,
-    segment: row.segment,
+    segment: 'all',
     status: row.status,
     providerMessage: row.provider_message ?? undefined,
     createdAt: toIso(row.created_at),
@@ -79,8 +69,36 @@ function issueFromRow(row: IssueRow): NewsletterIssue {
   }
 }
 
-function subscriberFromRow(row: SubscriberRow): NewsletterSubscriber {
-  return { email: row.email, status: row.status, source: row.source, createdAt: toIso(row.created_at) }
+async function saveIssue(issue: NewsletterIssue): Promise<NewsletterIssue> {
+  const pool = await ensureSchema()
+  if (pool) {
+    const result = await pool.query<IssueRow>(
+      `INSERT INTO nw_newsletter_issues
+        (id, subject, body, segment, status, provider_message, created_at, updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+       ON CONFLICT (id) DO UPDATE SET
+         subject = EXCLUDED.subject,
+         body = EXCLUDED.body,
+         segment = EXCLUDED.segment,
+         status = EXCLUDED.status,
+         provider_message = EXCLUDED.provider_message,
+         updated_at = EXCLUDED.updated_at
+       RETURNING *`,
+      [
+        issue.id,
+        issue.subject,
+        issue.body,
+        issue.segment,
+        issue.status,
+        issue.providerMessage ?? null,
+        issue.createdAt,
+        issue.updatedAt,
+      ],
+    )
+    return issueFromRow(result.rows[0]!)
+  }
+  issues.set(issue.id, issue)
+  return issue
 }
 
 export async function listNewsletterIssues(): Promise<NewsletterIssue[]> {
@@ -89,66 +107,142 @@ export async function listNewsletterIssues(): Promise<NewsletterIssue[]> {
     const result = await pool.query<IssueRow>(`SELECT * FROM nw_newsletter_issues ORDER BY created_at DESC LIMIT 100`)
     return result.rows.map(issueFromRow)
   }
-  return Array.from(issues.values()).sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
+  return Array.from(issues.values()).sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
 export async function listNewsletterSubscribers(): Promise<NewsletterSubscriber[]> {
-  const pool = await ensureSchema()
-  if (pool) {
-    const result = await pool.query<SubscriberRow>(`SELECT * FROM nw_newsletter_subscribers ORDER BY created_at DESC LIMIT 500`)
-    return result.rows.map(subscriberFromRow)
-  }
-  return Array.from(subscribers.values())
+  return listSubscribers(500)
 }
 
-export async function upsertNewsletterSubscriber(input: { email: unknown; source?: unknown }): Promise<NewsletterSubscriber | null> {
-  const email = cleanText(input.email, 200).toLowerCase()
-  if (!email.includes('@')) return null
-  const source = cleanText(input.source || 'admin', 80)
-  const pool = await ensureSchema()
-  if (pool) {
-    const result = await pool.query<SubscriberRow>(
-      `INSERT INTO nw_newsletter_subscribers (email, status, source)
-       VALUES ($1,'active',$2)
-       ON CONFLICT (email) DO UPDATE SET status = 'active', source = EXCLUDED.source
-       RETURNING *`,
-      [email, source],
-    )
-    return subscriberFromRow(result.rows[0]!)
-  }
-  const subscriber = { email, source, status: 'active' as const, createdAt: new Date().toISOString() }
-  subscribers.set(email, subscriber)
-  return subscriber
+export async function upsertNewsletterSubscriber(input: {
+  email: unknown
+  source?: unknown
+}): Promise<NewsletterSubscriber | null> {
+  return upsertConfirmedNewsletterSubscriber(input)
 }
 
-export async function createNewsletterIssue(input: { subject: unknown; body: unknown; segment?: unknown; sendNow?: boolean }): Promise<NewsletterIssue> {
+export async function createNewsletterIssue(input: {
+  subject: unknown
+  body: unknown
+  sendNow?: boolean
+}): Promise<NewsletterIssue> {
   const now = new Date().toISOString()
-  const providerReady = Boolean(process.env.RESEND_API_KEY || process.env.SMTP_HOST || process.env.NEWSLETTER_API_KEY)
-  const status: NewsletterIssueStatus = input.sendNow ? (providerReady ? 'queued' : 'queued') : 'draft'
+  const provider = getEmailProviderState()
   const issue: NewsletterIssue = {
     id: id(),
     subject: cleanText(input.subject, 180) || 'Nagarik Watch newsletter',
-    body: cleanMultiline(input.body, 12000),
-    segment: cleanText(input.segment || 'all', 80),
-    status,
+    body: cleanMultiline(input.body, 12_000),
+    segment: 'all',
+    status: input.sendNow ? (provider.ready ? 'queued' : 'failed') : 'draft',
     providerMessage: input.sendNow
-      ? providerReady
-        ? 'Queued for configured provider handoff.'
-        : 'Queued locally because no email provider is configured.'
+      ? provider.ready
+        ? `Queued for ${provider.provider}. Use “Process queue” to deliver it.`
+        : `Not queued: ${provider.detail}.`
       : undefined,
     createdAt: now,
     updatedAt: now,
   }
+  return saveIssue(issue)
+}
+
+async function queuedIssues(limit: number): Promise<NewsletterIssue[]> {
+  const safeLimit = Math.max(1, Math.min(limit, 5))
   const pool = await ensureSchema()
   if (pool) {
     const result = await pool.query<IssueRow>(
-      `INSERT INTO nw_newsletter_issues (id, subject, body, segment, status, provider_message)
-       VALUES ($1,$2,$3,$4,$5,$6)
-       RETURNING *`,
-      [issue.id, issue.subject, issue.body, issue.segment, issue.status, issue.providerMessage ?? null],
+      `SELECT * FROM nw_newsletter_issues
+       WHERE status = 'queued'
+       ORDER BY created_at ASC
+       LIMIT $1`,
+      [safeLimit],
     )
-    return issueFromRow(result.rows[0]!)
+    return result.rows.map(issueFromRow)
   }
-  issues.set(issue.id, issue)
-  return issue
+  return Array.from(issues.values())
+    .filter((issue) => issue.status === 'queued')
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .slice(0, safeLimit)
+}
+
+async function markIssue(
+  issue: NewsletterIssue,
+  status: NewsletterIssueStatus,
+  providerMessage: string,
+): Promise<NewsletterIssue> {
+  return saveIssue({ ...issue, status, providerMessage, updatedAt: new Date().toISOString() })
+}
+
+export type NewsletterProcessingResult = {
+  processed: number
+  delivered: number
+  failed: number
+  detail: string
+}
+
+/**
+ * Deliver a small-newsroom queue synchronously. This deliberately caps each run
+ * so an accidental large import cannot exhaust a serverless invocation. Re-run
+ * the action after splitting large audiences in a dedicated provider campaign.
+ */
+export async function processNewsletterQueue(maxIssues = 1): Promise<NewsletterProcessingResult> {
+  const provider = getEmailProviderState()
+  if (!provider.ready) {
+    return { processed: 0, delivered: 0, failed: 0, detail: provider.detail }
+  }
+
+  const queue = await queuedIssues(maxIssues)
+  if (!queue.length) {
+    return { processed: 0, delivered: 0, failed: 0, detail: 'No queued newsletter issue.' }
+  }
+
+  const confirmed = (await listSubscribers(500)).filter((subscriber) => subscriber.status === 'confirmed')
+  if (confirmed.length > MAX_DIRECT_RECIPIENTS) {
+    const message = `Direct delivery is limited to ${MAX_DIRECT_RECIPIENTS} confirmed subscribers per issue. Export or sync the audience to a campaign provider before sending to ${confirmed.length} subscribers.`
+    for (const issue of queue) await markIssue(issue, 'failed', message)
+    return { processed: queue.length, delivered: 0, failed: queue.length, detail: message }
+  }
+
+  let delivered = 0
+  let failed = 0
+
+  for (const issue of queue) {
+    await markIssue(issue, 'sending', `Sending through ${provider.provider}.`)
+    if (!confirmed.length) {
+      await markIssue(issue, 'failed', 'No confirmed subscribers. Nothing was sent.')
+      failed += 1
+      continue
+    }
+
+    const errors: string[] = []
+    for (const subscriber of confirmed) {
+      try {
+        await sendEmail({
+          to: subscriber.email,
+          subject: issue.subject,
+          text: issue.body,
+        })
+        delivered += 1
+      } catch (error) {
+        errors.push(`${subscriber.email}: ${error instanceof Error ? error.message : String(error)}`)
+      }
+    }
+
+    if (errors.length) {
+      failed += errors.length
+      await markIssue(
+        issue,
+        'failed',
+        `Delivered ${confirmed.length - errors.length}/${confirmed.length}. ${errors.slice(0, 2).join(' | ')}`,
+      )
+    } else {
+      await markIssue(issue, 'sent', `Delivered to ${confirmed.length} confirmed subscriber(s) through ${provider.provider}.`)
+    }
+  }
+
+  return {
+    processed: queue.length,
+    delivered,
+    failed,
+    detail: `Processed ${queue.length} issue(s); delivered ${delivered}; failures ${failed}.`,
+  }
 }

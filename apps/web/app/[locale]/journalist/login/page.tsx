@@ -33,7 +33,7 @@ export default async function JournalistLoginPage({ params }: { params: Promise<
               ? 'पत्रकार, योगदानकर्ता र सम्पादकीय सहयोगीले यहाँबाट आफ्ना ड्राफ्ट लेख्छन्, पेश गर्छन् र प्रोफाइल हेर्छन्। प्रणाली सेटिङ र प्रयोगकर्ता व्यवस्थापन admin panel मै रहन्छ।'
               : 'Journalists, contributors and editorial staff write drafts, submit stories and check their profile here. System settings and user management remain in the admin panel.'}
           </p>
-          <Link href={localizeHref(locale, '/login')} className="mt-6 inline-flex text-meta font-semibold text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline">
+          <Link href={localizeHref(locale, '/auth/login')} className="mt-6 inline-flex text-meta font-semibold text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline">
             {ne ? 'पाठक लगइन चाहिएको हो?' : 'Looking for reader login?'}
           </Link>
         </section>
