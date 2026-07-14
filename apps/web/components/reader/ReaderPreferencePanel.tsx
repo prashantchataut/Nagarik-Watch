@@ -5,7 +5,6 @@ import type { Author, Category, Locale, Tag } from '@nagarikwatch/db'
 import Link from 'next/link'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
 import {
-  READER_PREFERENCES_EVENT,
   readLocalReaderPreferences,
   writeLocalReaderPreferences,
 } from '@/lib/reader/preferences'

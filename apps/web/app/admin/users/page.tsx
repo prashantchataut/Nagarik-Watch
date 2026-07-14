@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import { NEWSROOM_ROLES, NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
+import { NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
 import {
   createNewsroomInvite,
   listNewsroomInvites,

@@ -257,7 +257,7 @@ async function showNotification(item: AlertItem, locale: Locale) {
 }
 
 
-function decodeVapidKey(value: string): Uint8Array {
+function decodeVapidKey(value: string): BufferSource {
   const padding = '='.repeat((4 - value.length % 4) % 4)
   const base64 = (value + padding).replace(/-/g, '+').replace(/_/g, '/')
   const raw = atob(base64)

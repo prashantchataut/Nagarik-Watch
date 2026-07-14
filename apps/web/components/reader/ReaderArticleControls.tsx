@@ -85,7 +85,7 @@ export function ReaderArticleControls({
         articleId: story.id,
         slug: story.slug,
         categorySlug: story.category.slug,
-        tagSlugs: story.tags?.map((tag) => typeof tag === 'string' ? tag : tag.slug) ?? [],
+        tagSlugs: story.tags?.map((tag) => tag.slug) ?? [],
         authorSlugs: story.authors.map((author) => author.slug),
         title,
         href,

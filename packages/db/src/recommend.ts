@@ -21,7 +21,7 @@ export type RecommendableStory = Pick<
   | 'isBreaking'
   | 'authors'
 > & {
-  tags?: string[]
+  tags?: Array<string | { slug: string }>
   province?: string
   doNotRecommend?: boolean
   sponsored?: boolean
@@ -77,7 +77,10 @@ export function storyTerms(story: RecommendableStory): Map<string, number> {
   for (const term of tokenize(story.category.nameNe)) bump(term, 2)
   for (const term of tokenize(story.category.nameEn)) bump(term, 2)
   bump(`cat:${story.category.slug}`, 5)
-  for (const tag of story.tags ?? []) bump(`tag:${tag}`, 4)
+  for (const tag of story.tags ?? []) {
+    const slug = typeof tag === 'string' ? tag : tag.slug
+    bump(`tag:${slug}`, 4)
+  }
   if (story.province) bump(`prov:${story.province}`, 3)
   for (const author of story.authors) bump(`author:${author.slug}`, 4)
   return terms

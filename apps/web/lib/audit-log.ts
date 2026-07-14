@@ -12,6 +12,8 @@ export type AuditAction =
   | 'login'
   | 'role_change'
   | 'settings_change'
+  | 'status_change'
+  | 'revoke'
   | 'manual_live_update'
   | 'ad_change'
   | 'newsletter_queue'

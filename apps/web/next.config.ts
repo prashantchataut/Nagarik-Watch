@@ -45,12 +45,13 @@ const configuredPatterns = [
   .map(configuredRemotePattern)
   .filter((pattern): pattern is RemotePattern => pattern !== null)
 
-const remotePatterns: RemotePattern[] = [
+const staticPatterns: RemotePattern[] = [
   { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
   { protocol: 'https', hostname: 'picsum.photos', pathname: '/**' },
   { protocol: 'https', hostname: 'fastly.picsum.photos', pathname: '/**' },
-  ...configuredPatterns,
-].filter(
+]
+
+const remotePatterns: RemotePattern[] = [...staticPatterns, ...configuredPatterns].filter(
   (pattern, index, all) =>
     all.findIndex(
       (candidate) =>

@@ -42,7 +42,7 @@ export function buildAffinity(
     if (!story) continue
     bump(categories, story.category.slug, 4)
     story.authors.forEach((author) => bump(authors, author.slug, 4))
-    story.tags?.forEach((tag) => bump(topics, typeof tag === 'string' ? tag : tag.slug, 3))
+    story.tags?.forEach((tag) => bump(topics, tag.slug, 3))
   }
   for (const item of history) {
     const story = byId.get(item.articleId)
@@ -50,7 +50,7 @@ export function buildAffinity(
     bump(categories, story?.category.slug ?? item.categorySlug, completionWeight)
     if (story) story.authors.forEach((author) => bump(authors, author.slug, completionWeight))
     else item.authorSlugs?.forEach((slug) => bump(authors, slug, completionWeight))
-    if (story) story.tags?.forEach((tag) => bump(topics, typeof tag === 'string' ? tag : tag.slug, completionWeight))
+    if (story) story.tags?.forEach((tag) => bump(topics, tag.slug, completionWeight))
     else item.tagSlugs?.forEach((slug) => bump(topics, slug, completionWeight))
   }
   preferences?.categories.forEach((slug) => bump(categories, slug, 5))
@@ -71,9 +71,6 @@ function toProfile(
         id: `bookmark:${item.articleId}`,
         userId,
         articleId: item.articleId,
-        categorySlug: item.categorySlug,
-        tagSlugs: item.tagSlugs,
-        authorSlugs: item.authorSlugs,
         createdAt: item.savedAt,
       }),
     ),

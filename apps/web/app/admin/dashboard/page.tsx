@@ -217,7 +217,7 @@ export default async function DashboardPage() {
                     className={`rounded-full px-2 py-0.5 font-semibold ${
                       p.status === 'ok'
                         ? 'bg-brand-tint text-brand-strong'
-                        : p.status === 'mock'
+                        : p.status === 'empty' || p.status === 'unconfigured'
                           ? 'bg-brand-tint/50 text-ink-soft'
                           : 'border border-rule text-mute'
                     }`}

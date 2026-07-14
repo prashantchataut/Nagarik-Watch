@@ -65,6 +65,8 @@ export interface StoryCardData {
   heroImage?: MediaRef
   byline: string
   authors: AuthorRef[]
+  /** Optional topic tags when available on list/card projections. */
+  tags?: Tag[]
   publishedAt: string
   /** True only when englishStatus === 'published' AND English fields exist (ADR-007). */
   hasEnglish: boolean

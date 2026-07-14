@@ -113,13 +113,15 @@ export async function GET(request: NextRequest) {
       sent24h: 0,
     }, inboxPolicy)
     if (!scored.willSend) return []
+    const reason: PublicAlert['reason'] =
+      kind === 'breaking' ? 'breaking' : kind === 'daily_digest' ? 'digest' : 'follow'
     return [{
       id: event.id,
       title: locale === 'en' && event.titleEn ? event.titleEn : event.titleNe,
       url: `${prefix}/${event.categorySlug}/${event.articleSlug}`,
       publishedAt: event.publishedAt,
       kind,
-      reason: kind === 'breaking' ? 'breaking' : kind === 'daily_digest' ? 'digest' : 'follow',
+      reason,
       score: Math.round(scored.score * 10) / 10,
       seen: Boolean(receipt?.seenAt),
       read: Boolean(receipt?.readAt),

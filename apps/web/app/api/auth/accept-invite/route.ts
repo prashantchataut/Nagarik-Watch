@@ -1,8 +1,9 @@
+import { type NextRequest } from 'next/server'
 import { getSession } from '@/lib/auth/session'
 import { acceptNewsroomInvite } from '@/lib/newsroom-users'
-import { isTrustedWriteRequest } from '@/lib/request-security'
+import { isTrustedWriteRequest } from '@/lib/security/origin'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   if (!isTrustedWriteRequest(request)) {
     return Response.json({ error: 'Untrusted request origin.' }, { status: 403 })
   }
