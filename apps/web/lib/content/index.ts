@@ -18,11 +18,15 @@ function selectedSource(): 'payload' | 'json' {
 
 async function resolveSource(): Promise<ContentSource> {
   const selected = selectedSource()
-  if (process.env.NODE_ENV === 'production' && selected !== 'payload') {
+  const isProductionBuild = process.env.NEXT_PHASE === 'phase-production-build'
+
+  // Runtime production must use Payload. During `next build`, fall back to the
+  // JSON store so static generation (sitemap, etc.) can finish without a live DB.
+  if (process.env.NODE_ENV === 'production' && selected !== 'payload' && !isProductionBuild) {
     throw new Error('Production requires CONTENT_SOURCE=payload and a reachable Payload database.')
   }
 
-  if (selected === 'payload') {
+  if (selected === 'payload' && !isProductionBuild) {
     const { createPayloadContentSource } = await import('./payload-source')
     return createPayloadContentSource()
   }

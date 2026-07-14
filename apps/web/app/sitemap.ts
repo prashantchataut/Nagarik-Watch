@@ -13,6 +13,9 @@ import { SITE_URL, STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
 const LOCALES = ['ne', 'en'] as const
 type SLocale = (typeof LOCALES)[number]
 
+/** Refresh discovery URLs periodically once Payload is the live source. */
+export const revalidate = 3600
+
 function prefix(locale: SLocale): string {
   return locale === 'en' ? '/en' : ''
 }

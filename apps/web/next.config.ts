@@ -68,6 +68,11 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
     remotePatterns,
   },
+  eslint: {
+    // Root flat config is validated in CI via `pnpm lint`; do not fail
+    // production builds when the lint plugin cannot resolve shared packages.
+    ignoreDuringBuilds: true,
+  },
   async headers() {
     return [
       {
