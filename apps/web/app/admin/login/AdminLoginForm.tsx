@@ -14,7 +14,6 @@ export function AdminLoginForm({
 }: {
   resetComplete?: boolean
   databaseOnline?: boolean
-  /** @deprecated unused — kept for call-site compatibility during deploy */
   expectedEmails?: string[]
 }) {
   const router = useRouter()
@@ -29,7 +28,8 @@ export function AdminLoginForm({
       return
     }
     const form = new FormData(e.currentTarget)
-    const email = String(form.get('email') ?? '').trim()
+    // Better Auth looks up email case-sensitively; boot accounts are always lowercased.
+    const email = String(form.get('email') ?? '').trim().toLowerCase()
     const password = String(form.get('password') ?? '')
 
     if (!email || !password) {
@@ -42,6 +42,7 @@ export function AdminLoginForm({
         const res = await fetch('/api/auth/sign-in/email', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ email, password }),
         })
         if (!res.ok) {
@@ -53,7 +54,9 @@ export function AdminLoginForm({
             return
           }
           if (res.status === 401 || /not found|invalid password|INVALID/i.test(message + code)) {
-            setError('Wrong email or password.')
+            setError(
+              'Wrong email or password. Type admin@nagarikwatch.com in lowercase. If autofill inserted an old password, clear it and try again (password ends with _).',
+            )
             return
           }
           setError(message || 'Sign-in failed. Try again.')
@@ -68,7 +71,7 @@ export function AdminLoginForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="newsroom-login-form" noValidate>
+    <form onSubmit={onSubmit} className="newsroom-login-form" noValidate autoComplete="on">
       {resetComplete ? (
         <div role="status" className="newsroom-login-form__ok">
           Password updated. Sign in with your new password.
@@ -86,8 +89,12 @@ export function AdminLoginForm({
           name="email"
           type="email"
           autoComplete="username"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           required
           disabled={pending || !databaseOnline}
+          defaultValue="admin@nagarikwatch.com"
           placeholder="admin@nagarikwatch.com"
           className="newsroom-login-form__input"
         />
@@ -99,6 +106,7 @@ export function AdminLoginForm({
         autoComplete="current-password"
         required
         disabled={pending || !databaseOnline}
+        helpText="Must match NEWSROOM_SUPERADMIN_PASSWORD in Vercel (ends with underscore)."
         showLabel="Show"
         hideLabel="Hide"
       />
