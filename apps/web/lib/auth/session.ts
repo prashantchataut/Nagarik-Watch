@@ -14,6 +14,7 @@
  * provisioned via env. See `lib/admin-roles.ts` for the role list.
  */
 import 'server-only'
+import { cache } from 'react'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Kysely } from 'kysely'
@@ -56,7 +57,11 @@ const NEWSROOM_ROLES: ReadonlySet<NewsroomRole> = new Set<NewsroomRole>([
   'super_admin',
 ])
 
-export async function getSession(): Promise<ReaderSession | null> {
+/**
+ * Request-scoped cached session read. Layout + page can both call this without
+ * doubling Better Auth / cookie work on the same navigation.
+ */
+export const getSession = cache(async (): Promise<ReaderSession | null> => {
   try {
     const auth = await getAuth()
     const session = await auth.api.getSession({ headers: await headers() })
@@ -81,14 +86,14 @@ export async function getSession(): Promise<ReaderSession | null> {
   } catch {
     return null
   }
-}
+})
 
-export async function getNewsroomSession(): Promise<NewsroomSession | null> {
+export const getNewsroomSession = cache(async (): Promise<NewsroomSession | null> => {
   const session = await getSession()
   if (!session) return null
   if (!NEWSROOM_ROLES.has(session.role as NewsroomRole)) return null
   return { ...session, newsroomRole: session.role as NewsroomRole }
-}
+})
 
 export async function requireNewsroomSession(): Promise<NewsroomSession> {
   const session = await getNewsroomSession()
@@ -102,7 +107,7 @@ export async function requireNewsroomSession(): Promise<NewsroomSession> {
  * staff; this helper is the backing call.
  *
  * Writes directly to Better Auth's `user` table via the same Kysely dialect
- * the auth instance uses — no admin plugin needed, no extra dependency. The
+ * the auth instance uses — no admin plugin needed, no Extra Dependency. The
  * `role` column is an additionalField declared in lib/auth/index.ts.
  *
  * Returns true if a row was updated, false if the user wasn't found or the
@@ -110,8 +115,6 @@ export async function requireNewsroomSession(): Promise<NewsroomSession> {
  * — this function does not re-check permissions.
  */
 export async function elevateUserToRole(email: string, role: string): Promise<boolean> {
-  // Reader is a valid role on the const but is NOT a newsroom role; reject it
-  // here so a UI bug can't silently demote a staffer out of the newsroom.
   const newsroomRoles: ReadonlySet<string> = new Set([
     'viewer',
     'contributor',
@@ -138,9 +141,6 @@ export async function elevateUserToRole(email: string, role: string): Promise<bo
 
   try {
     const dialect = await createDialect()
-    // The user table is Better Auth-managed; we only touch the columns we
-    // need, so type the table loosely rather than mirror Better Auth's full
-    // schema. This keeps the query compiling without a dedicated types pkg.
     const db = new Kysely<{ user: Record<string, unknown> }>({ dialect })
     const result = await db
       .updateTable('user')

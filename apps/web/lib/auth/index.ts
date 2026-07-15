@@ -229,13 +229,18 @@ async function buildAuth(): Promise<AuthInstance> {
     },
   }) as unknown as AuthInstance
 
-  if (process.env.AUTH_AUTO_MIGRATE !== 'false') {
+  if (process.env.AUTH_AUTO_MIGRATE === 'true' || (process.env.NODE_ENV !== 'production' && process.env.AUTH_AUTO_MIGRATE !== 'false')) {
     const { getMigrations } = await import('better-auth/db/migration')
     const { runMigrations } = await getMigrations(auth.options)
     await runMigrations()
   }
 
-  await ensureNewsroomBootAccounts(auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0])
+  // Repair boot accounts after the response path — never block sign-in on cold start.
+  after(() =>
+    ensureNewsroomBootAccounts(auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0]).catch(
+      (error) => console.error('[auth] background boot provision failed', error),
+    ),
+  )
   return auth
 }
 

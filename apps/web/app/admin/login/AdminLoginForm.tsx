@@ -62,8 +62,7 @@ export function AdminLoginForm({
           setError(message || 'Sign-in failed. Try again.')
           return
         }
-        router.refresh()
-        router.push('/admin/dashboard')
+        router.replace('/admin/dashboard')
       } catch {
         setError('Network error. Please try again.')
       }

@@ -58,11 +58,13 @@ export default async function ArticlesPage({
         <FilterLink href="/admin/articles" active={!status}>
           सबै
         </FilterLink>
-        {Object.entries(STAGE_LABELS).map(([key, label]) => (
-          <FilterLink key={key} href={`/admin/articles?status=${key}`} active={status === key}>
-            {label}
-          </FilterLink>
-        ))}
+        {(['draft', 'submitted', 'ready', 'scheduled', 'published', 'updated', 'archived'] as const).map(
+          (key) => (
+            <FilterLink key={key} href={`/admin/articles?status=${key}`} active={status === key}>
+              {STAGE_LABELS[key]}
+            </FilterLink>
+          ),
+        )}
       </div>
 
       <AdminCard>

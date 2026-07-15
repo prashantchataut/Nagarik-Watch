@@ -180,7 +180,11 @@
 
 /* Newsroom product register. Flat, information-dense, and built for long editorial shifts. */
 @layer components {
-  .admin-shell-surface { background: oklch(0.972 0.008 28); }
+  .admin-shell-surface {
+    background:
+      linear-gradient(180deg, color-mix(in oklch, var(--brand-tint) 35%, transparent), transparent 12rem),
+      var(--surface);
+  }
   .admin-panel { border: 1px solid var(--rule); background: var(--surface-raised); border-radius: 0.65rem; padding: 1.25rem; }
   .admin-page-header { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.75rem; padding-bottom: 1.15rem; border-bottom: 1px solid var(--rule); }
   .admin-eyebrow { color: var(--brand-strong); font-size: .74rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }

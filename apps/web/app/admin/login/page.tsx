@@ -5,7 +5,6 @@ import { getAuth } from '@/lib/auth'
 import { getNewsroomSession } from '@/lib/auth/session'
 import { getBootLoginHint } from '@/lib/auth/boot-accounts'
 import { Logo } from '@/components/Logo'
-import { probeDatabase } from '@/lib/db-url'
 import { AdminLoginForm } from './AdminLoginForm'
 
 export const metadata: Metadata = {
@@ -20,19 +19,20 @@ export default async function AdminLoginPage({
 }: {
   searchParams: Promise<{ reset?: string }>
 }) {
-  await getAuth().catch((error) => {
-    console.error('[admin/login] getAuth failed', error)
-    return null
-  })
-  const [session, query, database, boot] = await Promise.all([
+  // Warm auth dialect without blocking the form on boot-account repair.
+  const authReady = await getAuth()
+    .then(() => true)
+    .catch((error) => {
+      console.error('[admin/login] getAuth failed', error)
+      return false
+    })
+
+  const [session, query, boot] = await Promise.all([
     getNewsroomSession(),
     searchParams,
-    probeDatabase(),
     getBootLoginHint(),
   ])
   if (session) redirect('/admin/dashboard')
-
-  const bootReady = boot.configured && boot.provisionedCount > 0
 
   return (
     <main className="staff-gate" lang="en">
@@ -46,23 +46,25 @@ export default async function AdminLoginPage({
           <p>Editors and admins only.</p>
         </header>
 
-        {!database.ok ? (
+        {!authReady ? (
           <aside className="newsroom-login-form__error" role="status">
-            <strong>Database offline.</strong>
-            <span style={{ display: 'block', marginTop: '0.35rem' }}>{database.detail}</span>
-          </aside>
-        ) : null}
-
-        {database.ok && boot.configured && !bootReady ? (
-          <aside className="newsroom-login-form__error" role="status">
-            <strong>Preparing staff account…</strong>
+            <strong>Auth offline.</strong>
             <span style={{ display: 'block', marginTop: '0.35rem' }}>
-              Refresh this page once, then try again.
+              Check DATABASE_URL and try again.
             </span>
           </aside>
         ) : null}
 
-        <AdminLoginForm resetComplete={query.reset === 'success'} databaseOnline={database.ok} />
+        {authReady && boot.lastError ? (
+          <aside className="newsroom-login-form__error" role="status" style={{ opacity: 0.9 }}>
+            <strong>Account repair pending.</strong>
+            <span style={{ display: 'block', marginTop: '0.35rem' }}>
+              If sign-in fails once, wait a few seconds and retry.
+            </span>
+          </aside>
+        ) : null}
+
+        <AdminLoginForm resetComplete={query.reset === 'success'} databaseOnline={authReady} />
 
         <p className="staff-gate__footer">
           <Link href="/">← Home</Link>

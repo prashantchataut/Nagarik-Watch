@@ -1,10 +1,9 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { usePathname } from 'next/navigation'
-import { useState, useTransition, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState, useTransition } from 'react'
 import type { NewsroomSession } from '@/lib/auth/session'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import {
@@ -27,21 +26,6 @@ type NavItem = {
   roles?: ReadonlySet<NewsroomRole>
 }
 
-/**
- * Newsroom admin shell. Three-zone layout modelled on national-grade CMS
- * dashboards (Payload, Ghost, Pico):
- *   - Left sidebar: brand mark + collapsible nav grouped by function.
- *   - Top bar: page title, search, user menu (profile, sign out).
- *   - Main: the page content.
- *
- * The sidebar is fixed on desktop (lg+) and a slide-over drawer on mobile.
- * Active nav item gets a brand-tint pill; the rest are quiet text links.
- *
- * Role gating: each nav item can declare which roles see it. A journalist
- * never sees the Users or Ads sections; an ad manager never sees Editorial.
- * The server-side session check is the real gate; this is defence-in-depth.
- */
-
 const PAYLOAD_CONTENT_PATHS: Record<string, string> = {
   '/admin/articles': '/collections/articles',
   '/admin/articles/new': '/collections/articles/create',
@@ -51,13 +35,17 @@ const PAYLOAD_CONTENT_PATHS: Record<string, string> = {
   '/admin/authors': '/collections/authors',
 }
 
-const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<NewsroomRole> }[] = [
+const PRIMARY_NAV: NavItem[] = [
+  { label: 'ड्यासबोर्ड', href: '/admin/dashboard', icon: 'dashboard' },
+  { label: 'समाचार', href: '/admin/articles', icon: 'article' },
+  { label: 'नयाँ समाचार', href: '/admin/articles/new', icon: 'plus' },
+]
+
+const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<NewsroomRole>; defaultOpen?: boolean }[] = [
   {
     heading: 'सम्पादन',
+    defaultOpen: true,
     items: [
-      { label: 'ड्यासबोर्ड', href: '/admin/dashboard', icon: 'dashboard' },
-      { label: 'समाचार', href: '/admin/articles', icon: 'article' },
-      { label: 'नयाँ समाचार', href: '/admin/articles/new', icon: 'plus' },
       { label: 'मिडिया', href: '/admin/media', icon: 'media', roles: MEDIA_MANAGER_ROLES },
       { label: 'लाइभ ब्लग', href: '/admin/live-blogs', icon: 'live', roles: EDITOR_ROLES },
     ],
@@ -84,7 +72,7 @@ const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<Newsr
     ],
   },
   {
-    heading: 'प्रकाशक / एडमिन',
+    heading: 'प्रकाशक',
     roles: new Set<NewsroomRole>(['publisher', 'admin', 'super_admin', 'managing_editor', 'editor_in_chief']),
     items: [
       { label: 'लाइभ प्यानल', href: '/admin/live', icon: 'signal' },
@@ -108,6 +96,12 @@ const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<Newsr
   },
 ]
 
+function isActivePath(pathname: string, href: string) {
+  if (pathname === href) return true
+  if (href === '/admin/dashboard') return false
+  return pathname.startsWith(href + '/')
+}
+
 export function AdminShell({
   session,
   pathname: initialPathname,
@@ -123,6 +117,7 @@ export function AdminShell({
   const router = useRouter()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [signingOut, startSignOut] = useTransition()
+  const [navPending, startNav] = useTransition()
   const [signOutError, setSignOutError] = useState<string | null>(null)
 
   const role = session.newsroomRole
@@ -133,26 +128,25 @@ export function AdminShell({
     .map((s) => s.charAt(0).toUpperCase())
     .join('')
 
-  function signOut() {
-    setSignOutError(null)
-    startSignOut(async () => {
-      try {
-        const response = await signOutRequest()
-        if (!response.ok) throw new Error(`Sign-out failed: ${response.status}`)
-        router.refresh()
-        router.push('/admin/login')
-      } catch {
-        setSignOutError('साइन आउट गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।')
-      }
-    })
-  }
-
   const visibleGroups = NAV_GROUPS.filter((g) => !g.roles || g.roles.has(role))
     .map((g) => ({
       ...g,
       items: g.items.filter((item) => !item.roles || item.roles.has(role)),
     }))
     .filter((g) => g.items.length > 0)
+
+  function signOut() {
+    setSignOutError(null)
+    startSignOut(async () => {
+      try {
+        const response = await signOutRequest()
+        if (!response.ok) throw new Error(`Sign-out failed: ${response.status}`)
+        router.replace('/admin/login')
+      } catch {
+        setSignOutError('साइन आउट गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।')
+      }
+    })
+  }
 
   useEffect(() => {
     if (!drawerOpen) return
@@ -168,72 +162,210 @@ export function AdminShell({
     }
   }, [drawerOpen])
 
-  const sidebar = (
-    <aside className="flex h-full w-[17.5rem] flex-col border-r border-rule bg-surface-raised">
-      <div className="flex h-16 items-center gap-2.5 border-b border-rule px-5">
-        <Link href="/admin/dashboard" className="flex items-center gap-2.5">
-          <LogoMark title="नागरिक वाच / Nagarik Watch" className="h-9 w-9" />
-          <div className="flex flex-col leading-none">
-            <span className="font-display text-body font-bold text-ink" lang="ne">
+  function resolveHref(href: string) {
+    const payloadPath = contentAdminUrl ? PAYLOAD_CONTENT_PATHS[href] : undefined
+    return {
+      href: payloadPath ? `${contentAdminUrl}${payloadPath}` : href,
+      external: Boolean(payloadPath),
+    }
+  }
+
+  const sidebarProps = {
+    clientPath,
+    initials,
+    roleLabel,
+    session,
+    visibleGroups,
+    signingOut,
+    signOut,
+    resolveHref,
+    onNavigate: () => setDrawerOpen(false),
+    startNav,
+  }
+
+  return (
+    <div className="admin-shell-surface flex min-h-screen bg-surface">
+      <div className="hidden lg:block lg:sticky lg:top-0 lg:h-screen">
+        <AdminSidebar {...sidebarProps} />
+      </div>
+
+      {drawerOpen ? (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-ink/45"
+            aria-label="मेनु बन्द"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <div className="absolute left-0 top-0 h-full shadow-overlay">
+            <AdminSidebar {...sidebarProps} />
+          </div>
+        </div>
+      ) : null}
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-rule bg-surface-raised/95 px-3 backdrop-blur sm:px-5 lg:px-7">
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md text-ink-soft hover:bg-brand-tint hover:text-brand-strong lg:hidden"
+            aria-label="मेनु खोल्नुहोस्"
+          >
+            <NavIcon name="menu" />
+          </button>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate font-display text-h2 text-ink" lang="ne">
+              {pageTitle(clientPath)}
+            </h1>
+            {navPending ? (
+              <p className="text-caption text-mute" lang="ne">
+                लोड हुँदै…
+              </p>
+            ) : null}
+          </div>
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden items-center gap-1.5 rounded-md border border-rule px-3 py-1.5 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong sm:inline-flex"
+            lang="ne"
+          >
+            <NavIcon name="external" />
+            साइट
+          </a>
+        </header>
+
+        {signOutError ? (
+          <p
+            role="alert"
+            className="mx-3 mt-3 rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong sm:mx-5 lg:mx-7"
+            lang="ne"
+          >
+            {signOutError}
+          </p>
+        ) : null}
+
+        <main className="flex-1 overflow-x-auto p-3 sm:p-5 lg:p-7">{children}</main>
+      </div>
+    </div>
+  )
+}
+
+function AdminSidebar({
+  clientPath,
+  initials,
+  roleLabel,
+  session,
+  visibleGroups,
+  signingOut,
+  signOut,
+  resolveHref,
+  onNavigate,
+  startNav,
+}: {
+  clientPath: string
+  initials: string
+  roleLabel: string
+  session: NewsroomSession
+  visibleGroups: { heading: string; items: NavItem[]; defaultOpen?: boolean }[]
+  signingOut: boolean
+  signOut: () => void
+  resolveHref: (href: string) => { href: string; external: boolean }
+  onNavigate: () => void
+  startNav: (cb: () => void) => void
+}) {
+  return (
+    <aside className="flex h-full w-[16.5rem] flex-col border-r border-rule bg-surface-raised">
+      <div className="flex h-14 items-center gap-2.5 border-b border-rule px-4">
+        <Link href="/admin/dashboard" onClick={onNavigate} className="flex min-w-0 items-center gap-2.5">
+          <LogoMark title="नागरिक वाच / Nagarik Watch" className="h-8 w-8 shrink-0" />
+          <div className="min-w-0 leading-tight">
+            <span className="block truncate font-display text-meta font-bold text-ink" lang="ne">
               नागरिक वाच
             </span>
-            <span className="text-caption text-mute" lang="en">
+            <span className="block text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-brand-strong">
               Newsroom
             </span>
           </div>
         </Link>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Newsroom navigation">
+      <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Newsroom navigation">
+        <ul className="space-y-0.5">
+          {PRIMARY_NAV.map((item) => {
+            const { href, external } = resolveHref(item.href)
+            const active = !external && isActivePath(clientPath, item.href)
+            return (
+              <li key={item.href}>
+                <Link
+                  href={href}
+                  prefetch={!external}
+                  target={external ? '_blank' : undefined}
+                  rel={external ? 'noopener noreferrer' : undefined}
+                  onClick={() => {
+                    onNavigate()
+                    if (!external) startNav(() => undefined)
+                  }}
+                  className={
+                    active
+                      ? 'flex min-h-9 items-center gap-2.5 border-l-2 border-brand bg-brand-tint px-2.5 py-1.5 text-meta font-bold text-brand-strong'
+                      : 'flex min-h-9 items-center gap-2.5 border-l-2 border-transparent px-2.5 py-1.5 text-meta font-medium text-ink-soft hover:bg-surface hover:text-ink'
+                  }
+                  lang="ne"
+                >
+                  <NavIcon name={item.icon} />
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+
         {visibleGroups.map((group) => (
-          <div key={group.heading} className="mb-5">
-            <p
-              className="px-3 pb-2 text-caption font-semibold uppercase tracking-wide text-mute"
-              lang="ne"
-            >
-              {group.heading}
-            </p>
-            <ul className="space-y-0.5">
+          <details key={group.heading} className="mt-3 group/nav" open={group.defaultOpen || group.items.some((i) => isActivePath(clientPath, i.href))}>
+            <summary className="cursor-pointer list-none px-2.5 py-1.5 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-mute [&::-webkit-details-marker]:hidden">
+              <span className="inline-flex items-center gap-1" lang="ne">
+                {group.heading}
+                <span className="text-mute group-open/nav:rotate-90 transition-transform">›</span>
+              </span>
+            </summary>
+            <ul className="mt-0.5 space-y-0.5">
               {group.items.map((item) => {
-                const payloadPath = contentAdminUrl ? PAYLOAD_CONTENT_PATHS[item.href] : undefined
-                const href = payloadPath ? `${contentAdminUrl}${payloadPath}` : item.href
-                const external = Boolean(payloadPath)
-                const active =
-                  !external &&
-                  (clientPath === item.href ||
-                    (clientPath.startsWith(item.href + '/') && item.href !== '/admin/dashboard'))
+                const { href, external } = resolveHref(item.href)
+                const active = !external && isActivePath(clientPath, item.href)
                 return (
                   <li key={item.href}>
                     <Link
                       href={href}
+                      prefetch={!external}
                       target={external ? '_blank' : undefined}
                       rel={external ? 'noopener noreferrer' : undefined}
-                      onClick={() => setDrawerOpen(false)}
+                      onClick={() => {
+                        onNavigate()
+                        if (!external) startNav(() => undefined)
+                      }}
                       className={
                         active
-                          ? 'flex min-h-10 items-center gap-3 rounded-md bg-brand-tint px-3 py-2 text-meta font-bold text-brand-strong'
-                          : 'flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-meta font-medium text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-surface hover:text-ink'
+                          ? 'flex min-h-9 items-center gap-2.5 border-l-2 border-brand bg-brand-tint px-2.5 py-1.5 text-meta font-bold text-brand-strong'
+                          : 'flex min-h-9 items-center gap-2.5 border-l-2 border-transparent px-2.5 py-1.5 text-meta font-medium text-ink-soft hover:bg-surface hover:text-ink'
                       }
                       lang="ne"
                     >
                       <NavIcon name={item.icon} />
-                      <span className="min-w-0 flex-1">{item.label}</span>
+                      <span className="min-w-0 flex-1 truncate">{item.label}</span>
                       {external ? <span aria-hidden="true">↗</span> : null}
                     </Link>
                   </li>
                 )
               })}
             </ul>
-          </div>
+          </details>
         ))}
       </nav>
 
       <div className="border-t border-rule p-3">
-        <div className="flex items-center gap-3 rounded-md px-2 py-2">
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand text-meta font-bold text-surface"
-            aria-hidden="true"
-          >
+        <div className="flex items-start gap-2.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand text-meta font-bold text-surface">
             {initials || 'N'}
           </span>
           <div className="min-w-0 flex-1">
@@ -243,104 +375,52 @@ export function AdminShell({
             <p className="truncate text-caption text-mute" lang="ne">
               {roleLabel}
             </p>
+            <button
+              type="button"
+              onClick={signOut}
+              disabled={signingOut}
+              className="mt-2 inline-flex min-h-8 items-center rounded-md border border-rule px-2.5 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong disabled:opacity-50"
+              lang="ne"
+            >
+              {signingOut ? 'साइन आउट…' : 'साइन आउट'}
+            </button>
           </div>
-          <button
-            onClick={signOut}
-            disabled={signingOut}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-50"
-            aria-label="साइन आउट"
-            title="साइन आउट"
-          >
-            <NavIcon name="logout" />
-          </button>
         </div>
       </div>
     </aside>
-  )
-
-  return (
-    <div className="admin-shell-surface flex min-h-screen">
-      {/* Desktop sidebar — fixed width, hidden on mobile. */}
-      <div className="hidden lg:block lg:sticky lg:top-0 lg:h-screen">{sidebar}</div>
-
-      {/* Mobile drawer */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-ink/40"
-            onClick={() => setDrawerOpen(false)}
-            aria-hidden="true"
-          />
-          <div className="absolute left-0 top-0 h-full">{sidebar}</div>
-        </div>
-      )}
-
-      {/* Main column */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-rule bg-surface-raised px-4 lg:px-7">
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-ink-soft hover:bg-brand-tint hover:text-brand-strong lg:hidden"
-            aria-label="मेनु खोल्नुहोस्"
-          >
-            <NavIcon name="menu" />
-          </button>
-          <h1 className="flex-1 truncate font-display text-h2 text-ink" lang="ne">
-            {pageTitle(clientPath)}
-          </h1>
-          <a
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden items-center gap-1.5 rounded-md border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong sm:inline-flex"
-            lang="ne"
-          >
-            <NavIcon name="external" />
-            साइट हेर्नुहोस्
-          </a>
-        </header>
-
-        {signOutError ? (
-          <p role="alert" className="mx-4 mt-4 rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong sm:mx-6 lg:mx-8" lang="ne">
-            {signOutError}
-          </p>
-        ) : null}
-        <main className="flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-8">{children}</main>
-      </div>
-    </div>
   )
 }
 
 function pageTitle(pathname: string): string {
   const map: Record<string, string> = {
-    '/admin/dashboard': 'ड्यासबोर्ड',
-    '/admin/articles': 'समाचार',
-    '/admin/articles/new': 'नयाँ समाचार',
-    '/admin/media': 'मिडिया',
-    '/admin/categories': 'विभाग',
-    '/admin/tags': 'ट्याग',
-    '/admin/topics': 'विषय',
-    '/admin/provinces': 'प्रदेश',
-    '/admin/authors': 'लेखक',
-    '/admin/journalists': 'पत्रकार workspace',
-    '/admin/comments': 'टिप्पणी',
-    '/admin/contact': 'सम्पर्क सन्देश',
-    '/admin/submissions': 'टिप',
-    '/admin/polls': 'मतदान',
-    '/admin/newsletter': 'न्युजलेटर',
-    '/admin/live-blogs': 'लाइभ ब्लग',
-    '/admin/wire': 'वायर र RSS',
-    '/admin/live': 'लाइभ प्यानल',
-    '/admin/algorithms': 'एल्गोरिदम',
-    '/admin/live-widgets': 'लाइभ विजेट',
-    '/admin/ads': 'विज्ञापन',
-    '/admin/seo': 'एसइओ',
-    '/admin/users': 'प्रयोगकर्ता',
-    '/admin/roles': 'भूमिका',
-    '/admin/audit-log': 'अडिट लग',
-    '/admin/settings': 'सेटिङ',
+    '/admin/dashboard': 'à¤¡à¥à¤¯à¤¾à¤¸à¤¬à¥‹à¤°à¥à¤¡',
+    '/admin/articles': 'à¤¸à¤®à¤¾à¤šà¤¾à¤°',
+    '/admin/articles/new': 'à¤¨à¤¯à¤¾à¤ à¤¸à¤®à¤¾à¤šà¤¾à¤°',
+    '/admin/media': 'à¤®à¤¿à¤¡à¤¿à¤¯à¤¾',
+    '/admin/categories': 'à¤µà¤¿à¤­à¤¾à¤—',
+    '/admin/tags': 'à¤Ÿà¥à¤¯à¤¾à¤—',
+    '/admin/topics': 'à¤µà¤¿à¤·à¤¯',
+    '/admin/provinces': 'à¤ªà¥à¤°à¤¦à¥‡à¤¶',
+    '/admin/authors': 'à¤²à¥‡à¤–à¤•',
+    '/admin/journalists': 'à¤ªà¤¤à¥à¤°à¤•à¤¾à¤° workspace',
+    '/admin/comments': 'à¤Ÿà¤¿à¤ªà¥à¤ªà¤£à¥€',
+    '/admin/contact': 'à¤¸à¤®à¥à¤ªà¤°à¥à¤• à¤¸à¤¨à¥à¤¦à¥‡à¤¶',
+    '/admin/submissions': 'à¤Ÿà¤¿à¤ª',
+    '/admin/polls': 'à¤®à¤¤à¤¦à¤¾à¤¨',
+    '/admin/newsletter': 'à¤¨à¥à¤¯à¥à¤œà¤²à¥‡à¤Ÿà¤°',
+    '/admin/live-blogs': 'à¤²à¤¾à¤‡à¤­ à¤¬à¥à¤²à¤—',
+    '/admin/wire': 'à¤µà¤¾à¤¯à¤° à¤° RSS',
+    '/admin/live': 'à¤²à¤¾à¤‡à¤­ à¤ªà¥à¤¯à¤¾à¤¨à¤²',
+    '/admin/algorithms': 'à¤à¤²à¥à¤—à¥‹à¤°à¤¿à¤¦à¤®',
+    '/admin/live-widgets': 'à¤²à¤¾à¤‡à¤­ à¤µà¤¿à¤œà¥‡à¤Ÿ',
+    '/admin/ads': 'à¤µà¤¿à¤œà¥à¤žà¤¾à¤ªà¤¨',
+    '/admin/seo': 'à¤à¤¸à¤‡à¤“',
+    '/admin/users': 'à¤ªà¥à¤°à¤¯à¥‹à¤—à¤•à¤°à¥à¤¤à¤¾',
+    '/admin/roles': 'à¤­à¥‚à¤®à¤¿à¤•à¤¾',
+    '/admin/audit-log': 'à¤…à¤¡à¤¿à¤Ÿ à¤²à¤—',
+    '/admin/settings': 'à¤¸à¥‡à¤Ÿà¤¿à¤™',
   }
-  return map[pathname] ?? 'न्युजरुम'
+  return map[pathname] ?? 'à¤¨à¥à¤¯à¥à¤œà¤°à¥à¤®'
 }
 
 function NavIcon({ name }: { name: string }) {

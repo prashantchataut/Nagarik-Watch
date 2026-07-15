@@ -48,6 +48,14 @@ function emptySignals() {
 export async function buildStoryEngagementIndex(
   windowMinutes = 120,
 ): Promise<StoryEngagementIndex> {
+  if (
+    engagementCache &&
+    engagementCache.windowMinutes === windowMinutes &&
+    Date.now() - engagementCache.at < ENGAGEMENT_TTL_MS
+  ) {
+    return engagementCache.value
+  }
+
   const [samples, mostRead, ranking] = await Promise.all([
     getTrendingSamples(windowMinutes).catch(() => []),
     getMostReadStats(7, 80).catch(() => []),
@@ -94,13 +102,22 @@ export async function buildStoryEngagementIndex(
     bySlug.set(slug, current)
   }
 
-  return {
+  const value: StoryEngagementIndex = {
     bySlug,
     sampleCount: samples.length,
     storyCount: bySlug.size,
     totalImpressions,
   }
+  engagementCache = { at: Date.now(), windowMinutes, value }
+  return value
 }
+
+const ENGAGEMENT_TTL_MS = 30_000
+let engagementCache: {
+  at: number
+  windowMinutes: number
+  value: StoryEngagementIndex
+} | null = null
 
 export function signalsForStory(
   story: StoryCardData,

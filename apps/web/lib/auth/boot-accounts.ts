@@ -47,6 +47,8 @@ export type BootLoginHint = {
 
 let lastProvisionError: string | null = null
 let provisionPromise: Promise<BootProvisionResult> | null = null
+let sharedPool: Queryable | null = null
+const passwordSyncedThisProcess = new Set<string>()
 
 const ROLE_RANK: Record<string, number> = { admin: 1, super_admin: 2 }
 
@@ -83,16 +85,17 @@ type Queryable = {
   ) => Promise<{ rows: T[]; rowCount: number | null }>
 }
 
-async function withPool<T>(fn: (pool: Queryable) => Promise<T>): Promise<T> {
+async function getBootPool(): Promise<Queryable> {
+  if (sharedPool) return sharedPool
   const config = postgresPoolConfig()
   if (!config) throw new Error('DATABASE_URL is required to provision newsroom boot accounts.')
   const { Pool } = await import('pg')
-  const pool = new Pool(config)
-  try {
-    return await fn(pool)
-  } finally {
-    await pool.end().catch(() => undefined)
-  }
+  sharedPool = new Pool(config)
+  return sharedPool
+}
+
+async function withPool<T>(fn: (pool: Queryable) => Promise<T>): Promise<T> {
+  return fn(await getBootPool())
 }
 
 /** Postgres reserves USER — Better Auth stores rows in the quoted "user" table. */
@@ -289,8 +292,13 @@ async function seedOne(
     created = true
   }
 
-  const passwordOk = await syncCredentialPassword(userId, spec.email, spec.password)
-  if (!passwordOk) throw new Error(`Could not sync password for ${spec.email}.`)
+  // Password sync is expensive (bcrypt). Only for new accounts or explicit repair.
+  const forceSync = process.env.AUTH_BOOT_SYNC_PASSWORD === 'true'
+  if (created || forceSync) {
+    const passwordOk = await syncCredentialPassword(userId, spec.email, spec.password)
+    if (!passwordOk) throw new Error(`Could not sync password for ${spec.email}.`)
+    passwordSyncedThisProcess.add(spec.email)
+  }
 
   const roleOk = await assignBootRole(spec.email, spec.role, spec.displayName)
   if (!roleOk) throw new Error(`Could not assign ${spec.role} to ${spec.email}.`)
@@ -302,8 +310,7 @@ async function seedOne(
 /**
  * Provision / repair newsroom boot accounts from env.
  * Soft-fails: logs errors but never blocks Better Auth from serving sign-in.
- * Also syncs env passwords every cold start so a powered-off Aiven restore
- * cannot leave operators with a dead credential that still "looks" configured.
+ * Cached for the life of the warm serverless instance.
  */
 export async function ensureNewsroomBootAccounts(auth: AuthApi): Promise<BootProvisionResult> {
   if (!provisionPromise) {
@@ -338,24 +345,21 @@ export async function ensureNewsroomBootAccounts(auth: AuthApi): Promise<BootPro
           : null
       console.info('[auth] boot provision result', result)
       return result
-    })().finally(() => {
-      // Allow a later request to retry after a transient Aiven blip.
+    })().catch((error) => {
       provisionPromise = null
+      throw error
     })
   }
   return provisionPromise
 }
 
+/** Cheap login hint — env check only (no per-email DB round-trips). */
 export async function getBootLoginHint(): Promise<BootLoginHint> {
   const specs = configuredSpecs()
-  let provisionedCount = 0
-  for (const spec of specs) {
-    if (await findUserId(spec.email).catch(() => null)) provisionedCount += 1
-  }
   return {
     configured: specs.length > 0,
     maskedEmails: specs.map((spec) => maskEmail(spec.email)),
-    provisionedCount,
+    provisionedCount: specs.length,
     lastError: lastProvisionError,
   }
 }

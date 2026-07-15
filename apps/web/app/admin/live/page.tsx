@@ -15,15 +15,23 @@ export const dynamic = 'force-dynamic'
 
 export default async function LiveAdminPage() {
   await requireNewsroomSession()
-  const [{ items }, providers, engagement] = await Promise.all([
+  const [{ items }, engagement] = await Promise.all([
     getStories({ locale: 'ne', perPage: 24 }),
-    getProviderHealth(),
     buildStoryEngagementIndex(120),
   ])
 
   const ranked = rankStories(items, (story, index) =>
     signalsForStory(story, engagement, index),
   ).slice(0, 8)
+
+  // Provider health is optional and historically the slowest panel. Only hit the
+  // cached path; empty array if the first fetch is still warming.
+  const providers = (await Promise.race([
+    getProviderHealth(),
+    new Promise<Awaited<ReturnType<typeof getProviderHealth>>>((resolve) =>
+      setTimeout(() => resolve([]), 800),
+    ),
+  ]).catch(() => [])) as Awaited<ReturnType<typeof getProviderHealth>>
 
   const statusCounts = providers.reduce<Record<string, number>>((acc, provider) => {
     acc[provider.status] = (acc[provider.status] ?? 0) + 1

@@ -140,8 +140,14 @@ function configured(envVars: string[]): boolean {
   return envVars.some((name) => Boolean(process.env[name]))
 }
 
+const HEALTH_TTL_MS = 45_000
+let healthCache: { at: number; value: ProviderHealth[] } | null = null
+
 export async function getProviderHealth(): Promise<ProviderHealth[]> {
-  return Promise.all(
+  if (healthCache && Date.now() - healthCache.at < HEALTH_TTL_MS) {
+    return healthCache.value
+  }
+  const value = await Promise.all(
     PROVIDERS.map(async (provider) => {
       try {
         const result = await provider.check()
@@ -161,7 +167,7 @@ export async function getProviderHealth(): Promise<ProviderHealth[]> {
           key: provider.key,
           label: provider.label,
           envVars: provider.envVars,
-          status: 'error',
+          status: 'error' as const,
           source: 'Provider health check failed',
           updatedAt: new Date().toISOString(),
           error: error instanceof Error ? error.message : 'Unknown provider failure',
@@ -169,4 +175,6 @@ export async function getProviderHealth(): Promise<ProviderHealth[]> {
       }
     }),
   )
+  healthCache = { at: Date.now(), value }
+  return value
 }
