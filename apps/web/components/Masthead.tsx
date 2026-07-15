@@ -45,19 +45,30 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
       : 'खाता'
 
   return (
-    <header className="z-40 border-b border-rule bg-surface">
-      <div className="border-b border-rule bg-surface-raised">
-        <div className="mx-auto hidden max-w-page items-center justify-between gap-3 px-4 py-2 text-caption text-ink-soft sm:flex">
-          <p lang={lang} className="truncate">
+    <header className="nw-masthead z-40 border-b border-rule bg-surface">
+      <div className="nw-masthead__utility border-b border-rule">
+        <div className="mx-auto flex max-w-page items-center justify-between gap-3 px-4 py-2 text-caption text-ink-soft">
+          <p lang={lang} className="truncate font-semibold tracking-wide">
             {dict.mastheadDate(dateLabel)}
+            <span className="mx-2 text-mute" aria-hidden="true">
+              ·
+            </span>
+            <span className="text-brand-strong">{locale === 'en' ? 'Kathmandu' : 'काठमाडौं'}</span>
           </p>
-          <div className="flex items-center divide-x divide-rule">
+          <div className="hidden items-center divide-x divide-rule sm:flex">
             <Link
               href={localizeHref(locale, '/latest')}
               className="px-3 font-bold text-ink hover:text-brand-strong"
               lang={lang}
             >
               {locale === 'en' ? 'Latest' : 'ताजा'}
+            </Link>
+            <Link
+              href={localizeHref(locale, '/most-read')}
+              className="px-3 font-semibold text-ink-soft hover:text-brand-strong"
+              lang={lang}
+            >
+              {locale === 'en' ? 'Most read' : 'धेरै पढिएको'}
             </Link>
             <Link
               href={localizeHref(locale, '/contact')}
@@ -71,7 +82,7 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
       </div>
 
       <div className="mx-auto max-w-page px-3 sm:px-4">
-        <div className="grid min-h-[5.75rem] grid-cols-[auto_1fr_auto] items-center gap-2 md:grid-cols-[1fr_auto_1fr]">
+        <div className="grid min-h-[6.5rem] grid-cols-[auto_1fr_auto] items-center gap-2 border-b border-ink/80 py-3 md:grid-cols-[1fr_auto_1fr] md:py-4">
           <div className="flex items-center md:hidden">
             <MobileNav locale={locale} navCategories={navCategories} account={account} />
           </div>
@@ -112,7 +123,7 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
             className="min-w-0 justify-self-center transition-opacity hover:opacity-85"
             aria-label={dict.siteName}
           >
-            <Logo siteName={dict.siteName} className="max-w-[12.5rem] sm:max-w-none" />
+            <Logo siteName={dict.siteName} className="max-w-[16rem] sm:max-w-none md:scale-110" />
           </Link>
 
           <div className="flex items-center justify-end border-r border-rule">

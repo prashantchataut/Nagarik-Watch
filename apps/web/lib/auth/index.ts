@@ -21,11 +21,11 @@
 import 'server-only'
 import { APIError, betterAuth } from 'better-auth'
 import { after } from 'next/server'
-import { Kysely } from 'kysely'
 import { createDialect } from './auth-pool'
 import { SITE_URL } from '@/lib/site'
 import { sendEmail } from '@/lib/email-provider'
 import { isUserDisabledById } from './disabled-users'
+import { ensureNewsroomBootAccounts } from './boot-accounts'
 
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET
 
@@ -235,107 +235,8 @@ async function buildAuth(): Promise<AuthInstance> {
     await runMigrations()
   }
 
-  await seedBootAccounts(auth)
+  await ensureNewsroomBootAccounts(auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0])
   return auth
-}
-
-/**
- * Provision the newsroom leadership from env at first boot. Two accounts:
- *
- *   NEWSROOM_SUPERADMIN_EMAIL / NEWSROOM_SUPERADMIN_PASSWORD → role 'super_admin'
- *   NEWSROOM_ADMIN_EMAIL      / NEWSROOM_ADMIN_PASSWORD      → role 'admin'
- *
- * (The legacy single-pair NEWSROOM_ADMIN_EMAIL/PASSWORD still maps to
- * 'super_admin' for backward compatibility with earlier .env.example docs —
- * see BOOT_ACCOUNTS below.)
- *
- * Runs once per process boot; if an account already exists (subsequent boots,
- * or a multi-instance warm-up), Better Auth returns a conflict and we skip
- * that account. Without this seeding there is no path to a newsroom role:
- * signup only ever sets role='reader' and requireNewsroomSession() rejects
- * readers, so /admin/* would be permanently locked.
- */
-async function seedBootAccounts(auth: AuthInstance): Promise<void> {
-  const bootAccounts: Array<[string, string, string, string]> = [
-    ['NEWSROOM_SUPERADMIN_EMAIL', 'NEWSROOM_SUPERADMIN_PASSWORD', 'super_admin', 'मुख्य एडमिन'],
-    ['NEWSROOM_ADMIN_EMAIL', 'NEWSROOM_ADMIN_PASSWORD', 'admin', 'एडमिन'],
-  ]
-  const configured = bootAccounts.filter(([emailKey, passwordKey]) =>
-    Boolean(process.env[emailKey]?.trim() && process.env[passwordKey]),
-  )
-  if (configured.length === 0) return
-
-  const results = await Promise.allSettled(
-    configured.map(([emailKey, passwordKey, role, displayName]) =>
-      seedOne(auth, emailKey, passwordKey, role, displayName),
-    ),
-  )
-  const failures = results
-    .map((result, index) => ({ result, account: configured[index] }))
-    .filter((entry): entry is { result: PromiseRejectedResult; account: [string, string, string, string] } =>
-      entry.result.status === 'rejected',
-    )
-  if (failures.length > 0) {
-    for (const failure of failures) {
-      const email = process.env[failure.account[0]] ?? failure.account[0]
-      console.error(`[auth] boot account provisioning failed for ${email}`, failure.result.reason)
-    }
-    throw new AggregateError(
-      failures.map((failure) => failure.result.reason),
-      'Configured newsroom boot accounts could not be provisioned.',
-    )
-  }
-}
-
-async function seedOne(
-  auth: AuthInstance,
-  emailKey: string,
-  passwordKey: string,
-  role: string,
-  displayName: string,
-): Promise<void> {
-  const email = process.env[emailKey]?.trim().toLowerCase()
-  const password = process.env[passwordKey]
-  if (!email || !password) return
-
-  try {
-    const signUp = auth.api.signUpEmail as unknown as (args: {
-      body: Record<string, unknown>
-    }) => Promise<unknown>
-    await signUp({
-      body: {
-        email,
-        password,
-        name: process.env[`${emailKey.replace('_EMAIL', '')}_NAME`]?.trim() || email.split('@')[0] || 'Newsroom',
-        displayName,
-      },
-    })
-  } catch (error) {
-    if (!(await bootUserExists(email))) {
-      throw new Error(`Could not create configured boot account ${email}.`, { cause: error })
-    }
-  }
-
-  const assigned = await assignBootRole(email, role, displayName)
-  if (!assigned) throw new Error(`Could not assign ${role} to configured boot account ${email}.`)
-}
-
-async function bootUserExists(email: string): Promise<boolean> {
-  const dialect = await createDialect()
-  const db = new Kysely<{ user: Record<string, unknown> }>({ dialect })
-  const row = await db.selectFrom('user').select('id').where('email', '=', email).executeTakeFirst()
-  return Boolean(row)
-}
-
-async function assignBootRole(email: string, role: string, displayName: string): Promise<boolean> {
-  const dialect = await createDialect()
-  const db = new Kysely<{ user: Record<string, unknown> }>({ dialect })
-  const result = await db
-    .updateTable('user')
-    .set({ role, displayName })
-    .where('email', '=', email)
-    .executeTakeFirst()
-  return Number(result.numUpdatedRows ?? 0) > 0
 }
 
 export type Session = Awaited<ReturnType<AuthInstance['api']['getSession']>>

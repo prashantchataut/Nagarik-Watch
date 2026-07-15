@@ -25,27 +25,59 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   if (!homepage) {
     return (
-      <div className="mx-auto max-w-page px-4 py-16">
-        <section className="max-w-3xl border-y border-rule py-10" lang={english ? 'en' : 'ne'}>
-          <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong">
-            {english ? 'Newsroom status' : 'न्युजरुम अवस्था'}
-          </p>
-          <h1 className="mt-3 font-display text-display leading-tight text-ink">
-            {english
-              ? 'No reviewed stories have been published yet.'
-              : 'सम्पादकीय समीक्षा पूरा भएको समाचार अझै प्रकाशित छैन।'}
-          </h1>
-          <p className="mt-4 max-w-body text-body-lg leading-relaxed text-ink-soft">
-            {english
-              ? 'This page stays empty rather than presenting invented headlines. Published CMS stories will appear here automatically.'
-              : 'काल्पनिक शीर्षक देखाउनुको सट्टा यो पृष्ठ खाली राखिएको छ। CMS बाट प्रकाशित समाचार यहाँ स्वतः देखिन्छन्।'}
-          </p>
-          <Link
-            href={localizeHref(locale, '/about')}
-            className="mt-6 inline-flex min-h-11 items-center border-b-2 border-brand font-bold text-ink hover:text-brand-strong"
-          >
-            {english ? 'How Nagarik Watch works' : 'नागरिक वाच कसरी काम गर्छ'}
-          </Link>
+      <div className="mx-auto max-w-page px-4 pb-16 pt-6">
+        <section className="mt-2 grid gap-10 border-t-4 border-ink pt-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(16rem,0.6fr)]">
+          <div lang={english ? 'en' : 'ne'}>
+            <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong">
+              {english ? 'Nagarik Watch' : 'नागरिक वाच'}
+            </p>
+            <h1 className="mt-3 max-w-[16ch] font-display text-[clamp(2.4rem,7vw,4.6rem)] font-extrabold leading-[0.98] tracking-[-0.04em] text-ink">
+              {english
+                ? 'Independent reporting for every province.'
+                : 'हर प्रदेशका लागि स्वतन्त्र समाचार।'}
+            </h1>
+            <p className="mt-5 max-w-body text-body-lg leading-relaxed text-ink-soft">
+              {english
+                ? 'The CMS has no reviewed stories live yet. Wire copy below is sourced open material — not invented homepage fiction — until editors publish.'
+                : 'सम्पादकीय समीक्षा पूरा भएको समाचार अझै लाइभ छैन। तलको वायर खुला स्रोत सामग्री हो — काल्पनिक होमपेज होइन — सम्पादकले प्रकाशित गरेपछि मुख्य पृष्ठ भरिन्छ।'}
+            </p>
+            <div className="mt-7 flex flex-wrap gap-4">
+              <Link
+                href={localizeHref(locale, '/about')}
+                className="inline-flex min-h-11 items-center border-b-2 border-brand font-bold text-ink hover:text-brand-strong"
+              >
+                {english ? 'How we work' : 'हामी कसरी काम गर्छौं'}
+              </Link>
+              <Link
+                href={localizeHref(locale, '/submit-story')}
+                className="inline-flex min-h-11 items-center border-b border-rule font-semibold text-ink-soft hover:border-brand hover:text-brand-strong"
+              >
+                {english ? 'Send a tip' : 'टिप पठाउनुहोस्'}
+              </Link>
+            </div>
+          </div>
+          <aside className="border-t border-rule pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+            <p className="text-caption font-bold uppercase tracking-[0.14em] text-mute">
+              {english ? 'On the wire' : 'वायरमा'}
+            </p>
+            <ol className="mt-3 divide-y divide-rule">
+              {sourceHeadlines.slice(0, 5).map((item, index) => (
+                <li key={item.sourceUrl || index} className="py-3">
+                  <a
+                    href={item.sourceUrl || localizeHref(locale, '/wire')}
+                    className="group grid grid-cols-[1.5rem_1fr] gap-2"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <span className="font-mono text-caption text-mute">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="text-meta font-semibold leading-snug text-ink group-hover:text-brand-strong">
+                      {english && item.titleEn ? item.titleEn : item.titleNe}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </aside>
         </section>
         <div className="mt-12">
           <SourceDeskPreview items={sourceHeadlines} locale={locale} />

@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { getAuth } from '@/lib/auth'
 import { getNewsroomSession } from '@/lib/auth/session'
+import { getBootLoginHint } from '@/lib/auth/boot-accounts'
 import { Logo } from '@/components/Logo'
 import { probeDatabase } from '@/lib/db-url'
 import { AdminLoginForm } from './AdminLoginForm'
 
 export const metadata: Metadata = {
-  title: 'Newsroom Login',
+  title: 'Newsroom Login · नागरिक वाच',
   description: 'Staff-only sign in to the Nagarik Watch newsroom.',
   robots: { index: false, follow: false },
 }
@@ -17,84 +20,106 @@ export default async function AdminLoginPage({
 }: {
   searchParams: Promise<{ reset?: string }>
 }) {
-  const [session, query, database] = await Promise.all([
+  // Force cold-start boot provisioning before the form renders so a restored
+  // Aiven instance actually has the NEWSROOM_* accounts for this request.
+  await getAuth().catch((error) => {
+    console.error('[admin/login] getAuth failed', error)
+    return null
+  })
+  const [session, query, database, boot] = await Promise.all([
     getNewsroomSession(),
     searchParams,
     probeDatabase(),
+    getBootLoginHint(),
   ])
   if (session) redirect('/admin/dashboard')
 
-  return (
-    <main className="auth-shell auth-shell--newsroom">
-      <section className="auth-editorial auth-editorial--newsroom" aria-label="Newsroom introduction">
-        <a href="/" className="auth-editorial__brand" aria-label="Nagarik Watch home">
-          <Logo siteName="नागरिक वाच" />
-        </a>
-        <div className="auth-editorial__copy">
-          <p className="auth-editorial__mark" lang="ne">
-            नागरिक वाच
-          </p>
-          <p className="auth-editorial__eyebrow" lang="en">
-            Newsroom
-          </p>
-          <h1 lang="ne">सम्पादकीय डेस्क</h1>
-          <p lang="ne">
-            स्टाफ-only प्रवेश। पाठक खाताबाट अलग। भूमिकाअनुसार लेख्ने, समीक्षा गर्ने र प्रकाशन गर्ने अधिकार।
-          </p>
-        </div>
-        <p className="auth-editorial__foot" lang="en">
-          Nagarik Watch · Staff access
-        </p>
-      </section>
+  const bootReady = boot.configured && boot.provisionedCount > 0
 
-      <section className="auth-form-column">
-        <div className="auth-form-wrap">
-          <a href="/" className="mb-8 block w-fit lg:hidden">
-            <Logo siteName="नागरिक वाच" />
-          </a>
-          <p className="admin-eyebrow" lang="en">
-            Staff sign in
+  return (
+    <main className="newsroom-login newsroom-login--admin" lang="ne">
+      <div className="newsroom-login__mast">
+        <Link href="/" aria-label="नागरिक वाच गृहपृष्ठ">
+          <Logo siteName="नागरिक वाच" />
+        </Link>
+        <span>Editorial desk · staff only</span>
+      </div>
+
+      <div className="newsroom-login__grid">
+        <section className="newsroom-login__brief">
+          <p className="editorial-kicker" lang="en">
+            Nagarik Watch newsroom
           </p>
-          <h2 className="mt-2 font-display text-[2.2rem] font-extrabold leading-tight text-ink" lang="ne">
-            न्युजरुममा प्रवेश
-          </h2>
-          <p className="mt-3 max-w-md text-body leading-relaxed text-ink-soft" lang="ne">
-            संस्थागत इमेल र पासवर्ड प्रयोग गर्नुहोस्। पहुँच भूमिकाअनुसार सीमित हुन्छ।
+          <h1>सम्पादकीय डेस्कमा फर्कनुहोस्।</h1>
+          <p>
+            यो पाठक लगइन होइन। स्टाफ खाताबाट लेख सम्पादन, समीक्षा, प्रकाशन र प्रयोगकर्ता व्यवस्थापन हुन्छ।
+            भूमिकाअनुसार पहुँच सीमित छ।
           </p>
+          <dl>
+            <div>
+              <dt>01</dt>
+              <dd>सुपर/एडमिन·NEWSROOM_* बाट स्वतः तयार</dd>
+            </div>
+            <div>
+              <dt>02</dt>
+              <dd>पत्रकार डेस्क अलग · /journalist</dd>
+            </div>
+            <div>
+              <dt>03</dt>
+              <dd>पाठक खाताले यहाँ प्रवेश पाउँदैन</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className="newsroom-login__form">
+          <header>
+            <p className="editorial-kicker" lang="en">
+              Staff sign in
+            </p>
+            <h2>न्युजरुम प्रवेश</h2>
+            <p>Vercel मा राखेको NEWSROOM_SUPERADMIN वा NEWSROOM_ADMIN इमेल/पासवर्ड प्रयोग गर्नुहोस्।</p>
+          </header>
 
           {!database.ok ? (
-            <aside
-              className="mt-5 rounded-md border border-breaking/35 bg-brand-tint px-4 py-3 text-meta text-brand-strong"
-              role="status"
-              lang="ne"
-            >
-              <p className="font-bold">खाता डाटाबेस अफलाइन छ</p>
-              <p className="mt-1 leading-relaxed">
-                {!database.host
-                  ? 'DATABASE_URL सेट छैन। Vercel → Project → Settings → Environment Variables मा Postgres URL राखेर Redeploy गर्नुहोस्।'
-                  : database.code === 'ENOTFOUND'
-                    ? `होस्ट \`${database.host}\` DNS बाट फेला परेन। सेवा अनलाइन भएपछि पुनः प्रयास गर्नुहोस्।`
-                    : database.code === 'SSL' || /certificate|TLS/i.test(database.detail)
-                      ? `होस्ट \`${database.host}\` मा जडान भइरहेको छ तर SSL मिलाउँदै छौँ — यो पृष्ठ केही मिनेटमा आफैँ ठीक हुनुपर्छ।`
-                      : `होस्ट \`${database.host}\` मा जडान असफल। सेवा, पासवर्ड र SSL जाँच्नुहोस्।`}
-              </p>
-              <p className="mt-2 text-caption text-ink-soft" lang="en">
-                {database.detail}
-              </p>
+            <aside className="newsroom-login-form__error" role="status" style={{ marginBottom: '1rem' }}>
+              <strong>डाटाबेस अफलाइन।</strong>
+              <span style={{ display: 'block', marginTop: '0.35rem' }}>{database.detail}</span>
             </aside>
           ) : null}
 
-          <div className="auth-form-surface">
-            <AdminLoginForm resetComplete={query.reset === 'success'} databaseOnline={database.ok} />
-          </div>
-          <p className="mt-8 text-caption text-mute" lang="ne">
-            पाठक हुनुहुन्छ?{' '}
-            <a href="/auth/login" className="font-bold text-brand-strong hover:underline">
-              पाठक लगइन
-            </a>
-          </p>
-        </div>
-      </section>
+          {database.ok && boot.configured && !bootReady ? (
+            <aside className="newsroom-login-form__error" role="status" style={{ marginBottom: '1rem' }}>
+              <strong>स्टाफ खाता अझै तयार भएन।</strong>
+              <span style={{ display: 'block', marginTop: '0.35rem' }}>
+                अपेक्षित: {boot.maskedEmails.join(' · ') || 'env इमेल'}। पृष्ठ रिफ्रेस गर्नुहोस्; पहिलो अनुरोधले खाता बनाउँछ।
+              </span>
+              {boot.lastError ? (
+                <span style={{ display: 'block', marginTop: '0.35rem' }} lang="en">
+                  {boot.lastError}
+                </span>
+              ) : null}
+            </aside>
+          ) : null}
+
+          {database.ok && bootReady ? (
+            <p className="text-caption text-mute" style={{ marginBottom: '1rem' }} lang="en">
+              Ready accounts: {boot.maskedEmails.join(' · ')}
+            </p>
+          ) : null}
+
+          <AdminLoginForm
+            resetComplete={query.reset === 'success'}
+            databaseOnline={database.ok}
+            expectedEmails={boot.maskedEmails}
+          />
+
+          <footer>
+            <Link href="/auth/forgot-password?next=%2Fadmin%2Flogin">पासवर्ड भुल्नुभयो?</Link>
+            <Link href="/journalist/login">पत्रकार डेस्क</Link>
+            <Link href="/auth/login">पाठक लगइन</Link>
+          </footer>
+        </section>
+      </div>
     </main>
   )
 }

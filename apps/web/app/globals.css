@@ -19,6 +19,9 @@
   body {
     overflow-x: hidden;
     background-color: var(--surface);
+    background-image:
+      radial-gradient(ellipse 120% 80% at 50% -20%, color-mix(in oklch, var(--brand) 8%, transparent), transparent 55%),
+      linear-gradient(180deg, color-mix(in oklch, var(--ink) 2.5%, var(--surface)), var(--surface) 28rem);
     color: var(--ink);
     font-family: var(--font-inter), var(--font-devanagari), system-ui, sans-serif;
     text-rendering: optimizeLegibility;
@@ -655,6 +658,8 @@
   .newsroom-login-form__submit { min-height: 3.25rem; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--brand); background: var(--brand); padding: .75rem 1rem; color: var(--surface); font-size: .86rem; font-weight: 850; }
   .newsroom-login-form__submit:hover { background: var(--brand-strong); }
   .newsroom-login-form__error { border: 1px solid color-mix(in oklch,var(--down) 40%,var(--rule)); background: color-mix(in oklch,var(--down) 10%,var(--surface)); padding: .8rem; color: var(--down); font-size: .8rem; font-weight: 750; }
+  .newsroom-login-form__ok { border: 1px solid var(--rule); background: var(--surface-raised); padding: .8rem; color: var(--ink); font-size: .8rem; font-weight: 750; }
+  .newsroom-login--admin .newsroom-login__brief h1 { max-width: 11ch; }
   .newsroom-login__form footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
   .newsroom-login__form footer a { color: var(--ink-soft); font-size: .76rem; font-weight: 750; }
 

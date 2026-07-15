@@ -2,24 +2,20 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { PasswordField } from '@/components/forms/PasswordField'
 
 /**
  * Admin login form. Posts credentials to Better Auth's /api/auth/sign-in/email
- * endpoint, then on success redirects to /admin/dashboard. Errors are surfaced
- * inline (no alert() — impeccable UX). Loading state disables the submit
- * button and swaps its label so the click is acknowledged.
- *
- * Password recovery uses the same audited Better Auth reset flow as readers;
- * newsroom roles are preserved because only the credential is replaced.
+ * endpoint, then on success redirects to /admin/dashboard.
  */
 export function AdminLoginForm({
   resetComplete = false,
   databaseOnline = true,
+  expectedEmails = [],
 }: {
   resetComplete?: boolean
   databaseOnline?: boolean
+  expectedEmails?: string[]
 }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
@@ -51,19 +47,20 @@ export function AdminLoginForm({
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
           const code = typeof body?.error?.code === 'string' ? body.error.code : ''
+          const message = String(body?.message ?? body?.error?.message ?? '')
           if (res.status === 503 || code === 'AUTH_UNAVAILABLE') {
+            setError('लगइन उपलब्ध छैन। खाता डाटाबेस पुग्न सकेन।')
+            return
+          }
+          if (res.status === 401 || /not found|invalid password|INVALID/i.test(message + code)) {
             setError(
-              'लगइन उपलब्ध छैन। खाता डाटाबेस पुग्न सकेन — Vercel मा DATABASE_URL जाँच गर्नुहोस्।',
+              expectedEmails.length
+                ? `खाता भेटिएन वा पासवर्ड गलत। Vercel का NEWSROOM_* credentials प्रयोग गर्नुहोस् (${expectedEmails.join(' / ')})।`
+                : 'खाता भेटिएन वा पासवर्ड गलत। Vercel मा NEWSROOM_SUPERADMIN_EMAIL/PASSWORD जाँच्नुहोस्।',
             )
             return
           }
-          setError(
-            String(
-              body?.message ??
-                body?.error?.message ??
-                'इमेल वा पासवर्ड मेल खाएन। कृपया पुनः प्रयास गर्नुहोस्।',
-            ),
-          )
+          setError(message || 'लगइन असफल। पुनः प्रयास गर्नुहोस्।')
           return
         }
         router.refresh()
@@ -75,94 +72,44 @@ export function AdminLoginForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4" noValidate>
+    <form onSubmit={onSubmit} className="newsroom-login-form" noValidate>
       {resetComplete ? (
-        <div role="status" className="rounded-md border border-rule bg-surface-raised px-4 py-3 text-meta font-semibold text-ink" lang="ne">
+        <div role="status" className="newsroom-login-form__ok">
           पासवर्ड परिवर्तन भयो। नयाँ पासवर्ड प्रयोग गरेर लगइन गर्नुहोस्।
         </div>
       ) : null}
-      {error && (
-        <div
-          role="alert"
-          className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
-          lang="ne"
-        >
+      {error ? (
+        <div role="alert" className="newsroom-login-form__error">
           {error}
         </div>
-      )}
+      ) : null}
 
-      <label className="grid gap-1.5 text-meta font-semibold text-ink" lang="ne">
-        इमेल
+      <label className="newsroom-login-form__field">
+        <span>स्टाफ इमेल</span>
         <input
           name="email"
           type="email"
-          autoComplete="email"
+          autoComplete="username"
           required
           disabled={pending || !databaseOnline}
-          placeholder="editor@nagarikwatch.com"
-          className="rounded-md border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
+          placeholder={expectedEmails[0]?.replace('***', 'editor') || 'editor@nagarikwatch.com'}
+          className="newsroom-login-form__input"
         />
       </label>
 
-      <div lang="ne">
-        <PasswordField
-          name="password"
-          label="पासवर्ड"
-          autoComplete="current-password"
-          required
-          disabled={pending || !databaseOnline}
-          showLabel="देखाउनुहोस्"
-          hideLabel="लुकाउनुहोस्"
-        />
-      </div>
-
-      <button
-        type="submit"
+      <PasswordField
+        name="password"
+        label="पासवर्ड"
+        autoComplete="current-password"
+        required
         disabled={pending || !databaseOnline}
-        className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {pending ? (
-          <span className="flex items-center gap-2" lang="ne">
-            <Spinner /> लगइन हुँदै…
-          </span>
-        ) : (
-          <span lang="ne">साइन इन गर्नुहोस्</span>
-        )}
-      </button>
-
-      <div className="mt-1 flex items-center justify-between text-caption">
-        <Link
-          href="/auth/forgot-password?next=%2Fadmin%2Flogin"
-          className="text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline"
-          lang="ne"
-        >
-          पासवर्ड भुल्नुभयो?
-        </Link>
-        <span className="text-mute" lang="ne">
-          स्टाफ खाता मालिकले मात्र बनाउँछ
-        </span>
-      </div>
-    </form>
-  )
-}
-
-function Spinner() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      className="animate-spin"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25" />
-      <path
-        d="M22 12a10 10 0 0 1-10 10"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
+        showLabel="देखाउनुहोस्"
+        hideLabel="लुकाउनुहोस्"
       />
-    </svg>
+
+      <button type="submit" disabled={pending || !databaseOnline} className="newsroom-login-form__submit">
+        {pending ? 'लगइन हुँदै…' : 'न्युजरुम खोल्नुहोस्'}
+      </button>
+    </form>
   )
 }
