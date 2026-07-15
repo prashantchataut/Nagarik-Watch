@@ -1,8 +1,7 @@
 import 'server-only'
 import { randomUUID } from 'node:crypto'
-import { Kysely } from 'kysely'
 import { hashPassword } from 'better-auth/crypto'
-import { createDialect } from './auth-pool'
+import { postgresPoolConfig } from '@/lib/db-url'
 
 type AuthApi = {
   api: {
@@ -77,66 +76,173 @@ export function maskEmail(email: string): string {
   return `${keep}***@${domain}`
 }
 
-async function withUserDb<T>(fn: (db: Kysely<{ user: Record<string, unknown>; account: Record<string, unknown> }>) => Promise<T>): Promise<T> {
-  const dialect = await createDialect()
-  const db = new Kysely<{ user: Record<string, unknown>; account: Record<string, unknown> }>({ dialect })
-  return fn(db)
+type Queryable = {
+  query: <T extends Record<string, unknown> = Record<string, unknown>>(
+    text: string,
+    params?: unknown[],
+  ) => Promise<{ rows: T[]; rowCount: number | null }>
 }
 
+async function withPool<T>(fn: (pool: Queryable) => Promise<T>): Promise<T> {
+  const config = postgresPoolConfig()
+  if (!config) throw new Error('DATABASE_URL is required to provision newsroom boot accounts.')
+  const { Pool } = await import('pg')
+  const pool = new Pool(config)
+  try {
+    return await fn(pool)
+  } finally {
+    await pool.end().catch(() => undefined)
+  }
+}
+
+/** Postgres reserves USER — Better Auth stores rows in the quoted "user" table. */
 async function findUserId(email: string): Promise<string | null> {
-  return withUserDb(async (db) => {
-    const row = await db
-      .selectFrom('user')
-      .select('id')
-      .where('email', '=', email)
-      .executeTakeFirst()
-    return row?.id ? String(row.id) : null
+  return withPool(async (pool) => {
+    for (const table of ['"user"', 'user'] as const) {
+      try {
+        const result = await pool.query<{ id: string }>(
+          `SELECT id FROM ${table} WHERE lower(email) = lower($1) LIMIT 1`,
+          [email],
+        )
+        const id = result.rows[0]?.id
+        if (id) return String(id)
+      } catch {
+        // Try the next identifier quoting style.
+      }
+    }
+    return null
+  })
+}
+
+async function createUserRow(
+  spec: BootAccountSpec & { email: string; password: string },
+): Promise<string> {
+  const id = randomUUID()
+  const name =
+    process.env[`${spec.emailKey.replace('_EMAIL', '')}_NAME`]?.trim() ||
+    spec.email.split('@')[0] ||
+    'Newsroom'
+  const now = new Date()
+
+  return withPool(async (pool) => {
+    const attempts: Array<{ table: string; sql: string; params: unknown[] }> = [
+      {
+        table: '"user"',
+        sql: `INSERT INTO "user" (id, name, email, "emailVerified", "createdAt", "updatedAt", role, "displayName", locale, disabled)
+              VALUES ($1,$2,$3,true,$4,$5,$6,$7,'ne',false)`,
+        params: [id, name, spec.email, now, now, spec.role, spec.displayName],
+      },
+      {
+        table: '"user"',
+        sql: `INSERT INTO "user" (id, name, email, email_verified, created_at, updated_at, role, display_name, locale, disabled)
+              VALUES ($1,$2,$3,true,$4,$5,$6,$7,'ne',false)`,
+        params: [id, name, spec.email, now, now, spec.role, spec.displayName],
+      },
+      {
+        table: '"user"',
+        sql: `INSERT INTO "user" (id, name, email, "emailVerified", "createdAt", "updatedAt", role, "displayName")
+              VALUES ($1,$2,$3,true,$4,$5,$6,$7)`,
+        params: [id, name, spec.email, now, now, spec.role, spec.displayName],
+      },
+      {
+        table: 'user',
+        sql: `INSERT INTO user (id, name, email, "emailVerified", "createdAt", "updatedAt", role, "displayName")
+              VALUES ($1,$2,$3,true,$4,$5,$6,$7)`,
+        params: [id, name, spec.email, now, now, spec.role, spec.displayName],
+      },
+    ]
+
+    let lastError: unknown
+    for (const attempt of attempts) {
+      try {
+        await pool.query(attempt.sql, attempt.params)
+        return id
+      } catch (error) {
+        lastError = error
+      }
+    }
+    throw new Error(`Could not insert boot user ${spec.email}`, { cause: lastError })
   })
 }
 
 async function assignBootRole(email: string, role: string, displayName: string): Promise<boolean> {
-  return withUserDb(async (db) => {
-    const result = await db
-      .updateTable('user')
-      .set({ role, displayName })
-      .where('email', '=', email)
-      .executeTakeFirst()
-    return Number(result.numUpdatedRows ?? 0) > 0
+  return withPool(async (pool) => {
+    const attempts: Array<{ sql: string; params: unknown[] }> = [
+      {
+        sql: `UPDATE "user" SET role = $1, "displayName" = $2 WHERE lower(email) = lower($3)`,
+        params: [role, displayName, email],
+      },
+      {
+        sql: `UPDATE "user" SET role = $1, display_name = $2 WHERE lower(email) = lower($3)`,
+        params: [role, displayName, email],
+      },
+      {
+        sql: `UPDATE "user" SET role = $1 WHERE lower(email) = lower($2)`,
+        params: [role, email],
+      },
+    ]
+    for (const attempt of attempts) {
+      try {
+        const result = await pool.query(attempt.sql, attempt.params)
+        if (Number(result.rowCount ?? 0) > 0) return true
+      } catch {
+        // next attempt
+      }
+    }
+    return false
   })
 }
 
 async function syncCredentialPassword(userId: string, email: string, password: string): Promise<boolean> {
   const hashed = await hashPassword(password)
-  return withUserDb(async (db) => {
-    const existing = await db
-      .selectFrom('account')
-      .select('id')
-      .where('userId', '=', userId)
-      .where('providerId', '=', 'credential')
-      .executeTakeFirst()
-
-    if (existing?.id) {
-      const result = await db
-        .updateTable('account')
-        .set({ password: hashed })
-        .where('id', '=', String(existing.id))
-        .executeTakeFirst()
-      return Number(result.numUpdatedRows ?? 0) > 0
+  const now = new Date()
+  return withPool(async (pool) => {
+    const findAttempts = [
+      `SELECT id FROM account WHERE "userId" = $1 AND "providerId" = 'credential' LIMIT 1`,
+      `SELECT id FROM account WHERE user_id = $1 AND provider_id = 'credential' LIMIT 1`,
+    ]
+    let existingId: string | null = null
+    for (const sql of findAttempts) {
+      try {
+        const existing = await pool.query<{ id: string }>(sql, [userId])
+        if (existing.rows[0]?.id) {
+          existingId = existing.rows[0].id
+          break
+        }
+      } catch {
+        // next
+      }
     }
 
-    await db
-      .insertInto('account')
-      .values({
-        id: randomUUID(),
-        accountId: email,
-        providerId: 'credential',
-        userId,
-        password: hashed,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .execute()
-    return true
+    if (existingId) {
+      for (const sql of [
+        `UPDATE account SET password = $1, "updatedAt" = $2 WHERE id = $3`,
+        `UPDATE account SET password = $1, updated_at = $2 WHERE id = $3`,
+      ]) {
+        try {
+          const result = await pool.query(sql, [hashed, now, existingId])
+          if (Number(result.rowCount ?? 0) > 0) return true
+        } catch {
+          // next
+        }
+      }
+      return false
+    }
+
+    for (const sql of [
+      `INSERT INTO account (id, "accountId", "providerId", "userId", password, "createdAt", "updatedAt")
+       VALUES ($1,$2,'credential',$3,$4,$5,$6)`,
+      `INSERT INTO account (id, account_id, provider_id, user_id, password, created_at, updated_at)
+       VALUES ($1,$2,'credential',$3,$4,$5,$6)`,
+    ]) {
+      try {
+        await pool.query(sql, [randomUUID(), email, userId, hashed, now, now])
+        return true
+      } catch {
+        // next
+      }
+    }
+    return false
   })
 }
 
@@ -161,16 +267,27 @@ async function seedOne(
         },
       })
       created = true
-    } catch (error) {
       userId = await findUserId(spec.email)
-      if (!userId) {
-        throw new Error(`Could not create boot account ${spec.email}`, { cause: error })
+    } catch (signupError) {
+      // Prefer direct SQL when Better Auth signup refuses (schema/hook quirks).
+      try {
+        userId = await createUserRow(spec)
+        created = true
+      } catch (insertError) {
+        userId = await findUserId(spec.email)
+        if (!userId) {
+          throw new Error(`Could not create boot account ${spec.email}`, {
+            cause: insertError ?? signupError,
+          })
+        }
       }
     }
-    userId = await findUserId(spec.email)
   }
 
-  if (!userId) throw new Error(`Boot account ${spec.email} is missing after signup.`)
+  if (!userId) {
+    userId = await createUserRow(spec)
+    created = true
+  }
 
   const passwordOk = await syncCredentialPassword(userId, spec.email, spec.password)
   if (!passwordOk) throw new Error(`Could not sync password for ${spec.email}.`)
@@ -178,6 +295,7 @@ async function seedOne(
   const roleOk = await assignBootRole(spec.email, spec.role, spec.displayName)
   if (!roleOk) throw new Error(`Could not assign ${spec.role} to ${spec.email}.`)
 
+  console.info(`[auth] boot account ${created ? 'created' : 'synced'}: ${maskEmail(spec.email)} as ${spec.role}`)
   return created ? 'created' : 'synced'
 }
 
@@ -199,6 +317,7 @@ export async function ensureNewsroomBootAccounts(auth: AuthApi): Promise<BootPro
       }
       if (specs.length === 0) {
         lastProvisionError = 'NEWSROOM_SUPERADMIN_EMAIL/PASSWORD (or ADMIN pair) is not set in Vercel.'
+        console.error('[auth]', lastProvisionError)
         return result
       }
 
@@ -217,6 +336,7 @@ export async function ensureNewsroomBootAccounts(auth: AuthApi): Promise<BootPro
         result.failed.length > 0
           ? `Failed to provision ${result.failed.join(', ')}. Check DATABASE_URL and env passwords.`
           : null
+      console.info('[auth] boot provision result', result)
       return result
     })().finally(() => {
       // Allow a later request to retry after a transient Aiven blip.
