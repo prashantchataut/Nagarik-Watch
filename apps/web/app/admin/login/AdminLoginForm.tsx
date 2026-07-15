@@ -55,7 +55,7 @@ export function AdminLoginForm({
           }
           if (res.status === 401 || /not found|invalid password|INVALID/i.test(message + code)) {
             setError(
-              'Wrong email or password. Type admin@nagarikwatch.com in lowercase. If autofill inserted an old password, clear it and try again (password ends with _).',
+              'Wrong email or password. Use lowercase email. If the browser autofilled an old password, clear it and try again.',
             )
             return
           }
@@ -94,8 +94,7 @@ export function AdminLoginForm({
           spellCheck={false}
           required
           disabled={pending || !databaseOnline}
-          defaultValue="admin@nagarikwatch.com"
-          placeholder="admin@nagarikwatch.com"
+          placeholder="you@example.com"
           className="newsroom-login-form__input"
         />
       </label>
@@ -106,7 +105,7 @@ export function AdminLoginForm({
         autoComplete="current-password"
         required
         disabled={pending || !databaseOnline}
-        helpText="Must match NEWSROOM_SUPERADMIN_PASSWORD in Vercel (ends with underscore)."
+        helpText="Use your newsroom password."
         showLabel="Show"
         hideLabel="Hide"
       />

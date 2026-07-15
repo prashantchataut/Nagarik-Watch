@@ -66,10 +66,12 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
             </span>
             <span className="text-brand-strong">{locale === 'en' ? 'Kathmandu' : 'काठमाडौं'}</span>
           </p>
-          <div className="flex flex-wrap items-center gap-x-1 gap-y-1 sm:gap-0 sm:divide-x sm:divide-rule">
+          <div className="hidden flex-wrap items-center gap-x-1 gap-y-1 sm:flex sm:gap-0 sm:divide-x sm:divide-rule">
             <UtilityLink href={localizeHref(locale, '/latest')} label={locale === 'en' ? 'Latest' : 'ताजा'} icon={<IconLightning />} lang={lang} />
             <UtilityLink href={localizeHref(locale, '/most-read')} label={locale === 'en' ? 'Most read' : 'धेरै पढिएको'} lang={lang} />
-            <UtilityLink href={localizeHref(locale, '/contact')} label={locale === 'en' ? 'Contact' : 'सम्पर्क'} lang={lang} />
+            <span className="hidden md:inline-flex">
+              <UtilityLink href={localizeHref(locale, '/contact')} label={locale === 'en' ? 'Contact' : 'सम्पर्क'} lang={lang} />
+            </span>
           </div>
         </div>
       </div>
@@ -98,7 +100,7 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
           </div>
 
           <Link href={homeHref} className="min-w-0 justify-self-center transition-opacity hover:opacity-85" aria-label={dict.siteName}>
-            <Logo siteName={dict.siteName} className="max-w-[16rem] sm:max-w-none md:scale-110" />
+            <Logo siteName={dict.siteName} className="max-w-[11rem] xs:max-w-[14rem] sm:max-w-none md:scale-110" />
           </Link>
 
           <div className="flex items-center justify-end">

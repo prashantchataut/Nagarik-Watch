@@ -10,6 +10,8 @@ type ShareBarProps = {
   title: string
   locale: Locale
   className?: string
+  articleSlug?: string
+  articleCategory?: string
 }
 
 /**
@@ -19,10 +21,24 @@ type ShareBarProps = {
  * window with noopener/noreferrer. Copy degrades silently when the clipboard API is
  * unavailable (older Safari / insecure context) so the bar never throws.
  */
-export function ShareBar({ url, title, locale, className }: ShareBarProps) {
+export function ShareBar({
+  url,
+  title,
+  locale,
+  className,
+  articleSlug,
+  articleCategory,
+}: ShareBarProps) {
   const dict = getDictionary(locale)
   const [copied, setCopied] = useState(false)
   const abs = resolveAbsolute(url)
+
+  function trackShare() {
+    if (!articleSlug) return
+    void import('@/components/ranking/RankingImpression').then(({ trackRankingShare }) => {
+      trackRankingShare(articleSlug, articleCategory ?? '')
+    })
+  }
 
   async function onCopy() {
     try {
@@ -32,6 +48,7 @@ export function ShareBar({ url, title, locale, className }: ShareBarProps) {
         legacyCopy(abs)
       }
       setCopied(true)
+      trackShare()
       window.setTimeout(() => setCopied(false), 2000)
     } catch {
       legacyCopy(abs)
@@ -68,6 +85,7 @@ export function ShareBar({ url, title, locale, className }: ShareBarProps) {
         rel="noopener noreferrer"
         className="article-icon-action"
         aria-label={dict.shareFacebook}
+        onClick={trackShare}
       >
         <FacebookIcon />
       </a>
@@ -77,6 +95,7 @@ export function ShareBar({ url, title, locale, className }: ShareBarProps) {
         rel="noopener noreferrer"
         className="article-icon-action"
         aria-label={dict.shareTwitter}
+        onClick={trackShare}
       >
         <XIcon />
       </a>

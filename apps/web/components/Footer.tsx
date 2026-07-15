@@ -4,6 +4,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
 import { NewsletterInline } from '@/components/NewsletterInline'
+import { ManageCookiesButton } from '@/components/ManageCookiesButton'
 import { PUBLICATION, isPublicPublicationValue } from '@/lib/site'
 
 type FooterProps = {
@@ -73,7 +74,7 @@ export function Footer({ locale }: FooterProps) {
   ]
 
   return (
-    <footer className="mt-16 border-t border-rule bg-surface">
+    <footer className="mt-16 border-t border-rule bg-surface pb-20 lg:pb-0">
       <div className="mx-auto max-w-page px-4 py-12">
         <div className="flex flex-col gap-6 border-b border-rule pb-8 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-md">
@@ -215,6 +216,9 @@ export function Footer({ locale }: FooterProps) {
           <p className="mt-2 max-w-3xl text-caption text-mute" lang={lang}>
             {dict.footerDisclaimer}
           </p>
+          <div className="mt-3">
+            <ManageCookiesButton locale={locale} />
+          </div>
         </div>
       </div>
     </footer>

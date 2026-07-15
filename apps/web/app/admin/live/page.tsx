@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getStories } from '@/lib/content'
 import { getProviderHealth } from '@/lib/live/health'
-import { getTrendingSamples } from '@/lib/engagement/store'
 import { ACTIVE_ALGORITHM_REGISTRY, rankStories } from '@/lib/ranking'
+import { buildStoryEngagementIndex, signalsForStory } from '@/lib/ranking-signals'
 import { AdminCard, AdminPageHeader } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
@@ -15,34 +15,15 @@ export const dynamic = 'force-dynamic'
 
 export default async function LiveAdminPage() {
   await requireNewsroomSession()
-  const [{ items }, providers, samples] = await Promise.all([
+  const [{ items }, providers, engagement] = await Promise.all([
     getStories({ locale: 'ne', perPage: 24 }),
     getProviderHealth(),
-    getTrendingSamples(120),
+    buildStoryEngagementIndex(120),
   ])
 
-  const now = Date.now()
-  const perStory = new Map<string, { twoHour: number; tenMinute: number; comments: number }>()
-  for (const sample of samples) {
-    const current = perStory.get(sample.articleId) ?? { twoHour: 0, tenMinute: 0, comments: 0 }
-    const weighted = sample.views + sample.shares * 6 + sample.comments * 3
-    current.twoHour += weighted
-    current.comments += sample.comments
-    if (now - Date.parse(sample.at) <= 10 * 60_000) current.tenMinute += weighted
-    perStory.set(sample.articleId, current)
-  }
-
-  const ranked = rankStories(items, (story) => {
-    const activity = perStory.get(story.slug) ?? { twoHour: 0, tenMinute: 0, comments: 0 }
-    return {
-      editorialPriority: story.isBreaking ? 3 : 0,
-      viewsPerHour: activity.twoHour / 2,
-      viewsLast10Min: activity.tenMinute,
-      baselineViewsPer10Min: Math.max(1, activity.twoHour / 12),
-      commentsPerHour: activity.comments / 2,
-      qualityTrustScore: 0.8,
-    }
-  }).slice(0, 8)
+  const ranked = rankStories(items, (story, index) =>
+    signalsForStory(story, engagement, index),
+  ).slice(0, 8)
 
   const statusCounts = providers.reduce<Record<string, number>>((acc, provider) => {
     acc[provider.status] = (acc[provider.status] ?? 0) + 1
@@ -57,18 +38,17 @@ export default async function LiveAdminPage() {
       />
 
       <section className="grid gap-4 md:grid-cols-4">
-        <Metric label="Recent engagement events" value={String(samples.length)} />
-        <Metric label="Stories with activity" value={String(perStory.size)} />
+        <Metric label="Recent engagement events" value={String(engagement.sampleCount)} />
+        <Metric label="Stories with activity" value={String(engagement.storyCount)} />
         <Metric label="Healthy feeds" value={String((statusCounts.ok ?? 0) + (statusCounts.success ?? 0))} />
         <Metric label="Needs configuration" value={String((statusCounts.unconfigured ?? 0) + (statusCounts.empty ?? 0))} />
       </section>
 
       <AdminCard className="mt-6 border-l-4 border-l-brand">
-        <h2 className="font-display text-h2 text-ink">Instrumentation boundary</h2>
+        <h2 className="font-display text-h2 text-ink">Live ranking signals</h2>
         <p className="mt-2 max-w-4xl text-meta leading-relaxed text-ink-soft">
-          The table below uses persisted reading and approved-comment events. Impression/click experiments,
-          credible intervals, unique live visitors and revenue LTV are not collected yet, so this panel does not
-          manufacture those values. Their scoring functions remain available for a future consent-aware event pipeline.
+          Uses first-party reading events, approved comments, and consent-gated impression/click/share
+          events. Empty signals stay at zero — scores do not invent traffic.
         </p>
       </AdminCard>
 
@@ -76,11 +56,11 @@ export default async function LiveAdminPage() {
         <AdminCard>
           <h2 className="font-display text-h1 text-ink" lang="ne">सम्पादकीय + वास्तविक engagement ranking</h2>
           <p className="mt-1 text-meta text-ink-soft" lang="en">
-            Scores combine publication recency, breaking priority, recent reads and approved comments. Zero activity remains zero.
+            Same weightedScore pipeline as public hubs and /admin/algorithms.
           </p>
           <div className="mt-5 divide-y divide-rule">
             {ranked.map((story, index) => {
-              const activity = perStory.get(story.slug) ?? { twoHour: 0, tenMinute: 0, comments: 0 }
+              const activity = engagement.bySlug.get(story.slug)
               return (
                 <article key={story.slug} className="grid gap-3 py-4 sm:grid-cols-[3rem_1fr_auto] sm:items-center">
                   <span className="font-display text-h1 text-rule">{index + 1}</span>
@@ -89,9 +69,9 @@ export default async function LiveAdminPage() {
                     <p className="mt-1 text-caption text-mute">{story.category.nameNe} · score {story.rankScore.toFixed(1)}</p>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center text-caption">
-                    <Signal label="2h events" value={String(activity.twoHour)} />
-                    <Signal label="10 min" value={String(activity.tenMinute)} />
-                    <Signal label="comments" value={String(activity.comments)} />
+                    <Signal label="views/h" value={String(Math.round(activity?.viewsPerHour ?? 0))} />
+                    <Signal label="10 min" value={String(Math.round(activity?.viewsLast10Min ?? 0))} />
+                    <Signal label="imps" value={String(activity?.impressions ?? 0)} />
                   </div>
                 </article>
               )

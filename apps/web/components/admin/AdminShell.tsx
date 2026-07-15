@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { NewsroomSession } from '@/lib/auth/session'
 import type { NewsroomRole } from '@/lib/admin-roles'
@@ -153,6 +153,20 @@ export function AdminShell({
       items: g.items.filter((item) => !item.roles || item.roles.has(role)),
     }))
     .filter((g) => g.items.length > 0)
+
+  useEffect(() => {
+    if (!drawerOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setDrawerOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [drawerOpen])
 
   const sidebar = (
     <aside className="flex h-full w-[17.5rem] flex-col border-r border-rule bg-surface-raised">

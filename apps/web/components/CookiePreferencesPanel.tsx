@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
-import { type ConsentChoice, defaultConsent, readConsent, writeConsent } from '@/lib/reader/consent'
+import {
+  CONSENT_POLICY_VERSION,
+  type ConsentChoice,
+  defaultConsent,
+  readConsent,
+  writeConsent,
+} from '@/lib/reader/consent'
 
 export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
   const [choice, setChoice] = useState<ConsentChoice>(defaultConsent())
@@ -14,7 +20,12 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
   }, [])
 
   function save(next: ConsentChoice) {
-    writeConsent({ ...next, essential: true, decidedAt: new Date().toISOString() })
+    writeConsent({
+      ...next,
+      essential: true,
+      version: CONSENT_POLICY_VERSION,
+      decidedAt: new Date().toISOString(),
+    })
     setChoice(next)
     setSaved(true)
     window.setTimeout(() => setSaved(false), 2500)
@@ -22,7 +33,8 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
 
   return (
     <section
-      className="mt-8 border border-rule bg-surface-raised p-5"
+      id="cookie-preferences"
+      className="mt-8 scroll-mt-24 border border-rule bg-surface-raised p-5"
       aria-label={locale === 'en' ? 'Manage cookie preferences' : 'कुकी रोजाइ व्यवस्थापन'}
       lang={lang}
     >
@@ -36,20 +48,20 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
       </p>
 
       <ul className="mt-5 space-y-3">
-        <li className="flex items-start justify-between gap-4 border-b border-rule pb-3">
+        <li id="essential" className="scroll-mt-28 flex items-start justify-between gap-4 border-b border-rule pb-3">
           <div>
             <p className="font-semibold text-ink">{locale === 'en' ? 'Essential' : 'आवश्यक'}</p>
             <p className="mt-1 text-meta text-mute">
               {locale === 'en'
-                ? 'Session, locale, theme, and security cookies. Always required.'
-                : 'सेसन, भाषा, थिम र सुरक्षा। सधैं आवश्यक।'}
+                ? 'Session, locale, theme, CSRF and security cookies. Always required.'
+                : 'सेसन, भाषा, थिम, CSRF र सुरक्षा। सधैं आवश्यक।'}
             </p>
           </div>
           <span className="mt-1 text-caption font-bold uppercase tracking-wide text-brand-strong">
             {locale === 'en' ? 'On' : 'सक्रिय'}
           </span>
         </li>
-        <li className="flex items-start justify-between gap-4 border-b border-rule pb-3">
+        <li id="personalization" className="scroll-mt-28 flex items-start justify-between gap-4 border-b border-rule pb-3">
           <div>
             <p className="font-semibold text-ink">{locale === 'en' ? 'Personalisation' : 'व्यक्तिगत'}</p>
             <p className="mt-1 text-meta text-mute">
@@ -68,7 +80,7 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
             aria-label={locale === 'en' ? 'Allow personalisation' : 'व्यक्तिगत अनुमति'}
           />
         </li>
-        <li className="flex items-start justify-between gap-4 pb-1">
+        <li id="analytics" className="scroll-mt-28 flex items-start justify-between gap-4 border-b border-rule pb-3">
           <div>
             <p className="font-semibold text-ink">{locale === 'en' ? 'Analytics' : 'एनालिटिक्स'}</p>
             <p className="mt-1 text-meta text-mute">
@@ -87,6 +99,27 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
             aria-label={locale === 'en' ? 'Allow analytics' : 'एनालिटिक्स अनुमति'}
           />
         </li>
+        <li id="advertising" className="scroll-mt-28 flex items-start justify-between gap-4 pb-1">
+          <div>
+            <p className="font-semibold text-ink">
+              {locale === 'en' ? 'Advertising measurement' : 'विज्ञापन मापन'}
+            </p>
+            <p className="mt-1 text-meta text-mute">
+              {locale === 'en'
+                ? 'First-party house-ad impression and click counts on this site only. No third-party ad networks.'
+                : 'यस साइटमा मात्र घरको विज्ञापन इम्प्रेसन/क्लिक। तेस्रो-पक्ष विज्ञापन नेटवर्क छैन।'}
+            </p>
+          </div>
+          <input
+            type="checkbox"
+            checked={choice.advertising}
+            onChange={(event) =>
+              setChoice((prev) => ({ ...prev, advertising: event.currentTarget.checked }))
+            }
+            className="mt-1 h-5 w-5 accent-brand"
+            aria-label={locale === 'en' ? 'Allow advertising measurement' : 'विज्ञापन मापन अनुमति'}
+          />
+        </li>
       </ul>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -100,7 +133,30 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
         <button
           type="button"
           onClick={() =>
-            save({ essential: true, personalization: false, analytics: false, decidedAt: new Date().toISOString() })
+            save({
+              essential: true,
+              personalization: true,
+              analytics: true,
+              advertising: true,
+              decidedAt: new Date().toISOString(),
+              version: CONSENT_POLICY_VERSION,
+            })
+          }
+          className="inline-flex min-h-11 items-center border border-rule px-4 text-meta font-semibold text-ink hover:border-brand hover:text-brand-strong"
+        >
+          {locale === 'en' ? 'Accept all' : 'सबै स्वीकार'}
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            save({
+              essential: true,
+              personalization: false,
+              analytics: false,
+              advertising: false,
+              decidedAt: new Date().toISOString(),
+              version: CONSENT_POLICY_VERSION,
+            })
           }
           className="inline-flex min-h-11 items-center border border-rule px-4 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong"
         >

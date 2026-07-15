@@ -7,7 +7,7 @@ import type { Category, Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, swapLocale } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
-import { STATIC_HUBS } from '@/lib/site'
+import { STATIC_HUBS, PROVINCES } from '@/lib/site'
 import {
   IconBookmark,
   IconClose,
@@ -138,7 +138,7 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
 
           <div
             ref={dialogRef}
-            className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-surface shadow-overlay"
+            className="absolute inset-y-0 left-0 flex w-full max-w-sm flex-col bg-surface shadow-overlay"
           >
             <div className="flex items-center justify-between border-b border-rule px-4 py-3">
               <span className="flex items-center gap-2">
@@ -190,6 +190,24 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                     </li>
                   )
                 })}
+              </DrawerSection>
+
+              <DrawerSection
+                label={locale === 'en' ? 'Provinces' : 'प्रदेश'}
+                lang={locale === 'en' ? 'en' : 'ne'}
+              >
+                {PROVINCES.map((province) => (
+                  <li key={province.slug}>
+                    <Link
+                      href={localizeHref(locale, `/province/${province.slug}`)}
+                      onClick={() => setOpen(false)}
+                      lang={locale === 'en' ? 'en' : 'ne'}
+                      className={DRAWER_LINK}
+                    >
+                      {locale === 'en' ? province.nameEn : province.nameNe}
+                    </Link>
+                  </li>
+                ))}
               </DrawerSection>
 
               <DrawerSection
@@ -258,10 +276,15 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                   [
                     'latest',
                     'trending',
+                    'most-read',
                     'market',
                     'utilities',
                     'rashifal',
                     'sports-live',
+                    'election',
+                    'disaster-alerts',
+                    'video',
+                    'photos',
                     'fact-check',
                     'submit-story',
                   ].includes(hub.key),

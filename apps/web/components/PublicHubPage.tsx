@@ -2,17 +2,20 @@ import type { Article, Locale, StoryCardData } from '@nagarikwatch/db'
 import { StoryCard } from '@nagarikwatch/ui'
 import { getArticleBySlug, getStories } from '@/lib/content'
 import { rankStories } from '@/lib/ranking'
+import { buildStoryEngagementIndex, signalsForStory } from '@/lib/ranking-signals'
 import { localizedLead, localizedTitle, type StaticHub } from '@/lib/site'
 import { UtilityWidgetRail } from '@/components/live/LiveWidgets'
 import { AdSlot } from '@/components/AdSlot'
 import { ReaderSubmissionForm } from '@/components/forms/ReaderSubmissionForm'
+import { RankingImpression } from '@/components/ranking/RankingImpression'
 
 export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: Locale }) {
-  const { items } = await getStories({ locale, perPage: 40 })
+  const [{ items }, engagement] = await Promise.all([
+    getStories({ locale, perPage: 40 }),
+    buildStoryEngagementIndex(120),
+  ])
   const hubStories = await storiesForHub(hub.key, items, locale)
-  const ranked = rankStories(hubStories, (story, index) => ({
-    editorialPriority: story.isBreaking ? 3 : Math.max(0, 1 - index / 20),
-  }))
+  const ranked = rankStories(hubStories, (story, index) => signalsForStory(story, engagement, index))
   const stories = ranked.slice(0, 12)
   const leadStory = stories[0]
   const sideStories = stories.slice(1, 4)
@@ -22,10 +25,10 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
     locale === 'en'
       ? 'No verified Nagarik Watch stories have been published in this section yet.'
       : 'यो खण्डमा नागरिक वाचका प्रमाणित समाचार अझै प्रकाशित भएका छैनन्।'
-  const rankingNotice =
+  const liveNotice =
     locale === 'en'
-      ? 'Verified audience-ranking telemetry is not connected yet. Until it is, this page is ordered by publication time and editorial priority—not fabricated popularity numbers.'
-      : 'प्रमाणित पाठक-र्‍याङ्किङ तथ्याङ्क अझै जोडिएको छैन। त्यतिन्जेल यो सूची प्रकाशन समय र सम्पादकीय प्राथमिकताका आधारमा छ; बनावटी लोकप्रियता अङ्क प्रयोग गरिएको छैन।'
+      ? `Live ranking uses first-party reads, comments, impressions and clicks when available (${engagement.storyCount} stories with activity in the last 2 hours). Quiet stories fall back to editorial priority and recency.`
+      : `लाइभ र्‍याङ्किङले उपलब्ध पहिलो-पक्ष पढाइ, टिप्पणी, इम्प्रेसन र क्लिक प्रयोग गर्छ (पछिल्लो २ घण्टामा ${engagement.storyCount} कथा सक्रिय)। शान्त कथाहरू सम्पादकीय प्राथमिकता र ताजापनमा झर्छन्।`
 
   return (
     <div className="mx-auto max-w-page px-4 py-8">
@@ -56,9 +59,9 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
         </p>
       </header>
 
-      {hub.mode === 'trending' ? (
-        <aside className="mt-5 border-y border-warning py-3 text-meta leading-relaxed text-ink-soft" lang={lang}>
-          {rankingNotice}
+      {hub.mode === 'trending' || hub.mode === 'latest' ? (
+        <aside className="mt-5 border-y border-rule py-3 text-meta leading-relaxed text-ink-soft" lang={lang}>
+          {liveNotice}
         </aside>
       ) : null}
 
@@ -72,10 +75,21 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
 
       {stories.length > 0 ? (
         <section className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(19rem,0.75fr)]">
-          {leadStory ? <StoryCard story={leadStory} locale={locale} variant="featured" /> : null}
+          {leadStory ? (
+            <div className="relative">
+              <RankingImpression
+                articleSlug={leadStory.slug}
+                articleCategory={leadStory.category.slug}
+              />
+              <StoryCard story={leadStory} locale={locale} variant="featured" />
+            </div>
+          ) : null}
           <div className="grid content-start gap-5 border-t border-rule pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
             {sideStories.map((story) => (
-              <StoryCard key={story.slug} story={story} locale={locale} variant="horizontal" />
+              <div key={story.slug} className="relative">
+                <RankingImpression articleSlug={story.slug} articleCategory={story.category.slug} />
+                <StoryCard story={story} locale={locale} variant="horizontal" />
+              </div>
             ))}
           </div>
         </section>
@@ -106,12 +120,14 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
           </div>
           <div className="grid gap-x-7 gap-y-9 md:grid-cols-2 xl:grid-cols-3">
             {compactStories.map((story, index) => (
-              <StoryCard
-                key={story.slug}
-                story={story}
-                locale={locale}
-                variant={index % 3 === 0 ? 'text-led' : 'compact'}
-              />
+              <div key={story.slug} className="relative">
+                <RankingImpression articleSlug={story.slug} articleCategory={story.category.slug} />
+                <StoryCard
+                  story={story}
+                  locale={locale}
+                  variant={index % 3 === 0 ? 'text-led' : 'compact'}
+                />
+              </div>
             ))}
           </div>
         </section>

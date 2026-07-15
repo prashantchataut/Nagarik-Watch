@@ -4,6 +4,7 @@ import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localePrefix, localizeHref } from '@/lib/i18n/locales'
 import { InfoSection, InfoPageHeader } from '@/components/InfoPage'
 import { CookiePreferencesPanel } from '@/components/CookiePreferencesPanel'
+import { ManageCookiesButton } from '@/components/ManageCookiesButton'
 
 type Params = { locale: string }
 
@@ -19,40 +20,58 @@ export default async function CookiesPage({ params }: { params: Promise<Params> 
         lead={
           english
             ? 'How Nagarik Watch uses cookies and similar browser storage, and how you control them.'
-            : 'नागरिक वाचले कुकी र ब्राउजर भण्डारण कसरी प्रयोग गर्छ, र तपाईंले कसरी नियन्त्रण गर्नुहुन्छ।'
+            : 'नागरिक वाचले कुकी र ब्राउजर भण्डारण कसरी प्रयोग गर्छ, र तपाईंले कसरी नियन्त्रण गर्नुहोस्।'
         }
         lang={lang}
       />
 
+      <div className="mt-4">
+        <ManageCookiesButton locale={locale} />
+      </div>
+
       <div className="mt-10 space-y-10">
         <InfoSection heading={english ? 'What we use' : 'हामी के प्रयोग गर्छौं'} lang={lang}>
           {english
-            ? 'Cookies and local storage help the site remember your language, theme, login session and — only with permission — reading preferences. We do not sell data or run advertising trackers.'
-            : 'कुकी र स्थानीय भण्डारणले भाषा, थिम, लगइन सेसन र — अनुमति दिएपछि मात्र — पढाइ रुचि सम्झन्छ। हामी डाटा बेच्दैनौं वा विज्ञापन ट्र्याकर चलाउँदैनौं।'}
+            ? 'Cookies and local storage help the site remember your language, theme, login session and — only with permission — reading preferences, analytics and first-party house-ad measurement. We do not sell data or load third-party advertising trackers.'
+            : 'कुकी र स्थानीय भण्डारणले भाषा, थिम, लगइन सेसन र — अनुमति दिएपछि मात्र — पढाइ रुचि, एनालिटिक्स र घरको विज्ञापन मापन सम्झन्छ। हामी डाटा बेच्दैनौं वा तेस्रो-पक्ष विज्ञापन ट्र्याकर लोड गर्दैनौं।'}
         </InfoSection>
 
-        <InfoSection heading={english ? 'Essential' : 'आवश्यक'} lang={lang}>
-          {english
-            ? 'Required for security and basic operation: Better Auth session cookies, locale preference, theme, and CSRF/same-site protections. These cannot be turned off.'
-            : 'सुरक्षा र आधारभूत सञ्चालनका लागि आवश्यक: Better Auth सेसन कुकी, भाषा, थिम, र CSRF/same-site सुरक्षा। यी बन्द गर्न सकिँदैन।'}
-        </InfoSection>
+        <div id="essential" className="scroll-mt-24">
+          <InfoSection heading={english ? 'Essential' : 'आवश्यक'} lang={lang}>
+            {english
+              ? 'Required for security and basic operation: Better Auth session cookies, locale preference, theme, and CSRF/same-site protections. These cannot be turned off.'
+              : 'सुरक्षा र आधारभूत सञ्चालनका लागि आवश्यक: Better Auth सेसन कुकी, भाषा, थिम, र CSRF/same-site सुरक्षा। यी बन्द गर्न सकिँदैन।'}
+          </InfoSection>
+        </div>
 
-        <InfoSection heading={english ? 'Personalisation (optional)' : 'व्यक्तिगत (वैकल्पिक)'} lang={lang}>
-          {english
-            ? 'If you allow it, this browser stores saved stories, continue-reading progress, and interest signals for recommendations. Turning it off clears that local data.'
-            : 'अनुमति दिएमा यो ब्राउजरमा सुरक्षित लेख, जारी राख्ने प्रगति र सिफारिसका लागि रुचि सङ्केत राखिन्छ। बन्द गर्दा त्यो स्थानीय डाटा मेटिन्छ।'}
-        </InfoSection>
+        <div id="personalization" className="scroll-mt-24">
+          <InfoSection heading={english ? 'Personalisation (optional)' : 'व्यक्तिगत (वैकल्पिक)'} lang={lang}>
+            {english
+              ? 'If you allow it, this browser stores saved stories, continue-reading progress, and interest signals for recommendations. Turning it off clears that local data and stops personalised ranking inputs from this device.'
+              : 'अनुमति दिएमा यो ब्राउजरमा सुरक्षित लेख, जारी राख्ने प्रगति र सिफारिसका लागि रुचि सङ्केत राखिन्छ। बन्द गर्दा त्यो स्थानीय डाटा मेटिन्छ।'}
+          </InfoSection>
+        </div>
 
-        <InfoSection heading={english ? 'Analytics (optional)' : 'एनालिटिक्स (वैकल्पिक)'} lang={lang}>
-          {english
-            ? 'With permission we load Plausible, a privacy-friendly analytics script that counts visits without advertising profiles. The script is not injected until you opt in.'
-            : 'अनुमतिपछि मात्र Plausible लोड हुन्छ — विज्ञापन प्रोफाइलबिना भिजिट गणना गर्ने गोपनीयता-मैत्री एनालिटिक्स।'}
-        </InfoSection>
+        <div id="analytics" className="scroll-mt-24">
+          <InfoSection heading={english ? 'Analytics (optional)' : 'एनालिटिक्स (वैकल्पिक)'} lang={lang}>
+            {english
+              ? 'With permission we load Plausible, a privacy-friendly analytics script that counts visits without advertising profiles. The script is not injected until you opt in. The same consent can allow anonymous story impression events used for ranking.'
+              : 'अनुमतिपछि मात्र Plausible लोड हुन्छ — विज्ञापन प्रोफाइलबिना भिजिट गणना। सोही सहमतिले र्‍याङ्किङका लागि गोप्य कथा इम्प्रेसन घटना अनुमति दिन सक्छ।'}
+          </InfoSection>
+        </div>
+
+        <div id="advertising" className="scroll-mt-24">
+          <InfoSection heading={english ? 'Advertising measurement (optional)' : 'विज्ञापन मापन (वैकल्पिक)'} lang={lang}>
+            {english
+              ? 'Only measures our own house ad placements on nagarikwatch.com (views/clicks). No Meta/Google ad pixels, no cross-site profiles, no sale of data.'
+              : 'नागरिक वाचका आफ्नै घर विज्ञापन मात्र मापन (दृश्य/क्लिक)। Meta/Google पिक्सेल छैन, क्रस-साइट प्रोफाइल छैन, डाटा बिक्री छैन।'}
+          </InfoSection>
+        </div>
 
         <InfoSection heading={english ? 'How long' : 'कति समय'} lang={lang}>
           {english
-            ? 'Consent and preference cookies last up to 12 months. Session cookies end when you sign out or the browser session ends. You can change or withdraw consent below at any time.'
-            : 'सहमति र रोजाइ कुकी अधिकतम १२ महिनासम्म रहन्छन्। सेसन कुकी साइन आउट वा ब्राउजर सेसन सकिएपछि सकिन्छ। तल जुनसुकै बेला बदल्न वा फिर्ता लिन सकिन्छ।'}
+            ? 'Consent and preference cookies last up to 12 months. Session cookies end when you sign out or the browser session ends. When we change cookie categories, we ask again once.'
+            : 'सहमति र रोजाइ कुकी अधिकतम १२ महिनासम्म रहन्छन्। सेसन कुकी साइन आउट वा ब्राउजर सेसन सकिएपछि सकिन्छ। कोटी फेरिएपछि एक पटक फेरि सोधिन्छ।'}
         </InfoSection>
 
         <p className="max-w-prose text-body text-ink-soft" lang={lang}>

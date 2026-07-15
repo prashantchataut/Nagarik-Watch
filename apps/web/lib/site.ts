@@ -88,8 +88,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/trending',
     titleNe: 'ट्रेन्डिङ',
     titleEn: 'Trending',
-    leadNe: 'प्रमाणित पाठक तथ्याङ्क जोडिएपछि त्यसका आधारमा चल्ने सूची; हाल प्रकाशन समय र सम्पादकीय प्राथमिकताअनुसार।',
-    leadEn: 'A reader-signal ranking once verified telemetry is connected; currently ordered by time and editorial priority.',
+    leadNe: 'पढाइ र टिप्पणी गतिमा आधारित लाइभ ट्रेन्डिङ। सिग्नल कम भए ताजाता र सम्पादकीय प्राथमिकतामा झर्छ।',
+    leadEn: 'Live trending from first-party reads and comment velocity. Quiet periods fall back to freshness and editorial priority.',
     mode: 'trending',
   },
   {
@@ -97,8 +97,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/most-read',
     titleNe: 'धेरै पढिएको',
     titleEn: 'Most Read',
-    leadNe: 'प्रमाणित पढाइ तथ्याङ्क उपलब्ध भएपछि धेरै पढिएका सामग्री; हाल ताजा र सम्पादकीय रूपमा प्राथमिक कथा।',
-    leadEn: 'Most-read stories once verified readership data is available; currently the newest editorially prioritised stories.',
+    leadNe: 'पछिल्लो सात दिनका भिन्न पाठक र पढाइ गहिराइका आधारमा; पर्याप्त डाटा नहुँदा ताजा सूची।',
+    leadEn: 'Ranked by unique readers and reading depth over seven days; falls back to newest when sample size is thin.',
     mode: 'trending',
   },
   {

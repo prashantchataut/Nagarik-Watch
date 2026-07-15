@@ -2,9 +2,10 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { Byline, CategoryLabel } from '@nagarikwatch/ui'
-import { formatDate, recommend, type ArticleBlock } from '@nagarikwatch/db'
+import { formatDate, type ArticleBlock } from '@nagarikwatch/db'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getArticleBySlug, getStories } from '@/lib/content'
+import { relatedByContent } from '@/lib/ranking'
 import { ArticleBody, CorrectionNotice, TagRow } from '@/components/article/ArticleBody'
 import { ArticleJsonLd } from '@/components/article/ArticleJsonLd'
 import { PaywallNotice } from '@/components/article/PaywallNotice'
@@ -75,21 +76,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
   const href = localizeHref(locale, `/${category}/${slug}`)
   const canonical = `${SITE_URL}${href}`
   const relatedPool = await getStories({ locale, limit: 40 })
-  const related = recommend(
-    [...relatedPool.items, article],
-    {
-      history: [
-        {
-          id: `current:${article.id}`,
-          userId: session?.userId ?? 'anonymous',
-          articleId: article.id,
-          readAt: new Date().toISOString(),
-          completed: true,
-        },
-      ],
-    },
-    { limit: 5, excludeIds: [article.id], maxPerCategory: 3 },
-  ).map(({ recScore: _score, recStrategy: _strategy, recVersion: _version, ...story }) => story)
+  const related = relatedByContent(article, relatedPool.items, 5)
 
   return (
     <article className="pb-12">
@@ -112,7 +99,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
           </div>
           <div className="article-trust-ledger__tools">
             <div className="flex flex-wrap items-center gap-2"><BookmarkButton story={article} locale={locale} variant="pill" /><FontSizeControl locale={locale} /></div>
-            <ShareBar url={canonical} title={title} locale={locale} />
+            <ShareBar url={canonical} title={title} locale={locale} articleSlug={slug} articleCategory={category} />
           </div>
         </div>
       </header>

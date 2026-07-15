@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import type { AdMode } from '@/lib/ads'
+import { hasAdvertisingConsent } from '@/lib/reader/consent'
 
 export function AdTracker({ placementKey, mode }: { placementKey: string; mode: AdMode }) {
   const ref = useRef<HTMLSpanElement | null>(null)
@@ -10,6 +11,7 @@ export function AdTracker({ placementKey, mode }: { placementKey: string; mode: 
   useEffect(() => {
     const node = ref.current?.closest('[data-ad-placement]')
     if (!node || fired.current) return
+    if (!hasAdvertisingConsent()) return
 
     const send = () => {
       if (fired.current) return

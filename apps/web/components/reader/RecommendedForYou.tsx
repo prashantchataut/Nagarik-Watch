@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Locale, RecStrategy, StoryCardData } from '@nagarikwatch/db'
 import { StoryCard } from '@nagarikwatch/ui'
 import Link from 'next/link'
-import { CONSENT_EVENT, getOrCreateReaderId, hasPersonalizationConsent, writeConsent } from '@/lib/reader/consent'
+import { CONSENT_EVENT, getOrCreateReaderId, hasPersonalizationConsent, mergeConsent } from '@/lib/reader/consent'
 import {
   READER_BOOKMARKS_KEY,
   READER_HISTORY_KEY,
@@ -106,7 +106,7 @@ export function RecommendedForYou({ locale, catalog, className }: { locale: Loca
   const unfinished = useMemo(() => enabled ? continueReadingForReader(catalog, history) : null, [catalog, enabled, history])
 
   function enable() {
-    writeConsent({ essential: true, personalization: true, analytics: false, decidedAt: new Date().toISOString() })
+    mergeConsent({ personalization: true })
     void syncFromServer(catalog, locale).then(() => setSynced(true)).catch(() => setSynced(false))
   }
 
