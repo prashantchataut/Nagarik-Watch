@@ -49,13 +49,25 @@ export type BootLoginHint = {
 let lastProvisionError: string | null = null
 let provisionPromise: Promise<BootProvisionResult> | null = null
 
+const ROLE_RANK: Record<string, number> = { admin: 1, super_admin: 2 }
+
 function configuredSpecs(): Array<BootAccountSpec & { email: string; password: string }> {
-  return BOOT_SPECS.flatMap((spec) => {
+  const specs = BOOT_SPECS.flatMap((spec) => {
     const email = process.env[spec.emailKey]?.trim().toLowerCase()
     const password = process.env[spec.passwordKey]
     if (!email || !password) return []
     return [{ ...spec, email, password }]
   })
+
+  // Same email in SUPERADMIN + ADMIN must not demote super_admin → admin.
+  const byEmail = new Map<string, BootAccountSpec & { email: string; password: string }>()
+  for (const spec of specs) {
+    const existing = byEmail.get(spec.email)
+    if (!existing || (ROLE_RANK[spec.role] ?? 0) >= (ROLE_RANK[existing.role] ?? 0)) {
+      byEmail.set(spec.email, spec)
+    }
+  }
+  return [...byEmail.values()]
 }
 
 export function maskEmail(email: string): string {

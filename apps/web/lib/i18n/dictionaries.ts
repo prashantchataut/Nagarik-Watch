@@ -99,7 +99,7 @@ export const dictionary = {
       'यो नीतिले हामी तपाईंको कस्तो जानकारी संकलन गर्छौं र कसरी प्रयोग गर्छौं भन्ने वर्णन गर्छ।',
     privacyAnalyticsHeading: 'एनालिटिक्स',
     privacyAnalytics:
-      'हामी कुकीरहित, गोपनीयता-मैत्री Plausible एनालिटिक्स प्रयोग गर्छौं जसले व्यक्तिगत पहिचान नगरी कुल भिजिट गणना मात्र गर्छ। तपाईंलाई फिङ्गरप्रिन्ट गरिँदैन।',
+      'तपाईं अनुमति दिएपछि मात्र गोपनीयता-मैत्री Plausible एनालिटिक्स चल्छ। यसले व्यक्तिगत पहिचान नगरी कुल भिजिट गणना गर्छ — विज्ञापन प्रोफाइल बनाइँदैन।',
     privacyContactHeading: 'सम्पर्क फारम',
     privacyContact:
       'यदि तपाईंले सम्पर्क फारम भर्नुभयो भने तपाईंको नाम र इमेल तपाईंको अनुरोधको प्रतिक्रियाका लागि मात्र प्रयोग हुन्छ र तेस्रो पक्षसँग साझेदारी गरिँदैन।',
@@ -251,7 +251,7 @@ export const dictionary = {
     privacyLead: 'This policy describes what information we collect about you and how we use it.',
     privacyAnalyticsHeading: 'Analytics',
     privacyAnalytics:
-      'We use cookieless, privacy-friendly Plausible analytics which counts total visits without personally identifying anyone. You are not fingerprinted.',
+      'Only after you opt in do we load privacy-friendly Plausible analytics. It counts visits without building advertising profiles.',
     privacyContactHeading: 'Contact form',
     privacyContact:
       'If you fill in the contact form, your name and email are used only to respond to your request and are never shared with third parties.',

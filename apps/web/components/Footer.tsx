@@ -62,6 +62,10 @@ export function Footer({ locale }: FooterProps) {
       label: locale === 'en' ? 'Recommendation policy' : 'सिफारिस नीति',
     },
     { href: localizeHref(locale, '/privacy'), label: dict.footerPrivacy },
+    {
+      href: localizeHref(locale, '/cookies'),
+      label: locale === 'en' ? 'Cookies' : 'कुकी',
+    },
     { href: localizeHref(locale, '/terms'), label: locale === 'en' ? 'Terms' : 'सर्त' },
     { href: localizeHref(locale, '/advertise'), label: locale === 'en' ? 'Advertise' : 'विज्ञापन' },
     { href: localizeHref(locale, '/contact'), label: dict.footerContact },

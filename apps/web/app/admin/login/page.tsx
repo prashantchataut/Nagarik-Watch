@@ -35,42 +35,38 @@ export default async function AdminLoginPage({
   const bootReady = boot.configured && boot.provisionedCount > 0
 
   return (
-    <main className="staff-gate" lang="ne">
+    <main className="staff-gate" lang="en">
       <div className="staff-gate__card">
-        <Link href="/" className="staff-gate__brand" aria-label="नागरिक वाच गृहपृष्ठ">
+        <Link href="/" className="staff-gate__brand" aria-label="Nagarik Watch home">
           <Logo siteName="नागरिक वाच" />
         </Link>
 
         <header className="staff-gate__header">
-          <h1>न्युजरुम लगइन</h1>
-          <p>सम्पादक र एडमिनका लागि मात्र।</p>
+          <h1>Newsroom login</h1>
+          <p>Editors and admins only.</p>
         </header>
 
         {!database.ok ? (
           <aside className="newsroom-login-form__error" role="status">
-            <strong>डाटाबेस अफलाइन।</strong>
+            <strong>Database offline.</strong>
             <span style={{ display: 'block', marginTop: '0.35rem' }}>{database.detail}</span>
           </aside>
         ) : null}
 
         {database.ok && boot.configured && !bootReady ? (
           <aside className="newsroom-login-form__error" role="status">
-            <strong>स्टाफ खाता तयार हुँदैछ।</strong>
+            <strong>Preparing staff account…</strong>
             <span style={{ display: 'block', marginTop: '0.35rem' }}>
-              पृष्ठ रिफ्रेस गर्नुहोस् र फेरि प्रयास गर्नुहोस्।
+              Refresh this page once, then try again.
             </span>
           </aside>
         ) : null}
 
-        <AdminLoginForm
-          resetComplete={query.reset === 'success'}
-          databaseOnline={database.ok}
-          expectedEmails={boot.maskedEmails}
-        />
+        <AdminLoginForm resetComplete={query.reset === 'success'} databaseOnline={database.ok} />
 
         <p className="staff-gate__footer">
-          <Link href="/">← गृहपृष्ठ</Link>
-          <Link href="/auth/forgot-password?next=%2Fadmin%2Flogin">पासवर्ड भुल्नुभयो?</Link>
+          <Link href="/">← Home</Link>
+          <Link href="/auth/forgot-password?next=%2Fadmin%2Flogin">Forgot password?</Link>
         </p>
       </div>
     </main>

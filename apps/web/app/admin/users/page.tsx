@@ -20,6 +20,7 @@ import {
   updateNewsroomUserRole,
   type NewsroomUserRecord,
 } from '@/lib/newsroom-users'
+import { roleGroupsForAssignable } from '@/lib/admin-role-groups'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
 
@@ -184,6 +185,7 @@ export default async function UsersPage({
   ])
   const canManage = ['admin', 'super_admin'].includes(session.newsroomRole)
   const assignableRoles = rolesAssignableBy(session.newsroomRole)
+  const roleGroups = roleGroupsForAssignable(assignableRoles)
   const notice = query.result ? notices[query.result] : null
   const filtered = users.filter((user) => {
     if (!matchesScope(user, scope)) return false
@@ -230,7 +232,13 @@ export default async function UsersPage({
 
       {canManage ? (
         <AdminCard className="mb-5">
-          <form action={inviteUser} className="grid gap-3 lg:grid-cols-[1fr_220px_auto] lg:items-end">
+          <h2 className="font-display text-h2 text-ink" lang="ne">
+            भूमिका निमन्त्रणा
+          </h2>
+          <p className="mt-1 text-meta text-mute" lang="ne">
+            इमेलमा लिंक पठाइन्छ। स्वीकृत भएपछि मात्र भूमिका लागू हुन्छ। /admin/roles मा पूर्ण अधिकार तालिका हेर्नुहोस्।
+          </p>
+          <form action={inviteUser} className="mt-4 grid gap-3 lg:grid-cols-[1fr_260px_auto] lg:items-end">
             <label className="grid gap-1 text-caption font-semibold text-ink-soft">
               Email
               <input name="email" type="email" required className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
@@ -238,10 +246,14 @@ export default async function UsersPage({
             <label className="grid gap-1 text-caption font-semibold text-ink-soft">
               Role
               <select name="role" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink">
-                {assignableRoles.map((role) => (
-                  <option key={role} value={role}>
-                    {NEWSROOM_ROLE_LABELS_NE[role]}
-                  </option>
+                {roleGroups.map((group) => (
+                  <optgroup key={group.id} label={`${group.labelNe} · ${group.labelEn}`}>
+                    {group.roles.map((role) => (
+                      <option key={role} value={role}>
+                        {NEWSROOM_ROLE_LABELS_NE[role]} ({role})
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </label>
@@ -249,6 +261,18 @@ export default async function UsersPage({
               निमन्त्रणा पठाउनुहोस्
             </button>
           </form>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            {roleGroups.map((group) => (
+              <div key={group.id} className="border border-rule bg-surface px-3 py-2">
+                <p className="text-caption font-bold uppercase tracking-wide text-brand-strong" lang="ne">
+                  {group.labelNe}
+                </p>
+                <p className="mt-1 text-caption text-mute" lang="ne">
+                  {group.hintNe}
+                </p>
+              </div>
+            ))}
+          </div>
           <p className="mt-3 text-caption text-mute" lang="ne">
             लिंक एकपटक प्रयोग हुने, इमेलसँग बाँधिएको र सात दिनमा समाप्त हुने हुन्छ। इमेल प्रदायक तयार नभए निमन्त्रणा सक्रिय हुँदैन।
           </p>
@@ -341,13 +365,17 @@ export default async function UsersPage({
                               <select
                                 name="role"
                                 defaultValue={user.role}
-                                className="h-9 min-w-[10rem] rounded-md border border-rule bg-surface px-2 text-caption text-ink"
+                                className="h-9 min-w-[12rem] rounded-md border border-rule bg-surface px-2 text-caption text-ink"
                               >
                                 <option value="reader">पाठक / पहुँच हटाउने</option>
-                                {assignableRoles.map((role) => (
-                                  <option key={role} value={role}>
-                                    {NEWSROOM_ROLE_LABELS_NE[role]}
-                                  </option>
+                                {roleGroups.map((group) => (
+                                  <optgroup key={group.id} label={group.labelNe}>
+                                    {group.roles.map((role) => (
+                                      <option key={role} value={role}>
+                                        {NEWSROOM_ROLE_LABELS_NE[role]}
+                                      </option>
+                                    ))}
+                                  </optgroup>
                                 ))}
                               </select>
                               <button className="rounded-md border border-rule px-2 text-caption font-bold text-ink-soft hover:border-brand hover:text-brand-strong">

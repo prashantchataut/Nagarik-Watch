@@ -24,35 +24,49 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   ])
 
   if (!homepage) {
-    const wire = sourceHeadlines.slice(0, 6)
+    const wire = sourceHeadlines.slice(0, 8)
     const lead = wire[0]
     const rest = wire.slice(1)
+    const serviceLinks = [
+      { href: '/latest', titleNe: 'ताजा', titleEn: 'Latest' },
+      { href: '/trending', titleNe: 'ट्रेन्डिङ', titleEn: 'Trending' },
+      { href: '/most-read', titleNe: 'धेरै पढिएको', titleEn: 'Most read' },
+      { href: '/market', titleNe: 'बजार', titleEn: 'Market' },
+      { href: '/utilities', titleNe: 'उपयोगी', titleEn: 'Utilities' },
+      { href: '/rashifal', titleNe: 'राशिफल', titleEn: 'Rashifal' },
+      { href: '/fact-check', titleNe: 'तथ्य-जाँच', titleEn: 'Fact check' },
+      { href: '/submit-story', titleNe: 'टिप पठाउनुहोस्', titleEn: 'Send a tip' },
+    ]
 
     return (
-      <div className="mx-auto max-w-page px-4 pb-16 pt-4">
-        <div
-          className="flex flex-wrap items-center gap-x-3 gap-y-1 border-y border-rule bg-surface-raised px-3 py-2 text-caption font-bold uppercase tracking-[0.12em] text-brand-strong"
-          lang={english ? 'en' : 'ne'}
+      <div className="mx-auto max-w-page px-4 pb-16 pt-3">
+        <nav
+          aria-label={english ? 'Quick desks' : 'द्रुत विभाग'}
+          className="overflow-x-auto border-y border-rule bg-surface-raised [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <span>{english ? 'Coming online' : 'छिट्टै पूर्ण'}</span>
-          <span className="text-mute" aria-hidden="true">
-            ·
-          </span>
-          <span className="normal-case tracking-normal text-ink-soft">
-            {english
-              ? 'Editors are preparing the first published editions. Source wire and desks are live below.'
-              : 'सम्पादकहरू पहिलो प्रकाशन तयार गर्दैछन्। तल वायर र विभाग उपलब्ध छन्।'}
-          </span>
-        </div>
+          <ul className="flex min-w-max divide-x divide-rule">
+            {serviceLinks.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={localizeHref(locale, item.href)}
+                  className="inline-flex min-h-11 items-center whitespace-nowrap px-3.5 text-meta font-bold text-ink-soft hover:bg-surface hover:text-brand-strong"
+                  lang={english ? 'en' : 'ne'}
+                >
+                  {english ? item.titleEn : item.titleNe}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-        <section className="mt-6 grid gap-8 border-b border-rule pb-10 lg:grid-cols-[minmax(0,1.45fr)_minmax(16rem,0.55fr)]">
+        <section className="mt-6 grid gap-8 border-b-2 border-ink pb-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(15rem,0.5fr)]">
           <div lang={english ? 'en' : 'ne'}>
             {lead ? (
               <>
-                <p className="text-caption font-bold uppercase tracking-[0.16em] text-mute">
-                  {english ? 'From the wire' : 'वायरबाट'}
+                <p className="text-caption font-bold uppercase tracking-[0.16em] text-breaking">
+                  {english ? 'Wire · live' : 'वायर · लाइभ'}
                 </p>
-                <h1 className="mt-3 max-w-[22ch] font-display text-[clamp(1.9rem,5vw,3.4rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-ink">
+                <h1 className="mt-2 max-w-[24ch] font-display text-[clamp(1.85rem,4.8vw,3.15rem)] font-extrabold leading-[1.08] tracking-[-0.03em] text-ink">
                   <a
                     href={lead.sourceUrl || localizeHref(locale, '/wire')}
                     className="hover:text-brand-strong"
@@ -62,31 +76,31 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     {english && lead.titleEn ? lead.titleEn : lead.titleNe}
                   </a>
                 </h1>
-                <p className="mt-4 max-w-prose text-body leading-relaxed text-ink-soft">
+                <p className="mt-3 max-w-prose text-body leading-relaxed text-ink-soft">
                   {english
-                    ? 'Open-source wire copy until the newsroom publishes reviewed stories. Desks and tips stay open.'
-                    : 'सम्पादकीय समीक्षा पूरा भएको समाचार आउँदासम्म खुला वायर। विभाग र टिप खुला छन्।'}
+                    ? 'Open wire until editors publish reviewed stories. Browse desks or send a tip.'
+                    : 'समीक्षित समाचार आउँदासम्म खुला वायर। विभाग हेर्नुहोस् वा टिप पठाउनुहोस्।'}
                 </p>
               </>
             ) : (
               <>
                 <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong">
-                  {english ? 'Nagarik Watch' : 'नागरिक वाच'}
+                  Nagarik Watch
                 </p>
-                <h1 className="mt-3 max-w-[18ch] font-display text-[clamp(2.1rem,5.5vw,3.6rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-ink">
-                  {english ? 'Nepal news, province by province.' : 'हर प्रदेशका लागि नेपाली समाचार।'}
+                <h1 className="mt-2 max-w-[18ch] font-display text-[clamp(2rem,5.2vw,3.4rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-ink">
+                  {english ? 'Nepal news, desk by desk.' : 'हर डेस्कबाट नेपाली समाचार।'}
                 </h1>
-                <p className="mt-4 max-w-prose text-body leading-relaxed text-ink-soft">
+                <p className="mt-3 max-w-prose text-body leading-relaxed text-ink-soft">
                   {english
-                    ? 'The newsroom is about to publish. Browse desks or send a tip while the first edition is prepared.'
-                    : 'न्यूजरुम छिट्टै प्रकाशित गर्दैछ। पहिलो संस्करण तयार हुँदासम्म विभाग हेर्नुहोस् वा टिप पठाउनुहोस्।'}
+                    ? 'The newsroom is preparing the first edition. Sections below are ready to browse.'
+                    : 'न्यूजरुम पहिलो संस्करण तयार गर्दैछ। तलका विभाग अहिले नै हेर्न मिल्छ।'}
                 </p>
               </>
             )}
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-5 flex flex-wrap gap-2">
               <Link
                 href={localizeHref(locale, '/latest')}
-                className="inline-flex min-h-11 items-center border border-brand bg-brand px-4 text-meta font-bold text-surface hover:bg-brand-strong"
+                className="inline-flex min-h-11 items-center bg-brand px-4 text-meta font-bold text-surface hover:bg-brand-strong"
               >
                 {english ? 'Latest' : 'ताजा'}
               </Link>
@@ -96,25 +110,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               >
                 {english ? 'Send a tip' : 'टिप पठाउनुहोस्'}
               </Link>
-              <Link
-                href={localizeHref(locale, '/about')}
-                className="inline-flex min-h-11 items-center px-1 text-meta font-semibold text-ink-soft hover:text-brand-strong"
-              >
-                {english ? 'About us' : 'हाम्रो बारे'}
-              </Link>
             </div>
           </div>
 
-          <aside className="border-t border-rule pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+          <aside className="border-t border-rule pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
             <p className="text-caption font-bold uppercase tracking-[0.14em] text-mute" lang={english ? 'en' : 'ne'}>
-              {english ? 'Also on the wire' : 'अन्य वायर'}
+              {english ? 'Also now' : 'अहिले'}
             </p>
-            <ol className="mt-2 divide-y divide-rule">
-              {(rest.length ? rest : wire).slice(0, 5).map((item, index) => (
+            <ol className="mt-1 divide-y divide-rule">
+              {(rest.length ? rest : wire).slice(0, 6).map((item, index) => (
                 <li key={item.sourceUrl || index} className="py-2.5">
                   <a
                     href={item.sourceUrl || localizeHref(locale, '/wire')}
-                    className="group grid grid-cols-[1.25rem_1fr] gap-2"
+                    className="group grid grid-cols-[1.4rem_1fr] gap-2"
                     rel="noopener noreferrer"
                     target="_blank"
                   >
@@ -129,35 +137,28 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </aside>
         </section>
 
-        <section className="mt-10" aria-labelledby="desks-title">
+        <section className="mt-8" aria-labelledby="desks-title">
           <div className="flex items-end justify-between gap-4 border-b border-ink pb-2">
             <h2 id="desks-title" className="font-display text-h1 text-ink" lang={english ? 'en' : 'ne'}>
-              {english ? 'Sections' : 'विभाग'}
+              {english ? 'News desks' : 'समाचार विभाग'}
             </h2>
             <Link
               href={localizeHref(locale, '/sitemap')}
               className="text-meta font-bold text-ink-soft hover:text-brand-strong"
             >
-              {english ? 'Full map' : 'पूर्ण नक्सा'}
+              {english ? 'All pages' : 'सबै पृष्ठ'}
             </Link>
           </div>
-          <ul className="mt-4 grid gap-x-6 gap-y-0 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-2 columns-1 gap-x-8 sm:columns-2 lg:columns-3">
             {categories.map((category) => (
-              <li key={category.slug} className="border-b border-rule">
+              <li key={category.slug} className="break-inside-avoid border-b border-rule">
                 <Link
                   href={localizeHref(locale, `/${category.slug}`)}
-                  className="group flex min-h-14 items-center justify-between gap-3 py-3"
+                  className="group flex min-h-12 items-center justify-between gap-3 py-2.5"
                 >
-                  <span>
-                    <strong className="font-display text-body-lg text-ink group-hover:text-brand-strong">
-                      {english ? category.nameEn : category.nameNe}
-                    </strong>
-                    {(english ? category.descriptionEn : category.descriptionNe) ? (
-                      <span className="mt-0.5 block text-caption leading-snug text-mute">
-                        {english ? category.descriptionEn : category.descriptionNe}
-                      </span>
-                    ) : null}
-                  </span>
+                  <strong className="font-display text-body-lg text-ink group-hover:text-brand-strong">
+                    {english ? category.nameEn : category.nameNe}
+                  </strong>
                   <span className="text-mute" aria-hidden="true">
                     →
                   </span>
@@ -167,7 +168,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </ul>
         </section>
 
-        <div className="mt-12">
+        <div className="mt-10">
           <SourceDeskPreview items={sourceHeadlines} locale={locale} />
         </div>
       </div>

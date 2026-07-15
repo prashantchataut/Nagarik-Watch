@@ -11,10 +11,10 @@ import { PasswordField } from '@/components/forms/PasswordField'
 export function AdminLoginForm({
   resetComplete = false,
   databaseOnline = true,
-  expectedEmails = [],
 }: {
   resetComplete?: boolean
   databaseOnline?: boolean
+  /** @deprecated unused — kept for call-site compatibility during deploy */
   expectedEmails?: string[]
 }) {
   const router = useRouter()
@@ -25,7 +25,7 @@ export function AdminLoginForm({
     e.preventDefault()
     setError(null)
     if (!databaseOnline) {
-      setError('खाता डाटाबेस अफलाइन छ। DATABASE_URL मिलाएपछि मात्र लगइन सम्भव छ।')
+      setError('Database is offline. Try again after DATABASE_URL is healthy.')
       return
     }
     const form = new FormData(e.currentTarget)
@@ -33,7 +33,7 @@ export function AdminLoginForm({
     const password = String(form.get('password') ?? '')
 
     if (!email || !password) {
-      setError('कृपया इमेल र पासवर्ड दुवै भर्नुहोस्।')
+      setError('Enter both email and password.')
       return
     }
 
@@ -49,24 +49,20 @@ export function AdminLoginForm({
           const code = typeof body?.error?.code === 'string' ? body.error.code : ''
           const message = String(body?.message ?? body?.error?.message ?? '')
           if (res.status === 503 || code === 'AUTH_UNAVAILABLE') {
-            setError('लगइन उपलब्ध छैन। खाता डाटाबेस पुग्न सकेन।')
+            setError('Sign-in unavailable. The account database could not be reached.')
             return
           }
           if (res.status === 401 || /not found|invalid password|INVALID/i.test(message + code)) {
-            setError(
-              expectedEmails.length
-                ? `खाता भेटिएन वा पासवर्ड गलत। अपेक्षित इमेल: ${expectedEmails.join(' / ')}`
-                : 'खाता भेटिएन वा पासवर्ड गलत।',
-            )
+            setError('Wrong email or password.')
             return
           }
-          setError(message || 'लगइन असफल। पुनः प्रयास गर्नुहोस्।')
+          setError(message || 'Sign-in failed. Try again.')
           return
         }
         router.refresh()
         router.push('/admin/dashboard')
       } catch {
-        setError('नेटवर्क त्रुटि। कृपया पुनः प्रयास गर्नुहोस्।')
+        setError('Network error. Please try again.')
       }
     })
   }
@@ -75,7 +71,7 @@ export function AdminLoginForm({
     <form onSubmit={onSubmit} className="newsroom-login-form" noValidate>
       {resetComplete ? (
         <div role="status" className="newsroom-login-form__ok">
-          पासवर्ड परिवर्तन भयो। नयाँ पासवर्ड प्रयोग गरेर लगइन गर्नुहोस्।
+          Password updated. Sign in with your new password.
         </div>
       ) : null}
       {error ? (
@@ -85,30 +81,30 @@ export function AdminLoginForm({
       ) : null}
 
       <label className="newsroom-login-form__field">
-        <span>स्टाफ इमेल</span>
+        <span>Email</span>
         <input
           name="email"
           type="email"
           autoComplete="username"
           required
           disabled={pending || !databaseOnline}
-          placeholder={expectedEmails[0]?.replace('***', 'editor') || 'editor@nagarikwatch.com'}
+          placeholder="admin@nagarikwatch.com"
           className="newsroom-login-form__input"
         />
       </label>
 
       <PasswordField
         name="password"
-        label="पासवर्ड"
+        label="Password"
         autoComplete="current-password"
         required
         disabled={pending || !databaseOnline}
-        showLabel="देखाउनुहोस्"
-        hideLabel="लुकाउनुहोस्"
+        showLabel="Show"
+        hideLabel="Hide"
       />
 
       <button type="submit" disabled={pending || !databaseOnline} className="newsroom-login-form__submit">
-        {pending ? 'लगइन हुँदै…' : 'न्युजरुम खोल्नुहोस्'}
+        {pending ? 'Signing in…' : 'Sign in'}
       </button>
     </form>
   )
