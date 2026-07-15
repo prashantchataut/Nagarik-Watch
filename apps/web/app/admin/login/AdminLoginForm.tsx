@@ -55,8 +55,8 @@ export function AdminLoginForm({
           if (res.status === 401 || /not found|invalid password|INVALID/i.test(message + code)) {
             setError(
               expectedEmails.length
-                ? `खाता भेटिएन वा पासवर्ड गलत। Vercel का NEWSROOM_* credentials प्रयोग गर्नुहोस् (${expectedEmails.join(' / ')})।`
-                : 'खाता भेटिएन वा पासवर्ड गलत। Vercel मा NEWSROOM_SUPERADMIN_EMAIL/PASSWORD जाँच्नुहोस्।',
+                ? `खाता भेटिएन वा पासवर्ड गलत। अपेक्षित इमेल: ${expectedEmails.join(' / ')}`
+                : 'खाता भेटिएन वा पासवर्ड गलत।',
             )
             return
           }

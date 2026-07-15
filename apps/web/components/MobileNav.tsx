@@ -12,9 +12,7 @@ import {
   IconBookmark,
   IconClose,
   IconDesk,
-  IconLock,
   IconMenu,
-  IconPen,
   IconUser,
 } from '@/components/icons/PortalIcons'
 
@@ -106,7 +104,6 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
   const savedHref = localizeHref(locale, '/saved')
   const profileHref = localizeHref(locale, '/auth/profile')
   const readerCornerHref = localizeHref(locale, '/reader-corner')
-  const journalistHref = localizeHref(locale, '/journalist/login')
   const toggleHref = swapLocale(pathname)
 
   return (
@@ -280,33 +277,6 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                     </Link>
                   </li>
                 ))}
-              </DrawerSection>
-
-              <DrawerSection
-                label={locale === 'en' ? 'Newsroom staff' : 'न्यूजरुम स्टाफ'}
-                lang={locale === 'en' ? 'en' : 'ne'}
-              >
-                <li>
-                  <Link href={journalistHref} onClick={() => setOpen(false)} className={DRAWER_LINK_ROW}>
-                    <IconPen />
-                    <span className="font-semibold text-ink">
-                      {locale === 'en' ? 'Journalist login' : 'पत्रकार लगइन'}
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/admin/login" onClick={() => setOpen(false)} className={DRAWER_LINK_ROW}>
-                    <IconLock />
-                    <span>{locale === 'en' ? 'Editor / admin login' : 'एडिटर / एडमिन लगइन'}</span>
-                  </Link>
-                </li>
-                <li>
-                  <p className="px-1 py-2 text-caption text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
-                    {locale === 'en'
-                      ? 'Staff only. Readers use Account above.'
-                      : 'स्टाफ मात्र। पाठकले माथिको खाता प्रयोग गर्नुहोस्।'}
-                  </p>
-                </li>
               </DrawerSection>
             </nav>
           </div>

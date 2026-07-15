@@ -16,8 +16,6 @@ import {
   IconBookmark,
   IconDesk,
   IconLightning,
-  IconLock,
-  IconPen,
   IconSearch,
   IconUser,
 } from '@/components/icons/PortalIcons'
@@ -48,7 +46,6 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
   const homeHref = localizeHref(locale, '/')
   const searchHref = localizeHref(locale, '/search')
   const savedHref = localizeHref(locale, '/saved')
-  const journalistHref = localizeHref(locale, '/journalist/login')
   const toggleHref = swapLocale(pathname)
   const lang = locale === 'en' ? 'en' : 'ne'
   const accountHref = account?.profileHref ?? localizeHref(locale, '/auth/login')
@@ -72,8 +69,6 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
           <div className="flex flex-wrap items-center gap-x-1 gap-y-1 sm:gap-0 sm:divide-x sm:divide-rule">
             <UtilityLink href={localizeHref(locale, '/latest')} label={locale === 'en' ? 'Latest' : 'ताजा'} icon={<IconLightning />} lang={lang} />
             <UtilityLink href={localizeHref(locale, '/most-read')} label={locale === 'en' ? 'Most read' : 'धेरै पढिएको'} lang={lang} />
-            <UtilityLink href={journalistHref} label={locale === 'en' ? 'Journalist' : 'पत्रकार'} icon={<IconPen />} lang={lang} emphasize />
-            <UtilityLink href="/admin/login" label={locale === 'en' ? 'Newsroom' : 'एडमिन'} icon={<IconLock />} lang={lang} />
             <UtilityLink href={localizeHref(locale, '/contact')} label={locale === 'en' ? 'Contact' : 'सम्पर्क'} lang={lang} />
           </div>
         </div>
@@ -98,10 +93,6 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
               <Link href={savedHref} className={TOOL} lang={lang}>
                 <IconBookmark />
                 <span>{dict.navSaved}</span>
-              </Link>
-              <Link href={journalistHref} className={`${TOOL} text-ink`} lang={lang}>
-                <IconPen />
-                <span>{locale === 'en' ? 'Journalist login' : 'पत्रकार लगइन'}</span>
               </Link>
             </div>
           </div>
@@ -174,21 +165,17 @@ function UtilityLink({
   label,
   icon,
   lang,
-  emphasize,
 }: {
   href: string
   label: string
   icon?: React.ReactNode
   lang: string
-  emphasize?: boolean
 }) {
   return (
     <Link
       href={href}
       lang={lang}
-      className={`inline-flex items-center gap-1 px-2.5 py-0.5 font-semibold sm:px-3 ${
-        emphasize ? 'text-ink hover:text-brand-strong' : 'text-ink-soft hover:text-brand-strong'
-      }`}
+      className="inline-flex items-center gap-1 px-2.5 py-0.5 font-semibold text-ink-soft hover:text-brand-strong sm:px-3"
     >
       {icon ? <span className="hidden sm:inline-flex opacity-80">{icon}</span> : null}
       {label}

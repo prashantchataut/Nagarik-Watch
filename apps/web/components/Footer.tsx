@@ -5,7 +5,6 @@ import { localizeHref } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
 import { NewsletterInline } from '@/components/NewsletterInline'
 import { PUBLICATION, isPublicPublicationValue } from '@/lib/site'
-import { IconLock, IconPen } from '@/components/icons/PortalIcons'
 
 type FooterProps = {
   locale: Locale
@@ -66,10 +65,6 @@ export function Footer({ locale }: FooterProps) {
     { href: localizeHref(locale, '/terms'), label: locale === 'en' ? 'Terms' : 'सर्त' },
     { href: localizeHref(locale, '/advertise'), label: locale === 'en' ? 'Advertise' : 'विज्ञापन' },
     { href: localizeHref(locale, '/contact'), label: dict.footerContact },
-    {
-      href: localizeHref(locale, '/journalist/login'),
-      label: locale === 'en' ? 'Journalist sign in' : 'पत्रकार लगइन',
-    },
     { href: '/rss.xml', label: 'RSS' },
   ]
 
@@ -163,25 +158,9 @@ export function Footer({ locale }: FooterProps) {
               className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
               lang={lang}
             >
-              {locale === 'en' ? 'Newsroom' : 'न्यूजरुम'}
+              {locale === 'en' ? 'Contact' : 'सम्पर्क'}
             </p>
-            <div className="mt-3 grid gap-2">
-              <Link
-                href={localizeHref(locale, '/journalist/login')}
-                className="inline-flex min-h-11 items-center gap-2 border border-rule px-3 text-meta font-bold text-ink hover:border-brand hover:text-brand-strong"
-              >
-                <IconPen />
-                {locale === 'en' ? 'Journalist login' : 'पत्रकार लगइन'}
-              </Link>
-              <Link
-                href="/admin/login"
-                className="inline-flex min-h-11 items-center gap-2 border border-rule px-3 text-meta font-bold text-ink-soft hover:border-brand hover:text-brand-strong"
-              >
-                <IconLock />
-                {locale === 'en' ? 'Editor / admin login' : 'एडिटर / एडमिन लगइन'}
-              </Link>
-            </div>
-            <address className="mt-4 not-italic text-body text-ink-soft" lang={lang}>
+            <address className="mt-3 not-italic text-body text-ink-soft" lang={lang}>
               <p className="font-semibold text-ink">{PUBLICATION.publisherName}</p>
               {isPublicPublicationValue(PUBLICATION.address) ? (
                 <p className="mt-1">{PUBLICATION.address}</p>
