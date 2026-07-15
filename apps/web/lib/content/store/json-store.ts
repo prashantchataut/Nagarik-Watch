@@ -1,28 +1,20 @@
 /**
- * JSON-file-backed article store. This is the real persistence layer for v3 —
- * no hardcoded seed content. Editors create articles via /admin, they persist
- * to disk (dev) or a blob store (prod). The site renders empty states when no
- * articles exist, so it's never broken.
- *
- * Storage: a single JSON file at <repo>/apps/web/data/articles.json. In dev
- * this persists across restarts. In production (Vercel), the filesystem is
- * read-only, so set ARTICLES_STORE_URL to a blob endpoint OR wire Payload CMS
- * (PAYLOAD_CONTENT_SOURCE=payload + DATABASE_URL). The store interface is the
- * single seam — swapping to Payload is a one-file change.
- *
- * Copyright policy: this store holds ONLY original content created by Nagarik
- * Watch editors via the admin. It never holds reproduced articles from other
- * publishers. The RSS aggregator (packages/ingest) surfaces headlines+links
- * only; editors develop original articles from those leads.
+ * Article store — Postgres (`nw_articles`) in production when DATABASE_URL is
+ * set; local JSON file for development. Empty stores auto-seed original
+ * Nagarik Watch starter articles (editable via /admin/articles). Never holds
+ * scraped BBC / Online Khabar copy.
  */
 import 'server-only'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { ArticleBlock, Locale, WorkflowStage } from '@nagarikwatch/db'
+import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
+import { buildOriginalStarterArticles } from './seed-original'
 
 const DATA_DIR = path.resolve(process.cwd(), 'data')
 const STORE_FILE = path.join(DATA_DIR, 'articles.json')
 const PUBLIC_WORKFLOW_STAGES: readonly WorkflowStage[] = ['published', 'updated']
+const SCHEMA_KEY = 'nw-articles-v1'
 
 export type StoredArticle = {
   id: string
@@ -76,25 +68,150 @@ type StoreShape = {
 let cache: StoreShape | null = null
 let writeLock: Promise<void> = Promise.resolve()
 
-async function read(): Promise<StoreShape> {
-  if (cache) return cache
+function parseDocument(doc: unknown): StoredArticle | null {
+  if (!doc) return null
+  if (typeof doc === 'string') {
+    try {
+      return JSON.parse(doc) as StoredArticle
+    } catch {
+      return null
+    }
+  }
+  return doc as StoredArticle
+}
+
+async function ensureArticlesTable(pool: Queryable): Promise<void> {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS nw_articles (
+      id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL,
+      category_slug TEXT NOT NULL,
+      workflow_stage TEXT NOT NULL,
+      published_at TIMESTAMPTZ,
+      updated_at TIMESTAMPTZ NOT NULL,
+      document JSONB NOT NULL
+    )
+  `)
+  await pool.query(
+    `CREATE UNIQUE INDEX IF NOT EXISTS nw_articles_category_slug_uidx
+     ON nw_articles (category_slug, slug)`,
+  )
+}
+
+async function getArticlesPool(): Promise<Queryable | null> {
+  return ensureOperationalSchema(SCHEMA_KEY, ensureArticlesTable)
+}
+
+async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
+  const result = await pool.query<{ document: unknown }>(`SELECT document FROM nw_articles`)
+  const articles = result.rows
+    .map((row) => parseDocument(row.document))
+    .filter((a): a is StoredArticle => Boolean(a))
+
+  if (articles.length === 0) {
+    const seeded = buildOriginalStarterArticles()
+    for (const article of seeded) {
+      await pool.query(
+        `INSERT INTO nw_articles (id, slug, category_slug, workflow_stage, published_at, updated_at, document)
+         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb)
+         ON CONFLICT (id) DO NOTHING`,
+        [
+          article.id,
+          article.slug,
+          article.categorySlug,
+          article.workflowStage,
+          article.publishedAt,
+          article.updatedAt,
+          JSON.stringify(article),
+        ],
+      )
+    }
+    return { articles: seeded, version: 1 }
+  }
+  return { articles, version: 1 }
+}
+
+async function writeToPostgres(pool: Queryable, store: StoreShape): Promise<void> {
+  const existing = await pool.query<{ id: string }>(`SELECT id FROM nw_articles`)
+  const keep = new Set(store.articles.map((article) => article.id))
+  for (const row of existing.rows) {
+    if (!keep.has(row.id)) {
+      await pool.query(`DELETE FROM nw_articles WHERE id = $1`, [row.id])
+    }
+  }
+  for (const article of store.articles) {
+    await pool.query(
+      `INSERT INTO nw_articles (id, slug, category_slug, workflow_stage, published_at, updated_at, document)
+       VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb)
+       ON CONFLICT (id) DO UPDATE SET
+         slug = EXCLUDED.slug,
+         category_slug = EXCLUDED.category_slug,
+         workflow_stage = EXCLUDED.workflow_stage,
+         published_at = EXCLUDED.published_at,
+         updated_at = EXCLUDED.updated_at,
+         document = EXCLUDED.document`,
+      [
+        article.id,
+        article.slug,
+        article.categorySlug,
+        article.workflowStage,
+        article.publishedAt,
+        article.updatedAt,
+        JSON.stringify(article),
+      ],
+    )
+  }
+}
+
+async function readFromFile(): Promise<StoreShape> {
   try {
     const raw = await fs.readFile(STORE_FILE, 'utf-8')
-    cache = JSON.parse(raw) as StoreShape
+    const parsed = JSON.parse(raw) as StoreShape
+    if (!parsed.articles?.length) {
+      const seeded = buildOriginalStarterArticles()
+      const store = { articles: seeded, version: 1 }
+      await fs.mkdir(DATA_DIR, { recursive: true })
+      await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
+      return store
+    }
+    return parsed
   } catch {
-    cache = { articles: [], version: 1 }
+    const seeded = buildOriginalStarterArticles()
+    const store = { articles: seeded, version: 1 }
+    try {
+      await fs.mkdir(DATA_DIR, { recursive: true })
+      await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
+    } catch {
+      // Read-only FS — return in-memory seed for this process.
+    }
+    return store
   }
+}
+
+async function read(): Promise<StoreShape> {
+  if (cache) return cache
+  const pool = await getArticlesPool()
+  if (pool) {
+    cache = await readFromPostgres(pool)
+    return cache
+  }
+  cache = await readFromFile()
   return cache
 }
 
 async function write(store: StoreShape): Promise<void> {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error(
-      'The JSON article store is disabled in production. Configure CONTENT_SOURCE=payload.',
-    )
-  }
-
   writeLock = writeLock.then(async () => {
+    const pool = await getArticlesPool()
+    if (pool) {
+      await writeToPostgres(pool, store)
+      cache = store
+      return
+    }
+    if (isProductionRuntime()) {
+      throw new Error(
+        'Article store needs DATABASE_URL (Postgres) in production. Local file writes are disabled on Vercel.',
+      )
+    }
     await fs.mkdir(DATA_DIR, { recursive: true })
     await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
     cache = store
@@ -204,7 +321,6 @@ export async function getHomepageData(): Promise<{
   const lead = published.find((a) => a.isFeatured === 'lead') ?? published[0] ?? null
   const secondary = published.filter((a) => a.id !== lead?.id).slice(0, 8)
 
-  // Group by category for section blocks.
   const byCategory = new Map<string, StoredArticle[]>()
   for (const a of published) {
     if (a.id === lead?.id) continue
@@ -257,7 +373,6 @@ export async function createArticle(input: {
   createdBy: string
 }): Promise<StoredArticle> {
   const store = await read()
-  // Reject duplicate slugs within the same category.
   const dup = store.articles.find(
     (a) => a.categorySlug === input.categorySlug && a.slug === input.slug,
   )
@@ -358,6 +473,8 @@ export async function getArticleCounts(): Promise<{
     total: store.articles.length,
     published: store.articles.filter((a) => PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage)).length,
     drafts: store.articles.filter((a) => !PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage)).length,
-    breaking: store.articles.filter((a) => a.isBreaking && PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage)).length,
+    breaking: store.articles.filter(
+      (a) => a.isBreaking && PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage),
+    ).length,
   }
 }

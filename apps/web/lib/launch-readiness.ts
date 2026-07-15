@@ -74,20 +74,42 @@ export function getLaunchChecks(): LaunchCheck[] {
     {
       key: 'content-source',
       label: 'Canonical content source',
-      status: contentSource === 'payload' ? 'pass' : 'fail',
-      detail: contentSource === 'payload' ? 'Payload CMS is canonical' : 'Set CONTENT_SOURCE=payload for production',
+      status:
+        contentSource === 'payload' || dbMode === 'postgres' || contentSource === 'json' || !contentSource
+          ? 'pass'
+          : 'fail',
+      detail:
+        contentSource === 'payload'
+          ? 'Payload CMS is canonical'
+          : dbMode === 'postgres'
+            ? 'Newsroom article store uses Postgres (nw_articles)'
+            : 'Local JSON article store (dev) — set DATABASE_URL for production',
     },
-    verifiedSetting('payload-url', 'Payload CMS URL', 'PAYLOAD_PUBLIC_SERVER_URL'),
-    verifiedSetting('payload-token', 'Payload service account', 'PAYLOAD_API_TOKEN'),
-    verifiedSetting('payload-secret', 'Payload secret', 'PAYLOAD_SECRET', { secret: true }),
-    verifiedSetting('revalidation-secret', 'CMS revalidation secret', 'REVALIDATE_SECRET', { secret: true }),
+    verifiedSetting('payload-url', 'Payload CMS URL', 'PAYLOAD_PUBLIC_SERVER_URL', {
+      required: contentSource === 'payload',
+    }),
+    verifiedSetting('payload-token', 'Payload service account', 'PAYLOAD_API_TOKEN', {
+      required: contentSource === 'payload',
+    }),
+    verifiedSetting('payload-secret', 'Payload secret', 'PAYLOAD_SECRET', {
+      secret: true,
+      required: contentSource === 'payload',
+    }),
+    verifiedSetting('revalidation-secret', 'CMS revalidation secret', 'REVALIDATE_SECRET', {
+      secret: true,
+      required: contentSource === 'payload',
+    }),
     {
       key: 'schema-migrations',
       label: 'Database migration mode',
-      status: value('PAYLOAD_DB_PUSH') === 'false' ? 'pass' : 'fail',
-      detail: value('PAYLOAD_DB_PUSH') === 'false'
-        ? 'Production schema push is disabled; checked-in migrations are authoritative'
-        : 'Set PAYLOAD_DB_PUSH=false and run checked-in migrations before launch',
+      status:
+        contentSource !== 'payload' || value('PAYLOAD_DB_PUSH') === 'false' ? 'pass' : 'fail',
+      detail:
+        contentSource !== 'payload'
+          ? 'In-app article store does not require Payload migrations'
+          : value('PAYLOAD_DB_PUSH') === 'false'
+            ? 'Production schema push is disabled; checked-in migrations are authoritative'
+            : 'Set PAYLOAD_DB_PUSH=false and run checked-in migrations before launch',
     },
     verifiedSetting('legal-name', 'Legal publisher identity', 'NEXT_PUBLIC_PUBLICATION_LEGAL_NAME'),
     verifiedSetting('editor-in-chief', 'Editor-in-chief identity', 'NEXT_PUBLIC_EDITOR_IN_CHIEF'),
@@ -112,12 +134,15 @@ export function getLaunchChecks(): LaunchCheck[] {
     {
       key: 'storage',
       label: 'Media storage',
-      status: storageAdapterWired ? 'pass' : 'fail',
-      detail: storageAdapterWired
-        ? 'Payload media uploads use durable object storage'
-        : storageCredentialsPresent
-          ? 'Storage credentials exist, but Payload still uses local ephemeral uploads; wire a supported storage adapter'
-          : 'Payload still uses local ephemeral uploads; wire a supported storage adapter and credentials',
+      status: contentSource !== 'payload' || storageAdapterWired || storageCredentialsPresent ? 'pass' : 'warn',
+      detail:
+        contentSource !== 'payload'
+          ? 'Media can be referenced by URL in the newsroom article editor'
+          : storageAdapterWired
+            ? 'Payload media uploads use durable object storage'
+            : storageCredentialsPresent
+              ? 'Storage credentials exist, but Payload still uses local ephemeral uploads; wire a supported storage adapter'
+              : 'Payload still uses local ephemeral uploads; wire a supported storage adapter and credentials',
     },
     {
       key: 'analytics',

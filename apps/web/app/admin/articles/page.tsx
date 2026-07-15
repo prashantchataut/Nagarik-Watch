@@ -46,7 +46,7 @@ export default async function ArticlesPage({
     <div>
       <AdminPageHeader
         title="समाचार"
-        subtitle={`Local development content queue — कुल ${total} सामग्री`}
+        subtitle={`समाचार कक्षको सामग्री सूची — कुल ${total}`}
         action={
           canCreate(session.newsroomRole) ? (
             <AdminButton href="/admin/articles/new">नयाँ समाचार</AdminButton>

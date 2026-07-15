@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Locale } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
+import { signOutRequest } from '@/lib/auth/sign-out-client'
 
 export function JournalistSignOutButton({ locale }: { locale: Locale }) {
   const router = useRouter()
@@ -15,7 +16,7 @@ export function JournalistSignOutButton({ locale }: { locale: Locale }) {
     setError(null)
     startTransition(async () => {
       try {
-        const response = await fetch('/api/auth/sign-out', { method: 'POST' })
+        const response = await signOutRequest()
         if (!response.ok) throw new Error(ne ? 'साइन आउट गर्न सकिएन।' : 'Could not sign out.')
         router.replace(localizeHref(locale, '/journalist/login'))
         router.refresh()

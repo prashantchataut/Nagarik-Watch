@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useTransition } from 'react'
+import { signOutRequest } from '@/lib/auth/sign-out-client'
 
 export function AcceptNewsroomInvite({ locale, token, signedIn }: { locale: 'ne' | 'en'; token: string | null; signedIn: boolean }) {
   const ne = locale === 'ne'
@@ -42,7 +43,7 @@ export function AcceptNewsroomInvite({ locale, token, signedIn }: { locale: 'ne'
           setMessage(text)
           return
         }
-        await fetch('/api/auth/sign-out', { method: 'POST' }).catch(() => undefined)
+        await signOutRequest().catch(() => undefined)
         setStatus('accepted')
         setMessage(ne ? 'निमन्त्रणा स्वीकार भयो। नयाँ भूमिका लागू गर्न फेरि लगइन गर्नुहोस्।' : 'Invitation accepted. Sign in again to activate the new role.')
       } catch {

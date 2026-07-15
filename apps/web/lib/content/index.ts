@@ -10,27 +10,14 @@ import type {
 } from '@nagarikwatch/db'
 import type { ContentSource, StoryListOptions } from './source'
 import { createStoreContentSource } from './store/store-source'
-
-function selectedSource(): 'payload' | 'json' {
-  const configured = process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim()
-  return configured === 'payload' ? 'payload' : 'json'
-}
+import { isPayloadCanonical } from './payload-admin-client'
 
 async function resolveSource(): Promise<ContentSource> {
-  const selected = selectedSource()
   const isProductionBuild = process.env.NEXT_PHASE === 'phase-production-build'
 
-  if (selected === 'payload' && !isProductionBuild) {
+  if (isPayloadCanonical() && !isProductionBuild) {
     const { createPayloadContentSource } = await import('./payload-source')
     return createPayloadContentSource()
-  }
-
-  // Payload is preferred for production, but the JSON store keeps the site
-  // bootable when CONTENT_SOURCE is unset / still "json" (local preview deploys).
-  if (process.env.NODE_ENV === 'production' && selected !== 'payload' && !isProductionBuild) {
-    console.warn(
-      '[content] CONTENT_SOURCE is not "payload"; serving from the JSON store. Set CONTENT_SOURCE=payload plus Payload URL/DB env vars for the CMS-backed site.',
-    )
   }
 
   return createStoreContentSource()

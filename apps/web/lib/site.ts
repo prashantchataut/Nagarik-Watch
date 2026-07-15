@@ -41,7 +41,6 @@ export function isPublicPublicationValue(value: string | undefined): boolean {
 
 export type StaticHubKey =
   | 'latest'
-  | 'wire'
   | 'trending'
   | 'most-read'
   | 'editor-picks'
@@ -75,15 +74,6 @@ export type StaticHub = {
 }
 
 export const STATIC_HUBS: StaticHub[] = [
-  {
-    key: 'wire',
-    path: '/wire',
-    titleNe: 'स्रोत डेस्क',
-    titleEn: 'Source Desk',
-    leadNe: 'सार्वजनिक RSS स्रोतका शीर्षक र मूल प्रकाशकको लिङ्क मात्र।',
-    leadEn: 'Headlines and original-publisher links from registered public RSS sources.',
-    mode: 'latest',
-  },
   {
     key: 'latest',
     path: '/latest',
@@ -339,10 +329,9 @@ export const PROVINCES = [
 ] as const
 
 /** Secondary nav rail — utility hubs a national portal surfaces above the
- *  section nav (eKantipur / OnlineKhabar pattern). Drawn from STATIC_HUBS so
- *  the rail stays in sync with the hub registry. */
+ *  section nav. Drawn from STATIC_HUBS so the rail stays in sync with the hub registry. */
 export const SECONDARY_NAV_HUBS = [
-  'wire',
+  'latest',
   'market',
   'utilities',
   'sports-live',

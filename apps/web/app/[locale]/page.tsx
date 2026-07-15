@@ -10,23 +10,17 @@ import { AdSlot } from '@/components/AdSlot'
 import { RecommendedForYou } from '@/components/reader/RecommendedForYou'
 import { PollOfDay } from '@/components/home/PollOfDay'
 import { getActivePoll } from '@/lib/polls-admin'
-import { getSourceDeskHeadlines } from '@/lib/source-desk'
-import { SourceDeskPreview } from '@/components/home/SourceDeskPreview'
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const english = locale === 'en'
-  const [homepage, categories, activePoll, sourceHeadlines] = await Promise.all([
+  const [homepage, categories, activePoll] = await Promise.all([
     getHomepage(),
     getNavCategories(),
     getActivePoll(),
-    getSourceDeskHeadlines(8),
   ])
 
   if (!homepage) {
-    const wire = sourceHeadlines.slice(0, 8)
-    const lead = wire[0]
-    const rest = wire.slice(1)
     const serviceLinks = [
       { href: '/latest', titleNe: 'ताजा', titleEn: 'Latest' },
       { href: '/trending', titleNe: 'ट्रेन्डिङ', titleEn: 'Trending' },
@@ -59,82 +53,30 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </ul>
         </nav>
 
-        <section className="mt-6 grid gap-8 border-b-2 border-ink pb-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(15rem,0.5fr)]">
-          <div lang={english ? 'en' : 'ne'}>
-            {lead ? (
-              <>
-                <p className="text-caption font-bold uppercase tracking-[0.16em] text-breaking">
-                  {english ? 'Wire · live' : 'वायर · लाइभ'}
-                </p>
-                <h1 className="mt-2 max-w-[24ch] font-display text-[clamp(1.85rem,4.8vw,3.15rem)] font-extrabold leading-[1.08] tracking-[-0.03em] text-ink">
-                  <a
-                    href={lead.sourceUrl || localizeHref(locale, '/wire')}
-                    className="hover:text-brand-strong"
-                    rel="noopener noreferrer"
-                    target={lead.sourceUrl ? '_blank' : undefined}
-                  >
-                    {english && lead.titleEn ? lead.titleEn : lead.titleNe}
-                  </a>
-                </h1>
-                <p className="mt-3 max-w-prose text-body leading-relaxed text-ink-soft">
-                  {english
-                    ? 'Open wire until editors publish reviewed stories. Browse desks or send a tip.'
-                    : 'समीक्षित समाचार आउँदासम्म खुला वायर। विभाग हेर्नुहोस् वा टिप पठाउनुहोस्।'}
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong">
-                  Nagarik Watch
-                </p>
-                <h1 className="mt-2 max-w-[18ch] font-display text-[clamp(2rem,5.2vw,3.4rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-ink">
-                  {english ? 'Nepal news, desk by desk.' : 'हर डेस्कबाट नेपाली समाचार।'}
-                </h1>
-                <p className="mt-3 max-w-prose text-body leading-relaxed text-ink-soft">
-                  {english
-                    ? 'The newsroom is preparing the first edition. Sections below are ready to browse.'
-                    : 'न्यूजरुम पहिलो संस्करण तयार गर्दैछ। तलका विभाग अहिले नै हेर्न मिल्छ।'}
-                </p>
-              </>
-            )}
-            <div className="mt-5 flex flex-wrap gap-2">
-              <Link
-                href={localizeHref(locale, '/latest')}
-                className="inline-flex min-h-11 items-center bg-brand px-4 text-meta font-bold text-surface hover:bg-brand-strong"
-              >
-                {english ? 'Latest' : 'ताजा'}
-              </Link>
-              <Link
-                href={localizeHref(locale, '/submit-story')}
-                className="inline-flex min-h-11 items-center border border-rule px-4 text-meta font-semibold text-ink hover:border-brand hover:text-brand-strong"
-              >
-                {english ? 'Send a tip' : 'टिप पठाउनुहोस्'}
-              </Link>
-            </div>
+        <section className="mt-8 border-b-2 border-ink pb-10" lang={english ? 'en' : 'ne'}>
+          <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong">Nagarik Watch</p>
+          <h1 className="mt-2 max-w-[18ch] font-display text-[clamp(2rem,5.2vw,3.4rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-ink">
+            {english ? 'Original reporting from our newsroom.' : 'हाम्रो न्यूजरुमको मौलिक रिपोर्टिङ।'}
+          </h1>
+          <p className="mt-3 max-w-prose text-body leading-relaxed text-ink-soft">
+            {english
+              ? 'We publish original Nagarik Watch stories only — no outbound scrapes to other news sites. Editors can add and edit articles from the newsroom admin.'
+              : 'हामी मौलिक नागरिक वाच समाचार मात्र प्रकाशित गर्छौं — अन्य साइटका स्क्र्याप लिंक छैनन्। सम्पादकले एडमिनबाट लेख थप्न/सच्याउन सक्छन्।'}
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link
+              href={localizeHref(locale, '/latest')}
+              className="inline-flex min-h-11 items-center bg-brand px-4 text-meta font-bold text-surface hover:bg-brand-strong"
+            >
+              {english ? 'Latest' : 'ताजा'}
+            </Link>
+            <Link
+              href={localizeHref(locale, '/submit-story')}
+              className="inline-flex min-h-11 items-center border border-rule px-4 text-meta font-semibold text-ink hover:border-brand hover:text-brand-strong"
+            >
+              {english ? 'Send a tip' : 'टिप पठाउनुहोस्'}
+            </Link>
           </div>
-
-          <aside className="border-t border-rule pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-            <p className="text-caption font-bold uppercase tracking-[0.14em] text-mute" lang={english ? 'en' : 'ne'}>
-              {english ? 'Also now' : 'अहिले'}
-            </p>
-            <ol className="mt-1 divide-y divide-rule">
-              {(rest.length ? rest : wire).slice(0, 6).map((item, index) => (
-                <li key={item.sourceUrl || index} className="py-2.5">
-                  <a
-                    href={item.sourceUrl || localizeHref(locale, '/wire')}
-                    className="group grid grid-cols-[1.4rem_1fr] gap-2"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    <span className="font-mono text-caption text-mute">{String(index + 1).padStart(2, '0')}</span>
-                    <span className="text-meta font-semibold leading-snug text-ink group-hover:text-brand-strong">
-                      {english && item.titleEn ? item.titleEn : item.titleNe}
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </aside>
         </section>
 
         <section className="mt-8" aria-labelledby="desks-title">
@@ -142,12 +84,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <h2 id="desks-title" className="font-display text-h1 text-ink" lang={english ? 'en' : 'ne'}>
               {english ? 'News desks' : 'समाचार विभाग'}
             </h2>
-            <Link
-              href={localizeHref(locale, '/sitemap')}
-              className="text-meta font-bold text-ink-soft hover:text-brand-strong"
-            >
-              {english ? 'All pages' : 'सबै पृष्ठ'}
-            </Link>
           </div>
           <ul className="mt-2 columns-1 gap-x-8 sm:columns-2 lg:columns-3">
             {categories.map((category) => (
@@ -167,10 +103,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             ))}
           </ul>
         </section>
-
-        <div className="mt-10">
-          <SourceDeskPreview items={sourceHeadlines} locale={locale} />
-        </div>
       </div>
     )
   }
@@ -229,9 +161,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               layout={index % 3 === 0 ? 'lead-rail' : index % 3 === 1 ? 'default-grid' : 'text-led'}
             />
           ))}
-        </div>
-        <div className="mt-16">
-          <SourceDeskPreview items={sourceHeadlines} locale={locale} />
         </div>
         <AdSlot locale={locale} placementKey="home-mid" variant="inline" />
       </div>

@@ -17,6 +17,7 @@ import {
   SETTINGS_MANAGER_ROLES,
   TAXONOMY_MANAGER_ROLES,
 } from '@/lib/admin-roles'
+import { signOutRequest } from '@/lib/auth/sign-out-client'
 import { LogoMark } from '@/components/Logo'
 
 type NavItem = {
@@ -50,14 +51,13 @@ const PAYLOAD_CONTENT_PATHS: Record<string, string> = {
   '/admin/authors': '/collections/authors',
 }
 
-const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
+const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<NewsroomRole> }[] = [
   {
     heading: 'सम्पादन',
     items: [
       { label: 'ड्यासबोर्ड', href: '/admin/dashboard', icon: 'dashboard' },
       { label: 'समाचार', href: '/admin/articles', icon: 'article' },
       { label: 'नयाँ समाचार', href: '/admin/articles/new', icon: 'plus' },
-      { label: 'वायर र RSS', href: '/admin/wire', icon: 'wire' },
       { label: 'मिडिया', href: '/admin/media', icon: 'media', roles: MEDIA_MANAGER_ROLES },
       { label: 'लाइभ ब्लग', href: '/admin/live-blogs', icon: 'live', roles: EDITOR_ROLES },
     ],
@@ -70,7 +70,7 @@ const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
       { label: 'विषय', href: '/admin/topics', icon: 'topic', roles: TAXONOMY_MANAGER_ROLES },
       { label: 'प्रदेश', href: '/admin/provinces', icon: 'province', roles: TAXONOMY_MANAGER_ROLES },
       { label: 'लेखक', href: '/admin/authors', icon: 'author', roles: TAXONOMY_MANAGER_ROLES },
-      { label: 'पत्रकार workspace', href: '/admin/journalists', icon: 'author' },
+      { label: 'पत्रकार डेस्क', href: '/admin/journalists', icon: 'author', roles: EDITOR_ROLES },
     ],
   },
   {
@@ -84,7 +84,8 @@ const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
     ],
   },
   {
-    heading: 'सञ्चालन',
+    heading: 'प्रकाशक / एडमिन',
+    roles: new Set<NewsroomRole>(['publisher', 'admin', 'super_admin', 'managing_editor', 'editor_in_chief']),
     items: [
       { label: 'लाइभ प्यानल', href: '/admin/live', icon: 'signal' },
       { label: 'एल्गोरिदम', href: '/admin/algorithms', icon: 'algorithm' },
@@ -92,26 +93,17 @@ const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
       { label: 'विज्ञापन', href: '/admin/ads', icon: 'ad' },
       { label: 'सदस्यता', href: '/admin/paywall', icon: 'membership', roles: MEMBERSHIP_MANAGER_ROLES },
       { label: 'एसइओ', href: '/admin/seo', icon: 'seo' },
-      {
-        label: 'प्रयोगकर्ता',
-        href: '/admin/users',
-        icon: 'user',
-        roles: new Set(['admin', 'super_admin']),
-      },
-      {
-        label: 'भूमिका',
-        href: '/admin/roles',
-        icon: 'role',
-        roles: new Set(['admin', 'super_admin']),
-      },
-      {
-        label: 'अडिट लग',
-        href: '/admin/audit-log',
-        icon: 'audit',
-        roles: new Set(['admin', 'super_admin']),
-      },
       { label: 'सेटिङ', href: '/admin/settings', icon: 'settings', roles: SETTINGS_MANAGER_ROLES },
-      { label: 'लन्च चेक', href: '/admin/launch', icon: 'audit' },
+    ],
+  },
+  {
+    heading: 'सुपर एडमिन',
+    roles: new Set<NewsroomRole>(['admin', 'super_admin']),
+    items: [
+      { label: 'प्रयोगकर्ता', href: '/admin/users', icon: 'user' },
+      { label: 'भूमिका', href: '/admin/roles', icon: 'role' },
+      { label: 'अडिट लग', href: '/admin/audit-log', icon: 'audit' },
+      { label: 'लन्च चेक', href: '/admin/launch', icon: 'audit', roles: new Set(['super_admin']) },
     ],
   },
 ]
@@ -145,7 +137,7 @@ export function AdminShell({
     setSignOutError(null)
     startSignOut(async () => {
       try {
-        const response = await fetch('/api/auth/sign-out', { method: 'POST' })
+        const response = await signOutRequest()
         if (!response.ok) throw new Error(`Sign-out failed: ${response.status}`)
         router.refresh()
         router.push('/admin/login')
@@ -155,10 +147,12 @@ export function AdminShell({
     })
   }
 
-  const visibleGroups = NAV_GROUPS.map((g) => ({
-    ...g,
-    items: g.items.filter((item) => !item.roles || item.roles.has(role)),
-  })).filter((g) => g.items.length > 0)
+  const visibleGroups = NAV_GROUPS.filter((g) => !g.roles || g.roles.has(role))
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((item) => !item.roles || item.roles.has(role)),
+    }))
+    .filter((g) => g.items.length > 0)
 
   const sidebar = (
     <aside className="flex h-full w-[17.5rem] flex-col border-r border-rule bg-surface-raised">

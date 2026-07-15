@@ -12,6 +12,7 @@ import {
   resolveAccountKind,
   roleDisplayLabel,
 } from '@/lib/account-identity'
+import { signOutRequest } from '@/lib/auth/sign-out-client'
 
 export function ReaderProfileCard({ session, locale }: { session: ReaderSession; locale: Locale }) {
   const router = useRouter()
@@ -27,7 +28,7 @@ export function ReaderProfileCard({ session, locale }: { session: ReaderSession;
     setError(null)
     startSignOut(async () => {
       try {
-        const response = await fetch('/api/auth/sign-out', { method: 'POST' })
+        const response = await signOutRequest()
         if (!response.ok) throw new Error(`Sign-out failed: ${response.status}`)
         router.refresh()
         router.push(ne ? '/' : '/en')
