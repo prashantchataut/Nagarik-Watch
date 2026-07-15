@@ -5,6 +5,20 @@ import { usePathname } from 'next/navigation'
 import type { Locale } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
 import { STATIC_HUBS, SECONDARY_NAV_HUBS } from '@/lib/site'
+import {
+  IconChart,
+  IconDesk,
+  IconLightning,
+  IconMail,
+} from '@/components/icons/PortalIcons'
+
+const HUB_ICONS: Partial<Record<(typeof STATIC_HUBS)[number]['key'], React.ReactNode>> = {
+  latest: <IconLightning />,
+  trending: <IconChart />,
+  market: <IconChart />,
+  utilities: <IconDesk />,
+  'submit-story': <IconMail />,
+}
 
 export function SecondaryNav({ locale }: { locale: Locale }) {
   const pathname = usePathname() ?? '/'
@@ -21,6 +35,7 @@ export function SecondaryNav({ locale }: { locale: Locale }) {
         {hubs.map((hub) => {
           const href = localizeHref(locale, hub.path)
           const active = pathname === href || pathname.startsWith(`${href}/`)
+          const icon = HUB_ICONS[hub.key]
           return (
             <li key={hub.key}>
               <Link
@@ -29,10 +44,11 @@ export function SecondaryNav({ locale }: { locale: Locale }) {
                 aria-current={active ? 'page' : undefined}
                 className={
                   active
-                    ? 'block whitespace-nowrap bg-brand-tint px-3 py-2 font-bold text-brand-strong'
-                    : 'block whitespace-nowrap px-3 py-2 font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-surface hover:text-ink'
+                    ? 'inline-flex items-center gap-1.5 whitespace-nowrap bg-brand-tint px-3 py-2.5 font-bold text-brand-strong'
+                    : 'inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-2.5 font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-surface hover:text-ink'
                 }
               >
+                {icon ? <span className="opacity-80">{icon}</span> : null}
                 {locale === 'en' ? hub.titleEn : hub.titleNe}
               </Link>
             </li>

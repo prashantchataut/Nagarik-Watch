@@ -8,6 +8,15 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, swapLocale } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
 import { STATIC_HUBS } from '@/lib/site'
+import {
+  IconBookmark,
+  IconClose,
+  IconDesk,
+  IconLock,
+  IconMenu,
+  IconPen,
+  IconUser,
+} from '@/components/icons/PortalIcons'
 
 type MobileNavProps = {
   locale: Locale
@@ -26,6 +35,9 @@ const ICON_BTN =
 
 const DRAWER_LINK =
   'block border-b border-rule px-1 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand'
+
+const DRAWER_LINK_ROW =
+  'flex items-center gap-3 border-b border-rule px-1 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand'
 
 /**
  * Mobile primary navigation. The masthead's inline category list wraps on small screens but
@@ -107,7 +119,7 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
         aria-controls={titleId}
         className={ICON_BTN}
       >
-        <MenuIcon />
+        <IconMenu width={20} height={20} />
       </button>
 
       {open && (
@@ -145,7 +157,7 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                 aria-label={dict.closeMenu}
                 className={ICON_BTN}
               >
-                <CloseIcon />
+                <IconClose width={20} height={20} />
               </button>
             </div>
 
@@ -191,13 +203,16 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                   <Link
                     href={account?.profileHref ?? localizeHref(locale, '/auth/login')}
                     onClick={() => setOpen(false)}
-                    className={DRAWER_LINK}
+                    className={DRAWER_LINK_ROW}
                   >
-                    {account
-                      ? `${account.displayName} · ${account.kindLabel}`
-                      : locale === 'en'
-                        ? 'Sign in / Account'
-                        : 'लगइन / खाता'}
+                    <IconUser />
+                    <span>
+                      {account
+                        ? `${account.displayName} · ${account.kindLabel}`
+                        : locale === 'en'
+                          ? 'Reader sign in'
+                          : 'पाठक लगइन'}
+                    </span>
                   </Link>
                 </li>
                 {account ? (
@@ -208,30 +223,21 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                   </li>
                 ) : null}
                 <li>
-                  <Link
-                    href={readerCornerHref}
-                    onClick={() => setOpen(false)}
-                    className={DRAWER_LINK}
-                  >
-                    {locale === 'en' ? 'My news desk' : 'मेरो समाचार डेस्क'}
+                  <Link href={readerCornerHref} onClick={() => setOpen(false)} className={DRAWER_LINK_ROW}>
+                    <IconDesk />
+                    <span>{locale === 'en' ? 'My news desk' : 'मेरो समाचार डेस्क'}</span>
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href={savedHref}
-                    onClick={() => setOpen(false)}
-                    className={DRAWER_LINK}
-                  >
-                    {locale === 'en' ? 'Saved stories' : 'सुरक्षित समाचार'}
+                  <Link href={savedHref} onClick={() => setOpen(false)} className={DRAWER_LINK_ROW}>
+                    <IconBookmark />
+                    <span>{locale === 'en' ? 'Saved stories' : 'सुरक्षित समाचार'}</span>
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href={profileHref}
-                    onClick={() => setOpen(false)}
-                    className={DRAWER_LINK}
-                  >
-                    {locale === 'en' ? 'Profile' : 'प्रोफाइल'}
+                  <Link href={profileHref} onClick={() => setOpen(false)} className={DRAWER_LINK_ROW}>
+                    <IconUser />
+                    <span>{locale === 'en' ? 'Profile' : 'प्रोफाइल'}</span>
                   </Link>
                 </li>
                 <li>
@@ -277,17 +283,29 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
               </DrawerSection>
 
               <DrawerSection
-                label={locale === 'en' ? 'Newsroom' : 'न्यूजरुम'}
+                label={locale === 'en' ? 'Newsroom staff' : 'न्यूजरुम स्टाफ'}
                 lang={locale === 'en' ? 'en' : 'ne'}
               >
                 <li>
-                  <Link
-                    href={journalistHref}
-                    onClick={() => setOpen(false)}
-                    className={`${DRAWER_LINK} font-semibold text-ink`}
-                  >
-                    {locale === 'en' ? 'Journalist sign in' : 'पत्रकार लगइन'}
+                  <Link href={journalistHref} onClick={() => setOpen(false)} className={DRAWER_LINK_ROW}>
+                    <IconPen />
+                    <span className="font-semibold text-ink">
+                      {locale === 'en' ? 'Journalist login' : 'पत्रकार लगइन'}
+                    </span>
                   </Link>
+                </li>
+                <li>
+                  <Link href="/admin/login" onClick={() => setOpen(false)} className={DRAWER_LINK_ROW}>
+                    <IconLock />
+                    <span>{locale === 'en' ? 'Editor / admin login' : 'एडिटर / एडमिन लगइन'}</span>
+                  </Link>
+                </li>
+                <li>
+                  <p className="px-1 py-2 text-caption text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
+                    {locale === 'en'
+                      ? 'Staff only. Readers use Account above.'
+                      : 'स्टाफ मात्र। पाठकले माथिको खाता प्रयोग गर्नुहोस्।'}
+                  </p>
                 </li>
               </DrawerSection>
             </nav>
@@ -318,46 +336,5 @@ function DrawerSection({
       </p>
       <ul className="flex flex-col gap-1">{children}</ul>
     </div>
-  )
-}
-
-function MenuIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <line x1="3" y1="6" x2="21" y2="6" />
-      <line x1="3" y1="12" x2="21" y2="12" />
-      <line x1="3" y1="18" x2="21" y2="18" />
-    </svg>
-  )
-}
-
-function CloseIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
   )
 }

@@ -12,6 +12,15 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { Logo } from '@/components/Logo'
 import { SecondaryNav } from '@/components/SecondaryNav'
 import { STATIC_HUBS } from '@/lib/site'
+import {
+  IconBookmark,
+  IconDesk,
+  IconLightning,
+  IconLock,
+  IconPen,
+  IconSearch,
+  IconUser,
+} from '@/components/icons/PortalIcons'
 
 type MastheadAccount = {
   displayName: string
@@ -25,8 +34,12 @@ type MastheadProps = {
   navCategories: Category[]
   account?: MastheadAccount | null
 }
+
+const TOOL =
+  'inline-flex items-center gap-1.5 border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-ink'
+
 const ICON_BTN =
-  'inline-flex h-10 w-10 items-center justify-center border-l border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
+  'inline-flex h-11 w-11 items-center justify-center border-l border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
 
 export function Masthead({ locale, navCategories, account = null }: MastheadProps) {
   const dict = getDictionary(locale)
@@ -35,19 +48,20 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
   const homeHref = localizeHref(locale, '/')
   const searchHref = localizeHref(locale, '/search')
   const savedHref = localizeHref(locale, '/saved')
+  const journalistHref = localizeHref(locale, '/journalist/login')
   const toggleHref = swapLocale(pathname)
   const lang = locale === 'en' ? 'en' : 'ne'
   const accountHref = account?.profileHref ?? localizeHref(locale, '/auth/login')
   const accountLabel = account
     ? account.displayName
     : locale === 'en'
-      ? 'Account'
-      : 'खाता'
+      ? 'Reader login'
+      : 'पाठक लगइन'
 
   return (
     <header className="nw-masthead z-40 border-b border-rule bg-surface">
-      <div className="nw-masthead__utility border-b border-rule">
-        <div className="mx-auto flex max-w-page items-center justify-between gap-3 px-4 py-2 text-caption text-ink-soft">
+      <div className="border-b border-rule bg-surface-raised">
+        <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-2 px-4 py-2 text-caption text-ink-soft">
           <p lang={lang} className="truncate font-semibold tracking-wide">
             {dict.mastheadDate(dateLabel)}
             <span className="mx-2 text-mute" aria-hidden="true">
@@ -55,85 +69,55 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
             </span>
             <span className="text-brand-strong">{locale === 'en' ? 'Kathmandu' : 'काठमाडौं'}</span>
           </p>
-          <div className="hidden items-center divide-x divide-rule sm:flex">
-            <Link
-              href={localizeHref(locale, '/latest')}
-              className="px-3 font-bold text-ink hover:text-brand-strong"
-              lang={lang}
-            >
-              {locale === 'en' ? 'Latest' : 'ताजा'}
-            </Link>
-            <Link
-              href={localizeHref(locale, '/most-read')}
-              className="px-3 font-semibold text-ink-soft hover:text-brand-strong"
-              lang={lang}
-            >
-              {locale === 'en' ? 'Most read' : 'धेरै पढिएको'}
-            </Link>
-            <Link
-              href={localizeHref(locale, '/contact')}
-              className="px-3 font-semibold text-ink-soft hover:text-brand-strong"
-              lang={lang}
-            >
-              {locale === 'en' ? 'Contact' : 'सम्पर्क'}
-            </Link>
+          <div className="flex flex-wrap items-center gap-x-1 gap-y-1 sm:gap-0 sm:divide-x sm:divide-rule">
+            <UtilityLink href={localizeHref(locale, '/latest')} label={locale === 'en' ? 'Latest' : 'ताजा'} icon={<IconLightning />} lang={lang} />
+            <UtilityLink href={localizeHref(locale, '/most-read')} label={locale === 'en' ? 'Most read' : 'धेरै पढिएको'} lang={lang} />
+            <UtilityLink href={journalistHref} label={locale === 'en' ? 'Journalist' : 'पत्रकार'} icon={<IconPen />} lang={lang} emphasize />
+            <UtilityLink href="/admin/login" label={locale === 'en' ? 'Newsroom' : 'एडमिन'} icon={<IconLock />} lang={lang} />
+            <UtilityLink href={localizeHref(locale, '/contact')} label={locale === 'en' ? 'Contact' : 'सम्पर्क'} lang={lang} />
           </div>
         </div>
       </div>
 
       <div className="mx-auto max-w-page px-3 sm:px-4">
-        <div className="grid min-h-[6.5rem] grid-cols-[auto_1fr_auto] items-center gap-2 border-b border-ink/80 py-3 md:grid-cols-[1fr_auto_1fr] md:py-4">
+        <div className="grid min-h-[6.75rem] grid-cols-[auto_1fr_auto] items-center gap-2 border-b-2 border-ink py-3 md:grid-cols-[1fr_auto_1fr] md:py-4">
           <div className="flex items-center md:hidden">
             <MobileNav locale={locale} navCategories={navCategories} account={account} />
           </div>
+
           <div className="hidden items-center md:flex">
-            <div className="flex items-center gap-4">
-              <Link
-                href={accountHref}
-                className="border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-ink"
-                lang={lang}
-                title={account ? `${account.kindLabel} · ${account.roleLabel}` : undefined}
-              >
-                {accountLabel}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <Link href={accountHref} className={TOOL} lang={lang} title={account ? `${account.kindLabel} · ${account.roleLabel}` : undefined}>
+                <IconUser />
+                <span>{accountLabel}</span>
               </Link>
-              {account ? (
-                <span className="hidden text-caption text-mute lg:inline" lang={lang}>
-                  {account.kindLabel}
-                </span>
-              ) : null}
-              <Link
-                href={localizeHref(locale, '/reader-corner')}
-                className="border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-ink"
-                lang={lang}
-              >
-                {locale === 'en' ? 'My news desk' : 'मेरो समाचार डेस्क'}
+              <Link href={localizeHref(locale, '/reader-corner')} className={TOOL} lang={lang}>
+                <IconDesk />
+                <span>{locale === 'en' ? 'My desk' : 'मेरो डेस्क'}</span>
               </Link>
-              <Link
-                href={savedHref}
-                className="border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-ink"
-                lang={lang}
-              >
-                {dict.navSaved}
+              <Link href={savedHref} className={TOOL} lang={lang}>
+                <IconBookmark />
+                <span>{dict.navSaved}</span>
+              </Link>
+              <Link href={journalistHref} className={`${TOOL} text-ink`} lang={lang}>
+                <IconPen />
+                <span>{locale === 'en' ? 'Journalist login' : 'पत्रकार लगइन'}</span>
               </Link>
             </div>
           </div>
 
-          <Link
-            href={homeHref}
-            className="min-w-0 justify-self-center transition-opacity hover:opacity-85"
-            aria-label={dict.siteName}
-          >
+          <Link href={homeHref} className="min-w-0 justify-self-center transition-opacity hover:opacity-85" aria-label={dict.siteName}>
             <Logo siteName={dict.siteName} className="max-w-[16rem] sm:max-w-none md:scale-110" />
           </Link>
 
-          <div className="flex items-center justify-end border-r border-rule">
-            <Link href={searchHref} className={ICON_BTN} aria-label={dict.search}>
-              <SearchIcon />
+          <div className="flex items-center justify-end">
+            <Link href={searchHref} className={`${ICON_BTN} border-l`} aria-label={dict.search}>
+              <IconSearch width={20} height={20} />
             </Link>
-            <ThemeToggle locale={locale} className="h-10 w-10 !rounded-none border-l border-rule" />
+            <ThemeToggle locale={locale} className="h-11 w-11 !rounded-none border-l border-rule" />
             <Link
               href={toggleHref}
-              className="inline-flex h-10 min-w-10 items-center justify-center border-l border-rule px-3 text-meta font-black text-ink transition-colors hover:bg-brand-tint hover:text-brand-strong"
+              className="inline-flex h-11 min-w-11 items-center justify-center border-l border-rule px-3 text-meta font-black text-ink transition-colors hover:bg-brand-tint hover:text-brand-strong"
               lang={locale === 'en' ? 'ne' : 'en'}
               aria-label={dict.localeToggleAria}
             >
@@ -145,10 +129,7 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
 
       <SecondaryNav locale={locale} />
 
-      <nav
-        aria-label={dict.primaryNav}
-        className="sticky top-0 z-40 hidden border-t border-rule bg-surface/96 backdrop-blur supports-[backdrop-filter]:bg-surface/90 md:block"
-      >
+      <nav aria-label={dict.primaryNav} className="sticky top-0 z-40 hidden border-t border-rule bg-surface/96 backdrop-blur supports-[backdrop-filter]:bg-surface/90 md:block">
         <div className="mx-auto max-w-page px-4">
           <ul className="flex flex-nowrap items-center gap-x-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <li>
@@ -170,9 +151,7 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
               )
             })}
             <ProvinceMegaMenu locale={locale} />
-            {STATIC_HUBS.filter((hub) =>
-              ['latest', 'trending', 'utilities', 'fact-check'].includes(hub.key),
-            ).map((hub) => {
+            {STATIC_HUBS.filter((hub) => ['latest', 'trending', 'utilities', 'fact-check'].includes(hub.key)).map((hub) => {
               const href = localizeHref(locale, hub.path)
               const active = pathname === href || pathname.startsWith(`${href}/`)
               return (
@@ -187,6 +166,33 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
         </div>
       </nav>
     </header>
+  )
+}
+
+function UtilityLink({
+  href,
+  label,
+  icon,
+  lang,
+  emphasize,
+}: {
+  href: string
+  label: string
+  icon?: React.ReactNode
+  lang: string
+  emphasize?: boolean
+}) {
+  return (
+    <Link
+      href={href}
+      lang={lang}
+      className={`inline-flex items-center gap-1 px-2.5 py-0.5 font-semibold sm:px-3 ${
+        emphasize ? 'text-ink hover:text-brand-strong' : 'text-ink-soft hover:text-brand-strong'
+      }`}
+    >
+      {icon ? <span className="hidden sm:inline-flex opacity-80">{icon}</span> : null}
+      {label}
+    </Link>
   )
 }
 
@@ -214,25 +220,5 @@ function NavLink({
     >
       {children}
     </Link>
-  )
-}
-
-function SearchIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
   )
 }
