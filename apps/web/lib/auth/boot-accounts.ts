@@ -283,9 +283,11 @@ async function seedOne(
     created = true
   }
 
-  // Password sync is expensive (bcrypt). Only for new accounts or explicit repair.
+  // Password sync is expensive (bcrypt). Do it for new users, once per warm
+  // instance (so env password repairs work), or when AUTH_BOOT_SYNC_PASSWORD=true.
   const forceSync = process.env.AUTH_BOOT_SYNC_PASSWORD === 'true'
-  if (created || forceSync) {
+  const alreadySynced = passwordSyncedThisProcess.has(spec.email)
+  if (created || forceSync || !alreadySynced) {
     const passwordOk = await syncCredentialPassword(userId, spec.email, spec.password)
     if (!passwordOk) throw new Error(`Could not sync password for ${spec.email}.`)
     passwordSyncedThisProcess.add(spec.email)

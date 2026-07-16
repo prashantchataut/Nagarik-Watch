@@ -235,7 +235,8 @@ async function buildAuth(): Promise<AuthInstance> {
     await runMigrations()
   }
 
-  // Repair boot accounts after the response path — never block sign-in on cold start.
+  // Kick off boot repair in the background for non-login routes. Admin login
+  // awaits ensureNewsroomBootAccounts itself so passwords sync before sign-in.
   after(() =>
     ensureNewsroomBootAccounts(auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0]).catch(
       (error) => console.error('[auth] background boot provision failed', error),

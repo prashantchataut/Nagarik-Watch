@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getAuth } from '@/lib/auth'
 import { getNewsroomSession } from '@/lib/auth/session'
-import { getBootLoginHint } from '@/lib/auth/boot-accounts'
+import { ensureNewsroomBootAccounts, getBootLoginHint } from '@/lib/auth/boot-accounts'
 import { Logo } from '@/components/Logo'
 import { AdminLoginForm } from './AdminLoginForm'
 
@@ -19,13 +19,18 @@ export default async function AdminLoginPage({
 }: {
   searchParams: Promise<{ reset?: string }>
 }) {
-  // Warm auth dialect without blocking the form on boot-account repair.
-  const authReady = await getAuth()
-    .then(() => true)
-    .catch((error) => {
-      console.error('[admin/login] getAuth failed', error)
-      return false
-    })
+  // Create auth + repair boot accounts before the form is usable. Skipping
+  // password sync left existing NEWSROOM_* users returning 401 forever.
+  let authReady = false
+  try {
+    const auth = await getAuth()
+    await ensureNewsroomBootAccounts(
+      auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
+    )
+    authReady = true
+  } catch (error) {
+    console.error('[admin/login] auth/boot failed', error)
+  }
 
   const [session, query, boot] = await Promise.all([
     getNewsroomSession(),
@@ -57,11 +62,17 @@ export default async function AdminLoginPage({
 
         {authReady && boot.lastError ? (
           <aside className="newsroom-login-form__error" role="status" style={{ opacity: 0.9 }}>
-            <strong>Account repair pending.</strong>
+            <strong>Account repair incomplete.</strong>
             <span style={{ display: 'block', marginTop: '0.35rem' }}>
-              If sign-in fails once, wait a few seconds and retry.
+              {boot.lastError} Use the NEWSROOM_* email/password from Vercel env.
             </span>
           </aside>
+        ) : null}
+
+        {authReady && boot.configured && boot.maskedEmails.length > 0 ? (
+          <p className="text-caption text-mute" style={{ marginBottom: '1rem' }} lang="en">
+            Boot account: {boot.maskedEmails.join(', ')}
+          </p>
         ) : null}
 
         <AdminLoginForm resetComplete={query.reset === 'success'} databaseOnline={authReady} />
