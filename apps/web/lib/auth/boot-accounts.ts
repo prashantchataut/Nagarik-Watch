@@ -1,7 +1,7 @@
 import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { hashPassword } from 'better-auth/crypto'
-import { postgresPoolConfig } from '@/lib/db-url'
+import { getSharedPoolOrThrow } from '@/lib/pg-pool'
 
 type AuthApi = {
   api: {
@@ -47,7 +47,6 @@ export type BootLoginHint = {
 
 let lastProvisionError: string | null = null
 let provisionPromise: Promise<BootProvisionResult> | null = null
-let sharedPool: Queryable | null = null
 const passwordSyncedThisProcess = new Set<string>()
 
 const ROLE_RANK: Record<string, number> = { admin: 1, super_admin: 2 }
@@ -85,17 +84,9 @@ type Queryable = {
   ) => Promise<{ rows: T[]; rowCount: number | null }>
 }
 
-async function getBootPool(): Promise<Queryable> {
-  if (sharedPool) return sharedPool
-  const config = postgresPoolConfig()
-  if (!config) throw new Error('DATABASE_URL is required to provision newsroom boot accounts.')
-  const { Pool } = await import('pg')
-  sharedPool = new Pool(config)
-  return sharedPool
-}
-
 async function withPool<T>(fn: (pool: Queryable) => Promise<T>): Promise<T> {
-  return fn(await getBootPool())
+  const pool = await getSharedPoolOrThrow()
+  return fn(pool as unknown as Queryable)
 }
 
 /** Postgres reserves USER — Better Auth stores rows in the quoted "user" table. */

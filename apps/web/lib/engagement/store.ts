@@ -2,9 +2,9 @@ import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import pg from 'pg'
+import type { Pool } from 'pg'
 import type { EngagementSample } from '@nagarikwatch/db'
-import { postgresPoolConfig } from '@/lib/db-url'
+import { getSharedPool } from '@/lib/pg-pool'
 
 type BookmarkInput = {
   anonymousId: string
@@ -83,26 +83,19 @@ type LocalEngagementStore = {
 const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'engagement.json')
 let localCache: LocalEngagementStore | null = null
 let localWrite: Promise<void> = Promise.resolve()
-let pool: pg.Pool | null = null
 let schemaReady: Promise<void> | null = null
 
-function getPool() {
+async function getPool(): Promise<Pool | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
-  const config = postgresPoolConfig({
-    max: Number(process.env.ENGAGEMENT_DB_POOL_MAX || 5),
-  })
-  if (!config) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('DATABASE_URL is required for persistent reader engagement in production.')
-    }
-    return null
+  const database = await getSharedPool()
+  if (!database && process.env.NODE_ENV === 'production') {
+    throw new Error('DATABASE_URL is required for persistent reader engagement in production.')
   }
-  pool ??= new pg.Pool(config)
-  return pool
+  return database
 }
 
 async function ensureSchema() {
-  const database = getPool()
+  const database = await getPool()
   if (!database) return
   schemaReady ??= database
     .query(`
@@ -210,7 +203,7 @@ export async function mergeAnonymousBookmarks(anonymousId: string, userId: strin
   if (!anonymousId.trim()) return
   const anonymousOwner = owner(anonymousId)
   const userOwner = owner('', userId)
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const client = await database.connect()
@@ -270,7 +263,7 @@ export async function mergeAnonymousBookmarks(anonymousId: string, userId: strin
 
 /** A reply may reference only an approved parent on the same public article. */
 export async function isValidCommentParent(articleSlug: string, articleCategory: string, parentId: string): Promise<boolean> {
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const result = await database.query(
@@ -286,7 +279,7 @@ export async function isValidCommentParent(articleSlug: string, articleCategory:
 }
 
 export async function addBookmark(input: BookmarkInput) {
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     await database.query(
@@ -304,7 +297,7 @@ export async function addBookmark(input: BookmarkInput) {
 }
 
 export async function removeBookmark(anonymousId: string, userId: string | undefined, articleSlug: string) {
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     await database.query('delete from nw_bookmarks where owner_key=$1 and article_slug=$2', [owner(anonymousId, userId), articleSlug])
@@ -317,7 +310,7 @@ export async function removeBookmark(anonymousId: string, userId: string | undef
 }
 
 export async function getBookmarks(anonymousId: string, userId?: string) {
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const result = await database.query(
@@ -337,7 +330,7 @@ export async function getBookmarks(anonymousId: string, userId?: string) {
 
 export async function createComment(input: CommentInput): Promise<ModerationComment> {
   const item: ModerationComment = { id: randomUUID(), ...input, status: 'pending', createdAt: new Date().toISOString() }
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     await database.query(
@@ -353,7 +346,7 @@ export async function createComment(input: CommentInput): Promise<ModerationComm
 }
 
 export async function getCommentsForArticle(articleSlug: string, articleCategory: string) {
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const result = await database.query(
@@ -368,7 +361,7 @@ export async function getCommentsForArticle(articleSlug: string, articleCategory
 }
 
 export async function listCommentsForModeration(status: CommentStatus | 'all' = 'pending', limit = 200): Promise<ModerationComment[]> {
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const values: unknown[] = []
@@ -391,7 +384,7 @@ export async function listCommentsForModeration(status: CommentStatus | 'all' = 
 }
 
 export async function updateCommentStatus(commentId: string, status: CommentStatus) {
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const client = await database.connect()
@@ -448,7 +441,7 @@ export async function updateCommentStatus(commentId: string, status: CommentStat
 export type DeleteOwnCommentResult = 'deleted' | 'has_replies' | 'not_found'
 
 export async function deleteOwnComment(commentId: string, userId: string): Promise<DeleteOwnCommentResult> {
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const owned = await database.query<{ id: string }>(
@@ -475,7 +468,7 @@ export async function deleteOwnComment(commentId: string, userId: string): Promi
 }
 
 export async function getPollVoteCounts(pollId: string): Promise<Record<string, number>> {
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const result = await database.query<{ option_id: string; count: string }>(
@@ -496,7 +489,7 @@ export async function getPollVoteCounts(pollId: string): Promise<Record<string, 
 export async function recordPollVote(input: PollVoteInput) {
   const voterKey = input.voterUserId ?? input.voterFingerprint
   const key = `${input.pollId}:${voterKey}`
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const result = await database.query(
@@ -515,7 +508,7 @@ export async function recordPollVote(input: PollVoteInput) {
 export async function recordReading(input: ReadingInput) {
   const safePercent = Math.max(0, Math.min(100, Math.round(input.readPercent)))
   const safeSeconds = Math.max(0, Math.min(86_400, Math.round(input.dwellSeconds)))
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     await database.query(
@@ -588,7 +581,7 @@ export async function mergeAnonymousReading(anonymousId: string, userId: string)
   if (!anonymousId.trim()) return
   const anonymousOwner = owner(anonymousId)
   const userOwner = owner('', userId)
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const client = await database.connect()
@@ -671,7 +664,7 @@ export async function getReadingHistory(
   limit = 100,
 ): Promise<ReadingHistoryItem[]> {
   const safeLimit = Math.max(1, Math.min(limit, 200))
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const result = await database.query(
@@ -718,7 +711,7 @@ export async function getReadingHistory(
 }
 
 export async function clearReadingHistory(anonymousId: string, userId?: string): Promise<void> {
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     await database.query('delete from nw_reading where owner_key=$1', [owner(anonymousId, userId)])
@@ -747,7 +740,7 @@ export async function getMostReadStats(windowDays = 7, limit = 50): Promise<Most
   const safeDays = Math.max(1, Math.min(windowDays, 30))
   const safeLimit = Math.max(1, Math.min(limit, 200))
   const cutoff = new Date(Date.now() - safeDays * 86_400_000)
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const result = await database.query(
@@ -812,7 +805,7 @@ export async function getMostReadStats(windowDays = 7, limit = 50): Promise<Most
 /** Recent reader activity shaped for the shared trending detector. No identity leaves the store. */
 export async function getTrendingSamples(windowMinutes = 120): Promise<EngagementSample[]> {
   const cutoff = new Date(Date.now() - Math.max(15, windowMinutes) * 60_000)
-  const database = getPool()
+  const database = await getPool()
   if (database) {
     await ensureSchema()
     const result = await database.query(

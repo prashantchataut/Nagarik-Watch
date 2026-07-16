@@ -1,5 +1,6 @@
 import 'server-only'
-import { postgresPoolConfig, resolveDatabaseUrl } from '@/lib/db-url'
+import { resolveDatabaseUrl } from '@/lib/db-url'
+import { getSharedPool } from '@/lib/pg-pool'
 
 export type QueryResult<T extends Record<string, unknown>> = {
   rows: T[]
@@ -13,7 +14,6 @@ export type Queryable = {
   ): Promise<QueryResult<T>>
 }
 
-let poolPromise: Promise<Queryable | null> | null = null
 const readySchemas = new Map<string, Promise<void>>()
 
 export function isProductionRuntime(): boolean {
@@ -28,28 +28,15 @@ export async function getOperationalPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
   if (operationalStorageMode() !== 'postgres') {
     if (isProductionRuntime()) {
-      // Public pages (polls, nav session, etc.) must stay up even when the
-      // operator has not provisioned Postgres yet. Callers fall back to local
-      // files / empty results; auth still refuses ephemeral production DBs.
       console.error('[ops-db] DATABASE_URL is missing in production; operational features use local fallbacks.')
     }
     return null
   }
-  if (!poolPromise) {
-    poolPromise = (async () => {
-      const { Pool } = await import('pg')
-      const config = postgresPoolConfig()
-      if (!config) return null
-      return new Pool(config) as Queryable
-    })().catch((error) => {
-      poolPromise = null
-      throw error
-    })
-  }
   try {
-    return await poolPromise
+    const pool = await getSharedPool()
+    return pool as Queryable | null
   } catch (error) {
-    console.error('[ops-db] could not create Postgres pool', error instanceof Error ? error.message : error)
+    console.error('[ops-db] could not acquire shared Postgres pool', error instanceof Error ? error.message : error)
     return null
   }
 }
@@ -70,8 +57,6 @@ export async function ensureOperationalSchema(key: string, setup: (pool: Queryab
     await readySchemas.get(key)
     return pool
   } catch (error) {
-    // DNS / TLS / connection failures (e.g. deleted Aiven host) must not crash
-    // Server Components that only need optional operational data.
     console.error(
       `[ops-db] schema "${key}" unavailable`,
       error instanceof Error ? error.message : error,
@@ -107,7 +92,9 @@ export function parseJsonObject(value: unknown): Record<string, unknown> {
   if (typeof value !== 'string' || !value.trim()) return {}
   try {
     const parsed = JSON.parse(value)
-    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {}
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {}
   } catch {
     return {}
   }

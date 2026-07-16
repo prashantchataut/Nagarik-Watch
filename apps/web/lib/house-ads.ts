@@ -1,7 +1,7 @@
 import 'server-only'
 import type { AdPlacementKey } from '@/lib/ads'
-import { postgresPoolConfig } from '@/lib/db-url'
 import { isProductionRuntime } from '@/lib/ops-db'
+import { getSharedPool } from '@/lib/pg-pool'
 
 export type HouseAd = {
   placementKey: string
@@ -33,26 +33,18 @@ type Row = {
 }
 
 const memory = new Map<string, HouseAd>()
-let poolPromise: Promise<Queryable | null> | null = null
 let schemaReady: Promise<void> | null = null
 
 async function getPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
-  if (!process.env.DATABASE_URL?.startsWith('postgres')) {
+  const pool = await getSharedPool()
+  if (!pool) {
     if (isProductionRuntime()) {
       throw new Error('DATABASE_URL must point to Postgres for production house ads.')
     }
     return null
   }
-  if (!poolPromise) {
-    poolPromise = (async () => {
-      const { Pool } = await import('pg')
-      const config = postgresPoolConfig({ max: 5 })
-      if (!config) return null
-      return new Pool(config) as Queryable
-    })()
-  }
-  return poolPromise
+  return pool as unknown as Queryable
 }
 
 async function ensureSchema(): Promise<Queryable | null> {

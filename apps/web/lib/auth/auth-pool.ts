@@ -2,7 +2,8 @@ import 'server-only'
 import path from 'node:path'
 import { PostgresDialect, PGliteDialect } from 'kysely'
 import type { Dialect } from 'kysely'
-import { postgresPoolConfig } from '@/lib/db-url'
+import { getSharedPool } from '@/lib/pg-pool'
+import { resolveDatabaseUrl } from '@/lib/db-url'
 
 let cached: Dialect | null = null
 
@@ -21,12 +22,12 @@ export async function createDialect(): Promise<Dialect> {
     return cached
   }
 
-  const poolConfig = postgresPoolConfig()
-  if (poolConfig) {
-    const { Pool } = await import('pg')
-    cached = new PostgresDialect({
-      pool: new Pool(poolConfig),
-    })
+  if (resolveDatabaseUrl()) {
+    const pool = await getSharedPool()
+    if (!pool) {
+      throw new Error('DATABASE_URL is set but the shared Postgres pool could not be created.')
+    }
+    cached = new PostgresDialect({ pool })
     return cached
   }
 
@@ -38,4 +39,3 @@ export async function createDialect(): Promise<Dialect> {
   cached = new PGliteDialect({ pglite: await PGlite.create(pgliteDataDir()) })
   return cached
 }
-

@@ -91,9 +91,11 @@ export function postgresPoolConfig(
   return {
     connectionString,
     ssl: postgresSslConfig(raw),
-    max: Number(process.env.NW_DB_POOL_MAX ?? 5),
-    idleTimeoutMillis: 30_000,
+    // Keep the default small — the app uses one shared pool (see lib/pg-pool.ts).
+    max: Number(process.env.NW_DB_POOL_MAX ?? 3),
+    idleTimeoutMillis: 10_000,
     connectionTimeoutMillis: 5_000,
+    allowExitOnIdle: true,
     ...rest,
   }
 }
@@ -119,22 +121,13 @@ export async function probeDatabase(): Promise<DatabaseProbe> {
   }
 
   try {
-    const { Pool } = await import('pg')
-    const config = postgresPoolConfig({
-      connectionString: url,
-      max: 1,
-      connectionTimeoutMillis: 4_000,
-      idleTimeoutMillis: 1_000,
-    })
-    if (!config) {
+    // Reuse the process-wide pool — never open+end a throwaway Pool per probe.
+    const { getSharedPool } = await import('@/lib/pg-pool')
+    const pool = await getSharedPool()
+    if (!pool) {
       return { ok: false, host, detail: 'DATABASE_URL is not set in this deployment.', code: 'MISSING' }
     }
-    const pool = new Pool(config)
-    try {
-      await pool.query('SELECT 1 AS ok')
-    } finally {
-      await pool.end().catch(() => undefined)
-    }
+    await pool.query('SELECT 1 AS ok')
     return { ok: true, host, detail: 'Postgres is reachable.' }
   } catch (error) {
     const code =

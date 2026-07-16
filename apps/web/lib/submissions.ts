@@ -1,7 +1,8 @@
 import 'server-only'
 import type { Locale } from '@nagarikwatch/db'
-import { postgresPoolConfig, resolveDatabaseUrl } from '@/lib/db-url'
+import { resolveDatabaseUrl } from '@/lib/db-url'
 import { isProductionRuntime } from '@/lib/ops-db'
+import { getSharedPool } from '@/lib/pg-pool'
 
 export type SubmissionType = 'tip' | 'document' | 'photo' | 'video' | 'psa' | 'correction' | 'other'
 export type SubmissionStatus = 'new' | 'in_review' | 'accepted' | 'rejected'
@@ -56,7 +57,6 @@ type SubmissionRow = {
 }
 
 const memory = new Map<string, ReaderSubmission>()
-let poolPromise: Promise<Queryable | null> | null = null
 let schemaReady: Promise<void> | null = null
 
 export function submissionsStorageMode(): 'postgres' | 'memory' {
@@ -71,17 +71,8 @@ async function getPool(): Promise<Queryable | null> {
     }
     return null
   }
-  if (!poolPromise) {
-    poolPromise = (async () => {
-      const { Pool } = await import('pg')
-      const config = postgresPoolConfig({
-        max: Number(process.env.SUBMISSIONS_DB_POOL_MAX ?? 5),
-      })
-      if (!config) return null
-      return new Pool(config) as Queryable
-    })()
-  }
-  return poolPromise
+  const pool = await getSharedPool()
+  return (pool as unknown as Queryable) ?? null
 }
 
 async function ensureSchema(): Promise<Queryable | null> {

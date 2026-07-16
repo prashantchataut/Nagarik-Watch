@@ -1,7 +1,7 @@
 import 'server-only'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { postgresPoolConfig } from '@/lib/db-url'
+import { getSharedPool } from '@/lib/pg-pool'
 
 export type ManualLiveRecord<T = unknown> = {
   key: string
@@ -22,7 +22,6 @@ type LocalStore = Record<string, ManualLiveRecord>
 
 const LOCAL_STORE_PATH =
   process.env.LIVE_MANUAL_STORE_PATH ?? path.join(process.cwd(), '.data', 'live-manual.json')
-let poolPromise: Promise<Queryable | null> | null = null
 let schemaReady: Promise<void> | null = null
 let localWriteQueue = Promise.resolve()
 
@@ -32,21 +31,14 @@ function isProductionRuntime(): boolean {
 
 async function getPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
-  if (!process.env.DATABASE_URL?.startsWith('postgres')) {
+  const pool = await getSharedPool()
+  if (!pool) {
     if (isProductionRuntime()) {
       throw new Error('DATABASE_URL is required for persistent live-data overrides in production')
     }
     return null
   }
-  if (!poolPromise) {
-    poolPromise = (async () => {
-      const { Pool } = await import('pg')
-      const config = postgresPoolConfig({ max: 5 })
-      if (!config) return null
-      return new Pool(config) as Queryable
-    })()
-  }
-  return poolPromise
+  return pool as unknown as Queryable
 }
 
 async function ensureSchema(): Promise<Queryable | null> {
