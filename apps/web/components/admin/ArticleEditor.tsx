@@ -526,7 +526,7 @@ export function ArticleEditor({
           )}
         </div>
 
-        {canManageHomepage || role === 'seo_manager' ? (
+        {canManageHomepage ? (
         <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
           <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
             एसइओ
