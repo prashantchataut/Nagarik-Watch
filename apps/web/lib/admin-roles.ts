@@ -286,6 +286,62 @@ export const ADMIN_PATH_ROLE_RULES: ReadonlyArray<{
   },
 ]
 
+/** Roles that use the journalist writing desk (`/journalist/*`), not `/admin`. */
+export const JOURNALIST_DESK_ROLES: ReadonlySet<NewsroomRole> = new Set([
+  'contributor',
+  'journalist',
+  'photo_video_editor',
+])
+
+export type AdminDeskVariant = 'super' | 'admin' | 'editor' | 'ops'
+
+/** Visual/product desk identity for the admin shell. */
+export function resolveAdminDeskVariant(role: NewsroomRole): AdminDeskVariant {
+  if (role === 'super_admin') return 'super'
+  if (role === 'admin') return 'admin'
+  if (
+    role === 'publisher' ||
+    role === 'seo_manager' ||
+    role === 'moderator' ||
+    role === 'ad_manager' ||
+    role === 'analyst' ||
+    role === 'viewer'
+  ) {
+    return 'ops'
+  }
+  return 'editor'
+}
+
+export function adminDeskLabelNe(variant: AdminDeskVariant): string {
+  switch (variant) {
+    case 'super':
+      return 'सुपर एडमिन कन्सोल'
+    case 'admin':
+      return 'एडमिन कन्सोल'
+    case 'ops':
+      return 'सञ्चालन डेस्क'
+    default:
+      return 'सम्पादकीय डेस्क'
+  }
+}
+
+export function adminDeskLabelEn(variant: AdminDeskVariant): string {
+  switch (variant) {
+    case 'super':
+      return 'Super admin console'
+    case 'admin':
+      return 'Admin console'
+    case 'ops':
+      return 'Operations desk'
+    default:
+      return 'Editorial desk'
+  }
+}
+
+export function isJournalistDeskRole(role: NewsroomRole): boolean {
+  return JOURNALIST_DESK_ROLES.has(role)
+}
+
 export function canAccessAdminPath(role: NewsroomRole, pathname: string): boolean {
   const rule = ADMIN_PATH_ROLE_RULES.find(
     (item) => pathname === item.prefix || pathname.startsWith(`${item.prefix}/`),

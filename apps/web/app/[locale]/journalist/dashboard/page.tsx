@@ -29,7 +29,16 @@ export default async function JournalistDashboard({ params }: { params: Promise<
         <section className="newsroom-pulse" aria-label={ne ? 'कार्य स्थिति' : 'Work status'}><div><span>{ne ? 'कुल सामग्री' : 'All stories'}</span><strong>{drafts.length}</strong></div><div><span>{ne ? 'समीक्षामा' : 'In review'}</span><strong>{review}</strong></div><div><span>{ne ? 'संशोधन माग' : 'Revisions'}</span><strong>{revisions}</strong></div><div><span>{ne ? 'प्रकाशन अधिकार' : 'Publish access'}</span><strong>{['publisher','editor_in_chief','admin','super_admin'].includes(session.newsroomRole) ? (ne ? 'छ' : 'Yes') : (ne ? 'छैन' : 'No')}</strong></div></section>
         <div className="newsroom-dashboard-grid">
           <section className="newsroom-dashboard-grid__main"><div className="newsroom-section-title"><div><p className="editorial-kicker" lang="en">Your queue</p><h2>{ne ? 'हालका समाचार' : 'Recent stories'}</h2></div><Link href={localizeHref(locale, '/journalist/assignments')}>{ne ? 'सबै हेर्नुहोस्' : 'View all'}</Link></div>{latest.length ? <ol className="newsroom-recent-list">{latest.map((draft, index) => <li key={draft.articleSlug}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{draft.titleNe}</strong><p>{draft.categorySlug} · {draft.workflowStage}</p></div>{draft.articleId ? <Link href={localizeHref(locale, `/journalist/articles/${draft.articleId}/edit`)}>{ne ? 'सम्पादन' : 'Edit'}</Link> : null}</li>)}</ol> : <div className="newsroom-empty"><strong>{ne ? 'अहिले कुनै ड्राफ्ट छैन' : 'No drafts yet'}</strong><p>{ne ? 'पहिलो रिपोर्ट तयार गर्न नयाँ समाचार खोल्नुहोस्।' : 'Open a new story to start reporting.'}</p></div>}</section>
-          <aside className="newsroom-brief"><p className="editorial-kicker" lang="en">Editorial standard</p><h2>{ne ? 'पेश गर्नुअघि चार प्रश्न' : 'Four questions before review'}</h2><ol><li><span>01</span>{ne ? 'समाचारको दाबी कुन प्रमाणमा टिकेको छ?' : 'What evidence supports the central claim?'}</li><li><span>02</span>{ne ? 'सम्बन्धित पक्षलाई प्रतिक्रिया दिन अवसर दिइयो?' : 'Was the affected party offered a response?'}</li><li><span>03</span>{ne ? 'शीर्षकले सामग्रीभन्दा बढी दाबी त गर्दैन?' : 'Does the headline overstate the reporting?'}</li><li><span>04</span>{ne ? 'ट्याग र विभाग सही छन्?' : 'Are the desk and tags accurate?'}</li></ol></aside>
+          <aside className="newsroom-brief">
+            <p className="editorial-kicker" lang="en">Quick tools</p>
+            <h2>{ne ? 'लेखन उपकरण' : 'Writing tools'}</h2>
+            <ol>
+              <li><span>01</span><Link href={localizeHref(locale, '/journalist/tools')}>{ne ? 'ढाँचा र चेकलिस्ट' : 'Frames and checklist'}</Link></li>
+              <li><span>02</span><Link href={localizeHref(locale, '/journalist/articles/new?template=spot')}>{ne ? 'स्थलगत ढाँचा' : 'Spot frame'}</Link></li>
+              <li><span>03</span><Link href={localizeHref(locale, '/journalist/articles/new?template=explain')}>{ne ? 'व्याख्यात्मक ढाँचा' : 'Explainer frame'}</Link></li>
+              <li><span>04</span><Link href={localizeHref(locale, '/journalist/feedback')}>{ne ? 'सम्पादक प्रतिक्रिया' : 'Editor feedback'}</Link></li>
+            </ol>
+          </aside>
         </div>
       </main>
     </JournalistWorkspaceShell>

@@ -102,6 +102,35 @@ async function getArticlesPool(): Promise<Queryable | null> {
   return ensureOperationalSchema(SCHEMA_KEY, ensureArticlesTable)
 }
 
+async function insertSeedArticles(pool: Queryable, articles: StoredArticle[]): Promise<void> {
+  for (const article of articles) {
+    await pool.query(
+      `INSERT INTO nw_articles (id, slug, category_slug, workflow_stage, published_at, updated_at, document)
+       VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb)
+       ON CONFLICT (id) DO NOTHING`,
+      [
+        article.id,
+        article.slug,
+        article.categorySlug,
+        article.workflowStage,
+        article.publishedAt,
+        article.updatedAt,
+        JSON.stringify(article),
+      ],
+    )
+  }
+}
+
+/** Insert any edition articles missing by id (never overwrite editor edits). */
+function missingSeedArticles(existing: StoredArticle[]): StoredArticle[] {
+  const haveIds = new Set(existing.map((article) => article.id))
+  const haveSlugs = new Set(existing.map((article) => `${article.categorySlug}:${article.slug}`))
+  return buildOriginalStarterArticles().filter(
+    (article) =>
+      !haveIds.has(article.id) && !haveSlugs.has(`${article.categorySlug}:${article.slug}`),
+  )
+}
+
 async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
   const result = await pool.query<{ document: unknown }>(`SELECT document FROM nw_articles`)
   const articles = result.rows
@@ -110,23 +139,14 @@ async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
 
   if (articles.length === 0) {
     const seeded = buildOriginalStarterArticles()
-    for (const article of seeded) {
-      await pool.query(
-        `INSERT INTO nw_articles (id, slug, category_slug, workflow_stage, published_at, updated_at, document)
-         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb)
-         ON CONFLICT (id) DO NOTHING`,
-        [
-          article.id,
-          article.slug,
-          article.categorySlug,
-          article.workflowStage,
-          article.publishedAt,
-          article.updatedAt,
-          JSON.stringify(article),
-        ],
-      )
-    }
+    await insertSeedArticles(pool, seeded)
     return { articles: seeded, version: 1 }
+  }
+
+  const missing = missingSeedArticles(articles)
+  if (missing.length > 0) {
+    await insertSeedArticles(pool, missing)
+    return { articles: [...articles, ...missing], version: 1 }
   }
   return { articles, version: 1 }
 }
@@ -174,7 +194,15 @@ async function readFromFile(): Promise<StoreShape> {
       await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
       return store
     }
-    return parsed
+    const missing = missingSeedArticles(parsed.articles)
+    if (missing.length === 0) return parsed
+    const store = { articles: [...parsed.articles, ...missing], version: parsed.version ?? 1 }
+    try {
+      await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
+    } catch {
+      // Read-only FS — return merged in-memory edition for this process.
+    }
+    return store
   } catch {
     const seeded = buildOriginalStarterArticles()
     const store = { articles: seeded, version: 1 }

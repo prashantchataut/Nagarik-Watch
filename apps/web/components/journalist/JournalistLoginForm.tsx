@@ -6,7 +6,11 @@ import { useRouter } from 'next/navigation'
 import { PasswordField } from '@/components/forms/PasswordField'
 import { localizeHref } from '@/lib/i18n/locales'
 import { authClientErrorMessage } from '@/lib/auth/client-errors'
-import { CONTRIBUTOR_ROLES, type NewsroomRole } from '@/lib/admin-roles'
+import {
+  ADMIN_BASE_ROLES,
+  JOURNALIST_DESK_ROLES,
+  type NewsroomRole,
+} from '@/lib/admin-roles'
 
 type Props = { locale: 'ne' | 'en' }
 
@@ -20,7 +24,7 @@ export function JournalistLoginForm({ locale }: Props) {
     event.preventDefault()
     setError(null)
     const form = new FormData(event.currentTarget)
-    const email = String(form.get('email') ?? '').trim()
+    const email = String(form.get('email') ?? '').trim().toLowerCase()
     const password = String(form.get('password') ?? '')
 
     if (!email || !password) {
@@ -55,8 +59,15 @@ export function JournalistLoginForm({ locale }: Props) {
         const sessionBody = (await sessionRes.json().catch(() => null)) as {
           user?: { role?: string }
         } | null
-        const role = sessionBody?.user?.role ?? 'reader'
-        if (!CONTRIBUTOR_ROLES.has(role as NewsroomRole)) {
+        const role = (sessionBody?.user?.role ?? 'reader') as NewsroomRole
+
+        if (ADMIN_BASE_ROLES.has(role) && !JOURNALIST_DESK_ROLES.has(role)) {
+          router.refresh()
+          router.push('/admin/dashboard')
+          return
+        }
+
+        if (!JOURNALIST_DESK_ROLES.has(role) && role !== 'copy_editor' && role !== 'fact_checker') {
           router.refresh()
           router.push(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
           return
@@ -79,7 +90,7 @@ export function JournalistLoginForm({ locale }: Props) {
       ) : null}
 
       <label className="newsroom-login-form__field">
-        <span lang={ne ? 'ne' : 'en'}>{ne ? 'न्युजरुम इमेल' : 'Newsroom email'}</span>
+        <span lang={ne ? 'ne' : 'en'}>{ne ? 'पत्रकार इमेल' : 'Reporter email'}</span>
         <input
           name="email"
           type="email"
@@ -106,7 +117,7 @@ export function JournalistLoginForm({ locale }: Props) {
         disabled={pending}
         className="newsroom-login-form__submit"
       >
-        {pending ? (ne ? 'लगइन हुँदै…' : 'Signing in…') : ne ? 'पत्रकार लगइन' : 'Journalist sign in'}
+        {pending ? (ne ? 'लगइन हुँदै…' : 'Signing in…') : ne ? 'रिपोर्टर डेस्क खोल्नुहोस्' : 'Open reporter desk'}
       </button>
     </form>
   )

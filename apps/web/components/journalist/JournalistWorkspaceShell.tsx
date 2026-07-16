@@ -15,7 +15,7 @@ export function JournalistWorkspaceShell({
   locale: Locale
   name: string
   roleLabel: string
-  active: 'dashboard' | 'assignments' | 'new' | 'feedback' | 'profile'
+  active: 'dashboard' | 'assignments' | 'new' | 'tools' | 'feedback' | 'profile'
   children: ReactNode
 }) {
   const ne = locale === 'ne'
@@ -23,6 +23,7 @@ export function JournalistWorkspaceShell({
     ['dashboard', '/journalist/dashboard', ne ? 'डेस्क' : 'Desk'],
     ['assignments', '/journalist/assignments', ne ? 'मेरा समाचार' : 'My stories'],
     ['new', '/journalist/articles/new', ne ? 'नयाँ ड्राफ्ट' : 'New draft'],
+    ['tools', '/journalist/tools', ne ? 'लेखन उपकरण' : 'Tools'],
     ['feedback', '/journalist/feedback', ne ? 'प्रतिक्रिया' : 'Feedback'],
     ['profile', '/journalist/profile', ne ? 'प्रोफाइल' : 'Profile'],
   ] as const
@@ -54,6 +55,7 @@ export function JournalistWorkspaceShell({
           <Link href={localizeHref(locale, '/journalist/dashboard')}>{ne ? 'डेस्क' : 'Desk'}</Link>
           <Link href={localizeHref(locale, '/journalist/assignments')}>{ne ? 'समाचार' : 'Stories'}</Link>
           <Link href={localizeHref(locale, '/journalist/articles/new')}>{ne ? 'नयाँ' : 'New'}</Link>
+          <Link href={localizeHref(locale, '/journalist/tools')}>{ne ? 'उपकरण' : 'Tools'}</Link>
           <Link href={localizeHref(locale, '/journalist/feedback')}>{ne ? 'प्रतिक्रिया' : 'Feedback'}</Link>
         </header>
         {children}

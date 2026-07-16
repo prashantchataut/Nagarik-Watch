@@ -210,6 +210,12 @@ export async function listJournalistDraftMeta(reporterId?: string): Promise<Jour
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
 }
 
+/** Submitted journalist drafts waiting on the editorial inbox. */
+export async function listPendingJournalistReviews(): Promise<JournalistDraftMeta[]> {
+  const all = await listJournalistDraftMeta()
+  return all.filter((item) => item.workflowStage === 'submitted')
+}
+
 export async function getJournalistDraftMeta(identifier: string, reporterId?: string): Promise<JournalistDraftMeta | null> {
   const database = await pool()
   if (database) {

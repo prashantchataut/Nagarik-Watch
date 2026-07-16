@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { headers } from 'next/headers'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import { canAccessAdminPath } from '@/lib/admin-roles'
+import { canAccessAdminPath, isJournalistDeskRole } from '@/lib/admin-roles'
 import { isPayloadCanonical, payloadAdminUrl } from '@/lib/content/payload-admin-client'
 import { AdminShell } from '@/components/admin/AdminShell'
 
@@ -37,6 +37,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   }
 
   const session = await requireNewsroomSession()
+  if (isJournalistDeskRole(session.newsroomRole)) {
+    redirect('/ne/journalist/dashboard')
+  }
   if (!canAccessAdminPath(session.newsroomRole, pathname)) notFound()
   const contentAdminUrl = isPayloadCanonical() ? payloadAdminUrl() : undefined
   return (

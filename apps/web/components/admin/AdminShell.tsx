@@ -7,14 +7,18 @@ import { useEffect, useState, useTransition } from 'react'
 import type { NewsroomSession } from '@/lib/auth/session'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import {
+  adminDeskLabelNe,
+  canCreate,
   COMMUNITY_MANAGER_ROLES,
   EDITOR_ROLES,
   MEDIA_MANAGER_ROLES,
   MEMBERSHIP_MANAGER_ROLES,
   NEWSLETTER_MANAGER_ROLES,
   NEWSROOM_ROLE_LABELS_NE,
+  resolveAdminDeskVariant,
   SETTINGS_MANAGER_ROLES,
   TAXONOMY_MANAGER_ROLES,
+  type AdminDeskVariant,
 } from '@/lib/admin-roles'
 import { signOutRequest } from '@/lib/auth/sign-out-client'
 import { LogoMark } from '@/components/Logo'
@@ -35,34 +39,51 @@ const PAYLOAD_CONTENT_PATHS: Record<string, string> = {
   '/admin/authors': '/collections/authors',
 }
 
-const PRIMARY_NAV: NavItem[] = [
-  { label: 'ड्यासबोर्ड', href: '/admin/dashboard', icon: 'dashboard' },
-  { label: 'समाचार', href: '/admin/articles', icon: 'article' },
-  { label: 'नयाँ समाचार', href: '/admin/articles/new', icon: 'plus' },
-]
+function primaryNavFor(desk: AdminDeskVariant, role: NewsroomRole): NavItem[] {
+  const items: NavItem[] = [{ label: 'ड्यासबोर्ड', href: '/admin/dashboard', icon: 'dashboard' }]
+  if (desk === 'editor' || desk === 'admin' || desk === 'super') {
+    items.push({ label: 'समाचार', href: '/admin/articles', icon: 'article' })
+  }
+  if (canCreate(role) && desk !== 'ops') {
+    items.push({ label: 'नयाँ समाचार', href: '/admin/articles/new', icon: 'plus' })
+  }
+  if (desk === 'editor') {
+    items.push({ label: 'पत्रकार इनबक्स', href: '/admin/journalists', icon: 'author' })
+  }
+  if (desk === 'admin' || desk === 'super') {
+    items.push({ label: 'प्रयोगकर्ता', href: '/admin/users', icon: 'user' })
+  }
+  if (desk === 'super') {
+    items.push({ label: 'लन्च चेक', href: '/admin/launch', icon: 'audit' })
+  }
+  return items
+}
 
 const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<NewsroomRole>; defaultOpen?: boolean }[] = [
   {
     heading: 'सम्पादन',
     defaultOpen: true,
+    roles: EDITOR_ROLES,
     items: [
       { label: 'मिडिया', href: '/admin/media', icon: 'media', roles: MEDIA_MANAGER_ROLES },
       { label: 'लाइभ ब्लग', href: '/admin/live-blogs', icon: 'live', roles: EDITOR_ROLES },
+      { label: 'पत्रकार डेस्क', href: '/admin/journalists', icon: 'author', roles: EDITOR_ROLES },
     ],
   },
   {
     heading: 'वर्गीकरण',
+    roles: TAXONOMY_MANAGER_ROLES,
     items: [
       { label: 'विभाग', href: '/admin/categories', icon: 'category', roles: TAXONOMY_MANAGER_ROLES },
       { label: 'ट्याग', href: '/admin/tags', icon: 'tag', roles: TAXONOMY_MANAGER_ROLES },
       { label: 'विषय', href: '/admin/topics', icon: 'topic', roles: TAXONOMY_MANAGER_ROLES },
       { label: 'प्रदेश', href: '/admin/provinces', icon: 'province', roles: TAXONOMY_MANAGER_ROLES },
       { label: 'लेखक', href: '/admin/authors', icon: 'author', roles: TAXONOMY_MANAGER_ROLES },
-      { label: 'पत्रकार डेस्क', href: '/admin/journalists', icon: 'author', roles: EDITOR_ROLES },
     ],
   },
   {
     heading: 'समुदाय',
+    roles: COMMUNITY_MANAGER_ROLES,
     items: [
       { label: 'टिप्पणी', href: '/admin/comments', icon: 'comment', roles: COMMUNITY_MANAGER_ROLES },
       { label: 'टिप', href: '/admin/submissions', icon: 'tip', roles: COMMUNITY_MANAGER_ROLES },
@@ -72,8 +93,19 @@ const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<Newsr
     ],
   },
   {
-    heading: 'प्रकाशक',
-    roles: new Set<NewsroomRole>(['publisher', 'admin', 'super_admin', 'managing_editor', 'editor_in_chief']),
+    heading: 'प्रकाशक / सञ्चालन',
+    roles: new Set<NewsroomRole>([
+      'publisher',
+      'admin',
+      'super_admin',
+      'managing_editor',
+      'editor_in_chief',
+      'seo_manager',
+      'ad_manager',
+      'analyst',
+      'moderator',
+      'viewer',
+    ]),
     items: [
       { label: 'लाइभ प्यानल', href: '/admin/live', icon: 'signal' },
       { label: 'एल्गोरिदम', href: '/admin/algorithms', icon: 'algorithm' },
@@ -85,13 +117,23 @@ const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<Newsr
     ],
   },
   {
-    heading: 'सुपर एडमिन',
-    roles: new Set<NewsroomRole>(['admin', 'super_admin']),
+    heading: 'एडमिन',
+    roles: new Set<NewsroomRole>(['admin']),
     items: [
       { label: 'प्रयोगकर्ता', href: '/admin/users', icon: 'user' },
       { label: 'भूमिका', href: '/admin/roles', icon: 'role' },
       { label: 'अडिट लग', href: '/admin/audit-log', icon: 'audit' },
-      { label: 'लन्च चेक', href: '/admin/launch', icon: 'audit', roles: new Set(['super_admin']) },
+    ],
+  },
+  {
+    heading: 'सुपर एडमिन',
+    roles: new Set<NewsroomRole>(['super_admin']),
+    defaultOpen: true,
+    items: [
+      { label: 'प्रयोगकर्ता', href: '/admin/users', icon: 'user' },
+      { label: 'भूमिका', href: '/admin/roles', icon: 'role' },
+      { label: 'अडिट लग', href: '/admin/audit-log', icon: 'audit' },
+      { label: 'लन्च चेक', href: '/admin/launch', icon: 'audit' },
     ],
   },
 ]
@@ -122,6 +164,9 @@ export function AdminShell({
 
   const role = session.newsroomRole
   const roleLabel = NEWSROOM_ROLE_LABELS_NE[role] ?? role
+  const desk = resolveAdminDeskVariant(role)
+  const deskLabel = adminDeskLabelNe(desk)
+  const primaryNav = primaryNavFor(desk, role)
   const initials = (session.displayName || session.email)
     .split(/[\s@.]+/)
     .slice(0, 2)
@@ -174,6 +219,9 @@ export function AdminShell({
     clientPath,
     initials,
     roleLabel,
+    desk,
+    deskLabel,
+    primaryNav,
     session,
     visibleGroups,
     signingOut,
@@ -184,7 +232,7 @@ export function AdminShell({
   }
 
   return (
-    <div className="admin-shell-surface flex min-h-screen bg-surface">
+    <div className="admin-shell-surface flex min-h-screen bg-surface" data-desk={desk}>
       <div className="hidden lg:block lg:sticky lg:top-0 lg:h-screen">
         <AdminSidebar {...sidebarProps} />
       </div>
@@ -255,6 +303,9 @@ function AdminSidebar({
   clientPath,
   initials,
   roleLabel,
+  desk,
+  deskLabel,
+  primaryNav,
   session,
   visibleGroups,
   signingOut,
@@ -266,6 +317,9 @@ function AdminSidebar({
   clientPath: string
   initials: string
   roleLabel: string
+  desk: AdminDeskVariant
+  deskLabel: string
+  primaryNav: NavItem[]
   session: NewsroomSession
   visibleGroups: { heading: string; items: NavItem[]; defaultOpen?: boolean }[]
   signingOut: boolean
@@ -275,7 +329,7 @@ function AdminSidebar({
   startNav: (cb: () => void) => void
 }) {
   return (
-    <aside className="flex h-full w-[16.5rem] flex-col border-r border-rule bg-surface-raised">
+    <aside className="admin-sidebar flex h-full w-[16.5rem] flex-col border-r border-rule bg-surface-raised" data-desk={desk}>
       <div className="flex h-14 items-center gap-2.5 border-b border-rule px-4">
         <Link href="/admin/dashboard" onClick={onNavigate} className="flex min-w-0 items-center gap-2.5">
           <LogoMark title="नागरिक वाच / Nagarik Watch" className="h-8 w-8 shrink-0" />
@@ -283,8 +337,8 @@ function AdminSidebar({
             <span className="block truncate font-display text-meta font-bold text-ink" lang="ne">
               नागरिक वाच
             </span>
-            <span className="block text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-brand-strong">
-              Newsroom
+            <span className="admin-desk-badge block truncate text-[0.65rem] font-semibold uppercase tracking-[0.14em]">
+              {deskLabel}
             </span>
           </div>
         </Link>
@@ -292,7 +346,7 @@ function AdminSidebar({
 
       <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Newsroom navigation">
         <ul className="space-y-0.5">
-          {PRIMARY_NAV.map((item) => {
+          {primaryNav.map((item) => {
             const { href, external } = resolveHref(item.href)
             const active = !external && isActivePath(clientPath, item.href)
             return (
@@ -393,34 +447,38 @@ function AdminSidebar({
 
 function pageTitle(pathname: string): string {
   const map: Record<string, string> = {
-    '/admin/dashboard': 'à¤¡à¥à¤¯à¤¾à¤¸à¤¬à¥‹à¤°à¥à¤¡',
-    '/admin/articles': 'à¤¸à¤®à¤¾à¤šà¤¾à¤°',
-    '/admin/articles/new': 'à¤¨à¤¯à¤¾à¤ à¤¸à¤®à¤¾à¤šà¤¾à¤°',
-    '/admin/media': 'à¤®à¤¿à¤¡à¤¿à¤¯à¤¾',
-    '/admin/categories': 'à¤µà¤¿à¤­à¤¾à¤—',
-    '/admin/tags': 'à¤Ÿà¥à¤¯à¤¾à¤—',
-    '/admin/topics': 'à¤µà¤¿à¤·à¤¯',
-    '/admin/provinces': 'à¤ªà¥à¤°à¤¦à¥‡à¤¶',
-    '/admin/authors': 'à¤²à¥‡à¤–à¤•',
-    '/admin/journalists': 'à¤ªà¤¤à¥à¤°à¤•à¤¾à¤° workspace',
-    '/admin/comments': 'à¤Ÿà¤¿à¤ªà¥à¤ªà¤£à¥€',
-    '/admin/contact': 'à¤¸à¤®à¥à¤ªà¤°à¥à¤• à¤¸à¤¨à¥à¤¦à¥‡à¤¶',
-    '/admin/submissions': 'à¤Ÿà¤¿à¤ª',
-    '/admin/polls': 'à¤®à¤¤à¤¦à¤¾à¤¨',
-    '/admin/newsletter': 'à¤¨à¥à¤¯à¥à¤œà¤²à¥‡à¤Ÿà¤°',
-    '/admin/live-blogs': 'à¤²à¤¾à¤‡à¤­ à¤¬à¥à¤²à¤—',
-    '/admin/wire': 'à¤µà¤¾à¤¯à¤° à¤° RSS',
-    '/admin/live': 'à¤²à¤¾à¤‡à¤­ à¤ªà¥à¤¯à¤¾à¤¨à¤²',
-    '/admin/algorithms': 'à¤à¤²à¥à¤—à¥‹à¤°à¤¿à¤¦à¤®',
-    '/admin/live-widgets': 'à¤²à¤¾à¤‡à¤­ à¤µà¤¿à¤œà¥‡à¤Ÿ',
-    '/admin/ads': 'à¤µà¤¿à¤œà¥à¤žà¤¾à¤ªà¤¨',
-    '/admin/seo': 'à¤à¤¸à¤‡à¤“',
-    '/admin/users': 'à¤ªà¥à¤°à¤¯à¥‹à¤—à¤•à¤°à¥à¤¤à¤¾',
-    '/admin/roles': 'à¤­à¥‚à¤®à¤¿à¤•à¤¾',
-    '/admin/audit-log': 'à¤…à¤¡à¤¿à¤Ÿ à¤²à¤—',
-    '/admin/settings': 'à¤¸à¥‡à¤Ÿà¤¿à¤™',
+    '/admin/dashboard': 'ड्यासबोर्ड',
+    '/admin/articles': 'समाचार',
+    '/admin/articles/new': 'नयाँ समाचार',
+    '/admin/media': 'मिडिया',
+    '/admin/categories': 'विभाग',
+    '/admin/tags': 'ट्याग',
+    '/admin/topics': 'विषय',
+    '/admin/provinces': 'प्रदेश',
+    '/admin/authors': 'लेखक',
+    '/admin/journalists': 'पत्रकार डेस्क',
+    '/admin/comments': 'टिप्पणी',
+    '/admin/contact': 'सम्पर्क',
+    '/admin/submissions': 'टिप',
+    '/admin/polls': 'मतदान',
+    '/admin/newsletter': 'न्युजलेटर',
+    '/admin/live-blogs': 'लाइभ ब्लग',
+    '/admin/wire': 'वायर',
+    '/admin/live': 'लाइभ प्यानल',
+    '/admin/algorithms': 'एल्गोरिदम',
+    '/admin/live-widgets': 'लाइभ विजेट',
+    '/admin/ads': 'विज्ञापन',
+    '/admin/seo': 'एसइओ',
+    '/admin/users': 'प्रयोगकर्ता',
+    '/admin/roles': 'भूमिका',
+    '/admin/audit-log': 'अडिट लग',
+    '/admin/settings': 'सेटिङ',
+    '/admin/paywall': 'सदस्यता',
+    '/admin/launch': 'लन्च चेक',
   }
-  return map[pathname] ?? 'à¤¨à¥à¤¯à¥à¤œà¤°à¥à¤®'
+  if (map[pathname]) return map[pathname]
+  if (pathname.startsWith('/admin/articles/') && pathname.endsWith('/edit')) return 'समाचार सम्पादन'
+  return 'न्यूजरुम'
 }
 
 function NavIcon({ name }: { name: string }) {

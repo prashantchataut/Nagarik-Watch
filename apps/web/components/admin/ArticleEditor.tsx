@@ -140,6 +140,7 @@ export function ArticleEditor({
 
   const canPublishArticle = canPublish(role)
   const canEditArticle = canEdit(role)
+  const canManageHomepage = canPublish(role) || role === 'admin' || role === 'super_admin' || role === 'seo_manager'
 
   function update<K extends keyof ArticleDraft>(key: K, value: ArticleDraft[K]) {
     setDraft((d) => ({ ...d, [key]: value }))
@@ -428,6 +429,7 @@ export function ArticleEditor({
           />
         </div>
 
+        {canManageHomepage ? (
         <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
           <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
             विशेषता
@@ -471,6 +473,25 @@ export function ArticleEditor({
             <span lang="ne">टिप्पणी खुला</span>
           </label>
         </div>
+        ) : (
+        <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-2">
+          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
+            विशेषता
+          </p>
+          <p className="text-caption text-mute" lang="ne">
+            ब्रेकिङ, प्रमुखता र प्रिमियम प्रकाशक/एडमिनले मात्र सेट गर्छन्।
+          </p>
+          <label className="flex items-center gap-2 text-meta text-ink">
+            <input
+              type="checkbox"
+              checked={draft.commentsEnabled}
+              onChange={(e) => update('commentsEnabled', e.target.checked)}
+              className="h-4 w-4 rounded border-rule accent-brand"
+            />
+            <span lang="ne">टिप्पणी खुला</span>
+          </label>
+        </div>
+        )}
 
         <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
           <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
@@ -505,6 +526,7 @@ export function ArticleEditor({
           )}
         </div>
 
+        {canManageHomepage || role === 'seo_manager' ? (
         <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
           <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
             एसइओ
@@ -554,6 +576,7 @@ export function ArticleEditor({
             <span lang="ne">समाचार साइटम्यापमा समावेश</span>
           </label>
         </div>
+        ) : null}
 
         <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
           <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
