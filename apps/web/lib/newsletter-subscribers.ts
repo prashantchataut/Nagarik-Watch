@@ -1,5 +1,5 @@
 import 'server-only'
-import { cleanText, ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import { cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
 
 export type NewsletterSubscriberStatus = 'pending' | 'confirmed' | 'unsubscribed'
 
@@ -34,7 +34,7 @@ type MemoryState = {
 const memory: MemoryState = { byEmail: new Map(), emailByToken: new Map() }
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return ensureOperationalSchema('newsletter-subscribers-v2', async (pool) => {
+  return requireOperationalPool(await ensureOperationalSchema('newsletter-subscribers-v2', async (pool) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_newsletter_subscribers (
         email text PRIMARY KEY,
@@ -61,7 +61,7 @@ async function ensureSchema(): Promise<Queryable | null> {
     `)
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS nw_newsletter_token_idx ON nw_newsletter_subscribers(token) WHERE token IS NOT NULL`)
     await pool.query(`CREATE INDEX IF NOT EXISTS nw_newsletter_status_idx ON nw_newsletter_subscribers(status, created_at DESC)`)
-  })
+  }))
 }
 
 function rowToSubscriber(row: SubscriberRow): NewsletterSubscriber {

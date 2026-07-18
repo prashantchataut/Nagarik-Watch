@@ -5,10 +5,22 @@ import { asLocale } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
 import { getTrendingSamples } from '@/lib/engagement/store'
 import { AdSlot } from '@/components/AdSlot'
+import { canonicalAlternates } from '@/lib/seo/canonical'
 
-export const metadata: Metadata = {
-  title: 'Trending',
-  description: 'Stories receiving sustained reader attention on Nagarik Watch.',
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const locale = asLocale((await params).locale)
+  return {
+    title: locale === 'en' ? 'Trending' : 'अहिले चर्चामा',
+    description:
+      locale === 'en'
+        ? 'Stories receiving sustained reader attention on Nagarik Watch.'
+        : 'नागरिक वाचमा पाठकको निरन्तर ध्यान पाइरहेका समाचार।',
+    alternates: canonicalAlternates(locale, '/trending'),
+  }
 }
 
 export const dynamic = 'force-dynamic'

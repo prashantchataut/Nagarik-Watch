@@ -4,10 +4,22 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
 import { Pagination } from '@/components/Pagination'
 import { AdSlot } from '@/components/AdSlot'
+import { canonicalAlternates } from '@/lib/seo/canonical'
 
-export const metadata: Metadata = {
-  title: 'Latest News',
-  description: 'The newest verified reporting, updates and analysis from Nagarik Watch.',
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const locale = asLocale((await params).locale)
+  return {
+    title: locale === 'en' ? 'Latest News' : 'ताजा समाचार',
+    description:
+      locale === 'en'
+        ? 'The newest verified reporting, updates and analysis from Nagarik Watch.'
+        : 'नागरिक वाचका नयाँ प्रमाणित समाचार, अद्यावधिक र विश्लेषण।',
+    alternates: canonicalAlternates(locale, '/latest'),
+  }
 }
 
 export const dynamic = 'force-dynamic'

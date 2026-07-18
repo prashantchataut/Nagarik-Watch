@@ -1,13 +1,44 @@
 'use client'
 
+import { useState } from 'react'
+
 /**
  * Social sign-in affordances for reader auth screens.
  * Google stays disabled until NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true and a real
  * Better Auth socialProviders.google config is wired — no fake OAuth.
  */
-export function SocialAuthButtons({ locale }: { locale: 'ne' | 'en' }) {
+export function SocialAuthButtons({
+  locale,
+  googleEnabled,
+}: {
+  locale: 'ne' | 'en'
+  googleEnabled: boolean
+}) {
   const ne = locale === 'ne'
-  const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true'
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState(false)
+
+  async function signInWithGoogle() {
+    if (!googleEnabled || pending) return
+    setPending(true)
+    setError(false)
+    try {
+      const response = await fetch('/api/auth/sign-in/social', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          provider: 'google',
+          callbackURL: locale === 'en' ? '/en' : '/',
+        }),
+      })
+      const result = await response.json() as { url?: string }
+      if (!response.ok || !result.url) throw new Error('Google sign-in could not start.')
+      window.location.assign(result.url)
+    } catch {
+      setError(true)
+      setPending(false)
+    }
+  }
 
   return (
     <div className="auth-social">
@@ -17,8 +48,8 @@ export function SocialAuthButtons({ locale }: { locale: 'ne' | 'en' }) {
       <button
         type="button"
         className="auth-social__google"
-        disabled={!googleEnabled}
-        aria-disabled={!googleEnabled}
+        disabled={!googleEnabled || pending}
+        aria-disabled={!googleEnabled || pending}
         title={
           googleEnabled
             ? undefined
@@ -26,16 +57,20 @@ export function SocialAuthButtons({ locale }: { locale: 'ne' | 'en' }) {
               ? 'गुगल साइन-इन चाँडै उपलब्ध हुनेछ।'
               : 'Google sign-in will be available soon.'
         }
-        onClick={() => {
-          if (!googleEnabled) return
-          window.location.assign('/api/auth/sign-in/social?provider=google')
-        }}
+        onClick={() => void signInWithGoogle()}
       >
         <GoogleGlyph />
         <span lang={ne ? 'ne' : 'en'}>
-          {ne ? 'गुगलसँग जारी राख्नुहोस्' : 'Continue with Google'}
+          {pending
+            ? ne ? 'गुगल खोल्दै…' : 'Opening Google…'
+            : ne ? 'गुगलसँग जारी राख्नुहोस्' : 'Continue with Google'}
         </span>
       </button>
+      {error ? (
+        <p className="auth-social__hint" role="alert" lang={ne ? 'ne' : 'en'}>
+          {ne ? 'गुगल साइन-इन सुरु गर्न सकिएन।' : 'Google sign-in could not be started.'}
+        </p>
+      ) : null}
       {!googleEnabled ? (
         <p className="auth-social__hint" lang={ne ? 'ne' : 'en'}>
           {ne

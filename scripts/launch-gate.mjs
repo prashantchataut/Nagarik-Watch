@@ -52,6 +52,12 @@ if (live) {
   if (value('PAYLOAD_DB_PUSH') !== 'false') {
     blockers.push('PAYLOAD_DB_PUSH must be false in production; apply checked-in migrations instead')
   }
+  if (value('AUTH_AUTO_MIGRATE') === 'true') {
+    blockers.push('AUTH_AUTO_MIGRATE must be false in production; migrate auth schema before serve')
+  }
+  warnings.push(
+    'Confirm operational schema is current with: pnpm migrate:ops (apps/web/migrations)',
+  )
   if (value('NEXT_PUBLIC_ADS_MODE') !== 'off' && !value('NEXT_PUBLIC_AD_SALES_EMAIL')) {
     blockers.push('Advertising sales email is missing')
   }

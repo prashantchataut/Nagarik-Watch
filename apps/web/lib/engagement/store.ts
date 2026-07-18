@@ -3,8 +3,9 @@ import { randomUUID } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { Pool } from 'pg'
-import type { EngagementSample } from '@nagarikwatch/db'
+import { moderateComment, reputationScore, type EngagementSample } from '@nagarikwatch/db'
 import { getSharedPool } from '@/lib/pg-pool'
+import { getRankingShareSamples } from '@/lib/engagement/ranking-events'
 
 type BookmarkInput = {
   anonymousId: string
@@ -62,6 +63,29 @@ export type ModerationComment = CommentInput & {
   id: string
   status: CommentStatus
   createdAt: string
+  toxicityScore?: number
+  spamScore?: number
+  moderationFlags?: string[]
+  moderationVerdict?: string
+  reputationUsed?: number
+}
+
+async function bannedWordList(): Promise<readonly string[]> {
+  try {
+    const { getModerationBannedWords } = await import('@/lib/admin-settings')
+    return await getModerationBannedWords()
+  } catch {
+    return (process.env.COMMENT_BANNED_WORDS ?? '')
+      .split(/[\n,]+/)
+      .map((word) => word.trim())
+      .filter((word) => word.length >= 2)
+  }
+}
+
+function statusFromModeration(verdict: string): CommentStatus {
+  if (verdict === 'auto_reject') return 'rejected'
+  if (verdict === 'auto_hide') return 'flagged'
+  return 'pending'
 }
 
 type StoredBookmark = BookmarkInput & { createdAt: string }
@@ -119,8 +143,18 @@ CREATE TABLE IF NOT EXISTS nw_comments(
   parent_id text,
   locale text not null default 'ne',
   status text not null default 'pending',
+  toxicity_score double precision not null default 0,
+  spam_score double precision not null default 0,
+  moderation_flags text[] not null default '{}',
+  moderation_verdict text,
+  reputation_used double precision not null default 0.5,
   created_at timestamptz default now()
 );
+ALTER TABLE nw_comments ADD COLUMN IF NOT EXISTS toxicity_score double precision NOT NULL DEFAULT 0;
+ALTER TABLE nw_comments ADD COLUMN IF NOT EXISTS spam_score double precision NOT NULL DEFAULT 0;
+ALTER TABLE nw_comments ADD COLUMN IF NOT EXISTS moderation_flags text[] NOT NULL DEFAULT '{}';
+ALTER TABLE nw_comments ADD COLUMN IF NOT EXISTS moderation_verdict text;
+ALTER TABLE nw_comments ADD COLUMN IF NOT EXISTS reputation_used double precision NOT NULL DEFAULT 0.5;
 CREATE TABLE IF NOT EXISTS nw_poll_votes(
   id text primary key,
   poll_id text not null,
@@ -328,15 +362,85 @@ export async function getBookmarks(anonymousId: string, userId?: string) {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
-export async function createComment(input: CommentInput): Promise<ModerationComment> {
-  const item: ModerationComment = { id: randomUUID(), ...input, status: 'pending', createdAt: new Date().toISOString() }
-  const database = await getPool()
+async function commentAuthorReputation(
+  input: Pick<CommentInput, 'authorUserId' | 'authorEmail'>,
+  database: Pool | null,
+): Promise<number> {
+  const userId = input.authorUserId?.trim() ?? ''
+  const email = input.authorEmail?.trim().toLowerCase() ?? ''
+  if (!userId && !email) return 0.5
+
   if (database) {
-    await ensureSchema()
+    const result = await database.query<{
+      approved: number | string
+      rejected: number | string
+    }>(
+      `SELECT
+         COUNT(*) FILTER (WHERE status='approved')::int AS approved,
+         COUNT(*) FILTER (WHERE status IN ('rejected','flagged'))::int AS rejected
+       FROM nw_comments
+       WHERE ($1 <> '' AND author_user_id=$1)
+          OR ($1 = '' AND $2 <> '' AND LOWER(author_email)=LOWER($2))`,
+      [userId, email],
+    )
+    const row = result.rows[0]
+    return reputationScore(Number(row?.approved ?? 0), Number(row?.rejected ?? 0))
+  }
+
+  const comments = (await readLocal()).comments.filter((comment) =>
+    userId
+      ? comment.authorUserId === userId
+      : Boolean(email && comment.authorEmail?.toLowerCase() === email),
+  )
+  const approved = comments.filter((comment) => comment.status === 'approved').length
+  const rejected = comments.filter(
+    (comment) => comment.status === 'rejected' || comment.status === 'flagged',
+  ).length
+  return reputationScore(approved, rejected)
+}
+
+export async function createComment(input: CommentInput): Promise<ModerationComment> {
+  const id = randomUUID()
+  const database = await getPool()
+  if (database) await ensureSchema()
+  const reputation = await commentAuthorReputation(input, database)
+  const moderation = moderateComment({ id, body: input.bodyNe }, reputation, await bannedWordList())
+  const status = statusFromModeration(moderation.verdict)
+  const item: ModerationComment = {
+    id,
+    ...input,
+    status,
+    createdAt: new Date().toISOString(),
+    toxicityScore: moderation.toxicityScore,
+    spamScore: moderation.spamScore,
+    moderationFlags: moderation.flags,
+    moderationVerdict: moderation.verdict,
+    reputationUsed: moderation.reputationUsed,
+  }
+  if (database) {
     await database.query(
-      `insert into nw_comments(id,article_slug,article_category,author_name,author_email,author_user_id,body_ne,parent_id,locale,status)
-       values($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending')`,
-      [item.id, input.articleSlug, input.articleCategory, input.authorName, input.authorEmail ?? null, input.authorUserId ?? null, input.bodyNe, input.parentId ?? null, input.locale],
+      `insert into nw_comments(
+         id,article_slug,article_category,author_name,author_email,author_user_id,body_ne,parent_id,locale,status,
+         toxicity_score,spam_score,moderation_flags,moderation_verdict,reputation_used
+       )
+       values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+      [
+        item.id,
+        input.articleSlug,
+        input.articleCategory,
+        input.authorName,
+        input.authorEmail ?? null,
+        input.authorUserId ?? null,
+        input.bodyNe,
+        input.parentId ?? null,
+        input.locale,
+        status,
+        moderation.toxicityScore,
+        moderation.spamScore,
+        moderation.flags,
+        moderation.verdict,
+        moderation.reputationUsed,
+      ],
     )
     return item
   }
@@ -371,7 +475,10 @@ export async function listCommentsForModeration(status: CommentStatus | 'all' = 
       `select id, article_slug as "articleSlug", article_category as "articleCategory",
               author_name as "authorName", author_email as "authorEmail",
               author_user_id as "authorUserId", body_ne as "bodyNe", parent_id as "parentId",
-              locale, status, created_at as "createdAt"
+              locale, status, created_at as "createdAt",
+              toxicity_score as "toxicityScore", spam_score as "spamScore",
+              moderation_flags as "moderationFlags", moderation_verdict as "moderationVerdict",
+              reputation_used as "reputationUsed"
        from nw_comments ${where} order by created_at desc limit $${values.length}`,
       values,
     )
@@ -732,7 +839,17 @@ export type MostReadStat = {
   articleTitleNe: string
   uniqueReaders: number
   averageReadPercent: number
+  averageDwellSeconds: number
+  completionRate: number
+  totalSessions: number
   lastReadAt: string
+}
+
+export type BookmarkVelocityStat = {
+  articleSlug: string
+  articleCategory: string
+  bookmarks: number
+  bookmarksLastHour: number
 }
 
 /** Aggregate privacy-preserving first-party reading activity. Owner keys never leave storage. */
@@ -749,6 +866,9 @@ export async function getMostReadStats(windowDays = 7, limit = 50): Promise<Most
               max(article_title_ne) as "articleTitleNe",
               count(distinct owner_key)::int as "uniqueReaders",
               round(avg(read_percent))::int as "averageReadPercent",
+              round(avg(dwell_seconds))::int as "averageDwellSeconds",
+              avg(case when completed then 1 else 0 end)::float as "completionRate",
+              sum(sessions)::int as "totalSessions",
               max(read_at) as "lastReadAt"
        from nw_reading
        where read_at >= $1 and read_percent >= 10
@@ -763,6 +883,9 @@ export async function getMostReadStats(windowDays = 7, limit = 50): Promise<Most
       articleTitleNe: String(row.articleTitleNe ?? ''),
       uniqueReaders: Number(row.uniqueReaders ?? 0),
       averageReadPercent: Number(row.averageReadPercent ?? 0),
+      averageDwellSeconds: Number(row.averageDwellSeconds ?? 0),
+      completionRate: Number(row.completionRate ?? 0),
+      totalSessions: Number(row.totalSessions ?? 0),
       lastReadAt: new Date(row.lastReadAt as string | Date).toISOString(),
     }))
   }
@@ -770,7 +893,7 @@ export async function getMostReadStats(windowDays = 7, limit = 50): Promise<Most
   const rows = Object.values((await readLocal()).readings).filter(
     (item) => Date.parse(item.readAt) >= cutoff.getTime() && item.readPercent >= 10,
   )
-  const grouped = new Map<string, MostReadStat>()
+  const grouped = new Map<string, MostReadStat & { dwellSum: number }>()
   for (const item of rows) {
     const current = grouped.get(item.articleSlug)
     if (!current) {
@@ -780,7 +903,11 @@ export async function getMostReadStats(windowDays = 7, limit = 50): Promise<Most
         articleTitleNe: item.articleTitleNe,
         uniqueReaders: 1,
         averageReadPercent: Math.round(item.readPercent),
+        averageDwellSeconds: Math.round(item.dwellSeconds ?? 0),
+        completionRate: item.completed ? 1 : 0,
+        totalSessions: item.sessions ?? 1,
         lastReadAt: item.readAt,
+        dwellSum: item.dwellSeconds ?? 0,
       })
       continue
     }
@@ -788,16 +915,74 @@ export async function getMostReadStats(windowDays = 7, limit = 50): Promise<Most
     current.averageReadPercent = Math.round(
       (current.averageReadPercent * current.uniqueReaders + item.readPercent) / nextCount,
     )
+    current.dwellSum += item.dwellSeconds ?? 0
+    current.averageDwellSeconds = Math.round(current.dwellSum / nextCount)
+    current.completionRate =
+      (current.completionRate * current.uniqueReaders + (item.completed ? 1 : 0)) / nextCount
+    current.totalSessions += item.sessions ?? 1
     current.uniqueReaders = nextCount
     if (item.readAt > current.lastReadAt) current.lastReadAt = item.readAt
   }
   return Array.from(grouped.values())
+    .map(({ dwellSum: _dwellSum, ...stat }) => stat)
     .sort(
       (a, b) =>
         b.uniqueReaders - a.uniqueReaders ||
         b.averageReadPercent - a.averageReadPercent ||
         b.lastReadAt.localeCompare(a.lastReadAt),
     )
+    .slice(0, safeLimit)
+}
+
+/** Bookmark velocity for ranking — count saves in the recent window, no owner keys returned. */
+export async function getBookmarkVelocityStats(
+  windowMinutes = 120,
+  limit = 80,
+): Promise<BookmarkVelocityStat[]> {
+  const safeMinutes = Math.max(15, Math.min(windowMinutes, 24 * 60))
+  const safeLimit = Math.max(1, Math.min(limit, 200))
+  const cutoff = new Date(Date.now() - safeMinutes * 60_000)
+  const hourCutoff = new Date(Date.now() - 60_000)
+  const database = await getPool()
+  if (database) {
+    await ensureSchema()
+    const result = await database.query(
+      `select article_slug as "articleSlug",
+              max(article_category) as "articleCategory",
+              count(*)::int as bookmarks,
+              count(*) filter (where created_at >= $2)::int as "bookmarksLastHour"
+       from nw_bookmarks
+       where created_at >= $1
+       group by article_slug
+       order by count(*) desc, max(created_at) desc
+       limit $3`,
+      [cutoff.toISOString(), hourCutoff.toISOString(), safeLimit],
+    )
+    return result.rows.map((row) => ({
+      articleSlug: String(row.articleSlug),
+      articleCategory: String(row.articleCategory ?? ''),
+      bookmarks: Number(row.bookmarks ?? 0),
+      bookmarksLastHour: Number(row.bookmarksLastHour ?? 0),
+    }))
+  }
+
+  const rows = Object.values((await readLocal()).bookmarks).filter(
+    (item) => Date.parse(item.createdAt) >= cutoff.getTime(),
+  )
+  const grouped = new Map<string, BookmarkVelocityStat>()
+  for (const item of rows) {
+    const current = grouped.get(item.articleSlug) ?? {
+      articleSlug: item.articleSlug,
+      articleCategory: item.articleCategory,
+      bookmarks: 0,
+      bookmarksLastHour: 0,
+    }
+    current.bookmarks += 1
+    if (Date.parse(item.createdAt) >= hourCutoff.getTime()) current.bookmarksLastHour += 1
+    grouped.set(item.articleSlug, current)
+  }
+  return Array.from(grouped.values())
+    .sort((a, b) => b.bookmarks - a.bookmarks || b.bookmarksLastHour - a.bookmarksLastHour)
     .slice(0, safeLimit)
 }
 
@@ -810,14 +995,23 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
     await ensureSchema()
     const result = await database.query(
       `select article_slug as "articleId", article_category as "categorySlug",
-              read_at as "at", 1::int as views, 0::int as shares, 0::int as comments
+              read_at as "at", 1::int as views, 0::int as shares, 0::int as comments, 0::int as bookmarks
        from nw_reading where read_at >= $1
        union all
        select article_slug as "articleId", article_category as "categorySlug",
-              created_at as "at", 0::int as views, 0::int as shares, 1::int as comments
-       from nw_comments where status='approved' and created_at >= $1`,
+              created_at as "at", 0::int as views, 0::int as shares, 1::int as comments, 0::int as bookmarks
+       from nw_comments where status='approved' and created_at >= $1
+       union all
+       select article_slug as "articleId", article_category as "categorySlug",
+              created_at as "at", 0::int as views, 1::int as shares, 0::int as comments, 0::int as bookmarks
+       from nw_ranking_events where event_type='share' and created_at >= $1
+       union all
+       select article_slug as "articleId", article_category as "categorySlug",
+              created_at as "at", 0::int as views, 0::int as shares, 0::int as comments, 1::int as bookmarks
+       from nw_bookmarks where created_at >= $1`,
       [cutoff.toISOString()],
-    )
+    ).catch(() => null)
+    if (!result) return []
     return result.rows.map((row) => ({
       articleId: String(row.articleId),
       categorySlug: row.categorySlug ? String(row.categorySlug) : undefined,
@@ -825,6 +1019,7 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
       views: Number(row.views ?? 0),
       shares: Number(row.shares ?? 0),
       comments: Number(row.comments ?? 0),
+      bookmarks: Number(row.bookmarks ?? 0),
     }))
   }
 
@@ -838,6 +1033,7 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
       views: 1,
       shares: 0,
       comments: 0,
+      bookmarks: 0,
     }))
   const comments: EngagementSample[] = store.comments
     .filter((item) => item.status === 'approved' && Date.parse(item.createdAt) >= cutoff.getTime())
@@ -848,6 +1044,28 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
       views: 0,
       shares: 0,
       comments: 1,
+      bookmarks: 0,
     }))
-  return [...readings, ...comments]
+  const bookmarks: EngagementSample[] = Object.values(store.bookmarks)
+    .filter((item) => Date.parse(item.createdAt) >= cutoff.getTime())
+    .map((item) => ({
+      articleId: item.articleSlug,
+      categorySlug: item.articleCategory,
+      at: item.createdAt,
+      views: 0,
+      shares: 0,
+      comments: 0,
+      bookmarks: 1,
+    }))
+  const shares: EngagementSample[] = (await getRankingShareSamples(windowMinutes).catch(() => []))
+    .map((item) => ({
+      articleId: item.articleSlug,
+      categorySlug: item.articleCategory,
+      at: item.at,
+      views: 0,
+      shares: 1,
+      comments: 0,
+      bookmarks: 0,
+    }))
+  return [...readings, ...comments, ...shares, ...bookmarks]
 }

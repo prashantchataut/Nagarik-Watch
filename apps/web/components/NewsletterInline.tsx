@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
+import { TurnstileField } from '@/components/forms/TurnstileField'
 
 type Status = 'idle' | 'submitting' | 'done' | 'error'
 
@@ -30,6 +31,7 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
+    const turnstileToken = new FormData(e.currentTarget as HTMLFormElement).get('cf-turnstile-response')
     const trimmed = email.trim()
     const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)
     if (!ok) {
@@ -45,7 +47,7 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
       const response = await fetch('/api/newsletter/subscribe', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email: trimmed }),
+        body: JSON.stringify({ email: trimmed, turnstileToken }),
       })
       if (!response.ok) throw new Error('subscribe failed')
       setStatus('done')
@@ -94,6 +96,7 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
             {status === 'submitting' ? labels.submitting : labels.button}
           </button>
         </div>
+        <TurnstileField siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
         <p
           id="nw-newsletter-status"
           className="text-caption text-ink-soft"

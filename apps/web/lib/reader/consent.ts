@@ -166,7 +166,7 @@ export function getOrCreateReaderId(): string {
   return fp
 }
 
-function normalizeConsent(raw: Partial<ConsentChoice>): ConsentChoice {
+export function normalizeConsent(raw: Partial<ConsentChoice>): ConsentChoice {
   return {
     essential: true,
     personalization: Boolean(raw.personalization),

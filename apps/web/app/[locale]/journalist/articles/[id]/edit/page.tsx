@@ -5,7 +5,7 @@ import { getNavCategories, getTags } from '@/lib/content'
 import { getNewsroomSession } from '@/lib/auth/session'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { CONTRIBUTOR_ROLES, NEWSROOM_ROLE_LABELS_EN, NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
-import { getJournalistDraftMeta } from '@/lib/journalist-workspace'
+import { getJournalistDraftMeta, listJournalistDraftRevisions } from '@/lib/journalist-workspace'
 import { findArticleForAdmin } from '@/lib/content/store/json-store'
 import { getPayloadJournalistDraft, isPayloadCanonical } from '@/lib/content/payload-admin-client'
 import { shorthandFromBlocks } from '@/lib/content/blocks'
@@ -24,12 +24,13 @@ export default async function JournalistEditPage({ params }: { params: Promise<{
   const id = decodeURIComponent(rawId)
   const meta = await getJournalistDraftMeta(id, session.userId)
   if (!meta) notFound()
-  const [categories, tags, article] = await Promise.all([
+  const [categories, tags, article, revisions] = await Promise.all([
     getNavCategories(),
     getTags(),
     isPayloadCanonical()
       ? meta.articleId ? getPayloadJournalistDraft(meta.articleId) : null
       : findArticleForAdmin(meta.articleId || meta.articleSlug),
+    listJournalistDraftRevisions(meta.articleId || meta.articleSlug, session.userId),
   ])
   if (!article) notFound()
   const roleLabel = locale === 'ne' ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole] : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
@@ -43,6 +44,15 @@ export default async function JournalistEditPage({ params }: { params: Promise<{
         tags={tags}
         mode="edit"
         articleId={meta.articleId || meta.articleSlug}
+        revisions={revisions.map((revision) => ({
+          id: revision.id,
+          actorRole: revision.actorRole,
+          action: revision.action,
+          stage: revision.stage,
+          createdAt: revision.createdAt,
+          contentHash: revision.contentHash,
+          titleNe: revision.snapshot.titleNe,
+        }))}
         initial={{
           titleNe: article.titleNe,
           titleEn: article.titleEn || '',

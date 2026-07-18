@@ -390,6 +390,3691 @@
         }
       ],
       "reportingLocation": "काठमाडौं"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "politics"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-politics-2",
+      "slug": "local-election-finance-disclosure",
+      "categorySlug": "politics",
+      "titleNe": "स्थानीय चुनाव खर्च: पारदर्शिताको नयाँ मापदण्ड",
+      "titleEn": "Local election spending: a new transparency bar",
+      "deckNe": "चुनाव खर्च विवरण सार्वजनिक गर्न दल र उम्मेदवारलाई दबाब बढेको छ।",
+      "deckEn": "Parties and candidates face fresh pressure to disclose campaign spending.",
+      "publishedAt": "2026-07-17T07:15:00.000Z",
+      "updatedAt": "2026-07-17T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "निर्वाचन आयोगले खर्च विवरण ढिलो बुझाउने उम्मेदवारलाई कारबाहीको चेतावनी दिएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले काठमाडौंका तीन महानगरका उम्मेदवार खर्च सूचीको नमुना तुलना गरेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकलाई आग्रह: आफ्नो वडाका उम्मेदवारको खर्च विवरण माग्नुहोस्।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Parties and candidates face fresh pressure to disclose campaign spending."
+        },
+        {
+          "type": "paragraph",
+          "text": "निर्वाचन आयोगले खर्च विवरण ढिलो बुझाउने उम्मेदवारलाई कारबाहीको चेतावनी दिएको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "politics"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-politics-3",
+      "slug": "federal-civil-service-reform-brief",
+      "categorySlug": "politics",
+      "titleNe": "सङ्घीय निजामती सुधार: प्रदेशसँग समन्वयको चुनौती",
+      "titleEn": "Federal civil service reform: coordinating with provinces",
+      "deckNe": "कर्मचारी समायोजन र पदपूर्ति प्रक्रियामा प्रदेशको भूमिका विवादित छ।",
+      "deckEn": "Provincial roles in staffing and transfers remain contested.",
+      "publishedAt": "2026-07-16T08:15:00.000Z",
+      "updatedAt": "2026-07-16T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "सङ्घीय मामिला मन्त्रालयले समायोजन मार्गदर्शन अद्यावधिक गर्ने जनाएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "प्रदेश प्रशासनले कार्यान्वयनमा ढिलाइ भएको गुनासो गरेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले दुवै तहका अधिकारीसँग कुरा गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Provincial roles in staffing and transfers remain contested."
+        },
+        {
+          "type": "paragraph",
+          "text": "सङ्घीय मामिला मन्त्रालयले समायोजन मार्गदर्शन अद्यावधिक गर्ने जनाएको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "politics"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-politics-4",
+      "slug": "women-representation-parliament-watch",
+      "categorySlug": "politics",
+      "titleNe": "महिला प्रतिनिधित्व: संसदीय समितिमा आवाज",
+      "titleEn": "Women in parliament: committee voice and agenda",
+      "deckNe": "समिति बैठकमा महिला सांसदको सहभागिता र एजेन्डा प्रभाव मापन गरिएको छ।",
+      "deckEn": "A desk count of women MPs’ committee participation and agenda impact.",
+      "publishedAt": "2026-07-15T09:15:00.000Z",
+      "updatedAt": "2026-07-15T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले तीन महिनाका समिति कार्यसूचीको नमुना विश्लेषण गरेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "महिला सांसदहरूले बजेट र सामाजिक सुरक्षामाथिको छलफल बढाउन माग गरेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "दलहरूले आन्तरिक कोटा कार्यान्वयनको प्रगति सार्वजनिक गर्नुपर्ने धारणा राखिएको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "A desk count of women MPs’ committee participation and agenda impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले तीन महिनाका समिति कार्यसूचीको नमुना विश्लेषण गरेको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "politics"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-politics-5",
+      "slug": "cabinet-decision-transparency-note",
+      "categorySlug": "politics",
+      "titleNe": "मन्त्रिपरिषद् निर्णय: सार्वजनिक सूचनाको अन्तराल",
+      "titleEn": "Cabinet decisions: the public-notice gap",
+      "deckNe": "केही निर्णय प्रेस विज्ञप्तिमै सीमित रहँदा विवरण अपूर्ण देखिन्छ।",
+      "deckEn": "Some decisions stay in press notes while detail stays thin.",
+      "publishedAt": "2026-07-14T10:15:00.000Z",
+      "updatedAt": "2026-07-14T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "सरकार प्रवक्ताले नियमित सारांश जारी गर्ने प्रतिबद्धता दोहोर्याएका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले गत महिनाका निर्णय सूची र सार्वजनिक सूचनाको मेल नमिलेको उदाहरण नोट गरेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पारदर्शिताका लागि पूर्ण कार्यवृत्त समयमै सार्वजनिक हुनुपर्ने माग उठेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Some decisions stay in press notes while detail stays thin."
+        },
+        {
+          "type": "paragraph",
+          "text": "सरकार प्रवक्ताले नियमित सारांश जारी गर्ने प्रतिबद्धता दोहोर्याएका छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "society"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-society-2",
+      "slug": "urban-waste-segregation-drive",
+      "categorySlug": "society",
+      "titleNe": "सहरी फोहोर व्यवस्थापन: स्रोतमै वर्गीकरण अभियान",
+      "titleEn": "Urban waste: segregation at source",
+      "deckNe": "घरघरमा जैविक र अजैविक छुट्याउने अभ्यास विस्तार हुँदैछ।",
+      "deckEn": "Household segregation of organic and inorganic waste is spreading.",
+      "publishedAt": "2026-07-12T07:15:00.000Z",
+      "updatedAt": "2026-07-12T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "केही वडाले सङ्कलन तालिका अद्यावधिक गरी जरिवानाको व्यवस्था सुनाएका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच स्थलगत भ्रमणमा सचेतना अभियानको प्रभाव असमान भेट्टायो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय समूहले कम्पोस्ट तालिमको माग गरेका छन्।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Household segregation of organic and inorganic waste is spreading."
+        },
+        {
+          "type": "paragraph",
+          "text": "केही वडाले सङ्कलन तालिका अद्यावधिक गरी जरिवानाको व्यवस्था सुनाएका छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "society"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-society-3",
+      "slug": "community-policing-night-patrol",
+      "categorySlug": "society",
+      "titleNe": "सामुदायिक प्रहरी: रात्रि गस्ती र विश्वास",
+      "titleEn": "Community policing: night patrols and trust",
+      "deckNe": "बस्तीस्तरीय गस्तीले चोरी नियन्त्रणमा सहयोग पुगेको स्थानीयको भनाइ छ।",
+      "deckEn": "Residents say neighbourhood patrols helped curb petty theft.",
+      "publishedAt": "2026-07-11T08:15:00.000Z",
+      "updatedAt": "2026-07-11T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "प्रहरी र टोल विकास संस्थाले संयुक्त गस्ती तालिका सार्वजनिक गरेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "महिला स्वयंसेविकाको सहभागिता बढाउने योजना छलफलमा छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले गोपनीयता र सुरक्षा सन्तुलनमाथि प्रश्न राखेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Residents say neighbourhood patrols helped curb petty theft."
+        },
+        {
+          "type": "paragraph",
+          "text": "प्रहरी र टोल विकास संस्थाले संयुक्त गस्ती तालिका सार्वजनिक गरेका छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "society"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-society-4",
+      "slug": "senior-citizen-allowance-delivery",
+      "categorySlug": "society",
+      "titleNe": "वृद्धभत्ता वितरण: बैंक पहुँचको अनुभव",
+      "titleEn": "Senior allowance: banking access on the ground",
+      "deckNe": "भत्ता लिन बैंक पुग्न नसक्ने वृद्धको गुनासो दोहोरिएको छ।",
+      "deckEn": "Elders again report trouble reaching banks for allowances.",
+      "publishedAt": "2026-07-10T09:15:00.000Z",
+      "updatedAt": "2026-07-10T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "स्थानीय तहले घुम्ती सेवा र सहयोगी परिचालन गर्ने तयारी जनाएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले तीन वडाका वितरण दिन स्थलगत अवलोकन गरेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "डिजिटल भुक्तानी विकल्प विस्तार गर्न माग उठेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Elders again report trouble reaching banks for allowances."
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय तहले घुम्ती सेवा र सहयोगी परिचालन गर्ने तयारी जनाएको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "society"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-society-5",
+      "slug": "road-safety-school-zones",
+      "categorySlug": "society",
+      "titleNe": "विद्यालय क्षेत्र सडक सुरक्षा: गति नियन्त्रण",
+      "titleEn": "School-zone road safety: slowing traffic",
+      "deckNe": "विद्यालय अगाडि गति कम गर्ने अभियान विस्तार भएको छ।",
+      "deckEn": "A campaign to slow traffic outside schools is expanding.",
+      "publishedAt": "2026-07-09T10:15:00.000Z",
+      "updatedAt": "2026-07-09T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "यातायात कार्यालयले चिन्ह र जेब्रा क्रसिङ मर्मतको सूची सार्वजनिक गरेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "अभिभावक समूहले मोटरसाइकल ओभरटेक नियन्त्रण मागेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले बिहानको भीडमा मापन गरेको औसत गति जोखिमपूर्ण देखियो।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "A campaign to slow traffic outside schools is expanding."
+        },
+        {
+          "type": "paragraph",
+          "text": "यातायात कार्यालयले चिन्ह र जेब्रा क्रसिङ मर्मतको सूची सार्वजनिक गरेको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "business"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-business-2",
+      "slug": "sme-credit-guarantee-uptake",
+      "categorySlug": "business",
+      "titleNe": "साना उद्योग ऋण: जमानत योजनाको उपयोग",
+      "titleEn": "SME credit: guarantee scheme uptake",
+      "deckNe": "जमानत सुविधाको उपयोग असमान देखिएको छ।",
+      "deckEn": "Uptake of the credit guarantee facility looks uneven.",
+      "publishedAt": "2026-07-07T07:15:00.000Z",
+      "updatedAt": "2026-07-07T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "बैंकहरूले कागजात प्रक्रिया सरल बनाउने दाबी गरेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "उद्यमीले धितो र ब्याजदर अझै बाधक भएको बताए।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले प्रदेशस्तरीय वितरणको नमुना तुलना गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Uptake of the credit guarantee facility looks uneven."
+        },
+        {
+          "type": "paragraph",
+          "text": "बैंकहरूले कागजात प्रक्रिया सरल बनाउने दाबी गरेका छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "business"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-business-3",
+      "slug": "remittance-household-budget-shift",
+      "categorySlug": "business",
+      "titleNe": "विप्रेषण र घर खर्च: बचतको प्राथमिकता",
+      "titleEn": "Remittance and household budgets: saving first",
+      "deckNe": "केही परिवारले मासिक खर्च कटौती गरी बचत बढाएका छन्।",
+      "deckEn": "Some households cut monthly spending to raise savings.",
+      "publishedAt": "2026-07-06T08:15:00.000Z",
+      "updatedAt": "2026-07-06T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "बैंकिङ तथ्यांकअनुसार बचत खाता गतिविधि बढेको संकेत छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बजार मूल्य वृद्धिका कारण खाद्य खर्च अझै दबाबमा छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले काठमाडौं र तराईका परिवारसँग कुरा गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Some households cut monthly spending to raise savings."
+        },
+        {
+          "type": "paragraph",
+          "text": "बैंकिङ तथ्यांकअनुसार बचत खाता गतिविधि बढेको संकेत छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "business"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-business-4",
+      "slug": "tourism-homestay-booking-trend",
+      "categorySlug": "business",
+      "titleNe": "होमस्टे बुकिङ: आन्तरिक पर्यटनको लहर",
+      "titleEn": "Homestay bookings: domestic travel wave",
+      "deckNe": "सप्ताहान्त होमस्टे बुकिङ बढेको सञ्चालकको भनाइ छ।",
+      "deckEn": "Operators report stronger weekend homestay bookings.",
+      "publishedAt": "2026-07-05T09:15:00.000Z",
+      "updatedAt": "2026-07-05T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "यातायात र मौसम पूर्वानुमानले बुकिङ ढाँचा प्रभावित छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय उत्पादन बिक्रीसँग जोडिएका प्याकेज लोकप्रिय छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच पर्यटन डेस्कले तीन जिल्लाका अनुभव सङ्कलन गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Operators report stronger weekend homestay bookings."
+        },
+        {
+          "type": "paragraph",
+          "text": "यातायात र मौसम पूर्वानुमानले बुकिङ ढाँचा प्रभावित छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "business"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-business-5",
+      "slug": "fuel-price-transport-cost-pass",
+      "categorySlug": "business",
+      "titleNe": "इन्धन मूल्य: यातायात भाडामा असर",
+      "titleEn": "Fuel prices: pass-through to transport fares",
+      "deckNe": "भाडा समायोजनको बहस फेरि खुलेको छ।",
+      "deckEn": "The fare-adjustment debate has reopened.",
+      "publishedAt": "2026-07-18T10:15:00.000Z",
+      "updatedAt": "2026-07-18T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "यातायात व्यवसायीले लागत वृद्धि देखाएका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "यात्री समूहले पारदर्शी गणना मागेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले सार्वजनिक यातायात मार्गको नमुना भाडा तुलना गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "The fare-adjustment debate has reopened."
+        },
+        {
+          "type": "paragraph",
+          "text": "यातायात व्यवसायीले लागत वृद्धि देखाएका छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "sports"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-sports-2",
+      "slug": "womens-football-national-camp",
+      "categorySlug": "sports",
+      "titleNe": "महिला फुटबल: राष्ट्रिय शिविर तयारी",
+      "titleEn": "Women’s football: national camp prep",
+      "deckNe": "राष्ट्रिय शिविरका लागि खेलाडी छनोट प्रक्रिया चलिरहेको छ।",
+      "deckEn": "Player selection for the national camp is under way.",
+      "publishedAt": "2026-07-16T07:15:00.000Z",
+      "updatedAt": "2026-07-16T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "फिटनेस परीक्षण र रणनीतिक अभ्यास तालिकामा छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "प्रशिक्षकले रक्षात्मक समन्वय सुधारको लक्ष्य राखेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले शिविर स्थलबाट तयारीको अवस्था हेरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Player selection for the national camp is under way."
+        },
+        {
+          "type": "paragraph",
+          "text": "फिटनेस परीक्षण र रणनीतिक अभ्यास तालिकामा छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "sports"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-sports-3",
+      "slug": "athletics-school-meet-records",
+      "categorySlug": "sports",
+      "titleNe": "विद्यालय एथलेटिक्स: नयाँ कीर्तिमान",
+      "titleEn": "School athletics: fresh meet records",
+      "deckNe": "केही विधामा नयाँ कीर्तिमान बनेको आयोजकको दाबी छ।",
+      "deckEn": "Organisers say several events saw new meet records.",
+      "publishedAt": "2026-07-15T08:15:00.000Z",
+      "updatedAt": "2026-07-15T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "ग्रामीण विद्यालयका खेलाडीको सहभागिता उल्लेखनीय रह्यो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "कोचिङ अभाव भने अझै चुनौतीका रूपमा देखियो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले पदक तालिका र प्रशिक्षण अवस्था नोट गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Organisers say several events saw new meet records."
+        },
+        {
+          "type": "paragraph",
+          "text": "ग्रामीण विद्यालयका खेलाडीको सहभागिता उल्लेखनीय रह्यो।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "sports"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-sports-4",
+      "slug": "volleyball-provincial-finals",
+      "categorySlug": "sports",
+      "titleNe": "भलिबल प्रदेश फाइनल: भीड र उत्साह",
+      "titleEn": "Provincial volleyball finals: packed stands",
+      "deckNe": "फाइनल खेलमा दर्शक उपस्थिति उच्च रह्यो।",
+      "deckEn": "Attendance was high for the provincial finals.",
+      "publishedAt": "2026-07-14T09:15:00.000Z",
+      "updatedAt": "2026-07-14T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "घरेलु टोलीको डिफेन्सले खेलको मोड फेरेको थियो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "रेफरी निर्णयमाथि छोटो विवादपछि खेल सामान्य भयो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच खेल रिपोर्ट मैदानबाटै तयार पारिएको हो।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Attendance was high for the provincial finals."
+        },
+        {
+          "type": "paragraph",
+          "text": "घरेलु टोलीको डिफेन्सले खेलको मोड फेरेको थियो।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "sports"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-sports-5",
+      "slug": "para-sports-funding-gap",
+      "categorySlug": "sports",
+      "titleNe": "पारा खेलकुद: बजेट र प्रशिक्षण अन्तराल",
+      "titleEn": "Para sports: funding and training gaps",
+      "deckNe": "पारा खेलाडीले नियमित प्रशिक्षण पूर्वाधार मागेका छन्।",
+      "deckEn": "Para athletes are asking for steadier training infrastructure.",
+      "publishedAt": "2026-07-13T10:15:00.000Z",
+      "updatedAt": "2026-07-13T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "केही संघले प्रायोजन खोज्ने योजना सुनाएका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "परिवारको आर्थिक भार अझै उच्च रहेको गुनासो छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले खेलाडी र प्रशिक्षकसँग छुट्टाछुट्टै कुरा गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Para athletes are asking for steadier training infrastructure."
+        },
+        {
+          "type": "paragraph",
+          "text": "केही संघले प्रायोजन खोज्ने योजना सुनाएका छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "entertainment"
+      ],
+      "isBreaking": false,
+      "isFeatured": "secondary",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-entertainment-1",
+      "slug": "nepali-film-festival-circuit",
+      "categorySlug": "entertainment",
+      "titleNe": "नेपाली चलचित्र: महोत्सव सर्किटको तयारी",
+      "titleEn": "Nepali film: festival circuit prep",
+      "deckNe": "स्वतन्त्र फिल्म निर्माता महोत्सव सर्किटमा फोकस गर्दैछन्।",
+      "deckEn": "Independent filmmakers are focusing on the festival circuit.",
+      "publishedAt": "2026-07-12T06:15:00.000Z",
+      "updatedAt": "2026-07-12T06:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "पोस्ट-प्रोडक्सन बजेट अभाव मुख्य चुनौती बनेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "दर्शकसँगको संवाद सत्रले प्रतिक्रिया सङ्कलन गर्ने योजना छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच मनोरञ्जन डेस्कले निर्माता अनुभव नोट गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Independent filmmakers are focusing on the festival circuit."
+        },
+        {
+          "type": "paragraph",
+          "text": "पोस्ट-प्रोडक्सन बजेट अभाव मुख्य चुनौती बनेको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "entertainment"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-entertainment-2",
+      "slug": "theatre-ticket-revival-city",
+      "categorySlug": "entertainment",
+      "titleNe": "नाट्य मञ्च: सहरमा टिकट बिक्रीको पुनरजागरण",
+      "titleEn": "Theatre tickets: a city revival",
+      "deckNe": "सप्ताहान्त नाटकका टिकट छिटो सकिएको सञ्चालकको भनाइ छ।",
+      "deckEn": "Weekend theatre tickets are selling out, organisers say.",
+      "publishedAt": "2026-07-11T07:15:00.000Z",
+      "updatedAt": "2026-07-11T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "युवा दर्शक आकर्षित गर्न छोटो नाटक श्रृंखला चलाइएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "टिकट मूल्य र पहुँचबीच सन्तुलन खोज्ने बहस चलिरहेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले तीन मञ्चका कार्यक्रम तालिका हेरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Weekend theatre tickets are selling out, organisers say."
+        },
+        {
+          "type": "paragraph",
+          "text": "युवा दर्शक आकर्षित गर्न छोटो नाटक श्रृंखला चलाइएको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "entertainment"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-entertainment-3",
+      "slug": "music-studio-indie-release",
+      "categorySlug": "entertainment",
+      "titleNe": "इन्डी संगीत: स्टुडियो रिलिज अभ्यास",
+      "titleEn": "Indie music: studio release habits",
+      "deckNe": "स्वतन्त्र कलाकारले सानो स्टुडियोबाट रिलिज गर्ने क्रम बढाएका छन्।",
+      "deckEn": "Independent artists are releasing more often from small studios.",
+      "publishedAt": "2026-07-10T08:15:00.000Z",
+      "updatedAt": "2026-07-10T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "डिस्ट्रीब्युसन प्लेटफर्म चयनमा अधिकार सम्झौता ध्यानमा राखिएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "लाइभ प्रदर्शनले आम्दानीको मुख्य स्रोत बनेको कलाकार बताउँछन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले काठमाडौंका दुई स्टुडियो भ्रमण गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Independent artists are releasing more often from small studios."
+        },
+        {
+          "type": "paragraph",
+          "text": "डिस्ट्रीब्युसन प्लेटफर्म चयनमा अधिकार सम्झौता ध्यानमा राखिएको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "entertainment"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-entertainment-4",
+      "slug": "comedy-open-mic-scene",
+      "categorySlug": "entertainment",
+      "titleNe": "ओपन माइक: युवा हास्य दृश्य",
+      "titleEn": "Open mic: the young comedy scene",
+      "deckNe": "साप्ताहिक ओपन माइकमा नयाँ कलाकारको लहर देखिएको छ।",
+      "deckEn": "Weekly open mics are drawing a wave of new performers.",
+      "publishedAt": "2026-07-09T09:15:00.000Z",
+      "updatedAt": "2026-07-09T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "विषय चयनमा संवेदनशीलता र स्वतन्त्रताबीच बहस छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "आयोजकले सुरक्षित मञ्च नीति सार्वजनिक गरेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले दर्शक र कलाकार दुवैको अनुभव सङ्कलन गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Weekly open mics are drawing a wave of new performers."
+        },
+        {
+          "type": "paragraph",
+          "text": "विषय चयनमा संवेदनशीलता र स्वतन्त्रताबीच बहस छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "entertainment"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-entertainment-5",
+      "slug": "documentary-community-screenings",
+      "categorySlug": "entertainment",
+      "titleNe": "डकुमेन्ट्री: सामुदायिक स्क्रिनिङ",
+      "titleEn": "Documentary: community screenings",
+      "deckNe": "गाउँ र सहरका सामुदायिक हलमा डकुमेन्ट्री देखाइँदैछ।",
+      "deckEn": "Documentaries are screening in community halls.",
+      "publishedAt": "2026-07-08T10:15:00.000Z",
+      "updatedAt": "2026-07-08T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "छलफल सत्रले स्थानीय मुद्दा जोड्ने अभ्यास बढेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "प्रोजेक्टर र अनुमति प्रक्रिया अझै झन्झटिलो भएको गुनासो छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले दुई स्क्रिनिङमा सहभागी प्रतिक्रिया नोट गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Documentaries are screening in community halls."
+        },
+        {
+          "type": "paragraph",
+          "text": "छलफल सत्रले स्थानीय मुद्दा जोड्ने अभ्यास बढेको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "world"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-world-2",
+      "slug": "south-asia-trade-corridor-talks",
+      "categorySlug": "world",
+      "titleNe": "दक्षिण एसिया व्यापार करिडोर वार्ता",
+      "titleEn": "South Asia trade corridor talks",
+      "deckNe": "क्षेत्रीय व्यापार सहज बनाउने वार्ता दोहोरिएको छ।",
+      "deckEn": "Talks to ease regional trade have resumed.",
+      "publishedAt": "2026-07-06T07:15:00.000Z",
+      "updatedAt": "2026-07-06T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "भन्सार प्रक्रिया र यातायात पूर्वाधार एजेन्डामा छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "साना निर्यातकर्ताले लागत कटौतीको अपेक्षा राखेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच अन्तर्राष्ट्रिय डेस्कले वार्ताका मुख्य बिन्दु नोट गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Talks to ease regional trade have resumed."
+        },
+        {
+          "type": "paragraph",
+          "text": "भन्सार प्रक्रिया र यातायात पूर्वाधार एजेन्डामा छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "world"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-world-3",
+      "slug": "migration-labour-policy-update",
+      "categorySlug": "world",
+      "titleNe": "वैदेशिक रोजगार नीति: सुरक्षा मापदण्ड",
+      "titleEn": "Labour migration policy: safety standards",
+      "deckNe": "श्रमिक सुरक्षा मापदण्ड कडा बनाउने प्रस्ताव छलफलमा छ।",
+      "deckEn": "Proposals to tighten worker safety standards are under discussion.",
+      "publishedAt": "2026-07-05T08:15:00.000Z",
+      "updatedAt": "2026-07-05T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "पूर्वप्रस्थान तालिम र बीमा कवरेज विस्तारको कुरा उठेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "प्रवासी परिवारले गुनासो सुनुवाइ संयन्त्र मागेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले सम्बन्धित निकायसँग स्पष्टीकरण मागेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Proposals to tighten worker safety standards are under discussion."
+        },
+        {
+          "type": "paragraph",
+          "text": "पूर्वप्रस्थान तालिम र बीमा कवरेज विस्तारको कुरा उठेको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "world"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-world-4",
+      "slug": "regional-disaster-cooperation",
+      "categorySlug": "world",
+      "titleNe": "क्षेत्रीय विपद् सहयोग अभ्यास",
+      "titleEn": "Regional disaster cooperation drill",
+      "deckNe": "सीमापार उद्धार समन्वय अभ्यास गरिएको छ।",
+      "deckEn": "A cross-border rescue coordination drill was held.",
+      "publishedAt": "2026-07-18T09:15:00.000Z",
+      "updatedAt": "2026-07-18T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "सञ्चार प्रोटोकल र उपकरण साझेदारी परीक्षण गरियो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय प्रशासनले सूचना प्रवाह सुधार आवश्यक ठानेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले अभ्यासस्थलबाट अवलोकन रिपोर्ट तयार पारेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "A cross-border rescue coordination drill was held."
+        },
+        {
+          "type": "paragraph",
+          "text": "सञ्चार प्रोटोकल र उपकरण साझेदारी परीक्षण गरियो।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "world"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-world-5",
+      "slug": "global-food-price-nepal-impact",
+      "categorySlug": "world",
+      "titleNe": "विश्व खाद्य मूल्य: नेपालको थोक बजार",
+      "titleEn": "Global food prices: Nepal wholesale impact",
+      "deckNe": "अन्तर्राष्ट्रिय मूल्य उतारचढावले थोक बजार प्रभावित छ।",
+      "deckEn": "Global price swings are feeding into wholesale markets.",
+      "publishedAt": "2026-07-17T10:15:00.000Z",
+      "updatedAt": "2026-07-17T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "आयातकर्ताले ढुवानी लागत मुख्य कारक बताएका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "उपभोक्ता मूल्यमा असर ढिलो देखिने विश्लेषकको धारणा छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले काठमाडौं थोक बजारको मूल्य सूची तुलना गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Global price swings are feeding into wholesale markets."
+        },
+        {
+          "type": "paragraph",
+          "text": "आयातकर्ताले ढुवानी लागत मुख्य कारक बताएका छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "opinion"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-opinion-2",
+      "slug": "column-public-transport-dignity",
+      "categorySlug": "opinion",
+      "titleNe": "स्तम्भ: सार्वजनिक यातायात र मर्यादा",
+      "titleEn": "Column: dignity on public transport",
+      "deckNe": "भीडमा यात्रीको मर्यादा कसरी जोगाउने भन्ने प्रश्न गम्भीर छ।",
+      "deckEn": "How to protect passenger dignity in crowded transit is a serious question.",
+      "publishedAt": "2026-07-15T07:15:00.000Z",
+      "updatedAt": "2026-07-15T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "महिला र वृद्ध यात्रीको अनुभव नीति बनाउने आधार हुनुपर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सञ्चालक र नगरपालिका दुवैको जिम्मेवारी स्पष्ट हुनुपर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "यो लेखकको व्यक्तिगत धारणा हो।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "How to protect passenger dignity in crowded transit is a serious question."
+        },
+        {
+          "type": "paragraph",
+          "text": "महिला र वृद्ध यात्रीको अनुभव नीति बनाउने आधार हुनुपर्छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "opinion"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-opinion-3",
+      "slug": "essay-digital-rumour-literacy",
+      "categorySlug": "opinion",
+      "titleNe": "निबन्ध: डिजिटल हल्ला र साक्षरता",
+      "titleEn": "Essay: digital rumours and literacy",
+      "deckNe": "हल्ला छिटो फैलिन्छ, जाँच ढिलो हुन्छ।",
+      "deckEn": "Rumours travel fast; verification travels slowly.",
+      "publishedAt": "2026-07-14T08:15:00.000Z",
+      "updatedAt": "2026-07-14T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "विद्यालय र समुदायमा मिडिया साक्षरता कक्षा आवश्यक छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "साझा गर्नुअघि स्रोत हेर्ने बानी नागरिक कर्तव्य हो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच विचार पृष्ठको निमन्त्रणामा लेखिएको।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Rumours travel fast; verification travels slowly."
+        },
+        {
+          "type": "paragraph",
+          "text": "विद्यालय र समुदायमा मिडिया साक्षरता कक्षा आवश्यक छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "opinion"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-opinion-4",
+      "slug": "comment-health-worker-respect",
+      "categorySlug": "opinion",
+      "titleNe": "टिप्पणी: स्वास्थ्यकर्मीप्रति सम्मान",
+      "titleEn": "Comment: respect for health workers",
+      "deckNe": "सेवा प्रवाहमा तनाव बढ्दा सम्मानको संस्कृति कमजोर हुन सक्छ।",
+      "deckEn": "Stress in service delivery can erode a culture of respect.",
+      "publishedAt": "2026-07-13T09:15:00.000Z",
+      "updatedAt": "2026-07-13T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "सुरक्षित कार्यस्थल नीति कार्यान्वयन अनिवार्य हुनुपर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बिरामी अधिकार र कर्मी सुरक्षा सँगै जानुपर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "यो टिप्पणी हो।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Stress in service delivery can erode a culture of respect."
+        },
+        {
+          "type": "paragraph",
+          "text": "सुरक्षित कार्यस्थल नीति कार्यान्वयन अनिवार्य हुनुपर्छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "opinion"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-opinion-5",
+      "slug": "view-youth-civic-space",
+      "categorySlug": "opinion",
+      "titleNe": "दृष्टिकोण: युवा र नागरिक स्थान",
+      "titleEn": "View: youth and civic space",
+      "deckNe": "युवा सहभागितालाई औपचारिकतामा सीमित नराखौं।",
+      "deckEn": "Do not reduce youth participation to formality.",
+      "publishedAt": "2026-07-12T10:15:00.000Z",
+      "updatedAt": "2026-07-12T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "निर्णय प्रक्रियामा युवा आवाज सुनिनु लोकतन्त्रको परीक्षण हो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय तहले युवा परिषद्लाई स्रोत दिनुपर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "लेखकको दृष्टिकोण।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Do not reduce youth participation to formality."
+        },
+        {
+          "type": "paragraph",
+          "text": "निर्णय प्रक्रियामा युवा आवाज सुनिनु लोकतन्त्रको परीक्षण हो।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "literature"
+      ],
+      "isBreaking": false,
+      "isFeatured": "secondary",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-literature-1",
+      "slug": "new-nepali-poetry-collection",
+      "categorySlug": "literature",
+      "titleNe": "नयाँ नेपाली कविता संग्रह: शहरको ध्वनि",
+      "titleEn": "New Nepali poetry: the city’s sound",
+      "deckNe": "युवा कविहरूको संग्रहमा शहरको दैनिक ध्वनि घुलिएको छ।",
+      "deckEn": "A young poets’ collection carries the city’s daily sound.",
+      "publishedAt": "2026-07-11T06:15:00.000Z",
+      "updatedAt": "2026-07-11T06:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "सम्पादकले भाषा प्रयोगमा सादगी खोजेको बताए।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठक छलफल कार्यक्रम पुस्तकालयमा हुनेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच साहित्य डेस्कको समीक्षा नोट।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "A young poets’ collection carries the city’s daily sound."
+        },
+        {
+          "type": "paragraph",
+          "text": "सम्पादकले भाषा प्रयोगमा सादगी खोजेको बताए।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "literature"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-literature-2",
+      "slug": "short-story-contest-winners",
+      "categorySlug": "literature",
+      "titleNe": "कथा प्रतियोगिता: विजेता घोषणा",
+      "titleEn": "Short-story contest: winners named",
+      "deckNe": "राष्ट्रिय कथा प्रतियोगिताका विजेता सार्वजनिक भएका छन्।",
+      "deckEn": "Winners of a national short-story contest were named.",
+      "publishedAt": "2026-07-10T07:15:00.000Z",
+      "updatedAt": "2026-07-10T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "विषयवस्तुमा गाउँ–सहर सम्बन्ध प्रमुख रह्यो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पुरस्कार राशि साहित्यिक पत्रिकाले व्यवस्था गरेको हो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले विजेता कृतिको सारांश मात्र प्रस्तुत गर्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Winners of a national short-story contest were named."
+        },
+        {
+          "type": "paragraph",
+          "text": "विषयवस्तुमा गाउँ–सहर सम्बन्ध प्रमुख रह्यो।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "literature"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-literature-3",
+      "slug": "book-fair-reader-turnout",
+      "categorySlug": "literature",
+      "titleNe": "पुस्तक मेला: पाठक उपस्थिति",
+      "titleEn": "Book fair: reader turnout",
+      "deckNe": "सप्ताहान्त पुस्तक मेलामा पाठक उपस्थिति सन्तोषजनक रह्यो।",
+      "deckEn": "Weekend book-fair turnout was encouraging.",
+      "publishedAt": "2026-07-09T08:15:00.000Z",
+      "updatedAt": "2026-07-09T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "बाल साहित्य कुनामा भीड देखियो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्वतन्त्र प्रकाशकले वितरण चुनौती दोहोर्याए।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच स्थलगत रिपोर्ट।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Weekend book-fair turnout was encouraging."
+        },
+        {
+          "type": "paragraph",
+          "text": "बाल साहित्य कुनामा भीड देखियो।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "literature"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-literature-4",
+      "slug": "translation-workshop-report",
+      "categorySlug": "literature",
+      "titleNe": "अनुवाद कार्यशाला: भाषा पुल",
+      "titleEn": "Translation workshop: building language bridges",
+      "deckNe": "नेपाली–अंग्रेजी अनुवाद कार्यशाला सम्पन्न भएको छ।",
+      "deckEn": "A Nepali–English translation workshop concluded.",
+      "publishedAt": "2026-07-08T09:15:00.000Z",
+      "updatedAt": "2026-07-08T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "सहभागीले सन्दर्भ र स्वर जोगाउने अभ्यास गरे।"
+        },
+        {
+          "type": "paragraph",
+          "text": "प्रकाशकले गुणस्तरीय अनुवादको माग बढेको बताए।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच साहित्य डेस्क।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "A Nepali–English translation workshop concluded."
+        },
+        {
+          "type": "paragraph",
+          "text": "सहभागीले सन्दर्भ र स्वर जोगाउने अभ्यास गरे।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "literature"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-literature-5",
+      "slug": "library-membership-drive",
+      "categorySlug": "literature",
+      "titleNe": "पुस्तकालय सदस्यता अभियान",
+      "titleEn": "Library membership drive",
+      "deckNe": "सामुदायिक पुस्तकालयले सदस्यता अभियान चलाएका छन्।",
+      "deckEn": "Community libraries launched a membership drive.",
+      "publishedAt": "2026-07-07T10:15:00.000Z",
+      "updatedAt": "2026-07-07T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "विद्यार्थीलाई छुट शुल्कको व्यवस्था छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "डिजिटल क्याटलग विस्तारको योजना सुनाइएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले तीन पुस्तकालयका अनुभव नोट गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Community libraries launched a membership drive."
+        },
+        {
+          "type": "paragraph",
+          "text": "विद्यार्थीलाई छुट शुल्कको व्यवस्था छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "technology"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-technology-2",
+      "slug": "cybersecurity-small-business",
+      "categorySlug": "technology",
+      "titleNe": "साना व्यवसाय साइबर सुरक्षा",
+      "titleEn": "Small-business cybersecurity",
+      "deckNe": "फिसिङ आक्रमण बढेको साना व्यवसायको गुनासो छ।",
+      "deckEn": "Small firms report a rise in phishing attacks.",
+      "publishedAt": "2026-07-05T07:15:00.000Z",
+      "updatedAt": "2026-07-05T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "बैंकले दुई तहको प्रमाणीकरण जोड दिएका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "तालिम अभाव मुख्य कमजोरी बनेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच प्रविधि डेस्कको व्यावहारिक चेतावनी।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Small firms report a rise in phishing attacks."
+        },
+        {
+          "type": "paragraph",
+          "text": "बैंकले दुई तहको प्रमाणीकरण जोड दिएका छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "technology"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-technology-3",
+      "slug": "open-data-municipality-portals",
+      "categorySlug": "technology",
+      "titleNe": "खुला डेटा: नगर पोर्टल",
+      "titleEn": "Open data: municipal portals",
+      "deckNe": "केही नगरले बजेट र परियोजना डेटा खुला गरेका छन्।",
+      "deckEn": "Some municipalities opened budget and project data.",
+      "publishedAt": "2026-07-18T08:15:00.000Z",
+      "updatedAt": "2026-07-18T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "फाइल ढाँचा एकरूप नहुँदा विश्लेषण गाह्रो छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक समूहले एपीआई माग गरेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले पोर्टल उपयोगिता परीक्षण गरेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Some municipalities opened budget and project data."
+        },
+        {
+          "type": "paragraph",
+          "text": "फाइल ढाँचा एकरूप नहुँदा विश्लेषण गाह्रो छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "technology"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-technology-4",
+      "slug": "ai-classroom-pilot-ethics",
+      "categorySlug": "technology",
+      "titleNe": "कक्षामा एआई प्रयोग: नैतिक मापदण्ड",
+      "titleEn": "AI in classrooms: ethics first",
+      "deckNe": "प्रयोगात्मक कक्षामा एआई उपकरण परीक्षण भइरहेको छ।",
+      "deckEn": "Classrooms are piloting AI tools experimentally.",
+      "publishedAt": "2026-07-17T09:15:00.000Z",
+      "updatedAt": "2026-07-17T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "गोपनीयता र परीक्षा इमान्दारितामाथि बहस छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "शिक्षक तालिम बिना विस्तार जोखिमपूर्ण हुने धारणा छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच शिक्षा–प्रविधि डेस्क।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Classrooms are piloting AI tools experimentally."
+        },
+        {
+          "type": "paragraph",
+          "text": "गोपनीयता र परीक्षा इमान्दारितामाथि बहस छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "technology"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-technology-5",
+      "slug": "fintech-wallet-dispute-resolution",
+      "categorySlug": "technology",
+      "titleNe": "वालेट विवाद समाधान प्रक्रिया",
+      "titleEn": "Wallet dispute resolution",
+      "deckNe": "भुक्तानी विवाद सुनुवाइमा ढिलाइको गुनासो आएको छ।",
+      "deckEn": "Users report delays in payment-dispute hearings.",
+      "publishedAt": "2026-07-16T10:15:00.000Z",
+      "updatedAt": "2026-07-16T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "सेवा प्रदायकले टिकट प्रणाली सुधारको दाबी गरे।"
+        },
+        {
+          "type": "paragraph",
+          "text": "उपभोक्ता अधिकार समूहले समयसीमा मागेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले प्रक्रियाका चरण स्पष्ट पारेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Users report delays in payment-dispute hearings."
+        },
+        {
+          "type": "paragraph",
+          "text": "सेवा प्रदायकले टिकट प्रणाली सुधारको दाबी गरे।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "health"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-health-2",
+      "slug": "mental-health-helpline-awareness",
+      "categorySlug": "health",
+      "titleNe": "मानसिक स्वास्थ्य हेल्पलाइन सचेतना",
+      "titleEn": "Mental-health helpline awareness",
+      "deckNe": "हेल्पलाइन नम्बर सार्वजनिक सचेतना अभियानमा जोडिएको छ।",
+      "deckEn": "Helpline numbers are part of a public awareness push.",
+      "publishedAt": "2026-07-14T07:15:00.000Z",
+      "updatedAt": "2026-07-14T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "गोपनीयता सुनिश्चित गर्ने प्रतिबद्धता दोहोर्याइएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "ग्रामीण पहुँच अझै कमजोर रहेको स्वयंसेवी बताउँछन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच स्वास्थ्य डेस्क।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Helpline numbers are part of a public awareness push."
+        },
+        {
+          "type": "paragraph",
+          "text": "गोपनीयता सुनिश्चित गर्ने प्रतिबद्धता दोहोर्याइएको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "health"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-health-3",
+      "slug": "maternal-care-rural-clinic",
+      "categorySlug": "health",
+      "titleNe": "मातृ स्वास्थ्य: ग्रामीण क्लिनिक",
+      "titleEn": "Maternal care: rural clinics",
+      "deckNe": "ग्रामीण क्लिनिकमा प्रसवपूर्व जाँच उपस्थिति बढाउने अभियान चलिरहेको छ।",
+      "deckEn": "Rural clinics are pushing antenatal visit attendance.",
+      "publishedAt": "2026-07-13T08:15:00.000Z",
+      "updatedAt": "2026-07-13T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "यातायात अभाव मुख्य बाधक बनेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्वास्थ्यकर्मीले घुम्ती सेवा विस्तार प्रस्ताव गरे।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच स्थलगत रिपोर्ट।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Rural clinics are pushing antenatal visit attendance."
+        },
+        {
+          "type": "paragraph",
+          "text": "यातायात अभाव मुख्य बाधक बनेको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "health"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-health-4",
+      "slug": "air-quality-respiratory-clinic",
+      "categorySlug": "health",
+      "titleNe": "वायु गुणस्तर: श्वास रोग क्लिनिक",
+      "titleEn": "Air quality: respiratory clinics",
+      "deckNe": "प्रदूषण बढ्दा श्वास रोग क्लिनिकमा चाप देखिएको छ।",
+      "deckEn": "Respiratory clinics report higher load as pollution rises.",
+      "publishedAt": "2026-07-12T09:15:00.000Z",
+      "updatedAt": "2026-07-12T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "मास्क र घरभित्र वायु शुद्धीकरण सल्लाह दोहोर्याइएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले वायु गुणस्तर सूचकांकसँग क्लिनिक उपस्थिति जोडेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "जोखिम समूहलाई विशेष सतर्कता आवश्यक छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Respiratory clinics report higher load as pollution rises."
+        },
+        {
+          "type": "paragraph",
+          "text": "मास्क र घरभित्र वायु शुद्धीकरण सल्लाह दोहोर्याइएको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "health"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-health-5",
+      "slug": "vaccination-catchup-campaign",
+      "categorySlug": "health",
+      "titleNe": "खोप कभरेज: कैच-अप अभियान",
+      "titleEn": "Vaccination coverage: catch-up drive",
+      "deckNe": "छुटेका खोप पूरा गराउने अभियान चलाइएको छ।",
+      "deckEn": "A catch-up drive is completing missed vaccinations.",
+      "publishedAt": "2026-07-11T10:15:00.000Z",
+      "updatedAt": "2026-07-11T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "विद्यालय र स्वास्थ्य चौकी समन्वयमा काम गर्दैछन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "अभिभावक सचेतना सामग्री स्थानीय भाषामा तयार पारिएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच स्वास्थ्य डेस्क अपडेट।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "A catch-up drive is completing missed vaccinations."
+        },
+        {
+          "type": "paragraph",
+          "text": "विद्यालय र स्वास्थ्य चौकी समन्वयमा काम गर्दैछन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "education"
+      ],
+      "isBreaking": false,
+      "isFeatured": "secondary",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-education-1",
+      "slug": "public-school-midday-meal-audit",
+      "categorySlug": "education",
+      "titleNe": "दिवा खाजा: सार्वजनिक विद्यालय अडिट",
+      "titleEn": "Midday meals: public school audit",
+      "deckNe": "दिवा खाजा गुणस्तर र नियमिततामा अडिट चलिरहेको छ।",
+      "deckEn": "An audit of midday-meal quality and regularity is under way.",
+      "publishedAt": "2026-07-10T06:15:00.000Z",
+      "updatedAt": "2026-07-10T06:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "केही विद्यालयले आपूर्तिकर्ता परिवर्तन गरेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "अभिभावक समितिले मेनु पारदर्शिता मागेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच शिक्षा डेस्क।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "An audit of midday-meal quality and regularity is under way."
+        },
+        {
+          "type": "paragraph",
+          "text": "केही विद्यालयले आपूर्तिकर्ता परिवर्तन गरेका छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "education"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-education-2",
+      "slug": "teacher-training-digital-skills",
+      "categorySlug": "education",
+      "titleNe": "शिक्षक तालिम: डिजिटल सीप",
+      "titleEn": "Teacher training: digital skills",
+      "deckNe": "शिक्षक डिजिटल सीप तालिमको दोस्रो चरण सुरु भएको छ।",
+      "deckEn": "A second phase of teacher digital-skills training has begun.",
+      "publishedAt": "2026-07-09T07:15:00.000Z",
+      "updatedAt": "2026-07-09T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "उपकरण अभाव भएका विद्यालयले साझेदारी ल्याब प्रयोग गर्दैछन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "मूल्यांकन विधिमा सुधार आवश्यक रहेको प्रशिक्षक बताउँछन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच रिपोर्ट।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "A second phase of teacher digital-skills training has begun."
+        },
+        {
+          "type": "paragraph",
+          "text": "उपकरण अभाव भएका विद्यालयले साझेदारी ल्याब प्रयोग गर्दैछन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "education"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-education-3",
+      "slug": "scholarship-application-window",
+      "categorySlug": "education",
+      "titleNe": "छात्रवृत्ति आवेदन झ्याल",
+      "titleEn": "Scholarship application window",
+      "deckNe": "लक्षित छात्रवृत्तिको आवेदन झ्याल खोलिएको छ।",
+      "deckEn": "The targeted scholarship application window is open.",
+      "publishedAt": "2026-07-08T08:15:00.000Z",
+      "updatedAt": "2026-07-08T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "कागजात चेकलिस्ट अनलाइन उपलब्ध छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "ग्रामीण विद्यार्थीलाई सहयोग डेस्क राखिएको जनाइएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचले म्याद र सर्त स्पष्ट पारेको छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "The targeted scholarship application window is open."
+        },
+        {
+          "type": "paragraph",
+          "text": "कागजात चेकलिस्ट अनलाइन उपलब्ध छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "education"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-education-4",
+      "slug": "exam-centre-accessibility",
+      "categorySlug": "education",
+      "titleNe": "परीक्षा केन्द्र पहुँच",
+      "titleEn": "Exam-centre accessibility",
+      "deckNe": "अपाह्गता भएका परीक्षार्थीका लागि पहुँच सुधार अभियान चलिरहेको छ।",
+      "deckEn": "An accessibility push for exam centres is under way.",
+      "publishedAt": "2026-07-07T09:15:00.000Z",
+      "updatedAt": "2026-07-07T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "रेम्प र सहायक सामग्रीको सूची अद्यावधिक गरिएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "अभिभावकले समयमै जानकारी मागेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच शिक्षा डेस्क।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "An accessibility push for exam centres is under way."
+        },
+        {
+          "type": "paragraph",
+          "text": "रेम्प र सहायक सामग्रीको सूची अद्यावधिक गरिएको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "education"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-education-5",
+      "slug": "community-learning-centres",
+      "categorySlug": "education",
+      "titleNe": "सामुदायिक सिकाइ केन्द्र",
+      "titleEn": "Community learning centres",
+      "deckNe": "सामुदायिक सिकाइ केन्द्रले वयस्क साक्षरता कक्षा बढाएका छन्।",
+      "deckEn": "Community learning centres expanded adult literacy classes.",
+      "publishedAt": "2026-07-06T10:15:00.000Z",
+      "updatedAt": "2026-07-06T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "महिला सहभागिता उच्च रहेको सहजकर्ता बताउँछन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बजेट निरन्तरता मुख्य चिन्ता हो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच स्थलगत नोट।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Community learning centres expanded adult literacy classes."
+        },
+        {
+          "type": "paragraph",
+          "text": "महिला सहभागिता उच्च रहेको सहजकर्ता बताउँछन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "interview"
+      ],
+      "isBreaking": false,
+      "isFeatured": "secondary",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-interview-1",
+      "slug": "interview-city-planner-walkability",
+      "categorySlug": "interview",
+      "titleNe": "अन्तर्वार्ता: सहरी योजनाकारसँग पैदल मार्ग",
+      "titleEn": "Interview: a city planner on walkability",
+      "deckNe": "पैदल मार्ग सुरक्षा सुधार प्राथमिकतामा रहेको योजनाकार बताउँछन्।",
+      "deckEn": "Walkability safety is a priority, the planner says.",
+      "publishedAt": "2026-07-05T06:15:00.000Z",
+      "updatedAt": "2026-07-05T06:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "साइकल लेन र जेब्रा क्रसिङ समन्वय आवश्यक छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बजेट बाँडफाँटमा पारदर्शिता महत्वपूर्ण हुने धारणा छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाचसँगको कुराकानीमा आधारित।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Walkability safety is a priority, the planner says."
+        },
+        {
+          "type": "paragraph",
+          "text": "साइकल लेन र जेब्रा क्रसिङ समन्वय आवश्यक छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "interview"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-interview-2",
+      "slug": "interview-nurse-night-shift",
+      "categorySlug": "interview",
+      "titleNe": "अन्तर्वार्ता: रात्रि शिफ्ट नर्सासँग",
+      "titleEn": "Interview: a nurse on night shifts",
+      "deckNe": "रात्रि शिफ्टमा जनशक्ति व्यवस्थापन चुनौतीपूर्ण रहेको नर्स बताउँछिन्।",
+      "deckEn": "Night-shift staffing remains tough, the nurse says.",
+      "publishedAt": "2026-07-18T07:15:00.000Z",
+      "updatedAt": "2026-07-18T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "बिरामी सुरक्षा प्रोटोकल नियमित अभ्यास गरिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "थकान व्यवस्थापन नीति स्पष्ट हुनुपर्ने माग छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच स्वास्थ्य अन्तर्वार्ता।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Night-shift staffing remains tough, the nurse says."
+        },
+        {
+          "type": "paragraph",
+          "text": "बिरामी सुरक्षा प्रोटोकल नियमित अभ्यास गरिन्छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "interview"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-interview-3",
+      "slug": "interview-startup-founder-payroll",
+      "categorySlug": "interview",
+      "titleNe": "अन्तर्वार्ता: स्टार्टअप संस्थापकसँग पेरोल",
+      "titleEn": "Interview: a startup founder on payroll",
+      "deckNe": "पेरोल अनुशासनले विश्वास जोगाउने संस्थापकको भनाइ छ।",
+      "deckEn": "Payroll discipline protects trust, the founder says.",
+      "publishedAt": "2026-07-17T08:15:00.000Z",
+      "updatedAt": "2026-07-17T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "नगद प्रवाह योजना बिना विस्तार जोखिमपूर्ण हुन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "लगानीकर्ताले शासन संरचना हेर्ने गरेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच बजार अन्तर्वार्ता।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Payroll discipline protects trust, the founder says."
+        },
+        {
+          "type": "paragraph",
+          "text": "नगद प्रवाह योजना बिना विस्तार जोखिमपूर्ण हुन्छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "interview"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-interview-4",
+      "slug": "interview-farmer-cooperative",
+      "categorySlug": "interview",
+      "titleNe": "अन्तर्वार्ता: किसान सहकारीसँग",
+      "titleEn": "Interview: a farmers’ cooperative",
+      "deckNe": "सहकारीले बजार पहुँच सुधारेको किसान प्रतिनिधिको दाबी छ।",
+      "deckEn": "The cooperative improved market access, a farmer rep says.",
+      "publishedAt": "2026-07-16T09:15:00.000Z",
+      "updatedAt": "2026-07-16T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "मूल्य उतारचढाव अझै चुनौती हो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "युवा सदस्यता बढाउने अभियान चलिरहेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच अन्तर्वार्ता।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "The cooperative improved market access, a farmer rep says."
+        },
+        {
+          "type": "paragraph",
+          "text": "मूल्य उतारचढाव अझै चुनौती हो।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "interview"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-interview-5",
+      "slug": "interview-youth-climate-volunteer",
+      "categorySlug": "interview",
+      "titleNe": "अन्तर्वार्ता: जलवायु स्वयंसेवीसँग",
+      "titleEn": "Interview: a climate volunteer",
+      "deckNe": "स्थानीय वृक्षारोपणले मात्र पुग्दैन भन्ने स्वयंसेवीको धारणा छ।",
+      "deckEn": "Tree planting alone is not enough, the volunteer says.",
+      "publishedAt": "2026-07-15T10:15:00.000Z",
+      "updatedAt": "2026-07-15T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "नीति निगरानी र डेटा सार्वजनिक हुनुपर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "विद्यालय क्लबले निरन्तरता दिने योजना छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच अन्तर्वार्ता।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Tree planting alone is not enough, the volunteer says."
+        },
+        {
+          "type": "paragraph",
+          "text": "नीति निगरानी र डेटा सार्वजनिक हुनुपर्छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "photo-story"
+      ],
+      "isBreaking": false,
+      "isFeatured": "secondary",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-photostory-1",
+      "slug": "photo-monsoon-workers-drain",
+      "categorySlug": "photo-story",
+      "titleNe": "फोटो फिचर: मनसुनअघि नाली मजदुर",
+      "titleEn": "Photo feature: drain workers before monsoon",
+      "deckNe": "नाली सफाइ मजदुरको दैनिकी फोटोमा।",
+      "deckEn": "A photo look at drain workers’ daily labour.",
+      "publishedAt": "2026-07-14T06:15:00.000Z",
+      "updatedAt": "2026-07-14T06:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "बिहानैदेखि टोलीले ढल र नाली खाली गर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सुरक्षा सामग्री अपर्याप्त हुँदा जोखिम बढ्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच फोटो डेस्क।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "A photo look at drain workers’ daily labour."
+        },
+        {
+          "type": "paragraph",
+          "text": "बिहानैदेखि टोलीले ढल र नाली खाली गर्छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "photo-story"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-photostory-2",
+      "slug": "photo-harvest-morning-tarai",
+      "categorySlug": "photo-story",
+      "titleNe": "फोटो फिचर: तराईको बिहानी फसल",
+      "titleEn": "Photo feature: Tarai harvest morning",
+      "deckNe": "फसल भित्र्याउने बिहानको दृश्य।",
+      "deckEn": "Morning scenes from the harvest.",
+      "publishedAt": "2026-07-13T07:15:00.000Z",
+      "updatedAt": "2026-07-13T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "परिवार मिलेर काम गर्ने दृश्य दोहोरिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "मौसम परिवर्तनले समयतालिका हल्लाएको किसान बताउँछन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच फोटो फिचर।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Morning scenes from the harvest."
+        },
+        {
+          "type": "paragraph",
+          "text": "परिवार मिलेर काम गर्ने दृश्य दोहोरिन्छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "photo-story"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-photostory-3",
+      "slug": "photo-school-assembly-flag",
+      "categorySlug": "photo-story",
+      "titleNe": "फोटो फिचर: विद्यालय प्रार्थना सभा",
+      "titleEn": "Photo feature: school morning assembly",
+      "deckNe": "प्रार्थना सभाको अनुशासन र उत्साह।",
+      "deckEn": "Discipline and energy at morning assembly.",
+      "publishedAt": "2026-07-12T08:15:00.000Z",
+      "updatedAt": "2026-07-12T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "झाण्डा र राष्ट्रगानका दृश्य केन्द्रमा छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "शिक्षकले सहभागिता समान बनाउने प्रयास गर्छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच शिक्षा फोटो।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Discipline and energy at morning assembly."
+        },
+        {
+          "type": "paragraph",
+          "text": "झाण्डा र राष्ट्रगानका दृश्य केन्द्रमा छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "photo-story"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-photostory-4",
+      "slug": "photo-market-evening-rush",
+      "categorySlug": "photo-story",
+      "titleNe": "फोटो फिचर: साँझ बजार भीड",
+      "titleEn": "Photo feature: evening market rush",
+      "deckNe": "साँझको तरकारी बजार भीड।",
+      "deckEn": "The evening vegetable market rush.",
+      "publishedAt": "2026-07-11T09:15:00.000Z",
+      "updatedAt": "2026-07-11T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "मूल्य सोधपुछ र छिटो कारोबार देखिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "साना विक्रेताको स्थान सुरक्षित राख्ने बहस छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच फोटो डेस्क।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "The evening vegetable market rush."
+        },
+        {
+          "type": "paragraph",
+          "text": "मूल्य सोधपुछ र छिटो कारोबार देखिन्छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "photo-story"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-photostory-5",
+      "slug": "photo-bus-park-porters",
+      "categorySlug": "photo-story",
+      "titleNe": "फोटो फिचर: बसपार्कका भरिया",
+      "titleEn": "Photo feature: bus-park porters",
+      "deckNe": "भरियाको श्रम र प्रतीक्षा।",
+      "deckEn": "Labour and waiting at the bus park.",
+      "publishedAt": "2026-07-10T10:15:00.000Z",
+      "updatedAt": "2026-07-10T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "भारी बोक्ने क्रममा सुरक्षा जोखिम देखिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "परिचयपत्र र दर सूची माग उठेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच फोटो फिचर।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Labour and waiting at the bus park."
+        },
+        {
+          "type": "paragraph",
+          "text": "भारी बोक्ने क्रममा सुरक्षा जोखिम देखिन्छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "video"
+      ],
+      "isBreaking": false,
+      "isFeatured": "secondary",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-video-1",
+      "slug": "video-explain-budget-local",
+      "categorySlug": "video",
+      "titleNe": "भिडियो: स्थानीय बजेट बुझ्ने",
+      "titleEn": "Video: understanding a local budget",
+      "deckNe": "वडा बजेटका मुख्य शीर्षक सरल भाषामा।",
+      "deckEn": "Ward budget lines explained in plain language.",
+      "publishedAt": "2026-07-09T06:15:00.000Z",
+      "updatedAt": "2026-07-09T06:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "राजस्व र खर्चबीचको अन्तराल देखाउँछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठक प्रश्नका लागि फारम लिंक दिइएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच भिडियो डेस्क।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Ward budget lines explained in plain language."
+        },
+        {
+          "type": "paragraph",
+          "text": "राजस्व र खर्चबीचको अन्तराल देखाउँछ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "video"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-video-2",
+      "slug": "video-how-to-file-rti",
+      "categorySlug": "video",
+      "titleNe": "भिडियो: सूचनाको हक कसरी माग्ने",
+      "titleEn": "Video: how to file an RTI request",
+      "deckNe": "सूचना माग प्रक्रिया चरणबद्ध।",
+      "deckEn": "A step-by-step right-to-information request.",
+      "publishedAt": "2026-07-08T07:15:00.000Z",
+      "updatedAt": "2026-07-08T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "फारम भर्ने र निवेदन दर्ताका उदाहरण।"
+        },
+        {
+          "type": "paragraph",
+          "text": "समयसीमा र पुनरावेदन बाटो स्पष्ट पारिएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच गाइड भिडियो।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "A step-by-step right-to-information request."
+        },
+        {
+          "type": "paragraph",
+          "text": "फारम भर्ने र निवेदन दर्ताका उदाहरण।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "video"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-video-3",
+      "slug": "video-first-aid-monsoon",
+      "categorySlug": "video",
+      "titleNe": "भिडियो: मनसुन प्राथमिक उपचार",
+      "titleEn": "Video: monsoon first aid basics",
+      "deckNe": "बाढी–पहिरो अवस्थामा प्राथमिक उपचार।",
+      "deckEn": "Basic first aid for flood and landslide contexts.",
+      "publishedAt": "2026-07-07T08:15:00.000Z",
+      "updatedAt": "2026-07-07T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "सुरक्षित स्थान र आपत्कालीन सम्पर्क जोड।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्वास्थ्यकर्मी सल्लाहमा आधारित।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच स्वास्थ्य भिडियो।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Basic first aid for flood and landslide contexts."
+        },
+        {
+          "type": "paragraph",
+          "text": "सुरक्षित स्थान र आपत्कालीन सम्पर्क जोड।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "video"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-video-4",
+      "slug": "video-vote-count-explained",
+      "categorySlug": "video",
+      "titleNe": "भिडियो: मतगणना प्रक्रिया",
+      "titleEn": "Video: how vote counting works",
+      "deckNe": "मतगणना कक्षका नियम सरल व्याख्या।",
+      "deckEn": "Counting-room rules explained simply.",
+      "publishedAt": "2026-07-06T09:15:00.000Z",
+      "updatedAt": "2026-07-06T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "अवलोकनकर्ता भूमिका र विवाद समाधान।"
+        },
+        {
+          "type": "paragraph",
+          "text": "आधिकारिक प्रक्रियासँग मेल खाने गरी तयार।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच निर्वाचन भिडियो।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Counting-room rules explained simply."
+        },
+        {
+          "type": "paragraph",
+          "text": "अवलोकनकर्ता भूमिका र विवाद समाधान।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "video"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-video-5",
+      "slug": "video-save-water-home",
+      "categorySlug": "video",
+      "titleNe": "भिडियो: घरमा पानी बचत",
+      "titleEn": "Video: saving water at home",
+      "deckNe": "घरभित्र पानी बचतका व्यावहारिक उपाय।",
+      "deckEn": "Practical water-saving steps at home.",
+      "publishedAt": "2026-07-05T10:15:00.000Z",
+      "updatedAt": "2026-07-05T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "चुहावट जाँच र पुनःप्रयोग सुझाव।"
+        },
+        {
+          "type": "paragraph",
+          "text": "मनसुनअघि तयारीसँग जोडिएको।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच उपयोगी भिडियो।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Practical water-saving steps at home."
+        },
+        {
+          "type": "paragraph",
+          "text": "चुहावट जाँच र पुनःप्रयोग सुझाव।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "diaspora"
+      ],
+      "isBreaking": false,
+      "isFeatured": "secondary",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-diaspora-1",
+      "slug": "diaspora-remittance-family-plan",
+      "categorySlug": "diaspora",
+      "titleNe": "प्रवास: विप्रेषण र पारिवारिक योजना",
+      "titleEn": "Diaspora: remittance and family planning",
+      "deckNe": "विप्रेषणलाई शिक्षा र स्वास्थ्यमा प्राथमिकता दिने परिवार बढ्दै।",
+      "deckEn": "More families prioritise remittances for education and health.",
+      "publishedAt": "2026-07-18T06:15:00.000Z",
+      "updatedAt": "2026-07-18T06:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "लगानी जोखिमबारे सल्लाह माग्ने क्रम बढेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "प्रवासी संजालले वित्तीय साक्षरता सत्र चलाएका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच प्रवास डेस्क।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "More families prioritise remittances for education and health."
+        },
+        {
+          "type": "paragraph",
+          "text": "लगानी जोखिमबारे सल्लाह माग्ने क्रम बढेको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "diaspora"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-diaspora-2",
+      "slug": "diaspora-festival-community-hall",
+      "categorySlug": "diaspora",
+      "titleNe": "प्रवास: सामुदायिक पर्व आयोजना",
+      "titleEn": "Diaspora: community festival halls",
+      "deckNe": "प्रवासी समुदायले पर्वलाई एकताको अवसर बनाएका छन्।",
+      "deckEn": "Diaspora communities treat festivals as unity moments.",
+      "publishedAt": "2026-07-17T07:15:00.000Z",
+      "updatedAt": "2026-07-17T07:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "नयाँ पुस्तालाई भाषा कक्षा जोड्ने अभ्यास छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय नियम पालनामा आयोजक सतर्क छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच प्रवास रिपोर्ट।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Diaspora communities treat festivals as unity moments."
+        },
+        {
+          "type": "paragraph",
+          "text": "नयाँ पुस्तालाई भाषा कक्षा जोड्ने अभ्यास छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "diaspora"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-diaspora-3",
+      "slug": "diaspora-skill-returnee-startup",
+      "categorySlug": "diaspora",
+      "titleNe": "प्रवास: फर्केर उद्यम",
+      "titleEn": "Diaspora: returnee startups",
+      "deckNe": "सीप लिएर फर्केका उद्यमीले साना व्यवसाय खोलेका छन्।",
+      "deckEn": "Returnees with skills are opening small businesses.",
+      "publishedAt": "2026-07-16T08:15:00.000Z",
+      "updatedAt": "2026-07-16T08:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "पुँजी र बजार पहुँच अझै चुनौती हो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय तहले सहुलियत कर्जा प्याकेजको चर्चा गरेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच प्रवास–बजार डेस्क।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Returnees with skills are opening small businesses."
+        },
+        {
+          "type": "paragraph",
+          "text": "पुँजी र बजार पहुँच अझै चुनौती हो।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "diaspora"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-diaspora-4",
+      "slug": "diaspora-voting-registration-help",
+      "categorySlug": "diaspora",
+      "titleNe": "प्रवास: मतदाता दर्ता सहयोग",
+      "titleEn": "Diaspora: voter registration help",
+      "deckNe": "प्रवासी मतदाता दर्ता सहयोग डेस्क सक्रिय छ।",
+      "deckEn": "Diaspora voter-registration help desks are active.",
+      "publishedAt": "2026-07-15T09:15:00.000Z",
+      "updatedAt": "2026-07-15T09:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "कागजात अभाव मुख्य बाधक बनेको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "अनलाइन मार्गदर्शन सामग्री अद्यावधिक गरिएको जनाइएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच प्रवास डेस्क।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Diaspora voter-registration help desks are active."
+        },
+        {
+          "type": "paragraph",
+          "text": "कागजात अभाव मुख्य बाधक बनेको छ।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "diaspora"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "id": "art-nw-diaspora-5",
+      "slug": "diaspora-student-housing-watch",
+      "categorySlug": "diaspora",
+      "titleNe": "प्रवास: विद्यार्थी आवास",
+      "titleEn": "Diaspora: student housing",
+      "deckNe": "विद्यार्थी आवास भाडा र सुरक्षा चासोमा छ।",
+      "deckEn": "Student housing rents and safety are in focus.",
+      "publishedAt": "2026-07-14T10:15:00.000Z",
+      "updatedAt": "2026-07-14T10:15:00.000Z",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "संघसंस्थाले गुनासो सुनुवाइ संयन्त्र प्रस्ताव गरेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "अभिभावक समूहले पारदर्शी करार मागेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिक वाच प्रवास रिपोर्ट।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Student housing rents and safety are in focus."
+        },
+        {
+          "type": "paragraph",
+          "text": "संघसंस्थाले गुनासो सुनुवाइ संयन्त्र प्रस्ताव गरेका छन्।"
+        }
+      ],
+      "reportingLocation": "काठमाडौं",
+      "hasEnglish": true,
+      "readingMinutes": 1,
+      "createdBy": "newsroom-boot",
+      "updatedBy": "newsroom-boot"
     }
   ],
   "version": 1

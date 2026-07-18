@@ -3,6 +3,7 @@ import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canEdit, canModerateComments } from '@/lib/admin-roles'
 import { asSubmissionStatus, updateSubmissionStatus } from '@/lib/submissions'
+import { recordAuditEvent } from '@/lib/audit-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,12 +30,22 @@ export async function PATCH(
   const status = asSubmissionStatus(String(body.status ?? ''))
   if (status === 'all') return NextResponse.json({ error: 'Invalid status.' }, { status: 400 })
 
+  const id = (await params).id
+  const editorNote = String(body.editorNote ?? '').trim() || undefined
   const ok = await updateSubmissionStatus({
-    id: (await params).id,
+    id,
     status,
-    editorNote: String(body.editorNote ?? '').trim() || undefined,
+    editorNote,
     handledBy: session.userId,
   })
   if (!ok) return NextResponse.json({ error: 'Submission not found.' }, { status: 404 })
+  await recordAuditEvent({
+    session,
+    action: 'status_change',
+    targetType: 'submission',
+    targetId: id,
+    summary: `Submission status changed to ${status}.`,
+    meta: { status, hasEditorNote: Boolean(editorNote) },
+  })
   return NextResponse.json({ ok: true })
 }

@@ -16,6 +16,12 @@ export type RankingEventStat = {
   shares: number
 }
 
+export type RankingShareSample = {
+  articleSlug: string
+  articleCategory: string
+  at: string
+}
+
 type LocalEvent = {
   articleSlug: string
   articleCategory: string
@@ -145,4 +151,38 @@ export async function getRankingEventStats(windowMinutes = 120): Promise<Ranking
     map.set(event.articleSlug, current)
   }
   return Array.from(map.values())
+}
+
+/** Raw, anonymous share timestamps used only for short-window trend sampling. */
+export async function getRankingShareSamples(windowMinutes = 120): Promise<RankingShareSample[]> {
+  const cutoff = new Date(Date.now() - Math.max(15, windowMinutes) * 60_000)
+  const pool = await getPool()
+  if (pool) {
+    try {
+      const result = await pool.query<{
+        article_slug: string
+        article_category: string
+        created_at: string | Date
+      }>(
+        `SELECT article_slug, article_category, created_at
+         FROM nw_ranking_events
+         WHERE event_type = 'share' AND created_at >= $1`,
+        [cutoff.toISOString()],
+      )
+      return result.rows.map((row) => ({
+        articleSlug: row.article_slug,
+        articleCategory: row.article_category,
+        at: new Date(row.created_at).toISOString(),
+      }))
+    } catch {
+      return []
+    }
+  }
+  return (await readLocal())
+    .filter((event) => event.type === 'share' && Date.parse(event.at) >= cutoff.getTime())
+    .map((event) => ({
+      articleSlug: event.articleSlug,
+      articleCategory: event.articleCategory,
+      at: event.at,
+    }))
 }

@@ -14,7 +14,7 @@ import { authClientErrorMessage } from '@/lib/auth/client-errors'
  * bookmarks + history), and the "forgot password" link points at the
  * reader-facing recovery flow backed by Better Auth and the configured email provider.
  */
-export function ReaderLoginForm({ locale, next, notice }: { locale: 'ne' | 'en'; next?: string | null; notice?: 'reset' | 'invite' | null }) {
+export function ReaderLoginForm({ locale, next, notice, googleEnabled = false }: { locale: 'ne' | 'en'; next?: string | null; notice?: 'reset' | 'invite' | null; googleEnabled?: boolean }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -107,7 +107,7 @@ export function ReaderLoginForm({ locale, next, notice }: { locale: 'ne' | 'en';
         )}
       </button>
 
-      <SocialAuthButtons locale={locale} />
+      <SocialAuthButtons locale={locale} googleEnabled={googleEnabled} />
 
       <div className="flex items-center justify-between text-caption">
         <Link

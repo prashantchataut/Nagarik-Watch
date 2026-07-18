@@ -24,6 +24,8 @@ export type EngagementSample = {
   views: number
   shares: number
   comments: number
+  /** Explicit saves; optional for backward-compatible event producers. */
+  bookmarks?: number
 }
 
 export type TrendingStory<T extends StoryCardData = StoryCardData> = T & {
@@ -54,7 +56,7 @@ const DEFAULTS = {
 
 /** Sum a sample's weighted engagement (views dominate, shares/comments amplify). */
 function weightOf(s: EngagementSample): number {
-  return s.views + s.shares * 6 + s.comments * 3
+  return s.views + s.shares * 6 + s.comments * 3 + (s.bookmarks ?? 0) * 4
 }
 
 type ResolvedWindows = {

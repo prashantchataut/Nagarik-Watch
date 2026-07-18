@@ -1,5 +1,5 @@
 import 'server-only'
-import { cleanText, ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import { cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
 
 export type SubscriptionStatus = 'active' | 'trialing' | 'expired' | 'comped'
 
@@ -24,7 +24,7 @@ type Row = {
 const memory = new Map<string, ManualSubscription>()
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return ensureOperationalSchema('paywall-admin', async (pool) => {
+  return requireOperationalPool(await ensureOperationalSchema('paywall-admin', async (pool) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_manual_subscriptions (
         email text PRIMARY KEY,
@@ -35,7 +35,7 @@ async function ensureSchema(): Promise<Queryable | null> {
         updated_at timestamptz NOT NULL DEFAULT now()
       )
     `)
-  })
+  }))
 }
 
 function rowToSubscription(row: Row): ManualSubscription {

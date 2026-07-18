@@ -1,5 +1,8 @@
 import 'server-only'
-import { cleanMultiline, cleanText, ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import { cleanMultiline, cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
+import { parseBannedWordPolicy } from '@/lib/moderation-policy'
+
+export { parseBannedWordPolicy } from '@/lib/moderation-policy'
 
 export type AdminSetting = {
   key: string
@@ -20,12 +23,25 @@ const defaults: AdminSetting[] = [
   { key: 'social.facebook', value: '', label: 'Facebook URL', group: 'social', updatedAt: new Date().toISOString() },
   { key: 'social.youtube', value: '', label: 'YouTube URL', group: 'social', updatedAt: new Date().toISOString() },
   { key: 'social.x', value: '', label: 'X/Twitter URL', group: 'social', updatedAt: new Date().toISOString() },
+  {
+    key: 'moderation.bannedWords',
+    value: '',
+    label: 'Comment banned words (comma or newline separated)',
+    group: 'moderation',
+    updatedAt: new Date().toISOString(),
+  },
 ]
+
+export async function getModerationBannedWords(): Promise<string[]> {
+  const settings = await listAdminSettings()
+  const fromAdmin = settings.find((setting) => setting.key === 'moderation.bannedWords')?.value
+  return parseBannedWordPolicy(fromAdmin, process.env.COMMENT_BANNED_WORDS)
+}
 
 const memory = new Map(defaults.map((setting) => [setting.key, setting]))
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return ensureOperationalSchema('admin-settings', async (pool) => {
+  return requireOperationalPool(await ensureOperationalSchema('admin-settings', async (pool) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_admin_settings (
         key text PRIMARY KEY,
@@ -35,7 +51,7 @@ async function ensureSchema(): Promise<Queryable | null> {
         updated_at timestamptz NOT NULL DEFAULT now()
       )
     `)
-  })
+  }))
 }
 
 function rowToSetting(row: Row): AdminSetting {

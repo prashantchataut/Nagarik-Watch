@@ -28,7 +28,7 @@ export async function getOperationalPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
   if (operationalStorageMode() !== 'postgres') {
     if (isProductionRuntime()) {
-      console.error('[ops-db] DATABASE_URL is missing in production; operational features use local fallbacks.')
+      throw new Error('DATABASE_URL must point to Postgres for production operational storage.')
     }
     return null
   }
@@ -39,6 +39,13 @@ export async function getOperationalPool(): Promise<Queryable | null> {
     console.error('[ops-db] could not acquire shared Postgres pool', error instanceof Error ? error.message : error)
     return null
   }
+}
+
+export function requireOperationalPool(pool: Queryable | null): Queryable | null {
+  if (!pool && isProductionRuntime()) {
+    throw new Error('Postgres is required for production operational storage.')
+  }
+  return pool
 }
 
 export async function ensureOperationalSchema(key: string, setup: (pool: Queryable) => Promise<void>) {

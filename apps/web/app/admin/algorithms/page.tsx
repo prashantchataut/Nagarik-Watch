@@ -3,14 +3,19 @@ import Link from 'next/link'
 import { RECOMMENDER_VERSION } from '@nagarikwatch/db'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import {
-  ACTIVE_ALGORITHM_REGISTRY,
-  ALGORITHM_ROADMAP,
+  ALGORITHM_CATALOG,
+  algorithmCatalogStats,
+  rankAlgorithmsForShipping,
+  type AlgorithmStatus,
+} from '@/lib/algorithms/catalog'
+import {
   bayesianAverage,
   banditExplorationScore,
   burstScore,
   ltvEngagementScore,
   rankStories,
   timeDecayScore,
+  viralityScore,
   velocityScore,
   wilsonScore,
 } from '@/lib/ranking'
@@ -25,20 +30,13 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-/** Algorithms that receive real first-party signals on public + admin surfaces. */
-const LIVE = new Set([
-  'weighted-scoring-ranker',
-  'time-decay-ranking',
-  'trending-detection',
-  'velocity-ranking',
-  'burst-detection',
-  'bayesian-ranking',
-  'multi-armed-bandit',
-  'wilson-score-ranking',
-  'content-based-filtering',
-  'session-based-recommendation',
-  'ltv-engagement-score',
-])
+const STATUS_CLASS: Record<AlgorithmStatus, string> = {
+  live: 'bg-brand-tint text-brand-strong',
+  partial: 'bg-amber-100 text-amber-900',
+  scaffold: 'bg-surface text-ink-soft',
+  blocked: 'bg-red-100 text-red-800',
+  planned: 'bg-surface text-mute',
+}
 
 export default async function AlgorithmsPage() {
   await requireNewsroomSession()
@@ -51,7 +49,8 @@ export default async function AlgorithmsPage() {
     signalsForStory(story, engagement, index),
   ).slice(0, 10)
 
-  const live = ACTIVE_ALGORITHM_REGISTRY.filter((a) => LIVE.has(a.id))
+  const stats = algorithmCatalogStats()
+  const shipping = rankAlgorithmsForShipping(12)
   const sampleStory = ranked[0]
   const sampleSignals = sampleStory ? sampleStory.rankSignals : null
   const demoBayesian = sampleSignals
@@ -68,13 +67,14 @@ export default async function AlgorithmsPage() {
       })
     : 0
   const demoLtv = sampleSignals ? ltvEngagementScore(sampleSignals) : 0
+  const demoVirality = sampleSignals ? viralityScore(sampleSignals) : 0
   const demoWilson = wilsonScore(12, 2)
 
   return (
     <div>
       <AdminPageHeader
         title="एल्गोरिदम"
-        subtitle="लाइभ स्कोर — काल्पनिक ML होइन। पहिलो-पक्ष पढाइ, टिप्पणी, इम्प्रेसन र क्लिकबाट चल्छ।"
+        subtitle="इमानदार क्याटलग — live भनेको वास्तविक कल साइट + स्कोर हो। blocked/planned लाई live भनी देखाउँदैन।"
         action={
           <Link
             href="/admin/live"
@@ -85,21 +85,29 @@ export default async function AlgorithmsPage() {
         }
       />
 
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
         <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Live surfaces</p>
-          <p className="mt-2 font-display text-display text-ink">{live.length}</p>
+          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Catalog</p>
+          <p className="mt-2 font-display text-display text-ink">{stats.total}</p>
         </AdminCard>
         <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">2h activity</p>
+          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Live</p>
+          <p className="mt-2 font-display text-display text-ink">{stats.live}</p>
+        </AdminCard>
+        <AdminCard>
+          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Partial</p>
+          <p className="mt-2 font-display text-display text-ink">{stats.partial}</p>
+        </AdminCard>
+        <AdminCard>
+          <p className="text-caption font-semibold uppercase tracking-wide text-mute">
+            2h activity
+          </p>
           <p className="mt-2 font-display text-display text-ink">{engagement.sampleCount}</p>
         </AdminCard>
         <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Stories w/ signal</p>
-          <p className="mt-2 font-display text-display text-ink">{engagement.storyCount}</p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Impressions</p>
+          <p className="text-caption font-semibold uppercase tracking-wide text-mute">
+            Impressions
+          </p>
           <p className="mt-2 font-display text-display text-ink">{engagement.totalImpressions}</p>
           <p className="mt-1 text-caption text-mute">{RECOMMENDER_VERSION}</p>
         </AdminCard>
@@ -155,13 +163,18 @@ export default async function AlgorithmsPage() {
           <h2 className="font-display text-h2 text-ink">Live function check</h2>
           <ul className="mt-3 space-y-2 text-meta text-ink-soft">
             <li>
-              Bayesian CTR (top story): <strong className="text-ink">{demoBayesian.toFixed(4)}</strong>
+              Bayesian CTR (top story):{' '}
+              <strong className="text-ink">{demoBayesian.toFixed(4)}</strong>
             </li>
             <li>
               UCB1 bandit (top story): <strong className="text-ink">{demoBandit.toFixed(4)}</strong>
             </li>
             <li>
               LTV engagement: <strong className="text-ink">{demoLtv.toFixed(4)}</strong>
+            </li>
+            <li>
+              Virality heuristic (not prediction):{' '}
+              <strong className="text-ink">{demoVirality.toFixed(4)}</strong>
             </li>
             <li>
               Wilson score demo (12 up / 2 down):{' '}
@@ -173,43 +186,74 @@ export default async function AlgorithmsPage() {
           </p>
         </AdminCard>
         <AdminCard>
-          <h2 className="font-display text-h2 text-ink">Safety rails</h2>
-          <ul className="mt-3 space-y-2 text-meta leading-relaxed text-ink-soft">
-            <li>• do-not-recommend and sponsored penalties remain enforced.</li>
-            <li>• Public ranking never fabricates popularity when signals are empty.</li>
-            <li>• Impression/click/share events require reader analytics or personalisation consent.</li>
-            <li>• Comments enter the signal only after moderation approval.</li>
-          </ul>
+          <h2 className="font-display text-h2 text-ink">Ship-next ranking</h2>
+          <ol className="mt-3 space-y-2 text-meta text-ink-soft">
+            {shipping.map((entry) => (
+              <li key={entry.id} className="flex items-start justify-between gap-3">
+                <span>
+                  <strong className="text-ink">#{entry.number}</strong> {entry.label}
+                </span>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-caption font-bold ${STATUS_CLASS[entry.status]}`}
+                >
+                  {entry.status}
+                </span>
+              </li>
+            ))}
+          </ol>
         </AdminCard>
       </section>
 
-      <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {ACTIVE_ALGORITHM_REGISTRY.map((algorithm) => {
-          const liveAlg = LIVE.has(algorithm.id)
-          return (
-            <AdminCard key={algorithm.id}>
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-caption font-bold uppercase tracking-wide text-brand-strong">
-                  {algorithm.id}
-                </p>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-caption font-bold ${
-                    liveAlg ? 'bg-brand-tint text-brand-strong' : 'bg-surface text-mute'
-                  }`}
-                >
-                  {liveAlg ? 'live' : 'roadmap'}
-                </span>
-              </div>
-              <h2 className="mt-2 font-display text-h1 text-ink">{algorithm.label}</h2>
-              <p className="mt-2 text-meta text-ink-soft">Surface: {algorithm.surface}</p>
-            </AdminCard>
-          )
-        })}
+      <section
+        className="mt-6"
+        aria-labelledby="all-algorithms-title"
+        data-algorithm-count={ALGORITHM_CATALOG.length}
+      >
+        <div className="mb-4 flex items-end justify-between gap-4 border-b border-rule pb-2">
+          <h2 id="all-algorithms-title" className="font-display text-h2 text-ink">
+            All algorithms
+          </h2>
+          <p className="text-meta text-mute">
+            Showing all {ALGORITHM_CATALOG.length} catalog entries
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {ALGORITHM_CATALOG.map((algorithm) => (
+            <div key={algorithm.id} data-algorithm-id={algorithm.id}>
+              <AdminCard className="h-full">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-caption font-bold uppercase tracking-wide text-brand-strong">
+                    #{algorithm.number} · {algorithm.category}
+                  </p>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-caption font-bold ${STATUS_CLASS[algorithm.status]}`}
+                  >
+                    {algorithm.status}
+                  </span>
+                </div>
+                <h2 className="mt-2 font-display text-h1 text-ink">{algorithm.label}</h2>
+                <p className="mt-2 text-meta text-ink-soft">{algorithm.summary}</p>
+                <p className="mt-2 text-caption text-mute">Surface: {algorithm.surface}</p>
+                {algorithm.implementation ? (
+                  <p className="mt-1 break-all text-caption text-mute">
+                    {algorithm.implementation}
+                  </p>
+                ) : null}
+                {algorithm.dependency ? (
+                  <p className="mt-2 text-caption font-semibold text-amber-800">
+                    Dependency: {algorithm.dependency}
+                  </p>
+                ) : null}
+                <p className="mt-2 text-caption text-mute">Priority {algorithm.priority}</p>
+              </AdminCard>
+            </div>
+          ))}
+        </div>
       </section>
 
       <p className="mt-5 text-caption text-mute">
-        Catalog ids: {ALGORITHM_ROADMAP.length} · all scoring functions exported from{' '}
-        <code>lib/ranking.ts</code>
+        Catalog source: <code>lib/algorithms/catalog.ts</code> · scoring engine:{' '}
+        <code>lib/ranking.ts</code> · search: <code>lib/search.ts</code>
       </p>
     </div>
   )

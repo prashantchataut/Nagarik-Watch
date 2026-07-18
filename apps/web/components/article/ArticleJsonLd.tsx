@@ -1,4 +1,5 @@
 import type { Article, Locale } from '@nagarikwatch/db'
+import { publicShareImageUrl } from '@/lib/seo/share-image'
 
 type JsonLdProps = {
   article: Article
@@ -33,7 +34,7 @@ export function ArticleJsonLd({ article, locale, url, siteUrl, siteName }: JsonL
     name,
   }))
 
-  const image = article.heroImage ? [article.heroImage.url] : undefined
+  const image = [publicShareImageUrl(article.heroImage?.url, siteUrl)]
 
   const json = {
     '@context': 'https://schema.org',

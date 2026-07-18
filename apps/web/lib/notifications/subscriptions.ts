@@ -1,6 +1,6 @@
 import 'server-only'
 import { createHash, randomUUID } from 'node:crypto'
-import { ensureOperationalSchema, type Queryable, toIso } from '@/lib/ops-db'
+import { ensureOperationalSchema, requireOperationalPool, type Queryable, toIso } from '@/lib/ops-db'
 import { getReaderPreferences } from '@/lib/reader/preferences-store'
 import { scoreNotification, type NotificationKind, type NotificationPreference } from '@nagarikwatch/db'
 import type { NotificationEvent } from '@/lib/notifications/store'
@@ -77,6 +77,10 @@ async function setup(pool: Queryable) {
   `)
 }
 
+async function operationalPool(): Promise<Queryable | null> {
+  return requireOperationalPool(await ensureOperationalSchema('push-subscriptions-v1', setup))
+}
+
 function rowToSubscription(row: SubscriptionRow): StoredPushSubscription {
   return {
     id: row.id,
@@ -115,7 +119,7 @@ export async function savePushSubscription(input: {
 }): Promise<StoredPushSubscription> {
   const subscription = cleanSubscription(input.subscription)
   const hash = endpointHash(subscription.endpoint)
-  const pool = await ensureOperationalSchema('push-subscriptions-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     const result = await pool.query<SubscriptionRow>(
       `INSERT INTO nw_push_subscriptions(
@@ -145,7 +149,7 @@ export async function savePushSubscription(input: {
 
 export async function disablePushSubscription(endpoint: string, fingerprint: string, userId?: string): Promise<void> {
   const hash = endpointHash(endpoint.trim())
-  const pool = await ensureOperationalSchema('push-subscriptions-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     await pool.query(
       `UPDATE nw_push_subscriptions SET active=false,updated_at=now()
@@ -163,7 +167,7 @@ export async function disablePushSubscription(endpoint: string, fingerprint: str
 
 export async function listActivePushSubscriptions(limit = 500): Promise<StoredPushSubscription[]> {
   const safeLimit = Math.max(1, Math.min(limit, 2000))
-  const pool = await ensureOperationalSchema('push-subscriptions-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     const result = await pool.query<SubscriptionRow>(
       `SELECT * FROM nw_push_subscriptions WHERE active=true ORDER BY updated_at DESC LIMIT $1`,
@@ -204,7 +208,7 @@ function inQuietHours(start: number | null, end: number | null, timeZone: string
 
 async function deliveryState(eventId: string, subscriptionId: string) {
   const key = `${eventId}:${subscriptionId}`
-  const pool = await ensureOperationalSchema('push-subscriptions-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     const result = await pool.query<{ status: string; attempts: number }>(
       `SELECT status,attempts FROM nw_push_deliveries WHERE event_id=$1 AND subscription_id=$2`,
@@ -217,7 +221,7 @@ async function deliveryState(eventId: string, subscriptionId: string) {
 }
 
 async function recordDelivery(eventId: string, subscriptionId: string, status: 'sent' | 'failed', error?: string) {
-  const pool = await ensureOperationalSchema('push-subscriptions-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     await pool.query(
       `INSERT INTO nw_push_deliveries(event_id,subscription_id,status,attempts,error,attempted_at)
@@ -235,7 +239,7 @@ async function recordDelivery(eventId: string, subscriptionId: string, status: '
 
 
 async function deliveryWindow(subscriptionId: string) {
-  const pool = await ensureOperationalSchema('push-subscriptions-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     const result = await pool.query<{ sent24h: string; last_sent_at: Date | string | null }>(
       `SELECT count(*) FILTER (WHERE status='sent' AND attempted_at > now() - interval '24 hours')::text AS "sent24h",

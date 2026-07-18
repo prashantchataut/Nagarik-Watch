@@ -1,12 +1,23 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { recordRankingEvent, type RankingEventType } from '@/lib/engagement/ranking-events'
+import { isTrustedWriteRequest } from '@/lib/security/origin'
+import { enforceRateLimit } from '@/lib/rate-limit'
+import { hasServerAnalyticsConsent } from '@/lib/reader/server-consent'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 const ALLOWED: RankingEventType[] = ['impression', 'click', 'share']
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+  if (!hasServerAnalyticsConsent(request)) return new NextResponse(null, { status: 204 })
+
+  const limited = await enforceRateLimit(request, 'ranking-events', 60, 60_000)
+  if (limited) return limited
+
   let body: { articleSlug?: string; articleCategory?: string; type?: string }
   try {
     body = await request.json()

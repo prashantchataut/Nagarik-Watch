@@ -1,6 +1,6 @@
 import 'server-only'
 import { randomUUID } from 'node:crypto'
-import { ensureOperationalSchema, type Queryable, toIso } from '@/lib/ops-db'
+import { ensureOperationalSchema, requireOperationalPool, type Queryable, toIso } from '@/lib/ops-db'
 
 export type NotificationEvent = {
   id: string
@@ -95,6 +95,10 @@ async function setup(pool: Queryable) {
   `)
 }
 
+async function operationalPool(): Promise<Queryable | null> {
+  return requireOperationalPool(await ensureOperationalSchema('notification-events-v1', setup))
+}
+
 function rowToEvent(row: EventRow): NotificationEvent {
   return {
     id: row.id,
@@ -131,7 +135,7 @@ export async function recordNotificationEvent(
     publishedAt: new Date(input.publishedAt).toISOString(),
     updatedAt: new Date().toISOString(),
   }
-  const pool = await ensureOperationalSchema('notification-events-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     const result = await pool.query<EventRow>(
       `INSERT INTO nw_notification_events(
@@ -167,7 +171,7 @@ export async function recordNotificationEvent(
 export async function listNotificationEvents(limit = 50, days = 7): Promise<NotificationEvent[]> {
   const safeLimit = Math.max(1, Math.min(limit, 200))
   const cutoff = new Date(Date.now() - Math.max(1, Math.min(days, 30)) * 86_400_000).toISOString()
-  const pool = await ensureOperationalSchema('notification-events-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     const result = await pool.query<EventRow>(
       `SELECT * FROM nw_notification_events WHERE published_at >= $1 ORDER BY is_breaking DESC,published_at DESC LIMIT $2`,
@@ -186,7 +190,7 @@ export async function getNotificationReceipts(
   userId?: string,
 ): Promise<Map<string, NotificationReceipt>> {
   const owner = ownerKey(fingerprint, userId)
-  const pool = await ensureOperationalSchema('notification-events-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     const result = await pool.query<ReceiptRow>(
       `SELECT event_id,seen_at,read_at,dismissed_at FROM nw_notification_receipts WHERE owner_key=$1`,
@@ -212,7 +216,7 @@ export async function updateNotificationReceipts(
   const ids = [...new Set(eventIds.map(String).filter(Boolean))].slice(0, 100)
   if (!ids.length) return
   const owner = ownerKey(fingerprint, userId)
-  const pool = await ensureOperationalSchema('notification-events-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     for (const eventId of ids) {
       await pool.query(

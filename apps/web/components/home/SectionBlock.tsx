@@ -1,7 +1,35 @@
-import type { HomepageSection, Locale } from '@nagarikwatch/db'
+import type { ComponentProps } from 'react'
+import type { HomepageSection, Locale, StoryCardData } from '@nagarikwatch/db'
 import { StoryCard, SectionHeader } from '@nagarikwatch/ui'
+import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
+
+function RankedCard({
+  story,
+  locale,
+  variant,
+  priority,
+  className,
+}: {
+  story: StoryCardData
+  locale: Locale
+  variant?: ComponentProps<typeof StoryCard>['variant']
+  priority?: boolean
+  className?: string
+}) {
+  return (
+    <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
+      <StoryCard
+        story={story}
+        locale={locale}
+        variant={variant}
+        priority={priority}
+        className={className}
+      />
+    </InstrumentedStory>
+  )
+}
 
 type SectionBlockProps = {
   section: HomepageSection
@@ -64,12 +92,12 @@ function LeadRail({ section, locale }: { section: HomepageSection; locale: Local
   if (!lead) return <DefaultGrid items={section.items} locale={locale} />
   return (
     <div className="grid gap-8 md:grid-cols-2">
-      <StoryCard story={lead} locale={locale} variant="featured" priority={false} />
+      <RankedCard story={lead} locale={locale} variant="featured" priority={false} />
       {rail.length > 0 && (
         <ul className="flex flex-col divide-y divide-rule">
           {rail.map((s) => (
             <li key={s.slug} className="py-3 first:pt-0 last:pb-0">
-              <StoryCard story={s} locale={locale} variant="horizontal" />
+              <RankedCard story={s} locale={locale} variant="horizontal" />
             </li>
           ))}
         </ul>
@@ -84,7 +112,7 @@ function OverlayGrid({ items, locale }: { items: HomepageSection['items']; local
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {withImages.map((s, i) => (
-        <StoryCard key={s.slug} story={s} locale={locale} variant="overlay" priority={i === 0} />
+        <RankedCard key={s.slug} story={s} locale={locale} variant="overlay" priority={i === 0} />
       ))}
     </div>
   )
@@ -94,7 +122,7 @@ function TextLedColumns({ items, locale }: { items: HomepageSection['items']; lo
   return (
     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       {items.slice(0, 6).map((s) => (
-        <StoryCard key={s.slug} story={s} locale={locale} variant="text-led" />
+        <RankedCard key={s.slug} story={s} locale={locale} variant="text-led" />
       ))}
     </div>
   )
@@ -105,7 +133,7 @@ function DefaultGrid({ items, locale }: { items: HomepageSection['items']; local
     <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((s) => (
         <li key={s.slug}>
-          <StoryCard story={s} locale={locale} variant="default" />
+          <RankedCard story={s} locale={locale} variant="default" />
         </li>
       ))}
     </ul>

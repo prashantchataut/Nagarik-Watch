@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { InstallPrompt } from '@/components/InstallPrompt'
 
 export function PwaBoot() {
   useEffect(() => {
@@ -9,5 +10,5 @@ export function PwaBoot() {
     navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => undefined)
   }, [])
 
-  return null
+  return <InstallPrompt />
 }

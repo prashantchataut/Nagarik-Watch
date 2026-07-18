@@ -6,6 +6,8 @@ import type { StoredArticle } from '@/lib/content/store/json-store'
 import { canCreate, canPublish } from '@/lib/admin-roles'
 import { blocksFromShorthand } from '@/lib/content/blocks'
 import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
+import { enforceRateLimit } from '@/lib/rate-limit'
+import { recordAuditEvent } from '@/lib/audit-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,6 +46,8 @@ export async function POST(request: NextRequest) {
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
+  const limited = await enforceRateLimit(request, 'admin-article-create', 20, 60_000)
+  if (limited) return limited
 
   const session = await requireNewsroomSession()
   if (!canCreate(session.newsroomRole)) {
@@ -112,6 +116,16 @@ export async function POST(request: NextRequest) {
       locale: body.locale === 'en' ? 'en' : 'ne',
       createdBy: session.userId,
     })
+    if (requestedStage === 'published') {
+      await recordAuditEvent({
+        session,
+        action: 'publish',
+        targetType: 'article',
+        targetId: article.id,
+        summary: `Article published: ${article.titleNe}`,
+        meta: { slug: article.slug, workflowStage: requestedStage },
+      })
+    }
     return NextResponse.json(article, { status: 201 })
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'सुरक्षित गर्न सकिएन।'

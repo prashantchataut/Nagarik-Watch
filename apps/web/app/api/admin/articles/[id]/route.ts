@@ -7,6 +7,8 @@ import { canEdit, canDelete, canPublish } from '@/lib/admin-roles'
 import type { ArticleBlock } from '@nagarikwatch/db'
 import { blocksFromShorthand } from '@/lib/content/blocks'
 import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
+import { enforceRateLimit } from '@/lib/rate-limit'
+import { recordAuditEvent } from '@/lib/audit-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,7 +36,9 @@ function isWorkflowStage(value: unknown): value is StoredArticle['workflowStage'
 }
 
 /** GET /api/admin/articles/[id] — fetch a single article for the editor. */
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const limited = await enforceRateLimit(request, 'admin-article-read', 120, 60_000)
+  if (limited) return limited
   await requireNewsroomSession()
   const { id } = await params
   if (isPayloadCanonical()) {
@@ -53,6 +57,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
+  const limited = await enforceRateLimit(request, 'admin-article-update', 40, 60_000)
+  if (limited) return limited
 
   const session = await requireNewsroomSession()
   if (!canEdit(session.newsroomRole)) {
@@ -102,6 +108,16 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     session.userId,
   )
   if (!updated) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
+  if (requestedStage === 'published') {
+    await recordAuditEvent({
+      session,
+      action: 'publish',
+      targetType: 'article',
+      targetId: updated.id,
+      summary: `Article published: ${updated.titleNe}`,
+      meta: { slug: updated.slug, workflowStage: requestedStage },
+    })
+  }
   return NextResponse.json(updated)
 }
 
@@ -113,6 +129,8 @@ export async function DELETE(
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
+  const limited = await enforceRateLimit(request, 'admin-article-delete', 10, 60_000)
+  if (limited) return limited
 
   const session = await requireNewsroomSession()
   if (!canDelete(session.newsroomRole)) {

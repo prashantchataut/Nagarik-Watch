@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { SITE_URL } from '@/lib/site'
-import { enforceRateLimit } from '@/lib/rate-limit'
+import { clientIp, enforceRateLimit } from '@/lib/rate-limit'
 import { getEmailProviderState, sendEmail } from '@/lib/email-provider'
 import { addPendingSubscriber, isConfirmedSubscriber, removePendingSubscriber } from '../store'
+import { getCaptchaState, verifyTurnstileToken } from '@/lib/security/turnstile'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +22,13 @@ export async function POST(request: NextRequest) {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+
+  if (getCaptchaState().enabled) {
+    const captcha = await verifyTurnstileToken(String(body.turnstileToken ?? ''), clientIp(request))
+    if (!captcha.success) {
+      return NextResponse.json({ error: 'Captcha verification failed.' }, { status: 400 })
+    }
   }
 
   const email = String(body.email ?? '').trim().toLowerCase()

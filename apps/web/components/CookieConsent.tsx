@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { Locale } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
@@ -12,6 +12,8 @@ import {
 } from '@/lib/reader/consent'
 
 export function CookieConsent({ locale }: { locale: Locale }) {
+  const dialogRef = useRef<HTMLElement>(null)
+  const initialFocusRef = useRef<HTMLButtonElement>(null)
   const [visible, setVisible] = useState(false)
   const [customize, setCustomize] = useState(false)
   const [personalization, setPersonalization] = useState(false)
@@ -43,6 +45,44 @@ export function CookieConsent({ locale }: { locale: Locale }) {
     return () => window.removeEventListener(CONSENT_OPEN_EVENT, onOpen)
   }, [])
 
+  useEffect(() => {
+    if (!visible) return
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    initialFocusRef.current?.focus()
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setVisible(false)
+        return
+      }
+      if (event.key !== 'Tab') return
+
+      const focusable = Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      ).filter((element) => !element.hasAttribute('hidden'))
+      if (!focusable.length) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last?.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first?.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      previouslyFocused?.focus()
+    }
+  }, [visible])
+
   function decide(next: Pick<ConsentChoice, 'personalization' | 'analytics' | 'advertising'>) {
     writeConsent({
       essential: true,
@@ -59,6 +99,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
 
   return (
     <section
+      ref={dialogRef}
       className="fixed inset-x-0 z-50 border-t border-rule bg-surface shadow-[0_-8px_24px_rgba(0,0,0,0.08)] bottom-[calc(3.5rem+env(safe-area-inset-bottom))] lg:bottom-0"
       role="dialog"
       aria-modal="true"
@@ -120,6 +161,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
 
         <div className="flex flex-shrink-0 flex-wrap gap-2">
           <button
+            ref={initialFocusRef}
             type="button"
             onClick={() =>
               decide({ personalization: false, analytics: false, advertising: false })

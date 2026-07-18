@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import type { ReactNode } from 'react'
@@ -39,6 +39,15 @@ const PAYLOAD_CONTENT_PATHS: Record<string, string> = {
   '/admin/authors': '/collections/authors',
 }
 
+const ANALYTICS_ROLES = new Set<NewsroomRole>([
+  'analyst',
+  'managing_editor',
+  'editor_in_chief',
+  'publisher',
+  'admin',
+  'super_admin',
+])
+
 function primaryNavFor(desk: AdminDeskVariant, role: NewsroomRole): NavItem[] {
   const items: NavItem[] = [{ label: 'ड्यासबोर्ड', href: '/admin/dashboard', icon: 'dashboard' }]
   if (desk === 'editor' || desk === 'admin' || desk === 'super') {
@@ -67,6 +76,7 @@ const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<Newsr
     items: [
       { label: 'मिडिया', href: '/admin/media', icon: 'media', roles: MEDIA_MANAGER_ROLES },
       { label: 'लाइभ ब्लग', href: '/admin/live-blogs', icon: 'live', roles: EDITOR_ROLES },
+      { label: 'वायर', href: '/admin/wire', icon: 'live', roles: EDITOR_ROLES },
       { label: 'पत्रकार डेस्क', href: '/admin/journalists', icon: 'author', roles: EDITOR_ROLES },
     ],
   },
@@ -109,6 +119,9 @@ const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<Newsr
     items: [
       { label: 'लाइभ प्यानल', href: '/admin/live', icon: 'signal' },
       { label: 'एल्गोरिदम', href: '/admin/algorithms', icon: 'algorithm' },
+      { label: 'प्रयोग', href: '/admin/experiments', icon: 'algorithm' },
+      { label: 'सेसन गुणस्तर', href: '/admin/session-quality', icon: 'signal', roles: ANALYTICS_ROLES },
+      { label: 'खोज विश्लेषण', href: '/admin/search-analytics', icon: 'seo' },
       { label: 'लाइभ विजेट', href: '/admin/live-widgets', icon: 'widget' },
       { label: 'विज्ञापन', href: '/admin/ads', icon: 'ad' },
       { label: 'सदस्यता', href: '/admin/paywall', icon: 'membership', roles: MEMBERSHIP_MANAGER_ROLES },
@@ -466,6 +479,9 @@ function pageTitle(pathname: string): string {
     '/admin/wire': 'वायर',
     '/admin/live': 'लाइभ प्यानल',
     '/admin/algorithms': 'एल्गोरिदम',
+    '/admin/experiments': 'प्रयोग',
+    '/admin/session-quality': 'सेसन गुणस्तर',
+    '/admin/search-analytics': 'खोज विश्लेषण',
     '/admin/live-widgets': 'लाइभ विजेट',
     '/admin/ads': 'विज्ञापन',
     '/admin/seo': 'एसइओ',

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import type { Category, Locale, Tag } from '@nagarikwatch/db'
+import { sourceReliabilityFlags, type Category, type Locale, type Tag } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
 
 type DraftValues = {
@@ -31,6 +31,15 @@ type Props = {
   mode?: 'create' | 'edit'
   articleId?: string
   initial?: Partial<DraftValues>
+  revisions?: Array<{
+    id: string
+    actorRole: string
+    action: 'saved' | 'submitted' | 'returned'
+    stage: string
+    createdAt: string
+    contentHash: string
+    titleNe: string
+  }>
 }
 
 const empty: DraftValues = {
@@ -41,6 +50,20 @@ const empty: DraftValues = {
 
 const EDITOR_TABS = ['story', 'evidence', 'distribution', 'preview'] as const
 type EditorTab = (typeof EDITOR_TABS)[number]
+type AssistanceAction = 'summary' | 'headlines' | 'tags' | 'factCheck'
+type FactCheckData = {
+  claims: Array<{
+    claim: string
+    claimant: string
+    evidence: string
+    sources: Array<{ url: string; label: string }>
+    verdict: string
+  }>
+}
+type Assistance = {
+  action: AssistanceAction
+  data: string | string[] | FactCheckData
+}
 
 function slugify(value: string): string {
   return value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
@@ -51,7 +74,7 @@ function words(value: string) {
   return value.trim() ? value.trim().split(/\s+/).length : 0
 }
 
-export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'create', articleId, initial }: Props) {
+export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'create', articleId, initial, revisions = [] }: Props) {
   const ne = locale === 'ne'
   const router = useRouter()
   const [draft, setDraft] = useState<DraftValues>({ ...empty, categorySlug: categories[0]?.slug ?? '', ...initial })
@@ -59,6 +82,8 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
   const [status, setStatus] = useState<{ type: 'ok' | 'error' | 'saving'; message: string } | null>(null)
   const [dirty, setDirty] = useState(false)
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null)
+  const [assistance, setAssistance] = useState<Assistance | null>(null)
+  const [assistanceBusy, setAssistanceBusy] = useState<AssistanceAction | null>(null)
   const [pending, startTransition] = useTransition()
   const saveRef = useRef<(stage: 'draft' | 'submitted', silent?: boolean) => void>(() => undefined)
 
@@ -72,6 +97,16 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
   const alertAudienceTags = (draft.notificationTags.length ? draft.notificationTags : draft.tagSlugs)
     .map((slug) => tags.find((tag) => tag.slug === slug))
     .filter((tag): tag is Tag => Boolean(tag))
+  const sourceChecks = useMemo(() => {
+    const urls = [
+      ...(draft.sourceNote.match(/https?:\/\/[^\s)>\]]+/gi) ?? []),
+      ...(draft.heroImageUrl ? [draft.heroImageUrl] : []),
+    ]
+    return [...new Set(urls)].map((url) => ({
+      url,
+      flags: sourceReliabilityFlags({ url, label: url }),
+    }))
+  }, [draft.heroImageUrl, draft.sourceNote])
   const localRecoveryKey = `nw-journalist-working-copy:${locale}:${articleId ?? 'new'}`
 
   function patch<K extends keyof DraftValues>(key: K, value: DraftValues[K]) {
@@ -118,6 +153,7 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
           const nextId = body.meta?.articleId || body.article?.id
           if (nextId) router.replace(localizeHref(locale, `/journalist/articles/${nextId}/edit`))
         }
+        if (mode === 'edit' && !silent && stage === 'draft') router.refresh()
         if (stage === 'submitted') router.push(localizeHref(locale, '/journalist/assignments'))
       } catch (error) {
         const message = error instanceof Error ? error.message : (ne ? 'सुरक्षित गर्न सकिएन।' : 'Could not save.')
@@ -131,6 +167,60 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
     })
   }
   saveRef.current = submit
+
+  async function requestAssistance(action: AssistanceAction) {
+    if (!draft.bodyNe.trim()) {
+      setStatus({ type: 'error', message: ne ? 'सुझावका लागि पहिले समाचार सामग्री लेख्नुहोस्।' : 'Write some story body before requesting suggestions.' })
+      return
+    }
+    setAssistanceBusy(action)
+    setAssistance(null)
+    try {
+      const response = await fetch('/api/journalist/ai', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action, body: draft.bodyNe, title: draft.titleNe }),
+      })
+      const result = await response.json().catch(() => ({})) as {
+        error?: string
+        suggestion?: { data?: Assistance['data']; needsEditorApproval?: boolean }
+      }
+      if (!response.ok || !result.suggestion || result.suggestion.needsEditorApproval !== true) {
+        throw new Error(result.error || 'Could not generate suggestions.')
+      }
+      setAssistance({ action, data: result.suggestion.data ?? [] })
+    } catch (error) {
+      setStatus({ type: 'error', message: error instanceof Error ? error.message : 'Could not generate suggestions.' })
+    } finally {
+      setAssistanceBusy(null)
+    }
+  }
+
+  function acceptAssistance(value?: string) {
+    if (!assistance) return
+    if (assistance.action === 'summary' && typeof assistance.data === 'string') {
+      patch('deckNe', assistance.data)
+    } else if (assistance.action === 'headlines' && value) {
+      patch('titleNe', value)
+    } else if (assistance.action === 'tags' && Array.isArray(assistance.data)) {
+      const suggested = new Set(assistance.data.map((item) => slugify(item)))
+      const matched = tags
+        .filter((tag) => suggested.has(tag.slug) || suggested.has(slugify(tag.nameNe)) || Boolean(tag.nameEn && suggested.has(slugify(tag.nameEn))))
+        .map((tag) => tag.slug)
+      patch('tagSlugs', [...new Set([...draft.tagSlugs, ...matched])])
+      if (matched.length === 0) {
+        setStatus({ type: 'error', message: ne ? 'सुझावसँग मिल्ने newsroom ट्याग भेटिएन।' : 'No suggested terms matched the newsroom tag list.' })
+        return
+      }
+    } else if (assistance.action === 'factCheck' && !Array.isArray(assistance.data) && typeof assistance.data !== 'string') {
+      const checklist = assistance.data.claims
+        .map((claim, index) => `${index + 1}. Claim: ${claim.claim}\nClaimant:\nEvidence:\nSources:\nVerdict:`)
+        .join('\n\n')
+      patch('sourceNote', [draft.sourceNote.trim(), 'Fact-check checklist (editor review required):', checklist].filter(Boolean).join('\n\n'))
+      setTab('evidence')
+    }
+    setAssistance(null)
+  }
 
   useEffect(() => {
     if (mode !== 'create' || initial) return
@@ -204,6 +294,37 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
 
       {status ? <div className="writer-studio__status" data-type={status.type} role="status">{status.message}</div> : null}
 
+      <section className="writer-assist" aria-label={ne ? 'सम्पादकीय सुझाव' : 'Editorial suggestions'}>
+        <div>
+          <p className="editorial-kicker" lang="en">Human-reviewed assistance</p>
+          <strong>{ne ? 'सुझाव मात्र — स्वतः सुरक्षित हुँदैन' : 'Suggestions only — never auto-saved'}</strong>
+        </div>
+        <div className="writer-assist__actions">
+          {([
+            ['summary', ne ? 'सारांश सुझाव' : 'Summary'],
+            ['headlines', ne ? 'शीर्षक सुझाव' : 'Headlines'],
+            ['tags', ne ? 'ट्याग सुझाव' : 'Tags'],
+            ['factCheck', ne ? 'तथ्य-जाँच ढाँचा' : 'Fact-check'],
+          ] as const).map(([action, label]) => (
+            <button key={action} type="button" disabled={Boolean(assistanceBusy) || !draft.bodyNe.trim()} onClick={() => requestAssistance(action)}>
+              {assistanceBusy === action ? (ne ? 'तयार हुँदै…' : 'Preparing…') : label}
+            </button>
+          ))}
+        </div>
+        {assistance ? <div className="writer-assist__review" role="status">
+          <p>{ne ? 'सम्पादकले जाँच गरेर मात्र स्वीकार गर्नुहोस्।' : 'Review this extractive suggestion before accepting it.'}</p>
+          {typeof assistance.data === 'string' ? <blockquote>{assistance.data || (ne ? 'सुझाव उपलब्ध भएन।' : 'No suggestion available.')}</blockquote> : null}
+          {Array.isArray(assistance.data) ? <ul>{assistance.data.map((item) => <li key={item}><span>{item}</span>{assistance.action === 'headlines' ? <button type="button" onClick={() => acceptAssistance(item)}>{ne ? 'यो स्वीकार' : 'Accept this'}</button> : null}</li>)}</ul> : null}
+          {assistance.action === 'factCheck' && !Array.isArray(assistance.data) && typeof assistance.data !== 'string'
+            ? <ol>{assistance.data.claims.map((claim, index) => <li key={`${claim.claim}-${index}`}>{claim.claim}</li>)}</ol>
+            : null}
+          <div className="writer-assist__decision">
+            {assistance.action !== 'headlines' ? <button type="button" data-accept="true" onClick={() => acceptAssistance()}>{ne ? 'स्वीकार गरी फिल्डमा राख्नुहोस्' : 'Accept into field'}</button> : null}
+            <button type="button" onClick={() => setAssistance(null)}>{ne ? 'खारेज' : 'Dismiss'}</button>
+          </div>
+        </div> : null}
+      </section>
+
       <div className="writer-studio__tabs" role="tablist" aria-label={ne ? 'सम्पादक खण्ड' : 'Editor sections'}>
         {EDITOR_TABS.map((key) => <button
           key={key}
@@ -238,6 +359,11 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
             <div className="writer-studio__section-intro"><h2>{ne ? 'समाचार पुष्टि' : 'Reporting evidence'}</h2><p>{ne ? 'यी विवरण सार्वजनिक सामग्री होइनन्। सम्पादकले रिपोर्टिङको आधार, प्रमाण र जोखिम बुझ्न प्रयोग गर्छन्।' : 'These fields are private to the newsroom. They let editors understand the reporting basis, evidence and risk.'}</p></div>
             <label className="writer-field"><span>{ne ? 'रिपोर्टिङ स्थान' : 'Reporting location'}</span><input value={draft.reportingLocation} onChange={(event) => patch('reportingLocation', event.target.value)} placeholder={ne ? 'जिल्ला, पालिका वा घटनास्थल' : 'District, municipality or reporting location'} /></label>
             <label className="writer-field"><span>{ne ? 'स्रोत र प्रमाण नोट' : 'Source and evidence note'}</span><textarea value={draft.sourceNote} onChange={(event) => patch('sourceNote', event.target.value)} rows={8} placeholder={ne ? 'कोसँग कुरा गरियो? कुन कागजात हेरियो? के पुष्टि हुन बाँकी छ?' : 'Who was interviewed? Which documents were reviewed? What remains unverified?'} /></label>
+            <section className="writer-source-check">
+              <h3>{ne ? 'स्रोत विश्वसनीयता संकेत' : 'Source reliability flags'}</h3>
+              <p>{ne ? 'यी स्वचालित फैसला होइनन्; URL जाँच्न सम्पादकलाई संकेत मात्र हुन्।' : 'These are review prompts, not automated verdicts.'}</p>
+              {sourceChecks.length ? <ul>{sourceChecks.map(({ url, flags }) => <li key={url}><code>{url}</code><span>{flags.length ? flags.join(' · ') : (ne ? 'आधारभूत URL जाँच ठीक' : 'Basic URL checks passed')}</span></li>)}</ul> : <p>{ne ? 'नोटमा URL राखेपछि जाँच संकेत यहाँ देखिन्छ।' : 'Add source URLs to the note to see review flags.'}</p>}
+            </section>
             <label className="writer-field"><span>{ne ? 'सम्पादकलाई प्रस्ताव' : 'Pitch to editor'}</span><textarea value={draft.editorPitch} onChange={(event) => patch('editorPitch', event.target.value)} rows={5} placeholder={ne ? 'यो समाचार किन अहिले महत्त्वपूर्ण छ?' : 'Why does this story matter now?'} /></label>
             <label className="writer-field"><span>{ne ? 'तस्वीर/फाइल सन्दर्भ URL' : 'Media reference URL'}</span><input type="url" value={draft.heroImageUrl} onChange={(event) => patch('heroImageUrl', event.target.value)} /><small>{ne ? 'यो सन्दर्भ मात्र हो। प्रकाशनअघि अधिकार पुष्टि गरी Media library मा फाइल अपलोड गर्नुपर्छ।' : 'Reference only. An editor must verify rights and upload the asset to the Media library before publication.'}</small></label>
           </> : null}
@@ -258,6 +384,23 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
           <section><h3>{ne ? 'पेश गर्नुअघि' : 'Before review'}</h3><ul><li data-ready={Boolean(draft.titleNe)}>{ne ? 'ठोस शीर्षक' : 'Specific headline'}</li><li data-ready={storyReady}>{ne ? 'पर्याप्त समाचार सामग्री' : 'Substantive story body'}</li><li data-ready={Boolean(draft.reportingLocation)}>{ne ? 'रिपोर्टिङ स्थान' : 'Reporting location'}</li><li data-ready={draft.sourceNote.length >= 20}>{ne ? 'स्रोत/प्रमाण नोट' : 'Source/evidence note'}</li><li data-ready={draft.tagSlugs.length > 0}>{ne ? 'कम्तीमा एउटा ट्याग' : 'At least one tag'}</li></ul></section>
           <section className="writer-distribution-brief"><p className="editorial-kicker" lang="en">Distribution brief</p><h3>{ne ? 'यो समाचार कसरी पुग्छ' : 'How this story can travel'}</h3><dl><div><dt>{ne ? 'विभाग' : 'Desk'}</dt><dd>{categories.find((item) => item.slug === draft.categorySlug)?.[ne ? 'nameNe' : 'nameEn'] || draft.categorySlug || '—'}</dd></div><div><dt>{ne ? 'समाचार ट्याग' : 'Story tags'}</dt><dd>{selectedTags.length ? selectedTags.map((tag) => ne ? tag.nameNe : tag.nameEn || tag.nameNe).join(' · ') : (ne ? 'छानिएको छैन' : 'None selected')}</dd></div><div><dt>{ne ? 'सूचना प्रस्ताव' : 'Alert proposal'}</dt><dd>{draft.notificationMode === 'breaking' ? (ne ? 'ब्रेकिङ समीक्षा' : 'Breaking review') : draft.notificationMode === 'followers' ? (ne ? 'सम्बन्धित पाठक' : 'Matching followers') : (ne ? 'सूचना छैन' : 'No alert')}</dd></div>{draft.notificationMode !== 'none' ? <div><dt>{ne ? 'लक्षित विषय' : 'Audience topics'}</dt><dd>{alertAudienceTags.length ? alertAudienceTags.map((tag) => ne ? tag.nameNe : tag.nameEn || tag.nameNe).join(' · ') : (ne ? 'समाचार ट्यागबाट स्वतः' : 'Inherited from story tags')}</dd></div> : null}</dl><p>{ne ? 'यो रिपोर्टरको सिफारिस मात्र हो। प्रकाशन, ब्रेकिङ स्थिति र वास्तविक सूचना पठाउने निर्णय सम्पादकीय gate पछि मात्र हुन्छ।' : 'This is a reporter recommendation. Publication, breaking status and actual delivery remain behind the editorial gate.'}</p></section>
           {initial?.workflowStage ? <section><h3>{ne ? 'कार्यप्रवाह' : 'Workflow'}</h3><strong className="writer-studio__stage">{initial.workflowStage}</strong>{initial.workflowStage === 'submitted' ? <p>{ne ? 'सम्पादकले समीक्षा गरिरहेका छन्। संशोधन चाहिँदा प्रतिक्रिया डेस्कमा देखिन्छ।' : 'An editor is reviewing this story. Revision requests appear in the feedback desk.'}</p> : null}</section> : null}
+          {mode === 'edit' ? <section className="writer-revisions">
+            <p className="editorial-kicker" lang="en">Immutable record</p>
+            <h3>{ne ? 'संशोधन इतिहास' : 'Revision history'}</h3>
+            {revisions.length ? <ol>{revisions.map((revision) => {
+              const action = revision.action === 'submitted'
+                ? (ne ? 'समीक्षामा पठाइयो' : 'Submitted for review')
+                : revision.action === 'returned'
+                  ? (ne ? 'सम्पादकले फिर्ता पठाए' : 'Returned by editor')
+                  : (ne ? 'ड्राफ्ट सुरक्षित' : 'Draft saved')
+              return <li key={revision.id}>
+                <strong>{action}</strong>
+                <span>{new Date(revision.createdAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}</span>
+                <small>{revision.actorRole} · {revision.stage} · {revision.contentHash.slice(0, 10)}</small>
+                <p>{revision.titleNe}</p>
+              </li>
+            })}</ol> : <p>{ne ? 'अर्को सुरक्षित वा पेश गरिएको संस्करण यहाँ देखिनेछ।' : 'The next saved or submitted version will appear here.'}</p>}
+          </section> : null}
         </aside>
       </div>
     </div>

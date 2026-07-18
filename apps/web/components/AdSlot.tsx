@@ -52,6 +52,7 @@ export async function AdSlot({
       data-ad-mode={mode}
       data-ad-size={`${placement.width}x${placement.height}`}
       data-ad-surface={placement.surface}
+      style={{ minHeight: placement.height }}
     >
       <AdTracker placementKey={placement.key} mode={mode} />
       <span

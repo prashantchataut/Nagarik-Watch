@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import { StoryCard } from '@nagarikwatch/ui'
-import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import { asLocale } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
 import { getMostReadStats } from '@/lib/engagement/store'
 import { AdSlot } from '@/components/AdSlot'
+import { canonicalAlternates } from '@/lib/seo/canonical'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +16,11 @@ export async function generateMetadata({
   const locale = asLocale((await params).locale)
   return {
     title: locale === 'en' ? 'Most read' : 'धेरै पढिएका',
-    alternates: { canonical: localizeHref(locale, '/most-read') },
+    description:
+      locale === 'en'
+        ? 'The most-read Nagarik Watch reporting from the last seven days.'
+        : 'पछिल्लो सात दिनमा सबैभन्दा धेरै पढिएका नागरिक वाच समाचार।',
+    alternates: canonicalAlternates(locale, '/most-read'),
   }
 }
 

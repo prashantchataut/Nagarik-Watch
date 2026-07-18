@@ -1,5 +1,12 @@
 import 'server-only'
-import { ensureOperationalSchema, isProductionRuntime, type Queryable, toIso } from '@/lib/ops-db'
+import { ensureOperationalSchema, isProductionRuntime, requireOperationalPool, type Queryable, toIso } from '@/lib/ops-db'
+import {
+  createJournalistDraftRevision,
+  normalizeJournalistDraftSnapshot,
+  type JournalistDraftRevision,
+  type JournalistDraftSnapshot,
+  type JournalistRevisionAction,
+} from '@/lib/journalist-revisions'
 
 export type JournalistDraftMeta = {
   articleId?: string
@@ -43,7 +50,22 @@ type Row = {
   updated_at: Date | string
 }
 
+type RevisionRow = {
+  id: string
+  article_id: string | null
+  article_slug: string
+  reporter_id: string
+  actor_id: string
+  actor_role: string
+  action: JournalistRevisionAction
+  stage: string
+  created_at: Date | string
+  content_hash: string
+  snapshot: unknown
+}
+
 const memory = new Map<string, JournalistDraftMeta>()
+const revisionMemory: JournalistDraftRevision[] = []
 
 async function setup(pool: Queryable) {
   await pool.query(`
@@ -80,12 +102,30 @@ async function setup(pool: Queryable) {
       ON nw_journalist_draft_meta(article_id) WHERE article_id IS NOT NULL;
     CREATE INDEX IF NOT EXISTS nw_journalist_draft_meta_reporter_idx
       ON nw_journalist_draft_meta(reporter_id, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS nw_journalist_draft_revisions (
+      id text PRIMARY KEY,
+      article_id text,
+      article_slug text NOT NULL,
+      reporter_id text NOT NULL,
+      actor_id text NOT NULL,
+      actor_role text NOT NULL,
+      action text NOT NULL CHECK (action IN ('saved', 'submitted', 'returned')),
+      stage text NOT NULL,
+      created_at timestamptz NOT NULL,
+      content_hash text NOT NULL,
+      snapshot jsonb NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS nw_journalist_draft_revisions_timeline_idx
+      ON nw_journalist_draft_revisions(reporter_id, article_slug, created_at DESC);
+    CREATE INDEX IF NOT EXISTS nw_journalist_draft_revisions_article_id_idx
+      ON nw_journalist_draft_revisions(reporter_id, article_id, created_at DESC)
+      WHERE article_id IS NOT NULL;
   `)
 }
 
 async function pool(): Promise<Queryable | null> {
   try {
-    return await ensureOperationalSchema('journalist-workspace-v2', setup)
+    return requireOperationalPool(await ensureOperationalSchema('journalist-workspace-v3', setup))
   } catch (error) {
     if (isProductionRuntime()) throw error
     return null
@@ -121,6 +161,25 @@ function rowToMeta(row: Row): JournalistDraftMeta {
     revisionRequestedAt: row.revision_requested_at ? toIso(row.revision_requested_at) : undefined,
     createdAt: toIso(row.created_at),
     updatedAt: toIso(row.updated_at),
+  }
+}
+
+function rowToRevision(row: RevisionRow): JournalistDraftRevision {
+  const snapshot = row.snapshot && typeof row.snapshot === 'object' && !Array.isArray(row.snapshot)
+    ? row.snapshot as Partial<JournalistDraftSnapshot>
+    : {}
+  return {
+    id: row.id,
+    articleId: row.article_id ?? undefined,
+    articleSlug: row.article_slug,
+    reporterId: row.reporter_id,
+    actorId: row.actor_id,
+    actorRole: row.actor_role,
+    action: row.action,
+    stage: row.stage,
+    createdAt: toIso(row.created_at),
+    contentHash: row.content_hash,
+    snapshot: normalizeJournalistDraftSnapshot(snapshot),
   }
 }
 
@@ -230,6 +289,59 @@ export async function getJournalistDraftMeta(identifier: string, reporterId?: st
   return [...memory.values()].find((item) =>
     (item.articleId === identifier || item.articleSlug === identifier) && (!reporterId || item.reporterId === reporterId),
   ) ?? null
+}
+
+export async function appendJournalistDraftRevision(input: {
+  articleId?: string
+  articleSlug: string
+  reporterId: string
+  actorId: string
+  actorRole: string
+  action: JournalistRevisionAction
+  stage: string
+  snapshot: Partial<JournalistDraftSnapshot>
+}): Promise<JournalistDraftRevision> {
+  const revision = createJournalistDraftRevision(input)
+  const database = await pool()
+  if (database) {
+    const result = await database.query<RevisionRow>(
+      `INSERT INTO nw_journalist_draft_revisions(
+        id,article_id,article_slug,reporter_id,actor_id,actor_role,action,stage,created_at,content_hash,snapshot
+      ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)
+      RETURNING *`,
+      [
+        revision.id, revision.articleId ?? null, revision.articleSlug, revision.reporterId,
+        revision.actorId, revision.actorRole, revision.action, revision.stage, revision.createdAt,
+        revision.contentHash, JSON.stringify(revision.snapshot),
+      ],
+    )
+    return rowToRevision(result.rows[0]!)
+  }
+  revisionMemory.push(revision)
+  return revision
+}
+
+export async function listJournalistDraftRevisions(
+  identifier: string,
+  reporterId: string,
+): Promise<JournalistDraftRevision[]> {
+  const database = await pool()
+  if (database) {
+    const result = await database.query<RevisionRow>(
+      `SELECT * FROM nw_journalist_draft_revisions
+       WHERE reporter_id=$2 AND (article_id=$1 OR article_slug=$1)
+       ORDER BY created_at DESC, id DESC
+       LIMIT 200`,
+      [identifier, reporterId],
+    )
+    return result.rows.map(rowToRevision)
+  }
+  return revisionMemory
+    .filter((item) =>
+      item.reporterId === reporterId && (item.articleId === identifier || item.articleSlug === identifier),
+    )
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
+    .slice(0, 200)
 }
 
 export async function setJournalistFeedback(

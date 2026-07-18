@@ -10,6 +10,7 @@ import {
   type ReadingHistoryRecord,
 } from '@/lib/reader/state'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
+import { completedReadingDays, currentReadingStreak } from '@/lib/reader/retention'
 
 type ApiHistory = {
   articleSlug: string
@@ -111,6 +112,8 @@ export function ReaderActivityPanel({ locale }: { locale: Locale }) {
     () => Math.max(0, Math.round(history.reduce((sum, item) => sum + item.dwellSeconds, 0) / 60)),
     [history],
   )
+  const readingDays = useMemo(() => completedReadingDays(history), [history])
+  const streak = useMemo(() => currentReadingStreak(readingDays), [readingDays])
 
   function clearHistory() {
     const fingerprint = getOrCreateReaderId()
@@ -160,6 +163,24 @@ export function ReaderActivityPanel({ locale }: { locale: Locale }) {
         <div><dt>{english ? 'Time reading' : 'पढाइ समय'}</dt><dd>{totalMinutes}<small>{english ? ' min' : ' मिनेट'}</small></dd></div>
         <div><dt>{english ? 'Saved' : 'सुरक्षित'}</dt><dd>{bookmarks.length}</dd></div>
       </dl>
+      <div className="reader-ledger__calendar" aria-label={english ? 'Completed reading days' : 'पूरा पढाइ भएका दिन'}>
+        <div>
+          <strong>{english ? 'Recent reading days' : 'हालका पढाइ दिन'}</strong>
+          <span>
+            {streak > 0
+              ? english ? `${streak} consecutive day${streak === 1 ? '' : 's'}` : `${streak} दिन लगातार`
+              : english ? 'No current run — read whenever it suits you' : 'हाल निरन्तरता छैन — आफूलाई मिल्दा पढ्नुहोस्'}
+          </span>
+        </div>
+        <ol>
+          {readingDays.map((day) => (
+            <li key={day.date} data-read={day.completed > 0} title={`${day.date}: ${day.completed}`}>
+              <span>{new Date(`${day.date}T12:00:00`).toLocaleDateString(english ? 'en-GB' : 'ne-NP', { weekday: 'narrow' })}</span>
+              <i aria-hidden="true" />
+            </li>
+          ))}
+        </ol>
+      </div>
 
       {recent.length ? (
         <ol className="reader-ledger__list">

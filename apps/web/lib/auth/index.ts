@@ -29,6 +29,14 @@ import { ensureNewsroomBootAccounts } from './boot-accounts'
 
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET
 
+export function isGoogleAuthConfigured(): boolean {
+  return (
+    process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true' &&
+    Boolean(process.env.GOOGLE_CLIENT_ID?.trim()) &&
+    Boolean(process.env.GOOGLE_CLIENT_SECRET?.trim())
+  )
+}
+
 const isBuild = process.env.NEXT_PHASE === 'phase-production-build'
 if (
   !isBuild &&
@@ -113,6 +121,16 @@ async function buildAuth(): Promise<AuthInstance> {
     baseURL: authBaseUrl(),
     trustedOrigins: trustedOrigins(),
     database: { dialect, type: 'postgres' },
+    ...(isGoogleAuthConfigured()
+      ? {
+          socialProviders: {
+            google: {
+              clientId: process.env.GOOGLE_CLIENT_ID!.trim(),
+              clientSecret: process.env.GOOGLE_CLIENT_SECRET!.trim(),
+            },
+          },
+        }
+      : {}),
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,

@@ -235,6 +235,9 @@ export const ADMIN_PATH_ROLE_RULES: ReadonlyArray<{
   { prefix: '/admin/roles', roles: USER_MANAGER_ROLES },
   { prefix: '/admin/audit-log', roles: USER_MANAGER_ROLES },
   { prefix: '/admin/algorithms', roles: new Set<NewsroomRole>(['analyst', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
+  { prefix: '/admin/experiments', roles: new Set<NewsroomRole>(['analyst', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
+  { prefix: '/admin/session-quality', roles: new Set<NewsroomRole>(['analyst', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
+  { prefix: '/admin/search-analytics', roles: new Set<NewsroomRole>(['analyst', 'seo_manager', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
   { prefix: '/admin/journalists', roles: new Set<NewsroomRole>(['reviewer', 'assistant_editor', 'sub_editor', 'section_editor', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
   { prefix: '/admin/live', roles: new Set<NewsroomRole>(['viewer', 'reviewer', 'analyst', 'moderator', 'ad_manager', 'seo_manager', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
   { prefix: '/admin/comments', roles: COMMENT_MODERATOR_ROLES },
@@ -248,6 +251,7 @@ export const ADMIN_PATH_ROLE_RULES: ReadonlyArray<{
   { prefix: '/admin/authors', roles: TAXONOMY_MANAGER_ROLES },
   { prefix: '/admin/media', roles: MEDIA_MANAGER_ROLES },
   { prefix: '/admin/live-blogs', roles: EDITOR_ROLES },
+  { prefix: '/admin/wire', roles: EDITOR_ROLES },
   { prefix: '/admin/settings', roles: SETTINGS_MANAGER_ROLES },
   { prefix: '/admin/paywall', roles: MEMBERSHIP_MANAGER_ROLES },
   {

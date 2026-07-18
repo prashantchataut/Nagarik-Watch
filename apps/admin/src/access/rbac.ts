@@ -1,4 +1,4 @@
-import type { Access } from 'payload'
+import type { Access, Where } from 'payload'
 
 export type NewsroomRole =
   | 'reader'
@@ -148,13 +148,14 @@ export const hardDeleteRoles = ['super_admin'] as const satisfies readonly Newsr
 /** Public readers see only articles that are genuinely public and whose publication time has arrived. */
 export const publishedOrNewsroom: Access = ({ req }) => {
   if (hasAnyRole(req.user, newsroomInternalRoles)) return true
+  const conditions: Where[] = [
+    { _status: { equals: 'published' } },
+    { workflowStage: { in: ['scheduled', 'published', 'updated'] } },
+    { publishAt: { less_than_equal: new Date().toISOString() } },
+    { noIndex: { not_equals: true } },
+  ]
   return {
-    and: [
-      { _status: { equals: 'published' } },
-      { workflowStage: { in: ['scheduled', 'published', 'updated'] } },
-      { publishAt: { less_than_equal: new Date().toISOString() } },
-      { noIndex: { not_equals: true } },
-    ],
+    and: conditions,
   }
 }
 
@@ -186,7 +187,6 @@ export const createUserOrBootstrap: Access = async ({ req }) => {
   if (hasAnyRole(req.user, userManagerRoles)) return true
   const existing = await req.payload.count({
     collection: 'users',
-    limit: 0,
     overrideAccess: true,
   })
   return existing.totalDocs === 0

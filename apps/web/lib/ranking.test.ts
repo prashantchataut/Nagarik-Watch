@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { StoryCardData } from '@nagarikwatch/db'
-import { rankStories, weightedScore } from './ranking'
+import { rankStories, viralityScore, weightedScore } from './ranking'
 
 function story(id: string, publishedAt = '2026-06-22T00:00:00Z'): StoryCardData {
   return {
@@ -49,5 +49,12 @@ describe('ranking', () => {
       new Date('2026-06-22T01:00:00Z'),
     )
     expect(sponsored).toBeLessThan(organic)
+  })
+
+  it('computes a bounded heuristic virality score from measured velocity', () => {
+    expect(viralityScore({ shareVelocity: 0, commentVelocity: 0 })).toBe(0)
+    expect(viralityScore({ shareVelocity: 8, commentVelocity: 2 }))
+      .toBeGreaterThan(viralityScore({ shareVelocity: 2, commentVelocity: 2 }))
+    expect(viralityScore({ shareVelocity: 100, commentVelocity: 100 })).toBeLessThan(1)
   })
 })

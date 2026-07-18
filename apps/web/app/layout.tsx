@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { headers } from 'next/headers'
 import './globals.css'
 import { fontVariables } from './fonts'
 import { SITE_URL } from '@/lib/site'
@@ -25,9 +26,11 @@ export const metadata: Metadata = {
   manifest: '/manifest.webmanifest',
 }
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const headerStore = await headers()
+  const lang = headerStore.get('x-locale') === 'en' ? 'en' : 'ne'
   return (
-    <html lang="ne" className={fontVariables} suppressHydrationWarning>
+    <html lang={lang} className={fontVariables} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>

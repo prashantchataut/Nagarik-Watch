@@ -4,6 +4,7 @@ import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { enforceRateLimit, clientIp } from '@/lib/rate-limit'
 import { getSession } from '@/lib/auth/session'
 import { createSubmission } from '@/lib/submissions'
+import { getCaptchaState, verifyTurnstileToken } from '@/lib/security/turnstile'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,6 +33,13 @@ export async function POST(request: NextRequest) {
   const email = String(body.email ?? '').trim()
   const phone = String(body.phone ?? '').trim()
   const anonymous = body.anonymous === true
+
+  if (getCaptchaState().enabled) {
+    const captcha = await verifyTurnstileToken(String(body.turnstileToken ?? ''), clientIp(request))
+    if (!captcha.success) {
+      return NextResponse.json({ error: 'Captcha verification failed.' }, { status: 400 })
+    }
+  }
 
   if (!headline || !description || !consent) {
     return NextResponse.json(

@@ -5,6 +5,7 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getCategory, getCategoryPage } from '@/lib/content'
 import { Pagination } from '@/components/Pagination'
 import { AdSlot } from '@/components/AdSlot'
+import { canonicalAlternates } from '@/lib/seo/canonical'
 
 function pageNumber(value: string | string[] | undefined): number {
   const raw = Array.isArray(value) ? value[0] : value
@@ -19,7 +20,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (!category) return {}
   const title = locale === 'en' ? category.nameEn : category.nameNe
   const description = locale === 'en' ? category.descriptionEn : category.descriptionNe
-  return { title, description }
+  return {
+    title,
+    description,
+    alternates: canonicalAlternates(locale, `/${slug}`),
+  }
 }
 
 export default async function CategoryPage({ params, searchParams }: { params: Promise<{ locale: string; category: string }>; searchParams: Promise<{ page?: string | string[] }> }) {

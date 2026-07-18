@@ -1,0 +1,18 @@
+'use client'
+
+import Script from 'next/script'
+
+export function TurnstileField({ siteKey }: { siteKey?: string }) {
+  if (!siteKey) return null
+
+  return (
+    <>
+      <Script
+        id="nw-turnstile"
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+        strategy="afterInteractive"
+      />
+      <div className="cf-turnstile" data-sitekey={siteKey} data-theme="auto" />
+    </>
+  )
+}

@@ -43,6 +43,9 @@ const requiredRendered = [
   'hub-inline',
   'mobile-sticky',
 ]
+const MAX_STATIC_SLOTS_PER_FILE = 4
+const MAX_ADS_PER_CONTENT_UNIT = 1.5
+const MIN_PARAGRAPHS_BEFORE_INLINE_AD = 4
 
 const missing = requiredRegistered.filter((key) => !keys.includes(key))
 const duplicates = keys.filter((key, idx) => keys.indexOf(key) !== idx)
@@ -64,6 +67,20 @@ const sourceFiles = files(join(root, 'apps/web'))
 const used = new Set()
 for (const file of sourceFiles) {
   const text = readFileSync(file, 'utf8')
+  const slotCount = (text.match(/<AdSlot\b/g) ?? []).length
+  if (slotCount > MAX_STATIC_SLOTS_PER_FILE) {
+    failures.push(`${file}: ${slotCount} static ad slots exceeds the maximum of ${MAX_STATIC_SLOTS_PER_FILE}`)
+  }
+  if (slotCount > 0 && !file.endsWith(join('components', 'AdSlot.tsx'))) {
+    const contentUnits = Math.max(
+      1,
+      (text.match(/<(?:article|StoryCard|ArticleBody|p)\b/g) ?? []).length,
+    )
+    const density = slotCount / contentUnits
+    if (density > MAX_ADS_PER_CONTENT_UNIT) {
+      failures.push(`${file}: ad density ${density.toFixed(2)} exceeds ${MAX_ADS_PER_CONTENT_UNIT} slots per content unit`)
+    }
+  }
   for (const key of keys) {
     if (
       new RegExp(`placementKey=[{]?['"]${key}['"]`).test(text) ||
@@ -72,6 +89,13 @@ for (const file of sourceFiles) {
       used.add(key)
     }
   }
+}
+
+const articleBodyFile = join(root, 'apps/web/components/article/ArticleBody.tsx')
+const articleBodyText = readFileSync(articleBodyFile, 'utf8')
+const paragraphThreshold = Number(articleBodyText.match(/const AD_AFTER_PARAGRAPH\s*=\s*(\d+)/)?.[1] ?? 0)
+if (paragraphThreshold < MIN_PARAGRAPHS_BEFORE_INLINE_AD) {
+  failures.push(`Article inline ads require at least ${MIN_PARAGRAPHS_BEFORE_INLINE_AD} paragraphs; found ${paragraphThreshold}`)
 }
 
 for (const key of requiredRendered) {
@@ -86,4 +110,4 @@ if (failures.length) {
   process.exit(1)
 }
 
-console.log(`Ad placement audit passed (${keys.length} placements, ${used.size} rendered).`)
+console.log(`Ad placement audit passed (${keys.length} placements, ${used.size} rendered; max ${MAX_STATIC_SLOTS_PER_FILE} slots/file).`)

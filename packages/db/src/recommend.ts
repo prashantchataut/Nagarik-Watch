@@ -7,8 +7,9 @@
  * fatigue, sponsorship, category, author, and source guardrails.
  */
 import type { Article, Bookmark, Follow, ReadingHistory, StoryCardData } from './types'
+import { coReadRecommend, type InteractionMatrix } from './cf'
 
-export const RECOMMENDER_VERSION = 'nw-hybrid-v2'
+export const RECOMMENDER_VERSION = 'nw-hybrid-v3'
 
 export type RecommendableStory = Pick<
   StoryCardData,
@@ -47,15 +48,24 @@ export type RecommendOptions = {
   includeSponsored?: boolean
   /** Permit small publisher/server clock drift, but reject materially future-dated items. */
   allowedFutureSkewMinutes?: number
-  weights?: Partial<Record<'content' | 'session' | 'freshness' | 'follow' | 'editorial', number>>
+  weights?: Partial<Record<'content' | 'session' | 'sequence' | 'collaborative' | 'freshness' | 'follow' | 'editorial', number>>
+  /** Experimental only: requires a consented interaction matrix and sufficient reader volume. */
+  collaborative?: {
+    enabled: boolean
+    interactions: InteractionMatrix
+    minReaders?: number
+  }
   now?: Date
 }
 
 const DEFAULT_WEIGHTS = {
   content: 1,
   session: 0.6,
+  sequence: 0.35,
+  collaborative: 0.4,
   freshness: 0.8,
-  follow: 0.7,
+  // Explicit follows must outrank same-age freshness so strategy labels stay honest.
+  follow: 0.95,
   editorial: 0.5,
 } as const
 
@@ -171,6 +181,38 @@ export function sessionBasedScore(
   }, 0)
 }
 
+/**
+ * Markov-ish next-category heuristic: estimate transitions out of the latest
+ * category from this reader's recent sequence. This is deliberately not
+ * described as a trained sequence model.
+ */
+export function nextCategoryScore(
+  candidate: RecommendableStory,
+  history: ReadingHistory[],
+  storiesById: Map<string, RecommendableStory>,
+): number {
+  const ordered = [...history]
+    .sort((a, b) => a.readAt.localeCompare(b.readAt))
+    .slice(-20)
+  const categories = ordered
+    .map((item) => item.categorySlug ?? storiesById.get(item.articleId)?.category.slug)
+    .filter((category): category is string => Boolean(category))
+  const current = categories.at(-1)
+  if (!current || categories.length < 3) return 0
+
+  const transitions = new Map<string, number>()
+  let total = 0
+  for (let index = 0; index < categories.length - 1; index += 1) {
+    if (categories[index] !== current) continue
+    const next = categories[index + 1]!
+    const recencyWeight = (index + 1) / categories.length
+    transitions.set(next, (transitions.get(next) ?? 0) + recencyWeight)
+    total += recencyWeight
+  }
+  if (total === 0) return 0
+  return (transitions.get(candidate.category.slug) ?? 0) / total
+}
+
 export function freshnessScore(publishedAt: string, now = new Date()): number {
   const timestamp = Date.parse(publishedAt)
   if (!Number.isFinite(timestamp)) return 0
@@ -185,6 +227,8 @@ export function coldStartScore(candidate: RecommendableStory, now = new Date()):
 export type RecStrategy =
   | 'content'
   | 'session'
+  | 'sequence'
+  | 'collaborative'
   | 'freshness'
   | 'follow'
   | 'editorial'
@@ -198,9 +242,28 @@ export type ScoredRecommendation<T extends RecommendableStory = RecommendableSto
 
 type ScoreParts = Record<Exclude<RecStrategy, 'cold-start'>, number>
 
+const STRATEGY_TIEBREAK: Record<Exclude<RecStrategy, 'cold-start'>, number> = {
+  follow: 7,
+  content: 6,
+  collaborative: 5,
+  sequence: 4,
+  session: 3,
+  editorial: 2,
+  freshness: 1,
+}
+
 function dominantStrategy(parts: ScoreParts): Exclude<RecStrategy, 'cold-start'> {
   return (Object.entries(parts) as [Exclude<RecStrategy, 'cold-start'>, number][]).reduce(
-    (best, current) => (current[1] > best[1] ? current : best),
+    (best, current) => {
+      if (current[1] > best[1] + 1e-9) return current
+      if (
+        Math.abs(current[1] - best[1]) <= 1e-9 &&
+        STRATEGY_TIEBREAK[current[0]] > STRATEGY_TIEBREAK[best[0]]
+      ) {
+        return current
+      }
+      return best
+    },
   )[0]
 }
 
@@ -243,6 +306,7 @@ export function recommend<T extends RecommendableStory>(
     includeSponsored = false,
     allowedFutureSkewMinutes = 5,
     weights: partialWeights,
+    collaborative,
     now = new Date(),
   } = options
   const weights = { ...DEFAULT_WEIGHTS, ...partialWeights }
@@ -269,6 +333,20 @@ export function recommend<T extends RecommendableStory>(
   )
   const follows = profile.follows ?? []
   const hasProfileSignal = interest.size > 0 || recentStories.length > 0 || follows.length > 0
+  const collaborativeScores = new Map<string, number>()
+  const interactionReaders = collaborative ? Object.keys(collaborative.interactions).length : 0
+  if (
+    collaborative?.enabled &&
+    profile.userId &&
+    interactionReaders >= (collaborative.minReaders ?? 25)
+  ) {
+    for (const item of coReadRecommend(collaborative.interactions, profile.userId, {
+      limit: candidates.length,
+      candidateIds: candidates.map((candidate) => candidate.id),
+    })) {
+      collaborativeScores.set(item.itemId, item.score)
+    }
+  }
 
   const scored = candidates
     .filter(
@@ -281,6 +359,8 @@ export function recommend<T extends RecommendableStory>(
       const parts: ScoreParts = {
         content: contentBasedScore(candidate, interest) * weights.content,
         session: sessionBasedScore(candidate, recentStories) * weights.session,
+        sequence: nextCategoryScore(candidate, orderedHistory, storiesById) * weights.sequence,
+        collaborative: (collaborativeScores.get(candidate.id) ?? 0) * weights.collaborative,
         freshness: freshnessScore(candidate.publishedAt, now) * weights.freshness,
         follow: explicitFollowScore(candidate, follows) * weights.follow,
         editorial: (candidate.isBreaking ? 0.2 : 0) * weights.editorial,
@@ -355,9 +435,10 @@ export function articleToRecommendable(article: Article): RecommendableStory {
 export const RECOMMENDATION_ROADMAP = [
   'content-based-filtering',
   'session-based-recommendation',
+  'next-category-sequence-heuristic',
   'cold-start-fallback',
-  'hybrid-recommender-v2',
+  'hybrid-recommender-v3',
   'consent-aware-event-store-required',
-  'collaborative-filtering-not-implemented',
+  'collaborative-filtering-baseline-volume-gated',
   'embedding-similarity-not-implemented',
 ] as const

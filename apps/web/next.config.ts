@@ -12,6 +12,25 @@ const securityHeaders = [
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+  // Baseline CSP — tighten via ADS/analytics allowlists when network ads go live.
+  {
+    key: 'Content-Security-Policy',
+    value: [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "frame-ancestors 'self'",
+      "object-src 'none'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "style-src 'self' 'unsafe-inline'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
+      "frame-src 'self' https://challenges.cloudflare.com",
+      "connect-src 'self' https:",
+      "media-src 'self' https: blob:",
+      "form-action 'self'",
+      'upgrade-insecure-requests',
+    ].join('; '),
+  },
 ]
 
 type RemotePattern = {
@@ -64,6 +83,9 @@ const remotePatterns: RemotePattern[] = [...staticPatterns, ...configuredPattern
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@nagarikwatch/ui', '@nagarikwatch/db'],
+  // Keep Better Auth outside Next's webpack graph. Its package re-exports
+  // (`isAPIError` via `@better-auth/core`) break production bundling.
+  serverExternalPackages: ['better-auth', '@better-auth/core', 'better-call'],
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns,

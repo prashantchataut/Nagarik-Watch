@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import { getLaunchChecks, launchScore } from '@/lib/launch-readiness'
+import { getLaunchChecksAsync, launchScore } from '@/lib/launch-readiness'
 import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function LaunchPage() {
   await requireNewsroomSession()
-  const checks = getLaunchChecks()
+  const checks = await getLaunchChecksAsync()
   const score = launchScore(checks)
   return (
     <div>

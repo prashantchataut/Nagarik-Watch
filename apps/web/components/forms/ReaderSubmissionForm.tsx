@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import type { FormEvent } from 'react'
 import type { Locale } from '@nagarikwatch/db'
+import { TurnstileField } from './TurnstileField'
 
 type Props = { locale: Locale }
 
@@ -27,6 +28,7 @@ export function ReaderSubmissionForm({ locale }: Props) {
       evidenceUrl: String(data.get('evidenceUrl') ?? '').trim(),
       anonymous,
       consent: data.get('consent') === 'on',
+      turnstileToken: String(data.get('cf-turnstile-response') ?? ''),
       locale,
     }
 
@@ -146,6 +148,8 @@ export function ReaderSubmissionForm({ locale }: Props) {
             : 'I agree that Nagarik Watch may use this information for editorial verification.'}
         </span>
       </label>
+
+      <TurnstileField siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
 
       <button type="submit" disabled={pending} className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong disabled:opacity-60">
         {pending ? (ne ? 'पठाउँदै…' : 'Submitting…') : ne ? 'न्यूजरुममा पठाउनुहोस्' : 'Send to newsroom'}

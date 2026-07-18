@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createContactMessage } from '@/lib/contact-messages'
-import { enforceRateLimit } from '@/lib/rate-limit'
+import { clientIp, enforceRateLimit } from '@/lib/rate-limit'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
+import { getCaptchaState, verifyTurnstileToken } from '@/lib/security/turnstile'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +22,12 @@ export async function POST(request: NextRequest) {
 
   if (String(body.website ?? '').trim()) {
     return NextResponse.json({ ok: true }, { status: 202 })
+  }
+  if (getCaptchaState().enabled) {
+    const captcha = await verifyTurnstileToken(String(body.turnstileToken ?? ''), clientIp(request))
+    if (!captcha.success) {
+      return NextResponse.json({ error: 'Captcha verification failed.' }, { status: 400 })
+    }
   }
 
   try {

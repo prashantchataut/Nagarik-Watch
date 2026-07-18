@@ -2,7 +2,14 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { EDITOR_ROLES } from '@/lib/admin-roles'
 import { getNewsroomSession } from '@/lib/auth/session'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { getJournalistDraftMeta, setJournalistFeedback } from '@/lib/journalist-workspace'
+import { shorthandFromBlocks } from '@/lib/content/blocks'
+import { getPayloadJournalistDraft, isPayloadCanonical } from '@/lib/content/payload-admin-client'
+import { findArticleForAdmin } from '@/lib/content/store/json-store'
+import {
+  appendJournalistDraftRevision,
+  getJournalistDraftMeta,
+  setJournalistFeedback,
+} from '@/lib/journalist-workspace'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 
@@ -26,6 +33,14 @@ export async function POST(request: NextRequest) {
 
   const current = await getJournalistDraftMeta(identifier, reporterId)
   if (!current) return NextResponse.json({ error: 'Draft handoff not found.' }, { status: 404 })
+  const article = action === 'revision'
+    ? isPayloadCanonical()
+      ? current.articleId ? await getPayloadJournalistDraft(current.articleId) : null
+      : await findArticleForAdmin(current.articleId || current.articleSlug)
+    : null
+  if (action === 'revision' && !article) {
+    return NextResponse.json({ error: 'Draft content could not be loaded for the revision record.' }, { status: 409 })
+  }
   const next = await setJournalistFeedback(
     current.articleId || current.articleSlug,
     current.reporterId,
@@ -33,6 +48,36 @@ export async function POST(request: NextRequest) {
     action === 'revision' ? new Date().toISOString() : action === 'clear' ? null : current.revisionRequestedAt ?? null,
   )
   if (!next) return NextResponse.json({ error: 'Draft handoff not found.' }, { status: 404 })
+  if (action === 'revision' && article) {
+    const tagSlugs = 'tagSlugs' in article && Array.isArray(article.tagSlugs) ? article.tagSlugs : []
+    await appendJournalistDraftRevision({
+      articleId: next.articleId,
+      articleSlug: next.articleSlug,
+      reporterId: next.reporterId,
+      actorId: session.userId,
+      actorRole: session.newsroomRole,
+      action: 'returned',
+      stage: next.workflowStage,
+      snapshot: {
+        titleNe: article.titleNe,
+        titleEn: article.titleEn,
+        slug: article.slug,
+        categorySlug: article.categorySlug || next.categorySlug,
+        deckNe: article.deckNe,
+        bodyNe: shorthandFromBlocks(article.bodyNe),
+        tagSlugs,
+        reportingLocation: ('reportingLocation' in article ? article.reportingLocation : undefined) || next.reportingLocation,
+        sourceNote: ('sourceNote' in article ? article.sourceNote : undefined) || next.sourceNote,
+        editorPitch: ('editorPitch' in article ? article.editorPitch : undefined) || next.editorPitch,
+        mediaReferenceUrl: ('mediaReferenceUrl' in article ? article.mediaReferenceUrl : undefined) || next.mediaReferenceUrl,
+        customHomepageText: ('homepageTeaserNe' in article ? article.homepageTeaserNe : undefined) || next.customHomepageText,
+        customSocialText: ('socialCopyNe' in article ? article.socialCopyNe : undefined) || next.customSocialText,
+        notificationMode: next.notificationMode,
+        notificationTags: next.notificationTags,
+        editorFeedback: feedback,
+      },
+    })
+  }
   await recordAuditEvent({
     session,
     action: 'update',

@@ -1,5 +1,5 @@
 import 'server-only'
-import { cleanMultiline, cleanText, ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import { cleanMultiline, cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
 import { getEmailProviderState, sendEmail } from '@/lib/email-provider'
 import {
   listNewsletterSubscribers as listSubscribers,
@@ -35,7 +35,7 @@ const issues = new Map<string, NewsletterIssue>()
 const MAX_DIRECT_RECIPIENTS = 100
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return ensureOperationalSchema('newsletter-admin-v2', async (pool) => {
+  return requireOperationalPool(await ensureOperationalSchema('newsletter-admin-v2', async (pool) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_newsletter_issues (
         id text PRIMARY KEY,
@@ -49,7 +49,7 @@ async function ensureSchema(): Promise<Queryable | null> {
       )
     `)
     await pool.query(`CREATE INDEX IF NOT EXISTS nw_newsletter_issue_status_idx ON nw_newsletter_issues(status, created_at)`)
-  })
+  }))
 }
 
 function id(): string {

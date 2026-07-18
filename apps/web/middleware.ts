@@ -17,18 +17,25 @@ export function middleware(request: NextRequest) {
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-pathname', pathname)
+    requestHeaders.set('x-locale', 'ne')
     return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
-  if (pathname === '/en' || pathname.startsWith('/en/')) return NextResponse.next()
+  if (pathname === '/en' || pathname.startsWith('/en/')) {
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-locale', 'en')
+    return NextResponse.next({ request: { headers: requestHeaders } })
+  }
 
   const internal = request.nextUrl.clone()
   internal.pathname = `/ne${pathname === '/' ? '' : pathname}`
-  return NextResponse.rewrite(internal)
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-locale', 'ne')
+  return NextResponse.rewrite(internal, { request: { headers: requestHeaders } })
 }
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|favicon.png|icon.png|icon.svg|apple-icon.png|robots.txt|sitemap.xml|news-sitemap.xml|rss.xml|llms.txt|llms-full.txt|manifest.webmanifest|sw.js|opengraph-image.png).*)',
+    '/((?!api|feeds/|_next/static|_next/image|favicon.ico|favicon.png|icon.png|icon.svg|apple-icon.png|robots.txt|sitemap.xml|news-sitemap.xml|rss.xml|atom.xml|ads.txt|sellers.json|llms.txt|llms-full.txt|manifest.webmanifest|sw.js|opengraph-image.png).*)',
   ],
 }

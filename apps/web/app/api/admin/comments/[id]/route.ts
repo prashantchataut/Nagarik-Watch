@@ -3,6 +3,7 @@ import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canModerateComments } from '@/lib/admin-roles'
 import { updateCommentStatus, type CommentStatus } from '@/lib/engagement/store'
+import { recordAuditEvent } from '@/lib/audit-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,5 +34,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   const { id } = await params
   const ok = await updateCommentStatus(id, status as CommentStatus)
   if (!ok) return NextResponse.json({ error: 'टिप्पणी भेटिएन।' }, { status: 404 })
+  await recordAuditEvent({
+    session,
+    action: 'status_change',
+    targetType: 'comment',
+    targetId: id,
+    summary: `Comment status changed to ${status}.`,
+    meta: { status },
+  })
   return NextResponse.json({ ok: true, id, status })
 }

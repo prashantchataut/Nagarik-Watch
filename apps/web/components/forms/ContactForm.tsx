@@ -2,6 +2,7 @@
 
 import { useState, useTransition, type FormEvent } from 'react'
 import type { Locale } from '@nagarikwatch/db'
+import { TurnstileField } from './TurnstileField'
 
 export function ContactForm({ locale }: { locale: Locale }) {
   const [state, setState] = useState<'idle' | 'success' | 'error'>('idle')
@@ -26,6 +27,7 @@ export function ContactForm({ locale }: { locale: Locale }) {
             subject: data.get('subject'),
             message: data.get('message'),
             website: data.get('website'),
+            turnstileToken: data.get('cf-turnstile-response'),
             locale,
           }),
         })
@@ -77,6 +79,7 @@ export function ContactForm({ locale }: { locale: Locale }) {
         {english ? 'Message' : 'सन्देश'} *
         <textarea name="message" required rows={7} maxLength={5000} disabled={pending} className={field} />
       </label>
+      <TurnstileField siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
       {message ? (
         <p
           role={state === 'error' ? 'alert' : 'status'}

@@ -2,8 +2,7 @@ import type { NextRequest } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-export function GET(request: NextRequest) {
-  const origin = request.nextUrl.origin
+export function GET(_request: NextRequest) {
   const manifest = {
     name: 'Nagarik Watch',
     short_name: 'Nagarik Watch',
@@ -13,7 +12,8 @@ export function GET(request: NextRequest) {
     display: 'standalone',
     background_color: '#f7f2ef',
     theme_color: '#8d1f17',
-    id: `${origin}/`,
+    // Path-relative so preview hosts stay same-origin install identity.
+    id: '/',
     categories: ['news', 'magazines'],
     lang: 'ne',
     dir: 'ltr',

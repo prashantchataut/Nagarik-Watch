@@ -7,7 +7,7 @@ import { localizedLead, localizedTitle, type StaticHub } from '@/lib/site'
 import { UtilityWidgetRail } from '@/components/live/LiveWidgets'
 import { AdSlot } from '@/components/AdSlot'
 import { ReaderSubmissionForm } from '@/components/forms/ReaderSubmissionForm'
-import { RankingImpression } from '@/components/ranking/RankingImpression'
+import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
 
 export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: Locale }) {
   const [{ items }, engagement] = await Promise.all([
@@ -76,20 +76,22 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
       {stories.length > 0 ? (
         <section className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(19rem,0.75fr)]">
           {leadStory ? (
-            <div className="relative">
-              <RankingImpression
-                articleSlug={leadStory.slug}
-                articleCategory={leadStory.category.slug}
-              />
+            <InstrumentedStory
+              articleSlug={leadStory.slug}
+              articleCategory={leadStory.category.slug}
+            >
               <StoryCard story={leadStory} locale={locale} variant="featured" />
-            </div>
+            </InstrumentedStory>
           ) : null}
           <div className="grid content-start gap-5 border-t border-rule pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
             {sideStories.map((story) => (
-              <div key={story.slug} className="relative">
-                <RankingImpression articleSlug={story.slug} articleCategory={story.category.slug} />
+              <InstrumentedStory
+                key={story.slug}
+                articleSlug={story.slug}
+                articleCategory={story.category.slug}
+              >
                 <StoryCard story={story} locale={locale} variant="horizontal" />
-              </div>
+              </InstrumentedStory>
             ))}
           </div>
         </section>
@@ -120,14 +122,17 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
           </div>
           <div className="grid gap-x-7 gap-y-9 md:grid-cols-2 xl:grid-cols-3">
             {compactStories.map((story, index) => (
-              <div key={story.slug} className="relative">
-                <RankingImpression articleSlug={story.slug} articleCategory={story.category.slug} />
+              <InstrumentedStory
+                key={story.slug}
+                articleSlug={story.slug}
+                articleCategory={story.category.slug}
+              >
                 <StoryCard
                   story={story}
                   locale={locale}
                   variant={index % 3 === 0 ? 'text-led' : 'compact'}
                 />
-              </div>
+              </InstrumentedStory>
             ))}
           </div>
         </section>

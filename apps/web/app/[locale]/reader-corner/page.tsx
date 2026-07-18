@@ -8,6 +8,7 @@ import { ReaderActivityPanel } from '@/components/reader/ReaderActivityPanel'
 import { ReaderPreferencePanel } from '@/components/reader/ReaderPreferencePanel'
 import { NotificationCenter } from '@/components/reader/NotificationCenter'
 import { RecommendedForYou } from '@/components/reader/RecommendedForYou'
+import { ReaderTopicOnboarding } from '@/components/reader/ReaderTopicOnboarding'
 
 export const dynamic = 'force-dynamic'
 
@@ -61,6 +62,7 @@ export default async function ReaderCornerPage({ params }: { params: Promise<{ l
           </aside>
         </header>
 
+        <ReaderTopicOnboarding locale={locale} categories={categories} />
         <RecommendedForYou locale={locale} catalog={storyPage.items} className="reader-corner-recommendations" />
 
         <div className="reader-account-grid reader-account-grid--desk">

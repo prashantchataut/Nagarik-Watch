@@ -11,6 +11,8 @@
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
+    "migrate:ops": "tsx scripts/migrate-ops.ts",
+    "retention:ops": "tsx scripts/ops-retention.ts",
     "clean": "rimraf .next .turbo"
   },
   "dependencies": {

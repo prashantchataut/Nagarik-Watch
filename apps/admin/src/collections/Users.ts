@@ -23,8 +23,9 @@ export const Users: CollectionConfig = {
     create: createUserOrBootstrap,
     update: ownUserOrManager,
     delete: withRoles(hardDeleteRoles),
-    admin: withRoles(newsroomInternalRoles),
-    unlock: withRoles(userManagerRoles),
+    // Payload types `admin`/`unlock` as boolean-only Access, not Where queries.
+    admin: ({ req }) => hasAnyRole(req.user, newsroomInternalRoles),
+    unlock: ({ req }) => hasAnyRole(req.user, userManagerRoles),
   },
   auth: {
     useAPIKey: true,
@@ -45,7 +46,6 @@ export const Users: CollectionConfig = {
         if (operation === 'create') {
           const existing = await req.payload.count({
             collection: 'users',
-            limit: 0,
             overrideAccess: true,
           })
           if (existing.totalDocs === 0) {

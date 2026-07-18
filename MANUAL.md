@@ -158,12 +158,13 @@ launch gate rejects known placeholder patterns.
 2. Provision managed Postgres and object storage with backups.
 3. Install dependencies from the checked-in lockfile.
 4. Apply checked-in Payload migrations with `PAYLOAD_DB_PUSH=false`.
-5. Deploy `apps/admin`; create human users and the least-privilege journalist bridge account.
-6. Seed/enter verified categories, authors, and launch inventory in Payload.
-7. Deploy `apps/web` with `CONTENT_SOURCE=payload` and reachable CMS URLs.
-8. Run the full verification suite and browser/e2e tests.
-9. Fill legal identity, provider, email, analytics, and ad configuration.
-10. Run `NEXT_PUBLIC_LAUNCH_STATUS=live pnpm launch:gate`; launch only when it passes.
+5. Apply operational schema migrations against the same Postgres: `pnpm migrate:ops` (from repo root; requires `DATABASE_URL`).
+6. Deploy `apps/admin`; create human users and the least-privilege journalist bridge account.
+7. Seed/enter verified categories, authors, and launch inventory in Payload.
+8. Deploy `apps/web` with `CONTENT_SOURCE=payload` and reachable CMS URLs.
+9. Run the full verification suite and browser/e2e tests (`pnpm test:a11y`, `pnpm test:e2e`).
+10. Fill legal identity, provider, email, analytics, and ad configuration.
+11. Run `NEXT_PUBLIC_LAUNCH_STATUS=live pnpm launch:gate`; launch only when it passes.
 
 ## 11. Required manual QA / अनिवार्य मानव परीक्षण
 

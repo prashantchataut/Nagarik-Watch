@@ -1,7 +1,7 @@
 import 'server-only'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { cleanMultiline, cleanText, ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import { cleanMultiline, cleanText, ensureOperationalSchema, isProductionRuntime, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
 import { getPollVoteCounts } from '@/lib/engagement/store'
 
 export type Poll = {
@@ -53,7 +53,7 @@ async function writeLocal(polls: Poll[]): Promise<void> {
 }
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return ensureOperationalSchema('polls-admin', async (pool) => {
+  return requireOperationalPool(await ensureOperationalSchema('polls-admin', async (pool) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_polls (
         id text PRIMARY KEY,
@@ -64,7 +64,7 @@ async function ensureSchema(): Promise<Queryable | null> {
         updated_at timestamptz NOT NULL DEFAULT now()
       )
     `)
-  })
+  }))
 }
 
 function id(): string {
@@ -114,6 +114,7 @@ export async function getActivePoll(): Promise<PublicPoll | null> {
     if (!poll) return null
     return { ...poll, results: await getPollVoteCounts(poll.id) }
   } catch (error) {
+    if (isProductionRuntime()) throw error
     console.error('[polls] getActivePoll failed', error instanceof Error ? error.message : error)
     return null
   }

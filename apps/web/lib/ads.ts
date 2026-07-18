@@ -253,7 +253,8 @@ export type AdPlacementKey = keyof typeof AD_PLACEMENTS
 export function getAdMode(): AdMode {
   const value = process.env.NEXT_PUBLIC_ADS_MODE
   if (value === 'off' || value === 'house' || value === 'network') return value
-  return 'house'
+  // Default off until house creatives or a network ID are intentionally configured.
+  return 'off'
 }
 
 export function isNetworkAdsReady(): boolean {

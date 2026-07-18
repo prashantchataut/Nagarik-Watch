@@ -7,12 +7,14 @@ import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localePrefix } from '@/lib/i18n/locales'
 import {
+  autocomplete,
   buildIndex,
   highlightSegments,
   search,
   type SearchableStory,
   type SearchResult,
 } from '@/lib/search'
+import { hasAnalyticsConsent } from '@/lib/reader/consent'
 
 type SearchViewProps = {
   locale: Locale
@@ -44,6 +46,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
   const [recents, setRecents] = useState<string[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
+  const lastTrackedSearch = useRef('')
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -91,7 +94,28 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
     const next = search(index, debounced)
     setResults(next)
     setActive(next.length > 0 ? 0 : -1)
-  }, [index, debounced])
+    const normalized = debounced.trim().toLocaleLowerCase()
+    const trackingKey = `${locale}:${normalized}`
+    if (
+      normalized.length >= 2 &&
+      trackingKey !== lastTrackedSearch.current &&
+      hasAnalyticsConsent()
+    ) {
+      lastTrackedSearch.current = trackingKey
+      void fetch('/api/search-events', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ query: debounced, resultCount: next.length, locale }),
+        keepalive: true,
+      }).catch(() => undefined)
+    }
+  }, [index, debounced, locale])
+
+  const suggestions = useMemo(() => {
+    const q = query.trim()
+    if (q.length < 2 || results.length > 0) return []
+    return autocomplete(index, q, 6)
+  }, [index, query, results.length])
 
   const clear = useCallback(() => {
     setQuery('')
@@ -167,6 +191,22 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
         <p className="mt-3 text-meta text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
           {dict.searchResults(results.length)}
         </p>
+      )}
+
+      {suggestions.length > 0 && (
+        <ul className="mt-3 flex flex-wrap gap-2" aria-label={locale === 'en' ? 'Suggestions' : 'सुझावहरू'}>
+          {suggestions.map((suggestion) => (
+            <li key={suggestion}>
+              <button
+                type="button"
+                onClick={() => setQuery(suggestion)}
+                className="inline-flex items-center rounded-full border border-rule px-3 py-1.5 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+              >
+                {suggestion}
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
 
       {/* Results */}

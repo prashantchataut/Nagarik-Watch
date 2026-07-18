@@ -15,7 +15,7 @@ import { authClientErrorMessage } from '@/lib/auth/client-errors'
  *
  * Display name is optional; if omitted we derive from the email local part.
  */
-export function ReaderSignupForm({ locale, next }: { locale: 'ne' | 'en'; next?: string | null }) {
+export function ReaderSignupForm({ locale, next, googleEnabled = false }: { locale: 'ne' | 'en'; next?: string | null; googleEnabled?: boolean }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -146,7 +146,7 @@ export function ReaderSignupForm({ locale, next }: { locale: 'ne' | 'en'; next?:
         )}
       </button>
 
-      <SocialAuthButtons locale={locale} />
+      <SocialAuthButtons locale={locale} googleEnabled={googleEnabled} />
 
       <p className="text-center text-caption text-ink-soft">
         <span lang={ne ? 'ne' : 'en'}>

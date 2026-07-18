@@ -30,6 +30,7 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
   const [unread, setUnread] = useState(0)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [pushRegistered, setPushRegistered] = useState(false)
+  const [showPrimer, setShowPrimer] = useState(false)
   const pushPublicKey = process.env.NEXT_PUBLIC_WEB_PUSH_VAPID_KEY?.trim() ?? ''
   const english = locale === 'en'
 
@@ -92,7 +93,12 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
 
   async function enableBrowserAlerts() {
     if (!supported) return
+    if (permission === 'default' && !showPrimer) {
+      setShowPrimer(true)
+      return
+    }
     const nextPermission = await Notification.requestPermission()
+    setShowPrimer(false)
     setPermission(nextPermission)
     if (nextPermission !== 'granted') return
     let registered = false
@@ -192,6 +198,26 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
           <button type="button" onClick={enableBrowserAlerts} disabled={!supported || permission === 'denied'} className="text-action">{english ? 'Enable' : 'खोल्नुहोस्'}</button>
         )}
       </div>
+      {showPrimer ? (
+        <div className="notification-desk__primer" role="group" aria-labelledby="notification-primer-title">
+          <strong id="notification-primer-title">
+            {english ? 'Choose before the browser asks' : 'ब्राउजरले सोध्नुअघि आफैँ छनोट गर्नुहोस्'}
+          </strong>
+          <p>
+            {english
+              ? 'Allow alerts only if you want breaking news and followed-topic updates. You can turn them off here at any time.'
+              : 'ब्रेकिङ समाचार र पछ्याइएका विषयका अपडेट चाहनुहुन्छ भने मात्र अनुमति दिनुहोस्। यहाँबाट जुनसुकै बेला बन्द गर्न सक्नुहुन्छ।'}
+          </p>
+          <div>
+            <button type="button" className="text-action" onClick={() => void enableBrowserAlerts()}>
+              {english ? 'Continue to browser choice' : 'ब्राउजर छनोटमा जानुहोस्'}
+            </button>
+            <button type="button" onClick={() => setShowPrimer(false)}>
+              {english ? 'Not now' : 'अहिले होइन'}
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {status === 'error' ? (
         <p className="notification-desk__state" role="status">{english ? 'Alerts could not refresh. Your preferences remain saved.' : 'सूचना ताजा गर्न सकिएन। तपाईंका छनोट सुरक्षित छन्।'}</p>

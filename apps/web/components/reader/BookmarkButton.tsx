@@ -84,6 +84,7 @@ export function BookmarkButton({
         })
         if (!response.ok) throw new Error(`Bookmark sync failed: ${response.status}`)
       } catch (error) {
+        persistLocal(!nextBookmarked)
         setSyncError(true)
         void error
       }
@@ -94,8 +95,8 @@ export function BookmarkButton({
   const label = bookmarked ? (en ? 'Saved' : 'सुरक्षित') : en ? 'Save' : 'सुरक्षित गर्नुहोस्'
   const syncNote = syncError
     ? en
-      ? ' Saved on this device; account sync is pending.'
-      : ' यो उपकरणमा सुरक्षित भयो; खाता सिंक बाँकी छ।'
+      ? ' Account sync failed; the change was reverted.'
+      : ' खाता सिङ्क भएन; परिवर्तन फिर्ता गरियो।'
     : ''
 
   if (variant === 'pill') {

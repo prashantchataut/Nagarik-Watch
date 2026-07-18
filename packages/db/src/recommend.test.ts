@@ -111,6 +111,54 @@ describe('recommend', () => {
     expect(result[0]?.id).toBe('history-match')
     expect(result[0]?.recStrategy).toBe('content')
   })
+
+  it('boosts the next category observed after the current category', () => {
+    const politics = { ...category, id: 'politics', slug: 'politics', nameEn: 'Politics' }
+    const economy = { ...category, id: 'economy', slug: 'economy', nameEn: 'Economy' }
+    const sports = { ...category, id: 'sports', slug: 'sports', nameEn: 'Sports' }
+    const result = recommend(
+      [
+        story('economy-next', { category: economy }),
+        story('sports-next', { category: sports }),
+      ],
+      {
+        history: [
+          { id: 'h1', userId: 'reader', articleId: 'old-a', categorySlug: 'politics', readAt: '2026-07-13T06:00:00Z' },
+          { id: 'h2', userId: 'reader', articleId: 'old-b', categorySlug: 'economy', readAt: '2026-07-13T07:00:00Z' },
+          { id: 'h3', userId: 'reader', articleId: 'old-c', categorySlug: 'politics', readAt: '2026-07-13T08:00:00Z' },
+        ],
+      },
+      {
+        now,
+        limit: 2,
+        maxPerCategory: 2,
+        weights: { content: 0, session: 0, freshness: 0, follow: 0, editorial: 0, sequence: 1 },
+      },
+    )
+    expect(result[0]?.id).toBe('economy-next')
+    expect(result[0]?.recStrategy).toBe('sequence')
+    expect(politics.slug).toBe('politics')
+  })
+
+  it('keeps collaborative scoring disabled below the configured volume floor', () => {
+    const result = recommend(
+      [story('co-read'), story('fresh')],
+      { userId: 'target' },
+      {
+        now,
+        limit: 2,
+        collaborative: {
+          enabled: true,
+          minReaders: 3,
+          interactions: {
+            target: { seed: 1 },
+            neighbor: { seed: 1, 'co-read': 1 },
+          },
+        },
+      },
+    )
+    expect(result.every((item) => item.recStrategy !== 'collaborative')).toBe(true)
+  })
 })
 
 // Compile-time assertion that the public card contract remains recommendable.

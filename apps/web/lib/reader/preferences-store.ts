@@ -1,5 +1,5 @@
 import 'server-only'
-import { ensureOperationalSchema, type Queryable, toIso } from '@/lib/ops-db'
+import { ensureOperationalSchema, requireOperationalPool, type Queryable, toIso } from '@/lib/ops-db'
 
 export type ReaderPreferences = {
   categories: string[]
@@ -117,6 +117,10 @@ async function setup(pool: Queryable) {
   `)
 }
 
+async function operationalPool(): Promise<Queryable | null> {
+  return requireOperationalPool(await ensureOperationalSchema('reader-preferences-v1', setup))
+}
+
 function rowToPreferences(row: PreferenceRow): ReaderPreferences {
   return {
     categories: cleanList(row.categories),
@@ -137,7 +141,7 @@ function rowToPreferences(row: PreferenceRow): ReaderPreferences {
 
 export async function getReaderPreferences(fingerprint: string, userId?: string): Promise<ReaderPreferences> {
   const key = ownerKey(fingerprint, userId)
-  const pool = await ensureOperationalSchema('reader-preferences-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     const result = await pool.query<PreferenceRow>(
       `SELECT * FROM nw_reader_preferences WHERE owner_key=$1 LIMIT 1`,
@@ -156,7 +160,7 @@ export async function saveReaderPreferences(
   const current = await getReaderPreferences(fingerprint, userId)
   const next = normalize({ ...current, ...input })
   const key = ownerKey(fingerprint, userId)
-  const pool = await ensureOperationalSchema('reader-preferences-v1', setup)
+  const pool = await operationalPool()
   if (pool) {
     const result = await pool.query<PreferenceRow>(
       `INSERT INTO nw_reader_preferences(

@@ -27,6 +27,7 @@ import {
   type WeatherReading,
 } from './types'
 import { getManualLiveRecord } from './manual'
+import { execCircuit } from '../resilience/circuit-breaker'
 
 const KTM_LAT = 27.7172
 const KTM_LON = 85.324
@@ -97,31 +98,33 @@ export async function getRealWeather(_locale: Locale): Promise<LiveValue<Weather
       const value = await fetchProviderWeather(provider, apiKey)
       if (value) return remember(key, value)
     }
-    const url =
-      `https://api.open-meteo.com/v1/forecast` +
-      `?latitude=${KTM_LAT}&longitude=${KTM_LON}` +
-      `&current=temperature_2m,weather_code&timezone=Asia/Kathmandu`
-    const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
-    if (!res.ok) throw new Error(`weather http ${res.status}`)
-    const json = (await res.json()) as {
-      current?: { temperature_2m?: number; weather_code?: number }
-    }
-    const cur = json.current
-    if (!cur || typeof cur.temperature_2m !== 'number' || typeof cur.weather_code !== 'number') {
-      throw new Error('weather shape')
-    }
-    const value: LiveValue<WeatherReading> = {
-      status: 'ok',
-      data: {
-        placeNe: 'काठमाडौं',
-        placeEn: 'Kathmandu',
-        tempC: Math.round(cur.temperature_2m),
-        condition: weatherCodeToCondition(cur.weather_code),
-      },
-      source: 'Open-Meteo',
-      updatedAt: new Date().toISOString(),
-      mock: false,
-    }
+    const value = await execCircuit('open-meteo-weather', async () => {
+      const url =
+        `https://api.open-meteo.com/v1/forecast` +
+        `?latitude=${KTM_LAT}&longitude=${KTM_LON}` +
+        `&current=temperature_2m,weather_code&timezone=Asia/Kathmandu`
+      const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
+      if (!res.ok) throw new Error(`weather http ${res.status}`)
+      const json = (await res.json()) as {
+        current?: { temperature_2m?: number; weather_code?: number }
+      }
+      const cur = json.current
+      if (!cur || typeof cur.temperature_2m !== 'number' || typeof cur.weather_code !== 'number') {
+        throw new Error('weather shape')
+      }
+      return {
+        status: 'ok',
+        data: {
+          placeNe: 'काठमाडौं',
+          placeEn: 'Kathmandu',
+          tempC: Math.round(cur.temperature_2m),
+          condition: weatherCodeToCondition(cur.weather_code),
+        },
+        source: 'Open-Meteo',
+        updatedAt: new Date().toISOString(),
+        mock: false,
+      } satisfies LiveValue<WeatherReading>
+    })
     return remember(key, value)
   } catch (error) {
     return failedLiveValue<WeatherReading>('Open-Meteo weather', error)
@@ -135,68 +138,74 @@ async function fetchProviderWeather(
 ): Promise<LiveValue<WeatherReading> | null> {
   const common = { placeNe: 'काठमाडौं', placeEn: 'Kathmandu' }
   if (provider === 'openweather') {
-    const url =
-      `https://api.openweathermap.org/data/2.5/weather?lat=${KTM_LAT}&lon=${KTM_LON}` +
-      `&units=metric&appid=${encodeURIComponent(apiKey)}`
-    const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
-    if (!res.ok) throw new Error(`openweather http ${res.status}`)
-    const j = (await res.json()) as { main?: { temp?: number }; weather?: Array<{ id?: number }> }
-    const temp = j.main?.temp
-    const code = j.weather?.[0]?.id ?? 800
-    if (typeof temp !== 'number') throw new Error('openweather shape')
-    return {
-      status: 'ok',
-      data: { ...common, tempC: Math.round(temp), condition: owmCodeToCondition(code) },
-      source: 'OpenWeather',
-      updatedAt: new Date().toISOString(),
-      mock: false,
-    }
+    return execCircuit('openweather', async () => {
+      const url =
+        `https://api.openweathermap.org/data/2.5/weather?lat=${KTM_LAT}&lon=${KTM_LON}` +
+        `&units=metric&appid=${encodeURIComponent(apiKey)}`
+      const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
+      if (!res.ok) throw new Error(`openweather http ${res.status}`)
+      const j = (await res.json()) as { main?: { temp?: number }; weather?: Array<{ id?: number }> }
+      const temp = j.main?.temp
+      const code = j.weather?.[0]?.id ?? 800
+      if (typeof temp !== 'number') throw new Error('openweather shape')
+      return {
+        status: 'ok',
+        data: { ...common, tempC: Math.round(temp), condition: owmCodeToCondition(code) },
+        source: 'OpenWeather',
+        updatedAt: new Date().toISOString(),
+        mock: false,
+      }
+    })
   }
   if (provider === 'weatherstack') {
-    const url =
-      `http://api.weatherstack.com/current?access_key=${encodeURIComponent(apiKey)}` +
-      `&query=${KTM_LAT},${KTM_LON}&units=m`
-    const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
-    if (!res.ok) throw new Error(`weatherstack http ${res.status}`)
-    const j = (await res.json()) as {
-      current?: { temperature?: number; weather_descriptions?: string[] }
-    }
-    const temp = j.current?.temperature
-    if (typeof temp !== 'number') throw new Error('weatherstack shape')
-    return {
-      status: 'ok',
-      data: {
-        ...common,
-        tempC: Math.round(temp),
-        condition: descriptionToCondition(j.current?.weather_descriptions?.[0]),
-      },
-      source: 'Weatherstack',
-      updatedAt: new Date().toISOString(),
-      mock: false,
-    }
+    return execCircuit('weatherstack', async () => {
+      const url =
+        `http://api.weatherstack.com/current?access_key=${encodeURIComponent(apiKey)}` +
+        `&query=${KTM_LAT},${KTM_LON}&units=m`
+      const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
+      if (!res.ok) throw new Error(`weatherstack http ${res.status}`)
+      const j = (await res.json()) as {
+        current?: { temperature?: number; weather_descriptions?: string[] }
+      }
+      const temp = j.current?.temperature
+      if (typeof temp !== 'number') throw new Error('weatherstack shape')
+      return {
+        status: 'ok',
+        data: {
+          ...common,
+          tempC: Math.round(temp),
+          condition: descriptionToCondition(j.current?.weather_descriptions?.[0]),
+        },
+        source: 'Weatherstack',
+        updatedAt: new Date().toISOString(),
+        mock: false,
+      }
+    })
   }
   if (provider === 'meteosource') {
-    const url =
-      `https://www.meteosource.com/api/v1/free/point?place_id=kathmandu` +
-      `&key=${encodeURIComponent(apiKey)}&units=si`
-    const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
-    if (!res.ok) throw new Error(`meteosource http ${res.status}`)
-    const j = (await res.json()) as {
-      current?: { temperature?: number; summary?: string; icon?: string }
-    }
-    const temp = j.current?.temperature
-    if (typeof temp !== 'number') throw new Error('meteosource shape')
-    return {
-      status: 'ok',
-      data: {
-        ...common,
-        tempC: Math.round(temp),
-        condition: descriptionToCondition(j.current?.summary ?? j.current?.icon),
-      },
-      source: 'Meteosource',
-      updatedAt: new Date().toISOString(),
-      mock: false,
-    }
+    return execCircuit('meteosource', async () => {
+      const url =
+        `https://www.meteosource.com/api/v1/free/point?place_id=kathmandu` +
+        `&key=${encodeURIComponent(apiKey)}&units=si`
+      const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
+      if (!res.ok) throw new Error(`meteosource http ${res.status}`)
+      const j = (await res.json()) as {
+        current?: { temperature?: number; summary?: string; icon?: string }
+      }
+      const temp = j.current?.temperature
+      if (typeof temp !== 'number') throw new Error('meteosource shape')
+      return {
+        status: 'ok',
+        data: {
+          ...common,
+          tempC: Math.round(temp),
+          condition: descriptionToCondition(j.current?.summary ?? j.current?.icon),
+        },
+        source: 'Meteosource',
+        updatedAt: new Date().toISOString(),
+        mock: false,
+      }
+    })
   }
   return null
 }
@@ -229,26 +238,28 @@ export async function getRealAqi(_locale: Locale): Promise<LiveValue<AqiReading>
   if (hit) return hit
 
   try {
-    const url =
-      `https://air-quality-api.open-meteo.com/v1/air-quality` +
-      `?latitude=${KTM_LAT}&longitude=${KTM_LON}` +
-      `&current=us_aqi&timezone=Asia/Kathmandu`
-    const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
-    if (!res.ok) throw new Error(`aqi http ${res.status}`)
-    const json = (await res.json()) as { current?: { us_aqi?: number } }
-    const aqi = json.current?.us_aqi
-    if (typeof aqi !== 'number' || !Number.isFinite(aqi)) throw new Error('aqi shape')
-    const value: LiveValue<AqiReading> = {
-      status: 'ok',
-      data: {
-        aqi: Math.round(aqi),
-        placeNe: 'काठमाडौं',
-        placeEn: 'Kathmandu',
-      },
-      source: 'Open-Meteo Air Quality',
-      updatedAt: new Date().toISOString(),
-      mock: false,
-    }
+    const value = await execCircuit('open-meteo-aqi', async () => {
+      const url =
+        `https://air-quality-api.open-meteo.com/v1/air-quality` +
+        `?latitude=${KTM_LAT}&longitude=${KTM_LON}` +
+        `&current=us_aqi&timezone=Asia/Kathmandu`
+      const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
+      if (!res.ok) throw new Error(`aqi http ${res.status}`)
+      const json = (await res.json()) as { current?: { us_aqi?: number } }
+      const aqi = json.current?.us_aqi
+      if (typeof aqi !== 'number' || !Number.isFinite(aqi)) throw new Error('aqi shape')
+      return {
+        status: 'ok',
+        data: {
+          aqi: Math.round(aqi),
+          placeNe: 'काठमाडौं',
+          placeEn: 'Kathmandu',
+        },
+        source: 'Open-Meteo Air Quality',
+        updatedAt: new Date().toISOString(),
+        mock: false,
+      } satisfies LiveValue<AqiReading>
+    })
     return remember(key, value)
   } catch (error) {
     return failedLiveValue<AqiReading>('Open-Meteo Air Quality', error)
@@ -302,36 +313,38 @@ export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate
       const value = await fetchFxrateapisForex(apiKey)
       if (value) return remember(key, value)
     }
-    const today = new Date().toISOString().slice(0, 10)
-    const url = `https://www.nrb.org.np/api/forex/v1/rates?from=${today}&to=${today}&per_page=10`
-    const res = await withTimeout(fetch(url, { next: { revalidate: 600 } }), 5000)
-    if (!res.ok) throw new Error(`forex http ${res.status}`)
-    const json = (await res.json()) as NrbForexPayload
-    const payload = json.data?.payload ?? []
-    const rates: ForexRate[] = payload
-      .map((p) => {
-        const r = p.rates?.[0]
-        const buy = r?.buy ? Number(r.buy) : NaN
-        const sell = r?.sell ? Number(r.sell) : NaN
-        if (!Number.isFinite(buy) || !Number.isFinite(sell)) return null
-        return {
-          iso3: p.currency?.iso3 ?? '',
-          name: p.currency?.name ?? p.currency?.iso3 ?? '',
-          buy,
-          sell,
-          unit: 'NPR',
-        }
-      })
-      .filter((r): r is ForexRate => r !== null && FOREX_FOCUS.has(r.iso3))
+    const value = await execCircuit('nrb-forex', async () => {
+      const today = new Date().toISOString().slice(0, 10)
+      const url = `https://www.nrb.org.np/api/forex/v1/rates?from=${today}&to=${today}&per_page=10`
+      const res = await withTimeout(fetch(url, { next: { revalidate: 600 } }), 5000)
+      if (!res.ok) throw new Error(`forex http ${res.status}`)
+      const json = (await res.json()) as NrbForexPayload
+      const payload = json.data?.payload ?? []
+      const rates: ForexRate[] = payload
+        .map((p) => {
+          const r = p.rates?.[0]
+          const buy = r?.buy ? Number(r.buy) : NaN
+          const sell = r?.sell ? Number(r.sell) : NaN
+          if (!Number.isFinite(buy) || !Number.isFinite(sell)) return null
+          return {
+            iso3: p.currency?.iso3 ?? '',
+            name: p.currency?.name ?? p.currency?.iso3 ?? '',
+            buy,
+            sell,
+            unit: 'NPR',
+          }
+        })
+        .filter((r): r is ForexRate => r !== null && FOREX_FOCUS.has(r.iso3))
 
-    if (rates.length === 0) throw new Error('forex empty')
-    const value: LiveValue<ForexRate[]> = {
-      status: 'ok',
-      data: rates,
-      source: 'Nepal Rastra Bank',
-      updatedAt: new Date().toISOString(),
-      mock: false,
-    }
+      if (rates.length === 0) throw new Error('forex empty')
+      return {
+        status: 'ok',
+        data: rates,
+        source: 'Nepal Rastra Bank',
+        updatedAt: new Date().toISOString(),
+        mock: false,
+      } satisfies LiveValue<ForexRate[]>
+    })
     return remember(key, value)
   } catch (error) {
     const manual = await getManualLiveRecord<ForexRate[]>('forex')
@@ -349,35 +362,37 @@ export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate
  * NRB remains the authoritative source when its feed is reachable.
  */
 async function fetchFxrateapisForex(apiKey: string): Promise<LiveValue<ForexRate[]> | null> {
-  const currencies = [...FOREX_FOCUS].join(',')
-  const url =
-    `https://api.fxrateapis.com/latest?base=NPR&currencies=${currencies}` +
-    `&api_key=${encodeURIComponent(apiKey)}`
-  const res = await withTimeout(fetch(url, { next: { revalidate: 600 } }), 5000)
-  if (!res.ok) throw new Error(`fxrateapis http ${res.status}`)
-  const j = (await res.json()) as { rates?: Record<string, number> }
-  const ratesMap = j.rates ?? {}
-  const rates: ForexRate[] = []
-  for (const iso3 of FOREX_FOCUS) {
-    const perNpr = ratesMap[iso3]
-    if (typeof perNpr !== 'number' || perNpr <= 0) continue
-    const nprPerUnit = 1 / perNpr
-    rates.push({
-      iso3,
-      name: iso3,
-      buy: Number((nprPerUnit * 0.995).toFixed(2)),
-      sell: Number((nprPerUnit * 1.005).toFixed(2)),
-      unit: 'NPR',
-    })
-  }
-  if (rates.length === 0) throw new Error('fxrateapis empty')
-  return {
-    status: 'ok',
-    data: rates,
-    source: 'FXRateAPIs (indicative)',
-    updatedAt: new Date().toISOString(),
-    mock: false,
-  }
+  return execCircuit('fxrateapis-forex', async () => {
+    const currencies = [...FOREX_FOCUS].join(',')
+    const url =
+      `https://api.fxrateapis.com/latest?base=NPR&currencies=${currencies}` +
+      `&api_key=${encodeURIComponent(apiKey)}`
+    const res = await withTimeout(fetch(url, { next: { revalidate: 600 } }), 5000)
+    if (!res.ok) throw new Error(`fxrateapis http ${res.status}`)
+    const j = (await res.json()) as { rates?: Record<string, number> }
+    const ratesMap = j.rates ?? {}
+    const rates: ForexRate[] = []
+    for (const iso3 of FOREX_FOCUS) {
+      const perNpr = ratesMap[iso3]
+      if (typeof perNpr !== 'number' || perNpr <= 0) continue
+      const nprPerUnit = 1 / perNpr
+      rates.push({
+        iso3,
+        name: iso3,
+        buy: Number((nprPerUnit * 0.995).toFixed(2)),
+        sell: Number((nprPerUnit * 1.005).toFixed(2)),
+        unit: 'NPR',
+      })
+    }
+    if (rates.length === 0) throw new Error('fxrateapis empty')
+    return {
+      status: 'ok',
+      data: rates,
+      source: 'FXRateAPIs (indicative)',
+      updatedAt: new Date().toISOString(),
+      mock: false,
+    }
+  })
 }
 
 /**
@@ -394,34 +409,36 @@ export async function getRealNepse(_locale: Locale): Promise<LiveValue<NepseRead
   if (hit) return hit
 
   try {
-    const res = await withTimeout(
-      fetch('https://www.nepalstock.com/', {
-        headers: { 'user-agent': 'NagarikWatch/1.0 (+https://nagarikwatch.com)' },
-        next: { revalidate: 120 },
-      }),
-      5000,
-    )
-    if (!res.ok) throw new Error(`nepse http ${res.status}`)
-    const html = await res.text()
+    const value = await execCircuit('nepalstock-nepse', async () => {
+      const res = await withTimeout(
+        fetch('https://www.nepalstock.com/', {
+          headers: { 'user-agent': 'NagarikWatch/1.0 (+https://nagarikwatch.com)' },
+          next: { revalidate: 120 },
+        }),
+        5000,
+      )
+      if (!res.ok) throw new Error(`nepse http ${res.status}`)
+      const html = await res.text()
 
-    const index = extractNepseIndex(html)
-    const change = extractNepseChange(html)
-    if (!Number.isFinite(index) || !Number.isFinite(change)) throw new Error('nepse parse')
+      const index = extractNepseIndex(html)
+      const change = extractNepseChange(html)
+      if (!Number.isFinite(index) || !Number.isFinite(change)) throw new Error('nepse parse')
 
-    const prevClose = index - change
-    const changePercent = prevClose !== 0 ? (change / prevClose) * 100 : 0
-    const value: LiveValue<NepseReading> = {
-      status: 'ok',
-      data: {
-        index,
-        change,
-        changePercent,
-        open: isNepseOpenNow(),
-      },
-      source: 'NEPSE (nepalstock.com)',
-      updatedAt: new Date().toISOString(),
-      mock: false,
-    }
+      const prevClose = index - change
+      const changePercent = prevClose !== 0 ? (change / prevClose) * 100 : 0
+      return {
+        status: 'ok',
+        data: {
+          index,
+          change,
+          changePercent,
+          open: isNepseOpenNow(),
+        },
+        source: 'NEPSE (nepalstock.com)',
+        updatedAt: new Date().toISOString(),
+        mock: false,
+      } satisfies LiveValue<NepseReading>
+    })
     return remember(key, value)
   } catch (error) {
     const manual = await getManualLiveRecord<NepseReading>('nepse')

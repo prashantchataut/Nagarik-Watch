@@ -5,8 +5,10 @@ import { Footer } from '@/components/Footer'
 import { BottomNav } from '@/components/BottomNav'
 import { CookieConsent } from '@/components/CookieConsent'
 import { PwaBoot } from '@/components/PwaBoot'
+import { SaveDataBoot } from '@/components/SaveDataBoot'
 import { SiteJsonLd } from '@/components/SiteJsonLd'
 import { AnalyticsGate } from '@/components/analytics/AnalyticsGate'
+import { RumBoot } from '@/components/RumBoot'
 import { getNavCategories } from '@/lib/content'
 import { PUBLICATION } from '@/lib/site'
 import { getSession } from '@/lib/auth/session'
@@ -41,7 +43,9 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
       <Footer locale={locale} />
       <BottomNav locale={locale} />
       <CookieConsent locale={locale} />
+      <SaveDataBoot />
       <PwaBoot />
+      <RumBoot />
       <AnalyticsGate
         domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
         src={process.env.NEXT_PUBLIC_PLAUSIBLE_SRC || 'https://plausible.io/js/script.js'}

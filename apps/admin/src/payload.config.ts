@@ -76,6 +76,12 @@ export default buildConfig({
   collections: [Users, Media, Categories, Authors, Tags, Articles],
   globals: [],
   editor: lexicalEditor(),
+  upload: {
+    abortOnLimit: true,
+    limits: {
+      fileSize: 10 * 1024 * 1024,
+    },
+  },
   // Validate env once the server actually boots — never during `next build`.
   onInit: validateAtBoot,
   db: postgresAdapter({

@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { buildIndex, search, highlightSegments, type SearchableStory } from './search'
+import {
+  autocomplete,
+  buildIndex,
+  editDistance,
+  fuzzyExpandTerm,
+  highlightSegments,
+  search,
+  type SearchableStory,
+} from './search'
 
 function story(partial: Partial<SearchableStory>): SearchableStory {
   return {
@@ -49,6 +57,14 @@ const corpus: SearchableStory[] = [
     deckNe: 'सम्पादकीय विश्लेषण',
     publishedAt: '2026-06-08T00:00:00Z',
   }),
+  story({
+    id: '4',
+    slug: 'putin',
+    titleNe: 'पुटिनको विदेश नीति',
+    titleEn: 'Putin foreign policy brief',
+    deckNe: 'मस्कोको कूटनीतिक चाल',
+    publishedAt: '2026-06-11T00:00:00Z',
+  }),
 ]
 
 const index = buildIndex(corpus)
@@ -59,25 +75,21 @@ describe('search', () => {
     expect(search(index, '   ')).toEqual([])
   })
 
-  it('matches Devanagari titles', () => {
+  it('matches Devanagari titles via inverted index', () => {
     const r = search(index, 'बजेट')
     expect(r.map((s) => s.slug)).toContain('budget')
     expect(r.map((s) => s.slug)).toContain('opinion-budget')
   })
 
-  it('ranks title hits above deck hits', () => {
-    // "budget" appears in title of #1 and #3, and only in deck of #2.
+  it('ranks title hits above deck hits with BM25 field weights', () => {
     const r = search(index, 'बजेट')
     const budgetIdx = r.findIndex((s) => s.slug === 'budget')
     const monsoonIdx = r.findIndex((s) => s.slug === 'monsoon')
     expect(budgetIdx).toBeGreaterThanOrEqual(0)
-    // monsoon may not even appear (its match is deck-only, lower weight) but if it does,
-    // it must rank below the title match.
     if (monsoonIdx >= 0) expect(budgetIdx).toBeLessThan(monsoonIdx)
   })
 
   it('ANDs multi-term queries', () => {
-    // Both terms must match somewhere; only #1 has both बजेट and पूर्वाधार.
     const r = search(index, 'बजेट पूर्वाधार')
     expect(r.map((s) => s.slug)).toEqual(['budget'])
   })
@@ -92,9 +104,48 @@ describe('search', () => {
     const budget = r.find((s) => s.slug === 'budget')
     const opinion = r.find((s) => s.slug === 'opinion-budget')
     if (budget && opinion) {
-      // Same title field presence; recency tiebreaker favours the newer one.
       expect(budget.publishedAt.localeCompare(opinion.publishedAt)).toBeGreaterThan(0)
     }
+  })
+
+  it('recovers Latin typos with fuzzy expansion', () => {
+    const r = search(index, 'puttin')
+    expect(r.map((s) => s.slug)).toContain('putin')
+  })
+
+  it('expands English civic synonyms to Nepali title matches', () => {
+    const r = search(index, 'budget')
+    expect(r.map((s) => s.slug)).toContain('budget')
+    expect(r.map((s) => s.slug)).toContain('opinion-budget')
+  })
+
+  it('expands flood synonym toward monsoon coverage', () => {
+    const r = search(index, 'flood')
+    expect(r.map((s) => s.slug)).toContain('monsoon')
+  })
+})
+
+describe('fuzzyExpandTerm / editDistance', () => {
+  it('computes small edit distances', () => {
+    expect(editDistance('putin', 'puttin')).toBe(1)
+    expect(editDistance('budget', 'budget')).toBe(0)
+  })
+
+  it('expands unknown Latin terms against vocabulary', () => {
+    const expanded = fuzzyExpandTerm('puttin', index.vocabulary)
+    expect(expanded).toContain('putin')
+  })
+})
+
+describe('autocomplete', () => {
+  it('suggests title prefixes from the trie', () => {
+    const suggestions = autocomplete(index, 'bud')
+    expect(suggestions.some((s) => /budget/i.test(s))).toBe(true)
+  })
+
+  it('suggests Devanagari prefixes', () => {
+    const suggestions = autocomplete(index, 'बज')
+    expect(suggestions.length).toBeGreaterThan(0)
   })
 })
 

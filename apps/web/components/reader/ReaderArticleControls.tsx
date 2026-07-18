@@ -10,6 +10,14 @@ import {
 } from '@/lib/reader/state'
 import { remainingReadingMinutes } from '@/lib/reader/reading'
 import { CONSENT_EVENT, getOrCreateReaderId, hasPersonalizationConsent } from '@/lib/reader/consent'
+import {
+  ARTICLE_COMPLETION_EXPERIMENT_ID,
+  ExperimentExposure,
+  trackExperimentConversion,
+} from '@/components/experiments/ExperimentExposure'
+import { rafThrottle } from '@/lib/browser/raf-throttle'
+import { addArticleToSessionMeter, FREE_ARTICLE_METER_KEY } from '@/lib/free-article-meter'
+import { canShowWeeklyFeedback } from '@/lib/reader/retention'
 
 type ReaderArticleControlsProps = {
   story: StoryCardData
@@ -17,6 +25,7 @@ type ReaderArticleControlsProps = {
   title: string
   href: string
   readingMinutes: number
+  premiumReader?: boolean
 }
 
 export function ReaderArticleControls({
@@ -25,6 +34,7 @@ export function ReaderArticleControls({
   title,
   href,
   readingMinutes,
+  premiumReader = false,
 }: ReaderArticleControlsProps) {
   const [readingMode, setReadingMode] = useState(false)
   const [scrollDepth, setScrollDepth] = useState(0)
@@ -32,6 +42,8 @@ export function ReaderArticleControls({
   const [speechSupported, setSpeechSupported] = useState(false)
   const [speaking, setSpeaking] = useState(false)
   const [historySyncFailed, setHistorySyncFailed] = useState(false)
+  const [meter, setMeter] = useState<{ count: number; limit: number } | null>(null)
+  const [showFeedback, setShowFeedback] = useState(false)
   const [readingSessionId] = useState(() =>
     globalThis.crypto?.randomUUID?.() ?? `read-${Date.now()}-${Math.random().toString(36).slice(2)}`,
   )
@@ -51,6 +63,24 @@ export function ReaderArticleControls({
   }, [])
 
   useEffect(() => {
+    if (premiumReader) return
+    const next = addArticleToSessionMeter(
+      sessionStorage.getItem(FREE_ARTICLE_METER_KEY),
+      `${story.category.slug}:${story.slug}`,
+    )
+    sessionStorage.setItem(FREE_ARTICLE_METER_KEY, JSON.stringify(next.articles))
+    setMeter({ count: next.count, limit: next.limit })
+  }, [premiumReader, story.category.slug, story.slug])
+
+  useEffect(() => {
+    if (scrollDepth < 92) return
+    const key = 'nw:reader-feedback:last-shown'
+    if (!canShowWeeklyFeedback(localStorage.getItem(key))) return
+    localStorage.setItem(key, new Date().toISOString())
+    setShowFeedback(true)
+  }, [scrollDepth])
+
+  useEffect(() => {
     function refreshConsent() {
       setPersonalized(hasPersonalizationConsent())
     }
@@ -62,6 +92,7 @@ export function ReaderArticleControls({
   useEffect(() => {
     const startedAt = Date.now()
     let maxDepth = 0
+    let restored = false
 
     function currentDepth() {
       const scrollable = document.documentElement.scrollHeight - window.innerHeight
@@ -69,18 +100,41 @@ export function ReaderArticleControls({
       return Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100))
     }
 
+    function restorePosition() {
+      if (restored || !hasPersonalizationConsent()) return
+      const previous = safeParseArray<ReadingHistoryRecord>(
+        localStorage.getItem(READER_HISTORY_KEY),
+      )
+      const prior = previous.find((item) => item.articleId === story.id || item.slug === story.slug)
+      if (!prior || prior.completed || !prior.scrollDepth || prior.scrollDepth < 8) return
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight
+      if (scrollable <= 0) return
+      const target = Math.round((prior.scrollDepth / 100) * scrollable)
+      if (target < 120) return
+      restored = true
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: target, behavior: 'auto' })
+        maxDepth = Math.max(maxDepth, prior.scrollDepth)
+        setScrollDepth(maxDepth)
+      })
+    }
+
     function record() {
       maxDepth = Math.max(maxDepth, currentDepth())
       setScrollDepth(maxDepth)
     }
 
+    const recordThrottled = rafThrottle(record)
+
     function persist() {
+      recordThrottled.flush()
       record()
       if (!hasPersonalizationConsent()) return
       const previous = safeParseArray<ReadingHistoryRecord>(
         localStorage.getItem(READER_HISTORY_KEY),
       )
       const readPercent = Math.round(maxDepth)
+      const completed = maxDepth >= 92
       const next = upsertHistory(previous, {
         articleId: story.id,
         slug: story.slug,
@@ -91,13 +145,14 @@ export function ReaderArticleControls({
         href,
         readAt: new Date().toISOString(),
         scrollDepth: readPercent,
-        completed: maxDepth >= 92,
+        completed,
         readingMinutes,
         dwellSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
         sessionId: readingSessionId,
       })
       localStorage.setItem(READER_HISTORY_KEY, JSON.stringify(next))
       window.dispatchEvent(new Event('nw-reader-state-change'))
+      if (completed) trackExperimentConversion(ARTICLE_COMPLETION_EXPERIMENT_ID)
       void fetch('/api/reading', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -108,7 +163,7 @@ export function ReaderArticleControls({
           articleTitleNe: story.titleNe,
           readPercent,
           dwellSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
-          completed: maxDepth >= 92,
+          completed,
           sessionId: readingSessionId,
         }),
         keepalive: true,
@@ -121,14 +176,16 @@ export function ReaderArticleControls({
     }
 
     record()
-    window.addEventListener('scroll', record, { passive: true })
+    restorePosition()
+    window.addEventListener('scroll', recordThrottled, { passive: true })
     window.addEventListener('pagehide', persist)
     const interval = window.setInterval(persist, 15_000)
     return () => {
       persist()
-      window.removeEventListener('scroll', record)
+      window.removeEventListener('scroll', recordThrottled)
       window.removeEventListener('pagehide', persist)
       window.clearInterval(interval)
+      recordThrottled.cancel()
     }
   }, [href, readingMinutes, story.category.slug, story.id, story.slug, story.titleNe, title, readingSessionId])
 
@@ -171,6 +228,7 @@ export function ReaderArticleControls({
 
   return (
     <div className="article-utility-bar" lang={lang} aria-label={locale === 'en' ? 'Article reading tools' : 'समाचार पढाइ उपकरण'}>
+      <ExperimentExposure experimentId={ARTICLE_COMPLETION_EXPERIMENT_ID} />
       <div className="article-utility-bar__actions">
         <button type="button" onClick={() => setReadingMode((value) => !value)} aria-pressed={readingMode}>
           <span>{modeLabel}</span>
@@ -181,9 +239,23 @@ export function ReaderArticleControls({
       </div>
       <div className="article-utility-bar__status" aria-live="polite">
         <span><strong>{remaining}</strong> {locale === 'en' ? 'min left' : 'मिनेट बाँकी'}</span>
+        {meter ? <span>{locale === 'en' ? `Free reads this session: ${meter.count}/${meter.limit}` : `यो सत्रका निःशुल्क पढाइ: ${meter.count}/${meter.limit}`}</span> : null}
         {historySyncFailed ? <span data-warning="true">{locale === 'en' ? 'Device-only history' : 'इतिहास उपकरणमा मात्र'}</span> : null}
         {!personalized ? <span>{locale === 'en' ? 'History off' : 'इतिहास बन्द'}</span> : null}
       </div>
+      {showFeedback ? (
+        <div className="article-feedback" role="group" aria-label={locale === 'en' ? 'Article feedback' : 'समाचार प्रतिक्रिया'}>
+          <span>{locale === 'en' ? 'Was this report useful?' : 'यो समाचार उपयोगी भयो?'}</span>
+          <button type="button" onClick={() => {
+            localStorage.setItem('nw:reader-feedback:last-answer', 'useful')
+            setShowFeedback(false)
+          }}>{locale === 'en' ? 'Yes' : 'भयो'}</button>
+          <button type="button" onClick={() => {
+            localStorage.setItem('nw:reader-feedback:last-answer', 'not-useful')
+            setShowFeedback(false)
+          }}>{locale === 'en' ? 'Not really' : 'खासै भएन'}</button>
+        </div>
+      ) : null}
     </div>
   )
 }

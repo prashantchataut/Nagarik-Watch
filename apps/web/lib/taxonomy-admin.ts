@@ -1,6 +1,6 @@
 import 'server-only'
 import { categories } from '@/lib/content/seed/categories'
-import { asSlug, cleanMultiline, cleanText, ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import { asSlug, cleanMultiline, cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
 
 export type TaxonomyKind = 'category' | 'tag' | 'author'
 export type TaxonomyStatus = 'active' | 'hidden' | 'archived'
@@ -81,7 +81,7 @@ function seedMemory() {
 }
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return ensureOperationalSchema('taxonomy-admin', async (pool) => {
+  return requireOperationalPool(await ensureOperationalSchema('taxonomy-admin', async (pool) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_taxonomy_terms (
         id text PRIMARY KEY,
@@ -100,7 +100,7 @@ async function ensureSchema(): Promise<Queryable | null> {
       )
     `)
     await pool.query(`CREATE INDEX IF NOT EXISTS nw_taxonomy_terms_kind_idx ON nw_taxonomy_terms(kind, status, sort_order)`)
-  })
+  }))
 }
 
 function id(kind: TaxonomyKind, slug: string): string {

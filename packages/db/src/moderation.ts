@@ -47,18 +47,37 @@ export type BannedWordList = readonly string[]
 
 export const DEFAULT_BANNED_WORDS: BannedWordList = []
 
-/** Lexical toxicity: count of banned-word hits normalized by length. Tolerates
- *  Devanagari and Latin; callers pass their own list so policy stays external. */
+/** Normalize for lexical policy matching: NFKC + case fold + strip zero-width. */
+export function normalizeModerationText(text: string): string {
+  return text
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[\u200b-\u200d\ufeff]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/**
+ * Lexical toxicity: count of banned-term hits normalized by length.
+ * Uses token-aware boundaries for Latin and whole-token/substring matches for
+ * Devanagari so short civic substrings are less likely to false-positive.
+ */
 export function lexicalToxicity(
   text: string,
   banned: BannedWordList = DEFAULT_BANNED_WORDS,
 ): number {
   if (!text || banned.length === 0) return 0
-  const lower = text.toLowerCase()
+  const lower = normalizeModerationText(text)
+  if (!lower) return 0
   let hits = 0
-  for (const w of banned) {
-    if (!w) continue
-    const re = new RegExp(escapeRegex(w.toLowerCase()), 'g')
+  for (const raw of banned) {
+    const w = normalizeModerationText(raw)
+    if (!w || w.length < 2) continue
+    const hasDevanagari = /[\u0900-\u097F]/.test(w)
+    const pattern = hasDevanagari
+      ? escapeRegex(w)
+      : `(?:^|[^\\p{L}\\p{N}_])${escapeRegex(w)}(?:$|[^\\p{L}\\p{N}_])`
+    const re = new RegExp(pattern, 'gu')
     const matches = lower.match(re)
     if (matches) hits += matches.length
   }
@@ -104,6 +123,52 @@ export function reputationScore(approved: number, rejected: number): number {
   const total = approved + rejected
   if (total === 0) return 0.5
   return wilsonScore(approved, rejected)
+}
+
+export type TrollRiskInput = {
+  approvedComments: number
+  rejectedComments: number
+  text: string
+  /** Number of comments submitted by the account in the last ten minutes. */
+  commentsLastTenMinutes: number
+}
+
+export type TrollRiskResult = {
+  score: number
+  flags: Array<'high_reject_rate' | 'high_link_density' | 'posting_burst'>
+  signals: {
+    rejectRate: number
+    linkDensity: number
+    burst: number
+  }
+}
+
+/**
+ * Explainable behavioral risk hint for queue ordering. It is deliberately not
+ * a moderation verdict: sparse history is discounted and humans make the call.
+ */
+export function trollRiskScore(input: TrollRiskInput): TrollRiskResult {
+  const approved = Math.max(0, input.approvedComments)
+  const rejected = Math.max(0, input.rejectedComments)
+  const historyTotal = approved + rejected
+  const rawRejectRate = historyTotal > 0 ? rejected / historyTotal : 0
+  const historyConfidence = Math.min(1, historyTotal / 5)
+  const rejectRate = rawRejectRate * historyConfidence
+
+  const links = (input.text.match(/https?:\/\//gi) ?? []).length
+  const linkDensity = Math.min(1, links / Math.max(1, input.text.length / 100))
+  const burst = Math.min(1, Math.max(0, input.commentsLastTenMinutes - 2) / 8)
+
+  const flags: TrollRiskResult['flags'] = []
+  if (rawRejectRate >= 0.6 && historyTotal >= 5) flags.push('high_reject_rate')
+  if (linkDensity >= 0.5) flags.push('high_link_density')
+  if (input.commentsLastTenMinutes >= 6) flags.push('posting_burst')
+
+  return {
+    score: Math.min(1, rejectRate * 0.5 + linkDensity * 0.25 + burst * 0.25),
+    flags,
+    signals: { rejectRate, linkDensity, burst },
+  }
 }
 
 export function moderateComment(

@@ -11,9 +11,14 @@ import {
   isPayloadCanonical,
   updatePayloadJournalistDraft,
 } from '@/lib/content/payload-admin-client'
-import { getJournalistDraftMeta, saveJournalistDraftMeta } from '@/lib/journalist-workspace'
+import {
+  appendJournalistDraftRevision,
+  getJournalistDraftMeta,
+  saveJournalistDraftMeta,
+} from '@/lib/journalist-workspace'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
+import { recordAuditEvent } from '@/lib/audit-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -120,6 +125,42 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       customSocialText: String(body.customSocialText ?? '').trim() || undefined,
       notificationMode: mode(body.notificationMode),notificationTags,
     })
+    await appendJournalistDraftRevision({
+      articleId: nextMeta.articleId,
+      articleSlug: nextMeta.articleSlug,
+      reporterId: nextMeta.reporterId,
+      actorId: session.userId,
+      actorRole: session.newsroomRole,
+      action: workflowStage === 'submitted' ? 'submitted' : 'saved',
+      stage: workflowStage,
+      snapshot: {
+        titleNe,
+        titleEn: String(body.titleEn ?? ''),
+        slug: nextMeta.articleSlug,
+        categorySlug,
+        deckNe: String(body.deckNe ?? ''),
+        bodyNe: bodyText,
+        tagSlugs,
+        reportingLocation: String(body.reportingLocation ?? ''),
+        sourceNote: String(body.sourceNote ?? ''),
+        editorPitch: String(body.editorPitch ?? ''),
+        mediaReferenceUrl: String(body.heroImageUrl ?? ''),
+        customHomepageText: String(body.customHomepageText ?? ''),
+        customSocialText: String(body.customSocialText ?? ''),
+        notificationMode: mode(body.notificationMode),
+        notificationTags,
+      },
+    })
+    if (workflowStage === 'submitted') {
+      await recordAuditEvent({
+        session,
+        action: 'status_change',
+        targetType: 'journalist_draft',
+        targetId: nextMeta.articleId || nextMeta.articleSlug,
+        summary: `Journalist draft submitted: ${titleNe}`,
+        meta: { reporterId: session.userId, workflowStage },
+      })
+    }
     return NextResponse.json({ article, meta: nextMeta })
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Could not update draft.' }, { status: 400 })

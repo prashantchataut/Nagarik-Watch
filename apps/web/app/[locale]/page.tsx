@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { Hero, StoryCard } from '@nagarikwatch/ui'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getHomepage, getNavCategories } from '@/lib/content'
@@ -10,6 +11,28 @@ import { AdSlot } from '@/components/AdSlot'
 import { RecommendedForYou } from '@/components/reader/RecommendedForYou'
 import { PollOfDay } from '@/components/home/PollOfDay'
 import { getActivePoll } from '@/lib/polls-admin'
+import {
+  ExperimentExposure,
+  HOME_LAYOUT_EXPERIMENT_ID,
+} from '@/components/experiments/ExperimentExposure'
+import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
+import { canonicalAlternates } from '@/lib/seo/canonical'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const locale = asLocale((await params).locale)
+  return {
+    title: locale === 'en' ? 'Independent news from Nepal' : 'नेपालको स्वतन्त्र समाचार',
+    description:
+      locale === 'en'
+        ? 'Original reporting, public-service information and analysis from Nagarik Watch.'
+        : 'नागरिक वाचबाट मौलिक रिपोर्टिङ, सार्वजनिक सेवा सूचना र विश्लेषण।',
+    alternates: canonicalAlternates(locale, '/'),
+  }
+}
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
@@ -126,19 +149,30 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <div>
+      <ExperimentExposure experimentId={HOME_LAYOUT_EXPERIMENT_ID} />
       <BreakingTicker stories={homepage.breaking} locale={locale} />
       <div className="mx-auto max-w-page px-4 py-6 sm:py-9">
         <section className="grid gap-8 border-b border-rule pb-10 xl:grid-cols-[minmax(0,1.35fr)_minmax(17rem,0.62fr)_minmax(16rem,0.52fr)]">
-          <Hero story={homepage.lead} locale={locale} />
+          <InstrumentedStory
+            articleSlug={homepage.lead.slug}
+            articleCategory={homepage.lead.category.slug}
+          >
+            <Hero story={homepage.lead} locale={locale} />
+          </InstrumentedStory>
           <div className="divide-y divide-rule border-y border-rule xl:border-y-0 xl:border-l xl:pl-7">
             {homepage.secondary.slice(0, 4).map((story) => (
-              <StoryCard
+              <InstrumentedStory
                 key={story.id}
-                story={story}
-                locale={locale}
-                variant="horizontal"
-                className="py-4 first:pt-0 last:pb-0"
-              />
+                articleSlug={story.slug}
+                articleCategory={story.category.slug}
+              >
+                <StoryCard
+                  story={story}
+                  locale={locale}
+                  variant="horizontal"
+                  className="py-4 first:pt-0 last:pb-0"
+                />
+              </InstrumentedStory>
             ))}
           </div>
           <LatestRail stories={latest} locale={locale} className="xl:border-l xl:pl-7" />

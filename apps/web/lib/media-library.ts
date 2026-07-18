@@ -1,5 +1,5 @@
 import 'server-only'
-import { cleanMultiline, cleanText, ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import { cleanMultiline, cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
 
 export type MediaItem = {
   id: string
@@ -16,7 +16,7 @@ type Row = { id: string; url: string; alt: string; caption: string | null; credi
 const memory = new Map<string, MediaItem>()
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return ensureOperationalSchema('media-library', async (pool) => {
+  return requireOperationalPool(await ensureOperationalSchema('media-library', async (pool) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_media_items (
         id text PRIMARY KEY,
@@ -29,7 +29,7 @@ async function ensureSchema(): Promise<Queryable | null> {
         updated_at timestamptz NOT NULL DEFAULT now()
       )
     `)
-  })
+  }))
 }
 
 function id(): string { return `media_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}` }

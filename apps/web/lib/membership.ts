@@ -1,5 +1,6 @@
 import type { ReaderSession } from '@/lib/auth/session'
 import { isManualSubscriberEmail } from '@/lib/paywall-admin'
+import { getPaymentAdapterState } from '@/lib/payments/adapter'
 
 const NEWSROOM_PREMIUM_ROLES = new Set([
   'viewer',
@@ -46,5 +47,5 @@ export async function isPremiumSubscriber(session: ReaderSession | null): Promis
 }
 
 export function membershipMode(): 'manual' | 'payment' {
-  return process.env.PAYMENT_PROVIDER || process.env.STRIPE_SECRET_KEY ? 'payment' : 'manual'
+  return getPaymentAdapterState().ready ? 'payment' : 'manual'
 }

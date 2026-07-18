@@ -24,6 +24,8 @@ function reasonLabel(strategy: RecStrategy, locale: Locale) {
   const labels: Record<RecStrategy, string> = {
     content: ne ? 'तपाईंले पढेका विषयसँग मिल्दो' : 'Matches your reading interests',
     session: ne ? 'अहिलेको पढाइसँग सम्बन्धित' : 'Related to this reading session',
+    sequence: ne ? 'हालको पढाइपछि उपयोगी हुन सक्ने' : 'Suggested by your recent reading sequence',
+    collaborative: ne ? 'समान पढाइ ढाँचाबाट' : 'From similar reading patterns',
     freshness: ne ? 'ताजा र उपयोगी' : 'Fresh and useful',
     follow: ne ? 'तपाईंले पछ्याएको विषय वा पत्रकार' : 'From a desk or journalist you follow',
     editorial: ne ? 'सम्पादकीय महत्त्व' : 'Editorial priority',
@@ -116,7 +118,7 @@ export function RecommendedForYou({ locale, catalog, className }: { locale: Loca
     <section className={`recommendation-desk ${className ?? ''}`} aria-label={locale === 'en' ? 'Recommended for you' : 'तपाईंका लागि सिफारिस'}>
       <header className="recommendation-desk__header">
         <div>
-          <p className="editorial-kicker" lang="en">Reader desk · nw-hybrid-v2</p>
+          <p className="editorial-kicker" lang="en">Reader desk · nw-hybrid-v3</p>
           <h2 lang={lang}>{locale === 'en' ? 'A more useful next read' : 'अब पढ्न उपयोगी समाचार'}</h2>
           <p lang={lang}>{enabled
             ? locale === 'en' ? `Ranked from explicit follows, saved stories, reading completion and freshness. ${synced ? 'Account signals are synced.' : 'Using this device until sync returns.'}` : `तपाईंले पछ्याएका विषय, सुरक्षित समाचार, पढाइ पूरा भएको अवस्था र ताजापनका आधारमा। ${synced ? 'खाताको डेटा सिङ्क छ।' : 'सिङ्क नहुँदासम्म यो उपकरणको डेटा प्रयोग हुँदैछ।'}`

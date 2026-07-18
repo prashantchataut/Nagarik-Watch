@@ -1,0 +1,42 @@
+# Dependabot keeps supply-chain inputs fresh with low-noise, grouped PRs.
+# pnpm workspaces are resolved from the root pnpm-lock.yaml, so a single
+# npm entry at "/" covers apps/web, apps/admin and packages/*.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Asia/Kathmandu
+    open-pull-requests-limit: 5
+    versioning-strategy: increase-if-necessary
+    labels:
+      - dependencies
+    groups:
+      # Non-breaking production bumps ship as one review-friendly PR.
+      production-dependencies:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+      # All tooling/dev bumps (incl. majors) collapse into a single PR.
+      development-dependencies:
+        dependency-type: development
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Asia/Kathmandu
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - ci
+    groups:
+      github-actions:
+        patterns:
+          - '*'

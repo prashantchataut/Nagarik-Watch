@@ -1,6 +1,6 @@
 import 'server-only'
 import type { NewsroomSession } from '@/lib/auth/session'
-import { ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import { ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
 
 export type AuditAction =
   | 'create'
@@ -48,7 +48,7 @@ type Row = {
 const memory: AuditEvent[] = []
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return ensureOperationalSchema('audit-log', async (pool) => {
+  return requireOperationalPool(await ensureOperationalSchema('audit-log', async (pool) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_audit_events (
         id text PRIMARY KEY,
@@ -65,7 +65,7 @@ async function ensureSchema(): Promise<Queryable | null> {
     `)
     await pool.query(`CREATE INDEX IF NOT EXISTS nw_audit_events_created_idx ON nw_audit_events(created_at DESC)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS nw_audit_events_target_idx ON nw_audit_events(target_type, target_id, created_at DESC)`)
-  })
+  }))
 }
 
 function id(): string {

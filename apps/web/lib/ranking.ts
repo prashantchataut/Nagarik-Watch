@@ -147,6 +147,18 @@ export function ltvEngagementScore({
   )
 }
 
+/**
+ * Transparent virality heuristic, not a predictive model. Share velocity is
+ * weighted more heavily than comments and the output saturates in [0, 1).
+ */
+export function viralityScore({
+  shareVelocity = 0,
+  commentVelocity = 0,
+}: Pick<RankingSignals, 'shareVelocity' | 'commentVelocity'>): number {
+  const signal = Math.max(0, shareVelocity ?? 0) * 0.7 + Math.max(0, commentVelocity ?? 0) * 0.3
+  return 1 - Math.exp(-signal / 10)
+}
+
 export function weightedScore(
   story: StoryCardData,
   signals: RankingSignals = {},
@@ -260,31 +272,10 @@ export function relatedByContent(
     .map(({ rankScore: _rankScore, rankSignals: _rankSignals, ...ranked }) => ranked)
 }
 
-export const ALGORITHM_ROADMAP = [
-  'weighted-scoring-ranker',
-  'time-decay-ranking',
-  'trending-detection',
-  'velocity-ranking',
-  'burst-detection',
-  'multi-armed-bandit',
-  'bayesian-ranking',
-  'wilson-score-ranking',
-  'content-based-filtering',
-  'session-based-recommendation',
-  'hybrid-recommender',
-] as const
-
-
-export const ACTIVE_ALGORITHM_REGISTRY = [
-  { id: 'weighted-scoring-ranker', label: 'Weighted Scoring Ranker', surface: 'homepage/category/trending' },
-  { id: 'time-decay-ranking', label: 'Time Decay Algorithm', surface: 'latest and breaking news' },
-  { id: 'trending-detection', label: 'Trending Detection', surface: 'trending pages and admin live panel' },
-  { id: 'velocity-ranking', label: 'Velocity Ranking', surface: 'ranking engine' },
-  { id: 'burst-detection', label: 'Burst Detection', surface: 'breaking/election/disaster spikes' },
-  { id: 'multi-armed-bandit', label: 'Multi-Armed Bandit', surface: 'headline/layout experiments' },
-  { id: 'bayesian-ranking', label: 'Bayesian Ranking', surface: 'low-sample bias correction' },
-  { id: 'wilson-score-ranking', label: 'Wilson Score Ranking', surface: 'comments and community scores' },
-  { id: 'content-based-filtering', label: 'Content-Based Filtering', surface: 'related stories' },
-  { id: 'session-based-recommendation', label: 'Session-Based Recommendation', surface: 'saved/recommended modules' },
-  { id: 'ltv-engagement-score', label: 'LTV / Engagement Score', surface: 'admin live panel and recommendations' },
-] as const
+export {
+  ACTIVE_ALGORITHM_REGISTRY,
+  ALGORITHM_CATALOG,
+  ALGORITHM_ROADMAP,
+  algorithmCatalogStats,
+  rankAlgorithmsForShipping,
+} from './algorithms/catalog'

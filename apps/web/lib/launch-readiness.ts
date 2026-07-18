@@ -1,6 +1,10 @@
 import 'server-only'
 import { operationalStorageMode } from '@/lib/ops-db'
 import { getEmailProviderState } from '@/lib/email-provider'
+import { getOpsMigrationStatus } from '@/lib/ops-migrations'
+import { getPaymentAdapterState } from '@/lib/payments/adapter'
+import { isPayloadStorageWired } from '@/lib/storage-adapter'
+import { twoFactorConfigured } from '@/lib/security/mfa'
 
 export type LaunchCheck = {
   key: string
@@ -42,22 +46,27 @@ function verifiedSetting(
   }
 }
 
-export function getLaunchChecks(): LaunchCheck[] {
+function buildLaunchChecks(options?: {
+  opsMigrations?: { applied: string[]; pending: string[]; storage: 'postgres' | 'unavailable' }
+}): LaunchCheck[] {
   const dbMode = operationalStorageMode()
   const contentSource = value('CONTENT_SOURCE') || value('PAYLOAD_CONTENT_SOURCE')
   const emailProvider = getEmailProviderState()
   const publishedCount = Number(value('PUBLISHED_ARTICLE_COUNT') || 0)
   const launchMinimum = Number(value('LAUNCH_MIN_PUBLISHED_ARTICLES') || 30)
-  const storageCredentialsPresent = Boolean(value('BLOB_READ_WRITE_TOKEN') || value('S3_BUCKET') || value('STORAGE_BUCKET'))
-  // Credentials are not proof of persistence. The current Payload config still
-  // uses local upload storage, which is ephemeral on Vercel. Keep launch blocked
-  // until a real Payload storage plugin is imported and configured.
-  const storageAdapterWired = false
+  const storageCredentialsPresent = Object.entries(process.env).some(
+    ([name, current]) =>
+      /^(STORAGE_|S3_|BLOB_)/.test(name) && Boolean(current?.trim()),
+  )
+  const storageAdapterWired = isPayloadStorageWired()
   const pushConfigured = Boolean(
     value('NEXT_PUBLIC_WEB_PUSH_VAPID_KEY') &&
       value('WEB_PUSH_PROVIDER_URL') &&
       value('WEB_PUSH_PROVIDER_API_KEY'),
   )
+  const launchLive = (value('NEXT_PUBLIC_LAUNCH_STATUS') || 'preview').toLowerCase() === 'live'
+  const ops = options?.opsMigrations
+  const paymentAdapter = getPaymentAdapterState()
 
   return [
     verifiedSetting('site-url', 'Public site URL', 'NEXT_PUBLIC_SITE_URL'),
@@ -111,6 +120,28 @@ export function getLaunchChecks(): LaunchCheck[] {
             ? 'Production schema push is disabled; checked-in migrations are authoritative'
             : 'Set PAYLOAD_DB_PUSH=false and run checked-in migrations before launch',
     },
+    {
+      key: 'ops-migrations',
+      label: 'Operational schema migrations',
+      status: !ops
+        ? 'warn'
+        : ops.storage === 'unavailable'
+          ? launchLive || dbMode === 'postgres'
+            ? 'fail'
+            : 'warn'
+          : ops.pending.length > 0
+            ? launchLive
+              ? 'fail'
+              : 'warn'
+            : 'pass',
+      detail: !ops
+        ? 'Ops migration status not probed'
+        : ops.storage === 'unavailable'
+          ? 'DATABASE_URL unavailable — run pnpm migrate:ops against Postgres before launch'
+          : ops.pending.length > 0
+            ? `Pending ops migrations: ${ops.pending.join(', ')} (pnpm migrate:ops)`
+            : `${ops.applied.length} ops migrations applied`,
+    },
     verifiedSetting('legal-name', 'Legal publisher identity', 'NEXT_PUBLIC_PUBLICATION_LEGAL_NAME'),
     verifiedSetting('editor-in-chief', 'Editor-in-chief identity', 'NEXT_PUBLIC_EDITOR_IN_CHIEF'),
     verifiedSetting('registration', 'Publication registration', 'NEXT_PUBLIC_DOIB_NUMBER'),
@@ -134,7 +165,7 @@ export function getLaunchChecks(): LaunchCheck[] {
     {
       key: 'storage',
       label: 'Media storage',
-      status: contentSource !== 'payload' || storageAdapterWired || storageCredentialsPresent ? 'pass' : 'warn',
+      status: contentSource !== 'payload' || storageAdapterWired ? 'pass' : 'warn',
       detail:
         contentSource !== 'payload'
           ? 'Media can be referenced by URL in the newsroom article editor'
@@ -166,10 +197,20 @@ export function getLaunchChecks(): LaunchCheck[] {
     {
       key: 'payments',
       label: 'Payment provider',
-      status: value('STRIPE_SECRET_KEY') || value('PAYMENT_PROVIDER') ? 'pass' : 'warn',
-      detail: value('STRIPE_SECRET_KEY') || value('PAYMENT_PROVIDER')
-        ? 'Payment provider configured'
-        : 'Membership payments are not automated',
+      status: paymentAdapter.ready ? 'pass' : 'warn',
+      detail: paymentAdapter.ready
+        ? `${paymentAdapter.provider} payment adapter reports ready`
+        : paymentAdapter.detail,
+    },
+    {
+      key: 'staff-mfa',
+      label: 'Staff multi-factor authentication',
+      status: twoFactorConfigured() ? 'pass' : launchLive ? 'warn' : 'pass',
+      detail: twoFactorConfigured()
+        ? 'Staff MFA is configured and enforced'
+        : launchLive
+          ? 'Live mode is enabled, but staff MFA is not configured or enforced'
+          : 'Staff MFA is not configured; this becomes a warning in live mode',
     },
     {
       key: 'live-data',
@@ -182,10 +223,25 @@ export function getLaunchChecks(): LaunchCheck[] {
   ]
 }
 
-export function launchScore(checks = getLaunchChecks()): number {
+/** Synchronous checks for static/scripts; ops migration probe is warn until async path runs. */
+export function getLaunchChecks(): LaunchCheck[] {
+  return buildLaunchChecks()
+}
+
+/** Preferred for /admin/launch — includes live ops migration status. */
+export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
+  const opsMigrations = await getOpsMigrationStatus().catch(() => ({
+    applied: [] as string[],
+    pending: [] as string[],
+    storage: 'unavailable' as const,
+  }))
+  return buildLaunchChecks({ opsMigrations })
+}
+
+export function launchScore(checks: LaunchCheck[]): number {
   const points = checks.reduce(
     (sum, check) => sum + (check.status === 'pass' ? 1 : check.status === 'warn' ? 0.5 : 0),
     0,
   )
-  return Math.round((points / checks.length) * 100)
+  return Math.round((points / Math.max(1, checks.length)) * 100)
 }

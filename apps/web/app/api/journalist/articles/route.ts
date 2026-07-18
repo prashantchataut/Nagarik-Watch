@@ -4,7 +4,11 @@ import { getNewsroomSession } from '@/lib/auth/session'
 import { CONTRIBUTOR_ROLES } from '@/lib/admin-roles'
 import { createArticle } from '@/lib/content/store/json-store'
 import { blocksFromShorthand } from '@/lib/content/blocks'
-import { listJournalistDraftMeta, saveJournalistDraftMeta } from '@/lib/journalist-workspace'
+import {
+  appendJournalistDraftRevision,
+  listJournalistDraftMeta,
+  saveJournalistDraftMeta,
+} from '@/lib/journalist-workspace'
 import { createPayloadJournalistDraft, isPayloadCanonical } from '@/lib/content/payload-admin-client'
 import { enforceRateLimit } from '@/lib/rate-limit'
 
@@ -119,6 +123,32 @@ export async function POST(request: NextRequest) {
       customSocialText: String(body.customSocialText ?? '').trim() || undefined,
       notificationMode: notificationMode(body.notificationMode),
       notificationTags,
+    })
+    await appendJournalistDraftRevision({
+      articleId: meta.articleId,
+      articleSlug: meta.articleSlug,
+      reporterId: meta.reporterId,
+      actorId: session.userId,
+      actorRole: session.newsroomRole,
+      action: workflowStage === 'submitted' ? 'submitted' : 'saved',
+      stage: workflowStage,
+      snapshot: {
+        titleNe,
+        titleEn: String(body.titleEn ?? ''),
+        slug,
+        categorySlug,
+        deckNe: String(body.deckNe ?? ''),
+        bodyNe,
+        tagSlugs,
+        reportingLocation: String(body.reportingLocation ?? ''),
+        sourceNote: String(body.sourceNote ?? ''),
+        editorPitch,
+        mediaReferenceUrl: String(body.heroImageUrl ?? ''),
+        customHomepageText: String(body.customHomepageText ?? ''),
+        customSocialText: String(body.customSocialText ?? ''),
+        notificationMode: notificationMode(body.notificationMode),
+        notificationTags,
+      },
     })
 
     return NextResponse.json({ article, meta }, { status: 201 })

@@ -1,7 +1,11 @@
 import 'server-only'
 import type { StoryCardData } from '@nagarikwatch/db'
 import type { RankingSignals } from '@/lib/ranking'
-import { getMostReadStats, getTrendingSamples } from '@/lib/engagement/store'
+import {
+  getBookmarkVelocityStats,
+  getMostReadStats,
+  getTrendingSamples,
+} from '@/lib/engagement/store'
 import { getRankingEventStats } from '@/lib/engagement/ranking-events'
 
 export type StoryEngagementIndex = {
@@ -15,6 +19,7 @@ export type StoryEngagementIndex = {
       sharesPerHour: number
       shareVelocity: number
       commentVelocity: number
+      bookmarkVelocity: number
       readingCompletion: number
       dwellTimeSeconds: number
       impressions: number
@@ -36,6 +41,7 @@ function emptySignals() {
     sharesPerHour: 0,
     shareVelocity: 0,
     commentVelocity: 0,
+    bookmarkVelocity: 0,
     readingCompletion: 0,
     dwellTimeSeconds: 0,
     impressions: 0,
@@ -44,7 +50,7 @@ function emptySignals() {
   }
 }
 
-/** Build a first-party engagement index from reading, comments, and ranking events. */
+/** Build a first-party engagement index from reading, bookmarks, and ranking events. */
 export async function buildStoryEngagementIndex(
   windowMinutes = 120,
 ): Promise<StoryEngagementIndex> {
@@ -56,10 +62,11 @@ export async function buildStoryEngagementIndex(
     return engagementCache.value
   }
 
-  const [samples, mostRead, ranking] = await Promise.all([
+  const [samples, mostRead, ranking, bookmarks] = await Promise.all([
     getTrendingSamples(windowMinutes).catch(() => []),
     getMostReadStats(7, 80).catch(() => []),
     getRankingEventStats(windowMinutes).catch(() => []),
+    getBookmarkVelocityStats(windowMinutes, 80).catch(() => []),
   ])
 
   const now = Date.now()
@@ -68,12 +75,13 @@ export async function buildStoryEngagementIndex(
   for (const sample of samples) {
     const current = bySlug.get(sample.articleId) ?? emptySignals()
     const ageMs = Math.max(0, now - Date.parse(sample.at))
-    const weighted = sample.views + sample.shares * 6 + sample.comments * 3
+    const weighted = sample.views + sample.shares * 6 + sample.comments * 3 + (sample.bookmarks ?? 0) * 4
     current.viewsPerHour += weighted / Math.max(1, windowMinutes / 60)
     current.commentsPerHour += sample.comments / Math.max(1, windowMinutes / 60)
     current.sharesPerHour += sample.shares / Math.max(1, windowMinutes / 60)
     current.shareVelocity += sample.shares
     current.commentVelocity += sample.comments
+    current.bookmarkVelocity += sample.bookmarks ?? 0
     if (ageMs <= 10 * 60_000) current.viewsLast10Min += weighted
     bySlug.set(sample.articleId, current)
   }
@@ -82,7 +90,17 @@ export async function buildStoryEngagementIndex(
     const current = bySlug.get(row.articleSlug) ?? emptySignals()
     current.uniqueReaders = row.uniqueReaders
     current.readingCompletion = Math.min(1, row.averageReadPercent / 100)
-    current.dwellTimeSeconds = Math.max(current.dwellTimeSeconds, row.averageReadPercent * 1.2)
+    // Prefer measured dwell; never invent dwell from completion percent.
+    current.dwellTimeSeconds = Math.max(current.dwellTimeSeconds, row.averageDwellSeconds ?? 0)
+    bySlug.set(row.articleSlug, current)
+  }
+
+  for (const row of bookmarks) {
+    const current = bySlug.get(row.articleSlug) ?? emptySignals()
+    current.bookmarkVelocity = Math.max(
+      current.bookmarkVelocity,
+      row.bookmarksLastHour + row.bookmarks / Math.max(1, windowMinutes / 60),
+    )
     bySlug.set(row.articleSlug, current)
   }
 
@@ -91,8 +109,11 @@ export async function buildStoryEngagementIndex(
     const current = bySlug.get(row.articleSlug) ?? emptySignals()
     current.impressions += row.impressions
     current.clicks += row.clicks
-    current.sharesPerHour += row.shares / Math.max(1, windowMinutes / 60)
-    current.shareVelocity += row.shares
+    current.sharesPerHour = Math.max(
+      current.sharesPerHour,
+      row.shares / Math.max(1, windowMinutes / 60),
+    )
+    current.shareVelocity = Math.max(current.shareVelocity, row.shares)
     totalImpressions += row.impressions
     bySlug.set(row.articleSlug, current)
   }
@@ -136,9 +157,11 @@ export function signalsForStory(
     commentsPerHour: activity.commentsPerHour,
     shareVelocity: activity.shareVelocity,
     commentVelocity: activity.commentVelocity,
+    bookmarkVelocity: activity.bookmarkVelocity,
     readingCompletion: activity.readingCompletion,
     dwellTimeSeconds: activity.dwellTimeSeconds,
-    qualityTrustScore: 0.85,
+    // Trust stays at 0 until a real source/reliability pipeline populates it.
+    qualityTrustScore: 0,
     ltvScore: 0,
     premium: Boolean(story.premium),
   }

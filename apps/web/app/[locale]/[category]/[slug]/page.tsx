@@ -17,9 +17,11 @@ import { BookmarkButton } from '@/components/reader/BookmarkButton'
 import { ReaderArticleControls } from '@/components/reader/ReaderArticleControls'
 import { AdSlot } from '@/components/AdSlot'
 import { CommentSection } from '@/components/article/CommentSection'
+import { SpeculationRules } from '@/components/SpeculationRules'
 import { getSession } from '@/lib/auth/session'
 import { isPremiumSubscriber } from '@/lib/membership'
 import { PUBLICATION, SITE_URL } from '@/lib/site'
+import { publicShareImageUrl } from '@/lib/seo/share-image'
 
 function previewBlocks(blocks: ArticleBlock[]): ArticleBlock[] {
   let paragraphs = 0
@@ -50,12 +52,34 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const title = locale === 'en' && article.seoTitleEn ? article.seoTitleEn : locale === 'en' && article.titleEn ? article.titleEn : article.seoTitleNe || article.titleNe
   const description = locale === 'en' && article.seoDescriptionEn ? article.seoDescriptionEn : article.seoDescriptionNe || (locale === 'en' ? article.deckEn : article.deckNe)
   const canonical = `${SITE_URL}${localizeHref(locale, `/${category}/${slug}`)}`
+  const shareImage = publicShareImageUrl(article.heroImage?.url, SITE_URL)
+  const nePath = `/${category}/${slug}`
+  const enPath = `/en/${category}/${slug}`
   return {
     title,
     description,
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      languages: article.hasEnglish
+        ? { ne: nePath, en: enPath, 'x-default': nePath }
+        : { ne: nePath, 'x-default': nePath },
+    },
     robots: article.noindex ? { index: false, follow: false } : undefined,
-    openGraph: { type: 'article', title, description, url: canonical, publishedTime: article.publishedAt, modifiedTime: article.updatedAt, images: article.heroImage ? [{ url: article.heroImage.url, alt: article.heroImage.alt }] : undefined },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url: canonical,
+      publishedTime: article.publishedAt,
+      modifiedTime: article.updatedAt,
+      images: [{ url: shareImage, alt: article.heroImage?.alt || title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [shareImage],
+    },
   }
 }
 
@@ -66,8 +90,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
   const article = await getArticleBySlug(category, slug, locale)
   if (!article || (english && !article.hasEnglish)) notFound()
 
-  const session = article.premium ? await getSession() : null
-  const canReadFull = !article.premium || (await isPremiumSubscriber(session))
+  const session = await getSession()
+  const premiumReader = await isPremiumSubscriber(session)
+  const canReadFull = !article.premium || premiumReader
   const body = english && article.bodyEn ? article.bodyEn : article.bodyNe
   const visibleBody = canReadFull ? body : previewBlocks(body)
   const [openingBody, remainingBody] = splitAfterParagraphs(visibleBody)
@@ -77,10 +102,14 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
   const canonical = `${SITE_URL}${href}`
   const relatedPool = await getStories({ locale, limit: 40 })
   const related = relatedByContent(article, relatedPool.items, 5)
+  const relatedHrefs = related.map((story) =>
+    localizeHref(locale, `/${story.category.slug}/${story.slug}`),
+  )
 
   return (
     <article className="pb-12">
       <ReadingProgress locale={locale} />
+      <SpeculationRules prerenderUrls={relatedHrefs.slice(0, 2)} prefetchUrls={relatedHrefs} />
       <ArticleJsonLd article={article} locale={locale} url={canonical} siteUrl={SITE_URL} siteName={PUBLICATION.publisherName} />
       <header className="mx-auto max-w-[62rem] px-4 pb-7 pt-10 sm:pt-14" lang={english ? 'en' : 'ne'}>
         <div className="flex flex-wrap items-center gap-2">
@@ -115,7 +144,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
 
       <div className="mx-auto mt-8 grid max-w-[76rem] gap-10 px-4 lg:grid-cols-[minmax(0,43rem)_18rem] lg:justify-center">
         <div>
-          <ReaderArticleControls story={article} locale={locale} title={title} href={href} readingMinutes={article.readingMinutes} />
+          <ReaderArticleControls story={article} locale={locale} title={title} href={href} readingMinutes={article.readingMinutes} premiumReader={premiumReader} />
           <ArticleBody blocks={openingBody} locale={locale} source={article.source} className="mt-8" />
           <AdSlot locale={locale} placementKey="article-top-billboard" variant="billboard" />
           {remainingBody.length ? <ArticleBody blocks={remainingBody} locale={locale} className="mt-8" /> : null}

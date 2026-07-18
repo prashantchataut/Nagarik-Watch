@@ -30,7 +30,11 @@ export default defineConfig({
     timezoneId: 'Asia/Kathmandu',
   },
   projects: [
-    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'desktop-chromium',
+      use: { ...devices['Desktop Chrome'] },
+      testIgnore: /mobile\.spec\.ts/,
+    },
     {
       name: 'mobile-chromium',
       use: { ...devices['Pixel 7'] },
