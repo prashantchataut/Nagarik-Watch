@@ -134,7 +134,7 @@ export function TagRow({
           <Link
             key={tag.slug}
             href={localizeHref(locale, `/tag/${tag.slug}`)}
-            className="rounded-full border border-rule px-3 py-1 text-sm font-semibold text-ink-soft transition hover:border-brand hover:text-brand-strong"
+            className="border-b border-transparent text-body font-semibold text-ink-soft transition hover:border-brand hover:text-brand-strong"
           >
             {name}
           </Link>

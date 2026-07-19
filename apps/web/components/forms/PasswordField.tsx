@@ -12,6 +12,8 @@ type PasswordFieldProps = {
   helpText?: string
   showLabel?: string
   hideLabel?: string
+  /** reader = rounded public forms; newsroom = square staff controls */
+  variant?: 'reader' | 'newsroom'
 }
 
 export function PasswordField({
@@ -24,16 +26,24 @@ export function PasswordField({
   helpText,
   showLabel = 'Show',
   hideLabel = 'Hide',
+  variant = 'reader',
 }: PasswordFieldProps) {
   const [visible, setVisible] = useState(false)
   const id = useId()
   const helpId = helpText ? `${id}-help` : undefined
   const buttonLabel = visible ? hideLabel : showLabel
+  const newsroom = variant === 'newsroom'
 
   return (
     <div className="grid gap-1.5 text-meta font-semibold text-ink">
       <label htmlFor={id}>{label}</label>
-      <div className="flex rounded-md border border-rule bg-surface focus-within:border-brand focus-within:ring-2 focus-within:ring-brand-tint">
+      <div
+        className={
+          newsroom
+            ? 'flex border border-rule bg-surface focus-within:border-brand'
+            : 'flex rounded-md border border-rule bg-surface focus-within:border-brand focus-within:ring-2 focus-within:ring-brand-tint'
+        }
+      >
         <input
           id={id}
           name={name}
@@ -43,7 +53,12 @@ export function PasswordField({
           disabled={disabled}
           placeholder={placeholder}
           aria-describedby={helpId}
-          className="min-w-0 flex-1 rounded-l-md bg-transparent px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:outline-none disabled:opacity-60"
+          inputMode="text"
+          className={
+            newsroom
+              ? 'min-h-11 min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:outline-none disabled:opacity-60'
+              : 'min-h-11 min-w-0 flex-1 rounded-l-md bg-transparent px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:outline-none disabled:opacity-60'
+          }
         />
         <button
           type="button"
@@ -51,7 +66,11 @@ export function PasswordField({
           disabled={disabled}
           aria-pressed={visible}
           aria-label={buttonLabel}
-          className="min-w-16 rounded-r-md border-l border-rule px-3 text-caption font-bold uppercase tracking-wide text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong disabled:opacity-60"
+          className={
+            newsroom
+              ? 'min-h-11 min-w-11 border-l border-rule px-3 text-caption font-bold uppercase tracking-wide text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-surface-raised hover:text-ink disabled:opacity-60'
+              : 'min-h-11 min-w-16 rounded-r-md border-l border-rule px-3 text-caption font-bold uppercase tracking-wide text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong disabled:opacity-60'
+          }
         >
           {buttonLabel}
         </button>

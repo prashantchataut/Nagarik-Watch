@@ -38,7 +38,7 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <AdminPageHeader title="सेटिङ" subtitle="Publication identity, contact details, social links and operational text" />
+      <AdminPageHeader subtitle="Publication identity, contact details, social links and operational text" />
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.4fr]">
         <AdminCard>
           <h2 className="font-display text-h2 text-ink" lang="ne">सेटिङ थप्नुहोस्</h2>

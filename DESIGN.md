@@ -126,7 +126,7 @@ appropriate line-height (Devanagari needs ~1.6–1.7 line-height for body, more 
   "Baloo 2 Devanagari" for a slightly more characterful display. To be A/B'd in Phase 1.
 - **Latin / English section / UI numbers:** "Source Sans 3" (Google Fonts, OFL). Editorial
   Latin companion to Mukta/Noto; deliberately not Inter (anti-slop / DESIGN decision 2026-07-19).
-  CSS variable historically named `--font-inter` may remain until a rename pass; the loaded
+  CSS variable is `--font-source-sans` (historical `--font-inter` alias removed); the loaded
   face is Source Sans 3.
 - **Serif option for long-form/columns:** a serif for the opinion/columns section gives it
   a distinct editorial identity. Candidate: "Tiro Devanagari Sanskrit" + "Tiro Devanagari

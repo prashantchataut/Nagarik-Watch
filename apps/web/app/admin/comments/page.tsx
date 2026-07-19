@@ -3,7 +3,8 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canModerateComments } from '@/lib/admin-roles'
 import { listCommentsForModeration, type CommentStatus } from '@/lib/engagement/store'
-import { AdminPageHeader, AdminEmptyState } from '@/components/admin/primitives'
+import { analyzeSentiment } from '@/lib/nlp/sentiment'
+import { AdminPageHeader, AdminEmptyState, AdminFilterLink } from '@/components/admin/primitives'
 import { CommentModerationActions } from '@/components/admin/CommentModerationActions'
 
 export const metadata: Metadata = { title: 'टिप्पणी', robots: { index: false, follow: false } }
@@ -20,10 +21,10 @@ export default async function CommentsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <AdminPageHeader title="टिप्पणी" subtitle="Moderation queue, spam review and reader trust controls" />
+      <AdminPageHeader subtitle="Moderation queue, spam review and reader trust controls" />
       <nav className="mb-5 flex flex-wrap gap-2" aria-label="Comment status filter">
         {(['pending', 'flagged', 'approved', 'rejected', 'all'] as const).map((value) => (
-          <Link key={value} href={value === 'pending' ? '/admin/comments' : `/admin/comments?status=${value}`} aria-current={status === value ? 'page' : undefined} className={status === value ? 'rounded-full bg-brand px-4 py-2 text-meta font-bold text-surface' : 'rounded-full border border-rule px-4 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong'}>{value}</Link>
+          <AdminFilterLink key={value} href={value === 'pending' ? '/admin/comments' : `/admin/comments?status=${value}`} active={status === value}>{value}</AdminFilterLink>
         ))}
       </nav>
       <div className="overflow-hidden rounded-lg border border-rule bg-surface-raised">
@@ -39,6 +40,14 @@ export default async function CommentsPage({ searchParams }: { searchParams: Pro
                   <p>tox {(comment.toxicityScore ?? 0).toFixed(2)}</p>
                   <p>spam {(comment.spamScore ?? 0).toFixed(2)}</p>
                   <p>trust {(comment.reputationUsed ?? 0.5).toFixed(2)}</p>
+                  {(() => {
+                    const sentiment = analyzeSentiment(comment.bodyNe)
+                    return (
+                      <p className="mt-1">
+                        sentiment {sentiment.label} ({sentiment.score.toFixed(2)})
+                      </p>
+                    )
+                  })()}
                   {comment.moderationFlags?.length ? (
                     <p className="mt-1 text-mute">{comment.moderationFlags.join(', ')}</p>
                   ) : (

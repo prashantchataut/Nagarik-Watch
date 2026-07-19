@@ -1,91 +1,72 @@
 # Nagarik Watch — Roadmap
 
-A living, prioritised plan. Items marked ✅ are shipped; 🚧 in progress; ⏳ planned.
+Living plan. Prefer [MANUAL.md](MANUAL.md) and [docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md)
+when this file conflicts with shipped stack decisions.
+
+**Stack decisions (2026-07-19):** Better Auth + Postgres (not NextAuth/Clerk), local BM25 (not
+Meilisearch), Vercel Blob (not Cloudinary), free-to-read + ads with Stripe membership dormant
+(not eSewa/Khalti), VAPID web-push when keys are set.
+
+Status legend: ✅ shipped · 🔒 credential-blocked · 💤 dormant by product decision · ⛔ superseded ·
+⏳ planned / external
 
 ## Phase 0 — Foundation ✅
 
-- [x] Prisma schema (Article, Author, Category, Tag, Province, Comment, Poll, Newsletter, Breaking,
-      LiveWidgetConfig, ContactMessage, ReaderTip, Correction, AuditLog, User, Reader, Bookmark,
-      ReadingHistory, AuthorFollow)
-- [x] NextAuth newsroom auth + self-managed JWT reader auth (separate cookies)
-- [x] Seed content (32 articles, 8 authors, 9 categories, 7 provinces, 16 tags)
-- [x] Branding (logo, favicon, OG image, PWA icons, manifest)
-- [x] Design system (crimson news palette, Devanagari fonts, dark mode)
-- [x] Production security (rate limiting, zod validation, env-based admin, secure cookies)
+- [x] Content model + seed corpus
+- [x] Better Auth newsroom/reader sessions (Postgres)
+- [x] Civic Crimson design system + bilingual public shell
+- [x] Production security baseline (rate limits, CSP, origin checks, Turnstile gate)
 
 ## Phase 1 — Core newsroom ✅
 
-- [x] Homepage (breaking ticker, lead/secondary grid, category sections, most-read, live widgets,
-      poll, newsletter, today brief)
-- [x] Article page (byline, BS date, reading time, views, share, font-size, reading progress,
-      hero w/ caption+credit, source attribution, corrections, tags, author bio, comments, related,
-      NewsArticle + Breadcrumb + Speakable JSON-LD)
-- [x] Listing pages (category, author, province, tag, search, video, opinion, province index)
-- [x] Utilities (date converter, market board, horoscope, weather)
-- [x] Trust pages (about, contact, ethics, corrections, ownership, privacy, terms, membership,
-      newsletter)
-- [x] FAQ topic pages (NEPSE, Nepali date, forex) with FAQPage schema
-- [x] Admin CMS (dashboard, article editor w/ workflow + scheduling, comments, polls, breaking,
-      authors/categories/tags/provinces managers, newsletter CSV, contacts, tips, audit, users,
-      live-widgets)
-- [x] Reader accounts (signup/login, bookmarks, history, follows)
-- [x] SEO infra (sitemap, news-sitemap, RSS, llms.txt, robots, security headers)
+- [x] Homepage edition, article page, listings, trust pages
+- [x] Reader accounts, saves, recommendations (honest empty states)
+- [x] SEO infra (sitemap, news-sitemap, RSS, robots, security headers)
+- [x] Newsroom + admin operational surfaces
 
-## Phase 2 — Depth & engagement 🚧 (this phase)
+## Phase 2 — Depth & engagement ✅ (product-owned)
 
-- [ ] Photo gallery section + ImageGallery schema
-- [ ] Live blog block + LiveBlogPosting schema
-- [ ] Article reactions (emoji) + nested comments with upvote
-- [ ] Topic/collection hub pages + tag description pages
-- [ ] Homepage modules: editor's picks, trending, today in history, photo-of-the-day
-- [ ] Author columns page + improved author profiles (follow count, stats)
-- [ ] AQI widget + multi-city weather + cricket score widget
-- [ ] Full Nepali calendar page with festivals
-- [ ] Newsletter archive + editions
-- [ ] Print-friendly article view
-- [ ] Service worker (PWA offline reading)
-- [ ] Image sitemap + video sitemap + JSON Feed + humans.txt + security.txt + hreflang
+- [x] Photo gallery routes + ImageGallery JSON-LD
+- [x] Article emoji reactions + comment upvotes (migration + API + UI)
+- [x] Columns hub + newsletter public archive
+- [x] Homepage today-in-history + photo-of-the-day (render only when corpus matches)
+- [x] Print-friendly article styles + tools after body
+- [x] Image/video sitemaps, JSON Feed, humans.txt, security.txt
+- [x] Utility strip uses attributed real providers only (no invented scores)
+- [ ] Live blog block + LiveBlogPosting schema — ⏳ remaining editorial format
+- [ ] Full Nepali calendar festivals page — ⏳ content inventory
+- [x] PWA service worker boot path (offline depth still incremental)
 
-## Phase 3 — Scale & monetisation ⏳
+## Phase 3 — Scale & operations
 
-- [ ] Postgres migration + Redis (sessions/cache)
-- [ ] Meilisearch-powered search (replaces DB LIKE)
-- [ ] Cloudinary image CDN + media library in admin
-- [ ] Google Ad Manager integration + sponsored content
-- [ ] eSewa / Khalti membership payments
-- [ ] Web push notifications (VAPID)
-- [ ] Real-time reader count + trending algorithm (Redis sorted sets)
-- [ ] Analytics dashboard for editors (Plausible/PostHog)
-- [ ] Sentry error monitoring
-- [ ] Automated fact-check / plagiarism checker integration
-- [ ] Web Stories (Google Discover)
-- [ ] Election portal template (activated during polls)
-- [ ] Exam results tracker (activated during result season)
-- [ ] Multi-tenant province sub-portals (e.g. koshi.nagarikwatch.com.np)
+- [x] Postgres operational stores + shared pool health
+- [⛔] Meilisearch — superseded by local BM25
+- [⛔] Cloudinary — superseded by Vercel Blob adapter
+- [x] Ad placement model; network scripts load only when mode=network + credentials + ad consent
+- [💤] Stripe membership — dormant unless `NEXT_PUBLIC_MEMBERSHIP_PUBLIC=true`
+- [⛔] eSewa / Khalti — superseded for now
+- [x] Web push (VAPID) — 🔒 until VAPID keys configured
+- [💤] Redis presence / real-time counts — honest adapter until Redis is provisioned
+- [x] Plausible analytics behind consent
+- [x] Sentry boundary (`SENTRY_DSN`) — 🔒 console-only until DSN + `@sentry/nextjs` install
+- [🔒] Plagiarism vendor — adapter not claimed ready without contract
+- [x] Partner feed + cron jobs (digest, interactions, ops-probe, notifications)
+- [x] Election/exam portals — empty/unconfigured until official/manual source
+- [💤] Province host routing — dormant without real domains
+- [x] Admin deploy docs (Node 22.x, `apps/admin`) — ops must create Vercel project + first deploy
 
-## Phase 4 — Intelligence ⏳
+## Phase 4 — Intelligence
 
-- [ ] AI article summaries (TL;DR) via LLM skill — server-side, editor-reviewed
-- [ ] Auto-generated FAQ per article (AEO)
-- [ ] "For you" personalised feed (based on reading history)
-- [ ] Topic/author digest emails (scheduled)
-- [ ] Audio article (TTS) via TTS skill
-- [ ] Voice news (Speakable optimised for assistants)
-- [ ] Semantic search (embeddings)
-- [ ] Comment sentiment moderation assist
-
-## Inspiration sources
-
-- **ekantipur** — province hub, e-paper, multi-author bylines, NEPSE/forex/gold/weather/rashifal.
-- **setopati** — breaking top strip, opinion with author profiles, NEPSE live graph.
-- **onlinekhabar** — Nepali date, AD-BS converter, most read, trending, date converter.
-- **ratopati** — simple category homepage, mobile tile layout, video thumbnail cards.
-- **annapurnapost** — integrated utility footer (calendar/forex/NEPSE/gold/rashifal).
-- **the himalayan times** — global nav, weather, horoscope, newsletter popup, footer trust links.
-- **BBC / Guardian / NYT** — reading progress, "most read", "explainers", fact-check labels,
-  clean typography, related articles.
+- [x] Extractive AI summary/headlines/tags/FAQ drafts — never auto-publish
+- [🔒] LLM rewrite path — needs `AI_PROVIDER_KEY` + audited provider
+- [x] Digest compose cron → email adapter (honest `email-adapter-disabled`)
+- [x] Speakable JSON-LD on eligible articles
+- [x] TTS provider boundary — 🔒 until `TTS_PROVIDER` + `TTS_PROVIDER_KEY`
+- [x] Semantic search: local BM25 + optional local vectors; hosted ANN 🔒
+- [x] Comment sentiment assist in moderation queue (lexicon; not a publish gate)
+- [x] Personalized "For you" feed with empty-state honesty
 
 ## How to use this roadmap
 
-The 15-minute `webDevReview` cron reads `worklog.md` and this file, picks the next reasonable item
-from Phase 2/3, and ships it. To reprioritise, edit this file and move items between phases.
+Ship against launch readiness and MANUAL.md. Mark credentials as blocked rather than claiming
+features complete. Do not resurrect superseded vendors without an explicit product change.

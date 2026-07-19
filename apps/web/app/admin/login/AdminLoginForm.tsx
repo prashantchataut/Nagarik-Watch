@@ -136,6 +136,7 @@ export function AdminLoginForm({
           autoComplete="current-password"
           required
           disabled={pending || !databaseOnline}
+          variant="newsroom"
           helpText="Use your newsroom password."
           showLabel="Show"
           hideLabel="Hide"

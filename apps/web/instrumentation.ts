@@ -32,15 +32,19 @@ function errorSummary(value: unknown) {
  * route and safe database error metadata without request headers or secrets.
  */
 export const onRequestError: Instrumentation.onRequestError = async (error, request, context) => {
-  console.error(
-    '[request-error]',
-    JSON.stringify({
-      error: errorSummary(error),
-      path: request.path,
-      method: request.method,
-      routePath: context.routePath,
-      routeType: context.routeType,
-      routerKind: context.routerKind,
-    }),
-  )
+  const payload = {
+    error: errorSummary(error),
+    path: request.path,
+    method: request.method,
+    routePath: context.routePath,
+    routeType: context.routeType,
+    routerKind: context.routerKind,
+  }
+  console.error('[request-error]', JSON.stringify(payload))
+  try {
+    const { captureException } = await import('@/lib/observability/sentry')
+    captureException(error, payload)
+  } catch {
+    // Observability must never break request handling.
+  }
 }

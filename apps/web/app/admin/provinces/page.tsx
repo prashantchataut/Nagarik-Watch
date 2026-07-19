@@ -36,7 +36,6 @@ export default async function ProvincesPage() {
   return (
     <div>
       <AdminPageHeader
-        title="प्रदेश"
         subtitle="नेपालका सात प्रदेश — प्रदेश सम्पादक कार्यप्रवाहका लागि आधार"
         action={
           <AdminButton href="/admin/users" title="प्रयोगकर्ता व्यवस्थापनमा प्रदेश सम्पादक भूमिका दिनुहोस्">

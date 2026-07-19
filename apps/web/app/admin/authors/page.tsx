@@ -55,7 +55,7 @@ export default async function Page() {
 
   return (
     <div>
-      <AdminPageHeader title="लेखक" subtitle="Byline directory for staff, columnists and contributors" />
+      <AdminPageHeader subtitle="Byline directory for staff, columnists and contributors" />
       <div className="grid gap-5 xl:grid-cols-[0.95fr_1.4fr]">
         <AdminCard>
           <h2 className="font-display text-h2 text-ink" lang="ne">नयाँ / सम्पादन</h2>

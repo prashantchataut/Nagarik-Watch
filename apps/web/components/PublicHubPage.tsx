@@ -4,6 +4,7 @@ import { getArticleBySlug, getStories } from '@/lib/content'
 import { rankStories } from '@/lib/ranking'
 import { buildStoryEngagementIndex, signalsForStory } from '@/lib/ranking-signals'
 import { localizedLead, localizedTitle, type StaticHub } from '@/lib/site'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { UtilityWidgetRail } from '@/components/live/LiveWidgets'
 import { AdSlot } from '@/components/AdSlot'
 import { ReaderSubmissionForm } from '@/components/forms/ReaderSubmissionForm'
@@ -31,33 +32,13 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
       : `लाइभ र्‍याङ्किङले उपलब्ध पहिलो-पक्ष पढाइ, टिप्पणी, इम्प्रेसन र क्लिक प्रयोग गर्छ (पछिल्लो २ घण्टामा ${engagement.storyCount} कथा सक्रिय)। शान्त कथाहरू सम्पादकीय प्राथमिकता र ताजापनमा झर्छन्।`
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8">
-      <header className="border-b-2 border-ink pb-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p
-              className="text-meta font-semibold uppercase tracking-[0.16em] text-brand-strong"
-              lang={lang}
-            >
-              Nagarik Watch
-            </p>
-            <h1
-              className="mt-1 max-w-[18ch] font-display text-[clamp(2.05rem,9vw,4rem)] leading-[0.98] text-ink"
-              lang={lang}
-            >
-              {localizedTitle(locale, hub)}
-            </h1>
-          </div>
-          {stories.length > 0 ? (
-            <p className="border-b border-brand pb-1 text-meta font-semibold text-ink-soft" lang={lang}>
-              {locale === 'en' ? `${stories.length} current items` : `हाल ${stories.length} सामग्री`}
-            </p>
-          ) : null}
-        </div>
-        <p className="mt-4 max-w-body text-body-lg leading-relaxed text-ink-soft" lang={lang}>
-          {localizedLead(locale, hub)}
-        </p>
-      </header>
+    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
+      <HubIndexHeader
+        kicker={locale === 'en' ? 'Section index' : 'खण्ड सूची'}
+        title={localizedTitle(locale, hub)}
+        lead={localizedLead(locale, hub)}
+        lang={lang}
+      />
 
       {hub.mode === 'trending' || hub.mode === 'latest' ? (
         <aside className="mt-5 border-y border-rule py-3 text-meta leading-relaxed text-ink-soft" lang={lang}>

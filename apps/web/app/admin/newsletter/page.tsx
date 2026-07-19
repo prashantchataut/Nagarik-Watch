@@ -67,7 +67,7 @@ export default async function NewsletterPage() {
 
   return (
     <div>
-      <AdminPageHeader title="न्युजलेटर" subtitle="Draft, queue and subscriber management" />
+      <AdminPageHeader subtitle="Draft, queue and subscriber management" />
       <div className="mb-5 grid gap-4 sm:grid-cols-3">
         <AdminCard><p className="text-caption uppercase tracking-wide text-mute">Subscribers</p><p className="font-display text-h1 text-ink">{subscribers.length}</p></AdminCard>
         <AdminCard><p className="text-caption uppercase tracking-wide text-mute">Issues</p><p className="font-display text-h1 text-ink">{issues.length}</p></AdminCard>

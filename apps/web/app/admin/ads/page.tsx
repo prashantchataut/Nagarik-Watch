@@ -55,12 +55,11 @@ export default async function AdsPage() {
   return (
     <div>
       <AdminPageHeader
-        title="विज्ञापन"
         subtitle="house ads, placement inventory, 30-day impression/click reporting"
       />
 
       <div className="mb-5 grid gap-4 lg:grid-cols-[1fr_0.7fr]">
-        <AdminCard className="border-l-4 border-l-brand">
+        <AdminCard>
           <p className="text-body text-ink" lang="ne">
             हालको delivery mode:{' '}
             <code className="font-mono text-ink-soft" lang="en">{adMode}</code>। स्थिति:{' '}
@@ -107,7 +106,7 @@ export default async function AdsPage() {
       </div>
 
       <AdminCard
-        className={`mb-5 ${coverageAnomaly.anomalous ? 'border-l-4 border-l-red-500' : 'border-l-4 border-l-brand'}`}
+        className={`mb-5 ${coverageAnomaly.anomalous ? 'admin-callout admin-callout--danger' : ''}`}
       >
         <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="en">
           Delivery coverage

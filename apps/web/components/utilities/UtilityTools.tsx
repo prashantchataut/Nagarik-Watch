@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Locale } from '@nagarikwatch/db'
@@ -493,7 +493,7 @@ export function UnitConverterTool({ locale }: { locale: Locale }) {
             />
           </Field>
         </fieldset>
-        <Result label={to} value={result || '—'} />
+        <Result label={to} value={result || ' - '} />
       </div>
     </ToolPanel>
   )

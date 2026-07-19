@@ -27,7 +27,6 @@ export default async function NewArticlePage() {
   return (
     <div>
       <AdminPageHeader
-        title="नयाँ समाचार"
         subtitle="नयाँ समाचार लेख्न सुरु गर्नुहोस्। ड्राफ्ट बचत गर्न सक्नुहुन्छ।"
       />
       <ArticleEditor categories={categories} tags={tags} role={session.newsroomRole} isNew />

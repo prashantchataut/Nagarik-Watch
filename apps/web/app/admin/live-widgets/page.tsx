@@ -85,11 +85,10 @@ export default async function LiveWidgetsPage() {
   return (
     <div>
       <AdminPageHeader
-        title="लाइभ विजेट"
         subtitle={`${providers.length} वटा बाह्य डाटा प्रदायक + manual override`}
       />
 
-      <AdminCard className="mb-5 border-l-4 border-l-brand">
+      <AdminCard className="mb-5">
         <p className="text-body text-ink" lang="ne">
           Weather/AQI keyless Open-Meteo बाट चल्छ। NEPSE, FIFA/football, bullion वा forex provider fail भए fake-looking mock नदेखाउन editor ले तल manual JSON override राख्न सक्छ।
         </p>

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import type { NewsroomSession } from '@/lib/auth/session'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import {
@@ -167,7 +167,6 @@ const NAV_GROUPS: {
     heading: 'एडमिन',
     roles: new Set<NewsroomRole>(['admin']),
     items: [
-      { label: 'प्रयोगकर्ता', href: '/admin/users', icon: 'user' },
       { label: 'भूमिका', href: '/admin/roles', icon: 'role' },
       { label: 'अडिट लग', href: '/admin/audit-log', icon: 'audit' },
     ],
@@ -177,10 +176,8 @@ const NAV_GROUPS: {
     roles: new Set<NewsroomRole>(['super_admin']),
     defaultOpen: true,
     items: [
-      { label: 'प्रयोगकर्ता', href: '/admin/users', icon: 'user' },
       { label: 'भूमिका', href: '/admin/roles', icon: 'role' },
       { label: 'अडिट लग', href: '/admin/audit-log', icon: 'audit' },
-      { label: 'लन्च चेक', href: '/admin/launch', icon: 'audit' },
     ],
   },
 ]
@@ -214,6 +211,7 @@ export function AdminShell({
   const desk = resolveAdminDeskVariant(role)
   const deskLabel = adminDeskLabelNe(desk)
   const primaryNav = primaryNavFor(desk, role)
+  const primaryHrefs = new Set(primaryNav.map((item) => item.href))
   const initials = (session.displayName || session.email)
     .split(/[\s@.]+/)
     .slice(0, 2)
@@ -223,9 +221,14 @@ export function AdminShell({
   const visibleGroups = NAV_GROUPS.filter((g) => !g.roles || g.roles.has(role))
     .map((g) => ({
       ...g,
-      items: g.items.filter((item) => !item.roles || item.roles.has(role)),
+      items: g.items.filter(
+        (item) => (!item.roles || item.roles.has(role)) && !primaryHrefs.has(item.href),
+      ),
     }))
     .filter((g) => g.items.length > 0)
+
+  const drawerRef = useRef<HTMLDivElement>(null)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
 
   function signOut() {
     setSignOutError(null)
@@ -248,9 +251,38 @@ export function AdminShell({
       if (e.key === 'Escape') setDrawerOpen(false)
     }
     window.addEventListener('keydown', onKey)
+
+    const drawer = drawerRef.current
+    const focusables = drawer
+      ? Array.from(
+          drawer.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        ).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1)
+      : []
+    const first = focusables[0]
+    const last = focusables[focusables.length - 1]
+    first?.focus()
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key !== 'Tab' || focusables.length === 0) return
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault()
+          last?.focus()
+        }
+      } else if (document.activeElement === last) {
+        e.preventDefault()
+        first?.focus()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+
     return () => {
       document.body.style.overflow = prev
       window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keydown', onKeyDown)
+      menuButtonRef.current?.focus()
     }
   }, [drawerOpen])
 
@@ -285,31 +317,36 @@ export function AdminShell({
       </div>
 
       {drawerOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Newsroom navigation">
           <button
             type="button"
             className="absolute inset-0 bg-ink/45"
             aria-label="मेनु बन्द"
             onClick={() => setDrawerOpen(false)}
           />
-          <div className="absolute left-0 top-0 h-full shadow-overlay">
-            <AdminSidebar {...sidebarProps} />
+          <div ref={drawerRef} className="absolute left-0 top-0 h-full shadow-overlay">
+            <AdminSidebar {...sidebarProps} mobile onClose={() => setDrawerOpen(false)} />
           </div>
         </div>
       ) : null}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-rule bg-surface-raised/95 px-3 backdrop-blur sm:px-5 lg:px-7">
+        <header className="sticky top-0 z-30 flex h-12 min-h-12 items-center gap-2 border-b border-rule bg-surface-raised px-3 sm:gap-3 sm:px-5 lg:px-7">
           <button
+            ref={menuButtonRef}
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md text-ink-soft hover:bg-brand-tint hover:text-brand-strong lg:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-ink-soft hover:bg-brand-tint hover:text-brand-strong lg:hidden"
             aria-label="मेनु खोल्नुहोस्"
+            aria-expanded={drawerOpen}
           >
             <NavIcon name="menu" />
           </button>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate font-display text-h2 text-ink" lang="ne">
+            <p className="truncate font-display text-meta font-bold uppercase tracking-[0.06em] text-mute" lang="ne">
+              न्यूजरुम
+            </p>
+            <h1 className="truncate font-display text-h3 text-ink" lang="ne">
               {pageTitle(clientPath)}
             </h1>
             {navPending ? (
@@ -322,7 +359,7 @@ export function AdminShell({
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden items-center gap-1.5 rounded-md border border-rule px-3 py-1.5 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong sm:inline-flex"
+            className="hidden min-h-11 items-center gap-1.5 rounded-md border border-rule px-3 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong sm:inline-flex"
             lang="ne"
           >
             <NavIcon name="external" />
@@ -360,6 +397,8 @@ function AdminSidebar({
   resolveHref,
   onNavigate,
   startNav,
+  mobile = false,
+  onClose,
 }: {
   clientPath: string
   initials: string
@@ -374,17 +413,23 @@ function AdminSidebar({
   resolveHref: (href: string) => { href: string; external: boolean }
   onNavigate: () => void
   startNav: (cb: () => void) => void
+  mobile?: boolean
+  onClose?: () => void
 }) {
+  function navClass(active: boolean) {
+    return active ? 'admin-nav-link admin-nav-link--active' : 'admin-nav-link'
+  }
+
   return (
     <aside
       className="admin-sidebar flex h-full w-[16.5rem] flex-col border-r border-rule bg-surface-raised"
       data-desk={desk}
     >
-      <div className="flex h-14 items-center gap-2.5 border-b border-rule px-4">
+      <div className="flex h-12 min-h-12 items-center gap-2 border-b border-rule px-3">
         <Link
           href="/admin/dashboard"
           onClick={onNavigate}
-          className="flex min-w-0 items-center gap-2.5"
+          className="flex min-w-0 flex-1 items-center gap-2.5"
         >
           <LogoMark title="नागरिक वाच / Nagarik Watch" className="h-8 w-8 shrink-0" />
           <div className="min-w-0 leading-tight">
@@ -396,6 +441,16 @@ function AdminSidebar({
             </span>
           </div>
         </Link>
+        {mobile && onClose ? (
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-soft hover:bg-brand-tint hover:text-brand-strong"
+            aria-label="मेनु बन्द"
+          >
+            <NavIcon name="close" />
+          </button>
+        ) : null}
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Newsroom navigation">
@@ -414,11 +469,7 @@ function AdminSidebar({
                     onNavigate()
                     if (!external) startNav(() => undefined)
                   }}
-                  className={
-                    active
-                      ? 'flex min-h-9 items-center gap-2.5 border-l-2 border-brand bg-brand-tint px-2.5 py-1.5 text-meta font-bold text-brand-strong'
-                      : 'flex min-h-9 items-center gap-2.5 border-l-2 border-transparent px-2.5 py-1.5 text-meta font-medium text-ink-soft hover:bg-surface hover:text-ink'
-                  }
+                  className={navClass(active)}
                   lang="ne"
                 >
                   <NavIcon name={item.icon} />
@@ -432,13 +483,13 @@ function AdminSidebar({
         {visibleGroups.map((group) => (
           <details
             key={group.heading}
-            className="mt-3 group/nav"
+            className="group/nav mt-3"
             open={group.defaultOpen || group.items.some((i) => isActivePath(clientPath, i.href))}
           >
             <summary className="cursor-pointer list-none px-2.5 py-1.5 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-mute [&::-webkit-details-marker]:hidden">
               <span className="inline-flex items-center gap-1" lang="ne">
                 {group.heading}
-                <span className="text-mute group-open/nav:rotate-90 transition-transform">›</span>
+                <span className="text-mute transition-transform group-open/nav:rotate-90">›</span>
               </span>
             </summary>
             <ul className="mt-0.5 space-y-0.5">
@@ -456,11 +507,7 @@ function AdminSidebar({
                         onNavigate()
                         if (!external) startNav(() => undefined)
                       }}
-                      className={
-                        active
-                          ? 'flex min-h-9 items-center gap-2.5 border-l-2 border-brand bg-brand-tint px-2.5 py-1.5 text-meta font-bold text-brand-strong'
-                          : 'flex min-h-9 items-center gap-2.5 border-l-2 border-transparent px-2.5 py-1.5 text-meta font-medium text-ink-soft hover:bg-surface hover:text-ink'
-                      }
+                      className={navClass(active)}
                       lang="ne"
                     >
                       <NavIcon name={item.icon} />
@@ -491,7 +538,7 @@ function AdminSidebar({
               type="button"
               onClick={signOut}
               disabled={signingOut}
-              className="mt-2 inline-flex min-h-8 items-center rounded-md border border-rule px-2.5 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong disabled:opacity-50"
+              className="admin-button admin-button--secondary mt-2 !min-h-9 !px-2.5 !py-1.5 !text-caption"
               lang="ne"
             >
               {signingOut ? 'साइन आउट…' : 'साइन आउट'}
@@ -724,6 +771,12 @@ function NavIcon({ name }: { name: string }) {
       return (
         <svg {...props}>
           <path d="M3 6h18M3 12h18M3 18h18" />
+        </svg>
+      )
+    case 'close':
+      return (
+        <svg {...props}>
+          <path d="M6 6l12 12M18 6 6 18" />
         </svg>
       )
     case 'external':

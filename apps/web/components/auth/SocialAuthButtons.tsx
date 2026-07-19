@@ -40,6 +40,8 @@ export function SocialAuthButtons({
     }
   }
 
+  if (!googleEnabled) return null
+
   return (
     <div className="auth-social">
       <div className="auth-social__divider" aria-hidden="true">
@@ -48,34 +50,24 @@ export function SocialAuthButtons({
       <button
         type="button"
         className="auth-social__google"
-        disabled={!googleEnabled || pending}
-        aria-disabled={!googleEnabled || pending}
-        title={
-          googleEnabled
-            ? undefined
-            : ne
-              ? 'गुगल साइन-इन चाँडै उपलब्ध हुनेछ।'
-              : 'Google sign-in will be available soon.'
-        }
+        disabled={pending}
+        aria-disabled={pending}
         onClick={() => void signInWithGoogle()}
       >
         <GoogleGlyph />
         <span lang={ne ? 'ne' : 'en'}>
           {pending
-            ? ne ? 'गुगल खोल्दै…' : 'Opening Google…'
-            : ne ? 'गुगलसँग जारी राख्नुहोस्' : 'Continue with Google'}
+            ? ne
+              ? 'गुगल खोल्दै…'
+              : 'Opening Google…'
+            : ne
+              ? 'गुगलसँग जारी राख्नुहोस्'
+              : 'Continue with Google'}
         </span>
       </button>
       {error ? (
         <p className="auth-social__hint" role="alert" lang={ne ? 'ne' : 'en'}>
           {ne ? 'गुगल साइन-इन सुरु गर्न सकिएन।' : 'Google sign-in could not be started.'}
-        </p>
-      ) : null}
-      {!googleEnabled ? (
-        <p className="auth-social__hint" lang={ne ? 'ne' : 'en'}>
-          {ne
-            ? 'सामाजिक लगइन व्यवस्थापन पछि सक्षम हुनेछ। अहिले इमेल प्रयोग गर्नुहोस्।'
-            : 'Social login will be enabled when configured. Use email for now.'}
         </p>
       ) : null}
     </div>

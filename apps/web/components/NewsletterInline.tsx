@@ -14,8 +14,8 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
 
   const labels = {
     heading: locale === 'en' ? 'Daily briefing' : 'दैनिक ब्रिफिङ',
-    placeholder: locale === 'en' ? 'you@email.com' : 'तपाईं@इमेल.com',
-    button: locale === 'en' ? 'Subscribe' : 'सदस्यता',
+    placeholder: locale === 'en' ? 'you@email.com' : 'you@email.com',
+    button: locale === 'en' ? 'Subscribe' : 'दर्ता गर्नुहोस्',
     submitting: locale === 'en' ? 'Saving…' : 'सुरक्षित हुँदै…',
     success:
       locale === 'en'
@@ -71,8 +71,11 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
           </label>
           <input
             id="nw-newsletter-email"
+            name="email"
             type="email"
             inputMode="email"
+            autoComplete="email"
+            spellCheck={false}
             value={email}
             onChange={(e) => {
               setEmail(e.target.value)
@@ -82,14 +85,14 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
               }
             }}
             placeholder={labels.placeholder}
-            className="min-w-0 flex-1 rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
+            className="min-h-11 min-w-0 flex-1 border border-rule bg-surface px-3 py-2 text-body text-ink placeholder:text-mute transition-colors duration-fast ease-out-quint focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-tint"
             aria-invalid={status === 'error'}
             aria-describedby="nw-newsletter-status"
             disabled={status === 'submitting'}
           />
           <button
             type="submit"
-            className="shrink-0 rounded-md bg-brand px-4 py-2 text-body font-semibold text-surface-raised transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
+            className="inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center bg-brand px-4 text-body font-semibold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-tint disabled:cursor-not-allowed disabled:opacity-60"
             lang={lang}
             disabled={status === 'submitting'}
           >

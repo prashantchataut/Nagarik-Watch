@@ -152,8 +152,8 @@ export function TrustPolicyPage({
   const sections = policySections[path] ?? defaultSections
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8">
-      <InfoPageHeader kicker={title} lead={lead} lang={lang} />
+    <div className="mx-auto max-w-page px-4 py-10">
+      <InfoPageHeader kicker={title} title={title} lead={lead} lang={lang} />
       <div className="mt-10 grid gap-8">
         {sections.map((section) => (
           <InfoSection
@@ -165,11 +165,11 @@ export function TrustPolicyPage({
           </InfoSection>
         ))}
       </div>
-      <section className="mt-10 rounded-lg border border-rule bg-brand-tint p-5" lang={lang}>
+      <section className="mt-10 border-y border-rule py-6" lang={lang}>
         <h2 className="font-display text-h3 text-ink">
           {locale === 'en' ? 'Publication transparency' : 'प्रकाशन पारदर्शिता'}
         </h2>
-        <dl className="mt-3 grid gap-3 text-body text-ink-soft md:grid-cols-2">
+        <dl className="mt-4 grid gap-4 text-body text-ink-soft md:grid-cols-2">
           <TransparencyItem label="Publisher" value={PUBLICATION.publisherName} />
           <TransparencyItem
             label="Legal name"

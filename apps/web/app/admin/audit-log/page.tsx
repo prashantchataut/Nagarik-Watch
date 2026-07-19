@@ -16,7 +16,7 @@ export default async function AuditLogPage() {
 
   return (
     <div>
-      <AdminPageHeader title="अडिट लग" subtitle="Sensitive newsroom actions, moderation changes and admin updates" />
+      <AdminPageHeader subtitle="Sensitive newsroom actions, moderation changes and admin updates" />
       <AdminCard>
         {events.length ? (
           <div className="overflow-hidden rounded-lg border border-rule">

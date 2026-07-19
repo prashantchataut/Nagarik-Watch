@@ -330,8 +330,8 @@ export const PROVINCES = [
 
 /** Secondary nav rail — utility hubs a national portal surfaces above the
  *  section nav. Drawn from STATIC_HUBS so the rail stays in sync with the hub registry. */
+/** Service rail only. Latest/trending live in BottomNav + homepage desk rail. */
 export const SECONDARY_NAV_HUBS = [
-  'latest',
   'market',
   'utilities',
   'sports-live',
@@ -339,7 +339,6 @@ export const SECONDARY_NAV_HUBS = [
   'disaster-alerts',
   'video',
   'photos',
-  'reader-corner',
 ] as const satisfies readonly (typeof STATIC_HUBS)[number]['key'][]
 
 export function localizedLead(locale: Locale, item: { leadNe: string; leadEn: string }) {

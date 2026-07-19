@@ -257,8 +257,23 @@ export function getAdMode(): AdMode {
   return 'off'
 }
 
+export function getAdNetworkKind(): 'adsense' | 'gam' | '' {
+  const value = process.env.NEXT_PUBLIC_AD_NETWORK?.trim().toLowerCase()
+  if (value === 'adsense' || value === 'gam') return value
+  return ''
+}
+
+/** Network mode is ready only when the matching publisher credential exists. */
 export function isNetworkAdsReady(): boolean {
-  return getAdMode() === 'network' && Boolean(process.env.NEXT_PUBLIC_AD_NETWORK?.trim())
+  if (getAdMode() !== 'network') return false
+  const kind = getAdNetworkKind()
+  if (kind === 'adsense') return Boolean(process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim())
+  if (kind === 'gam') {
+    return Boolean(
+      process.env.NEXT_PUBLIC_GAM_NETWORK_CODE?.trim() || process.env.NEXT_PUBLIC_AD_NETWORK_CODE?.trim(),
+    )
+  }
+  return false
 }
 
 export function isAdPlacementKey(value: string): value is AdPlacementKey {

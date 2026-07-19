@@ -5,6 +5,7 @@ import { asLocale } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
 import { getTrendingSamples } from '@/lib/engagement/store'
 import { AdSlot } from '@/components/AdSlot'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
 export async function generateMetadata({
@@ -46,23 +47,20 @@ export default async function TrendingPage({
   return (
     <main className="mx-auto max-w-page px-4 py-8 sm:py-12">
       <AdSlot locale={locale} placementKey="trending-top" />
-      <header className="max-w-3xl border-b border-rule pb-7" lang={english ? 'en' : 'ne'}>
-        <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong">
-          {english ? 'Reader attention' : 'पाठकको ध्यान'}
-        </p>
-        <h1 className="mt-2 font-display text-display font-extrabold leading-tight text-ink">
-          {english ? 'Trending now' : 'अहिले चर्चामा'}
-        </h1>
-        <p className="mt-3 max-w-body text-body-lg leading-relaxed text-ink-soft">
-          {hasLiveSignal
+      <HubIndexHeader
+        kicker={english ? 'Reader attention' : 'पाठकको ध्यान'}
+        title={english ? 'Trending now' : 'अहिले चर्चामा'}
+        lead={
+          hasLiveSignal
             ? english
               ? 'Ranked from recent reading and approved discussion activity, with freshness and burst controls.'
               : 'हालैको पढाइ र स्वीकृत छलफल गतिविधिलाई ताजापन र अचानक बढेको रुचिसँग मिलाएर क्रमबद्ध गरिएको।'
             : english
               ? 'There is not enough recent activity for a reliable trend signal, so the newest published reporting is shown.'
-              : 'विश्वसनीय ट्रेन्ड संकेतका लागि हालको गतिविधि पर्याप्त छैन, त्यसैले नयाँ प्रकाशित सामग्री देखाइएको छ।'}
-        </p>
-      </header>
+              : 'विश्वसनीय ट्रेन्ड संकेतका लागि हालको गतिविधि पर्याप्त छैन, त्यसैले नयाँ प्रकाशित सामग्री देखाइएको छ।'
+        }
+        lang={english ? 'en' : 'ne'}
+      />
 
       {ranked.length > 0 ? (
         <ol className="mt-8 divide-y divide-rule border-y border-rule">

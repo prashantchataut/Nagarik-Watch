@@ -18,12 +18,16 @@ import {
 import { rafThrottle } from '@/lib/browser/raf-throttle'
 import { addArticleToSessionMeter, FREE_ARTICLE_METER_KEY } from '@/lib/free-article-meter'
 import { canShowWeeklyFeedback } from '@/lib/reader/retention'
+import { ArticleToolsMenu } from '@/components/article/ArticleToolsMenu'
 
 type ReaderArticleControlsProps = {
   story: StoryCardData
   locale: Locale
   title: string
   href: string
+  shareUrl: string
+  articleSlug: string
+  articleCategory: string
   readingMinutes: number
   premiumReader?: boolean
   /** When false (Option A default), skip free-reads meter UI entirely. */
@@ -35,6 +39,9 @@ export function ReaderArticleControls({
   locale,
   title,
   href,
+  shareUrl,
+  articleSlug,
+  articleCategory,
   readingMinutes,
   premiumReader = false,
   membershipPublic = false,
@@ -202,14 +209,6 @@ export function ReaderArticleControls({
     [readingMinutes, scrollDepth],
   )
 
-  const modeLabel = readingMode
-    ? locale === 'en'
-      ? 'Exit reader view'
-      : 'पढाइ दृश्य बन्द'
-    : locale === 'en'
-      ? 'Reader view'
-      : 'पढाइ दृश्य'
-
   function toggleNarrator() {
     if (!speechSupported) return
     if (window.speechSynthesis.speaking) {
@@ -232,14 +231,19 @@ export function ReaderArticleControls({
   return (
     <div className="article-utility-bar" lang={lang} aria-label={locale === 'en' ? 'Article reading tools' : 'समाचार पढाइ उपकरण'}>
       <ExperimentExposure experimentId={ARTICLE_COMPLETION_EXPERIMENT_ID} />
-      <div className="article-utility-bar__actions">
-        <button type="button" onClick={() => setReadingMode((value) => !value)} aria-pressed={readingMode}>
-          <span>{modeLabel}</span>
-        </button>
-        <button type="button" onClick={toggleNarrator} disabled={!speechSupported} aria-pressed={speaking}>
-          <span>{speaking ? (locale === 'en' ? 'Stop audio' : 'आवाज रोक्नुहोस्') : (locale === 'en' ? 'Listen' : 'सुन्नुहोस्')}</span>
-        </button>
-      </div>
+      <ArticleToolsMenu
+        story={story}
+        locale={locale}
+        title={title}
+        shareUrl={shareUrl}
+        articleSlug={articleSlug}
+        articleCategory={articleCategory}
+        readingMode={readingMode}
+        onReadingModeChange={setReadingMode}
+        speechSupported={speechSupported}
+        speaking={speaking}
+        onToggleNarrator={toggleNarrator}
+      />
       <div className="article-utility-bar__status" aria-live="polite">
         <span><strong>{remaining}</strong> {locale === 'en' ? 'min left' : 'मिनेट बाँकी'}</span>
         {meter ? <span>{locale === 'en' ? `Free reads this session: ${meter.count}/${meter.limit}` : `यो सत्रका निःशुल्क पढाइ: ${meter.count}/${meter.limit}`}</span> : null}

@@ -1,12 +1,14 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Hero, StoryCard } from '@nagarikwatch/ui'
-import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import { asLocale } from '@/lib/i18n/locales'
 import { getHomepage, getNavCategories } from '@/lib/content'
 import { BreakingTicker } from '@/components/BreakingTicker'
 import { SectionBlock } from '@/components/home/SectionBlock'
 import { TodayInBrief } from '@/components/home/TodayInBrief'
 import { LatestRail } from '@/components/home/LatestRail'
+import { HomeDeskRail } from '@/components/home/HomeDeskRail'
+import { HomeEmptyEdition } from '@/components/home/HomeEmptyEdition'
+import { ProvinceHub } from '@/components/home/ProvinceHub'
 import { AdSlot } from '@/components/AdSlot'
 import { RecommendedForYou } from '@/components/reader/RecommendedForYou'
 import { PollOfDay } from '@/components/home/PollOfDay'
@@ -17,6 +19,11 @@ import {
 } from '@/components/experiments/ExperimentExposure'
 import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
 import { canonicalAlternates } from '@/lib/seo/canonical'
+import { NewsletterInline } from '@/components/NewsletterInline'
+import { HomeLiveBoard } from '@/components/live/HomeLiveBoard'
+import { UtilityStrip } from '@/components/live/UtilityStrip'
+import { TodayInHistory } from '@/components/home/TodayInHistory'
+import { PhotoOfTheDay } from '@/components/home/PhotoOfTheDay'
 
 export async function generateMetadata({
   params,
@@ -44,90 +51,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   ])
 
   if (!homepage) {
-    const serviceLinks = [
-      { href: '/latest', titleNe: 'ताजा', titleEn: 'Latest' },
-      { href: '/trending', titleNe: 'ट्रेन्डिङ', titleEn: 'Trending' },
-      { href: '/most-read', titleNe: 'धेरै पढिएको', titleEn: 'Most read' },
-      { href: '/market', titleNe: 'बजार', titleEn: 'Market' },
-      { href: '/utilities', titleNe: 'उपयोगी', titleEn: 'Utilities' },
-      { href: '/rashifal', titleNe: 'राशिफल', titleEn: 'Rashifal' },
-      { href: '/fact-check', titleNe: 'तथ्य-जाँच', titleEn: 'Fact check' },
-      { href: '/submit-story', titleNe: 'टिप पठाउनुहोस्', titleEn: 'Send a tip' },
-    ]
-
-    return (
-      <div className="mx-auto max-w-page px-4 pb-16 pt-3">
-        <nav
-          aria-label={english ? 'Quick desks' : 'द्रुत विभाग'}
-          className="overflow-x-auto border-y border-rule bg-surface-raised [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          <ul className="flex min-w-max divide-x divide-rule">
-            {serviceLinks.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={localizeHref(locale, item.href)}
-                  className="inline-flex min-h-11 items-center whitespace-nowrap px-3.5 text-meta font-bold text-ink-soft hover:bg-surface hover:text-brand-strong"
-                  lang={english ? 'en' : 'ne'}
-                >
-                  {english ? item.titleEn : item.titleNe}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <section className="mt-8 border-b-2 border-ink pb-10" lang={english ? 'en' : 'ne'}>
-          <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong">Nagarik Watch</p>
-          <h1 className="mt-2 max-w-[18ch] font-display text-[clamp(2rem,5.2vw,3.4rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-ink">
-            {english ? 'Original reporting from our newsroom.' : 'हाम्रो न्यूजरुमको मौलिक रिपोर्टिङ।'}
-          </h1>
-          <p className="mt-3 max-w-prose text-body leading-relaxed text-ink-soft">
-            {english
-              ? 'We publish original Nagarik Watch stories only — no outbound scrapes to other news sites. Editors can add and edit articles from the newsroom admin.'
-              : 'हामी मौलिक नागरिक वाच समाचार मात्र प्रकाशित गर्छौं — अन्य साइटका स्क्र्याप लिंक छैनन्। सम्पादकले एडमिनबाट लेख थप्न/सच्याउन सक्छन्।'}
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link
-              href={localizeHref(locale, '/latest')}
-              className="inline-flex min-h-11 items-center bg-brand px-4 text-meta font-bold text-surface hover:bg-brand-strong"
-            >
-              {english ? 'Latest' : 'ताजा'}
-            </Link>
-            <Link
-              href={localizeHref(locale, '/submit-story')}
-              className="inline-flex min-h-11 items-center border border-rule px-4 text-meta font-semibold text-ink hover:border-brand hover:text-brand-strong"
-            >
-              {english ? 'Send a tip' : 'टिप पठाउनुहोस्'}
-            </Link>
-          </div>
-        </section>
-
-        <section className="mt-8" aria-labelledby="desks-title">
-          <div className="flex items-end justify-between gap-4 border-b border-ink pb-2">
-            <h2 id="desks-title" className="font-display text-h1 text-ink" lang={english ? 'en' : 'ne'}>
-              {english ? 'News desks' : 'समाचार विभाग'}
-            </h2>
-          </div>
-          <ul className="mt-2 columns-1 gap-x-8 sm:columns-2 lg:columns-3">
-            {categories.map((category) => (
-              <li key={category.slug} className="break-inside-avoid border-b border-rule">
-                <Link
-                  href={localizeHref(locale, `/${category.slug}`)}
-                  className="group flex min-h-12 items-center justify-between gap-3 py-2.5"
-                >
-                  <strong className="font-display text-body-lg text-ink group-hover:text-brand-strong">
-                    {english ? category.nameEn : category.nameNe}
-                  </strong>
-                  <span className="text-mute" aria-hidden="true">
-                    →
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-    )
+    return <HomeEmptyEdition locale={locale} categories={categories} />
   }
 
   const catalog = Array.from(
@@ -147,19 +71,82 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     .filter((story) => story.id !== homepage.lead.id)
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
 
+  const secondaryIds = new Set(homepage.secondary.map((s) => s.id))
+  const briefStories = latest.filter((s) => !secondaryIds.has(s.id)).slice(0, 5)
+  const briefPool = briefStories.length >= 3 ? briefStories : latest.slice(0, 5)
+
+  const sectionLayouts = ['lead-rail', 'text-led', 'overlay-grid'] as const
+
+  const today = new Date()
+  const monthDay = `${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
+  const historyStories = catalog
+    .filter((story) => {
+      const published = new Date(story.publishedAt)
+      if (Number.isNaN(published.getTime())) return false
+      if (published.getUTCFullYear() >= today.getUTCFullYear()) return false
+      const md = `${String(published.getUTCMonth() + 1).padStart(2, '0')}-${String(published.getUTCDate()).padStart(2, '0')}`
+      return md === monthDay
+    })
+    .slice(0, 4)
+  const photoOfDay =
+    catalog.find(
+      (story) =>
+        Boolean(story.heroImage?.url) &&
+        !story.heroImage!.url.startsWith('data:') &&
+        (story.category.slug === 'photo-story' ||
+          story.category.slug === 'photos' ||
+          /photo|फोटो|gallery|ग्याल/i.test(`${story.titleNe} ${story.titleEn || ''}`)),
+    ) || null
+
   return (
     <div>
       <ExperimentExposure experimentId={HOME_LAYOUT_EXPERIMENT_ID} />
+      <UtilityStrip locale={locale} />
       <BreakingTicker stories={homepage.breaking} locale={locale} />
-      <div className="mx-auto max-w-page px-4 py-6 sm:py-9">
-        <section className="grid gap-8 border-b border-rule pb-10 xl:grid-cols-[minmax(0,1.35fr)_minmax(17rem,0.62fr)_minmax(16rem,0.52fr)]">
+
+      <div className="mx-auto max-w-page px-4 pt-3 sm:pt-4">
+        <HomeDeskRail locale={locale} categories={categories} />
+      </div>
+
+      <div className="mx-auto max-w-page px-4 pb-16 pt-6 sm:pt-9">
+        <header className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b-2 border-ink pb-3">
+          <div>
+            <p
+              className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong"
+              lang="en"
+              translate="no"
+            >
+              Today&apos;s edition
+            </p>
+            <h2 className="sr-only" lang={english ? 'en' : 'ne'}>
+              {english ? 'Lead stories' : 'मुख्य समाचार'}
+            </h2>
+          </div>
+          <p className="text-meta text-mute" lang={english ? 'en' : 'ne'}>
+            {english
+              ? 'Original reporting from the Nagarik Watch newsroom'
+              : 'नागरिक वाच न्यूजरुमबाट मौलिक रिपोर्टिङ'}
+          </p>
+        </header>
+
+        <section
+          className="grid gap-8 border-b border-rule pb-10 xl:grid-cols-[minmax(0,1.4fr)_minmax(16rem,0.58fr)_minmax(15rem,0.5fr)]"
+          aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
+        >
           <InstrumentedStory
             articleSlug={homepage.lead.slug}
             articleCategory={homepage.lead.category.slug}
           >
             <Hero story={homepage.lead} locale={locale} />
           </InstrumentedStory>
+
           <div className="divide-y divide-rule border-y border-rule xl:border-y-0 xl:border-l xl:pl-7">
+            <p
+              className="pb-3 pt-1 text-caption font-bold uppercase tracking-[0.14em] text-ink-soft xl:pt-0"
+              lang={english ? 'en' : 'ne'}
+            >
+              {english ? 'Also today' : 'आजका अन्य'}
+            </p>
             {homepage.secondary.slice(0, 4).map((story) => (
               <InstrumentedStory
                 key={story.id}
@@ -170,33 +157,66 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   story={story}
                   locale={locale}
                   variant="horizontal"
-                  className="py-4 first:pt-0 last:pb-0"
+                  className="py-4 first:pt-1 last:pb-0"
                 />
               </InstrumentedStory>
             ))}
           </div>
+
           <LatestRail stories={latest} locale={locale} className="xl:border-l xl:pl-7" />
         </section>
 
-        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(19rem,0.8fr)]">
-          <TodayInBrief stories={homepage.secondary} locale={locale} />
+        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)]">
+          <TodayInBrief stories={briefPool} locale={locale} />
           {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
         </div>
 
-        <AdSlot locale={locale} placementKey="home-billboard" variant="billboard" />
+        <HomeLiveBoard locale={locale} className="mt-10 lg:hidden" />
+
+        <AdSlot
+          locale={locale}
+          placementKey="home-billboard"
+          variant="billboard"
+          className="mt-12"
+        />
+
+        <section
+          className="mt-12 border-y border-rule bg-brand-tint/35 px-4 py-8 sm:px-6"
+          aria-labelledby="home-newsletter"
+        >
+          <div className="mx-auto max-w-xl">
+            <h2
+              id="home-newsletter"
+              className="sr-only"
+              lang={english ? 'en' : 'ne'}
+            >
+              {english ? 'Newsletter' : 'न्युजलेटर'}
+            </h2>
+            <NewsletterInline locale={locale} />
+          </div>
+        </section>
+
         <RecommendedForYou locale={locale} catalog={catalog} className="mt-12" />
 
-        <div className="mt-12 space-y-16">
+        <div className="mt-14 space-y-16 sm:space-y-20">
           {homepage.sections.map((section, index) => (
             <SectionBlock
               key={section.category.slug}
               section={section}
               locale={locale}
-              layout={index % 3 === 0 ? 'lead-rail' : index % 3 === 1 ? 'default-grid' : 'text-led'}
+              layout={sectionLayouts[index % sectionLayouts.length]}
             />
           ))}
         </div>
-        <AdSlot locale={locale} placementKey="home-mid" variant="inline" />
+
+        <ProvinceHub locale={locale} className="mt-16" />
+
+        <div className="mt-16 grid gap-12 lg:grid-cols-2">
+          <TodayInHistory locale={locale} stories={historyStories} />
+          <PhotoOfTheDay locale={locale} story={photoOfDay} />
+        </div>
+
+        <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="mt-14" />
       </div>
     </div>
   )

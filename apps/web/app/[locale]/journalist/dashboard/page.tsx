@@ -22,16 +22,67 @@ export default async function JournalistDashboard({ params }: { params: Promise<
   const review = drafts.filter((item) => item.workflowStage === 'submitted').length
   const revisions = drafts.filter((item) => item.revisionRequestedAt).length
   const latest = drafts.slice(0, 5)
+  const canPublish = ['publisher', 'editor_in_chief', 'admin', 'super_admin'].includes(session.newsroomRole)
+
   return (
     <JournalistWorkspaceShell locale={locale} name={session.displayName || session.email} roleLabel={roleLabel} active="dashboard">
       <main className="newsroom-page">
-        <header className="newsroom-page__header newsroom-page__header--hero"><div><p className="editorial-kicker" lang="en">Morning desk</p><h1>{ne ? `नमस्कार, ${session.displayName || 'रिपोर्टर'}` : `Good to see you, ${session.displayName || 'reporter'}`}</h1><p>{ne ? 'आजको लक्ष्य: प्रमाणित, स्पष्ट र सार्वजनिक महत्त्वको समाचार।' : 'Today’s brief: verified, clear, public-interest journalism.'}</p></div><Link href={localizeHref(locale, '/journalist/articles/new')} className="newsroom-primary-action">{ne ? 'नयाँ समाचार लेख्नुहोस्' : 'Write a new story'}</Link></header>
-        <section className="newsroom-pulse" aria-label={ne ? 'कार्य स्थिति' : 'Work status'}><div><span>{ne ? 'कुल सामग्री' : 'All stories'}</span><strong>{drafts.length}</strong></div><div><span>{ne ? 'समीक्षामा' : 'In review'}</span><strong>{review}</strong></div><div><span>{ne ? 'संशोधन माग' : 'Revisions'}</span><strong>{revisions}</strong></div><div><span>{ne ? 'प्रकाशन अधिकार' : 'Publish access'}</span><strong>{['publisher','editor_in_chief','admin','super_admin'].includes(session.newsroomRole) ? (ne ? 'छ' : 'Yes') : (ne ? 'छैन' : 'No')}</strong></div></section>
+        <header className="newsroom-page__header">
+          <h1>{ne ? 'डेस्क' : 'Desk'}</h1>
+        </header>
+
+        <dl className="newsroom-pulse" aria-label={ne ? 'कार्य स्थिति' : 'Work status'}>
+          <div>
+            <dt>{ne ? 'कुल सामग्री' : 'All stories'}</dt>
+            <dd>{drafts.length}</dd>
+          </div>
+          <div>
+            <dt>{ne ? 'समीक्षामा' : 'In review'}</dt>
+            <dd>{review}</dd>
+          </div>
+          <div>
+            <dt>{ne ? 'संशोधन माग' : 'Revisions'}</dt>
+            <dd>{revisions}</dd>
+          </div>
+          <div>
+            <dt>{ne ? 'प्रकाशन अधिकार' : 'Publish access'}</dt>
+            <dd>{canPublish ? (ne ? 'छ' : 'Yes') : (ne ? 'छैन' : 'No')}</dd>
+          </div>
+        </dl>
+
         <div className="newsroom-dashboard-grid">
-          <section className="newsroom-dashboard-grid__main"><div className="newsroom-section-title"><div><p className="editorial-kicker" lang="en">Your queue</p><h2>{ne ? 'हालका समाचार' : 'Recent stories'}</h2></div><Link href={localizeHref(locale, '/journalist/assignments')}>{ne ? 'सबै हेर्नुहोस्' : 'View all'}</Link></div>{latest.length ? <ol className="newsroom-recent-list">{latest.map((draft, index) => <li key={draft.articleSlug}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{draft.titleNe}</strong><p>{draft.categorySlug} · {draft.workflowStage}</p></div>{draft.articleId ? <Link href={localizeHref(locale, `/journalist/articles/${draft.articleId}/edit`)}>{ne ? 'सम्पादन' : 'Edit'}</Link> : null}</li>)}</ol> : <div className="newsroom-empty"><strong>{ne ? 'अहिले कुनै ड्राफ्ट छैन' : 'No drafts yet'}</strong><p>{ne ? 'पहिलो रिपोर्ट तयार गर्न नयाँ समाचार खोल्नुहोस्।' : 'Open a new story to start reporting.'}</p></div>}</section>
+          <section className="newsroom-dashboard-grid__main">
+            <div className="newsroom-section-title">
+              <h2>{ne ? 'हालका समाचार' : 'Recent stories'}</h2>
+              <Link href={localizeHref(locale, '/journalist/assignments')}>{ne ? 'सबै' : 'View all'}</Link>
+            </div>
+            {latest.length ? (
+              <ol className="newsroom-recent-list">
+                {latest.map((draft, index) => (
+                  <li key={draft.articleSlug}>
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <div>
+                      <strong>{draft.titleNe}</strong>
+                      <p>{draft.categorySlug} · {draft.workflowStage}</p>
+                    </div>
+                    {draft.articleId ? (
+                      <Link href={localizeHref(locale, `/journalist/articles/${draft.articleId}/edit`)}>
+                        {ne ? 'सम्पादन' : 'Edit'}
+                      </Link>
+                    ) : null}
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <div className="newsroom-empty">
+                <strong>{ne ? 'अहिले कुनै ड्राफ्ट छैन' : 'No drafts yet'}</strong>
+                <p>{ne ? 'साइडबार वा मोबाइल बारबाट नयाँ ड्राफ्ट खोल्नुहोस्।' : 'Open a new draft from the sidebar or mobile bar.'}</p>
+              </div>
+            )}
+          </section>
+
           <aside className="newsroom-brief">
-            <p className="editorial-kicker" lang="en">Quick tools</p>
-            <h2>{ne ? 'लेखन उपकरण' : 'Writing tools'}</h2>
+            <h2>{ne ? 'छिटो लिंक' : 'Quick links'}</h2>
             <ol>
               <li><span>01</span><Link href={localizeHref(locale, '/journalist/tools')}>{ne ? 'ढाँचा र चेकलिस्ट' : 'Frames and checklist'}</Link></li>
               <li><span>02</span><Link href={localizeHref(locale, '/journalist/articles/new?template=spot')}>{ne ? 'स्थलगत ढाँचा' : 'Spot frame'}</Link></li>

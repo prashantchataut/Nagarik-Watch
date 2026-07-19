@@ -274,32 +274,30 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
     if (!next) return
     setTab(next)
     window.requestAnimationFrame(() => {
-      document.getElementById(`writer-tab-${next}`)?.focus()
+      document.getElementById(`newsroom-tab-${next}`)?.focus()
     })
   }
 
   return (
-    <div className="writer-studio">
-      <header className="writer-studio__topbar">
+    <div className="newsroom-studio">
+      <header className="newsroom-studio__topbar">
         <div>
-          <p className="editorial-kicker" lang="en">Nagarik Watch newsroom</p>
-          <h1>{mode === 'edit' ? (ne ? 'ड्राफ्ट सम्पादन' : 'Edit draft') : (ne ? 'नयाँ समाचार' : 'New story')}</h1>
+          <h1>{mode === 'edit' ? (ne ? 'ड्राफ्ट सम्पादन' : 'Edit draft') : (ne ? 'नयाँ ड्राफ्ट' : 'New draft')}</h1>
           <p>{lastSavedAt ? (ne ? `अन्तिम सुरक्षित: ${new Date(lastSavedAt).toLocaleTimeString('ne-NP')}` : `Last saved ${new Date(lastSavedAt).toLocaleTimeString('en-GB')}`) : (dirty ? (ne ? 'सुरक्षित नभएका परिवर्तन' : 'Unsaved changes') : (ne ? 'लेख्न तयार' : 'Ready to write'))}</p>
         </div>
-        <div className="writer-studio__actions">
+        <div className="newsroom-studio__actions">
           <button type="button" onClick={() => submit('draft')} disabled={pending}>{ne ? 'ड्राफ्ट सुरक्षित' : 'Save draft'}</button>
           <button type="button" onClick={() => submit('submitted')} disabled={pending} data-primary="true">{ne ? 'समीक्षामा पठाउनुहोस्' : 'Submit for review'}</button>
         </div>
       </header>
 
-      {status ? <div className="writer-studio__status" data-type={status.type} role="status">{status.message}</div> : null}
+      {status ? <div className="newsroom-studio__status" data-type={status.type} role="status">{status.message}</div> : null}
 
-      <section className="writer-assist" aria-label={ne ? 'सम्पादकीय सुझाव' : 'Editorial suggestions'}>
+      <section className="newsroom-assist" aria-label={ne ? 'सम्पादकीय सुझाव' : 'Editorial suggestions'}>
         <div>
-          <p className="editorial-kicker" lang="en">Human-reviewed assistance</p>
           <strong>{ne ? 'सुझाव मात्र — स्वतः सुरक्षित हुँदैन' : 'Suggestions only — never auto-saved'}</strong>
         </div>
-        <div className="writer-assist__actions">
+        <div className="newsroom-assist__actions">
           {([
             ['summary', ne ? 'सारांश सुझाव' : 'Summary'],
             ['headlines', ne ? 'शीर्षक सुझाव' : 'Headlines'],
@@ -311,29 +309,29 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
             </button>
           ))}
         </div>
-        {assistance ? <div className="writer-assist__review" role="status">
+        {assistance ? <div className="newsroom-assist__review" role="status">
           <p>{ne ? 'सम्पादकले जाँच गरेर मात्र स्वीकार गर्नुहोस्।' : 'Review this extractive suggestion before accepting it.'}</p>
           {typeof assistance.data === 'string' ? <blockquote>{assistance.data || (ne ? 'सुझाव उपलब्ध भएन।' : 'No suggestion available.')}</blockquote> : null}
           {Array.isArray(assistance.data) ? <ul>{assistance.data.map((item) => <li key={item}><span>{item}</span>{assistance.action === 'headlines' ? <button type="button" onClick={() => acceptAssistance(item)}>{ne ? 'यो स्वीकार' : 'Accept this'}</button> : null}</li>)}</ul> : null}
           {assistance.action === 'factCheck' && !Array.isArray(assistance.data) && typeof assistance.data !== 'string'
             ? <ol>{assistance.data.claims.map((claim, index) => <li key={`${claim.claim}-${index}`}>{claim.claim}</li>)}</ol>
             : null}
-          <div className="writer-assist__decision">
+          <div className="newsroom-assist__decision">
             {assistance.action !== 'headlines' ? <button type="button" data-accept="true" onClick={() => acceptAssistance()}>{ne ? 'स्वीकार गरी फिल्डमा राख्नुहोस्' : 'Accept into field'}</button> : null}
             <button type="button" onClick={() => setAssistance(null)}>{ne ? 'खारेज' : 'Dismiss'}</button>
           </div>
         </div> : null}
       </section>
 
-      <div className="writer-studio__tabs" role="tablist" aria-label={ne ? 'सम्पादक खण्ड' : 'Editor sections'}>
+      <div className="newsroom-studio__tabs" role="tablist" aria-label={ne ? 'सम्पादक खण्ड' : 'Editor sections'}>
         {EDITOR_TABS.map((key) => <button
           key={key}
-          id={`writer-tab-${key}`}
+          id={`newsroom-tab-${key}`}
           type="button"
           role="tab"
           tabIndex={tab === key ? 0 : -1}
           aria-selected={tab === key}
-          aria-controls={`writer-panel-${key}`}
+          aria-controls={`newsroom-panel-${key}`}
           onClick={() => setTab(key)}
           onKeyDown={(event) => {
             if (event.key === 'ArrowLeft') { event.preventDefault(); moveTab(key, -1) }
@@ -342,50 +340,49 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
         >{labels[key]}{key === 'evidence' && !evidenceReady ? <span aria-label={ne ? 'अपूर्ण' : 'Incomplete'}>!</span> : null}</button>)}
       </div>
 
-      <div className="writer-studio__layout">
-        <main className="writer-studio__canvas" id={`writer-panel-${tab}`} role="tabpanel" aria-labelledby={`writer-tab-${tab}`} tabIndex={0}>
+      <div className="newsroom-studio__layout">
+        <main className="newsroom-studio__canvas" id={`newsroom-panel-${tab}`} role="tabpanel" aria-labelledby={`newsroom-tab-${tab}`} tabIndex={0}>
           {tab === 'story' ? <>
-            <label className="writer-field writer-field--headline"><span>{ne ? 'नेपाली शीर्षक' : 'Nepali headline'}</span><textarea value={draft.titleNe} onChange={(event) => patch('titleNe', event.target.value)} maxLength={120} rows={2} placeholder={ne ? 'समाचारको ठोस र स्पष्ट शीर्षक' : 'A specific, clear headline'} /></label>
-            <div className="writer-grid writer-grid--two">
-              <label className="writer-field"><span>{ne ? 'विभाग' : 'Desk'}</span><select value={draft.categorySlug} onChange={(event) => patch('categorySlug', event.target.value)}>{categories.map((category) => <option key={category.slug} value={category.slug}>{ne ? category.nameNe : category.nameEn || category.nameNe}</option>)}</select></label>
-              <label className="writer-field"><span>URL slug</span><input value={draft.slug} onChange={(event) => patch('slug', slugify(event.target.value))} disabled={mode === 'edit'} /></label>
+            <label className="newsroom-field newsroom-field--headline"><span>{ne ? 'नेपाली शीर्षक' : 'Nepali headline'}</span><textarea value={draft.titleNe} onChange={(event) => patch('titleNe', event.target.value)} maxLength={120} rows={2} placeholder={ne ? 'समाचारको ठोस र स्पष्ट शीर्षक' : 'A specific, clear headline'} /></label>
+            <div className="newsroom-grid newsroom-grid--two">
+              <label className="newsroom-field"><span>{ne ? 'विभाग' : 'Desk'}</span><select value={draft.categorySlug} onChange={(event) => patch('categorySlug', event.target.value)}>{categories.map((category) => <option key={category.slug} value={category.slug}>{ne ? category.nameNe : category.nameEn || category.nameNe}</option>)}</select></label>
+              <label className="newsroom-field"><span>URL slug</span><input value={draft.slug} onChange={(event) => patch('slug', slugify(event.target.value))} disabled={mode === 'edit'} /></label>
             </div>
-            <label className="writer-field"><span>{ne ? 'अंग्रेजी शीर्षक (वैकल्पिक)' : 'English headline (optional)'}</span><input lang="en" value={draft.titleEn} onChange={(event) => patch('titleEn', event.target.value)} maxLength={140} placeholder={ne ? 'मानवीय समीक्षा गरिएको अंग्रेजी शीर्षक मात्र' : 'Use only a human-reviewed translation'} /></label>
-            <label className="writer-field"><span>{ne ? 'छोटो सारांश' : 'Deck'}</span><textarea value={draft.deckNe} onChange={(event) => patch('deckNe', event.target.value)} rows={3} maxLength={320} placeholder={ne ? 'शीर्षकमा नअटाएको मुख्य सन्दर्भ' : 'The essential context that does not fit in the headline'} /></label>
-            <label className="writer-field writer-field--body"><span>{ne ? 'समाचार सामग्री' : 'Story body'}</span><textarea value={draft.bodyNe} onChange={(event) => patch('bodyNe', event.target.value)} rows={24} placeholder={ne ? 'अनुच्छेद छुट्याउन खाली लाइन राख्नुहोस्। ## उपशीर्षक, > उद्धरण, - सूची प्रयोग गर्न सकिन्छ।' : 'Use blank lines between paragraphs. ## subhead, > quote and - list are supported.'} /></label>
+            <label className="newsroom-field"><span>{ne ? 'अंग्रेजी शीर्षक (वैकल्पिक)' : 'English headline (optional)'}</span><input lang="en" value={draft.titleEn} onChange={(event) => patch('titleEn', event.target.value)} maxLength={140} placeholder={ne ? 'मानवीय समीक्षा गरिएको अंग्रेजी शीर्षक मात्र' : 'Use only a human-reviewed translation'} /></label>
+            <label className="newsroom-field"><span>{ne ? 'छोटो सारांश' : 'Deck'}</span><textarea value={draft.deckNe} onChange={(event) => patch('deckNe', event.target.value)} rows={3} maxLength={320} placeholder={ne ? 'शीर्षकमा नअटाएको मुख्य सन्दर्भ' : 'The essential context that does not fit in the headline'} /></label>
+            <label className="newsroom-field newsroom-field--body"><span>{ne ? 'समाचार सामग्री' : 'Story body'}</span><textarea value={draft.bodyNe} onChange={(event) => patch('bodyNe', event.target.value)} rows={24} placeholder={ne ? 'अनुच्छेद छुट्याउन खाली लाइन राख्नुहोस्। ## उपशीर्षक, > उद्धरण, - सूची प्रयोग गर्न सकिन्छ।' : 'Use blank lines between paragraphs. ## subhead, > quote and - list are supported.'} /></label>
           </> : null}
 
           {tab === 'evidence' ? <>
-            <div className="writer-studio__section-intro"><h2>{ne ? 'समाचार पुष्टि' : 'Reporting evidence'}</h2><p>{ne ? 'यी विवरण सार्वजनिक सामग्री होइनन्। सम्पादकले रिपोर्टिङको आधार, प्रमाण र जोखिम बुझ्न प्रयोग गर्छन्।' : 'These fields are private to the newsroom. They let editors understand the reporting basis, evidence and risk.'}</p></div>
-            <label className="writer-field"><span>{ne ? 'रिपोर्टिङ स्थान' : 'Reporting location'}</span><input value={draft.reportingLocation} onChange={(event) => patch('reportingLocation', event.target.value)} placeholder={ne ? 'जिल्ला, पालिका वा घटनास्थल' : 'District, municipality or reporting location'} /></label>
-            <label className="writer-field"><span>{ne ? 'स्रोत र प्रमाण नोट' : 'Source and evidence note'}</span><textarea value={draft.sourceNote} onChange={(event) => patch('sourceNote', event.target.value)} rows={8} placeholder={ne ? 'कोसँग कुरा गरियो? कुन कागजात हेरियो? के पुष्टि हुन बाँकी छ?' : 'Who was interviewed? Which documents were reviewed? What remains unverified?'} /></label>
-            <section className="writer-source-check">
+            <div className="newsroom-studio__section-intro"><h2>{ne ? 'समाचार पुष्टि' : 'Reporting evidence'}</h2><p>{ne ? 'यी विवरण सार्वजनिक सामग्री होइनन्। सम्पादकले रिपोर्टिङको आधार, प्रमाण र जोखिम बुझ्न प्रयोग गर्छन्।' : 'These fields are private to the newsroom. They let editors understand the reporting basis, evidence and risk.'}</p></div>
+            <label className="newsroom-field"><span>{ne ? 'रिपोर्टिङ स्थान' : 'Reporting location'}</span><input value={draft.reportingLocation} onChange={(event) => patch('reportingLocation', event.target.value)} placeholder={ne ? 'जिल्ला, पालिका वा घटनास्थल' : 'District, municipality or reporting location'} /></label>
+            <label className="newsroom-field"><span>{ne ? 'स्रोत र प्रमाण नोट' : 'Source and evidence note'}</span><textarea value={draft.sourceNote} onChange={(event) => patch('sourceNote', event.target.value)} rows={8} placeholder={ne ? 'कोसँग कुरा गरियो? कुन कागजात हेरियो? के पुष्टि हुन बाँकी छ?' : 'Who was interviewed? Which documents were reviewed? What remains unverified?'} /></label>
+            <section className="newsroom-source-check">
               <h3>{ne ? 'स्रोत विश्वसनीयता संकेत' : 'Source reliability flags'}</h3>
               <p>{ne ? 'यी स्वचालित फैसला होइनन्; URL जाँच्न सम्पादकलाई संकेत मात्र हुन्।' : 'These are review prompts, not automated verdicts.'}</p>
               {sourceChecks.length ? <ul>{sourceChecks.map(({ url, flags }) => <li key={url}><code>{url}</code><span>{flags.length ? flags.join(' · ') : (ne ? 'आधारभूत URL जाँच ठीक' : 'Basic URL checks passed')}</span></li>)}</ul> : <p>{ne ? 'नोटमा URL राखेपछि जाँच संकेत यहाँ देखिन्छ।' : 'Add source URLs to the note to see review flags.'}</p>}
             </section>
-            <label className="writer-field"><span>{ne ? 'सम्पादकलाई प्रस्ताव' : 'Pitch to editor'}</span><textarea value={draft.editorPitch} onChange={(event) => patch('editorPitch', event.target.value)} rows={5} placeholder={ne ? 'यो समाचार किन अहिले महत्त्वपूर्ण छ?' : 'Why does this story matter now?'} /></label>
-            <label className="writer-field"><span>{ne ? 'तस्वीर/फाइल सन्दर्भ URL' : 'Media reference URL'}</span><input type="url" value={draft.heroImageUrl} onChange={(event) => patch('heroImageUrl', event.target.value)} /><small>{ne ? 'यो सन्दर्भ मात्र हो। प्रकाशनअघि अधिकार पुष्टि गरी Media library मा फाइल अपलोड गर्नुपर्छ।' : 'Reference only. An editor must verify rights and upload the asset to the Media library before publication.'}</small></label>
+            <label className="newsroom-field"><span>{ne ? 'सम्पादकलाई प्रस्ताव' : 'Pitch to editor'}</span><textarea value={draft.editorPitch} onChange={(event) => patch('editorPitch', event.target.value)} rows={5} placeholder={ne ? 'यो समाचार किन अहिले महत्त्वपूर्ण छ?' : 'Why does this story matter now?'} /></label>
+            <label className="newsroom-field"><span>{ne ? 'तस्वीर/फाइल सन्दर्भ URL' : 'Media reference URL'}</span><input type="url" value={draft.heroImageUrl} onChange={(event) => patch('heroImageUrl', event.target.value)} /><small>{ne ? 'यो सन्दर्भ मात्र हो। प्रकाशनअघि अधिकार पुष्टि गरी Media library मा फाइल अपलोड गर्नुपर्छ।' : 'Reference only. An editor must verify rights and upload the asset to the Media library before publication.'}</small></label>
           </> : null}
 
           {tab === 'distribution' ? <>
-            <div className="writer-studio__section-intro"><h2>{ne ? 'वर्गीकरण र प्रस्तुति' : 'Classification and presentation'}</h2><p>{ne ? 'ट्यागले खोज, सम्बन्धित समाचार र notification eligibility मा मद्दत गर्छ। ब्रेकिङ चिन्ह सम्पादकले अन्तिम रूपमा स्वीकृत गर्छ।' : 'Tags improve search, related stories and notification eligibility. Editors make the final breaking-news decision.'}</p></div>
-            <fieldset className="writer-tag-picker"><legend>{ne ? 'समाचार ट्याग' : 'Story tags'}</legend>{tags.slice(0, 50).map((tag) => <label key={tag.slug} data-selected={selectedTagSet.has(tag.slug)}><input type="checkbox" checked={selectedTagSet.has(tag.slug)} onChange={() => { const removing = selectedTagSet.has(tag.slug); patch('tagSlugs', removing ? draft.tagSlugs.filter((item) => item !== tag.slug) : [...draft.tagSlugs, tag.slug]); if (removing && selectedNotificationTagSet.has(tag.slug)) patch('notificationTags', draft.notificationTags.filter((item) => item !== tag.slug)) }} /><span>{ne ? tag.nameNe : tag.nameEn || tag.nameNe}</span></label>)}</fieldset>
-            <div className="writer-grid writer-grid--two"><label className="writer-field"><span>{ne ? 'गृहपृष्ठ परिचय' : 'Homepage teaser'}</span><textarea value={draft.customHomepageText} onChange={(event) => patch('customHomepageText', event.target.value)} rows={4} maxLength={220} placeholder={ne ? 'गृहपृष्ठमा देखिने छोटो, तथ्यपरक परिचय' : 'A concise, factual homepage introduction'} /></label><label className="writer-field"><span>{ne ? 'सामाजिक सञ्जाल प्रति' : 'Social copy'}</span><textarea value={draft.customSocialText} onChange={(event) => patch('customSocialText', event.target.value)} rows={4} maxLength={280} placeholder={ne ? 'अतिरञ्जना नगरी सामाजिक सञ्जालका लागि सन्दर्भ' : 'Context for social distribution without clickbait'} /></label></div>
-            <fieldset className="writer-radio"><legend>{ne ? 'सूचना सिफारिस' : 'Notification recommendation'}</legend>{([['none', ne ? 'सूचना नपठाउने' : 'No alert'],['followers', ne ? 'सम्बन्धित विषय पछ्याउनेलाई' : 'Followers of matching topics'],['breaking', ne ? 'ब्रेकिङका रूपमा प्रस्ताव' : 'Propose as breaking']] as const).map(([value,label]) => <label key={value}><input type="radio" name="notificationMode" value={value} checked={draft.notificationMode === value} onChange={() => patch('notificationMode', value)} /><span>{label}</span></label>)}</fieldset>
-            {draft.notificationMode !== 'none' ? <fieldset className="writer-tag-picker writer-tag-picker--alerts"><legend>{ne ? 'सूचना पठाउने लक्षित विषय' : 'Alert audience topics'}</legend><p>{ne ? 'खाली राखेमा समाचारका सबै ट्याग प्रयोग हुन्छन्। यहाँ छानिएको ट्याग समाचारको ट्यागभित्रै हुनुपर्छ।' : 'Leave empty to inherit all story tags. Alert targets must be a subset of the story tags.'}</p>{draft.tagSlugs.length ? draft.tagSlugs.map((slug) => { const tag = tags.find((item) => item.slug === slug); return <label key={slug} data-selected={selectedNotificationTagSet.has(slug)}><input type="checkbox" checked={selectedNotificationTagSet.has(slug)} onChange={() => patch('notificationTags', selectedNotificationTagSet.has(slug) ? draft.notificationTags.filter((item) => item !== slug) : [...draft.notificationTags, slug])} /><span>{tag ? (ne ? tag.nameNe : tag.nameEn || tag.nameNe) : slug}</span></label> }) : <span className="writer-tag-picker__empty">{ne ? 'पहिला समाचार ट्याग छान्नुहोस्।' : 'Select story tags first.'}</span>}</fieldset> : null}
+            <div className="newsroom-studio__section-intro"><h2>{ne ? 'वर्गीकरण र प्रस्तुति' : 'Classification and presentation'}</h2><p>{ne ? 'ट्यागले खोज, सम्बन्धित समाचार र notification eligibility मा मद्दत गर्छ। ब्रेकिङ चिन्ह सम्पादकले अन्तिम रूपमा स्वीकृत गर्छ।' : 'Tags improve search, related stories and notification eligibility. Editors make the final breaking-news decision.'}</p></div>
+            <fieldset className="newsroom-tag-picker"><legend>{ne ? 'समाचार ट्याग' : 'Story tags'}</legend>{tags.slice(0, 50).map((tag) => <label key={tag.slug} data-selected={selectedTagSet.has(tag.slug)}><input type="checkbox" checked={selectedTagSet.has(tag.slug)} onChange={() => { const removing = selectedTagSet.has(tag.slug); patch('tagSlugs', removing ? draft.tagSlugs.filter((item) => item !== tag.slug) : [...draft.tagSlugs, tag.slug]); if (removing && selectedNotificationTagSet.has(tag.slug)) patch('notificationTags', draft.notificationTags.filter((item) => item !== tag.slug)) }} /><span>{ne ? tag.nameNe : tag.nameEn || tag.nameNe}</span></label>)}</fieldset>
+            <div className="newsroom-grid newsroom-grid--two"><label className="newsroom-field"><span>{ne ? 'गृहपृष्ठ परिचय' : 'Homepage teaser'}</span><textarea value={draft.customHomepageText} onChange={(event) => patch('customHomepageText', event.target.value)} rows={4} maxLength={220} placeholder={ne ? 'गृहपृष्ठमा देखिने छोटो, तथ्यपरक परिचय' : 'A concise, factual homepage introduction'} /></label><label className="newsroom-field"><span>{ne ? 'सामाजिक सञ्जाल प्रति' : 'Social copy'}</span><textarea value={draft.customSocialText} onChange={(event) => patch('customSocialText', event.target.value)} rows={4} maxLength={280} placeholder={ne ? 'अतिरञ्जना नगरी सामाजिक सञ्जालका लागि सन्दर्भ' : 'Context for social distribution without clickbait'} /></label></div>
+            <fieldset className="newsroom-radio"><legend>{ne ? 'सूचना सिफारिस' : 'Notification recommendation'}</legend>{([['none', ne ? 'सूचना नपठाउने' : 'No alert'],['followers', ne ? 'सम्बन्धित विषय पछ्याउनेलाई' : 'Followers of matching topics'],['breaking', ne ? 'ब्रेकिङका रूपमा प्रस्ताव' : 'Propose as breaking']] as const).map(([value,label]) => <label key={value}><input type="radio" name="notificationMode" value={value} checked={draft.notificationMode === value} onChange={() => patch('notificationMode', value)} /><span>{label}</span></label>)}</fieldset>
+            {draft.notificationMode !== 'none' ? <fieldset className="newsroom-tag-picker newsroom-tag-picker--alerts"><legend>{ne ? 'सूचना पठाउने लक्षित विषय' : 'Alert audience topics'}</legend><p>{ne ? 'खाली राखेमा समाचारका सबै ट्याग प्रयोग हुन्छन्। यहाँ छानिएको ट्याग समाचारको ट्यागभित्रै हुनुपर्छ।' : 'Leave empty to inherit all story tags. Alert targets must be a subset of the story tags.'}</p>{draft.tagSlugs.length ? draft.tagSlugs.map((slug) => { const tag = tags.find((item) => item.slug === slug); return <label key={slug} data-selected={selectedNotificationTagSet.has(slug)}><input type="checkbox" checked={selectedNotificationTagSet.has(slug)} onChange={() => patch('notificationTags', selectedNotificationTagSet.has(slug) ? draft.notificationTags.filter((item) => item !== slug) : [...draft.notificationTags, slug])} /><span>{tag ? (ne ? tag.nameNe : tag.nameEn || tag.nameNe) : slug}</span></label> }) : <span className="newsroom-tag-picker__empty">{ne ? 'पहिला समाचार ट्याग छान्नुहोस्।' : 'Select story tags first.'}</span>}</fieldset> : null}
           </> : null}
 
-          {tab === 'preview' ? <article className="writer-preview" lang="ne"><p>{categories.find((item) => item.slug === draft.categorySlug)?.nameNe ?? draft.categorySlug}</p><h2>{draft.titleNe || 'शीर्षक यहाँ देखिन्छ'}</h2>{draft.deckNe ? <h3>{draft.deckNe}</h3> : null}<div>{draft.bodyNe.split(/\n{2,}/).filter(Boolean).map((paragraph, index) => paragraph.startsWith('## ') ? <h4 key={index}>{paragraph.replace(/^##\s*/, '')}</h4> : paragraph.startsWith('> ') ? <blockquote key={index}>{paragraph.replace(/^>\s*/, '')}</blockquote> : <p key={index}>{paragraph}</p>)}</div></article> : null}
+          {tab === 'preview' ? <article className="newsroom-preview" lang="ne"><p>{categories.find((item) => item.slug === draft.categorySlug)?.nameNe ?? draft.categorySlug}</p><h2>{draft.titleNe || 'शीर्षक यहाँ देखिन्छ'}</h2>{draft.deckNe ? <h3>{draft.deckNe}</h3> : null}<div>{draft.bodyNe.split(/\n{2,}/).filter(Boolean).map((paragraph, index) => paragraph.startsWith('## ') ? <h4 key={index}>{paragraph.replace(/^##\s*/, '')}</h4> : paragraph.startsWith('> ') ? <blockquote key={index}>{paragraph.replace(/^>\s*/, '')}</blockquote> : <p key={index}>{paragraph}</p>)}</div></article> : null}
         </main>
 
-        <aside className="writer-studio__rail">
-          <section><p className="editorial-kicker" lang="en">Live check</p><dl><div><dt>{ne ? 'शब्द' : 'Words'}</dt><dd>{wordCount}</dd></div><div><dt>{ne ? 'पढाइ समय' : 'Read time'}</dt><dd>{readingMinutes} {ne ? 'मिनेट' : 'min'}</dd></div><div><dt>{ne ? 'ट्याग' : 'Tags'}</dt><dd>{draft.tagSlugs.length}</dd></div></dl></section>
+        <aside className="newsroom-studio__rail">
+          <section><h3>{ne ? 'प्रगति' : 'Progress'}</h3><dl><div><dt>{ne ? 'शब्द' : 'Words'}</dt><dd>{wordCount}</dd></div><div><dt>{ne ? 'पढाइ समय' : 'Read time'}</dt><dd>{readingMinutes} {ne ? 'मिनेट' : 'min'}</dd></div><div><dt>{ne ? 'ट्याग' : 'Tags'}</dt><dd>{draft.tagSlugs.length}</dd></div></dl></section>
           <section><h3>{ne ? 'पेश गर्नुअघि' : 'Before review'}</h3><ul><li data-ready={Boolean(draft.titleNe)}>{ne ? 'ठोस शीर्षक' : 'Specific headline'}</li><li data-ready={storyReady}>{ne ? 'पर्याप्त समाचार सामग्री' : 'Substantive story body'}</li><li data-ready={Boolean(draft.reportingLocation)}>{ne ? 'रिपोर्टिङ स्थान' : 'Reporting location'}</li><li data-ready={draft.sourceNote.length >= 20}>{ne ? 'स्रोत/प्रमाण नोट' : 'Source/evidence note'}</li><li data-ready={draft.tagSlugs.length > 0}>{ne ? 'कम्तीमा एउटा ट्याग' : 'At least one tag'}</li></ul></section>
-          <section className="writer-distribution-brief"><p className="editorial-kicker" lang="en">Distribution brief</p><h3>{ne ? 'यो समाचार कसरी पुग्छ' : 'How this story can travel'}</h3><dl><div><dt>{ne ? 'विभाग' : 'Desk'}</dt><dd>{categories.find((item) => item.slug === draft.categorySlug)?.[ne ? 'nameNe' : 'nameEn'] || draft.categorySlug || '—'}</dd></div><div><dt>{ne ? 'समाचार ट्याग' : 'Story tags'}</dt><dd>{selectedTags.length ? selectedTags.map((tag) => ne ? tag.nameNe : tag.nameEn || tag.nameNe).join(' · ') : (ne ? 'छानिएको छैन' : 'None selected')}</dd></div><div><dt>{ne ? 'सूचना प्रस्ताव' : 'Alert proposal'}</dt><dd>{draft.notificationMode === 'breaking' ? (ne ? 'ब्रेकिङ समीक्षा' : 'Breaking review') : draft.notificationMode === 'followers' ? (ne ? 'सम्बन्धित पाठक' : 'Matching followers') : (ne ? 'सूचना छैन' : 'No alert')}</dd></div>{draft.notificationMode !== 'none' ? <div><dt>{ne ? 'लक्षित विषय' : 'Audience topics'}</dt><dd>{alertAudienceTags.length ? alertAudienceTags.map((tag) => ne ? tag.nameNe : tag.nameEn || tag.nameNe).join(' · ') : (ne ? 'समाचार ट्यागबाट स्वतः' : 'Inherited from story tags')}</dd></div> : null}</dl><p>{ne ? 'यो रिपोर्टरको सिफारिस मात्र हो। प्रकाशन, ब्रेकिङ स्थिति र वास्तविक सूचना पठाउने निर्णय सम्पादकीय gate पछि मात्र हुन्छ।' : 'This is a reporter recommendation. Publication, breaking status and actual delivery remain behind the editorial gate.'}</p></section>
-          {initial?.workflowStage ? <section><h3>{ne ? 'कार्यप्रवाह' : 'Workflow'}</h3><strong className="writer-studio__stage">{initial.workflowStage}</strong>{initial.workflowStage === 'submitted' ? <p>{ne ? 'सम्पादकले समीक्षा गरिरहेका छन्। संशोधन चाहिँदा प्रतिक्रिया डेस्कमा देखिन्छ।' : 'An editor is reviewing this story. Revision requests appear in the feedback desk.'}</p> : null}</section> : null}
-          {mode === 'edit' ? <section className="writer-revisions">
-            <p className="editorial-kicker" lang="en">Immutable record</p>
+          <section className="newsroom-distribution-brief"><h3>{ne ? 'यो समाचार कसरी पुग्छ' : 'How this story can travel'}</h3><dl><div><dt>{ne ? 'विभाग' : 'Desk'}</dt><dd>{categories.find((item) => item.slug === draft.categorySlug)?.[ne ? 'nameNe' : 'nameEn'] || draft.categorySlug || '—'}</dd></div><div><dt>{ne ? 'समाचार ट्याग' : 'Story tags'}</dt><dd>{selectedTags.length ? selectedTags.map((tag) => ne ? tag.nameNe : tag.nameEn || tag.nameNe).join(' · ') : (ne ? 'छानिएको छैन' : 'None selected')}</dd></div><div><dt>{ne ? 'सूचना प्रस्ताव' : 'Alert proposal'}</dt><dd>{draft.notificationMode === 'breaking' ? (ne ? 'ब्रेकिङ समीक्षा' : 'Breaking review') : draft.notificationMode === 'followers' ? (ne ? 'सम्बन्धित पाठक' : 'Matching followers') : (ne ? 'सूचना छैन' : 'No alert')}</dd></div>{draft.notificationMode !== 'none' ? <div><dt>{ne ? 'लक्षित विषय' : 'Audience topics'}</dt><dd>{alertAudienceTags.length ? alertAudienceTags.map((tag) => ne ? tag.nameNe : tag.nameEn || tag.nameNe).join(' · ') : (ne ? 'समाचार ट्यागबाट स्वतः' : 'Inherited from story tags')}</dd></div> : null}</dl><p>{ne ? 'यो रिपोर्टरको सिफारिस मात्र हो। प्रकाशन, ब्रेकिङ स्थिति र वास्तविक सूचना पठाउने निर्णय सम्पादकीय gate पछि मात्र हुन्छ।' : 'This is a reporter recommendation. Publication, breaking status and actual delivery remain behind the editorial gate.'}</p></section>
+          {initial?.workflowStage ? <section><h3>{ne ? 'कार्यप्रवाह' : 'Workflow'}</h3><strong className="newsroom-studio__stage">{initial.workflowStage}</strong>{initial.workflowStage === 'submitted' ? <p>{ne ? 'सम्पादकले समीक्षा गरिरहेका छन्। संशोधन चाहिँदा प्रतिक्रिया डेस्कमा देखिन्छ।' : 'An editor is reviewing this story. Revision requests appear in the feedback desk.'}</p> : null}</section> : null}
+          {mode === 'edit' ? <section className="newsroom-revisions">
             <h3>{ne ? 'संशोधन इतिहास' : 'Revision history'}</h3>
             {revisions.length ? <ol>{revisions.map((revision) => {
               const action = revision.action === 'submitted'

@@ -59,27 +59,11 @@ export default async function JournalistToolsPage({ params }: { params: Promise<
     >
       <main className="newsroom-page">
         <header className="newsroom-page__header">
-          <div>
-            <p className="editorial-kicker" lang="en">
-              Writing toolkit
-            </p>
-            <h1>{ne ? 'लेखन उपकरण' : 'Writing tools'}</h1>
-            <p>
-              {ne
-                ? 'शीर्षक जाँच, ढाँचा र पेश गर्नुअघिको चेकलिस्ट — स्टुडियोमा सिधै प्रयोग गर्नुहोस्।'
-                : 'Headline checks, story frames and a pre-submit checklist — use them in the studio.'}
-            </p>
-          </div>
-          <Link href={localizeHref(locale, '/journalist/articles/new')} className="newsroom-primary-action">
-            {ne ? 'नयाँ ड्राफ्ट खोल्नुहोस्' : 'Open new draft'}
-          </Link>
+          <h1>{ne ? 'लेखन उपकरण' : 'Writing tools'}</h1>
         </header>
 
         <section className="newsroom-tools-grid">
           <article className="newsroom-tool-card">
-            <p className="editorial-kicker" lang="en">
-              Headline check
-            </p>
             <h2>{ne ? 'शीर्षक चार प्रश्न' : 'Four headline questions'}</h2>
             <ol>
               <li>{ne ? 'के दाबी प्रमाणित छ?' : 'Is the claim verified?'}</li>
@@ -90,9 +74,6 @@ export default async function JournalistToolsPage({ params }: { params: Promise<
           </article>
 
           <article className="newsroom-tool-card">
-            <p className="editorial-kicker" lang="en">
-              Before submit
-            </p>
             <h2>{ne ? 'समीक्षामा पठाउनुअघि' : 'Before review'}</h2>
             <ul>
               <li>{ne ? 'रिपोर्टिङ स्थान' : 'Reporting location'}</li>
@@ -103,9 +84,6 @@ export default async function JournalistToolsPage({ params }: { params: Promise<
           </article>
 
           <article className="newsroom-tool-card newsroom-tool-card--wide">
-            <p className="editorial-kicker" lang="en">
-              Story frames
-            </p>
             <h2>{ne ? 'ढाँचा — नयाँ ड्राफ्टमा टाँस्नुहोस्' : 'Frames — paste into a new draft'}</h2>
             <div className="newsroom-template-list">
               {TEMPLATES.map((template) => (
@@ -114,7 +92,7 @@ export default async function JournalistToolsPage({ params }: { params: Promise<
                   <pre>{template.body}</pre>
                   <Link
                     href={`${localizeHref(locale, '/journalist/articles/new')}?template=${template.id}`}
-                    className="newsroom-primary-action"
+                    className="newsroom-inline-link"
                   >
                     {ne ? 'यस ढाँचासँग लेख्नुहोस्' : 'Write with this frame'}
                   </Link>

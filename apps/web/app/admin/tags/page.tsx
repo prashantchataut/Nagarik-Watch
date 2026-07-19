@@ -55,7 +55,7 @@ export default async function Page() {
 
   return (
     <div>
-      <AdminPageHeader title="ट्याग" subtitle="Topic tags used for search, recommendations and SEO" />
+      <AdminPageHeader subtitle="Topic tags used for search, recommendations and SEO" />
       <div className="grid gap-5 xl:grid-cols-[0.95fr_1.4fr]">
         <AdminCard>
           <h2 className="font-display text-h2 text-ink" lang="ne">नयाँ / सम्पादन</h2>

@@ -496,40 +496,47 @@ export async function getCommentsForArticle(articleSlug: string, articleCategory
       | 'locale'
       | 'status'
       | 'createdAt'
-    > & { upvotes?: number; downvotes?: number }
+    > & { upvotes?: number; downvotes?: number; upvoteCount?: number }
   >
   if (database) {
     await ensureSchema()
     const result = await database.query(
       `select id, author_name as "authorName", author_user_id as "authorUserId", body_ne as "bodyNe", parent_id as "parentId",
-              locale, status, created_at as "createdAt"
+              locale, status, created_at as "createdAt",
+              coalesce(upvote_count, 0)::int as "upvoteCount"
        from nw_comments where article_slug=$1 and article_category=$2 and status='approved' order by created_at asc`,
       [articleSlug, articleCategory],
     )
     comments = result.rows as typeof comments
   } else {
-    comments = (await readLocal()).comments.filter(
-      (comment) =>
-        comment.articleSlug === articleSlug &&
-        comment.articleCategory === articleCategory &&
-        comment.status === 'approved',
-    )
+    comments = (await readLocal()).comments
+      .filter(
+        (comment) =>
+          comment.articleSlug === articleSlug &&
+          comment.articleCategory === articleCategory &&
+          comment.status === 'approved',
+      )
+      .map((comment) => ({
+        ...comment,
+        upvoteCount: Number((comment as { upvoteCount?: number }).upvoteCount ?? 0),
+      }))
   }
 
   const now = new Date()
   return [...comments]
     .map((comment) => {
+      const upvoteCount = Number(comment.upvoteCount ?? comment.upvotes ?? 0)
       const ranked = rankComment(
         {
           id: comment.id,
           body: comment.bodyNe,
           createdAt: comment.createdAt,
-          upvotes: comment.upvotes ?? 1,
+          upvotes: Math.max(1, upvoteCount),
           downvotes: comment.downvotes ?? 0,
         },
         now,
       )
-      return { ...comment, rankScore: ranked.rankScore }
+      return { ...comment, upvoteCount, rankScore: ranked.rankScore }
     })
     .sort((a, b) => b.rankScore - a.rankScore || a.createdAt.localeCompare(b.createdAt))
 }

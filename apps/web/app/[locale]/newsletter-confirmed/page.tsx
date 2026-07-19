@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import type { Locale } from '@nagarikwatch/db'
 import Link from 'next/link'
 import { asLocale, localePrefix } from '@/lib/i18n/locales'
@@ -8,7 +8,7 @@ type Params = { locale: string }
 export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
-  title: 'Subscription confirmed — Nagarik Watch',
+  title: 'Subscription confirmed  -  Nagarik Watch',
   description: 'Your Nagarik Watch newsletter subscription is now active.',
   robots: { index: false, follow: false },
 }
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
  * double-opt-in email link. The confirm route (`/api/newsletter/confirm`)
  * redirects to the bare `/newsletter-confirmed`; the locale middleware
  * rewrites that to `/ne/newsletter-confirmed` (or `/en/...`) so this page
- * receives the right locale. Rendered bilingually — confirmation is a
+ * receives the right locale. Rendered bilingually  -  confirmation is a
  * transactional moment, not editorial content.
  */
 export default async function NewsletterConfirmedPage({ params }: { params: Promise<Params> }) {

@@ -5,19 +5,16 @@ import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 
 /**
- * ReadingProgress — a thin progress bar pinned to the top of the viewport that fills as the
- * reader scrolls through the article (spec Phase 5: article progress indicator). It gives a
- * sense of length and place in long civic pieces without any heavy chrome.
- *
- * Implementation respects the design laws: it animates `transform: scaleX` only (never a
- * layout property), is purely decorative-but-announced (role=progressbar with live values
- * for assistive tech), sits below the sticky masthead, and disappears under reduced-motion
- * preference is not needed (no motion to disable, the scale tracks scroll position directly).
- *
- * It measures the nearest <article> ancestor by id so it tracks the body, not the whole
- * page; falls back to the document if not found.
+ * Thin progress bar pinned to the viewport top. When `targetId` is set, progress tracks
+ * that column instead of the full page so related stories and footer do not inflate the bar.
  */
-export function ReadingProgress({ locale }: { locale: Locale }) {
+export function ReadingProgress({
+  locale,
+  targetId,
+}: {
+  locale: Locale
+  targetId?: string
+}) {
   const dict = getDictionary(locale)
   const fillRef = useRef<HTMLDivElement>(null)
   const [value, setValue] = useState(0)
@@ -26,9 +23,23 @@ export function ReadingProgress({ locale }: { locale: Locale }) {
     let frame = 0
     const compute = () => {
       frame = 0
-      const doc = document.documentElement
-      const max = doc.scrollHeight - doc.clientHeight
-      const pct = max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0
+      let pct = 0
+      const target = targetId ? document.getElementById(targetId) : null
+      if (target) {
+        const rect = target.getBoundingClientRect()
+        const top = window.scrollY + rect.top
+        const height = target.scrollHeight
+        const scrollable = height - window.innerHeight
+        if (scrollable <= 0) {
+          pct = window.scrollY >= top ? 1 : 0
+        } else {
+          pct = (window.scrollY - top) / scrollable
+        }
+      } else {
+        const max = document.documentElement.scrollHeight - document.documentElement.clientHeight
+        pct = max > 0 ? window.scrollY / max : 0
+      }
+      pct = Math.min(1, Math.max(0, pct))
       if (fillRef.current) {
         fillRef.current.style.transform = `scaleX(${pct})`
       }
@@ -46,11 +57,11 @@ export function ReadingProgress({ locale }: { locale: Locale }) {
       window.removeEventListener('resize', onScroll)
       if (frame) window.cancelAnimationFrame(frame)
     }
-  }, [])
+  }, [targetId])
 
   return (
     <div
-      className="fixed inset-x-0 top-0 z-50 h-1"
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 h-1"
       role="progressbar"
       aria-label={dict.readingProgressAria}
       aria-valuemin={0}

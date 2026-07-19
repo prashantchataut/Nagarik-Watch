@@ -21,7 +21,7 @@ const config: Config = {
         // next/font exposes these as CSS variables; see app/fonts.ts.
         devanagari: ['var(--font-devanagari)', 'var(--font-mukta)', 'sans-serif'],
         display: ['var(--font-mukta)', 'var(--font-devanagari)', 'sans-serif'],
-        sans: ['var(--font-inter)', 'var(--font-devanagari)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-source-sans)', 'var(--font-devanagari)', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         // DESIGN.md §3 type scale (modular ~1.25). Devanagari body needs ~1.7 line-height.

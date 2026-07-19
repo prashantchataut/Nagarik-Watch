@@ -15,6 +15,7 @@ import {
   type SearchResult,
 } from '@/lib/search'
 import { hasAnalyticsConsent } from '@/lib/reader/consent'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 
 type SearchViewProps = {
   locale: Locale
@@ -153,14 +154,22 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
   const hasQuery = debounced.trim().length > 0
   const titleFor = (r: SearchResult) => (locale === 'en' && r.titleEn ? r.titleEn : r.titleNe)
   const showRecents = !hasQuery && recents.length > 0
+  const lang = locale === 'en' ? 'en' : 'ne'
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8">
-      <h1 className="font-display text-display text-ink" lang={locale === 'en' ? 'en' : 'ne'}>
-        {dict.searchHeading}
-      </h1>
+    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
+      <HubIndexHeader
+        kicker={locale === 'en' ? 'Archive search' : 'अभिलेख खोज'}
+        title={dict.searchHeading}
+        lead={
+          locale === 'en'
+            ? 'Search published titles, authors and topics. Devanagari and English both work.'
+            : 'प्रकाशित शीर्षक, लेखक र विषय खोज्नुहोस्। देवनागरी र अंग्रेजी दुवै चल्छ।'
+        }
+        lang={lang}
+      />
 
-      <div className="relative mt-4">
+      <div className="relative mt-8">
         <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-mute">
           <SearchIcon />
         </span>
@@ -194,13 +203,13 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
       )}
 
       {suggestions.length > 0 && (
-        <ul className="mt-3 flex flex-wrap gap-2" aria-label={locale === 'en' ? 'Suggestions' : 'सुझावहरू'}>
+        <ul className="mt-4 divide-y divide-rule border-y border-rule" aria-label={locale === 'en' ? 'Suggestions' : 'सुझावहरू'}>
           {suggestions.map((suggestion) => (
             <li key={suggestion}>
               <button
                 type="button"
                 onClick={() => setQuery(suggestion)}
-                className="inline-flex items-center rounded-full border border-rule px-3 py-1.5 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+                className="block w-full py-3 text-left text-body font-semibold text-ink-soft transition hover:text-brand-strong"
               >
                 {suggestion}
               </button>
@@ -252,45 +261,24 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
 
       {/* Empty: query but no results */}
       {hasQuery && results.length === 0 && (
-        <div
-          className="mt-12 flex flex-col items-center gap-3 rounded-lg border border-dashed border-rule p-10 text-center"
-          lang={locale === 'en' ? 'en' : 'ne'}
-        >
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            className="text-mute"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="7" />
-            <path d="m21 21-4.3-4.3" />
-            <path d="M8 11h6" />
-          </svg>
+        <div className="mt-10 border-y border-rule py-10" lang={lang}>
           <p className="font-display text-h2 text-ink">{dict.searchNoResults}</p>
-          <p className="max-w-md text-body text-ink-soft">{dict.searchNoResultsHint}</p>
+          <p className="mt-2 max-w-body text-body text-ink-soft">{dict.searchNoResultsHint}</p>
         </div>
       )}
 
-      {/* Empty: no query, but recents exist */}
       {showRecents && (
         <section className="mt-8">
-          <p
-            className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
-            lang={locale === 'en' ? 'en' : 'ne'}
-          >
+          <h2 className="font-display text-h2 text-ink" lang={lang}>
             {dict.searchRecent}
-          </p>
-          <ul className="mt-3 flex flex-wrap gap-2">
+          </h2>
+          <ul className="mt-3 divide-y divide-rule border-y border-rule">
             {recents.map((r) => (
               <li key={r}>
                 <button
                   type="button"
                   onClick={() => setQuery(r)}
-                  className="inline-flex items-center rounded-full border border-rule px-3.5 py-1.5 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+                  className="block w-full py-3 text-left text-body font-semibold text-ink-soft transition hover:text-brand-strong"
                 >
                   {r}
                 </button>
@@ -300,27 +288,10 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
         </section>
       )}
 
-      {/* Empty: no query, no recents */}
       {!hasQuery && recents.length === 0 && (
-        <div
-          className="mt-12 flex flex-col items-center gap-3 rounded-lg border border-dashed border-rule p-10 text-center"
-          lang={locale === 'en' ? 'en' : 'ne'}
-        >
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            className="text-mute"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="7" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
+        <div className="mt-10 border-y border-rule py-10" lang={lang}>
           <p className="font-display text-h2 text-ink">{dict.searchEmptyQuery}</p>
-          <p className="max-w-md text-body text-ink-soft">{dict.searchEmptyHint}</p>
+          <p className="mt-2 max-w-body text-body text-ink-soft">{dict.searchEmptyHint}</p>
         </div>
       )}
     </div>

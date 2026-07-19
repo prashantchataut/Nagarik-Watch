@@ -2,8 +2,16 @@ import Link from 'next/link'
 import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
-import { adPlacement, getAdMode, type AdPlacementKey, type AdSize } from '@/lib/ads'
+import {
+  adPlacement,
+  getAdMode,
+  getAdNetworkKind,
+  isNetworkAdsReady,
+  type AdPlacementKey,
+  type AdSize,
+} from '@/lib/ads'
 import { AdTracker } from '@/components/ads/AdTracker'
+import { NetworkAdUnit } from '@/components/ads/NetworkAdUnit'
 import { getHouseAd } from '@/lib/house-ads'
 
 const SIZE_CLASS: Record<AdSize, string> = {
@@ -93,9 +101,27 @@ export async function AdSlot({
             </span>
           </a>
         ) : mode === 'network' ? (
-          <span className="mt-2 max-w-[22rem] text-caption leading-relaxed text-ink-soft sm:mt-0">
-            {description}
-          </span>
+          isNetworkAdsReady() ? (
+            <NetworkAdUnit
+              network={getAdNetworkKind()}
+              adsenseClient={process.env.NEXT_PUBLIC_ADSENSE_CLIENT}
+              adsenseSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT}
+              gamPath={
+                process.env.NEXT_PUBLIC_GAM_NETWORK_CODE
+                  ? `/${process.env.NEXT_PUBLIC_GAM_NETWORK_CODE}/${placement.key}`
+                  : undefined
+              }
+              width={placement.width}
+              height={placement.height}
+            />
+          ) : (
+            <span className="mt-2 max-w-[22rem] text-caption leading-relaxed text-ink-soft sm:mt-0">
+              {locale === 'en'
+                ? 'Network inventory reserved. Publisher credentials are not configured yet.'
+                : 'नेटवर्क स्थान सुरक्षित छ। प्रकाशक प्रमाणपत्र अहिले कन्फिगर छैन।'}
+              <span className="mt-1 block text-mute">{description}</span>
+            </span>
+          )
         ) : resolvedVariant === 'mobile' ? (
           <Link
             href={mediaKitHref}

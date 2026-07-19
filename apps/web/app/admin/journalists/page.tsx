@@ -20,7 +20,6 @@ export default async function AdminJournalistsPage() {
   return (
     <div>
       <AdminPageHeader
-        title="पत्रकार workspace"
         subtitle="Admin shell बाहिर रहेको /journalist workflow बाट आएका draft handoff notes"
       />
       <div className="mb-5 grid gap-4 md:grid-cols-3">

@@ -79,7 +79,7 @@ export default async function DashboardPage() {
         <p className="admin-eyebrow" lang="ne">
           {formatDate(new Date().toISOString(), locale)} · {deskLabel} · {roleLabel}
         </p>
-        <h2 className="admin-page-title" lang="ne">
+        <h2 className="admin-welcome-title" lang="ne">
           स्वागत छ, {newsroom.displayName || newsroom.email.split('@')[0]}
         </h2>
         <p className="admin-page-subtitle" lang="ne">

@@ -33,7 +33,6 @@ export default async function TopicsPage() {
   return (
     <div>
       <AdminPageHeader
-        title="विषय"
         subtitle="विभिन्न समाचार विभाग जोड्ने दीर्घकालीन विषय र स्टोरी आर्क"
         action={<AdminButton href="/admin/tags">+ विषय व्यवस्थापन</AdminButton>}
       />

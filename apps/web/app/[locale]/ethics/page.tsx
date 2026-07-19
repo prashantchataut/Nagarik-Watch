@@ -18,8 +18,8 @@ export default async function EthicsPage({ params }: { params: Promise<Params> }
   const lang = locale === 'en' ? 'en' : 'ne'
 
   return (
-    <div className="mx-auto max-w-body px-4 py-10">
-      <InfoPageHeader kicker={dict.ethicsKicker} lead={dict.ethicsLead} lang={lang} />
+    <div className="mx-auto max-w-page px-4 py-10">
+      <InfoPageHeader kicker={dict.ethicsKicker} title={dict.footerEthics} lead={dict.ethicsLead} lang={lang} />
 
       <div className="mt-10 space-y-10">
         <InfoSection heading={dict.ethicsAccuracyHeading} lang={lang}>

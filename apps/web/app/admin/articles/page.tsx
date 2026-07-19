@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { requireNewsroomSession } from '@/lib/auth/session'
@@ -6,7 +5,7 @@ import { canCreate, canEdit, canPublish } from '@/lib/admin-roles'
 import { listArticlesForAdmin, type StoredArticle } from '@/lib/content/store/json-store'
 import { categoryBySlug } from '@/lib/content/seed/categories'
 import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
-import { AdminButton, AdminCard, AdminPageHeader } from '@/components/admin/primitives'
+import { AdminButton, AdminCard, AdminFilterLink, AdminPageHeader, StatusBadge } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'समाचार',
@@ -45,7 +44,6 @@ export default async function ArticlesPage({
   return (
     <div>
       <AdminPageHeader
-        title="समाचार"
         subtitle={`समाचार कक्षको सामग्री सूची — कुल ${total}`}
         action={
           canCreate(session.newsroomRole) ? (
@@ -55,14 +53,14 @@ export default async function ArticlesPage({
       />
 
       <div className="mb-4 flex flex-wrap gap-2">
-        <FilterLink href="/admin/articles" active={!status}>
+        <AdminFilterLink href="/admin/articles" active={!status}>
           सबै
-        </FilterLink>
+        </AdminFilterLink>
         {(['draft', 'submitted', 'ready', 'scheduled', 'published', 'updated', 'archived'] as const).map(
           (key) => (
-            <FilterLink key={key} href={`/admin/articles?status=${key}`} active={status === key}>
+            <AdminFilterLink key={key} href={`/admin/articles?status=${key}`} active={status === key}>
               {STAGE_LABELS[key]}
-            </FilterLink>
+            </AdminFilterLink>
           ),
         )}
       </div>
@@ -114,12 +112,7 @@ export default async function ArticlesPage({
                         {category?.nameNe ?? article.categorySlug}
                       </td>
                       <td className="py-3 pr-4">
-                        <span
-                          className="rounded-full border border-rule px-2.5 py-1 text-caption font-semibold text-ink-soft"
-                          lang="ne"
-                        >
-                          {STAGE_LABELS[article.workflowStage] ?? article.workflowStage}
-                        </span>
+                        <StatusBadge status={article.workflowStage} />
                       </td>
                       <td className="py-3 pr-4 text-mute" lang="en">
                         {new Date(article.updatedAt).toLocaleString('en-GB', {
@@ -130,21 +123,14 @@ export default async function ArticlesPage({
                       <td className="py-3 text-right">
                         <div className="flex justify-end gap-2">
                           {article.workflowStage === 'published' ? (
-                            <Link
-                              href={publicHref}
-                              target="_blank"
-                              className="rounded-full border border-rule px-3 py-1.5 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong"
-                            >
+                            <AdminButton href={publicHref} variant="secondary" target="_blank" rel="noopener noreferrer" className="!min-h-9 !px-3 !py-1.5 !text-caption">
                               हेर्नुहोस्
-                            </Link>
+                            </AdminButton>
                           ) : null}
                           {canEdit(session.newsroomRole) || canPublish(session.newsroomRole) ? (
-                            <Link
-                              href={`/admin/articles/${article.id}/edit`}
-                              className="rounded-full bg-brand px-3 py-1.5 text-caption font-semibold text-surface hover:bg-brand-strong"
-                            >
+                            <AdminButton href={`/admin/articles/${article.id}/edit`} className="!min-h-9 !px-3 !py-1.5 !text-caption">
                               सम्पादन
-                            </Link>
+                            </AdminButton>
                           ) : null}
                         </div>
                       </td>
@@ -157,29 +143,6 @@ export default async function ArticlesPage({
         )}
       </AdminCard>
     </div>
-  )
-}
-
-function FilterLink({
-  href,
-  active,
-  children,
-}: {
-  href: string
-  active: boolean
-  children: React.ReactNode
-}) {
-  return (
-    <Link
-      href={href}
-      className={
-        active
-          ? 'rounded-full bg-brand px-3 py-1.5 text-caption font-semibold text-surface'
-          : 'rounded-full border border-rule px-3 py-1.5 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong'
-      }
-    >
-      {children}
-    </Link>
   )
 }
 

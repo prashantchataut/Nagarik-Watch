@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Byline, CategoryLabel } from '@nagarikwatch/ui'
 import { formatDate, type ArticleBlock } from '@nagarikwatch/db'
@@ -10,14 +11,14 @@ import { ArticleBody, CorrectionNotice, TagRow } from '@/components/article/Arti
 import { ArticleJsonLd } from '@/components/article/ArticleJsonLd'
 import { PaywallNotice } from '@/components/article/PaywallNotice'
 import { RelatedStories } from '@/components/article/RelatedStories'
-import { ShareBar } from '@/components/article/ShareBar'
-import { FontSizeControl } from '@/components/article/FontSizeControl'
 import { ReadingProgress } from '@/components/article/ReadingProgress'
-import { BookmarkButton } from '@/components/reader/BookmarkButton'
 import { ReaderArticleControls } from '@/components/reader/ReaderArticleControls'
 import { AdSlot } from '@/components/AdSlot'
 import { CommentSection } from '@/components/article/CommentSection'
 import { SpeculationRules } from '@/components/SpeculationRules'
+import { SpeakableJsonLd } from '@/components/seo/Schema'
+import { PrintButton } from '@/components/article/PrintButton'
+import { ReactionBar } from '@/components/article/ReactionBar'
 import { getSession } from '@/lib/auth/session'
 import { isPremiumSubscriber, isPublicMembershipEnabled } from '@/lib/membership'
 import { shouldShowPaywall } from '@/lib/paywall/decision'
@@ -110,7 +111,12 @@ export default async function ArticlePage({
   const locale = asLocale(raw)
   const english = locale === 'en'
   const article = await getArticleBySlug(category, slug, locale)
-  if (!article || (english && !article.hasEnglish)) notFound()
+  if (!article) notFound()
+  // English locale without a reviewed translation: serve Nepali with an honest notice
+  // and a one-click switch back to the Nepali URL, instead of a hard dead-end 404.
+  const englishMissing = english && !article.hasEnglish
+  const readingLocale = englishMissing ? 'ne' : locale
+  const readingEnglish = readingLocale === 'en'
 
   const membershipPublic = isPublicMembershipEnabled()
   const session = membershipPublic ? await getSession() : null
@@ -123,89 +129,92 @@ export default async function ArticlePage({
         articlePremium: Boolean(article.premium),
       })
     : true
-  const body = english && article.bodyEn ? article.bodyEn : article.bodyNe
+  const body = readingEnglish && article.bodyEn ? article.bodyEn : article.bodyNe
   const visibleBody = canReadFull ? body : previewBlocks(body)
   const [openingBody, remainingBody] = splitAfterParagraphs(visibleBody)
-  const title = english && article.titleEn ? article.titleEn : article.titleNe
-  const deck = english && article.deckEn ? article.deckEn : article.deckNe
-  const href = localizeHref(locale, `/${category}/${slug}`)
+  const title = readingEnglish && article.titleEn ? article.titleEn : article.titleNe
+  const deck = readingEnglish && article.deckEn ? article.deckEn : article.deckNe
+  const href = localizeHref(readingLocale, `/${category}/${slug}`)
   const canonical = `${SITE_URL}${href}`
-  const relatedPool = await getStories({ locale, limit: 40 })
+  const relatedPool = await getStories({ locale: readingLocale, limit: 40 })
   const related = relatedByContent(article, relatedPool.items, 5)
   const relatedHrefs = related.map((story) =>
-    localizeHref(locale, `/${story.category.slug}/${story.slug}`),
+    localizeHref(readingLocale, `/${story.category.slug}/${story.slug}`),
   )
 
   return (
-    <article className="pb-12">
-      <ReadingProgress locale={locale} />
+    <article className="pb-12 print:pb-0">
       <SpeculationRules prerenderUrls={relatedHrefs.slice(0, 2)} prefetchUrls={relatedHrefs} />
       <ArticleJsonLd
         article={article}
-        locale={locale}
+        locale={readingLocale}
         url={canonical}
         siteUrl={SITE_URL}
         siteName={PUBLICATION.publisherName}
       />
+      <SpeakableJsonLd
+        url={canonical}
+        cssSelectors={['article h1', 'article .article-deck']}
+      />
       <header
-        className="mx-auto max-w-[62rem] px-4 pb-7 pt-10 sm:pt-14"
-        lang={english ? 'en' : 'ne'}
+        className="mx-auto max-w-[43rem] px-4 pb-7 pt-10 sm:pt-14"
+        lang={readingEnglish ? 'en' : 'ne'}
       >
+        {englishMissing ? (
+          <p
+            className="mb-4 border border-rule bg-surface-raised px-3 py-2 text-meta text-ink-soft print:hidden"
+            lang="en"
+            role="status"
+          >
+            An English translation is not available for this story yet. Showing the Nepali edition.{' '}
+            <Link href={`/${category}/${slug}`} className="font-bold text-brand-strong underline-offset-2 hover:underline">
+              Open Nepali URL
+            </Link>
+          </p>
+        ) : null}
         <div className="flex flex-wrap items-center gap-2">
-          <CategoryLabel category={article.category} locale={locale} />
+          <CategoryLabel category={article.category} locale={readingLocale} />
           {membershipPublic && article.premium ? (
             <span className="border border-ink bg-ink px-2 py-0.5 text-caption font-bold uppercase tracking-wide text-surface">
-              {english ? 'Premium' : 'सदस्य'}
+              {readingEnglish ? 'Premium' : 'सदस्य'}
             </span>
           ) : null}
+          <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
         </div>
         <h1 className="mt-5 max-w-[19ch] font-display text-[clamp(2.3rem,6vw,4.5rem)] font-black leading-[1.04] tracking-[-0.025em] text-ink">
           {title}
         </h1>
         {deck ? (
-          <p className="mt-5 max-w-[48rem] text-[1.2rem] leading-relaxed text-ink-soft sm:text-[1.4rem]">
+          <p className="article-deck mt-5 max-w-[48rem] text-[1.2rem] leading-relaxed text-ink-soft sm:text-[1.4rem]">
             {deck}
           </p>
         ) : null}
         <div className="article-trust-ledger mt-6">
           <Byline
             authors={article.authors}
-            locale={locale}
+            locale={readingLocale}
             publishedAt={article.publishedAt}
             source={article.source}
           />
           <div className="article-trust-ledger__facts">
             <span>
-              {english
+              {readingEnglish
                 ? `${article.readingMinutes} min read`
                 : `${article.readingMinutes} मिनेट पढाइ`}
             </span>
             {article.updatedAt ? (
               <span>
-                {english ? 'Updated' : 'अद्यावधिक'}: {formatDate(article.updatedAt, locale)}
+                {readingEnglish ? 'Updated' : 'अद्यावधिक'}: {formatDate(article.updatedAt, readingLocale)}
               </span>
             ) : null}
             {article.factCheckStatus === 'verified' ? (
-              <span className="text-up">{english ? 'Facts verified' : 'तथ्य प्रमाणित'}</span>
+              <span className="text-up">{readingEnglish ? 'Facts verified' : 'तथ्य प्रमाणित'}</span>
             ) : null}
             {article.source ? (
-              <span>{english ? 'Source-linked report' : 'स्रोत लिंक गरिएको समाचार'}</span>
+              <span>{readingEnglish ? 'Source-linked report' : 'स्रोत लिंक गरिएको समाचार'}</span>
             ) : (
-              <span>{english ? 'Nagarik Watch newsroom' : 'नागरिक वाच न्युजरुम'}</span>
+              <span>{readingEnglish ? 'Nagarik Watch newsroom' : 'नागरिक वाच न्युजरुम'}</span>
             )}
-          </div>
-          <div className="article-trust-ledger__tools">
-            <div className="flex flex-wrap items-center gap-2">
-              <BookmarkButton story={article} locale={locale} variant="pill" />
-              <FontSizeControl locale={locale} />
-            </div>
-            <ShareBar
-              url={canonical}
-              title={title}
-              locale={locale}
-              articleSlug={slug}
-              articleCategory={category}
-            />
           </div>
         </div>
       </header>
@@ -234,51 +243,64 @@ export default async function ArticlePage({
       ) : null}
 
       <div className="mx-auto mt-8 grid max-w-[76rem] gap-10 px-4 lg:grid-cols-[minmax(0,43rem)_18rem] lg:justify-center">
-        <div>
-          <ReaderArticleControls
-            story={article}
-            locale={locale}
-            title={title}
-            href={href}
-            readingMinutes={article.readingMinutes}
-            premiumReader={premiumReader}
-            membershipPublic={membershipPublic}
-          />
+        <div id="article-reading-column">
+          <ReadingProgress locale={readingLocale} targetId="article-reading-column" />
           <ArticleBody
             blocks={openingBody}
-            locale={locale}
+            locale={readingLocale}
             source={article.source}
             className="mt-8"
           />
-          <AdSlot locale={locale} placementKey="article-top-billboard" variant="billboard" />
+          <AdSlot locale={readingLocale} placementKey="article-top-billboard" variant="billboard" className="print:hidden" />
           {remainingBody.length ? (
-            <ArticleBody blocks={remainingBody} locale={locale} className="mt-8" />
+            <ArticleBody blocks={remainingBody} locale={readingLocale} className="mt-8" />
           ) : null}
-          <AdSlot locale={locale} placementKey="article-native-related" variant="native" />
-          {membershipPublic && !canReadFull ? <PaywallNotice locale={locale} /> : null}
-          {article.corrections?.length ? (
-            <CorrectionNotice corrections={article.corrections} locale={locale} className="mt-8" />
-          ) : null}
-          <TagRow tags={article.tags} locale={locale} className="mt-8 border-t border-rule pt-6" />
-          <CommentSection
-            articleSlug={article.slug}
-            articleCategory={article.category.slug}
-            locale={locale}
-            commentsEnabled={article.commentsEnabled !== false}
+          <ReactionBar
+            locale={readingLocale}
+            articleSlug={slug}
+            articleCategory={category}
           />
+          <div className="mt-8 border-t border-rule pt-5 print:hidden">
+            <ReaderArticleControls
+              story={article}
+              locale={readingLocale}
+              title={title}
+              href={href}
+              shareUrl={canonical}
+              articleSlug={slug}
+              articleCategory={category}
+              readingMinutes={article.readingMinutes}
+              premiumReader={premiumReader}
+              membershipPublic={membershipPublic}
+            />
+          </div>
+          <AdSlot locale={readingLocale} placementKey="article-native-related" variant="native" className="print:hidden" />
+          {membershipPublic && !canReadFull ? <PaywallNotice locale={readingLocale} /> : null}
+          {article.corrections?.length ? (
+            <CorrectionNotice corrections={article.corrections} locale={readingLocale} className="mt-8" />
+          ) : null}
+          <TagRow tags={article.tags} locale={readingLocale} className="mt-8 border-t border-rule pt-6" />
+          <div className="print:hidden">
+            <CommentSection
+              articleSlug={article.slug}
+              articleCategory={article.category.slug}
+              locale={readingLocale}
+              commentsEnabled={article.commentsEnabled !== false}
+            />
+          </div>
         </div>
         <aside
-          className="hidden space-y-8 lg:block"
-          aria-label={english ? 'Advertisement' : 'विज्ञापन'}
+          className="hidden space-y-8 print:hidden lg:block"
+          aria-label={readingEnglish ? 'Advertisement' : 'विज्ञापन'}
         >
-          <AdSlot locale={locale} placementKey="article-sidebar-top" variant="rail" />
+          <AdSlot locale={readingLocale} placementKey="article-sidebar-top" variant="rail" />
           <div className="sticky top-24">
-            <AdSlot locale={locale} placementKey="article-sidebar-sticky" variant="rail" />
+            <AdSlot locale={readingLocale} placementKey="article-sidebar-sticky" variant="rail" />
           </div>
         </aside>
       </div>
-      <div className="mx-auto mt-14 max-w-page px-4">
-        <RelatedStories stories={related} locale={locale} />
+      <div className="mx-auto mt-14 max-w-page px-4 print:hidden">
+        <RelatedStories stories={related} locale={readingLocale} />
       </div>
     </article>
   )

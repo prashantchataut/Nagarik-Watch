@@ -25,11 +25,6 @@ export function Footer({ locale }: FooterProps) {
       label: locale === 'en' ? 'Most read' : 'धेरै पढिएको',
     },
     {
-      href: localizeHref(locale, '/editor-picks'),
-      label: locale === 'en' ? "Editor's picks" : 'सम्पादकको रोजाइ',
-    },
-    { href: localizeHref(locale, '/exclusive'), label: locale === 'en' ? 'Exclusive' : 'विशेष' },
-    {
       href: localizeHref(locale, '/fact-check'),
       label: locale === 'en' ? 'Fact check' : 'तथ्य-जाँच',
     },
@@ -39,29 +34,11 @@ export function Footer({ locale }: FooterProps) {
       href: localizeHref(locale, '/utilities'),
       label: locale === 'en' ? 'Utilities' : 'उपयोगी सेवा',
     },
-    { href: localizeHref(locale, '/rashifal'), label: locale === 'en' ? 'Rashifal' : 'राशिफल' },
   ]
 
   const aboutLinks = [
     { href: localizeHref(locale, '/about'), label: dict.footerAbout },
-    { href: localizeHref(locale, '/team'), label: locale === 'en' ? 'Team' : 'टोली' },
     { href: localizeHref(locale, '/ethics'), label: dict.footerEthics },
-    {
-      href: localizeHref(locale, '/editorial-policy'),
-      label: locale === 'en' ? 'Editorial policy' : 'सम्पादकीय नीति',
-    },
-    {
-      href: localizeHref(locale, '/corrections-policy'),
-      label: locale === 'en' ? 'Corrections' : 'सच्याइ',
-    },
-    {
-      href: localizeHref(locale, '/fact-check-policy'),
-      label: locale === 'en' ? 'Fact-check policy' : 'तथ्य-जाँच नीति',
-    },
-    {
-      href: localizeHref(locale, '/how-recommendations-work'),
-      label: locale === 'en' ? 'Recommendation policy' : 'सिफारिस नीति',
-    },
     { href: localizeHref(locale, '/privacy'), label: dict.footerPrivacy },
     {
       href: localizeHref(locale, '/cookies'),
@@ -74,9 +51,9 @@ export function Footer({ locale }: FooterProps) {
   ]
 
   return (
-    <footer className="mt-16 border-t border-rule bg-surface pb-20 lg:pb-0">
-      <div className="mx-auto max-w-page px-4 py-12">
-        <div className="flex flex-col gap-6 border-b border-rule pb-8 lg:flex-row lg:items-start lg:justify-between">
+    <footer className="mt-12 border-t border-rule bg-surface pb-20 lg:pb-0">
+      <div className="mx-auto max-w-page px-4 py-8">
+        <div className="flex flex-col gap-4 border-b border-rule pb-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-md">
             <span className="flex items-center gap-3">
               <LogoMark title={`${dict.siteName} / Nagarik Watch`} className="h-12 w-12" />
@@ -113,7 +90,7 @@ export function Footer({ locale }: FooterProps) {
           </ul>
         </div>
 
-        <div className="grid gap-8 py-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 py-6 md:grid-cols-2 lg:grid-cols-4">
           <nav aria-label={locale === 'en' ? 'Sections' : 'विभाग'} className="lg:col-span-1">
             <p
               className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
@@ -121,7 +98,7 @@ export function Footer({ locale }: FooterProps) {
             >
               {locale === 'en' ? 'Sections' : 'विभाग'}
             </p>
-            <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
+            <ul className="mt-2 grid gap-y-1.5">
               {sectionLinks.map((s) => (
                 <li key={s.href}>
                   <Link
@@ -143,7 +120,7 @@ export function Footer({ locale }: FooterProps) {
             >
               {locale === 'en' ? 'About & policy' : 'बारेमा र नीति'}
             </p>
-            <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
+            <ul className="mt-2 grid gap-y-1.5">
               {aboutLinks.map((s) => (
                 <li key={s.href}>
                   <Link

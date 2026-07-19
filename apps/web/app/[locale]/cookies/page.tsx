@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Link from 'next/link'
 import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localePrefix, localizeHref } from '@/lib/i18n/locales'
@@ -14,9 +14,10 @@ export default async function CookiesPage({ params }: { params: Promise<Params> 
   const lang = english ? 'en' : 'ne'
 
   return (
-    <div className="mx-auto max-w-body px-4 py-10">
+    <div className="mx-auto max-w-page px-4 py-10">
       <InfoPageHeader
         kicker={english ? 'Cookie policy' : 'कुकी नीति'}
+        title={english ? 'Cookie policy' : 'कुकी नीति'}
         lead={
           english
             ? 'How Nagarik Watch uses cookies and similar browser storage, and how you control them.'
@@ -32,8 +33,8 @@ export default async function CookiesPage({ params }: { params: Promise<Params> 
       <div className="mt-10 space-y-10">
         <InfoSection heading={english ? 'What we use' : 'हामी के प्रयोग गर्छौं'} lang={lang}>
           {english
-            ? 'Cookies and local storage help the site remember your language, theme, login session and — only with permission — reading preferences, analytics and first-party house-ad measurement. We do not sell data or load third-party advertising trackers.'
-            : 'कुकी र स्थानीय भण्डारणले भाषा, थिम, लगइन सेसन र — अनुमति दिएपछि मात्र — पढाइ रुचि, एनालिटिक्स र घरको विज्ञापन मापन सम्झन्छ। हामी डाटा बेच्दैनौं वा तेस्रो-पक्ष विज्ञापन ट्र्याकर लोड गर्दैनौं।'}
+            ? 'Cookies and local storage help the site remember your language, theme, login session and  -  only with permission  -  reading preferences, analytics and first-party house-ad measurement. We do not sell data or load third-party advertising trackers.'
+            : 'कुकी र स्थानीय भण्डारणले भाषा, थिम, लगइन सेसन र  -  अनुमति दिएपछि मात्र  -  पढाइ रुचि, एनालिटिक्स र घरको विज्ञापन मापन सम्झन्छ। हामी डाटा बेच्दैनौं वा तेस्रो-पक्ष विज्ञापन ट्र्याकर लोड गर्दैनौं।'}
         </InfoSection>
 
         <div id="essential" className="scroll-mt-24">
@@ -56,7 +57,7 @@ export default async function CookiesPage({ params }: { params: Promise<Params> 
           <InfoSection heading={english ? 'Analytics (optional)' : 'एनालिटिक्स (वैकल्पिक)'} lang={lang}>
             {english
               ? 'With permission we load Plausible, a privacy-friendly analytics script that counts visits without advertising profiles. The script is not injected until you opt in. The same consent can allow anonymous story impression events used for ranking.'
-              : 'अनुमतिपछि मात्र Plausible लोड हुन्छ — विज्ञापन प्रोफाइलबिना भिजिट गणना। सोही सहमतिले र्‍याङ्किङका लागि गोप्य कथा इम्प्रेसन घटना अनुमति दिन सक्छ।'}
+              : 'अनुमतिपछि मात्र Plausible लोड हुन्छ  -  विज्ञापन प्रोफाइलबिना भिजिट गणना। सोही सहमतिले र्‍याङ्किङका लागि गोप्य कथा इम्प्रेसन घटना अनुमति दिन सक्छ।'}
           </InfoSection>
         </div>
 

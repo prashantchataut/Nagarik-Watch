@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { requireNewsroomSession } from '@/lib/auth/session'
@@ -22,7 +21,7 @@ import {
 } from '@/lib/newsroom-users'
 import { roleGroupsForAssignable } from '@/lib/admin-role-groups'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard, AdminButton, AdminFilterLink, AdminInput } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'प्रयोगकर्ता',
@@ -214,7 +213,6 @@ export default async function UsersPage({
   return (
     <div>
       <AdminPageHeader
-        title="प्रयोगकर्ता"
         subtitle="पाठक, पत्रकार र न्यूजरुम खाता पहिचान, भूमिका र निष्क्रियता व्यवस्थापन"
       />
       {notice ? (
@@ -239,13 +237,12 @@ export default async function UsersPage({
             इमेलमा लिंक पठाइन्छ। स्वीकृत भएपछि मात्र भूमिका लागू हुन्छ। /admin/roles मा पूर्ण अधिकार तालिका हेर्नुहोस्।
           </p>
           <form action={inviteUser} className="mt-4 grid gap-3 lg:grid-cols-[1fr_260px_auto] lg:items-end">
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-              Email
-              <input name="email" type="email" required className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-            </label>
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-              Role
-              <select name="role" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink">
+            <AdminInput label="Email" name="email" type="email" required lang="en" />
+            <label className="admin-field">
+              <span className="admin-field-label" lang="en">
+                Role
+              </span>
+              <select name="role" className="admin-field-control">
                 {roleGroups.map((group) => (
                   <optgroup key={group.id} label={`${group.labelNe} · ${group.labelEn}`}>
                     {group.roles.map((role) => (
@@ -257,9 +254,7 @@ export default async function UsersPage({
                 ))}
               </select>
             </label>
-            <button className="rounded-md bg-brand px-4 py-2 text-meta font-bold text-surface hover:bg-brand-strong">
-              निमन्त्रणा पठाउनुहोस्
-            </button>
+            <AdminButton type="submit">निमन्त्रणा पठाउनुहोस्</AdminButton>
           </form>
           <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
             {roleGroups.map((group) => (
@@ -281,35 +276,27 @@ export default async function UsersPage({
 
       <AdminCard className="mb-5">
         <form className="flex flex-wrap items-end gap-3" method="get">
-          <label className="grid min-w-[14rem] flex-1 gap-1 text-caption font-semibold text-ink-soft">
-            खोज्नुहोस्
-            <input
+          <div className="min-w-[14rem] flex-1">
+            <AdminInput
+              label="खोज्नुहोस्"
               name="q"
               defaultValue={query.q ?? ''}
               placeholder="इमेल, नाम वा भूमिका"
-              className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink"
             />
-          </label>
+          </div>
           <input type="hidden" name="scope" value={scope} />
-          <button className="h-10 rounded-md border border-rule px-4 text-meta font-bold text-ink-soft hover:border-brand hover:text-brand-strong">
+          <AdminButton type="submit" variant="secondary">
             खोज
-          </button>
+          </AdminButton>
         </form>
         <div className="mt-4 flex flex-wrap gap-2">
           {filters.map((filter) => {
             const href = `/admin/users?scope=${filter.id}${q ? `&q=${encodeURIComponent(q)}` : ''}`
             const active = scope === filter.id
             return (
-              <Link
-                key={filter.id}
-                href={href}
-                className={`rounded-md border px-3 py-1.5 text-caption font-bold ${
-                  active ? 'border-brand bg-brand text-surface' : 'border-rule text-ink-soft hover:border-brand hover:text-brand-strong'
-                }`}
-                lang="ne"
-              >
+              <AdminFilterLink key={filter.id} href={href} active={active}>
                 {filter.label}
-              </Link>
+              </AdminFilterLink>
             )
           })}
         </div>
@@ -378,9 +365,9 @@ export default async function UsersPage({
                                   </optgroup>
                                 ))}
                               </select>
-                              <button className="rounded-md border border-rule px-2 text-caption font-bold text-ink-soft hover:border-brand hover:text-brand-strong">
+                              <AdminButton type="submit" variant="secondary" className="!min-h-9 !px-2 !text-caption">
                                 Save
-                              </button>
+                              </AdminButton>
                             </form>
                             <form action={toggleDisabled}>
                               <input type="hidden" name="email" value={user.email} />

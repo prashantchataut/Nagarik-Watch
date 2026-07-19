@@ -78,6 +78,7 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
           autoComplete="current-password"
           required
           disabled={pending}
+          variant="newsroom"
           showLabel={ne ? 'देखाउनुहोस्' : 'Show'}
           hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'}
         />

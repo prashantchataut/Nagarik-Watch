@@ -20,8 +20,8 @@ export default async function PrivacyPage({ params }: { params: Promise<Params> 
   const english = locale === 'en'
 
   return (
-    <div className="mx-auto max-w-body px-4 py-10">
-      <InfoPageHeader kicker={dict.privacyKicker} lead={dict.privacyLead} lang={lang} />
+    <div className="mx-auto max-w-page px-4 py-10">
+      <InfoPageHeader kicker={dict.privacyKicker} title={dict.footerPrivacy} lead={dict.privacyLead} lang={lang} />
 
       <div className="mt-10 space-y-10">
         <InfoSection heading={english ? 'Cookies and browser storage' : 'कुकी र ब्राउजर भण्डारण'} lang={lang}>

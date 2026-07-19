@@ -36,7 +36,6 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
     return (
       <div>
         <AdminPageHeader
-          title="समाचार भेटिएन"
           subtitle={`"${id}" स्लगको समाचार फेला परेन। नयाँ समाचारको रूपमा बनाउनुहोस्।`}
         />
         <ArticleEditor categories={categories} tags={tags} role={session.newsroomRole} isNew />
@@ -48,7 +47,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
 
   return (
     <div>
-      <AdminPageHeader title="समाचार सम्पादन" subtitle={article.titleNe} />
+      <AdminPageHeader subtitle={article.titleNe} />
       <ArticleEditor
         initial={{
           id: article.id,

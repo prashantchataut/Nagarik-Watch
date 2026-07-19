@@ -17,7 +17,6 @@ export default async function SessionQualityPage() {
   return (
     <div>
       <AdminPageHeader
-        title="सेसन गुणस्तर"
         subtitle="Privacy-preserving 24-hour aggregate of measured dwell, completion, shares, and bookmarks."
       />
 

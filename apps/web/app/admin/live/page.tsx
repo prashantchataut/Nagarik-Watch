@@ -41,7 +41,6 @@ export default async function LiveAdminPage() {
   return (
     <div>
       <AdminPageHeader
-        title="लाइभ सञ्चालन प्यानल"
         subtitle="सत्यापित reader activity, provider health र editorial ranking — काल्पनिक analytics होइन"
       />
 
@@ -52,7 +51,7 @@ export default async function LiveAdminPage() {
         <Metric label="Needs configuration" value={String((statusCounts.unconfigured ?? 0) + (statusCounts.empty ?? 0))} />
       </section>
 
-      <AdminCard className="mt-6 border-l-4 border-l-brand">
+      <AdminCard className="mt-6">
         <h2 className="font-display text-h2 text-ink">Live ranking signals</h2>
         <p className="mt-2 max-w-4xl text-meta leading-relaxed text-ink-soft">
           Uses first-party reading events, approved comments, and consent-gated impression/click/share

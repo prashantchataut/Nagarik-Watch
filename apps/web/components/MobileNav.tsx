@@ -135,12 +135,12 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
             tabIndex={-1}
             aria-hidden="true"
             onClick={() => setOpen(false)}
-            className="absolute inset-0 cursor-default bg-ink/40 backdrop-blur-sm"
+            className="absolute inset-0 cursor-default bg-ink/45"
           />
 
           <div
             ref={dialogRef}
-            className="absolute inset-y-0 left-0 flex w-full max-w-sm flex-col bg-surface shadow-overlay"
+            className="absolute inset-y-0 left-0 flex w-full max-w-sm flex-col border-r border-rule bg-surface"
           >
             <div className="flex items-center justify-between border-b border-rule px-4 py-3">
               <span className="flex items-center gap-2">
@@ -299,25 +299,13 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
               </DrawerSection>
 
               <DrawerSection
-                label={locale === 'en' ? 'Tools and hubs' : 'उपकरण र हब'}
+                label={locale === 'en' ? 'More' : 'थप'}
                 lang={locale === 'en' ? 'en' : 'ne'}
               >
                 {STATIC_HUBS.filter((hub) =>
-                  [
-                    'latest',
-                    'trending',
-                    'most-read',
-                    'market',
-                    'utilities',
-                    'rashifal',
-                    'sports-live',
-                    'election',
-                    'disaster-alerts',
-                    'video',
-                    'photos',
-                    'fact-check',
-                    'submit-story',
-                  ].includes(hub.key),
+                  ['market', 'utilities', 'fact-check', 'submit-story', 'most-read'].includes(
+                    hub.key,
+                  ),
                 ).map((hub) => (
                   <li key={hub.key}>
                     <Link

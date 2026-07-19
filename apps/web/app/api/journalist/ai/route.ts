@@ -3,10 +3,12 @@ import { CONTRIBUTOR_ROLES } from '@/lib/admin-roles'
 import {
   detectDuplicates,
   draftFactCheckScaffold,
+  draftFaq,
   draftHeadlines,
   draftSummary,
   draftTags,
 } from '@/lib/ai'
+import { draftArticleAudio } from '@/lib/ai/tts'
 import { getNewsroomSession } from '@/lib/auth/session'
 import { blocksFromShorthand } from '@/lib/content/blocks'
 import { enforceRateLimit } from '@/lib/rate-limit'
@@ -19,7 +21,16 @@ import { scoreDraft } from '@/lib/journalist/desk-scoring'
 
 export const dynamic = 'force-dynamic'
 
-const ACTIONS = ['summary', 'headlines', 'tags', 'factCheck', 'duplicates', 'analyze'] as const
+const ACTIONS = [
+  'summary',
+  'headlines',
+  'tags',
+  'factCheck',
+  'duplicates',
+  'analyze',
+  'faq',
+  'tts',
+] as const
 type AssistanceAction = (typeof ACTIONS)[number]
 
 function isAction(value: unknown): value is AssistanceAction {
@@ -116,6 +127,28 @@ export async function POST(request: NextRequest) {
           keywords: extractKeywords(text),
           desk,
         },
+      },
+    })
+  }
+
+  if (input.action === 'faq') {
+    return NextResponse.json({ suggestion: draftFaq(article) })
+  }
+
+  if (input.action === 'tts') {
+    const audio = await draftArticleAudio({
+      articleId: String(input.slug ?? (title || 'draft')),
+      text: `${title}\n${body}`.slice(0, 8_000),
+      locale: 'ne',
+    })
+    return NextResponse.json({
+      suggestion: {
+        status: audio.status === 'disabled' ? 'draft' : audio.status,
+        needsEditorApproval: true as const,
+        generatedBy: 'extractive' as const,
+        generatedAt: new Date().toISOString(),
+        model: audio.model,
+        data: audio,
       },
     })
   }

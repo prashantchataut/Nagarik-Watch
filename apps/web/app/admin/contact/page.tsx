@@ -53,7 +53,6 @@ export default async function ContactInboxPage() {
   return (
     <div>
       <AdminPageHeader
-        title="सम्पर्क सन्देश"
         subtitle={`${unread} नपढिएका · पाठक सुझाव, सुधार र सामान्य सम्पर्क`}
       />
       {messages.length === 0 ? (

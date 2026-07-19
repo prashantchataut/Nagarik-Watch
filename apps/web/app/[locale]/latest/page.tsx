@@ -4,6 +4,7 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
 import { Pagination } from '@/components/Pagination'
 import { AdSlot } from '@/components/AdSlot'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
 export async function generateMetadata({
@@ -47,19 +48,16 @@ export default async function LatestPage({
   return (
     <main className="mx-auto max-w-page px-4 py-8 sm:py-12">
       <AdSlot locale={locale} placementKey="latest-top" />
-      <header className="mt-6 max-w-3xl border-y border-rule py-7" lang={english ? 'en' : 'ne'}>
-        <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong">
-          {english ? 'News stream' : 'समाचार प्रवाह'}
-        </p>
-        <h1 className="mt-2 font-display text-display font-extrabold leading-tight text-ink">
-          {english ? 'Latest news' : 'ताजा समाचार'}
-        </h1>
-        <p className="mt-3 max-w-body text-body-lg leading-relaxed text-ink-soft">
-          {english
+      <HubIndexHeader
+        kicker={english ? 'News stream' : 'समाचार प्रवाह'}
+        title={english ? 'Latest news' : 'ताजा समाचार'}
+        lead={
+          english
             ? 'The newest published reporting, updates and analysis, ordered by publication time.'
-            : 'प्रकाशन समयका आधारमा क्रमबद्ध नयाँ समाचार, अद्यावधिक र विश्लेषण।'}
-        </p>
-      </header>
+            : 'प्रकाशन समयका आधारमा क्रमबद्ध नयाँ समाचार, अद्यावधिक र विश्लेषण।'
+        }
+        lang={english ? 'en' : 'ne'}
+      />
 
       {result.items.length > 0 ? (
         <>

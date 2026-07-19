@@ -35,6 +35,7 @@ export function middleware(request: NextRequest) {
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-pathname', pathname)
+    requestHeaders.set('x-nw-shell', 'admin')
     requestHeaders.set('x-locale', 'ne')
     return NextResponse.next({ request: { headers: requestHeaders } })
   }
@@ -55,6 +56,8 @@ export function middleware(request: NextRequest) {
     }
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-locale', 'en')
+    requestHeaders.set('x-pathname', pathname)
+    requestHeaders.set('x-nw-shell', resolveShell(pathname.slice(3) || '/'))
     return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
@@ -67,7 +70,16 @@ export function middleware(request: NextRequest) {
   internal.pathname = `/ne${pathname === '/' ? '' : pathname}`
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-locale', 'ne')
+  requestHeaders.set('x-pathname', pathname)
+  requestHeaders.set('x-nw-shell', resolveShell(pathname))
   return NextResponse.rewrite(internal, { request: { headers: requestHeaders } })
+}
+
+function resolveShell(pathWithoutEnPrefix: string): 'public' | 'auth' | 'journalist' {
+  const seg = firstSegment(pathWithoutEnPrefix)
+  if (seg === 'auth' || seg === 'login' || seg === 'register') return 'auth'
+  if (seg === 'journalist') return 'journalist'
+  return 'public'
 }
 
 export const config = {

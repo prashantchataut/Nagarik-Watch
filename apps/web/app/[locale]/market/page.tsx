@@ -5,6 +5,7 @@ import { getRealNepse, getRealForex, getRealGoldSilver } from '@/lib/live/real'
 import { localizeNumber, relativeTime } from '@/lib/live/format'
 import { LiveWidget } from '@nagarikwatch/ui'
 import { getDictionary } from '@/lib/i18n/dictionaries'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 
 export const revalidate = 300
 
@@ -30,25 +31,19 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
   ])
 
   return (
-    <div className="mx-auto max-w-page px-4 py-6 sm:py-8">
-      <header className="border-b border-rule pb-6">
-        <p
-          className="text-meta font-semibold uppercase tracking-wide text-brand-strong"
-          lang={lang}
-        >
-          {en ? 'Market' : 'बजार'}
-        </p>
-        <h1 className="mt-1 font-display text-h1 text-ink sm:text-display" lang={lang}>
-          {en ? 'Market and Shares' : 'बजार र सेयर'}
-        </h1>
-        <p className="mt-2 max-w-body text-body text-ink-soft" lang={lang}>
-          {en
-            ? 'Live NEPSE index, forex rates, and gold/silver prices.'
-            : 'लाइभ NEPSE सूचकांक, विदेशी मुद्रा दर, र सुनचाँदी मूल्य।'}
-        </p>
-      </header>
+    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
+      <HubIndexHeader
+        kicker={en ? 'Market desk' : 'बजार डेस्क'}
+        title={en ? 'Market and shares' : 'बजार र सेयर'}
+        lead={
+          en
+            ? 'Live NEPSE index, forex rates, and gold and silver prices from official feeds.'
+            : 'लाइभ NEPSE सूचकांक, विदेशी मुद्रा दर, र सुनचाँदी मूल्य आधिकारिक फिडबाट।'
+        }
+        lang={lang}
+      />
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid gap-4 border-y border-rule py-6 sm:grid-cols-2 lg:grid-cols-3">
         {/* NEPSE */}
         <LiveWidget
           title={dict.nepseTitle}
@@ -126,7 +121,7 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
       </div>
 
       {/* Forex table */}
-      <section className="mt-8 rounded-lg border border-rule bg-surface-raised p-5">
+      <section className="mt-8 border-y border-rule py-6">
         <h2 className="font-display text-h2 text-ink" lang={lang}>
           {en ? 'Forex Rates (NRB)' : 'विदेशी मुद्रा दर (नराे)'}
         </h2>

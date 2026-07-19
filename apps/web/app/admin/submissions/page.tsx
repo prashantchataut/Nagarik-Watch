@@ -1,9 +1,8 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { assertNewsroomRole, COMMUNITY_MANAGER_ROLES } from '@/lib/admin-roles'
 import { asSubmissionStatus, listSubmissions, type SubmissionStatus } from '@/lib/submissions'
-import { AdminPageHeader, AdminEmptyState } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminEmptyState, AdminButton } from '@/components/admin/primitives'
 import { SubmissionModerationActions } from '@/components/admin/SubmissionModerationActions'
 
 export const metadata: Metadata = {
@@ -48,7 +47,6 @@ export default async function SubmissionsPage({
   return (
     <div>
       <AdminPageHeader
-        title="पाठक टिप"
         subtitle="/submit-story बाट आएका समाचार टिप, PSA, प्रमाण र correction requests"
       />
 
@@ -67,22 +65,14 @@ export default async function SubmissionsPage({
             ))}
           </select>
         </label>
-        <button
-          type="submit"
-          className="h-10 rounded-full bg-brand px-5 text-meta font-semibold text-surface hover:bg-brand-strong"
-          lang="ne"
-        >
+        <AdminButton type="submit">
           फिल्टर
-        </button>
-        {selected !== 'new' && (
-          <Link
-            href="/admin/submissions"
-            className="inline-flex h-10 items-center rounded-full border border-rule px-4 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong"
-            lang="ne"
-          >
+        </AdminButton>
+        {selected !== 'new' ? (
+          <AdminButton href="/admin/submissions" variant="secondary">
             खाली गर्नुहोस्
-          </Link>
-        )}
+          </AdminButton>
+        ) : null}
       </form>
 
       <div className="overflow-hidden rounded-lg border border-rule bg-surface-raised">

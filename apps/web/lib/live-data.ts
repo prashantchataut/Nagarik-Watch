@@ -162,14 +162,23 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
 }
 
 export async function getElectionResults(): Promise<LiveDataEnvelope<ElectionResult[]>> {
-  return mock('Election feed pending verification', [
-    {
-      region: 'Nepal',
-      body: 'Federal Parliament',
-      reportedPercent: 0,
-      summary: 'No active election',
-    },
-  ])
+  const provider = process.env.ELECTION_PROVIDER?.trim()
+  const key = process.env.ELECTION_API_KEY?.trim()
+  if (!provider || provider.includes('manual') || !key) {
+    return {
+      status: 'empty',
+      source: 'Election results require ELECTION_PROVIDER + ELECTION_API_KEY or manual CMS entry',
+      updatedAt: new Date().toISOString(),
+      data: [],
+    }
+  }
+  return {
+    status: 'empty',
+    source: `${provider}: adapter not wired; refusing mock tallies`,
+    updatedAt: new Date().toISOString(),
+    data: [],
+    error: 'Election adapter credentials present but no live feed client is implemented.',
+  }
 }
 
 export async function getExamResults(): Promise<LiveDataEnvelope<ExamResult[]>> {

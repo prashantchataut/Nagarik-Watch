@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
@@ -222,7 +222,7 @@ export function ReaderActivityPanel({ locale, catalog = [] }: { locale: Locale; 
           <span>
             {streak > 0
               ? english ? `${streak} consecutive day${streak === 1 ? '' : 's'}` : `${streak} दिन लगातार`
-              : english ? 'No current run — read whenever it suits you' : 'हाल निरन्तरता छैन — आफूलाई मिल्दा पढ्नुहोस्'}
+              : english ? 'No current run  -  read whenever it suits you' : 'हाल निरन्तरता छैन  -  आफूलाई मिल्दा पढ्नुहोस्'}
           </span>
         </div>
         <ol>

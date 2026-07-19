@@ -7,7 +7,7 @@ import { assertLocalContentAdmin, isPayloadCanonical, payloadCollectionAdminUrl 
 import { assertNewsroomRole, MEDIA_MANAGER_ROLES } from '@/lib/admin-roles'
 import { createMediaItem, listMediaItems } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard, AdminCallout, AdminButton } from '@/components/admin/primitives'
 
 export const metadata: Metadata = { title: 'मिडिया', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
@@ -30,8 +30,14 @@ export default async function MediaPage() {
   const persistentStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.S3_BUCKET || process.env.STORAGE_BUCKET)
   return (
     <div>
-      <AdminPageHeader title="मिडिया" subtitle="Image library metadata and production storage readiness" />
-      {!persistentStorage ? <AdminCard className="mb-5 border-l-4 border-l-brand"><p className="text-meta text-ink-soft" lang="ne">Persistent media storage कन्फिगर छैन। Vercel मा local filesystem upload production-safe हुँदैन; Blob/S3/R2 जोड्नुहोस्।</p></AdminCard> : null}
+      <AdminPageHeader subtitle="Image library metadata and production storage readiness" />
+      {!persistentStorage ? (
+        <AdminCallout tone="attention" className="mb-5">
+          <p className="text-meta text-ink-soft" lang="ne">
+            Persistent media storage कन्फिगर छैन। Vercel मा local filesystem upload production-safe हुँदैन; Blob/S3/R2 जोड्नुहोस्।
+          </p>
+        </AdminCallout>
+      ) : null}
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.4fr]">
         <AdminCard>
           <h2 className="font-display text-h2 text-ink">Add media</h2>
@@ -40,7 +46,7 @@ export default async function MediaPage() {
             <label className="grid gap-1 text-caption font-semibold text-ink-soft">Alt text<input name="alt" required className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" /></label>
             <label className="grid gap-1 text-caption font-semibold text-ink-soft">Caption<textarea name="caption" rows={3} className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink" /></label>
             <label className="grid gap-1 text-caption font-semibold text-ink-soft">Credit<input name="credit" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" /></label>
-            <button className="rounded-md bg-brand px-4 py-2 text-meta font-bold text-surface hover:bg-brand-strong">Save media</button>
+            <AdminButton type="submit">Save media</AdminButton>
           </form>
         </AdminCard>
         <AdminCard>

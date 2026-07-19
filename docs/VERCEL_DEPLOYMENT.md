@@ -97,13 +97,20 @@ pnpm verify:workspaces && pnpm --filter @nagarikwatch/web... build
 
 ## Project 2 — Payload CMS
 
-Create a second Vercel project from the same repository.
+Create a second Vercel project from the same repository (`nagarik-watch-admin` or equivalent).
+As of the last ops check, this project may have **zero deployments** until an operator links the
+repo, sets Node **22.x** (match root `package.json` engines; do not leave the project on Node 24),
+and triggers the first production build.
 
 - root directory: `apps/admin`
 - framework: Next.js
-- Node: 22.x
+- Node: **22.x**
 - install/build/output: use `apps/admin/vercel.json`
 - health: `/healthz`
+- storage: Vercel Blob (or another configured Payload object-storage adapter) — never ephemeral
+  local disk in production
+- shared secrets with the reader app: `REVALIDATE_SECRET`, publication URLs, `DATABASE_URL` (or
+  the CMS database URL if intentionally split)
 
 Before promoting a production CMS release:
 

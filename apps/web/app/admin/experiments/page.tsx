@@ -17,7 +17,6 @@ export default async function ExperimentsPage() {
   return (
     <div>
       <AdminPageHeader
-        title="प्रयोग"
         subtitle="Deterministic assignment, anonymous deduplicated events, and Bayesian winner guardrails."
       />
 

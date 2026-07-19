@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
+import Link from 'next/link'
 import type { Locale, Article } from '@nagarikwatch/db'
-import { StoryCard } from '@nagarikwatch/ui'
-import { asLocale, localePrefix } from '@/lib/i18n/locales'
+import { asLocale, localePrefix, localizeHref } from '@/lib/i18n/locales'
 import { getArticleBySlug, getStories } from '@/lib/content'
 
 export const revalidate = 300
@@ -11,7 +12,7 @@ export default async function PhotosPage({ params }: { params: Promise<{ locale:
   const locale: Locale = asLocale(rawLocale)
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
-  const { items } = await getStories({ locale, perPage: 30 })
+  const { items } = await getStories({ locale, perPage: 40 })
   const articles = await Promise.all(
     items.map((story) => getArticleBySlug(story.category.slug, story.slug, locale)),
   )
@@ -39,20 +40,36 @@ export default async function PhotosPage({ params }: { params: Promise<{ locale:
       </header>
 
       {photoStories.length > 0 ? (
-        <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {photoStories.map((story, index) => (
-            <StoryCard
-              key={story.slug}
-              story={story}
-              locale={locale}
-              variant={index === 0 ? 'overlay' : 'default'}
-              priority={index === 0}
-            />
-          ))}
-        </div>
+        <ul className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {photoStories.map((story) => {
+            const title = en && story.titleEn ? story.titleEn : story.titleNe
+            const href = localizeHref(locale, `/photos/${story.slug}`)
+            return (
+              <li key={story.slug}>
+                <Link href={href} className="group block border-b border-rule pb-5">
+                  {story.heroImage?.url && !story.heroImage.url.startsWith('data:') ? (
+                    <div className="relative mb-3 aspect-[4/3] overflow-hidden bg-surface-raised">
+                      <Image
+                        src={story.heroImage.url}
+                        alt=""
+                        fill
+                        className="object-cover transition-transform duration-slow group-hover:scale-[1.02]"
+                        sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        aria-hidden
+                      />
+                    </div>
+                  ) : null}
+                  <strong className="font-display text-h3 text-ink group-hover:text-brand-strong">
+                    {title}
+                  </strong>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
       ) : (
         <p
-          className="mt-6 rounded-lg border border-rule bg-surface-raised p-5 text-body text-ink-soft"
+          className="mt-6 border-y border-rule py-8 text-body text-ink-soft"
           lang={lang}
         >
           {en
@@ -65,7 +82,7 @@ export default async function PhotosPage({ params }: { params: Promise<{ locale:
 }
 
 function hasPhotoMaterial(article: Article): boolean {
-  if (article.heroImage) return true
+  if (article.heroImage?.url && !article.heroImage.url.startsWith('data:')) return true
   const blocks = article.language === 'en' && article.bodyEn ? article.bodyEn : article.bodyNe
   return blocks.some((block) => block.type === 'image')
 }

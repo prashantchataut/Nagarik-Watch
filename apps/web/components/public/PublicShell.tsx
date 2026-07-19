@@ -2,12 +2,13 @@ import type { ReactNode } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { Masthead } from '@/components/Masthead'
 import { Footer } from '@/components/Footer'
-import { BottomNav } from '@/components/BottomNav'
-import { CookieConsent } from '@/components/CookieConsent'
+import { BottomChrome } from '@/components/BottomChrome'
 import { PwaBoot } from '@/components/PwaBoot'
 import { SaveDataBoot } from '@/components/SaveDataBoot'
 import { SiteJsonLd } from '@/components/SiteJsonLd'
 import { AnalyticsGate } from '@/components/analytics/AnalyticsGate'
+import { NetworkAdScripts } from '@/components/ads/NetworkAdScripts'
+import { getAdMode, getAdNetworkKind } from '@/lib/ads'
 import { RumBoot } from '@/components/RumBoot'
 import { getNavCategories } from '@/lib/content'
 import { PUBLICATION } from '@/lib/site'
@@ -49,18 +50,23 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
       </a>
       <SiteJsonLd siteName={PUBLICATION.publisherName} />
       <Masthead locale={locale} navCategories={navCategories} account={account} />
-      <main id="main" className="min-h-[55vh] pb-16 lg:pb-0">
+      <main id="main" className="min-h-[55vh] pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0">
         {children}
       </main>
       <Footer locale={locale} />
-      <BottomNav locale={locale} />
-      <CookieConsent locale={locale} />
+      <BottomChrome locale={locale} />
       <SaveDataBoot />
       <PwaBoot />
       <RumBoot />
       <AnalyticsGate
         domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
         src={process.env.NEXT_PUBLIC_PLAUSIBLE_SRC || 'https://plausible.io/js/script.js'}
+      />
+      <NetworkAdScripts
+        mode={getAdMode()}
+        network={getAdNetworkKind()}
+        adsenseClient={process.env.NEXT_PUBLIC_ADSENSE_CLIENT}
+        gamNetworkCode={process.env.NEXT_PUBLIC_GAM_NETWORK_CODE}
       />
     </>
   )

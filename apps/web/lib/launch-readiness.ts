@@ -6,6 +6,10 @@ import { getPaymentAdapterState } from '@/lib/payments/adapter'
 import { isPayloadStorageWired } from '@/lib/storage-adapter'
 import { twoFactorConfigured } from '@/lib/security/mfa'
 import { lintSecurityHeaders } from '@/lib/security/header-lint'
+import { getAdMode, isNetworkAdsReady } from '@/lib/ads'
+import { getSentryState } from '@/lib/observability/sentry'
+import { getTtsState } from '@/lib/ai/tts'
+import { getSemanticProviderState } from '@/lib/ai/semantic-provider'
 
 /** Reads the same header list Next.js actually applies (next.config.ts), so this check
  *  fails honestly if a header is ever removed from the real response configuration. */
@@ -82,6 +86,10 @@ function buildLaunchChecks(options?: {
   const launchLive = (value('NEXT_PUBLIC_LAUNCH_STATUS') || 'preview').toLowerCase() === 'live'
   const ops = options?.opsMigrations
   const paymentAdapter = getPaymentAdapterState()
+  const sentry = getSentryState()
+  const tts = getTtsState()
+  const semantic = getSemanticProviderState()
+  const adsMode = getAdMode()
 
   return [
     verifiedSetting('site-url', 'Public site URL', 'NEXT_PUBLIC_SITE_URL'),
@@ -209,6 +217,36 @@ function buildLaunchChecks(options?: {
         value('NEXT_PUBLIC_PLAUSIBLE_DOMAIN') || value('NEXT_PUBLIC_GA4_ID')
           ? 'Audience analytics configured'
           : 'Trending and Most Read remain conservative until verified telemetry is configured',
+    },
+    {
+      key: 'error-monitoring',
+      label: 'Error monitoring (Sentry)',
+      status: sentry.dsnConfigured ? 'pass' : 'warn',
+      detail: sentry.detail,
+    },
+    {
+      key: 'network-ads',
+      label: 'Network advertising credentials',
+      status:
+        adsMode !== 'network' ? 'pass' : isNetworkAdsReady() ? 'pass' : launchLive ? 'fail' : 'warn',
+      detail:
+        adsMode !== 'network'
+          ? `Ads mode is ${adsMode}; network scripts stay unloaded`
+          : isNetworkAdsReady()
+            ? 'Network ads mode has matching publisher credentials'
+            : 'NEXT_PUBLIC_ADS_MODE=network but AdSense client or GAM network code is missing',
+    },
+    {
+      key: 'tts-provider',
+      label: 'Article TTS provider',
+      status: tts.ready ? 'pass' : 'warn',
+      detail: tts.detail,
+    },
+    {
+      key: 'semantic-search',
+      label: 'Semantic search provider',
+      status: 'pass',
+      detail: semantic.detail,
     },
     {
       key: 'background-push',

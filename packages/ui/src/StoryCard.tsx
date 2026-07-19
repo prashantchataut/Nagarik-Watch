@@ -13,6 +13,7 @@ import { cn } from './cn'
  *   - Images: data: URLs (SVG placeholders) load with `unoptimized` so
  *     next/image passes them through. Remote URLs go through the optimizer.
  */
+/** Runtime layout keys. DESIGN.md uses lead|standard|compact|text-only aliases. */
 export type StoryCardVariant =
   | 'featured'
   | 'default'
@@ -20,6 +21,9 @@ export type StoryCardVariant =
   | 'compact'
   | 'text-led'
   | 'overlay'
+  | 'lead'
+  | 'standard'
+  | 'text-only'
 
 type StoryCardProps = {
   story: StoryCardData
@@ -27,6 +31,16 @@ type StoryCardProps = {
   variant?: StoryCardVariant
   priority?: boolean
   className?: string
+}
+
+function resolveVariant(variant: StoryCardVariant): Exclude<
+  StoryCardVariant,
+  'lead' | 'standard' | 'text-only'
+> {
+  if (variant === 'lead') return 'featured'
+  if (variant === 'standard') return 'default'
+  if (variant === 'text-only') return 'compact'
+  return variant
 }
 
 function titleFor(story: StoryCardData, locale: Locale): string {
@@ -57,13 +71,14 @@ export function StoryCard({
   priority = false,
   className,
 }: StoryCardProps) {
+  const layout = resolveVariant(variant)
   const title = titleFor(story, locale)
   const deck = deckFor(story, locale)
   const href = hrefFor(story, locale)
   const titleLang = locale === 'en' && story.titleEn ? 'en' : 'ne'
   const unoptimized = story.heroImage ? isDataUrl(story.heroImage.url) : false
 
-  if (variant === 'compact') {
+  if (layout === 'compact') {
     return (
       <article className={cn('group relative', className)}>
         <div className="mb-1 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" />{story.premium ? <PremiumBadge locale={locale} /> : null}</div>
@@ -83,7 +98,7 @@ export function StoryCard({
   // text-led: headline-forward, no image. For opinion, analysis, and dense
   // news rails where the image would distract from the headline hierarchy.
   // A brand-tinted category bar sits above the headline for visual anchoring.
-  if (variant === 'text-led') {
+  if (layout === 'text-led') {
     return (
       <article className={cn('group relative flex flex-col', className)}>
         <div className="mb-1.5 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" />{story.premium ? <PremiumBadge locale={locale} /> : null}</div>
@@ -107,7 +122,7 @@ export function StoryCard({
 
   // image-led: keep photography and copy in separate, legible planes. This avoids
   // the generic gradient-overlay treatment and preserves headline contrast at every crop.
-  if (variant === 'overlay' && story.heroImage) {
+  if (layout === 'overlay' && story.heroImage) {
     return (
       <article className={cn('group relative border-t-4 border-ink pt-3', className)}>
         <div className="relative aspect-[4/3] overflow-hidden rounded-sm sm:aspect-[3/4]">
@@ -138,7 +153,7 @@ export function StoryCard({
     )
   }
 
-  if (variant === 'horizontal') {
+  if (layout === 'horizontal') {
     return (
       <article className={cn('group relative flex gap-4', className)}>
         {story.heroImage && (
@@ -175,7 +190,7 @@ export function StoryCard({
     )
   }
 
-  const isFeatured = variant === 'featured'
+  const isFeatured = layout === 'featured'
   const HeadingTag = isFeatured ? 'h2' : 'h3'
   const imgSizes = isFeatured ? '(min-width: 1024px) 60vw, 100vw' : '(min-width: 768px) 33vw, 100vw'
 

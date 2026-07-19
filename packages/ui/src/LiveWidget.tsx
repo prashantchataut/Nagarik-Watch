@@ -110,7 +110,7 @@ export function LiveWidget({
         )}
         {mock ? (
           <span
-            className="shrink-0 rounded-full bg-brand-tint px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-wide text-brand-strong"
+            className="shrink-0 border border-rule px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-wide text-brand-strong"
             title={labels.mock}
           >
             {labels.mock}

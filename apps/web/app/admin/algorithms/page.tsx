@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { RECOMMENDER_VERSION } from '@nagarikwatch/db'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import {
@@ -30,7 +29,7 @@ import {
 import { buildStoryEngagementIndex, signalsForStory } from '@/lib/ranking-signals'
 import { getStories } from '@/lib/content'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
-import { AdminCard, AdminPageHeader } from '@/components/admin/primitives'
+import { AdminCard, AdminPageHeader, AdminButton } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'Algorithms',
@@ -97,15 +96,11 @@ export default async function AlgorithmsPage() {
   return (
     <div>
       <AdminPageHeader
-        title="Algorithms & capability runtime"
         subtitle="Each of 232 catalog capabilities has a dedicated handler with honest pass/fail. Traffic zeros mean no observed events — never invented."
         action={
-          <Link
-            href="/admin/live"
-            className="inline-flex h-10 items-center rounded-md border border-rule px-3 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong"
-          >
+          <AdminButton href="/admin/live" variant="secondary">
             लाइभ प्यानल →
-          </Link>
+          </AdminButton>
         }
       />
 

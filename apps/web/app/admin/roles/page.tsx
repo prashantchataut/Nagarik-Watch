@@ -36,11 +36,10 @@ export default async function RolesPage() {
   return (
     <div>
       <AdminPageHeader
-        title="भूमिका"
         subtitle="पाठक, पत्रकार र एडमिन पहुँच अलग राखिएको छ — Assign roles from Users"
       />
 
-      <AdminCard className="mb-5 border-l-4 border-l-brand">
+      <AdminCard className="mb-5">
         <p className="text-body text-ink" lang="ne">
           पत्रकार workspace <code className="text-meta">/journalist</code> मा रहन्छ। Admin panel
           editorial, moderation, analytics, ads र system settings का लागि मात्र हो। नयाँ भूमिका दिन{' '}

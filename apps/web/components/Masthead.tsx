@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
@@ -11,15 +12,8 @@ import { ProvinceMegaMenu } from '@/components/ProvinceMegaMenu'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Logo } from '@/components/Logo'
 import { SecondaryNav } from '@/components/SecondaryNav'
-import { STATIC_HUBS } from '@/lib/site'
 import type { AccountKind } from '@/lib/account-identity'
-import {
-  IconBookmark,
-  IconDesk,
-  IconLightning,
-  IconSearch,
-  IconUser,
-} from '@/components/icons/PortalIcons'
+import { IconBookmark, IconSearch, IconUser } from '@/components/icons/PortalIcons'
 
 type MastheadAccount = {
   kind: AccountKind
@@ -36,14 +30,15 @@ type MastheadProps = {
 }
 
 const TOOL =
-  'inline-flex items-center gap-1.5 border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-ink'
+  'inline-flex min-h-11 cursor-pointer items-center gap-1.5 border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
 const ICON_BTN =
-  'inline-flex h-11 w-11 items-center justify-center border-l border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong'
+  'inline-flex h-11 w-11 cursor-pointer items-center justify-center border-l border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
 export function Masthead({ locale, navCategories, account = null }: MastheadProps) {
   const dict = getDictionary(locale)
   const pathname = usePathname() ?? '/'
+  const [condensed, setCondensed] = useState(false)
   const dateLabel = formatDate(new Date().toISOString(), locale)
   const homeHref = localizeHref(locale, '/')
   const searchHref = localizeHref(locale, '/search')
@@ -58,8 +53,8 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
         ? 'Account'
         : 'खाता'
     : locale === 'en'
-      ? 'Reader login'
-      : 'पाठक लगइन'
+      ? 'Sign in'
+      : 'लगइन'
   const accountTitle = account
     ? account.kind === 'reader'
       ? `${account.kindLabel} · ${account.roleLabel}`
@@ -68,10 +63,20 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
         : 'कर्मचारी खाता'
     : undefined
 
+  useEffect(() => {
+    const onScroll = () => setCondensed(window.scrollY > 48)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <header className="nw-masthead z-40 border-b border-rule bg-surface">
-      <div className="border-b border-rule bg-surface-raised">
-        <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-2 px-4 py-2 text-caption text-ink-soft">
+    <header
+      className="nw-masthead sticky top-0 z-40 border-b border-rule bg-surface"
+      data-condensed={condensed ? 'true' : 'false'}
+    >
+      <div className="nw-masthead__utility border-b border-rule bg-surface-raised">
+        <div className="mx-auto flex max-w-page items-center justify-between gap-2 px-4 py-1.5 text-caption text-ink-soft">
           <p lang={lang} className="truncate font-semibold tracking-wide">
             {dict.mastheadDate(dateLabel)}
             <span className="mx-2 text-mute" aria-hidden="true">
@@ -79,31 +84,23 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
             </span>
             <span className="text-brand-strong">{locale === 'en' ? 'Kathmandu' : 'काठमाडौं'}</span>
           </p>
-          <div className="hidden flex-wrap items-center gap-x-1 gap-y-1 sm:flex sm:gap-0 sm:divide-x sm:divide-rule">
+          <div className="hidden items-center divide-x divide-rule sm:flex">
             <UtilityLink
-              href={localizeHref(locale, '/latest')}
-              label={locale === 'en' ? 'Latest' : 'ताजा'}
-              icon={<IconLightning />}
+              href={localizeHref(locale, '/contact')}
+              label={locale === 'en' ? 'Contact' : 'सम्पर्क'}
               lang={lang}
             />
             <UtilityLink
-              href={localizeHref(locale, '/most-read')}
-              label={locale === 'en' ? 'Most read' : 'धेरै पढिएको'}
+              href={localizeHref(locale, '/about')}
+              label={locale === 'en' ? 'About' : 'हाम्रो बारे'}
               lang={lang}
             />
-            <span className="hidden md:inline-flex">
-              <UtilityLink
-                href={localizeHref(locale, '/contact')}
-                label={locale === 'en' ? 'Contact' : 'सम्पर्क'}
-                lang={lang}
-              />
-            </span>
           </div>
         </div>
       </div>
 
       <div className="mx-auto max-w-page px-3 sm:px-4">
-        <div className="grid min-h-[6.75rem] grid-cols-[auto_1fr_auto] items-center gap-2 border-b-2 border-ink py-3 md:grid-cols-[1fr_auto_1fr] md:py-4">
+        <div className="nw-masthead__brand grid grid-cols-[auto_1fr_auto] items-center gap-2 border-b-2 border-ink py-2.5 md:grid-cols-[1fr_auto_1fr] md:py-3">
           <div className="flex items-center md:hidden">
             <MobileNav locale={locale} navCategories={navCategories} account={account} />
           </div>
@@ -114,10 +111,6 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
                 <IconUser />
                 <span>{accountLabel}</span>
               </Link>
-              <Link href={localizeHref(locale, '/reader-corner')} className={TOOL} lang={lang}>
-                <IconDesk />
-                <span>{locale === 'en' ? 'My desk' : 'मेरो डेस्क'}</span>
-              </Link>
               <Link href={savedHref} className={TOOL} lang={lang}>
                 <IconBookmark />
                 <span>{dict.navSaved}</span>
@@ -127,12 +120,12 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
 
           <Link
             href={homeHref}
-            className="min-w-0 justify-self-center transition-opacity hover:opacity-85"
+            className="nw-masthead__logo min-w-0 justify-self-center transition-opacity duration-fast ease-out-quint hover:opacity-85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             aria-label={dict.siteName}
           >
             <Logo
               siteName={dict.siteName}
-              className="max-w-[11rem] xs:max-w-[14rem] sm:max-w-none md:scale-110"
+              className="max-w-[10rem] sm:max-w-[13rem] md:max-w-none md:scale-105"
             />
           </Link>
 
@@ -143,7 +136,7 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
             <ThemeToggle locale={locale} className="h-11 w-11 !rounded-none border-l border-rule" />
             <Link
               href={toggleHref}
-              className="inline-flex h-11 min-w-11 items-center justify-center border-l border-rule px-3 text-meta font-black text-ink transition-colors hover:bg-brand-tint hover:text-brand-strong"
+              className="inline-flex h-11 min-w-11 cursor-pointer items-center justify-center border-l border-rule px-3 text-meta font-black text-ink transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               lang={locale === 'en' ? 'ne' : 'en'}
               aria-label={dict.localeToggleAria}
             >
@@ -157,7 +150,7 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
 
       <nav
         aria-label={dict.primaryNav}
-        className="sticky top-0 z-40 hidden border-t border-rule bg-surface/96 backdrop-blur supports-[backdrop-filter]:bg-surface/90 md:block"
+        className="nw-masthead__primary hidden border-t border-rule bg-surface md:block"
       >
         <div className="mx-auto max-w-page px-4">
           <ul className="flex flex-nowrap items-center gap-x-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -180,19 +173,15 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
               )
             })}
             <ProvinceMegaMenu locale={locale} />
-            {STATIC_HUBS.filter((hub) =>
-              ['latest', 'trending', 'utilities', 'fact-check'].includes(hub.key),
-            ).map((hub) => {
-              const href = localizeHref(locale, hub.path)
-              const active = pathname === href || pathname.startsWith(`${href}/`)
-              return (
-                <li key={hub.key}>
-                  <NavLink href={href} active={active} lang={lang}>
-                    {locale === 'en' ? hub.titleEn : hub.titleNe}
-                  </NavLink>
-                </li>
-              )
-            })}
+            <li>
+              <NavLink
+                href={localizeHref(locale, '/fact-check')}
+                active={pathname.includes('/fact-check')}
+                lang={lang}
+              >
+                {locale === 'en' ? 'Fact check' : 'तथ्य-जाँच'}
+              </NavLink>
+            </li>
           </ul>
         </div>
       </nav>
@@ -203,21 +192,18 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
 function UtilityLink({
   href,
   label,
-  icon,
   lang,
 }: {
   href: string
   label: string
-  icon?: React.ReactNode
   lang: string
 }) {
   return (
     <Link
       href={href}
       lang={lang}
-      className="inline-flex items-center gap-1 px-2.5 py-0.5 font-semibold text-ink-soft hover:text-brand-strong sm:px-3"
+      className="inline-flex cursor-pointer items-center px-3 py-0.5 font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong"
     >
-      {icon ? <span className="hidden sm:inline-flex opacity-80">{icon}</span> : null}
       {label}
     </Link>
   )
@@ -241,8 +227,8 @@ function NavLink({
       aria-current={active ? 'page' : undefined}
       className={
         active
-          ? 'inline-flex min-h-12 items-center whitespace-nowrap border-b-[3px] border-brand pt-[3px] text-body font-black text-ink'
-          : 'inline-flex min-h-12 items-center whitespace-nowrap border-b-[3px] border-transparent pt-[3px] text-body font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-rule hover:text-ink'
+          ? 'inline-flex min-h-11 cursor-pointer items-center whitespace-nowrap border-b-[3px] border-brand pt-[3px] text-body font-black text-ink'
+          : 'inline-flex min-h-11 cursor-pointer items-center whitespace-nowrap border-b-[3px] border-transparent pt-[3px] text-body font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-rule hover:text-ink'
       }
     >
       {children}

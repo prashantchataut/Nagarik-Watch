@@ -167,6 +167,31 @@ export function draftSummary(
   return makeDraft(top)
 }
 
+export type FaqDraftItem = {
+  question: string
+  answer: string
+}
+
+/**
+ * Per-article FAQ draft for AEO. Extractive Q/A pairs from real sentences.
+ * Never auto-publishes; editors must approve before any FAQPage schema ships.
+ */
+export function draftFaq(
+  article: Pick<Article, 'bodyNe' | 'titleNe' | 'deckNe'>,
+  count = 4,
+): AiDraft<FaqDraftItem[]> {
+  const points = draftKeyPoints(article, count).data
+  const title = article.titleNe || 'यो समाचार'
+  const items = points.map((point, index) => ({
+    question:
+      index === 0
+        ? `${title} मा के भएको हो?`
+        : `यो समाचारको महत्वपूर्ण पक्ष ${index + 1} के हो?`,
+    answer: point,
+  }))
+  return makeDraft(items)
+}
+
 /** Extractive key-points: the top-N sentences by term density, as a list. */
 export function draftKeyPoints(
   article: Pick<Article, 'bodyNe' | 'titleNe' | 'deckNe'>,
@@ -329,7 +354,9 @@ export const AI_FEATURE_ROADMAP = [
   'llm-headline-rewrite (needs AI_PROVIDER_KEY)',
   'seo-meta-suggestions (needs AI_PROVIDER_KEY)',
   'translation-draft-ne-en (needs AI_PROVIDER_KEY)',
+  'faq-draft-extractive (live, editor approval required)',
   'voice-search (needs speech provider)',
-  'text-to-speech-audio-article (needs TTS provider)',
-  'comment-moderation-assistant (needs moderation model)',
+  'text-to-speech-audio-article (needs TTS_PROVIDER + TTS_PROVIDER_KEY)',
+  'hosted-semantic-search (needs SEMANTIC_SEARCH_PROVIDER + key; local BM25 ships)',
+  'comment-moderation-assistant (lexicon sentiment assist live; model optional)',
 ] as const

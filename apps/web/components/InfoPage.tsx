@@ -2,23 +2,22 @@ import type { ReactNode } from 'react'
 
 type InfoPageHeaderProps = {
   kicker: string
+  title: string
   lead: string
   lang: 'ne' | 'en'
 }
 
 /**
- * Shared page head for the static info pages (about, ethics, privacy, contact). A small
- * uppercase kicker above an h1 and a lead paragraph, mirroring the category/author header
- * rhythm so the static pages read as part of the same publication.
+ * Shared page head for static info pages. Uppercase kicker, display h1, and lead paragraph.
  */
-export function InfoPageHeader({ kicker, lead, lang }: InfoPageHeaderProps) {
+export function InfoPageHeader({ kicker, title, lead, lang }: InfoPageHeaderProps) {
   return (
     <header className="border-b border-rule pb-8">
       <p className="text-meta font-semibold uppercase tracking-wide text-brand-strong" lang={lang}>
         {kicker}
       </p>
       <h1 className="mt-1 font-display text-display text-ink" lang={lang}>
-        {kicker}
+        {title}
       </h1>
       <p className="mt-4 max-w-body text-body-lg leading-relaxed text-ink-soft" lang={lang}>
         {lead}

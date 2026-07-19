@@ -140,6 +140,7 @@ export function JournalistLoginForm({ locale }: Props) {
           autoComplete="current-password"
           required
           disabled={pending}
+          variant="newsroom"
           showLabel={ne ? 'देखाउनुहोस्' : 'Show'}
           hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'}
         />

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 
 export const UTILITY_LINKS = [
   {
@@ -66,12 +67,8 @@ export function UtilityPageShell({
   const en = locale === 'en'
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
-      <header className="utility-masthead">
-        <p className="section-kicker">{eyebrow}</p>
-        <h1>{title}</h1>
-        <p>{description}</p>
-      </header>
-      <div className="utility-workspace">
+      <HubIndexHeader kicker={eyebrow} title={title} lead={description} lang={en ? 'en' : 'ne'} />
+      <div className="utility-workspace mt-8">
         <aside>
           <nav aria-label={en ? 'Utility tools' : 'उपयोगी उपकरण'} className="utility-sidebar">
             <h2>{en ? 'Tools' : 'उपकरण'}</h2>

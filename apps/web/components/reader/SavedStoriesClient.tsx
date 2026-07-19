@@ -160,33 +160,33 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
   }
 
   return (
-    <section className="mx-auto max-w-page px-4 py-10">
+    <section className="mx-auto max-w-page px-4 py-10 sm:py-12">
       <header className="border-y border-rule py-7">
         <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">Reader library</p>
-        <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="font-display text-display font-extrabold text-ink" lang={ne ? 'ne' : 'en'}>
-              {ne ? 'तपाईंका सुरक्षित समाचार' : 'Your saved stories'}
-            </h1>
-            <p className="mt-2 text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
-              {ne
-                ? 'तपाईंले सुरक्षित गरेका वास्तविक लेख मात्र यहाँ आउँछन् — डेमो सूची होइन।'
-                : 'Only stories you actually save appear here — this is not a demo list.'}
-            </p>
-          </div>
-          <span className="rounded-full border border-rule px-3 py-1.5 text-meta font-semibold text-ink-soft">{countLabel}</span>
-        </div>
+        <h1 className="mt-2 font-display text-display font-extrabold text-ink" lang={ne ? 'ne' : 'en'}>
+          {ne ? 'तपाईंका सुरक्षित समाचार' : 'Your saved stories'}
+        </h1>
+        <p className="mt-3 max-w-body text-body-lg text-ink-soft" lang={ne ? 'ne' : 'en'}>
+          {ne
+            ? 'तपाईंले सुरक्षित गरेका वास्तविक लेख मात्र यहाँ आउँछन्। डेमो सूची होइन।'
+            : 'Only stories you actually save appear here. This is not a demo list.'}
+        </p>
+        {ready ? (
+          <p className="mt-2 text-meta text-mute" lang={ne ? 'ne' : 'en'}>
+            {countLabel}
+          </p>
+        ) : null}
       </header>
 
       {syncError ? (
-        <p role="status" className="mt-5 rounded-md border border-rule bg-surface-raised p-3 text-meta text-ink-soft" lang={ne ? 'ne' : 'en'}>
+        <p role="status" className="mt-5 border-y border-rule py-4 text-meta text-ink-soft" lang={ne ? 'ne' : 'en'}>
           {ne ? 'खाता सिंक अहिले उपलब्ध छैन; उपकरणमा सुरक्षित सूची भने काम गरिरहेको छ।' : 'Account sync is unavailable; the device-saved list is still working.'}
         </p>
       ) : null}
 
       {emptyState === 'all-stale' ? (
-        <p role="status" className="mt-5 rounded-md border border-rule bg-surface-raised p-3 text-meta text-ink-soft" lang={ne ? 'ne' : 'en'}>
-          {ne ? 'तपाईंका सबै सुरक्षित समाचार पुराना छन् — पढ्ने वा हटाउने बेला भयो।' : 'All your saves are older than 30 days — time to read them or clear the list.'}
+        <p role="status" className="mt-5 border-y border-rule py-4 text-meta text-ink-soft" lang={ne ? 'ne' : 'en'}>
+          {ne ? 'तपाईंका सबै सुरक्षित समाचार पुराना छन्। पढ्ने वा हटाउने बेला भयो।' : 'All your saves are older than 30 days. Time to read them or clear the list.'}
         </p>
       ) : null}
 
@@ -206,18 +206,18 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
                 type="button"
                 onClick={() => removeStory(story)}
                 disabled={pending}
-                className="w-fit rounded-full border border-rule px-3.5 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong disabled:opacity-60"
+                className="w-fit border-b border-rule pb-1 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong disabled:opacity-60"
               >
                 {ne ? 'हटाउनुहोस्' : 'Remove'}
               </button>
             </article>
           )
         }) : (
-          <div className="py-10 text-center">
+          <div className="py-10">
             <h2 className="font-display text-h1 text-ink" lang={ne ? 'ne' : 'en'}>
               {ready ? (ne ? 'अहिले कुनै सुरक्षित समाचार छैन।' : 'No saved stories yet.') : (ne ? 'लोड हुँदै…' : 'Loading…')}
             </h2>
-            <p className="mx-auto mt-2 max-w-body text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
+            <p className="mt-2 max-w-body text-body-lg text-ink-soft" lang={ne ? 'ne' : 'en'}>
               {ne ? 'लेखमा रहेको सुरक्षित गर्नुहोस् बटन थिचेपछि यहाँ देखिन्छ।' : 'Use the save button on an article and it will appear here.'}
             </p>
           </div>
@@ -225,7 +225,7 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
       </div>
 
       {stories.length ? (
-        <button type="button" onClick={clearAll} disabled={pending} className="mt-6 rounded-full border border-rule px-4 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong disabled:opacity-60">
+        <button type="button" onClick={clearAll} disabled={pending} className="mt-6 border-b border-rule pb-1 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong disabled:opacity-60">
           {ne ? 'सबै हटाउनुहोस्' : 'Clear saved list'}
         </button>
       ) : null}

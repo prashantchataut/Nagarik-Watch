@@ -33,7 +33,7 @@ export default async function SeoPage() {
   const samples = await sampleSyndicationReadiness(3).catch(() => [])
   return (
     <div>
-      <AdminPageHeader title="एसइओ" subtitle="Google News, canonical and discovery readiness" />
+      <AdminPageHeader subtitle="Google News, canonical and discovery readiness" />
       <AdminCard><div className="grid gap-3">{checks.map(([label, value]) => <div key={label} className="rounded-lg border border-rule bg-surface p-4"><p className="text-caption font-bold uppercase tracking-wide text-mute">{label}</p><p className="mt-1 break-all font-mono text-meta text-ink">{value}</p></div>)}</div></AdminCard>
 
       <h2 className="mb-3 mt-8 font-display text-h2 text-ink">Syndication readiness (live sample)</h2>

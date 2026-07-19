@@ -15,8 +15,8 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
   const lang = locale === 'en' ? 'en' : 'ne'
 
   return (
-    <div className="mx-auto max-w-body px-4 py-10">
-      <InfoPageHeader kicker={dict.contactKicker} lead={dict.contactLead} lang={lang} />
+    <div className="mx-auto max-w-page px-4 py-10">
+      <InfoPageHeader kicker={dict.contactKicker} title={dict.footerContact} lead={dict.contactLead} lang={lang} />
 
       <div className="mt-10 space-y-10">
         <InfoSection heading={dict.contactTipHeading} lang={lang}>

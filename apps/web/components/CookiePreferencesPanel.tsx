@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
@@ -85,8 +85,8 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
             <p className="font-semibold text-ink">{locale === 'en' ? 'Analytics' : 'एनालिटिक्स'}</p>
             <p className="mt-1 text-meta text-mute">
               {locale === 'en'
-                ? 'Privacy-friendly Plausible counts only — no advertising profiles.'
-                : 'गोपनीयता-मैत्री Plausible गणना मात्र — विज्ञापन प्रोफाइल छैन।'}
+                ? 'Privacy-friendly Plausible counts only  -  no advertising profiles.'
+                : 'गोपनीयता-मैत्री Plausible गणना मात्र  -  विज्ञापन प्रोफाइल छैन।'}
             </p>
           </div>
           <input

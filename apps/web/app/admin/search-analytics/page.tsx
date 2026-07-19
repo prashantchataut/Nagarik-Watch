@@ -17,7 +17,6 @@ export default async function SearchAnalyticsPage() {
   return (
     <div>
       <AdminPageHeader
-        title="खोज विश्लेषण"
         subtitle="Consent-aware, privacy-scrubbed search demand and zero-result gaps · last 30 days"
       />
 

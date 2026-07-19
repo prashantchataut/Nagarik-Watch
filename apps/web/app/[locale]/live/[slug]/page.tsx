@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getLiveBlogBySlug } from '@/lib/live-blog-admin'
@@ -7,7 +7,7 @@ import { liveBlogJsonLd } from '@/lib/json-ld'
 export const dynamic = 'force-dynamic'
 
 function formatDate(value?: string, locale = 'ne'): string {
-  if (!value) return '—'
+  if (!value) return ' - '
   return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'ne-NP', {
     dateStyle: 'medium',
     timeStyle: 'short',

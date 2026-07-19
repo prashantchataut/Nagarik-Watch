@@ -110,7 +110,6 @@ export default async function LiveBlogsPage() {
   return (
     <div>
       <AdminPageHeader
-        title="लाइभ ब्लग"
         subtitle="ब्रेकिङ घटनाका लागि सत्यापित, समयक्रमबद्ध रोलिङ अपडेट"
       />
 

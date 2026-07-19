@@ -39,9 +39,9 @@ export default async function PaywallPage() {
 
   return (
     <div>
-      <AdminPageHeader title="सदस्यता / Paywall" subtitle="Manual subscriber override and premium access controls" />
+      <AdminPageHeader subtitle="Manual subscriber override and premium access controls" />
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.35fr]">
-        <AdminCard className="border-l-4 border-l-brand">
+        <AdminCard>
           <p className="text-meta text-ink-soft" lang="ne">Membership mode: <code className="font-mono text-ink" lang="en">{mode}</code>. Payment provider नहुँदा manual override प्रयोग हुन्छ।</p>
           <form action={saveSubscription} className="mt-5 grid gap-3">
             <label className="grid gap-1 text-caption font-semibold text-ink-soft">Reader email<input name="email" type="email" required className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" /></label>
