@@ -52,14 +52,14 @@ export const UTILITY_LINKS = [
 export function UtilityPageShell({
   locale,
   title,
-  eyebrow,
   description,
   currentPath,
   children,
 }: {
   locale: Locale
   title: string
-  eyebrow: string
+  /** @deprecated unused; kept for call-site compatibility */
+  eyebrow?: string
   description: string
   currentPath?: string
   children: ReactNode
@@ -67,7 +67,7 @@ export function UtilityPageShell({
   const en = locale === 'en'
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
-      <HubIndexHeader kicker={eyebrow} title={title} lead={description} lang={en ? 'en' : 'ne'} />
+      <HubIndexHeader title={title} lead={description} lang={en ? 'en' : 'ne'} />
       <div className="utility-workspace mt-8">
         <aside>
           <nav aria-label={en ? 'Utility tools' : 'उपयोगी उपकरण'} className="utility-sidebar">

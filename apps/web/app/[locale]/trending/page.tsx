@@ -48,16 +48,15 @@ export default async function TrendingPage({
     <main className="mx-auto max-w-page px-4 py-8 sm:py-12">
       <AdSlot locale={locale} placementKey="trending-top" />
       <HubIndexHeader
-        kicker={english ? 'Reader attention' : 'पाठकको ध्यान'}
         title={english ? 'Trending now' : 'अहिले चर्चामा'}
         lead={
           hasLiveSignal
             ? english
-              ? 'Ranked from recent reading and approved discussion activity, with freshness and burst controls.'
-              : 'हालैको पढाइ र स्वीकृत छलफल गतिविधिलाई ताजापन र अचानक बढेको रुचिसँग मिलाएर क्रमबद्ध गरिएको।'
+              ? 'Ranked from recent reading and discussion, with freshness controls.'
+              : 'हालैको पढाइ र छलफललाई ताजापनसहित क्रमबद्ध।'
             : english
-              ? 'There is not enough recent activity for a reliable trend signal, so the newest published reporting is shown.'
-              : 'विश्वसनीय ट्रेन्ड संकेतका लागि हालको गतिविधि पर्याप्त छैन, त्यसैले नयाँ प्रकाशित सामग्री देखाइएको छ।'
+              ? 'Not enough recent activity for a trend signal. Showing newest reporting.'
+              : 'ट्रेन्ड संकेत पर्याप्त छैन। नयाँ सामग्री देखाइएको छ।'
         }
         lang={english ? 'en' : 'ne'}
       />

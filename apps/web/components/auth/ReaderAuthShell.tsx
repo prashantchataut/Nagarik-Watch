@@ -1,98 +1,84 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import { Logo } from '@/components/Logo'
 import { localizeHref } from '@/lib/i18n/locales'
 
 type AuthMode = 'login' | 'signup' | 'recover' | 'reset' | 'change' | 'invite'
 
 type AuthCopy = {
-  eyebrowNe: string
-  eyebrowEn: string
-  titleNe: string
-  titleEn: string
-  bodyNe: string
-  bodyEn: string
   formTitleNe: string
   formTitleEn: string
   formBodyNe: string
   formBodyEn: string
+  panelTitleNe: string
+  panelTitleEn: string
+  panelBodyNe: string
+  panelBodyEn: string
 }
 
 const copy: Record<AuthMode, AuthCopy> = {
   login: {
-    eyebrowNe: 'पाठक खाता',
-    eyebrowEn: 'Reader account',
-    titleNe: 'आफ्नो समाचार अनुभवमा फर्कनुहोस्।',
-    titleEn: 'Return to your reading experience.',
-    bodyNe: 'सुरक्षित समाचार, पढाइ इतिहास र व्यक्तिगत सिफारिस एउटै खातामा।',
-    bodyEn: 'Saved stories, reading history and personal recommendations in one account.',
-    formTitleNe: 'लगइन गर्नुहोस्',
+    formTitleNe: 'लगइन',
     formTitleEn: 'Sign in',
-    formBodyNe: 'संग्रह र पढाइ इतिहास हेर्न आफ्नो इमेल प्रयोग गर्नुहोस्।',
-    formBodyEn: 'Use your email to access saved stories and reading history.',
+    formBodyNe: 'संग्रह र पढाइ इतिहासका लागि इमेल प्रयोग गर्नुहोस्।',
+    formBodyEn: 'Use your email for saved stories and reading history.',
+    panelTitleNe: 'पाठक खाता',
+    panelTitleEn: 'Reader account',
+    panelBodyNe: 'समाचार पढ्न खाता आवश्यक छैन।',
+    panelBodyEn: 'You never need an account just to read.',
   },
   signup: {
-    eyebrowNe: 'नयाँ पाठक खाता',
-    eyebrowEn: 'New reader account',
-    titleNe: 'आफूलाई महत्त्वपूर्ण समाचार सुरक्षित राख्नुहोस्।',
-    titleEn: 'Keep the reporting that matters to you.',
-    bodyNe: 'खाता निःशुल्क छ। समाचार पढ्न खाता आवश्यक छैन, तर संग्रह र सिफारिसका लागि उपयोगी हुन्छ।',
-    bodyEn: 'Accounts are free. Reading never requires an account, but saving and recommendations do.',
     formTitleNe: 'खाता बनाउनुहोस्',
-    formTitleEn: 'Create your account',
-    formBodyNe: 'केही सेकेन्डमा सुरु गर्नुहोस्।',
-    formBodyEn: 'Get started in a few seconds.',
+    formTitleEn: 'Create account',
+    formBodyNe: 'निःशुल्क। संग्रह र सिफारिसका लागि मात्र।',
+    formBodyEn: 'Free. Only for saving and recommendations.',
+    panelTitleNe: 'नयाँ खाता',
+    panelTitleEn: 'New account',
+    panelBodyNe: 'पढाइ सधैं खुला रहन्छ।',
+    panelBodyEn: 'Reading stays free either way.',
   },
   recover: {
-    eyebrowNe: 'खाता पुनःप्राप्ति',
-    eyebrowEn: 'Account recovery',
-    titleNe: 'पासवर्ड बिर्सनु समस्या होइन।',
-    titleEn: 'A forgotten password should not lock you out.',
-    bodyNe: 'दर्ता भएको इमेलमा सीमित समयका लागि सुरक्षित लिंक पठाइन्छ। हामी खाता छ कि छैन भनेर सार्वजनिक रूपमा बताउँदैनौँ।',
-    bodyEn: 'We send a time-limited secure link to registered addresses without revealing whether an account exists.',
-    formTitleNe: 'पासवर्ड पुनः सेट गर्नुहोस्',
-    formTitleEn: 'Reset your password',
-    formBodyNe: 'खातामा प्रयोग भएको इमेल लेख्नुहोस्।',
-    formBodyEn: 'Enter the email used for your account.',
+    formTitleNe: 'पासवर्ड रिसेट',
+    formTitleEn: 'Reset password',
+    formBodyNe: 'दर्ता भएको इमेल लेख्नुहोस्।',
+    formBodyEn: 'Enter the email on your account.',
+    panelTitleNe: 'पुनःप्राप्ति',
+    panelTitleEn: 'Recovery',
+    panelBodyNe: 'हामी खाता छ कि छैन भनेर बताउँदैनौँ।',
+    panelBodyEn: 'We never reveal whether an account exists.',
   },
   reset: {
-    eyebrowNe: 'सुरक्षित लिंक',
-    eyebrowEn: 'Secure link',
-    titleNe: 'अब बलियो नयाँ पासवर्ड बनाउनुहोस्।',
-    titleEn: 'Choose a strong new password.',
-    bodyNe: 'लिंक एकपटक र सीमित समयका लागि मात्र प्रयोग गर्न मिल्छ। परिवर्तनपछि पुराना सत्र बन्द हुन्छन्।',
-    bodyEn: 'The link is single-use and time-limited. Existing sessions are revoked after the reset.',
     formTitleNe: 'नयाँ पासवर्ड',
     formTitleEn: 'New password',
-    formBodyNe: 'कम्तीमा ८ अक्षरको फरक पासवर्ड प्रयोग गर्नुहोस्।',
+    formBodyNe: 'कम्तीमा ८ अक्षरको फरक पासवर्ड।',
     formBodyEn: 'Use a distinct password with at least 8 characters.',
+    panelTitleNe: 'सुरक्षित लिंक',
+    panelTitleEn: 'Secure link',
+    panelBodyNe: 'लिंक एकपटक मात्र प्रयोग हुन्छ।',
+    panelBodyEn: 'This link works once.',
   },
   change: {
-    eyebrowNe: 'खाता सुरक्षा',
-    eyebrowEn: 'Account security',
-    titleNe: 'आफ्नो खाता सुरक्षित राख्नुहोस्।',
-    titleEn: 'Keep your account secure.',
-    bodyNe: 'पासवर्ड परिवर्तन गर्दा अन्य उपकरणमा खुलेका सत्र बन्द हुन्छन्।',
-    bodyEn: 'Changing your password revokes sessions on other devices.',
     formTitleNe: 'पासवर्ड परिवर्तन',
     formTitleEn: 'Change password',
-    formBodyNe: 'हालको पासवर्ड पुष्टि गरेर नयाँ पासवर्ड सुरक्षित गर्नुहोस्।',
-    formBodyEn: 'Confirm your current password, then save a new one.',
+    formBodyNe: 'हालको पासवर्ड पुष्टि गर्नुहोस्।',
+    formBodyEn: 'Confirm your current password first.',
+    panelTitleNe: 'सुरक्षा',
+    panelTitleEn: 'Security',
+    panelBodyNe: 'अन्य उपकरणका सत्र बन्द हुन्छन्।',
+    panelBodyEn: 'Other device sessions will close.',
   },
   invite: {
-    eyebrowNe: 'न्युजरुम निमन्त्रणा',
-    eyebrowEn: 'Newsroom invitation',
-    titleNe: 'जिम्मेवारीसहित न्युजरुममा प्रवेश गर्नुहोस्।',
-    titleEn: 'Join the newsroom with a verified role.',
-    bodyNe: 'निमन्त्रणा एकपटक, सीमित समय र तोकिएको इमेलबाट मात्र स्वीकार गर्न सकिन्छ।',
-    bodyEn: 'Invitations are single-use, time-limited and bound to the invited email address.',
     formTitleNe: 'निमन्त्रणा स्वीकार',
-    formTitleEn: 'Accept invitation',
-    formBodyNe: 'आफ्नो खाताको इमेल निमन्त्रणा आएको इमेलसँग मिलेको सुनिश्चित गर्नुहोस्।',
-    formBodyEn: 'Make sure your account email matches the address that received the invitation.',
+    formTitleEn: 'Accept invite',
+    formBodyNe: 'निमन्त्रणा आएको इमेलसँग मिलाउनुहोस्।',
+    formBodyEn: 'Match the email that received the invite.',
+    panelTitleNe: 'न्युजरुम',
+    panelTitleEn: 'Newsroom',
+    panelBodyNe: 'भूमिका सम्पादकद्वारा दिइन्छ।',
+    panelBodyEn: 'Roles are granted by editors.',
   },
 }
 
+/** Calm reader auth layout: light form first; editorial panel only on large screens. */
 export function ReaderAuthShell({
   locale,
   mode,
@@ -104,52 +90,41 @@ export function ReaderAuthShell({
 }) {
   const ne = locale === 'ne'
   const content = copy[mode]
-  const home = localizeHref(locale, '/')
 
   return (
-    <main className="auth-shell">
-      <section
-        className="auth-editorial"
-        aria-label={ne ? 'पाठक खाता परिचय' : 'Reader account introduction'}
-      >
-        <Link href={home} className="auth-editorial__brand">
-          <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
-        </Link>
-        <div className="auth-editorial__copy">
-          <p className="auth-editorial__eyebrow" lang={ne ? 'ne' : 'en'}>
-            {ne ? content.eyebrowNe : content.eyebrowEn}
-          </p>
-          <h1 lang={ne ? 'ne' : 'en'}>{ne ? content.titleNe : content.titleEn}</h1>
-          <p lang={ne ? 'ne' : 'en'}>{ne ? content.bodyNe : content.bodyEn}</p>
-        </div>
-        <p className="auth-editorial__foot" lang={ne ? 'ne' : 'en'}>
-          {ne
-            ? 'तपाईंको इमेल विज्ञापनदातालाई बेचिँदैन।'
-            : 'Your email is never sold to advertisers.'}
+    <div className="auth-shell">
+      <aside className="auth-editorial" aria-hidden="true">
+        <p className="auth-editorial__eyebrow" lang={ne ? 'ne' : 'en'}>
+          {ne ? content.panelTitleNe : content.panelTitleEn}
         </p>
-      </section>
+        <p className="auth-editorial__lede" lang={ne ? 'ne' : 'en'}>
+          {ne ? content.panelBodyNe : content.panelBodyEn}
+        </p>
+      </aside>
       <section className="auth-form-column">
         <div className="auth-form-wrap">
-          <p className="admin-eyebrow" lang={ne ? 'ne' : 'en'}>
-            {ne ? content.eyebrowNe : content.eyebrowEn}
-          </p>
-          <h2
-            className="mt-2 font-display text-[2.35rem] font-extrabold leading-tight text-ink"
-            lang={ne ? 'ne' : 'en'}
-          >
+          <h1 className="auth-form-wrap__title" lang={ne ? 'ne' : 'en'}>
             {ne ? content.formTitleNe : content.formTitleEn}
-          </h2>
-          <p className="mt-3 text-body leading-relaxed text-ink-soft" lang={ne ? 'ne' : 'en'}>
+          </h1>
+          <p className="auth-form-wrap__lede" lang={ne ? 'ne' : 'en'}>
             {ne ? content.formBodyNe : content.formBodyEn}
           </p>
           <div className="auth-form-surface">{children}</div>
-          <p className="mt-8 text-caption text-mute" lang={ne ? 'ne' : 'en'}>
-            {ne
-              ? 'समाचार पढ्न खाता आवश्यक छैन।'
-              : 'You never need an account just to read the news.'}
+          <p className="auth-form-wrap__foot" lang={ne ? 'ne' : 'en'}>
+            {ne ? (
+              <>
+                समाचार पढ्न खाता चाहिँदैन।{' '}
+                <Link href={localizeHref(locale, '/')}>गृहपृष्ठ</Link>
+              </>
+            ) : (
+              <>
+                No account needed to read.{' '}
+                <Link href={localizeHref(locale, '/')}>Home</Link>
+              </>
+            )}
           </p>
         </div>
       </section>
-    </main>
+    </div>
   )
 }

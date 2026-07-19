@@ -1,17 +1,22 @@
 type HubIndexHeaderProps = {
-  kicker: string
   title: string
   lead: string
   lang: 'ne' | 'en'
+  /** Optional; prefer none. Max one eyebrow per page. */
+  kicker?: string
 }
 
-/** Editorial index header shared by latest, trending, search, market, utilities, and live hubs. */
-export function HubIndexHeader({ kicker, title, lead, lang }: HubIndexHeaderProps) {
+/** Calm editorial index header for hubs (latest, search, market, etc.). */
+export function HubIndexHeader({ title, lead, lang, kicker }: HubIndexHeaderProps) {
   return (
-    <header className="max-w-3xl border-y border-rule py-7" lang={lang}>
-      <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong">{kicker}</p>
-      <h1 className="mt-2 font-display text-display font-extrabold leading-tight text-ink">{title}</h1>
-      <p className="mt-3 max-w-body text-body-lg leading-relaxed text-ink-soft">{lead}</p>
+    <header className="max-w-2xl border-b border-rule py-5 sm:py-6" lang={lang}>
+      {kicker ? (
+        <p className="mb-1.5 text-caption font-bold text-ink-soft">{kicker}</p>
+      ) : null}
+      <h1 className="font-display text-[clamp(1.65rem,4vw,2.35rem)] font-extrabold leading-tight tracking-[-0.02em] text-ink">
+        {title}
+      </h1>
+      <p className="mt-2 max-w-body text-body leading-relaxed text-ink-soft">{lead}</p>
     </header>
   )
 }

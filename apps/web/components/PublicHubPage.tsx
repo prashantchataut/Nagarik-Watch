@@ -34,7 +34,6 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
       <HubIndexHeader
-        kicker={locale === 'en' ? 'Section index' : 'खण्ड सूची'}
         title={localizedTitle(locale, hub)}
         lead={localizedLead(locale, hub)}
         lang={lang}

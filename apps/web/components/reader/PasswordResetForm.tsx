@@ -55,7 +55,7 @@ export function PasswordResetForm({ locale, token, invalidToken, next }: { local
     return (
       <div className="grid gap-4" lang={ne ? 'ne' : 'en'}>
         <div role="alert" className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong">{error}</div>
-        <Link href={ne ? '/auth/forgot-password' : '/en/auth/forgot-password'} className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong">
+        <Link href={ne ? '/auth/forgot-password' : '/en/auth/forgot-password'} className="inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong">
           {ne ? 'नयाँ लिंक माग्नुहोस्' : 'Request a new link'}
         </Link>
       </div>
@@ -71,7 +71,7 @@ export function PasswordResetForm({ locale, token, invalidToken, next }: { local
       <div lang={ne ? 'ne' : 'en'}>
         <PasswordField name="confirmation" label={ne ? 'नयाँ पासवर्ड फेरि लेख्नुहोस्' : 'Confirm new password'} autoComplete="new-password" required disabled={pending} showLabel={ne ? 'देखाउनुहोस्' : 'Show'} hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'} />
       </div>
-      <button type="submit" disabled={pending} className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60">
+      <button type="submit" disabled={pending} className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60">
         <span lang={ne ? 'ne' : 'en'}>{pending ? (ne ? 'परिवर्तन हुँदै…' : 'Updating…') : (ne ? 'पासवर्ड परिवर्तन गर्नुहोस्' : 'Update password')}</span>
       </button>
     </form>

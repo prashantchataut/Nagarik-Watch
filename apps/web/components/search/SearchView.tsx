@@ -159,12 +159,11 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
       <HubIndexHeader
-        kicker={locale === 'en' ? 'Archive search' : 'अभिलेख खोज'}
         title={dict.searchHeading}
         lead={
           locale === 'en'
-            ? 'Search published titles, authors and topics. Devanagari and English both work.'
-            : 'प्रकाशित शीर्षक, लेखक र विषय खोज्नुहोस्। देवनागरी र अंग्रेजी दुवै चल्छ।'
+            ? 'Search titles, authors and topics in Nepali or English.'
+            : 'शीर्षक, लेखक र विषय खोज्नुहोस्।'
         }
         lang={lang}
       />

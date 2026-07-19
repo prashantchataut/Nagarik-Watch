@@ -109,26 +109,26 @@ export function CookieConsent({ locale }: { locale: Locale }) {
   return (
     <section
       ref={dialogRef}
-      className="fixed inset-x-0 z-50 border-t border-rule bg-surface shadow-[0_-8px_24px_rgba(0,0,0,0.08)] bottom-[calc(3.5rem+env(safe-area-inset-bottom))] lg:bottom-0"
+      className="fixed inset-x-0 z-50 border-t border-rule bg-surface bottom-[calc(3.5rem+env(safe-area-inset-bottom))] lg:bottom-0"
       role="dialog"
       aria-modal="true"
       aria-label={locale === 'en' ? 'Cookie settings' : 'कुकी सेटिङ'}
       lang={lang}
     >
-      <div className="mx-auto flex max-w-page flex-col gap-3 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:flex-row lg:items-end lg:gap-6 lg:pb-4">
+      <div className="mx-auto flex max-w-page flex-col gap-2 px-4 py-3 lg:flex-row lg:items-center lg:gap-6 lg:py-4">
         <div className="min-w-0 flex-1">
-          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong">
-            {locale === 'en' ? 'Cookies & privacy' : 'कुकी र गोपनीयता'}
+          <p className="text-meta font-bold text-ink">
+            {locale === 'en' ? 'Cookies' : 'कुकी'}
           </p>
-          <p className="mt-1 text-body leading-relaxed text-ink-soft">
+          <p className="mt-0.5 text-caption leading-snug text-ink-soft line-clamp-2 lg:line-clamp-none lg:text-meta lg:leading-relaxed">
             {locale === 'en'
-              ? 'Essential storage keeps the site working. Optional choices cover personalisation, analytics, and first-party ad measurement: never sold, never third-party ad trackers.'
-              : 'आवश्यक भण्डारणले साइट चलाउँछ। वैकल्पिक रोजाइ: व्यक्तिगत सिफारिस, एनालिटिक्स, र पहिलो-पक्ष विज्ञापन मापन। बेचिँदैन; तेस्रो-पक्ष विज्ञापन ट्र्याकर छैन।'}{' '}
+              ? 'Essential cookies keep the site working. Optional ones cover personalisation and analytics.'
+              : 'आवश्यक कुकीले साइट चलाउँछ। वैकल्पिक: सिफारिस र एनालिटिक्स।'}{' '}
             <Link
               href={localizeHref(locale, '/cookies')}
               className="font-semibold text-ink underline-offset-2 hover:underline"
             >
-              {locale === 'en' ? 'Cookie policy' : 'कुकी नीति'}
+              {locale === 'en' ? 'Policy' : 'नीति'}
             </Link>
           </p>
 
@@ -175,35 +175,35 @@ export function CookieConsent({ locale }: { locale: Locale }) {
             onClick={() =>
               decide({ personalization: false, analytics: false, advertising: false })
             }
-            className="inline-flex min-h-11 items-center justify-center border border-rule px-4 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong"
+            className="inline-flex min-h-11 flex-1 items-center justify-center border border-rule px-3 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong sm:flex-none"
           >
-            {locale === 'en' ? 'Essential only' : 'आवश्यक मात्र'}
+            {locale === 'en' ? 'Essential' : 'आवश्यक'}
           </button>
           {customize ? (
             <button
               type="button"
               onClick={() => decide({ personalization, analytics, advertising })}
-              className="inline-flex min-h-11 items-center justify-center border border-brand bg-brand px-4 text-meta font-semibold text-surface hover:bg-brand-strong"
+              className="inline-flex min-h-11 flex-1 items-center justify-center border border-brand bg-brand px-3 text-meta font-semibold text-surface hover:bg-brand-strong sm:flex-none"
             >
-              {locale === 'en' ? 'Save choices' : 'रोजाइ सुरक्षित'}
+              {locale === 'en' ? 'Save' : 'सुरक्षित'}
             </button>
           ) : (
             <>
               <button
                 type="button"
                 onClick={() => setCustomize(true)}
-                className="inline-flex min-h-11 items-center justify-center border border-rule px-4 text-meta font-semibold text-ink hover:border-brand hover:text-brand-strong"
+                className="inline-flex min-h-11 items-center justify-center border border-rule px-3 text-meta font-semibold text-ink hover:border-brand hover:text-brand-strong"
               >
-                {locale === 'en' ? 'Customise' : 'अनुकूलन'}
+                {locale === 'en' ? 'Options' : 'विकल्प'}
               </button>
               <button
                 type="button"
                 onClick={() =>
                   decide({ personalization: true, analytics: true, advertising: true })
                 }
-                className="inline-flex min-h-11 items-center justify-center border border-brand bg-brand px-4 text-meta font-semibold text-surface hover:bg-brand-strong"
+                className="inline-flex min-h-11 flex-1 items-center justify-center border border-brand bg-brand px-3 text-meta font-semibold text-surface hover:bg-brand-strong sm:flex-none"
               >
-                {locale === 'en' ? 'Accept all' : 'सबै स्वीकार'}
+                {locale === 'en' ? 'Accept' : 'स्वीकार'}
               </button>
             </>
           )}

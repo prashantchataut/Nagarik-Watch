@@ -4,25 +4,25 @@ Overrides `MASTER.md` for `/[locale]`.
 
 ## Structure (populated)
 
-1. Breaking ticker (only when genuine breaking stories)
-2. Edition opener: lead Hero + secondary stack + Latest rail
-3. Today in brief (distinct stories from latest, not duplicate secondary)
-4. Live board (mobile glance) + poll (if active)
-5. One ad billboard (collapsed when ads off)
-6. Newsletter inline (single-field content-first CTA)
-7. Category section bands with rotating layouts
-8. Province hub (typographic, no rainbow gradients)
-9. Mid-page ad (collapsed when off)
+1. Breaking ticker only when genuine breaking stories exist
+2. **Lead first** (no “Today’s edition” eyebrow band)
+3. Also today (3 on mobile / 4 desktop) + Latest rail desktop-only
+4. Category desk rail (categories only)
+5. Today in brief + poll if active
+6. Live board (mobile)
+7. Ad billboard (collapsed when ads off)
+8. Newsletter (border only, no tint wash)
+9. Recommendations + category sections + province + history/photo
 
-## Structure (empty CMS)
+## Mobile chrome budget
 
-Honest public empty: brand + one headline + desks directory. No admin/dev copy.
+- Masthead: one row (menu | logo | locale)
+- BottomNav owns Home / Latest / Search / Sections / Account
+- Do not stack Latest rail under the lead on phone
 
-## Anti-patterns for this page
+## Anti-patterns
 
-- Developer-facing empty states
-- Duplicate story lists (secondary used twice)
-- Rainbow province gradients
-- Em dashes in UI copy
-- Side-stripe accents
+- Edition eyebrow + marketing dek above the lead
+- Duplicate Latest in first viewport and BottomNav
+- Rainbow province gradients, side-stripes, em dashes
 - Paywall/membership chrome (Option A)

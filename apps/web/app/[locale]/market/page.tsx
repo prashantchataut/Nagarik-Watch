@@ -33,12 +33,11 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
       <HubIndexHeader
-        kicker={en ? 'Market desk' : 'बजार डेस्क'}
         title={en ? 'Market and shares' : 'बजार र सेयर'}
         lead={
           en
-            ? 'Live NEPSE index, forex rates, and gold and silver prices from official feeds.'
-            : 'लाइभ NEPSE सूचकांक, विदेशी मुद्रा दर, र सुनचाँदी मूल्य आधिकारिक फिडबाट।'
+            ? 'NEPSE, forex, and gold and silver from official feeds.'
+            : 'NEPSE, विदेशी मुद्रा र सुनचाँदी आधिकारिक फिडबाट।'
         }
         lang={lang}
       />

@@ -49,12 +49,11 @@ export default async function LatestPage({
     <main className="mx-auto max-w-page px-4 py-8 sm:py-12">
       <AdSlot locale={locale} placementKey="latest-top" />
       <HubIndexHeader
-        kicker={english ? 'News stream' : 'समाचार प्रवाह'}
         title={english ? 'Latest news' : 'ताजा समाचार'}
         lead={
           english
-            ? 'The newest published reporting, updates and analysis, ordered by publication time.'
-            : 'प्रकाशन समयका आधारमा क्रमबद्ध नयाँ समाचार, अद्यावधिक र विश्लेषण।'
+            ? 'Newest reporting and analysis, ordered by publication time.'
+            : 'प्रकाशन समयअनुसार नयाँ समाचार र विश्लेषण।'
         }
         lang={english ? 'en' : 'ne'}
       />

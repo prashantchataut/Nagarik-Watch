@@ -24,6 +24,8 @@ import { HomeLiveBoard } from '@/components/live/HomeLiveBoard'
 import { UtilityStrip } from '@/components/live/UtilityStrip'
 import { TodayInHistory } from '@/components/home/TodayInHistory'
 import { PhotoOfTheDay } from '@/components/home/PhotoOfTheDay'
+import Link from 'next/link'
+import { localizeHref } from '@/lib/i18n/locales'
 
 export async function generateMetadata({
   params,
@@ -104,50 +106,27 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <UtilityStrip locale={locale} />
       <BreakingTicker stories={homepage.breaking} locale={locale} />
 
-      <div className="mx-auto max-w-page px-4 pt-3 sm:pt-4">
-        <HomeDeskRail locale={locale} categories={categories} />
-      </div>
-
-      <div className="mx-auto max-w-page px-4 pb-16 pt-6 sm:pt-9">
-        <header className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b-2 border-ink pb-3">
-          <div>
-            <p
-              className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong"
-              lang="en"
-              translate="no"
-            >
-              Today&apos;s edition
-            </p>
-            <h2 className="sr-only" lang={english ? 'en' : 'ne'}>
-              {english ? 'Lead stories' : 'मुख्य समाचार'}
-            </h2>
-          </div>
-          <p className="text-meta text-mute" lang={english ? 'en' : 'ne'}>
-            {english
-              ? 'Original reporting from the Nagarik Watch newsroom'
-              : 'नागरिक वाच न्यूजरुमबाट मौलिक रिपोर्टिङ'}
-          </p>
-        </header>
-
+      <div className="mx-auto max-w-page px-4 pb-20 pt-4 sm:pt-6 lg:pb-16">
+        {/* Lead first: no edition eyebrow band (chrome budget). */}
         <section
-          className="grid gap-8 border-b border-rule pb-10 xl:grid-cols-[minmax(0,1.4fr)_minmax(16rem,0.58fr)_minmax(15rem,0.5fr)]"
+          className="grid gap-8 border-b border-rule pb-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(15rem,0.55fr)_minmax(14rem,0.48fr)] xl:gap-0 xl:pb-10"
           aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
         >
           <InstrumentedStory
             articleSlug={homepage.lead.slug}
             articleCategory={homepage.lead.category.slug}
           >
-            <Hero story={homepage.lead} locale={locale} />
+            <Hero story={homepage.lead} locale={locale} className="xl:pr-8" />
           </InstrumentedStory>
 
-          <div className="divide-y divide-rule border-y border-rule xl:border-y-0 xl:border-l xl:pl-7">
+          <div className="divide-y divide-rule border-y border-rule xl:border-y-0 xl:border-l xl:border-rule xl:pl-6">
             <p
-              className="pb-3 pt-1 text-caption font-bold uppercase tracking-[0.14em] text-ink-soft xl:pt-0"
+              className="pb-2.5 pt-1 text-meta font-bold text-ink-soft xl:pt-0"
               lang={english ? 'en' : 'ne'}
             >
               {english ? 'Also today' : 'आजका अन्य'}
             </p>
-            {homepage.secondary.slice(0, 4).map((story) => (
+            {homepage.secondary.slice(0, 4).map((story, index) => (
               <InstrumentedStory
                 key={story.id}
                 articleSlug={story.slug}
@@ -157,48 +136,59 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   story={story}
                   locale={locale}
                   variant="horizontal"
-                  className="py-4 first:pt-1 last:pb-0"
+                  className={`py-3.5 first:pt-1 last:pb-0 ${index >= 3 ? 'hidden xl:block' : ''}`}
                 />
               </InstrumentedStory>
             ))}
+            <p className="py-3 xl:hidden">
+              <Link
+                href={localizeHref(locale, '/latest')}
+                className="inline-flex min-h-11 items-center text-meta font-bold text-brand-strong underline-offset-4 hover:underline"
+                lang={english ? 'en' : 'ne'}
+              >
+                {english ? 'Latest updates' : 'ताजा अपडेट'}
+              </Link>
+            </p>
           </div>
 
-          <LatestRail stories={latest} locale={locale} className="xl:border-l xl:pl-7" />
+          {/* Latest rail is desktop-only: BottomNav owns Latest on phone. */}
+          <LatestRail
+            stories={latest}
+            locale={locale}
+            className="hidden xl:block xl:border-l xl:pl-6"
+          />
         </section>
 
-        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)]">
+        <div className="mt-5 sm:mt-6">
+          <HomeDeskRail locale={locale} categories={categories} />
+        </div>
+
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-10">
           <TodayInBrief stories={briefPool} locale={locale} />
           {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
         </div>
 
-        <HomeLiveBoard locale={locale} className="mt-10 lg:hidden" />
+        <HomeLiveBoard locale={locale} className="mt-8 lg:hidden" />
 
         <AdSlot
           locale={locale}
           placementKey="home-billboard"
           variant="billboard"
-          className="mt-12"
+          className="mt-10"
         />
 
-        <section
-          className="mt-12 border-y border-rule bg-brand-tint/35 px-4 py-8 sm:px-6"
-          aria-labelledby="home-newsletter"
-        >
+        <section className="mt-10 border-y border-rule py-6" aria-labelledby="home-newsletter">
           <div className="mx-auto max-w-xl">
-            <h2
-              id="home-newsletter"
-              className="sr-only"
-              lang={english ? 'en' : 'ne'}
-            >
+            <h2 id="home-newsletter" className="sr-only" lang={english ? 'en' : 'ne'}>
               {english ? 'Newsletter' : 'न्युजलेटर'}
             </h2>
             <NewsletterInline locale={locale} />
           </div>
         </section>
 
-        <RecommendedForYou locale={locale} catalog={catalog} className="mt-12" />
+        <RecommendedForYou locale={locale} catalog={catalog} className="mt-10" />
 
-        <div className="mt-14 space-y-16 sm:space-y-20">
+        <div className="mt-12 space-y-12 sm:mt-14 sm:space-y-16">
           {homepage.sections.map((section, index) => (
             <SectionBlock
               key={section.category.slug}
@@ -209,14 +199,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           ))}
         </div>
 
-        <ProvinceHub locale={locale} className="mt-16" />
+        <ProvinceHub locale={locale} className="mt-12 sm:mt-14" />
 
-        <div className="mt-16 grid gap-12 lg:grid-cols-2">
+        <div className="mt-12 grid gap-10 lg:mt-14 lg:grid-cols-2 lg:gap-12">
           <TodayInHistory locale={locale} stories={historyStories} />
           <PhotoOfTheDay locale={locale} story={photoOfDay} />
         </div>
 
-        <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="mt-14" />
+        <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="mt-12" />
       </div>
     </div>
   )

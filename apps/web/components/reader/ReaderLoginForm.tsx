@@ -98,7 +98,7 @@ export function ReaderLoginForm({ locale, next, notice, googleEnabled = false }:
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {pending ? (
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'लगइन हुँदै…' : 'Signing in…'}</span>

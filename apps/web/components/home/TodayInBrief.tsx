@@ -36,12 +36,12 @@ export function TodayInBrief({ stories, locale, className }: TodayInBriefProps) 
 
   return (
     <section className={className} aria-labelledby="today-in-brief">
-      <div className="border-y-2 border-ink py-5 sm:py-6">
-        <div className="flex items-baseline justify-between gap-3 border-b border-rule pb-3">
-          <h2 id="today-in-brief" className="font-display text-h2 text-ink" lang={lang}>
+      <div className="border-y border-rule py-4 sm:py-5">
+        <div className="flex items-baseline justify-between gap-3 border-b border-rule pb-2.5">
+          <h2 id="today-in-brief" className="font-display text-h3 text-ink" lang={lang}>
             {dict.briefTitle}
           </h2>
-          <span className="text-meta text-mute" lang={lang}>
+          <span className="text-caption text-mute" lang={lang}>
             {dict.briefSubtitle}
           </span>
         </div>

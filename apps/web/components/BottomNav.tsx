@@ -6,6 +6,8 @@ import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
 
+export const NW_OPEN_MENU_EVENT = 'nw:open-menu'
+
 /** BBC-style primary mobile IA: Home / Latest / Search / Sections / Account. */
 const ITEMS = [
   { key: 'home', href: '/', match: (p: string) => p === '/' || p === '/en' },
@@ -13,33 +15,8 @@ const ITEMS = [
   { key: 'search', href: '/search', match: (p: string) => p.includes('/search') },
   {
     key: 'sections',
-    href: '/#desks',
-    match: (p: string) => {
-      const parts = p.split('/').filter(Boolean)
-      const offset = parts[0] === 'en' ? 1 : 0
-      const seg = parts[offset]
-      if (!seg) return false
-      const reserved = new Set([
-        'latest',
-        'search',
-        'trending',
-        'auth',
-        'saved',
-        'reader-corner',
-        'admin',
-        'journalist',
-        'membership',
-        'about',
-        'contact',
-        'login',
-        'register',
-        'profile',
-        'utilities',
-        'market',
-        'most-read',
-      ])
-      return !reserved.has(seg)
-    },
+    href: null,
+    match: () => false,
   },
   {
     key: 'account',
@@ -66,6 +43,10 @@ export function BottomNav({ locale }: { locale: Locale }) {
     account: locale === 'en' ? 'Account' : 'खाता',
   }
 
+  function openSectionsMenu() {
+    window.dispatchEvent(new CustomEvent(NW_OPEN_MENU_EVENT))
+  }
+
   return (
     <nav
       aria-label={dict.bottomNavAria}
@@ -74,22 +55,35 @@ export function BottomNav({ locale }: { locale: Locale }) {
       <ul className="mx-auto flex max-w-page items-stretch justify-around">
         {ITEMS.map((item) => {
           const active = item.match(pathname)
-          const href = localizeHref(locale, item.href)
+          const className = `flex h-14 w-full cursor-pointer flex-col items-center justify-center gap-0.5 text-[0.6875rem] font-medium transition-colors duration-fast ease-out-quint ${
+            active ? 'text-brand-strong' : 'text-ink-soft hover:text-brand-strong'
+          }`
+
           return (
             <li key={item.key} className="relative flex-1">
               {active ? (
                 <span className="absolute inset-x-3 top-0 h-0.5 bg-brand" aria-hidden="true" />
               ) : null}
-              <Link
-                href={href}
-                aria-current={active ? 'page' : undefined}
-                className={`flex h-14 cursor-pointer flex-col items-center justify-center gap-0.5 text-[0.6875rem] font-medium transition-colors duration-fast ease-out-quint ${
-                  active ? 'text-brand-strong' : 'text-ink-soft hover:text-brand-strong'
-                }`}
-              >
-                <Icon name={item.key} active={active} />
-                <span lang={lang}>{labels[item.key]}</span>
-              </Link>
+              {item.href === null ? (
+                <button
+                  type="button"
+                  onClick={openSectionsMenu}
+                  className={className}
+                  aria-label={labels.sections}
+                >
+                  <Icon name={item.key} active={false} />
+                  <span lang={lang}>{labels[item.key]}</span>
+                </button>
+              ) : (
+                <Link
+                  href={localizeHref(locale, item.href)}
+                  aria-current={active ? 'page' : undefined}
+                  className={className}
+                >
+                  <Icon name={item.key} active={active} />
+                  <span lang={lang}>{labels[item.key]}</span>
+                </Link>
+              )}
             </li>
           )
         })}

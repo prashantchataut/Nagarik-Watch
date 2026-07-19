@@ -160,73 +160,88 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
   }
 
   return (
-    <section className="mx-auto max-w-page px-4 py-10 sm:py-12">
-      <header className="border-y border-rule py-7">
-        <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong" lang="en">Reader library</p>
-        <h1 className="mt-2 font-display text-display font-extrabold text-ink" lang={ne ? 'ne' : 'en'}>
-          {ne ? 'तपाईंका सुरक्षित समाचार' : 'Your saved stories'}
-        </h1>
-        <p className="mt-3 max-w-body text-body-lg text-ink-soft" lang={ne ? 'ne' : 'en'}>
-          {ne
-            ? 'तपाईंले सुरक्षित गरेका वास्तविक लेख मात्र यहाँ आउँछन्। डेमो सूची होइन।'
-            : 'Only stories you actually save appear here. This is not a demo list.'}
+    <section className="account-page account-page--wide">
+      <header className="account-page__header">
+        <h1 lang={ne ? 'ne' : 'en'}>{ne ? 'सुरक्षित समाचार' : 'Saved stories'}</h1>
+        <p className="account-page__email" style={{ wordBreak: 'normal' }} lang={ne ? 'ne' : 'en'}>
+          {ready
+            ? countLabel
+            : ne
+              ? 'लोड हुँदै…'
+              : 'Loading…'}
         </p>
-        {ready ? (
-          <p className="mt-2 text-meta text-mute" lang={ne ? 'ne' : 'en'}>
-            {countLabel}
-          </p>
-        ) : null}
       </header>
 
       {syncError ? (
-        <p role="status" className="mt-5 border-y border-rule py-4 text-meta text-ink-soft" lang={ne ? 'ne' : 'en'}>
-          {ne ? 'खाता सिंक अहिले उपलब्ध छैन; उपकरणमा सुरक्षित सूची भने काम गरिरहेको छ।' : 'Account sync is unavailable; the device-saved list is still working.'}
+        <p role="status" className="account-card__ok" lang={ne ? 'ne' : 'en'}>
+          {ne
+            ? 'खाता सिंक अहिले उपलब्ध छैन; उपकरणको सूची काम गर्छ।'
+            : 'Account sync is unavailable; the device list still works.'}
         </p>
       ) : null}
 
       {emptyState === 'all-stale' ? (
-        <p role="status" className="mt-5 border-y border-rule py-4 text-meta text-ink-soft" lang={ne ? 'ne' : 'en'}>
-          {ne ? 'तपाईंका सबै सुरक्षित समाचार पुराना छन्। पढ्ने वा हटाउने बेला भयो।' : 'All your saves are older than 30 days. Time to read them or clear the list.'}
+        <p role="status" className="account-card__ok" lang={ne ? 'ne' : 'en'}>
+          {ne
+            ? 'सबै सुरक्षित समाचार ३० दिनभन्दा पुराना छन्।'
+            : 'All saves are older than 30 days.'}
         </p>
       ) : null}
 
-      <div className="mt-6 divide-y divide-rule border-y border-rule">
-        {orderedStories.length ? orderedStories.map((story) => {
-          const title = (!ne && story.titleEn) || story.titleNe || story.slug
-          const href = `${ne ? '' : '/en'}/${story.category}/${story.slug}`
-          return (
-            <article key={story.slug} className="grid gap-3 py-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-              <div>
-                <a href={href} className="font-display text-h2 font-bold text-ink hover:text-brand-strong">{title}</a>
-                <p className="mt-1 text-caption text-mute">
-                  {new Date(story.savedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')} · {story.source === 'account' ? (ne ? 'खाता सिंक' : 'Account sync') : (ne ? 'यो उपकरण' : 'This device')}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => removeStory(story)}
-                disabled={pending}
-                className="w-fit border-b border-rule pb-1 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong disabled:opacity-60"
-              >
-                {ne ? 'हटाउनुहोस्' : 'Remove'}
-              </button>
-            </article>
-          )
-        }) : (
-          <div className="py-10">
-            <h2 className="font-display text-h1 text-ink" lang={ne ? 'ne' : 'en'}>
-              {ready ? (ne ? 'अहिले कुनै सुरक्षित समाचार छैन।' : 'No saved stories yet.') : (ne ? 'लोड हुँदै…' : 'Loading…')}
-            </h2>
-            <p className="mt-2 max-w-body text-body-lg text-ink-soft" lang={ne ? 'ne' : 'en'}>
-              {ne ? 'लेखमा रहेको सुरक्षित गर्नुहोस् बटन थिचेपछि यहाँ देखिन्छ।' : 'Use the save button on an article and it will appear here.'}
+      <div className="account-page__links">
+        {orderedStories.length ? (
+          orderedStories.map((story) => {
+            const title = (!ne && story.titleEn) || story.titleNe || story.slug
+            const href = `${ne ? '' : '/en'}/${story.category}/${story.slug}`
+            return (
+              <article key={story.slug} className="account-page__link" style={{ gridTemplateColumns: '1fr auto', alignItems: 'center' }}>
+                <div>
+                  <a href={href} className="account-page__link-title">
+                    {title}
+                  </a>
+                  <p className="account-page__link-body">
+                    {new Date(story.savedAt).toLocaleDateString(ne ? 'ne-NP' : 'en-GB')}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeStory(story)}
+                  disabled={pending}
+                  className="account-btn account-btn--ghost"
+                >
+                  {ne ? 'हटाउनुहोस्' : 'Remove'}
+                </button>
+              </article>
+            )
+          })
+        ) : (
+          <div className="py-8">
+            <p className="account-page__link-title" lang={ne ? 'ne' : 'en'}>
+              {ready
+                ? ne
+                  ? 'अहिले कुनै सुरक्षित समाचार छैन।'
+                  : 'No saved stories yet.'
+                : ne
+                  ? 'लोड हुँदै…'
+                  : 'Loading…'}
+            </p>
+            <p className="account-page__link-body mt-2" lang={ne ? 'ne' : 'en'}>
+              {ne
+                ? 'लेखमा सुरक्षित गर्नुहोस् थिचेपछि यहाँ देखिन्छ।'
+                : 'Tap save on an article and it will show up here.'}
             </p>
           </div>
         )}
       </div>
 
       {stories.length ? (
-        <button type="button" onClick={clearAll} disabled={pending} className="mt-6 border-b border-rule pb-1 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong disabled:opacity-60">
-          {ne ? 'सबै हटाउनुहोस्' : 'Clear saved list'}
+        <button
+          type="button"
+          onClick={clearAll}
+          disabled={pending}
+          className="account-btn account-btn--ghost mt-4"
+        >
+          {ne ? 'सबै हटाउनुहोस्' : 'Clear all'}
         </button>
       ) : null}
     </section>

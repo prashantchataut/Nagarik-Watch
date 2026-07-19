@@ -7,6 +7,7 @@ import type { Category, Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, swapLocale } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { STATIC_HUBS, PROVINCES } from '@/lib/site'
 import type { AccountKind } from '@/lib/account-identity'
 import {
@@ -56,6 +57,15 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
   const closeBtnRef = useRef<HTMLButtonElement>(null)
   const titleId = useId()
 
+  // Allow BottomNav "Sections" to open this drawer from anywhere.
+  useEffect(() => {
+    function onOpenMenu() {
+      setOpen(true)
+    }
+    window.addEventListener('nw:open-menu', onOpenMenu)
+    return () => window.removeEventListener('nw:open-menu', onOpenMenu)
+  }, [])
+
   // Lock background scroll while the drawer is open and release it on close. The previous
   // overflow value is restored rather than forced to 'visible' so any other style on <body>
   // survives.
@@ -104,7 +114,6 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
   const pathname = usePathname() ?? '/'
   const homeHref = localizeHref(locale, '/')
   const savedHref = localizeHref(locale, '/saved')
-  const profileHref = localizeHref(locale, '/auth/profile')
   const readerCornerHref = localizeHref(locale, '/reader-corner')
   const toggleHref = swapLocale(pathname)
 
@@ -266,23 +275,13 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                     className={DRAWER_LINK_ROW}
                   >
                     <IconDesk />
-                    <span>{locale === 'en' ? 'My news desk' : 'मेरो समाचार डेस्क'}</span>
+                    <span>{locale === 'en' ? 'Reading desk' : 'पढाइ डेस्क'}</span>
                   </Link>
                 </li>
                 <li>
                   <Link href={savedHref} onClick={() => setOpen(false)} className={DRAWER_LINK_ROW}>
                     <IconBookmark />
                     <span>{locale === 'en' ? 'Saved stories' : 'सुरक्षित समाचार'}</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href={profileHref}
-                    onClick={() => setOpen(false)}
-                    className={DRAWER_LINK_ROW}
-                  >
-                    <IconUser />
-                    <span>{locale === 'en' ? 'Profile' : 'प्रोफाइल'}</span>
                   </Link>
                 </li>
                 <li>
@@ -295,6 +294,9 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                   >
                     {locale === 'en' ? 'नेपालीमा पढ्नुहोस्' : 'Read in English'}
                   </Link>
+                </li>
+                <li className="border-b border-rule px-1 py-3">
+                  <ThemeToggle locale={locale} className="!rounded-none" />
                 </li>
               </DrawerSection>
 

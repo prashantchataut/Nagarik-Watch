@@ -13,7 +13,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { Logo } from '@/components/Logo'
 import { SecondaryNav } from '@/components/SecondaryNav'
 import type { AccountKind } from '@/lib/account-identity'
-import { IconBookmark, IconSearch, IconUser } from '@/components/icons/PortalIcons'
+import { IconBookmark, IconUser } from '@/components/icons/PortalIcons'
 
 type MastheadAccount = {
   kind: AccountKind
@@ -32,16 +32,12 @@ type MastheadProps = {
 const TOOL =
   'inline-flex min-h-11 cursor-pointer items-center gap-1.5 border-b-2 border-transparent py-2 text-meta font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
-const ICON_BTN =
-  'inline-flex h-11 w-11 cursor-pointer items-center justify-center border-l border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
-
 export function Masthead({ locale, navCategories, account = null }: MastheadProps) {
   const dict = getDictionary(locale)
   const pathname = usePathname() ?? '/'
   const [condensed, setCondensed] = useState(false)
   const dateLabel = formatDate(new Date().toISOString(), locale)
   const homeHref = localizeHref(locale, '/')
-  const searchHref = localizeHref(locale, '/search')
   const savedHref = localizeHref(locale, '/saved')
   const toggleHref = swapLocale(pathname)
   const lang = locale === 'en' ? 'en' : 'ne'
@@ -100,7 +96,7 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
       </div>
 
       <div className="mx-auto max-w-page px-3 sm:px-4">
-        <div className="nw-masthead__brand grid grid-cols-[auto_1fr_auto] items-center gap-2 border-b-2 border-ink py-2.5 md:grid-cols-[1fr_auto_1fr] md:py-3">
+        <div className="nw-masthead__brand grid grid-cols-[auto_1fr_auto] items-center gap-1 border-b border-ink py-2 md:grid-cols-[1fr_auto_1fr] md:gap-2 md:border-b-2 md:py-3">
           <div className="flex items-center md:hidden">
             <MobileNav locale={locale} navCategories={navCategories} account={account} />
           </div>
@@ -125,18 +121,18 @@ export function Masthead({ locale, navCategories, account = null }: MastheadProp
           >
             <Logo
               siteName={dict.siteName}
-              className="max-w-[10rem] sm:max-w-[13rem] md:max-w-none md:scale-105"
+              className="max-w-[9.5rem] sm:max-w-[12rem] md:max-w-none md:scale-105"
             />
           </Link>
 
           <div className="flex items-center justify-end">
-            <Link href={searchHref} className={`${ICON_BTN} border-l`} aria-label={dict.search}>
-              <IconSearch width={20} height={20} />
-            </Link>
-            <ThemeToggle locale={locale} className="h-11 w-11 !rounded-none border-l border-rule" />
+            <ThemeToggle
+              locale={locale}
+              className="hidden h-11 w-11 !rounded-none border-l border-rule md:inline-flex"
+            />
             <Link
               href={toggleHref}
-              className="inline-flex h-11 min-w-11 cursor-pointer items-center justify-center border-l border-rule px-3 text-meta font-black text-ink transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              className="inline-flex h-11 min-w-11 cursor-pointer items-center justify-center border-l border-rule px-2.5 text-meta font-black text-ink transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand md:px-3"
               lang={locale === 'en' ? 'ne' : 'en'}
               aria-label={dict.localeToggleAria}
             >

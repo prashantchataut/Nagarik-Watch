@@ -23,13 +23,13 @@ export function LatestRail({ stories, locale, className }: LatestRailProps) {
 
   return (
     <aside className={className} aria-labelledby="latest-rail-title">
-      <div className="flex items-center justify-between border-b-[3px] border-ink pb-2">
+      <div className="flex items-center justify-between border-b border-ink pb-2">
         <h2
           id="latest-rail-title"
-          className="text-pretty font-display text-h2 font-black text-ink"
+          className="text-pretty font-display text-h3 font-black text-ink"
           lang={english ? 'en' : 'ne'}
         >
-          {english ? 'Latest updates' : 'ताजा अपडेट'}
+          {english ? 'Latest' : 'ताजा'}
         </h2>
         <Link
           href={localizeHref(locale, '/latest')}
