@@ -58,9 +58,15 @@ nul
 
 .vercel
 
-# Local persistent development data
-.data/
+# Local recovery / agent dumps (not product source)
+packages - Copy/
+nagarik-watch-latest.zip
+live-home.html
+live.css
+_archive_metadata/
+upload/
+*.exit
+VERIFICATION_TSC_WEB.log
+RECOVERY_*.json
+worklog.md
 
-# Retired legacy CMS path. The canonical Payload app is apps/admin.
-# This does not remove an already tracked folder; run: git rm -r apps/cms
-apps/cms/

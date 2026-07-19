@@ -43,7 +43,7 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
   const dict = getDictionary(locale)
   const pathname = usePathname() ?? '/'
   const [condensed, setCondensed] = useState(false)
-  const dateLabel = formatDate(new Date().toISOString(), locale)
+  const [dateLabel, setDateLabel] = useState('')
   const homeHref = localizeHref(locale, '/')
   const savedHref = localizeHref(locale, '/saved')
   const searchHref = localizeHref(locale, '/search')
@@ -70,6 +70,10 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
     : undefined
 
   useEffect(() => {
+    setDateLabel(formatDate(new Date().toISOString(), locale))
+  }, [locale])
+
+  useEffect(() => {
     const onScroll = () => setCondensed(window.scrollY > 48)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -84,12 +88,16 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
       {/* Band 1 — Utility */}
       <div className="nw-masthead__utility border-b border-rule bg-surface-raised">
         <div className="mx-auto flex max-w-page items-center justify-between gap-2 px-3 py-1 sm:px-4">
-          <p lang={lang} className="min-w-0 truncate text-caption font-semibold text-ink-soft">
-            {dict.mastheadDate(dateLabel)}
-            <span className="mx-1.5 text-mute" aria-hidden="true">
-              ·
-            </span>
-            <span className="text-brand-strong">{locale === 'en' ? 'Kathmandu' : 'काठमाडौं'}</span>
+          <p lang={lang} className="min-w-0 truncate text-caption font-semibold text-ink-soft" suppressHydrationWarning>
+            {dateLabel ? dict.mastheadDate(dateLabel) : '\u00a0'}
+            {dateLabel ? (
+              <>
+                <span className="mx-1.5 text-mute" aria-hidden="true">
+                  ·
+                </span>
+                <span className="text-brand-strong">{locale === 'en' ? 'Kathmandu' : 'काठमाडौं'}</span>
+              </>
+            ) : null}
           </p>
 
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">

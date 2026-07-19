@@ -45,7 +45,7 @@ export default async function ReaderProfilePage({ params }: { params: Promise<{ 
   ]
 
   return (
-    <div className="account-page" lang={english ? 'en' : 'ne'}>
+    <div className="account-page account-page--wide" lang={english ? 'en' : 'ne'}>
       <header className="account-page__header">
         <h1>{english ? 'Account' : 'खाता'}</h1>
         <p className="account-page__email" lang="en">
@@ -53,7 +53,9 @@ export default async function ReaderProfilePage({ params }: { params: Promise<{ 
         </p>
       </header>
 
-      <ReaderProfileCard session={session} locale={locale} />
+      <div className="account-page__panel">
+        <ReaderProfileCard session={session} locale={locale} />
+      </div>
 
       <nav className="account-page__links" aria-label={english ? 'Account links' : 'खाता लिंक'}>
         {links.map((item) => (

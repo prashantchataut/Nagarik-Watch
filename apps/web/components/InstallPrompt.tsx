@@ -40,6 +40,8 @@ export function InstallPrompt() {
   const english = pathname === '/en' || pathname.startsWith('/en/')
 
   useEffect(() => {
+    // Capture for a custom install UI. Browser logs a warning when preventDefault
+    // is used; that is expected until the user triggers prompt() from Install.
     const onPrompt = (event: Event) => {
       event.preventDefault()
       setDeferredPrompt(event as DeferredInstallPrompt)

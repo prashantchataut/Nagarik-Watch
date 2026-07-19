@@ -35,10 +35,22 @@ export function Hero({ story, locale, className }: HeroProps) {
             className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.02]"
           />
         </Link>
-      ) : null}
+      ) : (
+        <Link
+          href={href}
+          className="relative mb-5 block aspect-[16/10] overflow-hidden border border-rule bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:aspect-[16/9] sm:mb-6"
+          aria-hidden="true"
+          tabIndex={-1}
+        >
+          <span className="absolute inset-0 bg-[linear-gradient(135deg,var(--brand-tint),transparent_55%)]" />
+          <span className="absolute bottom-4 left-4 font-display text-meta font-bold uppercase tracking-[0.14em] text-brand-strong">
+            {locale === 'en' && story.category.nameEn ? story.category.nameEn : story.category.nameNe}
+          </span>
+        </Link>
+      )}
       <CategoryLabel category={story.category} locale={locale} as="span" className="mb-3" />
       <h1
-        className="max-w-[20ch] text-pretty font-display text-[clamp(2.15rem,5vw,4.15rem)] font-black leading-[1.05] tracking-[-0.025em] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong"
+        className="max-w-[22ch] text-pretty font-display text-[clamp(1.85rem,4.2vw,3.35rem)] font-black leading-[1.08] tracking-[-0.025em] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong"
         lang={titleLang}
       >
         <Link href={href} className="cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">

@@ -18,14 +18,19 @@ function readerIdentity(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const fingerprint = readerIdentity(request)
-  const session = await getSession().catch(() => null)
-  if (!session && !fingerprint) return NextResponse.json({ history: [] })
-  if (fingerprint.length > 160) {
-    return NextResponse.json({ error: 'Invalid reader identifier.' }, { status: 400 })
+  try {
+    const fingerprint = readerIdentity(request)
+    const session = await getSession().catch(() => null)
+    if (!session && !fingerprint) return NextResponse.json({ history: [] })
+    if (fingerprint.length > 160) {
+      return NextResponse.json({ error: 'Invalid reader identifier.' }, { status: 400 })
+    }
+    if (session && fingerprint) await mergeAnonymousReading(fingerprint, session.userId).catch(() => undefined)
+    return NextResponse.json({ history: await getReadingHistory(fingerprint, session?.userId) })
+  } catch (error) {
+    console.error('[reading:GET]', error)
+    return NextResponse.json({ history: [] })
   }
-  if (session && fingerprint) await mergeAnonymousReading(fingerprint, session.userId)
-  return NextResponse.json({ history: await getReadingHistory(fingerprint, session?.userId) })
 }
 
 export async function POST(request: NextRequest) {

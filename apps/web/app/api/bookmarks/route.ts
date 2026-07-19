@@ -13,17 +13,22 @@ import { getPublicArticleIdentity } from '@/lib/content/public-article-identity'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-  const fingerprint = request.nextUrl.searchParams.get('fingerprint')?.trim() ?? ''
-  const session = await getSession().catch(() => null)
+  try {
+    const fingerprint = request.nextUrl.searchParams.get('fingerprint')?.trim() ?? ''
+    const session = await getSession().catch(() => null)
 
-  if (!session && !fingerprint) return NextResponse.json({ bookmarks: [] })
-  if (fingerprint.length > 160) {
-    return NextResponse.json({ error: 'Invalid reader identifier.' }, { status: 400 })
+    if (!session && !fingerprint) return NextResponse.json({ bookmarks: [] })
+    if (fingerprint.length > 160) {
+      return NextResponse.json({ error: 'Invalid reader identifier.' }, { status: 400 })
+    }
+    if (session && fingerprint) await mergeAnonymousBookmarks(fingerprint, session.userId).catch(() => undefined)
+
+    const list = await getBookmarks(fingerprint, session?.userId)
+    return NextResponse.json({ bookmarks: list })
+  } catch (error) {
+    console.error('[bookmarks:GET]', error)
+    return NextResponse.json({ bookmarks: [] })
   }
-  if (session && fingerprint) await mergeAnonymousBookmarks(fingerprint, session.userId)
-
-  const list = await getBookmarks(fingerprint, session?.userId)
-  return NextResponse.json({ bookmarks: list })
 }
 
 export async function POST(request: NextRequest) {

@@ -76,9 +76,26 @@ export function middleware(request: NextRequest) {
 }
 
 function resolveShell(pathWithoutEnPrefix: string): 'public' | 'auth' | 'journalist' {
-  const seg = firstSegment(pathWithoutEnPrefix)
-  if (seg === 'auth' || seg === 'login' || seg === 'register') return 'auth'
+  const parts = pathWithoutEnPrefix.split('/').filter(Boolean)
+  const seg = parts[0] ?? ''
   if (seg === 'journalist') return 'journalist'
+  // Legacy aliases
+  if (seg === 'login' || seg === 'register') return 'auth'
+  if (seg === 'auth') {
+    const page = parts[1] ?? ''
+    // Credential / invite forms stay minimal. Account pages keep full portal chrome.
+    const formOnly = new Set([
+      'login',
+      'signup',
+      'forgot-password',
+      'reset-password',
+      'invite',
+      'mfa',
+      'change-password',
+    ])
+    if (!page || formOnly.has(page)) return 'auth'
+    return 'public'
+  }
   return 'public'
 }
 
