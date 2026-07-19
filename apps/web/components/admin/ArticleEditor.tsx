@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { cn } from '@nagarikwatch/ui'
 import type { Category, Tag } from '@nagarikwatch/db'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import { canPublish, canEdit } from '@/lib/admin-roles'
@@ -347,11 +347,10 @@ export function ArticleEditor({
                 key={t.slug}
                 type="button"
                 onClick={() => toggleTag(t.slug)}
-                className={
-                  selectedTags.includes(t.slug)
-                    ? 'rounded-full bg-brand px-3 py-1 text-caption font-semibold text-surface'
-                    : 'rounded-full border border-rule px-3 py-1 text-caption font-medium text-ink-soft hover:border-brand hover:text-brand-strong'
-                }
+                className={cn(
+                  'admin-filter-link',
+                  selectedTags.includes(t.slug) && 'admin-filter-link--active',
+                )}
                 lang="ne"
               >
                 {t.nameNe}
@@ -369,7 +368,7 @@ export function ArticleEditor({
       {/* SIDEBAR — metadata */}
       <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
         <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
-          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
+          <p className="text-meta font-semibold text-ink" lang="ne">
             प्रकाशन
           </p>
           <AdminSelect
@@ -609,13 +608,9 @@ export function ArticleEditor({
         </div>
 
         <div className="flex justify-between gap-2">
-          <Link
-            href="/admin/articles"
-            className="inline-flex h-10 items-center rounded-full border border-rule px-4 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong"
-            lang="ne"
-          >
-            ← सूचीमा फर्कनुहोस्
-          </Link>
+          <AdminButton href="/admin/articles" variant="ghost">
+            <span lang="ne">← सूचीमा फर्कनुहोस्</span>
+          </AdminButton>
         </div>
       </aside>
     </form>

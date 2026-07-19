@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getSessionQualityReport } from '@/lib/session-quality'
-import { AdminCard, AdminEmptyState, AdminPageHeader } from '@/components/admin/primitives'
+import { AdminCard, AdminEmptyState, AdminMetric, AdminPageHeader } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'Session Quality',
@@ -20,31 +20,12 @@ export default async function SessionQualityPage() {
         subtitle="Privacy-preserving 24-hour aggregate of measured dwell, completion, shares, and bookmarks."
       />
 
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Stories</p>
-          <p className="mt-2 font-display text-display text-ink">{report.totals.stories}</p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Avg dwell</p>
-          <p className="mt-2 font-display text-display text-ink">
-            {report.averages.dwellSeconds.toFixed(0)}s
-          </p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Completion</p>
-          <p className="mt-2 font-display text-display text-ink">
-            {(report.averages.completionRate * 100).toFixed(1)}%
-          </p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Shares</p>
-          <p className="mt-2 font-display text-display text-ink">{report.totals.shares}</p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Bookmarks</p>
-          <p className="mt-2 font-display text-display text-ink">{report.totals.bookmarks}</p>
-        </AdminCard>
+      <section className="admin-metric-grid" aria-label="Session quality totals">
+        <AdminMetric value={report.totals.stories} label="Stories" />
+        <AdminMetric value={`${report.averages.dwellSeconds.toFixed(0)}s`} label="Avg dwell" />
+        <AdminMetric value={`${(report.averages.completionRate * 100).toFixed(1)}%`} label="Completion" />
+        <AdminMetric value={report.totals.shares} label="Shares" />
+        <AdminMetric value={report.totals.bookmarks} label="Bookmarks" />
       </section>
 
       {report.stories.length === 0 ? (

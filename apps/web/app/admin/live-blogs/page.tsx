@@ -12,7 +12,7 @@ import {
   type LiveBlogStatus,
 } from '@/lib/live-blog-admin'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { AdminCard, AdminEmptyState, AdminPageHeader } from '@/components/admin/primitives'
+import { AdminCard, AdminEmptyState, AdminPageHeader, AdminButton, AdminInput, AdminTextarea, AdminSelect, AdminCallout } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'लाइभ ब्लग',
@@ -117,44 +117,34 @@ export default async function LiveBlogsPage() {
         <AdminCard className="mb-6">
           <h2 className="font-display text-h2 text-ink" lang="ne">नयाँ लाइभ ब्लग</h2>
           <form action={createBlog} className="mt-4 grid gap-4 lg:grid-cols-2">
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft" lang="ne">
-              नेपाली शीर्षक *
-              <input name="titleNe" required maxLength={180} className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-            </label>
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft" lang="en">
-              English title
-              <input name="titleEn" maxLength={180} className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-            </label>
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft lg:col-span-2" lang="en">
-              Slug
-              <input name="slug" maxLength={90} placeholder="auto-generated when blank" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-            </label>
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft" lang="ne">
-              नेपाली सारांश
-              <textarea name="summaryNe" rows={3} maxLength={1200} className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink" />
-            </label>
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft" lang="en">
-              English summary
-              <textarea name="summaryEn" rows={3} maxLength={1200} className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink" />
-            </label>
+            <AdminInput label="नेपाली शीर्षक *" name="titleNe" required lang="ne" />
+            <AdminInput label="English title" name="titleEn" lang="en" />
+            <div className="lg:col-span-2">
+              <AdminInput label="Slug" name="slug" placeholder="auto-generated when blank" lang="en" />
+            </div>
+            <AdminTextarea label="नेपाली सारांश" name="summaryNe" rows={3} lang="ne" />
+            <AdminTextarea label="English summary" name="summaryEn" rows={3} lang="en" />
             <div className="flex flex-wrap items-end gap-3 lg:col-span-2">
-              <label className="grid gap-1 text-caption font-semibold text-ink-soft" lang="ne">
-                सुरुआती स्थिति
-                <select name="status" defaultValue="scheduled" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink">
-                  <option value="scheduled">तालिकाबद्ध</option>
-                  {publishable ? <option value="live">तुरुन्त लाइभ</option> : null}
-                </select>
-              </label>
-              <button className="h-10 rounded-md bg-brand px-5 text-meta font-bold text-surface hover:bg-brand-strong" lang="ne">
-                लाइभ ब्लग सिर्जना
-              </button>
+              <AdminSelect
+                label="सुरुआती स्थिति"
+                name="status"
+                defaultValue="scheduled"
+                lang="ne"
+                options={[
+                  { value: 'scheduled', label: 'तालिकाबद्ध' },
+                  ...(publishable ? [{ value: 'live', label: 'तुरुन्त लाइभ' }] : []),
+                ]}
+              />
+              <AdminButton type="submit">लाइभ ब्लग सिर्जना</AdminButton>
             </div>
           </form>
         </AdminCard>
       ) : (
-        <p className="mb-6 rounded-lg border border-rule bg-surface-raised p-4 text-body text-ink-soft" lang="ne">
-          तपाईंको भूमिका हेर्न र अनुगमन गर्न मिल्छ; सिर्जना वा सम्पादनका लागि सम्पादकीय भूमिका आवश्यक छ।
-        </p>
+        <AdminCallout tone="neutral" className="mb-6">
+          <p className="text-body text-ink-soft" lang="ne">
+            तपाईंको भूमिका हेर्न र अनुगमन गर्न मिल्छ; सिर्जना वा सम्पादनका लागि सम्पादकीय भूमिका आवश्यक छ।
+          </p>
+        </AdminCallout>
       )}
 
       {records.length === 0 ? (
@@ -174,7 +164,7 @@ export default async function LiveBlogsPage() {
                     </span>
                     <span className="text-caption text-mute">{updates.length} अपडेट</span>
                   </div>
-                  <h2 className="mt-2 font-display text-h1 text-ink" lang="ne">{blog.titleNe}</h2>
+                  <h2 className="mt-2 font-display text-h2 text-ink" lang="ne">{blog.titleNe}</h2>
                   {blog.titleEn ? <p className="mt-1 text-meta text-ink-soft" lang="en">{blog.titleEn}</p> : null}
                   {blog.summaryNe ? <p className="mt-3 max-w-3xl text-body text-ink-soft" lang="ne">{blog.summaryNe}</p> : null}
                   <p className="mt-3 text-caption text-mute" lang="ne">
@@ -209,18 +199,12 @@ export default async function LiveBlogsPage() {
                   <form action={addUpdate} className="mt-4 grid gap-3">
                     <input type="hidden" name="liveBlogId" value={blog.id} />
                     <input type="hidden" name="slug" value={blog.slug} />
-                    <label className="grid gap-1 text-caption font-semibold text-ink-soft" lang="ne">
-                      नेपाली अपडेट *
-                      <textarea name="bodyNe" required rows={5} maxLength={8000} className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink" />
-                    </label>
-                    <label className="grid gap-1 text-caption font-semibold text-ink-soft" lang="en">
-                      English update
-                      <textarea name="bodyEn" rows={4} maxLength={8000} className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink" />
-                    </label>
+                    <AdminTextarea label="नेपाली अपडेट *" name="bodyNe" required rows={5} lang="ne" />
+                    <AdminTextarea label="English update" name="bodyEn" rows={4} lang="en" />
                     <label className="flex items-center gap-2 text-caption font-semibold text-ink-soft" lang="ne">
                       <input name="pinned" type="checkbox" className="size-4 accent-brand" /> मुख्य अपडेटका रूपमा पिन गर्नुहोस्
                     </label>
-                    <button className="w-fit rounded-md bg-brand px-4 py-2 text-meta font-bold text-surface hover:bg-brand-strong" lang="ne">अपडेट प्रकाशित गर्नुहोस्</button>
+                    <AdminButton type="submit">अपडेट प्रकाशित गर्नुहोस्</AdminButton>
                   </form>
                 </details>
               ) : null}

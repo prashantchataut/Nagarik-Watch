@@ -108,3 +108,47 @@ export function AdminEmptyState({ title, body, action }: { title: string; body: 
     {action ? <div className="mt-6">{action}</div> : null}
   </section>
 }
+
+export function AdminMetric({
+  href,
+  value,
+  label,
+  tone = 'default',
+}: {
+  href?: string
+  value: React.ReactNode
+  label: string
+  tone?: 'default' | 'brand' | 'danger'
+}) {
+  const valueClass = cn(
+    'admin-metric__value',
+    tone === 'brand' && 'admin-metric__value--brand',
+    tone === 'danger' && 'admin-metric__value--danger',
+  )
+  const body = (
+    <>
+      <p className={valueClass}>{value}</p>
+      <p className="admin-metric__label" lang="ne">
+        {label}
+      </p>
+    </>
+  )
+  if (href) {
+    return (
+      <Link href={href} className="admin-metric">
+        {body}
+      </Link>
+    )
+  }
+  return <div className="admin-metric">{body}</div>
+}
+
+export function AdminTable({ children, minWidth }: { children: React.ReactNode; minWidth?: string }) {
+  return (
+    <div className="admin-table-wrap">
+      <table className="admin-table" style={minWidth ? { minWidth } : undefined}>
+        {children}
+      </table>
+    </div>
+  )
+}

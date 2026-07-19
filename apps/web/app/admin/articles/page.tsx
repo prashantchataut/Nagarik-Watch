@@ -5,7 +5,14 @@ import { canCreate, canEdit, canPublish } from '@/lib/admin-roles'
 import { listArticlesForAdmin, type StoredArticle } from '@/lib/content/store/json-store'
 import { categoryBySlug } from '@/lib/content/seed/categories'
 import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
-import { AdminButton, AdminCard, AdminFilterLink, AdminPageHeader, StatusBadge } from '@/components/admin/primitives'
+import {
+  AdminButton,
+  AdminCard,
+  AdminFilterLink,
+  AdminPageHeader,
+  AdminTable,
+  StatusBadge,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'समाचार',
@@ -65,10 +72,10 @@ export default async function ArticlesPage({
         )}
       </div>
 
-      <AdminCard>
+      <AdminCard className={items.length > 0 ? 'overflow-hidden !p-0' : undefined}>
         {items.length === 0 ? (
           <div className="py-10 text-center">
-            <p className="font-display text-h2 text-ink" lang="ne">
+            <p className="admin-section-title" lang="ne">
               समाचार छैन
             </p>
             <p className="mt-2 text-body text-ink-soft" lang="ne">
@@ -83,52 +90,61 @@ export default async function ArticlesPage({
             ) : null}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-meta">
-              <thead className="border-b border-rule text-caption uppercase tracking-wide text-mute">
+          <div className="px-4 py-1 sm:px-5">
+            <AdminTable>
+              <thead>
                 <tr>
-                  <th className="py-2 pr-4">शीर्षक</th>
-                  <th className="py-2 pr-4">विभाग</th>
-                  <th className="py-2 pr-4">स्थिति</th>
-                  <th className="py-2 pr-4">अपडेट</th>
-                  <th className="py-2 text-right">कार्य</th>
+                  <th>शीर्षक</th>
+                  <th>विभाग</th>
+                  <th>स्थिति</th>
+                  <th>अपडेट</th>
+                  <th className="!text-right">कार्य</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-rule">
+              <tbody>
                 {items.map((article) => {
                   const category = categoryBySlug.get(article.categorySlug)
                   const publicHref = `/${article.categorySlug}/${article.slug}`
                   return (
                     <tr key={article.id}>
-                      <td className="max-w-xl py-3 pr-4">
+                      <td className="max-w-xl">
                         <p className="font-semibold text-ink" lang="ne">
                           {article.titleNe}
                         </p>
-                        <p className="mt-1 truncate text-caption text-mute" lang="en">
+                        <p className="mt-0.5 truncate text-caption text-mute" lang="en">
                           {article.slug}
                         </p>
                       </td>
-                      <td className="py-3 pr-4 text-ink-soft" lang="ne">
+                      <td className="text-ink-soft" lang="ne">
                         {category?.nameNe ?? article.categorySlug}
                       </td>
-                      <td className="py-3 pr-4">
+                      <td>
                         <StatusBadge status={article.workflowStage} />
                       </td>
-                      <td className="py-3 pr-4 text-mute" lang="en">
+                      <td className="text-mute" lang="en">
                         {new Date(article.updatedAt).toLocaleString('en-GB', {
                           dateStyle: 'medium',
                           timeStyle: 'short',
                         })}
                       </td>
-                      <td className="py-3 text-right">
-                        <div className="flex justify-end gap-2">
+                      <td className="!text-right">
+                        <div className="flex justify-end gap-1.5">
                           {article.workflowStage === 'published' ? (
-                            <AdminButton href={publicHref} variant="secondary" target="_blank" rel="noopener noreferrer" className="!min-h-9 !px-3 !py-1.5 !text-caption">
+                            <AdminButton
+                              href={publicHref}
+                              variant="ghost"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="!min-h-8 !px-2.5 !py-1 !text-caption"
+                            >
                               हेर्नुहोस्
                             </AdminButton>
                           ) : null}
                           {canEdit(session.newsroomRole) || canPublish(session.newsroomRole) ? (
-                            <AdminButton href={`/admin/articles/${article.id}/edit`} className="!min-h-9 !px-3 !py-1.5 !text-caption">
+                            <AdminButton
+                              href={`/admin/articles/${article.id}/edit`}
+                              className="!min-h-8 !px-2.5 !py-1 !text-caption"
+                            >
                               सम्पादन
                             </AdminButton>
                           ) : null}
@@ -138,7 +154,7 @@ export default async function ArticlesPage({
                   )
                 })}
               </tbody>
-            </table>
+            </AdminTable>
           </div>
         )}
       </AdminCard>

@@ -13,6 +13,7 @@ import {
   resolveAdminDeskVariant,
 } from '@/lib/admin-roles'
 import { listPendingJournalistReviews } from '@/lib/journalist-workspace'
+import { AdminButton, AdminCard, AdminMetric } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -46,22 +47,22 @@ export default async function DashboardPage() {
     desk === 'super' || desk === 'admin'
       ? [
           { label: 'प्रकाशित', value: published.length, href: '/admin/articles', tone: 'brand' as const },
-          { label: 'समीक्षा पर्खाइ', value: pendingReviews.length, href: '/admin/journalists', tone: 'mute' as const },
-          { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'breaking' as const },
+          { label: 'समीक्षा पर्खाइ', value: pendingReviews.length, href: '/admin/journalists', tone: 'default' as const },
+          { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'danger' as const },
           { label: 'विभाग', value: categories.length, href: '/admin/categories', tone: 'brand' as const },
         ]
       : desk === 'editor'
         ? [
             { label: 'प्रकाशित', value: published.length, href: '/admin/articles', tone: 'brand' as const },
-            { label: 'पत्रकार इनबक्स', value: pendingReviews.length, href: '/admin/journalists', tone: 'mute' as const },
-            { label: 'तालिका', value: scheduledCount, href: '/admin/articles?status=scheduled', tone: 'mute' as const },
-            { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'breaking' as const },
+            { label: 'पत्रकार इनबक्स', value: pendingReviews.length, href: '/admin/journalists', tone: 'default' as const },
+            { label: 'तालिका', value: scheduledCount, href: '/admin/articles?status=scheduled', tone: 'default' as const },
+            { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'danger' as const },
           ]
         : [
             { label: 'प्रकाशित', value: published.length, href: '/admin/articles', tone: 'brand' as const },
-            { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'breaking' as const },
+            { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'danger' as const },
             { label: 'विभाग', value: categories.length, href: '/admin/categories', tone: 'brand' as const },
-            { label: 'तालिका', value: scheduledCount, href: '/admin/articles?status=scheduled', tone: 'mute' as const },
+            { label: 'तालिका', value: scheduledCount, href: '/admin/articles?status=scheduled', tone: 'default' as const },
           ]
 
   const blurb =
@@ -74,91 +75,75 @@ export default async function DashboardPage() {
           : 'सञ्चालन डेस्क — लाइभ, विज्ञापन, विश्लेषण वा समुदाय उपकरण। लेखन अधिकार सीमित हुन सक्छ।'
 
   return (
-    <div className="space-y-6" data-desk={desk}>
-      <section className="admin-panel">
-        <p className="admin-eyebrow" lang="ne">
+    <div className="space-y-5" data-desk={desk}>
+      <AdminCard>
+        <p className="text-caption text-mute" lang="ne">
           {formatDate(new Date().toISOString(), locale)} · {deskLabel} · {roleLabel}
         </p>
-        <h2 className="admin-welcome-title" lang="ne">
+        <h2 className="admin-welcome-title mt-1" lang="ne">
           स्वागत छ, {newsroom.displayName || newsroom.email.split('@')[0]}
         </h2>
         <p className="admin-page-subtitle" lang="ne">
           {blurb}
         </p>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-3.5 flex flex-wrap gap-2">
           {canCreate(role) ? (
-            <Link href="/admin/articles/new" className="admin-button admin-button--primary" lang="ne">
-              + नयाँ समाचार
-            </Link>
+            <AdminButton href="/admin/articles/new">+ नयाँ समाचार</AdminButton>
           ) : null}
           {desk === 'editor' || desk === 'admin' || desk === 'super' ? (
-            <Link href="/admin/articles" className="admin-button admin-button--secondary" lang="ne">
+            <AdminButton href="/admin/articles" variant="secondary">
               सबै समाचार
-            </Link>
+            </AdminButton>
           ) : null}
           {desk === 'editor' ? (
-            <Link href="/admin/journalists" className="admin-button admin-button--ghost" lang="ne">
+            <AdminButton href="/admin/journalists" variant="ghost">
               पत्रकार इनबक्स ({pendingReviews.length})
-            </Link>
+            </AdminButton>
           ) : null}
           {desk === 'ops' || canPublish(role) ? (
-            <Link href="/admin/live" className="admin-button admin-button--ghost" lang="ne">
+            <AdminButton href="/admin/live" variant="ghost">
               लाइभ प्यानल
-            </Link>
+            </AdminButton>
           ) : null}
           {canManageUsers(role) ? (
-            <Link href="/admin/users" className="admin-button admin-button--ghost" lang="ne">
+            <AdminButton href="/admin/users" variant="ghost">
               प्रयोगकर्ता
-            </Link>
+            </AdminButton>
           ) : null}
           {desk === 'super' ? (
-            <Link href="/admin/launch" className="admin-button admin-button--ghost" lang="ne">
+            <AdminButton href="/admin/launch" variant="ghost">
               लन्च चेक
-            </Link>
+            </AdminButton>
           ) : null}
         </div>
-      </section>
+      </AdminCard>
 
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <section className="admin-metric-grid" aria-label="डेस्क मेट्रिक">
         {metrics.map((m) => (
-          <Link
-            key={m.label}
-            href={m.href}
-            className="admin-panel transition-colors hover:border-brand"
-          >
-            <p
-              className={`font-display text-display font-extrabold leading-none ${
-                m.tone === 'breaking' ? 'text-breaking' : m.tone === 'brand' ? 'text-brand' : 'text-ink'
-              }`}
-            >
-              {m.value}
-            </p>
-            <p className="mt-2 text-meta font-semibold text-ink-soft" lang="ne">
-              {m.label}
-            </p>
-          </Link>
+          <AdminMetric key={m.label} href={m.href} value={m.value} label={m.label} tone={m.tone} />
         ))}
       </section>
 
       {desk === 'editor' && pendingReviews.length > 0 ? (
-        <section className="admin-panel">
+        <AdminCard>
           <div className="flex items-center justify-between gap-3">
-            <h3 className="font-display text-h2 text-ink" lang="ne">
+            <h3 className="admin-section-title" lang="ne">
               पत्रकारबाट समीक्षा पर्खाइ
             </h3>
             <Link href="/admin/journalists" className="text-meta font-semibold text-brand hover:text-brand-strong" lang="ne">
               सबै →
             </Link>
           </div>
-          <ul className="mt-3 divide-y divide-rule">
+          <ul className="admin-list mt-1">
             {pendingReviews.slice(0, 6).map((item) => (
-              <li key={item.articleSlug} className="flex items-center gap-3 py-2.5">
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand" aria-hidden />
+              <li key={item.articleSlug}>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-body font-semibold text-ink" lang="ne">
+                  <p className="truncate text-meta font-semibold text-ink" lang="ne">
                     {item.titleNe}
                   </p>
-                  <p className="text-caption text-mute">{item.categorySlug} · {item.workflowStage}</p>
+                  <p className="text-caption text-mute">
+                    {item.categorySlug} · {item.workflowStage}
+                  </p>
                 </div>
                 {item.articleId ? (
                   <Link
@@ -172,25 +157,24 @@ export default async function DashboardPage() {
               </li>
             ))}
           </ul>
-        </section>
+        </AdminCard>
       ) : null}
 
-      <section className="admin-panel">
+      <AdminCard>
         <div className="flex items-center justify-between gap-3">
-          <h3 className="font-display text-h2 text-ink" lang="ne">
+          <h3 className="admin-section-title" lang="ne">
             हालैका समाचार
           </h3>
           <Link href="/admin/articles" className="text-meta font-semibold text-brand hover:text-brand-strong" lang="ne">
             सबै →
           </Link>
         </div>
-        <ul className="mt-3 divide-y divide-rule">
+        <ul className="admin-list mt-1">
           {published.slice(0, 8).map((s) => (
-            <li key={s.id ?? s.slug} className="flex items-center gap-3 py-2.5">
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand" aria-hidden />
+            <li key={s.id ?? s.slug}>
               <Link
                 href={`/admin/articles/${s.id ?? s.slug}/edit`}
-                className="min-w-0 flex-1 truncate text-body font-semibold text-ink hover:text-brand-strong"
+                className="min-w-0 flex-1 truncate text-meta font-semibold text-ink hover:text-brand-strong"
                 lang="ne"
               >
                 {s.titleNe}
@@ -204,12 +188,12 @@ export default async function DashboardPage() {
             </li>
           ))}
           {published.length === 0 ? (
-            <li className="py-6 text-center text-body text-mute" lang="ne">
+            <li className="!block py-5 text-center text-body text-mute" lang="ne">
               कुनै समाचार प्रकाशित छैन। पहिलो समाचार बनाउनुहोस्।
             </li>
           ) : null}
         </ul>
-      </section>
+      </AdminCard>
     </div>
   )
 }

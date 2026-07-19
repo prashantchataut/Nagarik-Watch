@@ -7,7 +7,7 @@ import { assertLocalContentAdmin, isPayloadCanonical, payloadCollectionAdminUrl 
 import { assertNewsroomRole, MEDIA_MANAGER_ROLES } from '@/lib/admin-roles'
 import { createMediaItem, listMediaItems } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { AdminPageHeader, AdminCard, AdminCallout, AdminButton } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard, AdminCallout, AdminButton, AdminInput, AdminTextarea } from '@/components/admin/primitives'
 
 export const metadata: Metadata = { title: 'मिडिया', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
@@ -42,10 +42,10 @@ export default async function MediaPage() {
         <AdminCard>
           <h2 className="font-display text-h2 text-ink">Add media</h2>
           <form action={saveMedia} className="mt-4 grid gap-3">
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Image URL<input name="url" required className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" /></label>
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Alt text<input name="alt" required className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" /></label>
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Caption<textarea name="caption" rows={3} className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink" /></label>
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft">Credit<input name="credit" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" /></label>
+            <AdminInput label="Image URL" name="url" required lang="en" />
+            <AdminInput label="Alt text" name="alt" required lang="en" />
+            <AdminTextarea label="Caption" name="caption" rows={3} lang="en" />
+            <AdminInput label="Credit" name="credit" lang="en" />
             <AdminButton type="submit">Save media</AdminButton>
           </form>
         </AdminCard>

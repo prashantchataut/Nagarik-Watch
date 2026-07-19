@@ -5,7 +5,7 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { getStories } from '@/lib/content'
 import { listTaxonomyTerms } from '@/lib/taxonomy-admin'
 import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
-import { AdminPageHeader, AdminButton } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminButton, AdminCard, AdminEmptyState } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'विषय',
@@ -42,53 +42,49 @@ export default async function TopicsPage() {
           {activeTerms.map((term) => {
             const count = countsByTopicSlug.get(term.slug) ?? 0
             return (
-              <li key={term.id} className="rounded-lg border border-rule bg-surface-raised p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <Link
-                      href={`/topic/${term.slug}`}
-                      className="font-display text-h2 text-ink hover:text-brand-strong"
-                      lang="ne"
-                    >
-                      {term.nameNe}
-                    </Link>
-                    <p className="mt-0.5 text-meta text-ink-soft" lang="en">
-                      {term.nameEn}
-                    </p>
+              <li key={term.id}>
+                <AdminCard>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/topic/${term.slug}`}
+                        className="font-display text-h2 text-ink hover:text-brand-strong"
+                        lang="ne"
+                      >
+                        {term.nameNe}
+                      </Link>
+                      <p className="mt-0.5 text-meta text-ink-soft" lang="en">
+                        {term.nameEn}
+                      </p>
+                    </div>
+                    <span className="admin-status admin-status--neutral shrink-0">
+                      {count} समाचार
+                    </span>
                   </div>
-                  <span className="shrink-0 rounded-full bg-brand-tint px-3 py-1 text-meta font-semibold text-brand-strong">
-                    {count} समाचार
-                  </span>
-                </div>
-                {term.descriptionNe ? (
-                  <p className="mt-3 line-clamp-2 text-body text-ink-soft" lang="ne">
-                    {term.descriptionNe}
-                  </p>
-                ) : null}
-                <div className="mt-4 flex items-center justify-between border-t border-rule pt-3">
-                  <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-mute">
-                    /topic/{term.slug}
-                  </code>
-                  <Link
-                    href="/admin/tags"
-                    className="text-meta font-semibold text-brand hover:text-brand-strong"
-                    lang="ne"
-                  >
-                    सम्पादन →
-                  </Link>
-                </div>
+                  {term.descriptionNe ? (
+                    <p className="mt-3 line-clamp-2 text-body text-ink-soft" lang="ne">
+                      {term.descriptionNe}
+                    </p>
+                  ) : null}
+                  <div className="mt-4 flex items-center justify-between border-t border-rule pt-3">
+                    <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-mute">
+                      /topic/{term.slug}
+                    </code>
+                    <AdminButton href="/admin/tags" variant="ghost" className="!min-h-9 !px-2 !text-caption">
+                      सम्पादन →
+                    </AdminButton>
+                  </div>
+                </AdminCard>
               </li>
             )
           })}
         </ul>
       ) : (
-        <section className="rounded-lg border border-dashed border-rule p-8 text-center">
-          <h2 className="font-display text-h2 text-ink" lang="ne">कुनै सक्रिय विषय छैन</h2>
-          <p className="mt-2 text-body text-ink-soft" lang="ne">
-            ट्याग व्यवस्थापनबाट पहिलो विषय सिर्जना गर्नुहोस्।
-          </p>
-          <AdminButton href="/admin/tags" className="mt-5">विषय सिर्जना गर्नुहोस्</AdminButton>
-        </section>
+        <AdminEmptyState
+          title="कुनै सक्रिय विषय छैन"
+          body="ट्याग व्यवस्थापनबाट पहिलो विषय सिर्जना गर्नुहोस्।"
+          action={<AdminButton href="/admin/tags">विषय सिर्जना गर्नुहोस्</AdminButton>}
+        />
       )}
     </div>
   )

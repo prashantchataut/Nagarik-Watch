@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { listExperimentAnalyses } from '@/lib/experiments/store'
-import { AdminCard, AdminEmptyState, AdminPageHeader } from '@/components/admin/primitives'
+import { AdminCard, AdminEmptyState, AdminPageHeader, AdminTable } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'Experiments',
@@ -34,14 +34,14 @@ export default async function ExperimentsPage() {
                   <p className="text-caption font-bold uppercase tracking-wide text-brand-strong">
                     {definition.id} · {definition.status}
                   </p>
-                  <h2 className="mt-1 font-display text-h1 text-ink">{definition.label}</h2>
+                  <h2 className="mt-1 font-display text-h2 text-ink">{definition.label}</h2>
                   <p className="mt-1 text-meta text-ink-soft">
                     Metric: {definition.primaryMetric} · minimum{' '}
                     {definition.minimumExposuresPerVariant.toLocaleString()} exposures/variant ·
                     winner threshold {(definition.winnerProbability * 100).toFixed(1)}%
                   </p>
                 </div>
-                <span className="rounded-full bg-surface px-3 py-1 text-caption font-bold text-ink-soft">
+                <span className="admin-status admin-status--neutral">
                   {analysis.decision}
                 </span>
               </div>
@@ -56,39 +56,39 @@ export default async function ExperimentsPage() {
                 </p>
               ) : null}
 
-              <div className="mt-4 overflow-x-auto">
-                <table className="min-w-full divide-y divide-rule text-left">
-                  <thead className="text-caption uppercase tracking-wide text-mute">
+              <div className="mt-4">
+                <AdminTable>
+                  <thead>
                     <tr>
-                      <th className="py-2 pr-4">Variant</th>
-                      <th className="px-4 py-2">Exposures</th>
-                      <th className="px-4 py-2">Conversions</th>
-                      <th className="px-4 py-2">Posterior rate</th>
-                      <th className="px-4 py-2">Probability best</th>
+                      <th>Variant</th>
+                      <th>Exposures</th>
+                      <th>Conversions</th>
+                      <th>Posterior rate</th>
+                      <th>Probability best</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-rule">
+                  <tbody>
                     {analysis.variants.map((variant) => (
                       <tr key={variant.variantId}>
-                        <td className="py-3 pr-4 font-semibold text-ink">
+                        <td className="font-semibold text-ink">
                           {definition.variants.find((item) => item.id === variant.variantId)?.label ??
                             variant.variantId}
                           {analysis.winner === variant.variantId ? (
                             <span className="ml-2 text-caption text-brand-strong">winner</span>
                           ) : null}
                         </td>
-                        <td className="px-4 py-3 text-ink-soft">{variant.exposures}</td>
-                        <td className="px-4 py-3 text-ink-soft">{variant.conversions}</td>
-                        <td className="px-4 py-3 text-ink-soft">
+                        <td className="text-ink-soft">{variant.exposures}</td>
+                        <td className="text-ink-soft">{variant.conversions}</td>
+                        <td className="text-ink-soft">
                           {(variant.posteriorMean * 100).toFixed(2)}%
                         </td>
-                        <td className="px-4 py-3 font-semibold text-ink">
+                        <td className="font-semibold text-ink">
                           {(variant.probabilityBest * 100).toFixed(1)}%
                         </td>
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </AdminTable>
               </div>
             </AdminCard>
           ))}

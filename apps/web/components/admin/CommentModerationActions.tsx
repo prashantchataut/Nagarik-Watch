@@ -2,13 +2,14 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { AdminButton } from '@/components/admin/primitives'
 
 type CommentStatus = 'pending' | 'approved' | 'rejected' | 'flagged'
 
-const ACTIONS: { status: CommentStatus; label: string; variant: string }[] = [
-  { status: 'approved', label: 'स्वीकृत', variant: 'bg-up text-surface' },
-  { status: 'rejected', label: 'अस्वीकृत', variant: 'border border-breaking/40 text-breaking' },
-  { status: 'flagged', label: 'फ्ल्याग', variant: 'border border-rule text-ink-soft' },
+const ACTIONS: { status: CommentStatus; label: string; variant: 'primary' | 'danger' | 'ghost' }[] = [
+  { status: 'approved', label: 'स्वीकृत', variant: 'primary' },
+  { status: 'rejected', label: 'अस्वीकृत', variant: 'danger' },
+  { status: 'flagged', label: 'फ्ल्याग', variant: 'ghost' },
 ]
 
 export function CommentModerationActions({ commentId }: { commentId: string }) {
@@ -39,16 +40,16 @@ export function CommentModerationActions({ commentId }: { commentId: string }) {
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap gap-2">
         {ACTIONS.map((action) => (
-          <button
+          <AdminButton
             key={action.status}
             type="button"
             onClick={() => setStatus(action.status)}
             disabled={pending}
-            className={`rounded-full px-3 py-1 text-caption font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${action.variant}`}
-            lang="ne"
+            variant={action.variant}
+            className="!min-h-8 !px-2 !text-caption"
           >
-            {action.label}
-          </button>
+            <span lang="ne">{action.label}</span>
+          </AdminButton>
         ))}
       </div>
       {error ? (

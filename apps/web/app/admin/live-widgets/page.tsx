@@ -4,7 +4,7 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { getProviderHealth } from '@/lib/live/health'
 import { listManualLiveRecords, setManualLiveRecord } from '@/lib/live/manual'
 import { formatDate } from '@nagarikwatch/db'
-import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard, AdminButton, AdminInput, AdminTextarea, AdminTable } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'लाइभ विजेट',
@@ -41,6 +41,13 @@ const MANUAL_KEYS = [
   },
 ]
 
+function providerStatusTone(status: string): 'success' | 'attention' | 'danger' | 'neutral' {
+  if (status === 'ok') return 'success'
+  if (status === 'mock') return 'attention'
+  if (status === 'error') return 'danger'
+  return 'neutral'
+}
+
 async function saveManualLive(formData: FormData) {
   'use server'
   await requireNewsroomSession()
@@ -75,12 +82,6 @@ export default async function LiveWidgetsPage() {
     unconfigured: 'अव्यवस्थित',
     error: 'त्रुटि',
   }
-  const statusTone: Record<string, string> = {
-    ok: 'bg-brand-tint text-brand-strong',
-    mock: 'bg-gold/20 text-ink',
-    unconfigured: 'border border-rule text-mute',
-    error: 'bg-breaking/15 text-breaking',
-  }
 
   return (
     <div>
@@ -94,8 +95,8 @@ export default async function LiveWidgetsPage() {
         </p>
       </AdminCard>
 
-      <section className="mb-6 rounded-lg border border-rule bg-surface-raised p-5">
-        <h2 className="font-display text-h1 text-ink" lang="ne">Manual live-data override</h2>
+      <AdminCard className="mb-6">
+        <h2 className="font-display text-h2 text-ink" lang="ne">Manual live-data override</h2>
         <p className="mt-2 max-w-body text-meta text-ink-soft" lang="ne">
           API नभएको वा unstable भएको data यहाँबाट update गर्नुहोस्। JSON shape सही हुनुपर्छ; गलत JSON save हुँदैन।
         </p>
@@ -103,94 +104,91 @@ export default async function LiveWidgetsPage() {
           {MANUAL_KEYS.map((item) => {
             const current = manualByKey.get(item.key)
             return (
-              <form key={item.key} action={saveManualLive} className="rounded-xl border border-rule bg-surface p-4">
+              <form key={item.key} action={saveManualLive} className="rounded-lg border border-rule bg-surface p-4">
                 <input type="hidden" name="key" value={item.key} />
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-display text-h2 text-ink" lang="en">{item.label}</h3>
+                    <h3 className="font-display text-h3 text-ink" lang="en">{item.label}</h3>
                     <p className="mt-1 text-caption text-mute" lang="en">
                       key: {item.key}
                     </p>
                   </div>
                   {current ? (
-                    <span className="rounded-full bg-brand-tint px-2.5 py-1 text-caption font-semibold text-brand-strong">
+                    <span className="admin-status admin-status--success">
                       Manual active
                     </span>
                   ) : null}
                 </div>
-                <label className="mt-3 grid gap-1 text-caption font-semibold text-ink-soft">
-                  Source label
-                  <input
-                    name="source"
-                    defaultValue={current?.source ?? 'Newsroom manual update'}
-                    className="h-10 rounded-md border border-rule bg-surface-raised px-3 text-body text-ink"
-                  />
-                </label>
-                <label className="mt-3 grid gap-1 text-caption font-semibold text-ink-soft">
-                  JSON data
-                  <textarea
-                    name="data"
-                    defaultValue={current ? JSON.stringify(current.data, null, 2) : item.example}
-                    className="min-h-36 rounded-md border border-rule bg-surface-raised px-3 py-2 font-mono text-caption text-ink"
-                  />
-                </label>
-                <button className="mt-3 h-10 rounded-full bg-brand px-5 text-meta font-semibold text-surface hover:bg-brand-strong" type="submit">
+                <AdminInput
+                  label="Source label"
+                  name="source"
+                  defaultValue={current?.source ?? 'Newsroom manual update'}
+                  lang="en"
+                />
+                <AdminTextarea
+                  label="JSON data"
+                  name="data"
+                  defaultValue={current ? JSON.stringify(current.data, null, 2) : item.example}
+                  rows={8}
+                  lang="en"
+                />
+                <AdminButton type="submit" className="mt-3">
                   Save {item.label}
-                </button>
+                </AdminButton>
               </form>
             )
           })}
         </div>
-      </section>
+      </AdminCard>
 
-      <div className="overflow-hidden rounded-lg border border-rule bg-surface-raised">
-        <table className="min-w-full divide-y divide-rule text-left">
-          <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
+      <AdminCard className="overflow-hidden !p-0">
+        <AdminTable minWidth="48rem">
+          <thead>
             <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">प्रदायक</th>
-              <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">आवश्यक env</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">स्थिति</th>
-              <th className="hidden px-4 py-3 font-semibold lg:table-cell" lang="ne">स्रोत</th>
-              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="ne">अन्तिम अपडेट</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">त्रुटि</th>
+              <th lang="ne">प्रदायक</th>
+              <th className="hidden md:table-cell" lang="ne">आवश्यक env</th>
+              <th lang="ne">स्थिति</th>
+              <th className="hidden lg:table-cell" lang="ne">स्रोत</th>
+              <th className="hidden sm:table-cell" lang="ne">अन्तिम अपडेट</th>
+              <th lang="ne">त्रुटि</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-rule">
+          <tbody>
             {providers.map((p) => (
-              <tr key={p.key} className="hover:bg-brand-tint/30">
-                <td className="px-4 py-3 align-top">
+              <tr key={p.key}>
+                <td className="align-top">
                   <p className="font-display font-semibold text-ink" lang="ne">{p.label}</p>
                   <code className="font-mono text-caption text-mute" lang="en">{p.key}</code>
                 </td>
-                <td className="hidden px-4 py-3 align-top md:table-cell">
+                <td className="hidden align-top md:table-cell">
                   <ul className="flex flex-col gap-1">
                     {p.envVars.length ? p.envVars.map((v) => (
                       <li key={v}><code className="font-mono text-caption text-ink-soft" lang="en">{v}</code></li>
                     )) : <li className="text-caption text-mute">No key required</li>}
                   </ul>
                 </td>
-                <td className="px-4 py-3 align-top">
-                  <span className={`rounded-full px-2.5 py-0.5 text-caption font-semibold ${statusTone[p.status] ?? 'border border-rule text-mute'}`} lang="ne">
+                <td className="align-top">
+                  <span className={`admin-status admin-status--${providerStatusTone(p.status)}`} lang="ne">
                     {statusLabel[p.status] ?? p.status}
                   </span>
                 </td>
-                <td className="hidden px-4 py-3 align-top text-meta text-ink-soft lg:table-cell" lang="en">{p.source}</td>
-                <td className="hidden px-4 py-3 align-top text-caption text-mute sm:table-cell" lang="ne">
+                <td className="hidden align-top text-meta text-ink-soft lg:table-cell" lang="en">{p.source}</td>
+                <td className="hidden align-top text-caption text-mute sm:table-cell" lang="ne">
                   {p.updatedAt ? formatDate(p.updatedAt, 'ne') : '—'}
                 </td>
-                <td className="px-4 py-3 align-top text-caption text-breaking" lang="ne">
+                <td className="align-top text-caption text-breaking" lang="ne">
                   {p.error ? <span className="line-clamp-2">{p.error}</span> : <span className="text-mute">—</span>}
                 </td>
               </tr>
             ))}
             {providers.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-body text-mute" lang="ne">कुनै प्रदायक जाँच्न सकिएन।</td>
+                <td colSpan={6} className="py-6 text-center text-body text-mute" lang="ne">कुनै प्रदायक जाँच्न सकिएन।</td>
               </tr>
             )}
           </tbody>
-        </table>
-      </div>
+        </AdminTable>
+      </AdminCard>
     </div>
   )
 }

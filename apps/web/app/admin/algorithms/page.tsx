@@ -29,7 +29,7 @@ import {
 import { buildStoryEngagementIndex, signalsForStory } from '@/lib/ranking-signals'
 import { getStories } from '@/lib/content'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
-import { AdminCard, AdminPageHeader, AdminButton } from '@/components/admin/primitives'
+import { AdminCard, AdminPageHeader, AdminButton, AdminMetric, OpsCheckBadge } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'Algorithms',
@@ -38,19 +38,19 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-const STATUS_CLASS: Record<AlgorithmStatus, string> = {
-  live: 'bg-brand-tint text-brand-strong',
-  partial: 'bg-amber-100 text-amber-900',
-  scaffold: 'bg-surface text-ink-soft',
-  blocked: 'bg-red-100 text-red-800',
-  planned: 'bg-surface text-mute',
+const STATUS_TONE: Record<AlgorithmStatus, 'success' | 'attention' | 'neutral' | 'danger'> = {
+  live: 'success',
+  partial: 'attention',
+  scaffold: 'neutral',
+  blocked: 'danger',
+  planned: 'neutral',
 }
 
-const MODE_CLASS: Record<AlgorithmMode, string> = {
-  production: 'bg-brand-tint text-brand-strong',
-  local: 'bg-surface text-ink-soft',
-  'adapter-ready': 'bg-amber-100 text-amber-900',
-  'adapter-disabled': 'bg-red-100 text-red-800',
+const MODE_TONE: Record<AlgorithmMode, 'success' | 'attention' | 'neutral' | 'danger'> = {
+  production: 'success',
+  local: 'neutral',
+  'adapter-ready': 'attention',
+  'adapter-disabled': 'danger',
 }
 
 export default async function AlgorithmsPage() {
@@ -104,41 +104,15 @@ export default async function AlgorithmsPage() {
         }
       />
 
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-6">
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Catalog</p>
-          <p className="mt-2 font-display text-display text-ink">{stats.total}</p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">
-            Functional pass
-          </p>
-          <p className="mt-2 font-display text-display text-ink">{okCount}</p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">
-            Functional fail
-          </p>
-          <p className="mt-2 font-display text-display text-ink">{failCount}</p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Production</p>
-          <p className="mt-2 font-display text-display text-ink">{modeCounts.production}</p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">
-            2h activity
-          </p>
-          <p className="mt-2 font-display text-display text-ink">{engagement.sampleCount}</p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">
-            Impressions
-          </p>
-          <p className="mt-2 font-display text-display text-ink">{engagement.totalImpressions}</p>
-          <p className="mt-1 text-caption text-mute">{RECOMMENDER_VERSION}</p>
-        </AdminCard>
+      <section className="admin-metric-grid" aria-label="Algorithm catalog metrics">
+        <AdminMetric value={stats.total} label="Catalog" />
+        <AdminMetric value={okCount} label="Functional pass" tone="brand" />
+        <AdminMetric value={failCount} label="Functional fail" tone="danger" />
+        <AdminMetric value={modeCounts.production} label="Production" />
+        <AdminMetric value={engagement.sampleCount} label="2h activity" />
+        <AdminMetric value={engagement.totalImpressions} label="Impressions" />
       </section>
+      <p className="mt-2 text-caption text-mute">{RECOMMENDER_VERSION}</p>
 
       <AdminCard className="mt-6">
         <h2 className="font-display text-h2 text-ink">Ops health snapshot</h2>
@@ -275,9 +249,7 @@ export default async function AlgorithmsPage() {
                 <span>
                   <strong className="text-ink">#{entry.number}</strong> {entry.label}
                 </span>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-caption font-bold ${STATUS_CLASS[entry.status]}`}
-                >
+                <span className={`admin-status admin-status--${STATUS_TONE[entry.status]}`}>
                   {entry.status}
                 </span>
               </li>
@@ -341,25 +313,15 @@ function CatalogSection({
                     #{algorithm.number} · {algorithm.category}
                   </p>
                   <div className="flex flex-wrap gap-1">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-caption font-bold ${
-                        result?.ok
-                          ? 'bg-brand-tint text-brand-strong'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {result?.ok ? 'pass' : 'fail'}
-                    </span>
+                    <OpsCheckBadge status={result?.ok ? 'pass' : 'fail'} />
                     {result ? (
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-caption font-bold ${MODE_CLASS[result.mode]}`}
-                      >
+                      <span className={`admin-status admin-status--${MODE_TONE[result.mode]}`}>
                         {result.mode}
                       </span>
                     ) : null}
                   </div>
                 </div>
-                <h3 className="mt-2 font-display text-h1 text-ink">{algorithm.label}</h3>
+                <h3 className="admin-section-title">{algorithm.label}</h3>
                 <p className="mt-2 text-meta text-ink-soft">{algorithm.summary}</p>
                 <p className="mt-2 text-caption text-mute">
                   Surface: {result?.surface ?? algorithm.surface}

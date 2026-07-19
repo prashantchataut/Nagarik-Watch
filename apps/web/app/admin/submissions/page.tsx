@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { assertNewsroomRole, COMMUNITY_MANAGER_ROLES } from '@/lib/admin-roles'
 import { asSubmissionStatus, listSubmissions, type SubmissionStatus } from '@/lib/submissions'
-import { AdminPageHeader, AdminEmptyState, AdminButton } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminEmptyState, AdminButton, AdminCard, AdminSelect, AdminFilterLink, AdminTable } from '@/components/admin/primitives'
 import { SubmissionModerationActions } from '@/components/admin/SubmissionModerationActions'
 
 export const metadata: Metadata = {
@@ -22,6 +22,13 @@ const statusOptions: { value: 'all' | SubmissionStatus; label: string }[] = [
 
 function statusLabel(status: SubmissionStatus): string {
   return statusOptions.find((option) => option.value === status)?.label ?? status
+}
+
+function submissionStatusTone(status: SubmissionStatus): 'attention' | 'success' | 'danger' | 'neutral' {
+  if (status === 'new' || status === 'in_review') return 'attention'
+  if (status === 'accepted') return 'success'
+  if (status === 'rejected') return 'danger'
+  return 'neutral'
 }
 
 function formatDate(value: string) {
@@ -50,67 +57,67 @@ export default async function SubmissionsPage({
         subtitle="/submit-story बाट आएका समाचार टिप, PSA, प्रमाण र correction requests"
       />
 
-      <form className="mb-5 flex flex-wrap items-end gap-3 rounded-lg border border-rule bg-surface-raised p-4">
-        <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-          स्थिति
-          <select
-            name="status"
-            defaultValue={selected}
-            className="h-10 w-44 rounded-md border border-rule bg-surface px-3 text-body text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
-          >
-            {statusOptions.map((o) => (
-              <option key={o.value} value={o.value} lang="ne">
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <AdminButton type="submit">
-          फिल्टर
-        </AdminButton>
-        {selected !== 'new' ? (
-          <AdminButton href="/admin/submissions" variant="secondary">
-            खाली गर्नुहोस्
-          </AdminButton>
-        ) : null}
-      </form>
+      <AdminCard className="mb-5">
+        <form className="flex flex-wrap items-end gap-3" method="get">
+          <div className="w-44">
+            <AdminSelect
+              label="स्थिति"
+              name="status"
+              defaultValue={selected}
+              options={statusOptions.map((o) => ({ value: o.value, label: o.label }))}
+            />
+          </div>
+          <AdminButton type="submit">फिल्टर</AdminButton>
+          {selected !== 'all' ? (
+            <AdminButton href="/admin/submissions" variant="secondary">
+              खाली गर्नुहोस्
+            </AdminButton>
+          ) : null}
+        </form>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {statusOptions.map((option) => {
+            const href = option.value === 'all' ? '/admin/submissions' : `/admin/submissions?status=${option.value}`
+            return (
+              <AdminFilterLink key={option.value} href={href} active={selected === option.value}>
+                {option.label}
+              </AdminFilterLink>
+            )
+          })}
+        </div>
+      </AdminCard>
 
-      <div className="overflow-hidden rounded-lg border border-rule bg-surface-raised">
-        <table className="min-w-full divide-y divide-rule text-left">
-          <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
-            <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">प्राप्त समय</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">टिपकर्ता</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">विषय</th>
-              <th className="hidden px-4 py-3 font-semibold md:table-cell" lang="ne">विवरण</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">स्थिति</th>
-              <th className="px-4 py-3 font-semibold" lang="ne">कारबाही</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-rule">
-            {submissions.length === 0 ? (
+      <AdminCard className="overflow-hidden !p-0">
+        {submissions.length === 0 ? (
+          <AdminEmptyState
+            title="कुनै टिप प्राप्त भएको छैन"
+            body={
+              selected === 'all'
+                ? 'हालसम्म कुनै पाठक सबमिसन संकलन भएको छैन।'
+                : 'यो स्थितिमा कुनै पाठक सबमिसन छैन।'
+            }
+          />
+        ) : (
+          <AdminTable minWidth="52rem">
+            <thead>
               <tr>
-                <td colSpan={6} className="px-0 py-0">
-                  <AdminEmptyState
-                    title="कुनै टिप प्राप्त भएको छैन"
-                    body={
-                      selected === 'all'
-                        ? 'हालसम्म कुनै पाठक सबमिसन संकलन भएको छैन।'
-                        : 'यो स्थितिमा कुनै पाठक सबमिसन छैन।'
-                    }
-                  />
-                </td>
+                <th lang="ne">प्राप्त समय</th>
+                <th lang="ne">टिपकर्ता</th>
+                <th lang="ne">विषय</th>
+                <th className="hidden md:table-cell" lang="ne">विवरण</th>
+                <th lang="ne">स्थिति</th>
+                <th lang="ne">कारबाही</th>
               </tr>
-            ) : (
-              submissions.map((submission) => (
-                <tr key={submission.id} className="align-top hover:bg-brand-tint/30">
-                  <td className="whitespace-nowrap px-4 py-3 text-caption text-ink-soft" lang="ne">
+            </thead>
+            <tbody>
+              {submissions.map((submission) => (
+                <tr key={submission.id} className="align-top">
+                  <td className="whitespace-nowrap text-caption text-ink-soft" lang="ne">
                     {formatDate(submission.createdAt)}
                     <code className="mt-1 block font-mono text-[0.68rem] text-mute" lang="en">
                       {submission.id}
                     </code>
                   </td>
-                  <td className="px-4 py-3 text-meta text-ink" lang="ne">
+                  <td className="text-meta text-ink" lang="ne">
                     <div className="font-semibold">
                       {submission.anonymous ? 'Anonymous' : submission.name || 'नाम छैन'}
                     </div>
@@ -121,7 +128,7 @@ export default async function SubmissionsPage({
                       <div className="text-caption text-mute" lang="en">{submission.phone}</div>
                     ) : null}
                   </td>
-                  <td className="px-4 py-3 text-meta text-ink">
+                  <td className="text-meta text-ink">
                     <div className="font-display font-semibold">{submission.headline}</div>
                     <div className="mt-1 text-caption text-mute" lang="en">{submission.type}</div>
                     {submission.evidenceUrl ? (
@@ -135,7 +142,7 @@ export default async function SubmissionsPage({
                       </a>
                     ) : null}
                   </td>
-                  <td className="hidden max-w-md px-4 py-3 text-meta leading-relaxed text-ink-soft md:table-cell">
+                  <td className="hidden max-w-md text-meta leading-relaxed text-ink-soft md:table-cell">
                     <span className="line-clamp-4">{submission.description}</span>
                     {submission.editorNote ? (
                       <p className="mt-2 rounded-md bg-surface px-2 py-1 text-caption text-ink" lang="ne">
@@ -143,18 +150,20 @@ export default async function SubmissionsPage({
                       </p>
                     ) : null}
                   </td>
-                  <td className="px-4 py-3 text-caption font-semibold text-ink-soft" lang="ne">
-                    {statusLabel(submission.status)}
+                  <td>
+                    <span className={`admin-status admin-status--${submissionStatusTone(submission.status)}`} lang="ne">
+                      {statusLabel(submission.status)}
+                    </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td>
                     <SubmissionModerationActions id={submission.id} />
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </AdminTable>
+        )}
+      </AdminCard>
     </div>
   )
 }

@@ -5,7 +5,7 @@ import { AD_PLACEMENTS, getAdMode, isAdPlacementKey, isNetworkAdsReady } from '@
 import { getAdEventSummary } from '@/lib/ad-events'
 import { listHouseAds, upsertHouseAd } from '@/lib/house-ads'
 import { deliveryCoverage, fillRateAnomaly } from '@/lib/ads/yield-local'
-import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard, AdminButton, AdminInput, AdminSelect, AdminMetric, AdminTable } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'विज्ञापन',
@@ -64,11 +64,7 @@ export default async function AdsPage() {
             हालको delivery mode:{' '}
             <code className="font-mono text-ink-soft" lang="en">{adMode}</code>। स्थिति:{' '}
             <span
-              className={`rounded-full px-2 py-0.5 text-caption font-semibold ${
-                adMode !== 'network' || networkReady
-                  ? 'bg-brand-tint text-brand-strong'
-                  : 'border border-rule text-mute'
-              }`}
+              className={`admin-status ${adMode !== 'network' || networkReady ? 'admin-status--success' : 'admin-status--neutral'}`}
               lang="ne"
             >
               {adMode !== 'network' || networkReady ? 'delivery तयार' : 'delivery credential प्रतीक्षामा'}
@@ -79,35 +75,22 @@ export default async function AdsPage() {
           </p>
         </AdminCard>
         <AdminCard>
-          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="en">
-            30-day events
-          </p>
-          <div className="mt-3 grid grid-cols-3 gap-3 text-center">
-            <div>
-              <p className="font-display text-h1 text-ink" lang="en">
-                {summaries.reduce((sum, item) => sum + item.impressions, 0)}
-              </p>
-              <p className="text-caption text-mute">Impressions</p>
-            </div>
-            <div>
-              <p className="font-display text-h1 text-ink" lang="en">
-                {summaries.reduce((sum, item) => sum + item.clicks, 0)}
-              </p>
-              <p className="text-caption text-mute">Clicks</p>
-            </div>
-            <div>
-              <p className="font-display text-h1 text-ink" lang="en">
-                {formatCtr(summaries)}
-              </p>
-              <p className="text-caption text-mute">CTR</p>
-            </div>
+          <p className="admin-section-title" lang="en">30-day events</p>
+          <div className="admin-metric-grid mt-3">
+            <AdminMetric
+              value={summaries.reduce((sum, item) => sum + item.impressions, 0)}
+              label="Impressions"
+            />
+            <AdminMetric
+              value={summaries.reduce((sum, item) => sum + item.clicks, 0)}
+              label="Clicks"
+            />
+            <AdminMetric value={formatCtr(summaries)} label="CTR" />
           </div>
         </AdminCard>
       </div>
 
-      <AdminCard
-        className={`mb-5 ${coverageAnomaly.anomalous ? 'admin-callout admin-callout--danger' : ''}`}
-      >
+      <AdminCard className={`mb-5 ${coverageAnomaly.anomalous ? 'admin-callout admin-callout--danger' : ''}`}>
         <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="en">
           Delivery coverage
         </p>
@@ -125,81 +108,72 @@ export default async function AdsPage() {
         )}
       </AdminCard>
 
-      <section className="mb-6 rounded-lg border border-rule bg-surface-raised p-5">
-        <h2 className="font-display text-h1 text-ink" lang="ne">House ad creative</h2>
+      <AdminCard className="mb-6">
+        <h2 className="font-display text-h2 text-ink" lang="ne">House ad creative</h2>
         <p className="mt-2 max-w-body text-meta text-ink-soft" lang="ne">
           Payment/ad-network नजोडिए पनि खाली placeholder देखाउने होइन। House ad राखेर sponsorship, membership वा media-kit CTA चलाउनुहोस्।
         </p>
         <form action={saveHouseAd} className="mt-4 grid gap-3 lg:grid-cols-6">
-          <label className="grid gap-1 text-caption font-semibold text-ink-soft lg:col-span-2">
-            Placement
-            <select name="placementKey" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink">
-              {placements.map((placement) => (
-                <option key={placement.key} value={placement.key}>{placement.key}</option>
-              ))}
-            </select>
-          </label>
-          <label className="grid gap-1 text-caption font-semibold text-ink-soft lg:col-span-2">
-            Title
-            <input name="title" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-          </label>
-          <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-            CTA
-            <input name="cta" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-          </label>
+          <div className="lg:col-span-2">
+            <AdminSelect
+              label="Placement"
+              name="placementKey"
+              lang="en"
+              options={placements.map((placement) => ({ value: placement.key, label: placement.key }))}
+            />
+          </div>
+          <div className="lg:col-span-2">
+            <AdminInput label="Title" name="title" lang="en" />
+          </div>
+          <AdminInput label="CTA" name="cta" lang="en" />
           <label className="flex items-center gap-2 pt-6 text-meta font-semibold text-ink-soft">
-            <input name="active" type="checkbox" /> Active
+            <input name="active" type="checkbox" className="size-4 accent-brand" /> Active
           </label>
-          <label className="grid gap-1 text-caption font-semibold text-ink-soft lg:col-span-3">
-            Body
-            <input name="body" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-          </label>
-          <label className="grid gap-1 text-caption font-semibold text-ink-soft lg:col-span-2">
-            Link
-            <input name="href" placeholder="/advertise" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-          </label>
-          <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-            Image URL
-            <input name="imageUrl" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-          </label>
-          <button className="h-10 rounded-full bg-brand px-5 text-meta font-semibold text-surface hover:bg-brand-strong lg:col-span-6" type="submit">
-            Save house ad
-          </button>
+          <div className="lg:col-span-3">
+            <AdminInput label="Body" name="body" lang="en" />
+          </div>
+          <div className="lg:col-span-2">
+            <AdminInput label="Link" name="href" placeholder="/advertise" lang="en" />
+          </div>
+          <AdminInput label="Image URL" name="imageUrl" lang="en" />
+          <div className="lg:col-span-6">
+            <AdminButton type="submit">Save house ad</AdminButton>
+          </div>
         </form>
-      </section>
+      </AdminCard>
 
       <div className="grid gap-5">
         {Object.entries(grouped).map(([surface, items]) => (
           <section key={surface} className="overflow-hidden rounded-lg border border-rule bg-surface-raised">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rule bg-surface px-4 py-3">
               <h2 className="font-display text-h2 text-ink" lang="en">{surface}</h2>
-              <span className="rounded-full border border-rule px-2.5 py-1 text-caption font-semibold text-ink-soft" lang="en">
+              <span className="admin-status admin-status--neutral" lang="en">
                 {items.length} slot{items.length === 1 ? '' : 's'}
               </span>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-rule text-left">
-                <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
+              <AdminTable>
+                <thead>
                   <tr>
-                    <th className="px-4 py-3 font-semibold" lang="ne">लेबल</th>
-                    <th className="px-4 py-3 font-semibold" lang="ne">Key</th>
-                    <th className="px-4 py-3 font-semibold" lang="ne">साइज</th>
-                    <th className="px-4 py-3 font-semibold" lang="ne">House ad</th>
-                    <th className="px-4 py-3 font-semibold" lang="ne">३०-दिन</th>
+                    <th lang="ne">लेबल</th>
+                    <th lang="ne">Key</th>
+                    <th lang="ne">साइज</th>
+                    <th lang="ne">House ad</th>
+                    <th lang="ne">३०-दिन</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-rule">
+                <tbody>
                   {items.map((p) => {
                     const house = houseByPlacement.get(p.key)
                     const summary = summaryByPlacement.get(p.key)
                     return (
-                      <tr key={p.key} className="hover:bg-brand-tint/30">
-                        <td className="px-4 py-3 align-top font-display font-semibold text-ink" lang="en">{p.label}</td>
-                        <td className="px-4 py-3 align-top">
+                      <tr key={p.key}>
+                        <td className="align-top font-semibold text-ink" lang="en">{p.label}</td>
+                        <td className="align-top">
                           <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-ink-soft" lang="en">{p.key}</code>
                         </td>
-                        <td className="px-4 py-3 align-top text-meta text-ink-soft" lang="en">{p.width}×{p.height}</td>
-                        <td className="px-4 py-3 align-top text-meta text-ink-soft">
+                        <td className="align-top text-meta text-ink-soft" lang="en">{p.width}×{p.height}</td>
+                        <td className="align-top text-meta text-ink-soft">
                           {house ? (
                             <span className={house.active ? 'font-semibold text-brand-strong' : 'text-mute'}>
                               {house.active ? 'Active' : 'Saved/off'} · {house.title}
@@ -208,7 +182,7 @@ export default async function AdsPage() {
                             <span className="text-mute">Not configured</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 align-top text-meta text-ink-soft" lang="en">
+                        <td className="align-top text-meta text-ink-soft" lang="en">
                           {summary
                             ? `${summary.impressions} imp · ${summary.clicks} click · ${(summary.ctr * 100).toFixed(1)}% · attn ${(summary.averageAttention * 100).toFixed(0)}%`
                             : '0 imp'}
@@ -217,7 +191,7 @@ export default async function AdsPage() {
                     )
                   })}
                 </tbody>
-              </table>
+              </AdminTable>
             </div>
           </section>
         ))}

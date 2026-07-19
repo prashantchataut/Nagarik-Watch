@@ -331,7 +331,7 @@ export function AdminShell({
       ) : null}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-12 min-h-12 items-center gap-2 border-b border-rule bg-surface-raised px-3 sm:gap-3 sm:px-5 lg:px-7">
+        <header className="admin-topbar">
           <button
             ref={menuButtonRef}
             type="button"
@@ -343,23 +343,24 @@ export function AdminShell({
             <NavIcon name="menu" />
           </button>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-display text-meta font-bold uppercase tracking-[0.06em] text-mute" lang="ne">
-              न्यूजरुम
-            </p>
-            <h1 className="truncate font-display text-h3 text-ink" lang="ne">
+            <h1 className="admin-topbar__title" lang="ne">
               {pageTitle(clientPath)}
             </h1>
             {navPending ? (
-              <p className="text-caption text-mute" lang="ne">
+              <p className="admin-topbar__meta" lang="ne">
                 लोड हुँदै…
               </p>
-            ) : null}
+            ) : (
+              <p className="admin-topbar__meta" lang="ne">
+                {deskLabel}
+              </p>
+            )}
           </div>
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden min-h-11 items-center gap-1.5 rounded-md border border-rule px-3 py-2 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong sm:inline-flex"
+            className="admin-button admin-button--ghost hidden !min-h-9 sm:inline-flex"
             lang="ne"
           >
             <NavIcon name="external" />
@@ -370,14 +371,14 @@ export function AdminShell({
         {signOutError ? (
           <p
             role="alert"
-            className="mx-3 mt-3 rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong sm:mx-5 lg:mx-7"
+            className="admin-callout admin-callout--danger mx-3 mt-3 text-meta font-semibold sm:mx-5 lg:mx-7"
             lang="ne"
           >
             {signOutError}
           </p>
         ) : null}
 
-        <main className="flex-1 overflow-x-auto p-3 sm:p-5 lg:p-7">{children}</main>
+        <main className="admin-main">{children}</main>
       </div>
     </div>
   )
@@ -421,22 +422,19 @@ function AdminSidebar({
   }
 
   return (
-    <aside
-      className="admin-sidebar flex h-full w-[16.5rem] flex-col border-r border-rule bg-surface-raised"
-      data-desk={desk}
-    >
-      <div className="flex h-12 min-h-12 items-center gap-2 border-b border-rule px-3">
+    <aside className="admin-sidebar flex h-full flex-col" data-desk={desk}>
+      <div className="flex h-12 min-h-12 items-center gap-2 border-b border-rule px-2.5">
         <Link
           href="/admin/dashboard"
           onClick={onNavigate}
-          className="flex min-w-0 flex-1 items-center gap-2.5"
+          className="flex min-w-0 flex-1 items-center gap-2"
         >
-          <LogoMark title="नागरिक वाच / Nagarik Watch" className="h-8 w-8 shrink-0" />
+          <LogoMark title="नागरिक वाच / Nagarik Watch" className="h-7 w-7 shrink-0" />
           <div className="min-w-0 leading-tight">
-            <span className="block truncate font-display text-meta font-bold text-ink" lang="ne">
-              नागरिक वाच
+            <span className="block truncate text-meta font-bold text-ink" lang="ne">
+              न्यूजरुम
             </span>
-            <span className="admin-desk-badge block truncate text-[0.65rem] font-semibold uppercase tracking-[0.14em]">
+            <span className="admin-desk-badge block truncate text-[0.62rem] uppercase">
               {deskLabel}
             </span>
           </div>
@@ -453,7 +451,7 @@ function AdminSidebar({
         ) : null}
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Newsroom navigation">
+      <nav className="flex-1 overflow-y-auto px-1.5 py-2.5" aria-label="Newsroom navigation">
         <ul className="space-y-0.5">
           {primaryNav.map((item) => {
             const { href, external } = resolveHref(item.href)
@@ -483,10 +481,10 @@ function AdminSidebar({
         {visibleGroups.map((group) => (
           <details
             key={group.heading}
-            className="group/nav mt-3"
+            className="group/nav mt-2.5"
             open={group.defaultOpen || group.items.some((i) => isActivePath(clientPath, i.href))}
           >
-            <summary className="cursor-pointer list-none px-2.5 py-1.5 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-mute [&::-webkit-details-marker]:hidden">
+            <summary className="cursor-pointer list-none px-2 py-1 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-mute [&::-webkit-details-marker]:hidden">
               <span className="inline-flex items-center gap-1" lang="ne">
                 {group.heading}
                 <span className="text-mute transition-transform group-open/nav:rotate-90">›</span>
@@ -522,9 +520,9 @@ function AdminSidebar({
         ))}
       </nav>
 
-      <div className="border-t border-rule p-3">
-        <div className="flex items-start gap-2.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand text-meta font-bold text-surface">
+      <div className="border-t border-rule p-2.5">
+        <div className="flex items-start gap-2">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-brand text-caption font-bold text-surface">
             {initials || 'N'}
           </span>
           <div className="min-w-0 flex-1">
@@ -538,7 +536,7 @@ function AdminSidebar({
               type="button"
               onClick={signOut}
               disabled={signingOut}
-              className="admin-button admin-button--secondary mt-2 !min-h-9 !px-2.5 !py-1.5 !text-caption"
+              className="admin-button admin-button--ghost mt-1.5 !min-h-8 !px-2 !py-1 !text-caption"
               lang="ne"
             >
               {signingOut ? 'साइन आउट…' : 'साइन आउट'}

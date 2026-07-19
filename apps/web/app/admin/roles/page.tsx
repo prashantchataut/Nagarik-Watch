@@ -13,7 +13,7 @@ import {
   canPublish,
 } from '@/lib/admin-roles'
 import { ROLE_ASSIGNMENT_GROUPS } from '@/lib/admin-role-groups'
-import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard, AdminTable } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'भूमिका',
@@ -74,22 +74,20 @@ export default async function RolesPage() {
 
       <AdminCard>
         <h2 className="font-display text-h2 text-ink">Permission matrix</h2>
-        <div className="mt-4 overflow-auto rounded-lg border border-rule">
-          <table className="min-w-[920px] divide-y divide-rule text-left">
-            <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
+        <div className="mt-4">
+          <AdminTable minWidth="57.5rem">
+            <thead>
               <tr>
-                <th className="px-4 py-3">Role</th>
+                <th>Role</th>
                 {checks.map(([label]) => (
-                  <th key={label} className="px-4 py-3">
-                    {label}
-                  </th>
+                  <th key={label}>{label}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-rule">
+            <tbody>
               {NEWSROOM_ROLES.map((role) => (
                 <tr key={role}>
-                  <td className="px-4 py-3">
+                  <td>
                     <p className="font-display font-semibold text-ink" lang="ne">
                       {NEWSROOM_ROLE_LABELS_NE[role]}
                     </p>
@@ -98,14 +96,8 @@ export default async function RolesPage() {
                     </p>
                   </td>
                   {checks.map(([label, fn]) => (
-                    <td key={label} className="px-4 py-3">
-                      <span
-                        className={
-                          fn(role)
-                            ? 'rounded-full bg-brand-tint px-2 py-0.5 text-caption font-bold text-brand-strong'
-                            : 'text-caption text-mute'
-                        }
-                      >
+                    <td key={label}>
+                      <span className={fn(role) ? 'admin-status admin-status--success' : 'text-caption text-mute'}>
                         {fn(role) ? 'Yes' : '—'}
                       </span>
                     </td>
@@ -113,7 +105,7 @@ export default async function RolesPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </AdminTable>
         </div>
       </AdminCard>
     </div>

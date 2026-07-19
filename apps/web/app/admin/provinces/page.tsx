@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getStories } from '@/lib/content'
 import { PROVINCES } from '@/lib/site'
-import { AdminPageHeader, AdminButton } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminButton, AdminCard, AdminTable } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'प्रदेश',
@@ -44,33 +44,23 @@ export default async function ProvincesPage() {
         }
       />
 
-      <div className="overflow-hidden rounded-lg border border-rule bg-surface-raised">
-        <table className="min-w-full divide-y divide-rule text-left">
-          <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
+      <AdminCard className="overflow-hidden !p-0">
+        <AdminTable>
+          <thead>
             <tr>
-              <th className="px-4 py-3 font-semibold" lang="ne">
-                प्रदेश (ने)
-              </th>
-              <th className="hidden px-4 py-3 font-semibold sm:table-cell" lang="ne">
-                प्रदेश (En)
-              </th>
-              <th className="px-4 py-3 font-semibold" lang="ne">
-                स्लग
-              </th>
-              <th className="px-4 py-3 font-semibold text-right" lang="ne">
-                समाचार
-              </th>
-              <th className="px-4 py-3 font-semibold" lang="ne">
-                पृष्ठ
-              </th>
+              <th lang="ne">प्रदेश (ने)</th>
+              <th className="hidden sm:table-cell" lang="ne">प्रदेश (En)</th>
+              <th lang="ne">स्लग</th>
+              <th className="!text-right" lang="ne">समाचार</th>
+              <th lang="ne">पृष्ठ</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-rule">
+          <tbody>
             {PROVINCES.map((p) => {
               const count = countsByProvince.get(p.slug) ?? 0
               return (
-                <tr key={p.slug} className="hover:bg-brand-tint/30">
-                  <td className="px-4 py-3">
+                <tr key={p.slug}>
+                  <td>
                     <Link
                       href={`/province/${p.slug}`}
                       className="font-display font-semibold text-ink hover:text-brand-strong"
@@ -79,10 +69,10 @@ export default async function ProvincesPage() {
                       {p.nameNe}
                     </Link>
                   </td>
-                  <td className="hidden px-4 py-3 text-meta text-ink-soft sm:table-cell" lang="en">
+                  <td className="hidden text-meta text-ink-soft sm:table-cell" lang="en">
                     {p.nameEn}
                   </td>
-                  <td className="px-4 py-3">
+                  <td>
                     <code
                       className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-ink-soft"
                       lang="en"
@@ -90,24 +80,26 @@ export default async function ProvincesPage() {
                       {p.slug}
                     </code>
                   </td>
-                  <td className="px-4 py-3 text-right font-display text-h2 text-ink">
+                  <td className="!text-right font-display text-h2 text-ink">
                     {count > 0 ? count : '—'}
                   </td>
-                  <td className="px-4 py-3">
-                    <Link
+                  <td>
+                    <AdminButton
                       href={`/province/${p.slug}`}
-                      className="text-meta font-semibold text-brand hover:text-brand-strong"
-                      lang="ne"
+                      variant="ghost"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="!min-h-8 !px-2.5 !py-1 !text-caption"
                     >
-                      हेर्नुहोस् →
-                    </Link>
+                      <span lang="ne">हेर्नुहोस्</span>
+                    </AdminButton>
                   </td>
                 </tr>
               )
             })}
           </tbody>
-        </table>
-      </div>
+        </AdminTable>
+      </AdminCard>
 
       <p className="mt-4 text-caption text-mute" lang="ne">
         समाचार संख्या प्रति लेखको{' '}

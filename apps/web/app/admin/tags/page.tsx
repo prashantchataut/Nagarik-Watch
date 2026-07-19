@@ -6,7 +6,15 @@ import { assertLocalContentAdmin, isPayloadCanonical, payloadCollectionAdminUrl 
 import { assertNewsroomRole, TAXONOMY_MANAGER_ROLES } from '@/lib/admin-roles'
 import { archiveTaxonomyTerm, listTaxonomyTerms, upsertTaxonomyTerm } from '@/lib/taxonomy-admin'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminButton,
+  AdminInput,
+  AdminTextarea,
+  AdminSelect,
+  AdminTable,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'ट्याग',
@@ -14,6 +22,12 @@ export const metadata: Metadata = {
 }
 
 export const dynamic = 'force-dynamic'
+
+function termStatusTone(status: string): 'success' | 'attention' | 'neutral' {
+  if (status === 'active') return 'success'
+  if (status === 'hidden') return 'attention'
+  return 'neutral'
+}
 
 async function saveTerm(formData: FormData) {
   'use server'
@@ -60,42 +74,25 @@ export default async function Page() {
         <AdminCard>
           <h2 className="font-display text-h2 text-ink" lang="ne">नयाँ / सम्पादन</h2>
           <form action={saveTerm} className="mt-4 grid gap-3">
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-              नेपाली नाम
-              <input name="nameNe" required className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-            </label>
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-              English name
-              <input name="nameEn" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-            </label>
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-              Slug
-              <input name="slug" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" placeholder="auto-generated if blank" />
-            </label>
-            
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-              Description Nepali
-              <textarea name="descriptionNe" rows={4} className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink" />
-            </label>
-            <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-              Description English
-              <textarea name="descriptionEn" rows={3} className="rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink" />
-            </label>
+            <AdminInput label="नेपाली नाम" name="nameNe" required />
+            <AdminInput label="English name" name="nameEn" lang="en" />
+            <AdminInput label="Slug" name="slug" placeholder="auto-generated if blank" lang="en" />
+            <AdminTextarea label="Description Nepali" name="descriptionNe" rows={4} />
+            <AdminTextarea label="Description English" name="descriptionEn" rows={3} lang="en" />
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-                Status
-                <select name="status" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink">
-                  <option value="active">Active</option>
-                  <option value="hidden">Hidden</option>
-                  <option value="archived">Archived</option>
-                </select>
-              </label>
-              <label className="grid gap-1 text-caption font-semibold text-ink-soft">
-                Sort order
-                <input name="sortOrder" type="number" defaultValue="100" className="h-10 rounded-md border border-rule bg-surface px-3 text-body text-ink" />
-              </label>
+              <AdminSelect
+                label="Status"
+                name="status"
+                lang="en"
+                options={[
+                  { value: 'active', label: 'Active' },
+                  { value: 'hidden', label: 'Hidden' },
+                  { value: 'archived', label: 'Archived' },
+                ]}
+              />
+              <AdminInput label="Sort order" name="sortOrder" type="number" defaultValue={100} lang="en" />
             </div>
-            <button className="rounded-md bg-brand px-4 py-2 text-meta font-bold text-surface hover:bg-brand-strong" lang="ne">Save ट्याग</button>
+            <AdminButton type="submit">Save ट्याग</AdminButton>
           </form>
         </AdminCard>
 
@@ -104,27 +101,31 @@ export default async function Page() {
             <h2 className="font-display text-h2 text-ink" lang="ne">सूची</h2>
             <p className="text-caption text-mute" lang="en">{active.length} active · {terms.length} total</p>
           </div>
-          <div className="overflow-hidden rounded-lg border border-rule">
-            <table className="min-w-full divide-y divide-rule text-left">
-              <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
-                <tr><th className="px-4 py-3">Name</th><th className="px-4 py-3">Slug</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Action</th></tr>
+          <div className="mt-4">
+            <AdminTable>
+              <thead>
+                <tr><th>Name</th><th>Slug</th><th>Status</th><th>Action</th></tr>
               </thead>
-              <tbody className="divide-y divide-rule">
+              <tbody>
                 {terms.map((term) => (
                   <tr key={term.id} className="align-top">
-                    <td className="px-4 py-3"><p className="font-display font-semibold text-ink" lang="ne">{term.nameNe}</p><p className="text-caption text-mute" lang="en">{term.nameEn}</p></td>
-                    <td className="px-4 py-3 font-mono text-caption text-ink-soft">{term.slug}</td>
-                    <td className="px-4 py-3"><span className="rounded-full border border-rule px-2 py-0.5 text-caption text-ink-soft">{term.status}</span></td>
-                    <td className="px-4 py-3">
+                    <td><p className="font-semibold text-ink" lang="ne">{term.nameNe}</p><p className="text-caption text-mute" lang="en">{term.nameEn}</p></td>
+                    <td className="font-mono text-caption text-ink-soft">{term.slug}</td>
+                    <td>
+                      <span className={`admin-status admin-status--${termStatusTone(term.status)}`}>{term.status}</span>
+                    </td>
+                    <td>
                       <form action={archiveTerm}>
                         <input type="hidden" name="slug" value={term.slug} />
-                        <button className="text-caption font-semibold text-brand-strong hover:underline" lang="ne">Archive</button>
+                        <AdminButton type="submit" variant="ghost" className="!min-h-9 !px-2 !text-caption">
+                          Archive
+                        </AdminButton>
                       </form>
                     </td>
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </AdminTable>
           </div>
         </AdminCard>
       </div>

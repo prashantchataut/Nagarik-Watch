@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getSearchAnalyticsSummary } from '@/lib/search-analytics'
-import { AdminCard, AdminEmptyState, AdminPageHeader } from '@/components/admin/primitives'
+import { AdminCard, AdminEmptyState, AdminMetric, AdminPageHeader } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'Search Analytics',
@@ -20,25 +20,10 @@ export default async function SearchAnalyticsPage() {
         subtitle="Consent-aware, privacy-scrubbed search demand and zero-result gaps · last 30 days"
       />
 
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">Searches</p>
-          <p className="mt-2 font-display text-display text-ink">{summary.totalSearches}</p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">
-            Zero results
-          </p>
-          <p className="mt-2 font-display text-display text-ink">{summary.zeroResultSearches}</p>
-        </AdminCard>
-        <AdminCard>
-          <p className="text-caption font-semibold uppercase tracking-wide text-mute">
-            Zero-result rate
-          </p>
-          <p className="mt-2 font-display text-display text-ink">
-            {(summary.zeroResultRate * 100).toFixed(1)}%
-          </p>
-        </AdminCard>
+      <section className="admin-metric-grid" aria-label="Search analytics summary">
+        <AdminMetric value={summary.totalSearches} label="Searches" />
+        <AdminMetric value={summary.zeroResultSearches} label="Zero results" />
+        <AdminMetric value={`${(summary.zeroResultRate * 100).toFixed(1)}%`} label="Zero-result rate" />
       </section>
 
       {summary.totalSearches === 0 ? (

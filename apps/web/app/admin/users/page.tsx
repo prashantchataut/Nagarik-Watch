@@ -4,10 +4,10 @@ import { redirect } from 'next/navigation'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
 import {
-  accountKindBadgeClass,
   accountKindLabel,
   resolveAccountKind,
   roleDisplayLabel,
+  type AccountKind,
 } from '@/lib/account-identity'
 import {
   createNewsroomInvite,
@@ -21,7 +21,7 @@ import {
 } from '@/lib/newsroom-users'
 import { roleGroupsForAssignable } from '@/lib/admin-role-groups'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { AdminPageHeader, AdminCard, AdminButton, AdminFilterLink, AdminInput } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard, AdminButton, AdminFilterLink, AdminInput, AdminCallout, AdminTable } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'प्रयोगकर्ता',
@@ -31,6 +31,13 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 type Scope = 'all' | 'readers' | 'journalists' | 'newsroom' | 'disabled'
+
+function accountKindTone(kind: AccountKind): 'success' | 'attention' | 'neutral' | 'danger' {
+  if (kind === 'admin') return 'danger'
+  if (kind === 'newsroom') return 'success'
+  if (kind === 'journalist') return 'attention'
+  return 'neutral'
+}
 
 async function inviteUser(formData: FormData) {
   'use server'
@@ -216,21 +223,17 @@ export default async function UsersPage({
         subtitle="पाठक, पत्रकार र न्यूजरुम खाता पहिचान, भूमिका र निष्क्रियता व्यवस्थापन"
       />
       {notice ? (
-        <div
-          className={`mb-5 rounded-lg border px-4 py-3 text-meta font-semibold ${
-            ['sent', 'revoked', 'updated', 'disabled', 'enabled'].includes(query.result ?? '')
-              ? 'border-rule bg-surface-raised text-ink'
-              : 'border-breaking/30 bg-brand-tint text-brand-strong'
-          }`}
-          lang="ne"
+        <AdminCallout
+          tone={['sent', 'revoked', 'updated', 'disabled', 'enabled'].includes(query.result ?? '') ? 'neutral' : 'attention'}
+          className="mb-5"
         >
-          {notice}
-        </div>
+          <p className="text-meta font-semibold text-ink" lang="ne">{notice}</p>
+        </AdminCallout>
       ) : null}
 
       {canManage ? (
         <AdminCard className="mb-5">
-          <h2 className="font-display text-h2 text-ink" lang="ne">
+          <h2 className="admin-section-title" lang="ne">
             भूमिका निमन्त्रणा
           </h2>
           <p className="mt-1 text-meta text-mute" lang="ne">
@@ -259,7 +262,7 @@ export default async function UsersPage({
           <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
             {roleGroups.map((group) => (
               <div key={group.id} className="border border-rule bg-surface px-3 py-2">
-                <p className="text-caption font-bold uppercase tracking-wide text-brand-strong" lang="ne">
+                <p className="text-caption font-semibold text-mute" lang="ne">
                   {group.labelNe}
                 </p>
                 <p className="mt-1 text-caption text-mute" lang="ne">
@@ -304,18 +307,18 @@ export default async function UsersPage({
 
       <div className="grid gap-5 xl:grid-cols-[1.4fr_0.9fr]">
         <AdminCard>
-          <h2 className="font-display text-h2 text-ink">Accounts ({filtered.length})</h2>
-          <div className="mt-4 overflow-x-auto rounded-lg border border-rule">
-            <table className="min-w-full divide-y divide-rule text-left">
-              <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
-                <tr>
-                  <th className="px-4 py-3">User</th>
-                  <th className="px-4 py-3">Account</th>
-                  <th className="px-4 py-3">Role</th>
-                  <th className="px-4 py-3">Manage</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-rule">
+          <h2 className="admin-section-title">Accounts ({filtered.length})</h2>
+          <div className="mt-4">
+          <AdminTable>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Account</th>
+                <th>Role</th>
+                <th>Manage</th>
+              </tr>
+            </thead>
+            <tbody>
                 {filtered.map((user) => {
                   const kind = resolveAccountKind(user.role)
                   const protectedTarget =
@@ -324,15 +327,12 @@ export default async function UsersPage({
                   const manageable = canManage && !protectedTarget && !self
                   return (
                     <tr key={user.id} className={user.disabled ? 'bg-brand-tint/40' : undefined}>
-                      <td className="px-4 py-3">
-                        <p className="font-display font-semibold text-ink">{user.name}</p>
+                      <td>
+                        <p className="font-semibold text-ink">{user.name}</p>
                         <p className="text-caption text-mute">{user.email}</p>
                       </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex rounded-md border px-2 py-0.5 text-caption font-bold ${accountKindBadgeClass(kind)}`}
-                          lang="ne"
-                        >
+                      <td>
+                        <span className={`admin-status admin-status--${accountKindTone(kind)}`} lang="ne">
                           {accountKindLabel(kind, 'ne')}
                         </span>
                         {user.disabled ? (
@@ -341,10 +341,10 @@ export default async function UsersPage({
                           </p>
                         ) : null}
                       </td>
-                      <td className="px-4 py-3 text-meta text-ink-soft" lang="ne">
+                      <td className="text-meta text-ink-soft" lang="ne">
                         {roleDisplayLabel(user.role, 'ne')}
                       </td>
-                      <td className="px-4 py-3">
+                      <td>
                         {manageable ? (
                           <div className="flex flex-col gap-2">
                             <form action={promoteUser} className="flex flex-wrap gap-2">
@@ -352,7 +352,7 @@ export default async function UsersPage({
                               <select
                                 name="role"
                                 defaultValue={user.role}
-                                className="h-9 min-w-[12rem] rounded-md border border-rule bg-surface px-2 text-caption text-ink"
+                                className="admin-field-control h-9 min-w-[12rem] text-caption"
                               >
                                 <option value="reader">पाठक / पहुँच हटाउने</option>
                                 {roleGroups.map((group) => (
@@ -372,13 +372,13 @@ export default async function UsersPage({
                             <form action={toggleDisabled}>
                               <input type="hidden" name="email" value={user.email} />
                               <input type="hidden" name="disabled" value={user.disabled ? 'false' : 'true'} />
-                              <button
-                                className={`text-caption font-bold underline-offset-2 hover:underline ${
-                                  user.disabled ? 'text-ink-soft' : 'text-breaking'
-                                }`}
+                              <AdminButton
+                                type="submit"
+                                variant={user.disabled ? 'secondary' : 'danger'}
+                                className="!min-h-9 !px-2 !text-caption"
                               >
                                 {user.disabled ? 'पुनः सक्रिय' : 'निष्क्रिय गर्नुहोस्'}
-                              </button>
+                              </AdminButton>
                             </form>
                           </div>
                         ) : (
@@ -389,16 +389,16 @@ export default async function UsersPage({
                   )
                 })}
               </tbody>
-            </table>
-            {filtered.length === 0 ? (
-              <p className="p-5 text-center text-meta text-mute" lang="ne">
-                यो फिल्टरमा खाता भेटिएन।
-              </p>
-            ) : null}
+          </AdminTable>
           </div>
+          {filtered.length === 0 ? (
+            <p className="p-5 text-center text-meta text-mute" lang="ne">
+              यो फिल्टरमा खाता भेटिएन।
+            </p>
+          ) : null}
         </AdminCard>
         <AdminCard>
-          <h2 className="font-display text-h2 text-ink">Invitations</h2>
+          <h2 className="admin-section-title">Invitations</h2>
           <div className="mt-4 grid gap-3">
             {invites.length ? (
               invites.map((invite) => (
@@ -411,7 +411,9 @@ export default async function UsersPage({
                   {invite.status === 'pending' && canManage ? (
                     <form action={revokeInvite} className="mt-2">
                       <input type="hidden" name="id" value={invite.id} />
-                      <button className="text-caption font-bold text-breaking underline-offset-2 hover:underline">Revoke</button>
+                      <AdminButton type="submit" variant="danger" className="!min-h-9 !px-2 !text-caption">
+                        Revoke
+                      </AdminButton>
                     </form>
                   ) : null}
                 </div>

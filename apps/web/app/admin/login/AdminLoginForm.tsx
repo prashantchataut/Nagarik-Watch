@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { PasswordField } from '@/components/forms/PasswordField'
+import { AdminButton } from '@/components/admin/primitives'
 
 /**
  * Admin login form. Posts credentials to Better Auth's /api/auth/sign-in/email
@@ -158,13 +159,13 @@ export function AdminLoginForm({
         </label>
       )}
 
-      <button
+      <AdminButton
         type="submit"
         disabled={pending || !databaseOnline}
-        className="newsroom-login-form__submit"
+        className="w-full"
       >
         {pending ? 'Verifying…' : requiresTotp ? 'Verify code' : 'Sign in'}
-      </button>
+      </AdminButton>
     </form>
   )
 }

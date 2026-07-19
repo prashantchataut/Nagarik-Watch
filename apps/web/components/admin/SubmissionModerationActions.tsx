@@ -2,8 +2,15 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
+import { AdminButton } from '@/components/admin/primitives'
 
 type SubmissionStatus = 'new' | 'in_review' | 'accepted' | 'rejected'
+
+const ACTIONS: { status: SubmissionStatus; label: string; variant: 'primary' | 'secondary' | 'danger' }[] = [
+  { status: 'in_review', label: 'Review', variant: 'secondary' },
+  { status: 'accepted', label: 'Accept', variant: 'primary' },
+  { status: 'rejected', label: 'Reject', variant: 'danger' },
+]
 
 export function SubmissionModerationActions({ id }: { id: string }) {
   const router = useRouter()
@@ -37,16 +44,17 @@ export function SubmissionModerationActions({ id }: { id: string }) {
         className="min-h-16 rounded-md border border-rule bg-surface px-2.5 py-2 text-caption text-ink"
       />
       <div className="flex flex-wrap gap-1.5">
-        {(['in_review', 'accepted', 'rejected'] as const).map((status) => (
-          <button
-            key={status}
+        {ACTIONS.map((action) => (
+          <AdminButton
+            key={action.status}
             type="button"
             disabled={pending}
-            onClick={() => update(status)}
-            className="rounded-full border border-rule px-2.5 py-1 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong disabled:opacity-60"
+            onClick={() => update(action.status)}
+            variant={action.variant}
+            className="!min-h-8 !px-2.5 !py-1 !text-caption"
           >
-            {status === 'in_review' ? 'Review' : status === 'accepted' ? 'Accept' : 'Reject'}
-          </button>
+            {action.label}
+          </AdminButton>
         ))}
       </div>
       {error ? <p className="text-caption text-breaking">{error}</p> : null}
