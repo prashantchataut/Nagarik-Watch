@@ -124,8 +124,10 @@ appropriate line-height (Devanagari needs ~1.6–1.7 line-height for body, more 
   coverage of Nepali matras and conjuncts. Fallback: "Mukta", system Devanagari.
 - **Devanagari display (headlines):** "Mukta" (Google Fonts, OFL) at heavier weights, or
   "Baloo 2 Devanagari" for a slightly more characterful display. To be A/B'd in Phase 1.
-- **Latin / English section / UI numbers:** "Inter" (Google Fonts, OFL). Clean, neutral,
-  excellent at small sizes.
+- **Latin / English section / UI numbers:** "Source Sans 3" (Google Fonts, OFL). Editorial
+  Latin companion to Mukta/Noto; deliberately not Inter (anti-slop / DESIGN decision 2026-07-19).
+  CSS variable historically named `--font-inter` may remain until a rename pass; the loaded
+  face is Source Sans 3.
 - **Serif option for long-form/columns:** a serif for the opinion/columns section gives it
   a distinct editorial identity. Candidate: "Tiro Devanagari Sanskrit" + "Tiro Devanagari
   Hindi" (OFL) or fall back to the sans. Decision in Phase 1 columns work.
@@ -134,14 +136,14 @@ appropriate line-height (Devanagari needs ~1.6–1.7 line-height for body, more 
 
 | Token | Devanagari / Latin | Size / Line-height | Weight | Use |
 |, , , , |-, , , , , , , |-, , , , , -|, , |, , , , , , , -|
-| `display` | Mukta / Inter | 44px / 1.15 | 700 | Lead-story headline (hero) |
-| `h1` | Mukta / Inter | 32px / 1.2 | 700 | Article headline |
-| `h2` | Mukta / Inter | 24px / 1.25 | 700 | Section headers, sub-leads |
-| `h3` | Mukta / Inter | 20px / 1.3 | 600 | Card titles |
-| `body-lg` | Noto Sans Devanagari/Inter| 19px / 1.7 | 400 | Article body (Devanagari) |
-| `body` | Noto Sans Devanagari/Inter| 16px / 1.65 | 400 | Default body, cards |
-| `meta` | Inter / Noto Sans | 13px / 1.4 | 500 | Byline, date, timestamps |
-| `caption` | Inter / Noto Sans | 12px / 1.35 | 400 | Image captions, credits |
+| `display` | Mukta / Source Sans 3 | 44px / 1.15 | 700 | Lead-story headline (hero) |
+| `h1` | Mukta / Source Sans 3 | 32px / 1.2 | 700 | Article headline |
+| `h2` | Mukta / Source Sans 3 | 24px / 1.25 | 700 | Section headers, sub-leads |
+| `h3` | Mukta / Source Sans 3 | 20px / 1.3 | 600 | Card titles |
+| `body-lg` | Noto Sans Devanagari/Source Sans 3| 19px / 1.7 | 400 | Article body (Devanagari) |
+| `body` | Noto Sans Devanagari/Source Sans 3| 16px / 1.65 | 400 | Default body, cards |
+| `meta` | Source Sans 3 / Noto Sans | 13px / 1.4 | 500 | Byline, date, timestamps |
+| `caption` | Source Sans 3 / Noto Sans | 12px / 1.35 | 400 | Image captions, credits |
 
 **Rules:**
 
@@ -312,3 +314,5 @@ larger line-height and a touch lower contrast for comfortable night reading., -
 | 2026-06-18 | 3 palettes proposed; A recommended | Ownability + civic fit |
 | 2026-06-18 | Light-first, dark as toggle | Reading scene forces it |
 | 2026-06-18 | Noto Sans Devanagari + Mukta + Inter | Free, OFL, best coverage |
+| 2026-07-19 | Latin UI: **Source Sans 3** (not Inter) | Matches `fonts.ts`; Inter is anti-slop reflex-reject |
+| 2026-07-19 | Monetization Option A (free + ads) | PRODUCT.md; public membership chrome off by default |

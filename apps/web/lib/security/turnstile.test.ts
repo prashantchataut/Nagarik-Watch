@@ -27,6 +27,19 @@ describe('Turnstile configuration', () => {
     })
   })
 
+  it('fails closed in live mode when provider keys are missing', async () => {
+    vi.stubEnv('NEXT_PUBLIC_LAUNCH_STATUS', 'live')
+    vi.stubEnv('CAPTCHA_PROVIDER', 'turnstile')
+    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', '')
+    vi.stubEnv('TURNSTILE_SECRET_KEY', '')
+
+    await expect(verifyTurnstileToken(undefined)).resolves.toEqual({
+      success: false,
+      skipped: false,
+      errorCodes: ['captcha-not-configured'],
+    })
+  })
+
   it('rejects an empty token when configured without making a request', async () => {
     vi.stubEnv('CAPTCHA_PROVIDER', 'turnstile')
     vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'site-key')

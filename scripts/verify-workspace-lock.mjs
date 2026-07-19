@@ -40,7 +40,7 @@ function parseImporters(text) {
     if (!inImporters) continue
     if (/^[^\s]/.test(line) && line.trim()) break
 
-    const importerMatch = line.match(/^  ([^\s][^:]*):(?:\s*\{\})?\s*$/)
+    const importerMatch = line.match(/^ {2}([^\s][^:]*):(?:\s*\{\})?\s*$/)
     if (importerMatch) {
       currentImporter = importerMatch[1]
       importers.set(currentImporter, {})
@@ -49,20 +49,20 @@ function parseImporters(text) {
       continue
     }
 
-    const sectionMatch = line.match(/^    (dependencies|devDependencies|optionalDependencies):\s*$/)
+    const sectionMatch = line.match(/^ {4}(dependencies|devDependencies|optionalDependencies):\s*$/)
     if (sectionMatch && currentImporter) {
       currentSection = sectionMatch[1]
       currentPackage = null
       continue
     }
 
-    const packageMatch = line.match(/^      ('?[^']+?'?):\s*$/)
+    const packageMatch = line.match(/^ {6}('?[^']+?'?):\s*$/)
     if (packageMatch && currentImporter && currentSection) {
       currentPackage = packageMatch[1].replace(/^'|'$/g, '')
       continue
     }
 
-    const specifierMatch = line.match(/^        specifier:\s*(.+)\s*$/)
+    const specifierMatch = line.match(/^ {8}specifier:\s*(.+)\s*$/)
     if (specifierMatch && currentImporter && currentSection && currentPackage) {
       importers.get(currentImporter)[currentPackage] = specifierMatch[1].replace(/^['"]|['"]$/g, '')
     }
@@ -92,7 +92,9 @@ for (const dir of packageDirs()) {
 
   for (const [name, specifier] of Object.entries(expected)) {
     if (actual[name] !== specifier) {
-      errors.push(`${key}: ${name} expected ${specifier}, lockfile has ${actual[name] ?? 'nothing'}`)
+      errors.push(
+        `${key}: ${name} expected ${specifier}, lockfile has ${actual[name] ?? 'nothing'}`,
+      )
     }
   }
   for (const name of Object.keys(actual)) {

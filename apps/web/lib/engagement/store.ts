@@ -3,7 +3,12 @@ import { randomUUID } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { Pool } from 'pg'
-import { moderateComment, rankComment, reputationScore, type EngagementSample } from '@nagarikwatch/db'
+import {
+  moderateComment,
+  rankComment,
+  reputationScore,
+  type EngagementSample,
+} from '@nagarikwatch/db'
 import { getSharedPool } from '@/lib/pg-pool'
 import { getRankingShareSamples } from '@/lib/engagement/ranking-events'
 
@@ -112,7 +117,7 @@ let schemaReady: Promise<void> | null = null
 async function getPool(): Promise<Pool | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
   const database = await getSharedPool()
-  if (!database && process.env.NODE_ENV === 'production') {
+  if (!database && process.env.NODE_ENV === 'production' && process.env.E2E_TEST !== 'true') {
     throw new Error('DATABASE_URL is required for persistent reader engagement in production.')
   }
   return database
@@ -122,7 +127,8 @@ async function ensureSchema() {
   const database = await getPool()
   if (!database) return
   schemaReady ??= database
-    .query(`
+    .query(
+      `
 CREATE TABLE IF NOT EXISTS nw_bookmarks(
   id text primary key,
   owner_key text not null,
@@ -189,7 +195,8 @@ ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS last_session_id text;
 ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS last_session_seconds integer NOT NULL DEFAULT 0;
 ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS article_tag_slugs text[] NOT NULL DEFAULT '{}';
 ALTER TABLE nw_reading ADD COLUMN IF NOT EXISTS article_author_slugs text[] NOT NULL DEFAULT '{}';
-CREATE INDEX IF NOT EXISTS nw_reading_owner_recent_idx ON nw_reading(owner_key, read_at DESC);`)
+CREATE INDEX IF NOT EXISTS nw_reading_owner_recent_idx ON nw_reading(owner_key, read_at DESC);`,
+    )
     .then(() => undefined)
     .catch((error) => {
       schemaReady = null
@@ -230,7 +237,6 @@ async function writeLocal(next: LocalEngagementStore): Promise<void> {
 function owner(anonymousId: string, userId?: string) {
   return userId ? `user:${userId}` : `anon:${anonymousId}`
 }
-
 
 /** Merge anonymous bookmarks into the signed-in account on the first authenticated request. */
 export async function mergeAnonymousBookmarks(anonymousId: string, userId: string): Promise<void> {
@@ -296,7 +302,11 @@ export async function mergeAnonymousBookmarks(anonymousId: string, userId: strin
 }
 
 /** A reply may reference only an approved parent on the same public article. */
-export async function isValidCommentParent(articleSlug: string, articleCategory: string, parentId: string): Promise<boolean> {
+export async function isValidCommentParent(
+  articleSlug: string,
+  articleCategory: string,
+  parentId: string,
+): Promise<boolean> {
   const database = await getPool()
   if (database) {
     await ensureSchema()
@@ -308,7 +318,10 @@ export async function isValidCommentParent(articleSlug: string, articleCategory:
   }
   return (await readLocal()).comments.some(
     (comment) =>
-      comment.id === parentId && comment.articleSlug === articleSlug && comment.articleCategory === articleCategory && comment.status === 'approved',
+      comment.id === parentId &&
+      comment.articleSlug === articleSlug &&
+      comment.articleCategory === articleCategory &&
+      comment.status === 'approved',
   )
 }
 
@@ -321,20 +334,36 @@ export async function addBookmark(input: BookmarkInput) {
        values($1,$2,$3,$4,$5)
        on conflict(owner_key,article_slug) do update set
        article_category=excluded.article_category,article_title_ne=excluded.article_title_ne`,
-      [randomUUID(), owner(input.anonymousId, input.userId), input.articleSlug, input.articleCategory, input.articleTitleNe],
+      [
+        randomUUID(),
+        owner(input.anonymousId, input.userId),
+        input.articleSlug,
+        input.articleCategory,
+        input.articleTitleNe,
+      ],
     )
     return
   }
   const store = await readLocal()
   const key = `${owner(input.anonymousId, input.userId)}:${input.articleSlug}`
-  await writeLocal({ ...store, bookmarks: { ...store.bookmarks, [key]: { ...input, createdAt: new Date().toISOString() } } })
+  await writeLocal({
+    ...store,
+    bookmarks: { ...store.bookmarks, [key]: { ...input, createdAt: new Date().toISOString() } },
+  })
 }
 
-export async function removeBookmark(anonymousId: string, userId: string | undefined, articleSlug: string) {
+export async function removeBookmark(
+  anonymousId: string,
+  userId: string | undefined,
+  articleSlug: string,
+) {
   const database = await getPool()
   if (database) {
     await ensureSchema()
-    await database.query('delete from nw_bookmarks where owner_key=$1 and article_slug=$2', [owner(anonymousId, userId), articleSlug])
+    await database.query('delete from nw_bookmarks where owner_key=$1 and article_slug=$2', [
+      owner(anonymousId, userId),
+      articleSlug,
+    ])
     return
   }
   const store = await readLocal()
@@ -353,7 +382,12 @@ export async function getBookmarks(anonymousId: string, userId?: string) {
        from nw_bookmarks where owner_key=$1 order by created_at desc`,
       [owner(anonymousId, userId)],
     )
-    return result.rows as Array<{ articleSlug: string; articleCategory: string; articleTitleNe: string; createdAt: string }>
+    return result.rows as Array<{
+      articleSlug: string
+      articleCategory: string
+      articleTitleNe: string
+      createdAt: string
+    }>
   }
   const keyPrefix = `${owner(anonymousId, userId)}:`
   return Object.entries((await readLocal()).bookmarks)
@@ -454,7 +488,14 @@ export async function getCommentsForArticle(articleSlug: string, articleCategory
   let comments: Array<
     Pick<
       ModerationComment,
-      'id' | 'authorName' | 'authorUserId' | 'bodyNe' | 'parentId' | 'locale' | 'status' | 'createdAt'
+      | 'id'
+      | 'authorName'
+      | 'authorUserId'
+      | 'bodyNe'
+      | 'parentId'
+      | 'locale'
+      | 'status'
+      | 'createdAt'
     > & { upvotes?: number; downvotes?: number }
   >
   if (database) {
@@ -493,7 +534,10 @@ export async function getCommentsForArticle(articleSlug: string, articleCategory
     .sort((a, b) => b.rankScore - a.rankScore || a.createdAt.localeCompare(b.createdAt))
 }
 
-export async function listCommentsForModeration(status: CommentStatus | 'all' = 'pending', limit = 200): Promise<ModerationComment[]> {
+export async function listCommentsForModeration(
+  status: CommentStatus | 'all' = 'pending',
+  limit = 200,
+): Promise<ModerationComment[]> {
   const database = await getPool()
   if (database) {
     await ensureSchema()
@@ -576,7 +620,10 @@ export async function updateCommentStatus(commentId: string, status: CommentStat
 
 export type DeleteOwnCommentResult = 'deleted' | 'has_replies' | 'not_found'
 
-export async function deleteOwnComment(commentId: string, userId: string): Promise<DeleteOwnCommentResult> {
+export async function deleteOwnComment(
+  commentId: string,
+  userId: string,
+): Promise<DeleteOwnCommentResult> {
   const database = await getPool()
   if (database) {
     await ensureSchema()
@@ -590,16 +637,28 @@ export async function deleteOwnComment(commentId: string, userId: string): Promi
       [commentId],
     )
     if (replies.rowCount) return 'has_replies'
-    await database.query(`delete from nw_comments where id=$1 and author_user_id=$2`, [commentId, userId])
+    await database.query(`delete from nw_comments where id=$1 and author_user_id=$2`, [
+      commentId,
+      userId,
+    ])
     return 'deleted'
   }
   const store = await readLocal()
-  const target = store.comments.find((comment) => comment.id === commentId && comment.authorUserId === userId)
+  const target = store.comments.find(
+    (comment) => comment.id === commentId && comment.authorUserId === userId,
+  )
   if (!target) return 'not_found'
-  if (store.comments.some((comment) => comment.parentId === commentId && comment.status === 'approved')) {
+  if (
+    store.comments.some(
+      (comment) => comment.parentId === commentId && comment.status === 'approved',
+    )
+  ) {
     return 'has_replies'
   }
-  await writeLocal({ ...store, comments: store.comments.filter((comment) => comment.id !== commentId) })
+  await writeLocal({
+    ...store,
+    comments: store.comments.filter((comment) => comment.id !== commentId),
+  })
   return 'deleted'
 }
 
@@ -637,7 +696,13 @@ export async function recordPollVote(input: PollVoteInput) {
   }
   const store = await readLocal()
   if (store.votes[key]) return { recorded: false, results: await getPollVoteCounts(input.pollId) }
-  await writeLocal({ ...store, votes: { ...store.votes, [key]: { ...input, id: randomUUID(), createdAt: new Date().toISOString() } } })
+  await writeLocal({
+    ...store,
+    votes: {
+      ...store.votes,
+      [key]: { ...input, id: randomUUID(), createdAt: new Date().toISOString() },
+    },
+  })
   return { recorded: true, results: await getPollVoteCounts(input.pollId) }
 }
 
@@ -786,7 +851,9 @@ export async function mergeAnonymousReading(anonymousId: string, userId: string)
       sessions: sameSession
         ? Math.max(existing?.sessions ?? 0, item.sessions ?? 1)
         : (existing?.sessions ?? 0) + (item.sessions ?? 1),
-      firstReadAt: [existing?.firstReadAt, item.firstReadAt, item.readAt].filter(Boolean).sort()[0] ?? item.readAt,
+      firstReadAt:
+        [existing?.firstReadAt, item.firstReadAt, item.readAt].filter(Boolean).sort()[0] ??
+        item.readAt,
       readAt: [existing?.readAt, item.readAt].filter(Boolean).sort().at(-1) ?? item.readAt,
     }
     delete readings[key]
@@ -817,7 +884,9 @@ export async function getReadingHistory(
       articleCategory: String(row.articleCategory ?? ''),
       articleTitleNe: String(row.articleTitleNe ?? ''),
       articleTagSlugs: Array.isArray(row.articleTagSlugs) ? row.articleTagSlugs.map(String) : [],
-      articleAuthorSlugs: Array.isArray(row.articleAuthorSlugs) ? row.articleAuthorSlugs.map(String) : [],
+      articleAuthorSlugs: Array.isArray(row.articleAuthorSlugs)
+        ? row.articleAuthorSlugs.map(String)
+        : [],
       readPercent: Number(row.readPercent ?? 0),
       dwellSeconds: Number(row.dwellSeconds ?? 0),
       completed: Boolean(row.completed),
@@ -860,7 +929,6 @@ export async function clearReadingHistory(anonymousId: string, userId?: string):
   )
   await writeLocal({ ...store, readings })
 }
-
 
 export type MostReadStat = {
   articleSlug: string
@@ -1015,15 +1083,15 @@ export async function getBookmarkVelocityStats(
     .slice(0, safeLimit)
 }
 
-
 /** Recent reader activity shaped for the shared trending detector. No identity leaves the store. */
 export async function getTrendingSamples(windowMinutes = 120): Promise<EngagementSample[]> {
   const cutoff = new Date(Date.now() - Math.max(15, windowMinutes) * 60_000)
   const database = await getPool()
   if (database) {
     await ensureSchema()
-    const result = await database.query(
-      `select article_slug as "articleId", article_category as "categorySlug",
+    const result = await database
+      .query(
+        `select article_slug as "articleId", article_category as "categorySlug",
               read_at as "at", 1::int as views, 0::int as shares, 0::int as comments, 0::int as bookmarks
        from nw_reading where read_at >= $1
        union all
@@ -1038,8 +1106,9 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
        select article_slug as "articleId", article_category as "categorySlug",
               created_at as "at", 0::int as views, 0::int as shares, 0::int as comments, 1::int as bookmarks
        from nw_bookmarks where created_at >= $1`,
-      [cutoff.toISOString()],
-    ).catch(() => null)
+        [cutoff.toISOString()],
+      )
+      .catch(() => null)
     if (!result) return []
     return result.rows.map((row) => ({
       articleId: String(row.articleId),
@@ -1086,15 +1155,16 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
       comments: 0,
       bookmarks: 1,
     }))
-  const shares: EngagementSample[] = (await getRankingShareSamples(windowMinutes).catch(() => []))
-    .map((item) => ({
-      articleId: item.articleSlug,
-      categorySlug: item.articleCategory,
-      at: item.at,
-      views: 0,
-      shares: 1,
-      comments: 0,
-      bookmarks: 0,
-    }))
+  const shares: EngagementSample[] = (
+    await getRankingShareSamples(windowMinutes).catch(() => [])
+  ).map((item) => ({
+    articleId: item.articleSlug,
+    categorySlug: item.articleCategory,
+    at: item.at,
+    views: 0,
+    shares: 1,
+    comments: 0,
+    bookmarks: 0,
+  }))
   return [...readings, ...comments, ...shares, ...bookmarks]
 }

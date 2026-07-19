@@ -26,6 +26,8 @@ type ReaderArticleControlsProps = {
   href: string
   readingMinutes: number
   premiumReader?: boolean
+  /** When false (Option A default), skip free-reads meter UI entirely. */
+  membershipPublic?: boolean
 }
 
 export function ReaderArticleControls({
@@ -35,6 +37,7 @@ export function ReaderArticleControls({
   href,
   readingMinutes,
   premiumReader = false,
+  membershipPublic = false,
 }: ReaderArticleControlsProps) {
   const [readingMode, setReadingMode] = useState(false)
   const [scrollDepth, setScrollDepth] = useState(0)
@@ -63,14 +66,14 @@ export function ReaderArticleControls({
   }, [])
 
   useEffect(() => {
-    if (premiumReader) return
+    if (!membershipPublic || premiumReader) return
     const next = addArticleToSessionMeter(
       sessionStorage.getItem(FREE_ARTICLE_METER_KEY),
       `${story.category.slug}:${story.slug}`,
     )
     sessionStorage.setItem(FREE_ARTICLE_METER_KEY, JSON.stringify(next.articles))
     setMeter({ count: next.count, limit: next.limit })
-  }, [premiumReader, story.category.slug, story.slug])
+  }, [membershipPublic, premiumReader, story.category.slug, story.slug])
 
   useEffect(() => {
     if (scrollDepth < 92) return

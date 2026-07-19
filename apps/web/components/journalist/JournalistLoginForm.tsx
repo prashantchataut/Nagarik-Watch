@@ -6,17 +6,14 @@ import { useRouter } from 'next/navigation'
 import { PasswordField } from '@/components/forms/PasswordField'
 import { localizeHref } from '@/lib/i18n/locales'
 import { authClientErrorMessage } from '@/lib/auth/client-errors'
-import {
-  ADMIN_BASE_ROLES,
-  JOURNALIST_DESK_ROLES,
-  type NewsroomRole,
-} from '@/lib/admin-roles'
+import { ADMIN_BASE_ROLES, JOURNALIST_DESK_ROLES, type NewsroomRole } from '@/lib/admin-roles'
 
 type Props = { locale: 'ne' | 'en' }
 
 export function JournalistLoginForm({ locale }: Props) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
+  const [requiresTotp, setRequiresTotp] = useState(false)
   const [pending, startTransition] = useTransition()
   const ne = locale === 'ne'
 
@@ -24,7 +21,34 @@ export function JournalistLoginForm({ locale }: Props) {
     event.preventDefault()
     setError(null)
     const form = new FormData(event.currentTarget)
-    const email = String(form.get('email') ?? '').trim().toLowerCase()
+    if (requiresTotp) {
+      const code = String(form.get('code') ?? '').replace(/\s/g, '')
+      if (!/^\d{6}$/.test(code)) {
+        setError(
+          ne
+            ? 'Authenticator को ६-अङ्कको कोड राख्नुहोस्।'
+            : 'Enter the 6-digit authenticator code.',
+        )
+        return
+      }
+      startTransition(async () => {
+        const response = await fetch('/api/auth/two-factor/verify-totp', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ code, trustDevice: true }),
+        })
+        if (!response.ok) {
+          setError(ne ? 'कोड मिलेन वा म्याद सकियो।' : 'Invalid or expired authenticator code.')
+          return
+        }
+        router.refresh()
+        router.push(localizeHref(locale, '/journalist/dashboard'))
+      })
+      return
+    }
+    const email = String(form.get('email') ?? '')
+      .trim()
+      .toLowerCase()
     const password = String(form.get('password') ?? '')
 
     if (!email || !password) {
@@ -39,10 +63,11 @@ export function JournalistLoginForm({ locale }: Props) {
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ email, password }),
         })
+        const body = await res.json().catch(() => ({}))
         if (!res.ok) {
-          const body = await res.json().catch(() => ({}))
-          const code = (body as { error?: { code?: string }; code?: string }).error?.code
-            ?? (body as { code?: string }).code
+          const code =
+            (body as { error?: { code?: string }; code?: string }).error?.code ??
+            (body as { code?: string }).code
           if (code === 'ACCOUNT_DISABLED' || res.status === 403) {
             setError(
               ne
@@ -52,6 +77,10 @@ export function JournalistLoginForm({ locale }: Props) {
             return
           }
           setError(authClientErrorMessage(res.status, body, locale))
+          return
+        }
+        if ((body as { twoFactorRedirect?: boolean }).twoFactorRedirect === true) {
+          setRequiresTotp(true)
           return
         }
 
@@ -89,35 +118,60 @@ export function JournalistLoginForm({ locale }: Props) {
         </div>
       ) : null}
 
-      <label className="newsroom-login-form__field">
-        <span lang={ne ? 'ne' : 'en'}>{ne ? 'पत्रकार इमेल' : 'Reporter email'}</span>
-        <input
-          name="email"
-          type="email"
-          autoComplete="email"
+      {!requiresTotp ? (
+        <label className="newsroom-login-form__field">
+          <span lang={ne ? 'ne' : 'en'}>{ne ? 'पत्रकार इमेल' : 'Reporter email'}</span>
+          <input
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            disabled={pending}
+            placeholder="reporter@nagarikwatch.com"
+            className="newsroom-login-form__input"
+          />
+        </label>
+      ) : null}
+
+      {!requiresTotp ? (
+        <PasswordField
+          name="password"
+          label={ne ? 'पासवर्ड' : 'Password'}
+          autoComplete="current-password"
           required
           disabled={pending}
-          placeholder="reporter@nagarikwatch.com"
-          className="newsroom-login-form__input"
+          showLabel={ne ? 'देखाउनुहोस्' : 'Show'}
+          hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'}
         />
-      </label>
+      ) : (
+        <label className="newsroom-login-form__field">
+          <span>{ne ? 'Authenticator कोड' : 'Authenticator code'}</span>
+          <input
+            name="code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="[0-9]{6}"
+            maxLength={6}
+            required
+            autoFocus
+            disabled={pending}
+            className="newsroom-login-form__input"
+          />
+        </label>
+      )}
 
-      <PasswordField
-        name="password"
-        label={ne ? 'पासवर्ड' : 'Password'}
-        autoComplete="current-password"
-        required
-        disabled={pending}
-        showLabel={ne ? 'देखाउनुहोस्' : 'Show'}
-        hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'}
-      />
-
-      <button
-        type="submit"
-        disabled={pending}
-        className="newsroom-login-form__submit"
-      >
-        {pending ? (ne ? 'लगइन हुँदै…' : 'Signing in…') : ne ? 'रिपोर्टर डेस्क खोल्नुहोस्' : 'Open reporter desk'}
+      <button type="submit" disabled={pending} className="newsroom-login-form__submit">
+        {pending
+          ? ne
+            ? 'जाँचिँदै…'
+            : 'Verifying…'
+          : requiresTotp
+            ? ne
+              ? 'कोड जाँच्नुहोस्'
+              : 'Verify code'
+            : ne
+              ? 'रिपोर्टर डेस्क खोल्नुहोस्'
+              : 'Open reporter desk'}
       </button>
     </form>
   )

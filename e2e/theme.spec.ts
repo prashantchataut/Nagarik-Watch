@@ -7,22 +7,20 @@ import { test, expect } from '@playwright/test'
  */
 test.describe('theme toggle', () => {
   test('toggles data-theme and persists', async ({ page }) => {
-    await page.addInitScript(() => {
-      try {
-        localStorage.setItem('nw-theme', 'light')
-      } catch {
-        // ignore
-      }
-    })
     await page.goto('/')
+    await page.evaluate(() => localStorage.setItem('nw-theme', 'light'))
+    await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
 
     // Button label reflects the *next* (destination) theme after mount.
     await page.getByRole('button', { name: 'डार्क मोड' }).click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    await expect
+      .poll(async () => page.evaluate(() => localStorage.getItem('nw-theme')))
+      .toBe('dark')
 
-    // Persistence: reload keeps the choice.
-    await page.reload()
+    // Persistence: reload keeps the choice (boot script reads nw-theme).
+    await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   })
 })

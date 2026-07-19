@@ -1,9 +1,19 @@
 import 'server-only'
 import { createHash, randomUUID } from 'node:crypto'
-import { ensureOperationalSchema, requireOperationalPool, type Queryable, toIso } from '@/lib/ops-db'
+import {
+  ensureOperationalSchema,
+  requireOperationalPool,
+  type Queryable,
+  toIso,
+} from '@/lib/ops-db'
 import { getReaderPreferences } from '@/lib/reader/preferences-store'
-import { scoreNotification, type NotificationKind, type NotificationPreference } from '@nagarikwatch/db'
+import {
+  scoreNotification,
+  type NotificationKind,
+  type NotificationPreference,
+} from '@nagarikwatch/db'
 import type { NotificationEvent } from '@/lib/notifications/store'
+import webPush from 'web-push'
 
 export type PushSubscriptionInput = {
   endpoint: string
@@ -40,7 +50,10 @@ type SubscriptionRow = {
 }
 
 const memory = new Map<string, StoredPushSubscription>()
-const memoryDeliveries = new Map<string, { status: 'sent' | 'failed'; attempts: number; attemptedAt: string }>()
+const memoryDeliveries = new Map<
+  string,
+  { status: 'sent' | 'failed'; attempts: number; attemptedAt: string }
+>()
 
 function endpointHash(endpoint: string) {
   return createHash('sha256').update(endpoint).digest('hex')
@@ -99,10 +112,12 @@ function rowToSubscription(row: SubscriptionRow): StoredPushSubscription {
 
 function cleanSubscription(input: PushSubscriptionInput): PushSubscriptionInput {
   const endpoint = String(input.endpoint ?? '').trim()
-  if (!endpoint.startsWith('https://') || endpoint.length > 2048) throw new Error('Invalid push endpoint.')
+  if (!endpoint.startsWith('https://') || endpoint.length > 2048)
+    throw new Error('Invalid push endpoint.')
   const p256dh = String(input.keys?.p256dh ?? '').trim()
   const auth = String(input.keys?.auth ?? '').trim()
-  if (!p256dh || !auth || p256dh.length > 512 || auth.length > 256) throw new Error('Invalid push keys.')
+  if (!p256dh || !auth || p256dh.length > 512 || auth.length > 256)
+    throw new Error('Invalid push keys.')
   const expirationTime = input.expirationTime == null ? null : Number(input.expirationTime)
   return {
     endpoint,
@@ -130,36 +145,59 @@ export async function savePushSubscription(input: {
         endpoint=excluded.endpoint,expiration_time=excluded.expiration_time,p256dh=excluded.p256dh,
         auth=excluded.auth,active=true,updated_at=now()
       RETURNING *`,
-      [randomUUID(),hash,input.fingerprint.slice(0,160),input.userId ?? null,input.locale,subscription.endpoint,
-        subscription.expirationTime ?? null,subscription.keys.p256dh,subscription.keys.auth],
+      [
+        randomUUID(),
+        hash,
+        input.fingerprint.slice(0, 160),
+        input.userId ?? null,
+        input.locale,
+        subscription.endpoint,
+        subscription.expirationTime ?? null,
+        subscription.keys.p256dh,
+        subscription.keys.auth,
+      ],
     )
     return rowToSubscription(result.rows[0]!)
   }
   const existing = [...memory.values()].find((item) => endpointHash(item.endpoint) === hash)
   const now = new Date().toISOString()
   const stored: StoredPushSubscription = {
-    id: existing?.id ?? randomUUID(), fingerprint: input.fingerprint.slice(0,160), userId: input.userId,
-    locale: input.locale, endpoint: subscription.endpoint, expirationTime: subscription.expirationTime ?? undefined,
-    p256dh: subscription.keys.p256dh, auth: subscription.keys.auth, active: true,
-    createdAt: existing?.createdAt ?? now, updatedAt: now,
+    id: existing?.id ?? randomUUID(),
+    fingerprint: input.fingerprint.slice(0, 160),
+    userId: input.userId,
+    locale: input.locale,
+    endpoint: subscription.endpoint,
+    expirationTime: subscription.expirationTime ?? undefined,
+    p256dh: subscription.keys.p256dh,
+    auth: subscription.keys.auth,
+    active: true,
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
   }
   memory.set(stored.id, stored)
   return stored
 }
 
-export async function disablePushSubscription(endpoint: string, fingerprint: string, userId?: string): Promise<void> {
+export async function disablePushSubscription(
+  endpoint: string,
+  fingerprint: string,
+  userId?: string,
+): Promise<void> {
   const hash = endpointHash(endpoint.trim())
   const pool = await operationalPool()
   if (pool) {
     await pool.query(
       `UPDATE nw_push_subscriptions SET active=false,updated_at=now()
        WHERE endpoint_hash=$1 AND (user_id=$2 OR (user_id IS NULL AND fingerprint=$3))`,
-      [hash,userId ?? null,fingerprint.slice(0,160)],
+      [hash, userId ?? null, fingerprint.slice(0, 160)],
     )
     return
   }
-  for (const [id,item] of memory) {
-    if (endpointHash(item.endpoint) === hash && (item.userId === userId || (!item.userId && item.fingerprint === fingerprint))) {
+  for (const [id, item] of memory) {
+    if (
+      endpointHash(item.endpoint) === hash &&
+      (item.userId === userId || (!item.userId && item.fingerprint === fingerprint))
+    ) {
       memory.set(id, { ...item, active: false, updatedAt: new Date().toISOString() })
     }
   }
@@ -175,7 +213,7 @@ export async function listActivePushSubscriptions(limit = 500): Promise<StoredPu
     )
     return result.rows.map(rowToSubscription)
   }
-  return [...memory.values()].filter((item) => item.active).slice(0,safeLimit)
+  return [...memory.values()].filter((item) => item.active).slice(0, safeLimit)
 }
 
 function eventKind(
@@ -183,23 +221,40 @@ function eventKind(
   preferences: Awaited<ReturnType<typeof getReaderPreferences>>,
 ): NotificationKind | null {
   if (event.notificationMode === 'none') return null
-  if (event.notificationMode === 'breaking' && event.isBreaking && preferences.breaking) return 'breaking'
-  if (preferences.followedAuthors && event.authorSlugs.some((slug) => preferences.authors.includes(slug))) {
+  if (event.notificationMode === 'breaking' && event.isBreaking && preferences.breaking)
+    return 'breaking'
+  if (
+    preferences.followedAuthors &&
+    event.authorSlugs.some((slug) => preferences.authors.includes(slug))
+  ) {
     return 'followed_author'
   }
-  const audienceTags = event.notificationTagSlugs.length ? event.notificationTagSlugs : event.tagSlugs
-  if (preferences.followedTopics && (
-    preferences.categories.includes(event.categorySlug) ||
-    audienceTags.some((slug) => preferences.tags.includes(slug))
-  )) return 'followed_topic'
+  const audienceTags = event.notificationTagSlugs.length
+    ? event.notificationTagSlugs
+    : event.tagSlugs
+  if (
+    preferences.followedTopics &&
+    (preferences.categories.includes(event.categorySlug) ||
+      audienceTags.some((slug) => preferences.tags.includes(slug)))
+  )
+    return 'followed_topic'
   return null
 }
 
-function inQuietHours(start: number | null, end: number | null, timeZone: string, now = new Date()) {
+function inQuietHours(
+  start: number | null,
+  end: number | null,
+  timeZone: string,
+  now = new Date(),
+) {
   if (start == null || end == null || start === end) return false
   let hour = now.getUTCHours()
   try {
-    const value = new Intl.DateTimeFormat('en-US', { timeZone, hour: '2-digit', hourCycle: 'h23' }).format(now)
+    const value = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      hour: '2-digit',
+      hourCycle: 'h23',
+    }).format(now)
     const parsed = Number.parseInt(value, 10)
     if (Number.isFinite(parsed)) hour = parsed
   } catch {}
@@ -212,7 +267,7 @@ async function deliveryState(eventId: string, subscriptionId: string) {
   if (pool) {
     const result = await pool.query<{ status: string; attempts: number }>(
       `SELECT status,attempts FROM nw_push_deliveries WHERE event_id=$1 AND subscription_id=$2`,
-      [eventId,subscriptionId],
+      [eventId, subscriptionId],
     )
     const row = result.rows[0]
     return row ? { status: row.status, attempts: Number(row.attempts ?? 0) } : null
@@ -220,7 +275,12 @@ async function deliveryState(eventId: string, subscriptionId: string) {
   return memoryDeliveries.get(key) ?? null
 }
 
-async function recordDelivery(eventId: string, subscriptionId: string, status: 'sent' | 'failed', error?: string) {
+async function recordDelivery(
+  eventId: string,
+  subscriptionId: string,
+  status: 'sent' | 'failed',
+  error?: string,
+) {
   const pool = await operationalPool()
   if (pool) {
     await pool.query(
@@ -228,15 +288,18 @@ async function recordDelivery(eventId: string, subscriptionId: string, status: '
        VALUES($1,$2,$3,1,$4,now())
        ON CONFLICT(event_id,subscription_id) DO UPDATE SET
          status=excluded.status,attempts=nw_push_deliveries.attempts+1,error=excluded.error,attempted_at=now()`,
-      [eventId,subscriptionId,status,error?.slice(0,500) ?? null],
+      [eventId, subscriptionId, status, error?.slice(0, 500) ?? null],
     )
     return
   }
   const key = `${eventId}:${subscriptionId}`
   const current = memoryDeliveries.get(key)
-  memoryDeliveries.set(key, { status, attempts: (current?.attempts ?? 0) + 1, attemptedAt: new Date().toISOString() })
+  memoryDeliveries.set(key, {
+    status,
+    attempts: (current?.attempts ?? 0) + 1,
+    attemptedAt: new Date().toISOString(),
+  })
 }
-
 
 async function deliveryWindow(subscriptionId: string) {
   const pool = await operationalPool()
@@ -266,19 +329,23 @@ async function deliveryWindow(subscriptionId: string) {
   }
 }
 
-export async function deliverPushEvent(event: NotificationEvent): Promise<{ configured: boolean; eligible: number; sent: number; failed: number }> {
-  const providerUrl = process.env.WEB_PUSH_PROVIDER_URL?.trim()
-  const providerKey = process.env.WEB_PUSH_PROVIDER_API_KEY?.trim()
-  if (!providerUrl || !providerKey) return { configured: false, eligible: 0, sent: 0, failed: 0 }
-  let provider: URL
-  try {
-    provider = new URL(providerUrl)
-    if (provider.protocol !== 'https:') throw new Error('Push provider must use HTTPS.')
-  } catch {
+export async function deliverPushEvent(
+  event: NotificationEvent,
+): Promise<{ configured: boolean; eligible: number; sent: number; failed: number }> {
+  const publicKey = process.env.NEXT_PUBLIC_WEB_PUSH_VAPID_KEY?.trim()
+  const privateKey = process.env.WEB_PUSH_VAPID_PRIVATE_KEY?.trim()
+  const subject = process.env.WEB_PUSH_SUBJECT?.trim()
+  if (!publicKey || !privateKey || !subject) {
     return { configured: false, eligible: 0, sent: 0, failed: 0 }
   }
+  if (!/^mailto:|^https:\/\//.test(subject)) {
+    return { configured: false, eligible: 0, sent: 0, failed: 0 }
+  }
+  webPush.setVapidDetails(subject, publicKey, privateKey)
   const subscriptions = await listActivePushSubscriptions()
-  let eligible = 0, sent = 0, failed = 0
+  let eligible = 0,
+    sent = 0,
+    failed = 0
   for (const subscription of subscriptions) {
     const previous = await deliveryState(event.id, subscription.id)
     if (previous?.status === 'sent' || (previous?.attempts ?? 0) >= 5) continue
@@ -296,42 +363,79 @@ export async function deliverPushEvent(event: NotificationEvent): Promise<{ conf
       marketing: false,
       channels: { push: true, email: false, sms: false },
     }
-    const scored = scoreNotification({
-      userId: notificationPreference.userId,
-      kind,
-      articleId: event.articleId,
-      topicSlug: kind === 'followed_topic' ? event.categorySlug : undefined,
-      authorSlug: kind === 'followed_author'
-        ? event.authorSlugs.find((slug) => preferences.authors.includes(slug))
-        : undefined,
-      at: event.publishedAt,
-    }, notificationPreference, await deliveryWindow(subscription.id), {
-      maxPerDay: 8,
-      breakingCooldownMinutes: 15,
-      topicCooldownMinutes: 45,
-    })
+    const scored = scoreNotification(
+      {
+        userId: notificationPreference.userId,
+        kind,
+        articleId: event.articleId,
+        topicSlug: kind === 'followed_topic' ? event.categorySlug : undefined,
+        authorSlug:
+          kind === 'followed_author'
+            ? event.authorSlugs.find((slug) => preferences.authors.includes(slug))
+            : undefined,
+        at: event.publishedAt,
+      },
+      notificationPreference,
+      await deliveryWindow(subscription.id),
+      {
+        maxPerDay: 8,
+        breakingCooldownMinutes: 15,
+        topicCooldownMinutes: 45,
+      },
+    )
     if (!scored.willSend) continue
     eligible += 1
     const title = event.isBreaking
-      ? subscription.locale === 'en' ? 'Nagarik Watch breaking' : 'नागरिक वाच ब्रेकिङ'
-      : subscription.locale === 'en' ? 'From your Nagarik Watch desk' : 'तपाईंको नागरिक वाच डेस्कबाट'
+      ? subscription.locale === 'en'
+        ? 'Nagarik Watch breaking'
+        : 'नागरिक वाच ब्रेकिङ'
+      : subscription.locale === 'en'
+        ? 'From your Nagarik Watch desk'
+        : 'तपाईंको नागरिक वाच डेस्कबाट'
     const body = subscription.locale === 'en' && event.titleEn ? event.titleEn : event.titleNe
     const url = `${subscription.locale === 'en' ? '/en' : ''}/${event.categorySlug}/${event.articleSlug}`
     try {
-      const response = await fetch(provider, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', authorization: `Bearer ${providerKey}` },
-        body: JSON.stringify({
-          subscription: { endpoint: subscription.endpoint, expirationTime: subscription.expirationTime ?? null, keys: { p256dh: subscription.p256dh, auth: subscription.auth } },
-          notification: { title, body, url, tag: event.id, icon: '/apple-icon.png', badge: '/apple-icon.png' },
-          metadata: { eventId: event.id, articleId: event.articleId },
+      await webPush.sendNotification(
+        {
+          endpoint: subscription.endpoint,
+          expirationTime: subscription.expirationTime ?? null,
+          keys: { p256dh: subscription.p256dh, auth: subscription.auth },
+        },
+        JSON.stringify({
+          title,
+          body,
+          url,
+          tag: event.id,
+          icon: '/apple-icon.png',
+          badge: '/apple-icon.png',
+          eventId: event.id,
+          articleId: event.articleId,
         }),
-      })
-      if (!response.ok) throw new Error(`Provider returned ${response.status}`)
+        {
+          TTL: event.isBreaking ? 15 * 60 : 6 * 60 * 60,
+          urgency: event.isBreaking ? 'high' : 'normal',
+        },
+      )
       await recordDelivery(event.id, subscription.id, 'sent')
       sent += 1
     } catch (error) {
-      await recordDelivery(event.id, subscription.id, 'failed', error instanceof Error ? error.message : String(error))
+      const statusCode =
+        typeof error === 'object' && error && 'statusCode' in error
+          ? Number((error as { statusCode?: unknown }).statusCode)
+          : 0
+      if (statusCode === 404 || statusCode === 410) {
+        await disablePushSubscription(
+          subscription.endpoint,
+          subscription.fingerprint,
+          subscription.userId,
+        )
+      }
+      await recordDelivery(
+        event.id,
+        subscription.id,
+        'failed',
+        error instanceof Error ? error.message : String(error),
+      )
       failed += 1
     }
   }

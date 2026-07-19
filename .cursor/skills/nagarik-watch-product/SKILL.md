@@ -36,7 +36,17 @@ description: >-
 - Prefer `CONTENT_SOURCE=payload` when CMS is live; JSON store may boot preview without it, but empty CMS inventory is not a launch.
 - Manifest `id` must be path-relative (`/`) so preview hosts stay same-origin.
 
+## Monetization (Option A — 2026-07-19)
+
+- Public site is **free to read + ads**. Do not show membership CTAs, paywall notices,
+  free-reads meters, or “Premium / सदस्य” gates on reader surfaces unless
+  `NEXT_PUBLIC_MEMBERSHIP_PUBLIC=true`.
+- Keep payment/admin paywall code dormant behind that flag; do not delete without an
+  explicit request.
+- Accounts remain optional for saved stories / history — never framed as a paywall.
+
 ## Copy tone
 
 - Public empty states: honest (“No saved stories yet”), never fake seed news framed as user data.
 - Staff links in footer may remain; primary chrome is reader-first.
+- No em dashes in reader-facing UI copy (impeccable ban).

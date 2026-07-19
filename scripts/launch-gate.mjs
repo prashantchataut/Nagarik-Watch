@@ -19,7 +19,8 @@ function looksUnverified(input) {
 }
 
 function requiredVerified(name, message) {
-  if (looksUnverified(value(name))) blockers.push(message ?? `${name} is missing or still a placeholder`)
+  if (looksUnverified(value(name)))
+    blockers.push(message ?? `${name} is missing or still a placeholder`)
 }
 
 function requiredSecret(name, message) {
@@ -31,26 +32,40 @@ function requiredSecret(name, message) {
 
 if (live) {
   requiredVerified('NEXT_PUBLIC_SITE_URL', 'Canonical site URL is missing or unverified')
-  requiredVerified('NEXT_PUBLIC_PUBLICATION_LEGAL_NAME', 'Legal publisher name is missing or unverified')
+  requiredVerified(
+    'NEXT_PUBLIC_PUBLICATION_LEGAL_NAME',
+    'Legal publisher name is missing or unverified',
+  )
   requiredVerified('NEXT_PUBLIC_EDITOR_IN_CHIEF', 'Editor-in-chief is missing or unverified')
-  requiredVerified('NEXT_PUBLIC_DOIB_NUMBER', 'Publication registration number is missing or unverified')
+  requiredVerified(
+    'NEXT_PUBLIC_DOIB_NUMBER',
+    'Publication registration number is missing or unverified',
+  )
   requiredVerified('NEXT_PUBLIC_NEWSROOM_PHONE', 'Newsroom phone is missing or unverified')
   requiredVerified('NEXT_PUBLIC_NEWSROOM_ADDRESS', 'Newsroom address is missing or unverified')
   requiredVerified('NEXT_PUBLIC_NEWSROOM_EMAIL', 'Newsroom email is missing or unverified')
   requiredVerified('DATABASE_URL', 'DATABASE_URL is required for durable production state')
   requiredVerified('PAYLOAD_PUBLIC_SERVER_URL', 'Payload CMS server URL is missing or unverified')
-  requiredVerified('PAYLOAD_API_TOKEN', 'Journalist-to-Payload service-account API key is missing or unverified')
+  requiredVerified(
+    'PAYLOAD_API_TOKEN',
+    'Journalist-to-Payload service-account API key is missing or unverified',
+  )
   requiredSecret('AUTH_SECRET')
   requiredSecret('PAYLOAD_SECRET')
   requiredSecret('REVALIDATE_SECRET')
-  requiredSecret('SUBMISSION_IP_SALT', 'SUBMISSION_IP_SALT must be a non-placeholder secret of at least 32 characters')
+  requiredSecret(
+    'SUBMISSION_IP_SALT',
+    'SUBMISSION_IP_SALT must be a non-placeholder secret of at least 32 characters',
+  )
 
   const contentSource = value('CONTENT_SOURCE') || value('PAYLOAD_CONTENT_SOURCE')
   if (contentSource !== 'payload') {
     blockers.push('CONTENT_SOURCE=payload is mandatory for a live deployment')
   }
   if (value('PAYLOAD_DB_PUSH') !== 'false') {
-    blockers.push('PAYLOAD_DB_PUSH must be false in production; apply checked-in migrations instead')
+    blockers.push(
+      'PAYLOAD_DB_PUSH must be false in production; apply checked-in migrations instead',
+    )
   }
   if (value('AUTH_AUTO_MIGRATE') === 'true') {
     blockers.push('AUTH_AUTO_MIGRATE must be false in production; migrate auth schema before serve')
@@ -68,26 +83,49 @@ if (live) {
     value('RESEND_API_KEY') || (value('NEWSLETTER_API_KEY') && value('NEWSLETTER_API_BASE')),
   )
   if (!emailProviderReady) {
-    blockers.push('Outbound email provider is required for password recovery, invitations and newsletter confirmation')
+    blockers.push(
+      'Outbound email provider is required for password recovery, invitations and newsletter confirmation',
+    )
   }
   requiredVerified('AUTH_EMAIL_FROM', 'Verified account-email sender is missing')
   requiredVerified('NEWSLETTER_FROM', 'Verified newsletter sender is missing')
 
   const pushConfigured = Boolean(
     value('NEXT_PUBLIC_WEB_PUSH_VAPID_KEY') &&
-      value('WEB_PUSH_PROVIDER_URL') &&
-      value('WEB_PUSH_PROVIDER_API_KEY'),
+    value('WEB_PUSH_VAPID_PRIVATE_KEY') &&
+    value('WEB_PUSH_SUBJECT'),
   )
   if (!pushConfigured) {
     blockers.push(
-      'Background browser notifications require NEXT_PUBLIC_WEB_PUSH_VAPID_KEY, WEB_PUSH_PROVIDER_URL and WEB_PUSH_PROVIDER_API_KEY',
+      'Background browser notifications require public/private VAPID keys and WEB_PUSH_SUBJECT',
     )
   }
   requiredSecret('CRON_SECRET', 'CRON_SECRET must protect scheduled notification delivery')
+  requiredVerified(
+    'NEXT_PUBLIC_TURNSTILE_SITE_KEY',
+    'Turnstile site key is required for public forms',
+  )
+  requiredVerified('TURNSTILE_SECRET_KEY', 'Turnstile secret key is required for public forms')
+  if (value('CAPTCHA_PROVIDER') !== 'turnstile') {
+    blockers.push('CAPTCHA_PROVIDER=turnstile is required for live public write endpoints')
+  }
 
-  // The repository currently has no Payload object-storage plugin wired into
-  // payload.config.ts. Credentials alone would be a false green on Vercel.
-  blockers.push('Payload media still uses local ephemeral storage; wire and verify a durable storage adapter before launch')
+  if (value('NEWSROOM_SUPERADMIN_PASSWORD') || value('NEWSROOM_ADMIN_PASSWORD')) {
+    blockers.push(
+      'Clear NEWSROOM_SUPERADMIN_PASSWORD and NEWSROOM_ADMIN_PASSWORD after boot-account provisioning',
+    )
+  }
+  if (!value('PARTNER_FEED_TOKENS')) {
+    blockers.push('PARTNER_FEED_TOKENS is required to prevent an unauthenticated syndication feed')
+  }
+  if (value('STAFF_MFA_ENABLED') !== 'true') {
+    blockers.push('STAFF_MFA_ENABLED=true is required so all newsroom roles enroll in TOTP')
+  }
+
+  requiredSecret(
+    'BLOB_READ_WRITE_TOKEN',
+    'BLOB_READ_WRITE_TOKEN is required for durable Payload media storage',
+  )
 }
 
 if (warnings.length) {

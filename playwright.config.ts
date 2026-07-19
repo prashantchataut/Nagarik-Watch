@@ -42,9 +42,19 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `pnpm --filter @nagarikwatch/web build && pnpm --filter @nagarikwatch/web start -- -p ${PORT}`,
+    command: `pnpm --filter @nagarikwatch/web build && pnpm --filter @nagarikwatch/web exec next start -p ${PORT}`,
     url: BASE,
     timeout: 240_000,
-    reuseExistingServer: !process.env.CI,
+    // Always boot a fresh production server so E2E_TEST/AUTH_SECRET env is applied.
+    reuseExistingServer: false,
+    env: {
+      ...process.env,
+      NEXT_PUBLIC_SITE_URL: BASE,
+      BETTER_AUTH_URL: BASE,
+      AUTH_SECRET: process.env.AUTH_SECRET ?? 'e2e-only-auth-secret-never-used-in-production',
+      CONTENT_SOURCE: 'json',
+      CI: 'true',
+      E2E_TEST: 'true',
+    },
   },
 })

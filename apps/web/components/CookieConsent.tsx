@@ -53,6 +53,15 @@ export function CookieConsent({ locale }: { locale: Locale }) {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         event.preventDefault()
+        // Persist essential-only so Escape does not leave consent undecided.
+        writeConsent({
+          essential: true,
+          personalization: false,
+          analytics: false,
+          advertising: false,
+          decidedAt: new Date().toISOString(),
+          version: 4,
+        })
         setVisible(false)
         return
       }
@@ -113,8 +122,8 @@ export function CookieConsent({ locale }: { locale: Locale }) {
           </p>
           <p className="mt-1 text-body leading-relaxed text-ink-soft">
             {locale === 'en'
-              ? 'Essential storage keeps the site working. Optional choices cover personalisation, analytics, and first-party ad measurement — never sold, never third-party ad trackers.'
-              : 'आवश्यक भण्डारणले साइट चलाउँछ। वैकल्पिक रोजाइ: व्यक्तिगत सिफारिस, एनालिटिक्स, र पहिलो-पक्ष विज्ञापन मापन — बेचिँदैन, तेस्रो-पक्ष विज्ञापन ट्र्याकर छैन।'}{' '}
+              ? 'Essential storage keeps the site working. Optional choices cover personalisation, analytics, and first-party ad measurement: never sold, never third-party ad trackers.'
+              : 'आवश्यक भण्डारणले साइट चलाउँछ। वैकल्पिक रोजाइ: व्यक्तिगत सिफारिस, एनालिटिक्स, र पहिलो-पक्ष विज्ञापन मापन। बेचिँदैन; तेस्रो-पक्ष विज्ञापन ट्र्याकर छैन।'}{' '}
             <Link
               href={localizeHref(locale, '/cookies')}
               className="font-semibold text-ink underline-offset-2 hover:underline"

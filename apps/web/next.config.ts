@@ -23,7 +23,7 @@ const securityHeaders = [
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
       "style-src 'self' 'unsafe-inline'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
+      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
       "frame-src 'self' https://challenges.cloudflare.com",
       "connect-src 'self' https:",
       "media-src 'self' https: blob:",
@@ -64,13 +64,7 @@ const configuredPatterns = [
   .map(configuredRemotePattern)
   .filter((pattern): pattern is RemotePattern => pattern !== null)
 
-const staticPatterns: RemotePattern[] = [
-  { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
-  { protocol: 'https', hostname: 'picsum.photos', pathname: '/**' },
-  { protocol: 'https', hostname: 'fastly.picsum.photos', pathname: '/**' },
-]
-
-const remotePatterns: RemotePattern[] = [...staticPatterns, ...configuredPatterns].filter(
+const remotePatterns: RemotePattern[] = configuredPatterns.filter(
   (pattern, index, all) =>
     all.findIndex(
       (candidate) =>

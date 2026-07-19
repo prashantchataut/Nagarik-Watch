@@ -41,7 +41,7 @@ export default async function NotFound() {
           </form>
         </div>
 
-        <nav aria-label="Popular sections" className="border-l-4 border-brand pl-5">
+        <nav aria-label="Popular sections" className="border border-rule bg-surface-raised px-5 py-4">
           <p className="text-caption font-bold uppercase tracking-[0.14em] text-ink-soft">Start again</p>
           <div className="mt-3 grid gap-2">
             <Link href="/" className="border-b border-rule pb-2 text-body font-bold text-ink hover:border-brand hover:text-brand-strong" lang="ne">{ne.notFoundHome} →</Link>

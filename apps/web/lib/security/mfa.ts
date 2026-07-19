@@ -1,12 +1,10 @@
 import 'server-only'
 
-/**
- * MFA is not yet wired into the Better Auth staff session flow. Keep this
- * capability false even if an environment flag is set so callers cannot
- * mistake configuration intent for enforced authentication.
- */
+/** Better Auth's encrypted TOTP plugin is registered in lib/auth/index.ts. */
+export const STAFF_MFA_PLUGIN_WIRED = true
+
 export function twoFactorConfigured(): boolean {
-  return false
+  return STAFF_MFA_PLUGIN_WIRED && process.env.STAFF_MFA_ENABLED?.trim().toLowerCase() === 'true'
 }
 
 export function twoFactorEnabled(): boolean {

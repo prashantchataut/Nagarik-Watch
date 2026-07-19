@@ -44,6 +44,13 @@ export async function verifyTurnstileToken(
 ): Promise<TurnstileVerification> {
   const state = getCaptchaState()
   if (!state.enabled) {
+    if ((process.env.NEXT_PUBLIC_LAUNCH_STATUS ?? '').trim().toLowerCase() === 'live') {
+      return {
+        success: false,
+        skipped: false,
+        errorCodes: ['captcha-not-configured'],
+      }
+    }
     return { success: true, skipped: true, errorCodes: [] }
   }
 
@@ -68,13 +75,11 @@ export async function verifyTurnstileToken(
     if (!response.ok) {
       return { success: false, skipped: false, errorCodes: [`http-${response.status}`] }
     }
-    const result = await response.json() as TurnstileResponse
+    const result = (await response.json()) as TurnstileResponse
     return {
       success: result.success === true,
       skipped: false,
-      errorCodes: Array.isArray(result['error-codes'])
-        ? result['error-codes'].map(String)
-        : [],
+      errorCodes: Array.isArray(result['error-codes']) ? result['error-codes'].map(String) : [],
       challengeTimestamp: typeof result.challenge_ts === 'string' ? result.challenge_ts : undefined,
       hostname: typeof result.hostname === 'string' ? result.hostname : undefined,
     }

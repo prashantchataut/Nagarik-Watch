@@ -17,7 +17,12 @@ export type Queryable = {
 const readySchemas = new Map<string, Promise<void>>()
 
 export function isProductionRuntime(): boolean {
-  return process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE !== 'phase-production-build'
+  const isolatedE2e = process.env.E2E_TEST === 'true'
+  return (
+    process.env.NODE_ENV === 'production' &&
+    process.env.NEXT_PHASE !== 'phase-production-build' &&
+    !isolatedE2e
+  )
 }
 
 export function operationalStorageMode(): 'postgres' | 'memory' {
@@ -36,7 +41,10 @@ export async function getOperationalPool(): Promise<Queryable | null> {
     const pool = await getSharedPool()
     return pool as Queryable | null
   } catch (error) {
-    console.error('[ops-db] could not acquire shared Postgres pool', error instanceof Error ? error.message : error)
+    console.error(
+      '[ops-db] could not acquire shared Postgres pool',
+      error instanceof Error ? error.message : error,
+    )
     return null
   }
 }
@@ -48,7 +56,10 @@ export function requireOperationalPool(pool: Queryable | null): Queryable | null
   return pool
 }
 
-export async function ensureOperationalSchema(key: string, setup: (pool: Queryable) => Promise<void>) {
+export async function ensureOperationalSchema(
+  key: string,
+  setup: (pool: Queryable) => Promise<void>,
+) {
   try {
     const pool = await getOperationalPool()
     if (!pool) return null
@@ -77,15 +88,23 @@ export function toIso(value: Date | string): string {
 }
 
 export function cleanText(value: unknown, max = 500): string {
-  return String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, max)
+  return String(value ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, max)
 }
 
 export function cleanMultiline(value: unknown, max = 5000): string {
-  return String(value ?? '').replace(/\r\n/g, '\n').trim().slice(0, max)
+  return String(value ?? '')
+    .replace(/\r\n/g, '\n')
+    .trim()
+    .slice(0, max)
 }
 
 export function asSlug(value: unknown, fallback = 'item'): string {
-  const raw = String(value ?? '').toLowerCase().trim()
+  const raw = String(value ?? '')
+    .toLowerCase()
+    .trim()
   const slug = raw
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')

@@ -21,6 +21,7 @@ import { Kysely } from 'kysely'
 import { getAuth } from './index'
 import { createDialect } from './auth-pool'
 import type { NewsroomRole } from '@/lib/admin-roles'
+import { twoFactorConfigured } from '@/lib/security/mfa'
 
 export type ReaderSession = {
   userId: string
@@ -28,6 +29,7 @@ export type ReaderSession = {
   displayName: string | null
   role: string
   locale: 'ne' | 'en'
+  twoFactorEnabled: boolean
 }
 
 export type NewsroomSession = ReaderSession & {
@@ -62,6 +64,9 @@ const NEWSROOM_ROLES: ReadonlySet<NewsroomRole> = new Set<NewsroomRole>([
  * doubling Better Auth / cookie work on the same navigation.
  */
 export const getSession = cache(async (): Promise<ReaderSession | null> => {
+  // Playwright production builds intentionally skip Better Auth/PGlite so the
+  // reader chrome stays up without a Postgres DATABASE_URL.
+  if (process.env.E2E_TEST === 'true') return null
   try {
     const auth = await getAuth()
     const session = await auth.api.getSession({ headers: await headers() })
@@ -71,6 +76,7 @@ export const getSession = cache(async (): Promise<ReaderSession | null> => {
       displayName?: string
       locale?: string
       disabled?: boolean | null
+      twoFactorEnabled?: boolean | null
     }
     if (user.disabled === true) return null
     const role = user.role ?? 'reader'
@@ -82,6 +88,7 @@ export const getSession = cache(async (): Promise<ReaderSession | null> => {
       displayName,
       role,
       locale,
+      twoFactorEnabled: user.twoFactorEnabled === true,
     }
   } catch (error) {
     console.error(
@@ -92,16 +99,29 @@ export const getSession = cache(async (): Promise<ReaderSession | null> => {
   }
 })
 
-export const getNewsroomSession = cache(async (): Promise<NewsroomSession | null> => {
+export const getUnverifiedNewsroomSession = cache(async (): Promise<NewsroomSession | null> => {
   const session = await getSession()
   if (!session) return null
   if (!NEWSROOM_ROLES.has(session.role as NewsroomRole)) return null
   return { ...session, newsroomRole: session.role as NewsroomRole }
 })
 
+export const getNewsroomSession = cache(async (): Promise<NewsroomSession | null> => {
+  const session = await getUnverifiedNewsroomSession()
+  if (!session) return null
+  if (twoFactorConfigured() && !session.twoFactorEnabled) return null
+  return session
+})
+
 export async function requireNewsroomSession(): Promise<NewsroomSession> {
   const session = await getNewsroomSession()
-  if (!session) redirect('/admin/login')
+  if (!session) {
+    const pendingMfa = await getUnverifiedNewsroomSession()
+    if (pendingMfa && twoFactorConfigured() && !pendingMfa.twoFactorEnabled) {
+      redirect(pendingMfa.locale === 'en' ? '/en/auth/mfa/setup' : '/auth/mfa/setup')
+    }
+    redirect('/admin/login')
+  }
   return session
 }
 

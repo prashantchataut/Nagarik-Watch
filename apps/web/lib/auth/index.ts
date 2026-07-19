@@ -20,6 +20,7 @@
  */
 import 'server-only'
 import { APIError, betterAuth } from 'better-auth'
+import { twoFactor } from 'better-auth/plugins'
 import { after } from 'next/server'
 import { createDialect } from './auth-pool'
 import { SITE_URL } from '@/lib/site'
@@ -75,7 +76,9 @@ function trustedOrigins(): string[] {
     process.env.VERCEL_URL,
     process.env.VERCEL_BRANCH_URL,
     process.env.VERCEL_PROJECT_PRODUCTION_URL,
-    ...(process.env.NODE_ENV === 'production' ? [] : ['http://localhost:3000', 'http://127.0.0.1:3000']),
+    ...(process.env.NODE_ENV === 'production'
+      ? []
+      : ['http://localhost:3000', 'http://127.0.0.1:3000']),
   ]
   return Array.from(
     new Set(
@@ -121,6 +124,12 @@ async function buildAuth(): Promise<AuthInstance> {
     baseURL: authBaseUrl(),
     trustedOrigins: trustedOrigins(),
     database: { dialect, type: 'postgres' },
+    appName: 'Nagarik Watch',
+    plugins: [
+      twoFactor({
+        issuer: 'Nagarik Watch',
+      }),
+    ],
     ...(isGoogleAuthConfigured()
       ? {
           socialProviders: {
@@ -247,7 +256,10 @@ async function buildAuth(): Promise<AuthInstance> {
     },
   }) as unknown as AuthInstance
 
-  if (process.env.AUTH_AUTO_MIGRATE === 'true' || (process.env.NODE_ENV !== 'production' && process.env.AUTH_AUTO_MIGRATE !== 'false')) {
+  if (
+    process.env.AUTH_AUTO_MIGRATE === 'true' ||
+    (process.env.NODE_ENV !== 'production' && process.env.AUTH_AUTO_MIGRATE !== 'false')
+  ) {
     const { getMigrations } = await import('better-auth/db/migration')
     const { runMigrations } = await getMigrations(auth.options)
     await runMigrations()
@@ -256,9 +268,9 @@ async function buildAuth(): Promise<AuthInstance> {
   // Kick off boot repair in the background for non-login routes. Admin login
   // awaits ensureNewsroomBootAccounts itself so passwords sync before sign-in.
   after(() =>
-    ensureNewsroomBootAccounts(auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0]).catch(
-      (error) => console.error('[auth] background boot provision failed', error),
-    ),
+    ensureNewsroomBootAccounts(
+      auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
+    ).catch((error) => console.error('[auth] background boot provision failed', error)),
   )
   return auth
 }

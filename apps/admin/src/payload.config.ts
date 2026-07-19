@@ -1,6 +1,7 @@
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Users } from './collections/Users'
@@ -35,8 +36,7 @@ const DATABASE_URL =
   process.env.DATABASE_URL ??
   (isBuild ? 'postgres://build-placeholder.not.used.at.runtime/db' : undefined)
 const SERVER_URL =
-  process.env.PAYLOAD_PUBLIC_SERVER_URL ??
-  (isBuild ? 'http://localhost:3001' : undefined)
+  process.env.PAYLOAD_PUBLIC_SERVER_URL ?? (isBuild ? 'http://localhost:3001' : undefined)
 
 /**
  * Validate env at runtime (NOT at build). Called once on first server boot
@@ -74,6 +74,20 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Categories, Authors, Tags, Articles],
+  plugins: [
+    vercelBlobStorage({
+      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim()),
+      collections: {
+        media: {
+          prefix: 'nagarik-watch/media',
+        },
+      },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+      clientUploads: true,
+      addRandomSuffix: true,
+      cacheControlMaxAge: 31_536_000,
+    }),
+  ],
   globals: [],
   editor: lexicalEditor(),
   upload: {

@@ -1,10 +1,28 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { isAllowedPublicFirstSegment } from '@/lib/public-path-allowlist'
 
 /**
  * Public URLs keep Nepali at the root and English under /en. Internally the App Router
  * receives an explicit /ne segment so one typed route tree can render both languages.
  * Admin requests also receive a stable pathname header for the protected admin layout.
  */
+function firstSegment(pathname: string): string {
+  return pathname.split('/').filter(Boolean)[0] ?? ''
+}
+
+function hardNotFound(request: NextRequest, locale: 'ne' | 'en'): NextResponse {
+  // Locale rewrite makes App Router notFound() a soft 404 (HTTP 200). Unknown
+  // top-level paths must fail closed here so crawlers see a real 404 status.
+  const destination = request.nextUrl.clone()
+  destination.pathname = locale === 'en' ? '/en/__not-found' : '/ne/__not-found'
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-locale', locale)
+  return NextResponse.rewrite(destination, {
+    status: 404,
+    request: { headers: requestHeaders },
+  })
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -21,10 +39,28 @@ export function middleware(request: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
+  if (pathname === '/en/__not-found' || pathname === '/ne/__not-found') {
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-locale', pathname.startsWith('/en') ? 'en' : 'ne')
+    return NextResponse.next({
+      status: 404,
+      request: { headers: requestHeaders },
+    })
+  }
+
   if (pathname === '/en' || pathname.startsWith('/en/')) {
+    const segment = firstSegment(pathname.slice(3) || '/')
+    if (segment && segment !== '__not-found' && !isAllowedPublicFirstSegment(segment)) {
+      return hardNotFound(request, 'en')
+    }
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-locale', 'en')
     return NextResponse.next({ request: { headers: requestHeaders } })
+  }
+
+  const segment = firstSegment(pathname)
+  if (segment && segment !== '__not-found' && !isAllowedPublicFirstSegment(segment)) {
+    return hardNotFound(request, 'ne')
   }
 
   const internal = request.nextUrl.clone()

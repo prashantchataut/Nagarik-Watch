@@ -11,7 +11,7 @@ import 'server-only'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { ReaderSession } from '@/lib/auth/session'
-import { isPremiumSubscriber } from '@/lib/membership'
+import { isPremiumSubscriber, isPublicMembershipEnabled } from '@/lib/membership'
 import {
   circulationVariance,
   entitlementOk,
@@ -77,12 +77,14 @@ export async function listReplicaPages(): Promise<ReplicaIndex> {
 
 export type EntitlementCheck = { allowed: boolean; tier: 'free' | 'digital'; reason: string }
 
-/** Free pages are always allowed; premium pages require an active digital membership. */
+/** Free pages are always allowed; premium pages require membership only when public membership is on. */
 export async function checkEntitlement(
   session: ReaderSession | null,
   page: Pick<ReplicaPage, 'premium'>,
 ): Promise<EntitlementCheck> {
-  if (!page.premium) return { allowed: true, tier: 'free', reason: 'Page is not gated.' }
+  if (!page.premium || !isPublicMembershipEnabled()) {
+    return { allowed: true, tier: 'free', reason: 'Page is not gated.' }
+  }
   const premium = await isPremiumSubscriber(session)
   const tier: 'free' | 'digital' = premium ? 'digital' : 'free'
   const allowed = entitlementOk(tier, 'digital')

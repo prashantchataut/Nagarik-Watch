@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { getAuthors, getNavCategories, getStories, getTags } from '@/lib/content'
+import { isPublicMembershipEnabled } from '@/lib/membership'
 import { SITE_URL, STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
 import { newsSitemapPriority } from '@/lib/algorithms/product/seo-dist'
 
@@ -37,6 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Static info pages. Linked from the footer and served
   // bilingually, so advertise both locales.
+  const membershipPublic = isPublicMembershipEnabled()
   const STATIC_PAGES = [
     'about',
     'ethics',
@@ -44,7 +46,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'contact',
     'rss',
     'sitemap',
-    ...STATIC_HUBS.map((hub) => hub.path.replace(/^\//, '')),
+    ...STATIC_HUBS.filter((hub) => membershipPublic || hub.key !== 'membership').map((hub) =>
+      hub.path.replace(/^\//, ''),
+    ),
     ...TRUST_PAGES.map((page) => page.path.replace(/^\//, '')),
   ] as const
   for (const locale of LOCALES) {

@@ -980,7 +980,10 @@
   .notification-desk__permission strong, .notification-desk__permission small { display: block; }
   .notification-desk__permission small { margin-top: .2rem; max-width: 62ch; color: var(--ink-soft); font-size: .75rem; line-height: 1.5; }
   .notification-desk__permission button { margin-top: 0; }
-  .notification-desk__list li[data-read='false'] { box-shadow: inset 4px 0 0 var(--brand); }
+  .notification-desk__list li[data-read='false'] {
+    background: color-mix(in oklch, var(--brand-tint) 70%, var(--surface));
+    border-color: var(--brand);
+  }
   .notification-desk__list button { width: 100%; display: grid; gap: .25rem; padding: .2rem 1rem .2rem .75rem; text-align: left; }
   .notification-desk__list button strong { color: var(--ink); font-family: var(--font-mukta), sans-serif; font-size: 1.08rem; font-weight: 800; line-height: 1.28; }
   .notification-desk__list button:hover strong { color: var(--brand-strong); }

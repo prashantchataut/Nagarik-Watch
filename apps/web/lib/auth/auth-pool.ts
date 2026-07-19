@@ -16,9 +16,12 @@ function pgliteDataDir(): string {
 export async function createDialect(): Promise<Dialect> {
   if (cached) return cached
 
-  if (process.env.NEXT_PHASE === 'phase-production-build') {
+  const isolatedE2e = process.env.E2E_TEST === 'true'
+  if (process.env.NEXT_PHASE === 'phase-production-build' || isolatedE2e) {
     const { PGlite } = await import('@electric-sql/pglite')
-    cached = new PGliteDialect({ pglite: await PGlite.create('memory://') })
+    // Argument-less create() is an in-memory DB. Avoid "memory://" — on some
+    // Windows/Node combinations PGlite turns that into a URL object and crashes.
+    cached = new PGliteDialect({ pglite: await PGlite.create() })
     return cached
   }
 

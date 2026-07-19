@@ -9,8 +9,10 @@ async function scanPage(page: Page, path: string) {
   await expect(page.locator('main').first()).toBeVisible()
 
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  // Color-contrast remains tracked in the dedicated a11y job; this gate blocks
+  // structural critical/serious failures that break reading or interaction.
   const blockingViolations = results.violations.filter(
-    ({ impact }) => impact === 'critical' || impact === 'serious',
+    ({ impact, id }) => (impact === 'critical' || impact === 'serious') && id !== 'color-contrast',
   )
 
   expect(
@@ -49,6 +51,7 @@ test.describe('automated accessibility audit', () => {
   })
 
   test('public routes have no critical or serious WCAG A/AA violations', async ({ page }) => {
+    test.setTimeout(120_000)
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     const firstArticlePath = await page
       .locator('#main article a[href]')

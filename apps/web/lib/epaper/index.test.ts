@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/lib/membership', () => ({
   isPremiumSubscriber: vi.fn(async (session: unknown) => Boolean(session)),
+  isPublicMembershipEnabled: vi.fn(() => process.env.NEXT_PUBLIC_MEMBERSHIP_PUBLIC === 'true'),
 }))
 
 import {
@@ -51,13 +52,21 @@ describe('checkEntitlement', () => {
     expect(result).toEqual({ allowed: true, tier: 'free', reason: 'Page is not gated.' })
   })
 
-  it('denies premium pages for anonymous readers', async () => {
+  it('allows premium pages when public membership is off (Option A)', async () => {
+    delete process.env.NEXT_PUBLIC_MEMBERSHIP_PUBLIC
+    const result = await checkEntitlement(null, { premium: true })
+    expect(result).toEqual({ allowed: true, tier: 'free', reason: 'Page is not gated.' })
+  })
+
+  it('denies premium pages for anonymous readers when membership is public', async () => {
+    process.env.NEXT_PUBLIC_MEMBERSHIP_PUBLIC = 'true'
     const result = await checkEntitlement(null, { premium: true })
     expect(result.allowed).toBe(false)
     expect(result.tier).toBe('free')
   })
 
-  it('allows premium pages for a subscribed reader', async () => {
+  it('allows premium pages for a subscribed reader when membership is public', async () => {
+    process.env.NEXT_PUBLIC_MEMBERSHIP_PUBLIC = 'true'
     const result = await checkEntitlement(
       { userId: 'u1', email: 'a@b.com', displayName: null, role: 'subscriber', locale: 'en' },
       { premium: true },

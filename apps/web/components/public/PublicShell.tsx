@@ -19,9 +19,11 @@ import {
   type AccountKind,
 } from '@/lib/account-identity'
 import { localizeHref } from '@/lib/i18n/locales'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { HtmlLangSync } from '@/components/HtmlLangSync'
 
 export async function PublicShell({ locale, children }: { locale: Locale; children: ReactNode }) {
-  const english = locale === 'en'
+  const dict = getDictionary(locale)
   const [navCategories, session] = await Promise.all([
     getNavCategories(),
     getSession().catch(() => null),
@@ -41,8 +43,9 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
 
   return (
     <>
+      <HtmlLangSync locale={locale} />
       <a className="skip-link" href="#main">
-        {english ? 'Skip to content' : 'मुख्य सामग्रीमा जानुहोस्'}
+        {dict.skipToContent}
       </a>
       <SiteJsonLd siteName={PUBLICATION.publisherName} />
       <Masthead locale={locale} navCategories={navCategories} account={account} />

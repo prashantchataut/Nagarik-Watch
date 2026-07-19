@@ -1,11 +1,8 @@
 import 'server-only'
 
-/**
- * Credentials only express deployment intent. Flip this constant only in the
- * same change that imports and configures a durable Payload storage plugin.
- */
-export const STORAGE_ADAPTER_WIRED = false
+/** The canonical Payload app uses the official Vercel Blob storage plugin. */
+export const STORAGE_ADAPTER_WIRED = true
 
 export function isPayloadStorageWired(): boolean {
-  return STORAGE_ADAPTER_WIRED
+  return STORAGE_ADAPTER_WIRED && Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim())
 }

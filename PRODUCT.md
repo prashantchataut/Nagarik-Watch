@@ -15,7 +15,11 @@ The editorial model is **hybrid**: original reporting, curated/aggregated items 
 attribution, and syndicated/wire content, all under a single editorial voice.
 
 Revenue is **ad-supported** (programmatic + direct ad sales + sponsored/native content).
-No reader paywall on day one.
+
+**Monetization decision (2026-07-19): Option A — free to read forever for now.** Daily
+news, archives, and article bodies stay open. No public membership pitch, no free-article
+meter, no article paywall. Soft membership may be reconsidered later via
+`NEXT_PUBLIC_MEMBERSHIP_PUBLIC=true`; until then that chrome stays off.
 
 **Register:** brand (the portal itself, homepage, section pages, article pages, long-form
 content) with a product register only inside the editorial CMS/admin (see `DESIGN.md`).
@@ -138,13 +142,15 @@ weaknesses of:
 
 - Do we add a Nepali-language **newsletter** digest in Phase 3, or wait for traction?
 - Do we build a **mobile app** eventually, or is a strong PWA enough?
-- At what traffic/revenue threshold do we reconsider a soft **membership** layer?
+- ~~At what traffic/revenue threshold do we reconsider a soft **membership** layer?~~
+  **Deferred.** Option A locked 2026-07-19 (free + ads). Revisit only with a clear
+  entitlement story and `NEXT_PUBLIC_MEMBERSHIP_PUBLIC`.
 - Photojournalism vertical: standalone, or folded into a Photo Gallery content type?
 
 ## Non-goals (explicit, for this build)
 
 - No native mobile apps in v1 (PWA is the day-one mobile story).
-- No reader paywall or hard meter in v1.
+- No reader paywall, hard meter, or public membership chrome in v1 (Option A).
 - No user-generated content / open comments-without-moderation in v1 (comments, if any,
   ship pre-moderated or not at all, see `docs/editorial-workflow.md`).
 - No print production tooling. The "ePaper" feature is a digital edition viewer, not a

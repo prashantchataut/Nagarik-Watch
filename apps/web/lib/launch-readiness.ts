@@ -13,7 +13,9 @@ async function configuredSecurityHeaderLint(): Promise<ReturnType<typeof lintSec
   const { default: nextConfig } = await import('@/next.config')
   const entries = await nextConfig.headers?.()
   const headerList = entries?.find((entry) => entry.source === '/:path*')?.headers ?? []
-  const asRecord = Object.fromEntries(headerList.map((header) => [header.key.toLowerCase(), header.value]))
+  const asRecord = Object.fromEntries(
+    headerList.map((header) => [header.key.toLowerCase(), header.value]),
+  )
   return lintSecurityHeaders(asRecord)
 }
 
@@ -53,7 +55,9 @@ function verifiedSetting(
     key,
     label,
     status: invalid ? (required ? 'fail' : 'warn') : 'pass',
-    detail: invalid ? options.warning ?? `${envName} is missing or still a placeholder` : `${envName} is configured`,
+    detail: invalid
+      ? (options.warning ?? `${envName} is missing or still a placeholder`)
+      : `${envName} is configured`,
   }
 }
 
@@ -67,14 +71,13 @@ function buildLaunchChecks(options?: {
   const publishedCount = Number(value('PUBLISHED_ARTICLE_COUNT') || 0)
   const launchMinimum = Number(value('LAUNCH_MIN_PUBLISHED_ARTICLES') || 30)
   const storageCredentialsPresent = Object.entries(process.env).some(
-    ([name, current]) =>
-      /^(STORAGE_|S3_|BLOB_)/.test(name) && Boolean(current?.trim()),
+    ([name, current]) => /^(STORAGE_|S3_|BLOB_)/.test(name) && Boolean(current?.trim()),
   )
   const storageAdapterWired = isPayloadStorageWired()
   const pushConfigured = Boolean(
     value('NEXT_PUBLIC_WEB_PUSH_VAPID_KEY') &&
-      value('WEB_PUSH_PROVIDER_URL') &&
-      value('WEB_PUSH_PROVIDER_API_KEY'),
+    value('WEB_PUSH_VAPID_PRIVATE_KEY') &&
+    value('WEB_PUSH_SUBJECT'),
   )
   const launchLive = (value('NEXT_PUBLIC_LAUNCH_STATUS') || 'preview').toLowerCase() === 'live'
   const ops = options?.opsMigrations
@@ -87,16 +90,27 @@ function buildLaunchChecks(options?: {
       key: 'database',
       label: 'Persistent database',
       status: dbMode === 'postgres' ? 'pass' : 'fail',
-      detail: dbMode === 'postgres' ? 'DATABASE_URL points to Postgres' : 'Memory/PGlite mode is not production-safe',
+      detail:
+        dbMode === 'postgres'
+          ? 'DATABASE_URL points to Postgres'
+          : 'Memory/PGlite mode is not production-safe',
     },
-    verifiedSetting('auth-secret', 'Authentication secret', value('AUTH_SECRET') ? 'AUTH_SECRET' : 'BETTER_AUTH_SECRET', {
-      secret: true,
-    }),
+    verifiedSetting(
+      'auth-secret',
+      'Authentication secret',
+      value('AUTH_SECRET') ? 'AUTH_SECRET' : 'BETTER_AUTH_SECRET',
+      {
+        secret: true,
+      },
+    ),
     {
       key: 'content-source',
       label: 'Canonical content source',
       status:
-        contentSource === 'payload' || dbMode === 'postgres' || contentSource === 'json' || !contentSource
+        contentSource === 'payload' ||
+        dbMode === 'postgres' ||
+        contentSource === 'json' ||
+        !contentSource
           ? 'pass'
           : 'fail',
       detail:
@@ -123,8 +137,7 @@ function buildLaunchChecks(options?: {
     {
       key: 'schema-migrations',
       label: 'Database migration mode',
-      status:
-        contentSource !== 'payload' || value('PAYLOAD_DB_PUSH') === 'false' ? 'pass' : 'fail',
+      status: contentSource !== 'payload' || value('PAYLOAD_DB_PUSH') === 'false' ? 'pass' : 'fail',
       detail:
         contentSource !== 'payload'
           ? 'In-app article store does not require Payload migrations'
@@ -190,10 +203,12 @@ function buildLaunchChecks(options?: {
     {
       key: 'analytics',
       label: 'Audience analytics',
-      status: value('NEXT_PUBLIC_PLAUSIBLE_DOMAIN') || value('NEXT_PUBLIC_GA4_ID') ? 'pass' : 'warn',
-      detail: value('NEXT_PUBLIC_PLAUSIBLE_DOMAIN') || value('NEXT_PUBLIC_GA4_ID')
-        ? 'Audience analytics configured'
-        : 'Trending and Most Read remain conservative until verified telemetry is configured',
+      status:
+        value('NEXT_PUBLIC_PLAUSIBLE_DOMAIN') || value('NEXT_PUBLIC_GA4_ID') ? 'pass' : 'warn',
+      detail:
+        value('NEXT_PUBLIC_PLAUSIBLE_DOMAIN') || value('NEXT_PUBLIC_GA4_ID')
+          ? 'Audience analytics configured'
+          : 'Trending and Most Read remain conservative until verified telemetry is configured',
     },
     {
       key: 'background-push',
@@ -201,7 +216,7 @@ function buildLaunchChecks(options?: {
       status: pushConfigured ? 'pass' : 'fail',
       detail: pushConfigured
         ? 'VAPID subscription and provider-backed push delivery are configured'
-        : 'In-app alerts work, but background push needs a VAPID public key and an authenticated HTTPS delivery provider',
+        : 'In-app alerts work, but direct Web Push needs public/private VAPID keys and a contact subject',
     },
     verifiedSetting('notification-cron', 'Notification delivery cron secret', 'CRON_SECRET', {
       secret: true,
@@ -217,20 +232,21 @@ function buildLaunchChecks(options?: {
     {
       key: 'staff-mfa',
       label: 'Staff multi-factor authentication',
-      status: twoFactorConfigured() ? 'pass' : launchLive ? 'warn' : 'pass',
+      status: twoFactorConfigured() ? 'pass' : launchLive ? 'fail' : 'warn',
       detail: twoFactorConfigured()
         ? 'Staff MFA is configured and enforced'
         : launchLive
-          ? 'Live mode is enabled, but staff MFA is not configured or enforced'
-          : 'Staff MFA is not configured; this becomes a warning in live mode',
+          ? 'Live mode is enabled, but mandatory staff MFA is not enforced'
+          : 'Staff MFA is available but not enforced; set STAFF_MFA_ENABLED=true before launch',
     },
     {
       key: 'live-data',
       label: 'Live data providers',
       status: value('FOOTBALL_API_KEY') || value('NEPSE_API_URL') ? 'pass' : 'warn',
-      detail: value('FOOTBALL_API_KEY') || value('NEPSE_API_URL')
-        ? 'At least one configured live provider is available'
-        : 'Manual newsroom overrides are required for unsupported live data',
+      detail:
+        value('FOOTBALL_API_KEY') || value('NEPSE_API_URL')
+          ? 'At least one configured live provider is available'
+          : 'Manual newsroom overrides are required for unsupported live data',
     },
     {
       key: 'security-headers',
