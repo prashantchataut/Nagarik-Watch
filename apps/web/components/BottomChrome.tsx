@@ -9,12 +9,18 @@ import { getAdMode } from '@/lib/ads'
  * Order (bottom → top): BottomNav → optional sticky ad → CookieConsent.
  * Server component so AdSlot can keep its server-only house-ad data path.
  */
-export async function BottomChrome({ locale }: { locale: Locale }) {
+export async function BottomChrome({
+  locale,
+  accountHref,
+}: {
+  locale: Locale
+  accountHref?: string
+}) {
   const adsOn = getAdMode() !== 'off'
 
   return (
     <div className="contents lg:contents" data-bottom-chrome="true">
-      <BottomNav locale={locale} />
+      <BottomNav locale={locale} accountHref={accountHref} />
       {adsOn ? (
         <div
           className="pointer-events-none fixed inset-x-0 z-30 flex justify-center px-3 lg:hidden bottom-[calc(3.5rem+env(safe-area-inset-bottom))]"

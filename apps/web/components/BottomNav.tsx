@@ -9,33 +9,52 @@ import { localizeHref } from '@/lib/i18n/locales'
 export const NW_OPEN_MENU_EVENT = 'nw:open-menu'
 
 /** BBC-style primary mobile IA: Home / Latest / Search / Sections / Account. */
-const ITEMS = [
-  { key: 'home', href: '/', match: (p: string) => p === '/' || p === '/en' },
-  { key: 'latest', href: '/latest', match: (p: string) => p.endsWith('/latest') },
-  { key: 'search', href: '/search', match: (p: string) => p.includes('/search') },
-  {
-    key: 'sections',
-    href: null,
-    match: () => false,
-  },
-  {
-    key: 'account',
-    href: '/auth/profile',
-    match: (p: string) =>
-      p.includes('/auth') ||
-      p.endsWith('/saved') ||
-      p.includes('/reader-corner') ||
-      p.endsWith('/login') ||
-      p.endsWith('/profile'),
-  },
-] as const
+type BottomNavProps = {
+  locale: Locale
+  /** Logged-in profile or login path from PublicShell. */
+  accountHref?: string
+}
 
-export function BottomNav({ locale }: { locale: Locale }) {
+export function BottomNav({ locale, accountHref }: BottomNavProps) {
   const dict = getDictionary(locale)
   const pathname = usePathname() ?? '/'
   const lang = locale === 'en' ? 'en' : 'ne'
+  const resolvedAccountHref = accountHref ?? localizeHref(locale, '/auth/login')
 
-  const labels: Record<(typeof ITEMS)[number]['key'], string> = {
+  const items = [
+    {
+      key: 'home' as const,
+      href: localizeHref(locale, '/'),
+      match: (p: string) => p === '/' || p === '/en',
+    },
+    {
+      key: 'latest' as const,
+      href: localizeHref(locale, '/latest'),
+      match: (p: string) => p.endsWith('/latest'),
+    },
+    {
+      key: 'search' as const,
+      href: localizeHref(locale, '/search'),
+      match: (p: string) => p.includes('/search'),
+    },
+    {
+      key: 'sections' as const,
+      href: null as string | null,
+      match: () => false,
+    },
+    {
+      key: 'account' as const,
+      href: resolvedAccountHref,
+      match: (p: string) =>
+        p.includes('/auth') ||
+        p.endsWith('/saved') ||
+        p.includes('/reader-corner') ||
+        p.endsWith('/login') ||
+        p.endsWith('/profile'),
+    },
+  ]
+
+  const labels: Record<(typeof items)[number]['key'], string> = {
     home: dict.home,
     latest: dict.navLatest,
     search: dict.search,
@@ -53,7 +72,7 @@ export function BottomNav({ locale }: { locale: Locale }) {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <ul className="mx-auto flex max-w-page items-stretch justify-around">
-        {ITEMS.map((item) => {
+        {items.map((item) => {
           const active = item.match(pathname)
           const className = `flex h-14 w-full cursor-pointer flex-col items-center justify-center gap-0.5 text-[0.6875rem] font-medium transition-colors duration-fast ease-out-quint ${
             active ? 'text-brand-strong' : 'text-ink-soft hover:text-brand-strong'
@@ -75,11 +94,7 @@ export function BottomNav({ locale }: { locale: Locale }) {
                   <span lang={lang}>{labels[item.key]}</span>
                 </button>
               ) : (
-                <Link
-                  href={localizeHref(locale, item.href)}
-                  aria-current={active ? 'page' : undefined}
-                  className={className}
-                >
+                <Link href={item.href} aria-current={active ? 'page' : undefined} className={className}>
                   <Icon name={item.key} active={active} />
                   <span lang={lang}>{labels[item.key]}</span>
                 </Link>

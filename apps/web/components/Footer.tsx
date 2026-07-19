@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { Locale } from '@nagarikwatch/db'
+import type { Category, Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
@@ -9,15 +9,16 @@ import { PUBLICATION, isPublicPublicationValue } from '@/lib/site'
 
 type FooterProps = {
   locale: Locale
+  navCategories?: Category[]
 }
 
-export function Footer({ locale }: FooterProps) {
+export function Footer({ locale, navCategories = [] }: FooterProps) {
   const dict = getDictionary(locale)
   const year = new Date().getFullYear()
   const lang = locale === 'en' ? 'en' : 'ne'
   const registration = PUBLICATION.registrationNumber
 
-  const sectionLinks = [
+  const deskLinks = [
     { href: localizeHref(locale, '/latest'), label: locale === 'en' ? 'Latest' : 'ताजा' },
     { href: localizeHref(locale, '/trending'), label: locale === 'en' ? 'Trending' : 'ट्रेन्डिङ' },
     {
@@ -28,11 +29,18 @@ export function Footer({ locale }: FooterProps) {
       href: localizeHref(locale, '/fact-check'),
       label: locale === 'en' ? 'Fact check' : 'तथ्य-जाँच',
     },
-    { href: localizeHref(locale, '/opinion'), label: locale === 'en' ? 'Opinion' : 'विचार' },
+    {
+      href: localizeHref(locale, '/exclusive'),
+      label: locale === 'en' ? 'Exclusive' : 'विशेष',
+    },
     { href: localizeHref(locale, '/market'), label: locale === 'en' ? 'Market' : 'बजार' },
     {
       href: localizeHref(locale, '/utilities'),
       label: locale === 'en' ? 'Utilities' : 'उपयोगी सेवा',
+    },
+    {
+      href: localizeHref(locale, '/photos'),
+      label: locale === 'en' ? 'Photos' : 'फोटो',
     },
   ]
 
@@ -50,19 +58,25 @@ export function Footer({ locale }: FooterProps) {
     { href: '/rss.xml', label: 'RSS' },
   ]
 
+  const categoryLinks = navCategories.slice(0, 12).map((c) => ({
+    href: localizeHref(locale, `/${c.slug}`),
+    label: locale === 'en' && c.nameEn ? c.nameEn : c.nameNe,
+    lang: locale === 'en' && c.nameEn ? 'en' : 'ne',
+  }))
+
   return (
-    <footer className="mt-12 border-t border-rule bg-surface pb-20 lg:pb-0">
-      <div className="mx-auto max-w-page px-4 py-8">
-        <div className="flex flex-col gap-4 border-b border-rule pb-6 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-md">
+    <footer className="mt-14 border-t-2 border-ink bg-surface pb-20 lg:pb-0">
+      <div className="mx-auto max-w-page px-4 py-10">
+        <div className="flex flex-col gap-5 border-b border-rule pb-8 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-lg">
             <span className="flex items-center gap-3">
-              <LogoMark title={`${dict.siteName} / Nagarik Watch`} className="h-12 w-12" />
+              <LogoMark title={`${dict.siteName} / Nagarik Watch`} className="h-14 w-14" />
               <span className="flex flex-col leading-none">
                 <span className="font-display text-h2 font-bold text-ink" lang="ne">
                   {dict.siteName}
                 </span>
                 <span
-                  className="mt-0.5 text-meta font-black uppercase tracking-[0.16em] text-brand-strong"
+                  className="mt-1 text-meta font-black uppercase tracking-[0.16em] text-brand-strong"
                   lang="en"
                 >
                   Nagarik Watch
@@ -90,16 +104,44 @@ export function Footer({ locale }: FooterProps) {
           </ul>
         </div>
 
-        <div className="grid gap-6 py-6 md:grid-cols-2 lg:grid-cols-4">
-          <nav aria-label={locale === 'en' ? 'Sections' : 'विभाग'} className="lg:col-span-1">
-            <p
-              className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
-              lang={lang}
-            >
+        <div className="grid gap-8 py-8 sm:grid-cols-2 lg:grid-cols-4">
+          <nav aria-label={locale === 'en' ? 'News sections' : 'समाचार विभाग'}>
+            <p className="text-meta font-bold uppercase tracking-wide text-ink" lang={lang}>
               {locale === 'en' ? 'Sections' : 'विभाग'}
             </p>
-            <ul className="mt-2 grid gap-y-1.5">
-              {sectionLinks.map((s) => (
+            <ul className="mt-3 grid gap-y-2">
+              {categoryLinks.length > 0
+                ? categoryLinks.map((s) => (
+                    <li key={s.href}>
+                      <Link
+                        href={s.href}
+                        className="inline-block border-b border-transparent text-body text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+                        lang={s.lang}
+                      >
+                        {s.label}
+                      </Link>
+                    </li>
+                  ))
+                : deskLinks.slice(0, 6).map((s) => (
+                    <li key={s.href}>
+                      <Link
+                        href={s.href}
+                        className="inline-block border-b border-transparent text-body text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+                        lang={lang}
+                      >
+                        {s.label}
+                      </Link>
+                    </li>
+                  ))}
+            </ul>
+          </nav>
+
+          <nav aria-label={locale === 'en' ? 'Desks' : 'डेस्क'}>
+            <p className="text-meta font-bold uppercase tracking-wide text-ink" lang={lang}>
+              {locale === 'en' ? 'Desks' : 'डेस्क'}
+            </p>
+            <ul className="mt-3 grid gap-y-2">
+              {deskLinks.map((s) => (
                 <li key={s.href}>
                   <Link
                     href={s.href}
@@ -113,14 +155,11 @@ export function Footer({ locale }: FooterProps) {
             </ul>
           </nav>
 
-          <nav aria-label={dict.footerSections} className="lg:col-span-1">
-            <p
-              className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
-              lang={lang}
-            >
+          <nav aria-label={dict.footerSections}>
+            <p className="text-meta font-bold uppercase tracking-wide text-ink" lang={lang}>
               {locale === 'en' ? 'About & policy' : 'बारेमा र नीति'}
             </p>
-            <ul className="mt-2 grid gap-y-1.5">
+            <ul className="mt-3 grid gap-y-2">
               {aboutLinks.map((s) => (
                 <li key={s.href}>
                   <Link
@@ -135,11 +174,8 @@ export function Footer({ locale }: FooterProps) {
             </ul>
           </nav>
 
-          <div className="lg:col-span-1">
-            <p
-              className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
-              lang={lang}
-            >
+          <div>
+            <p className="text-meta font-bold uppercase tracking-wide text-ink" lang={lang}>
               {locale === 'en' ? 'Contact' : 'सम्पर्क'}
             </p>
             <address className="mt-3 not-italic text-body text-ink-soft" lang={lang}>
@@ -161,7 +197,7 @@ export function Footer({ locale }: FooterProps) {
             </address>
             {isPublicPublicationValue(registration) ? (
               <p
-                className="mt-3 rounded-md border border-rule bg-surface-raised px-3 py-2 text-caption text-ink-soft"
+                className="mt-3 border border-rule bg-surface-raised px-3 py-2 text-caption text-ink-soft"
                 lang={lang}
               >
                 <span className="font-semibold uppercase tracking-wide" lang={lang}>
@@ -176,10 +212,9 @@ export function Footer({ locale }: FooterProps) {
                 {PUBLICATION.editorInChief}
               </p>
             ) : null}
-          </div>
-
-          <div className="lg:col-span-1">
-            <NewsletterInline locale={locale} />
+            <div className="mt-5">
+              <NewsletterInline locale={locale} />
+            </div>
           </div>
         </div>
 
@@ -223,7 +258,7 @@ function SocialLink({
         rel={href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
         aria-label={label}
         title={label}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint"
         lang={locale === 'en' ? 'en' : 'ne'}
       >
         <svg

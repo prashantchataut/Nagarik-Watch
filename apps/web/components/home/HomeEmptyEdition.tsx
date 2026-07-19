@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
-import { HomeDeskRail } from '@/components/home/HomeDeskRail'
 
 type HomeEmptyEditionProps = {
   locale: Locale
@@ -11,6 +10,7 @@ type HomeEmptyEditionProps = {
 /**
  * Public empty homepage when the CMS has no lead story yet.
  * Reader-facing only: no admin/dev copy (product skill + Option A).
+ * Category discovery lives in masthead primary nav + footer; no duplicate desk rail.
  */
 export function HomeEmptyEdition({ locale, categories }: HomeEmptyEditionProps) {
   const english = locale === 'en'
@@ -18,10 +18,6 @@ export function HomeEmptyEdition({ locale, categories }: HomeEmptyEditionProps) 
 
   return (
     <div className="pb-16">
-      <div className="mx-auto max-w-page px-4 pt-3">
-        <HomeDeskRail locale={locale} categories={categories} />
-      </div>
-
       <section
         className="mx-auto max-w-page px-4 pb-12 pt-10 sm:pt-14"
         lang={lang}
@@ -71,11 +67,7 @@ export function HomeEmptyEdition({ locale, categories }: HomeEmptyEditionProps) 
         className="mx-auto max-w-page border-t-2 border-ink px-4 pb-8 pt-8"
         aria-labelledby="empty-desks-title"
       >
-        <h2
-          id="empty-desks-title"
-          className="font-display text-h1 text-ink"
-          lang={lang}
-        >
+        <h2 id="empty-desks-title" className="font-display text-h1 text-ink" lang={lang}>
           {english ? 'News desks' : 'समाचार विभाग'}
         </h2>
         <ul className="mt-3 columns-1 gap-x-10 sm:columns-2 lg:columns-3">
@@ -91,7 +83,10 @@ export function HomeEmptyEdition({ locale, categories }: HomeEmptyEditionProps) 
                 >
                   {english && category.nameEn ? category.nameEn : category.nameNe}
                 </strong>
-                <span className="text-mute transition-transform duration-fast ease-out-quint group-hover:translate-x-0.5" aria-hidden="true">
+                <span
+                  className="text-mute transition-transform duration-fast ease-out-quint group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                >
                   →
                 </span>
               </Link>

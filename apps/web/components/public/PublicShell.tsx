@@ -10,8 +10,8 @@ import { AnalyticsGate } from '@/components/analytics/AnalyticsGate'
 import { NetworkAdScripts } from '@/components/ads/NetworkAdScripts'
 import { getAdMode, getAdNetworkKind } from '@/lib/ads'
 import { RumBoot } from '@/components/RumBoot'
-import { getNavCategories } from '@/lib/content'
-import { PUBLICATION } from '@/lib/site'
+import { getNavCategories, getTags } from '@/lib/content'
+import { PUBLICATION, STATIC_HUBS, TOPICS_STRIP_HUBS } from '@/lib/site'
 import { getSession } from '@/lib/auth/session'
 import {
   accountKindLabel,
@@ -22,13 +22,56 @@ import {
 import { localizeHref } from '@/lib/i18n/locales'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { HtmlLangSync } from '@/components/HtmlLangSync'
+import type { TopicChip } from '@/components/TopicsStrip'
+
+function buildTopicChips(locale: Locale, tags: Awaited<ReturnType<typeof getTags>>): TopicChip[] {
+  const shortNe: Record<string, string> = {
+    latest: 'ताजा',
+    trending: 'ट्रेन्डिङ',
+    'most-read': 'धेरै पढिएको',
+    exclusive: 'विशेष',
+    'fact-check': 'तथ्य-जाँच',
+    market: 'बजार',
+    rashifal: 'राशिफल',
+  }
+  const shortEn: Record<string, string> = {
+    latest: 'Latest',
+    trending: 'Trending',
+    'most-read': 'Most read',
+    exclusive: 'Exclusive',
+    'fact-check': 'Fact check',
+    market: 'Market',
+    rashifal: 'Horoscope',
+  }
+
+  const hubs: TopicChip[] = []
+  for (const key of TOPICS_STRIP_HUBS) {
+    const hub = STATIC_HUBS.find((h) => h.key === key)
+    if (!hub) continue
+    hubs.push({
+      href: localizeHref(locale, hub.path),
+      label: locale === 'en' ? shortEn[key] ?? hub.titleEn : shortNe[key] ?? hub.titleNe,
+      lang: locale === 'en' ? 'en' : 'ne',
+    })
+  }
+
+  const tagChips: TopicChip[] = tags.slice(0, 8).map((tag) => ({
+    href: localizeHref(locale, `/tag/${tag.slug}`),
+    label: locale === 'en' && tag.nameEn ? tag.nameEn : tag.nameNe,
+    lang: locale === 'en' && tag.nameEn ? 'en' : 'ne',
+  }))
+
+  return [...hubs, ...tagChips]
+}
 
 export async function PublicShell({ locale, children }: { locale: Locale; children: ReactNode }) {
   const dict = getDictionary(locale)
-  const [navCategories, session] = await Promise.all([
+  const [navCategories, tags, session] = await Promise.all([
     getNavCategories(),
+    getTags().catch(() => []),
     getSession().catch(() => null),
   ])
+  const topics = buildTopicChips(locale, tags)
   const account = session
     ? (() => {
         const kind: AccountKind = resolveAccountKind(session.role)
@@ -49,12 +92,12 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
         {dict.skipToContent}
       </a>
       <SiteJsonLd siteName={PUBLICATION.publisherName} />
-      <Masthead locale={locale} navCategories={navCategories} account={account} />
+      <Masthead locale={locale} navCategories={navCategories} topics={topics} account={account} />
       <main id="main" className="min-h-[55vh] pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0">
         {children}
       </main>
-      <Footer locale={locale} />
-      <BottomChrome locale={locale} />
+      <Footer locale={locale} navCategories={navCategories} />
+      <BottomChrome locale={locale} accountHref={account?.profileHref ?? localizeHref(locale, '/auth/login')} />
       <SaveDataBoot />
       <PwaBoot />
       <RumBoot />

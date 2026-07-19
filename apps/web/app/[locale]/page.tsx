@@ -6,7 +6,6 @@ import { BreakingTicker } from '@/components/BreakingTicker'
 import { SectionBlock } from '@/components/home/SectionBlock'
 import { TodayInBrief } from '@/components/home/TodayInBrief'
 import { LatestRail } from '@/components/home/LatestRail'
-import { HomeDeskRail } from '@/components/home/HomeDeskRail'
 import { HomeEmptyEdition } from '@/components/home/HomeEmptyEdition'
 import { ProvinceHub } from '@/components/home/ProvinceHub'
 import { AdSlot } from '@/components/AdSlot'
@@ -46,13 +45,10 @@ export async function generateMetadata({
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const english = locale === 'en'
-  const [homepage, categories, activePoll] = await Promise.all([
-    getHomepage(),
-    getNavCategories(),
-    getActivePoll(),
-  ])
+  const [homepage, activePoll] = await Promise.all([getHomepage(), getActivePoll()])
 
   if (!homepage) {
+    const categories = await getNavCategories()
     return <HomeEmptyEdition locale={locale} categories={categories} />
   }
 
@@ -158,10 +154,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             className="hidden xl:block xl:border-l xl:pl-6"
           />
         </section>
-
-        <div className="mt-5 sm:mt-6">
-          <HomeDeskRail locale={locale} categories={categories} />
-        </div>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-10">
           <TodayInBrief stories={briefPool} locale={locale} />

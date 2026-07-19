@@ -330,7 +330,7 @@ export const PROVINCES = [
 
 /** Secondary nav rail — utility hubs a national portal surfaces above the
  *  section nav. Drawn from STATIC_HUBS so the rail stays in sync with the hub registry. */
-/** Service rail only. Latest/trending live in BottomNav + homepage desk rail. */
+/** @deprecated Prefer TOPICS_STRIP_HUBS + utility tools in masthead. Kept for any legacy imports. */
 export const SECONDARY_NAV_HUBS = [
   'market',
   'utilities',
@@ -339,6 +339,17 @@ export const SECONDARY_NAV_HUBS = [
   'disaster-alerts',
   'video',
   'photos',
+] as const satisfies readonly (typeof STATIC_HUBS)[number]['key'][]
+
+/** Ratopati-style topics strip under primary nav. Curated desks first; live tags append in PublicShell. */
+export const TOPICS_STRIP_HUBS = [
+  'latest',
+  'trending',
+  'most-read',
+  'exclusive',
+  'fact-check',
+  'market',
+  'rashifal',
 ] as const satisfies readonly (typeof STATIC_HUBS)[number]['key'][]
 
 export function localizedLead(locale: Locale, item: { leadNe: string; leadEn: string }) {

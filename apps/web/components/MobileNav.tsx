@@ -41,14 +41,8 @@ const DRAWER_LINK_ROW =
   'flex items-center gap-3 border-b border-rule px-1 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand'
 
 /**
- * Mobile primary navigation. The masthead's inline category list wraps on small screens but
- * eats vertical space and pushes the wordmark around, so below the `md` breakpoint it is
- * replaced by a hamburger that opens this slide-in drawer. The same links appear, in the same
- * order, so the navigation model stays consistent across viewports.
- *
- * The drawer is a real dialog: focus moves into it on open, Escape closes it, a backdrop click
- * closes it, and the page behind is inert (via the body-scroll lock + overlay). Routing happens
- * through plain Links, so a selection navigates and unmounts the drawer in one step.
+ * Mobile primary navigation drawer. Primary category rail is always visible in the
+ * masthead; this drawer holds the full directory (categories, provinces, account, desks).
  */
 export function MobileNav({ locale, navCategories, account = null }: MobileNavProps) {
   const dict = getDictionary(locale)
@@ -305,9 +299,20 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                 lang={locale === 'en' ? 'en' : 'ne'}
               >
                 {STATIC_HUBS.filter((hub) =>
-                  ['market', 'utilities', 'fact-check', 'submit-story', 'most-read'].includes(
-                    hub.key,
-                  ),
+                  [
+                    'latest',
+                    'trending',
+                    'most-read',
+                    'exclusive',
+                    'market',
+                    'utilities',
+                    'fact-check',
+                    'rashifal',
+                    'sports-live',
+                    'submit-story',
+                    'video',
+                    'photos',
+                  ].includes(hub.key),
                 ).map((hub) => (
                   <li key={hub.key}>
                     <Link
