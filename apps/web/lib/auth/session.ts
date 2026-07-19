@@ -83,7 +83,11 @@ export const getSession = cache(async (): Promise<ReaderSession | null> => {
       role,
       locale,
     }
-  } catch {
+  } catch (error) {
+    console.error(
+      '[auth-session] session read failed',
+      error instanceof Error ? error.message : String(error),
+    )
     return null
   }
 })

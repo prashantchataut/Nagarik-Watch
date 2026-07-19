@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { Pool } from 'pg'
-import { moderateComment, reputationScore, type EngagementSample } from '@nagarikwatch/db'
+import { moderateComment, rankComment, reputationScore, type EngagementSample } from '@nagarikwatch/db'
 import { getSharedPool } from '@/lib/pg-pool'
 import { getRankingShareSamples } from '@/lib/engagement/ranking-events'
 
@@ -451,6 +451,12 @@ export async function createComment(input: CommentInput): Promise<ModerationComm
 
 export async function getCommentsForArticle(articleSlug: string, articleCategory: string) {
   const database = await getPool()
+  let comments: Array<
+    Pick<
+      ModerationComment,
+      'id' | 'authorName' | 'authorUserId' | 'bodyNe' | 'parentId' | 'locale' | 'status' | 'createdAt'
+    > & { upvotes?: number; downvotes?: number }
+  >
   if (database) {
     await ensureSchema()
     const result = await database.query(
@@ -459,9 +465,32 @@ export async function getCommentsForArticle(articleSlug: string, articleCategory
        from nw_comments where article_slug=$1 and article_category=$2 and status='approved' order by created_at asc`,
       [articleSlug, articleCategory],
     )
-    return result.rows as Array<Pick<ModerationComment, 'id' | 'authorName' | 'authorUserId' | 'bodyNe' | 'parentId' | 'locale' | 'status' | 'createdAt'>>
+    comments = result.rows as typeof comments
+  } else {
+    comments = (await readLocal()).comments.filter(
+      (comment) =>
+        comment.articleSlug === articleSlug &&
+        comment.articleCategory === articleCategory &&
+        comment.status === 'approved',
+    )
   }
-  return (await readLocal()).comments.filter((comment) => comment.articleSlug === articleSlug && comment.articleCategory === articleCategory && comment.status === 'approved')
+
+  const now = new Date()
+  return [...comments]
+    .map((comment) => {
+      const ranked = rankComment(
+        {
+          id: comment.id,
+          body: comment.bodyNe,
+          createdAt: comment.createdAt,
+          upvotes: comment.upvotes ?? 1,
+          downvotes: comment.downvotes ?? 0,
+        },
+        now,
+      )
+      return { ...comment, rankScore: ranked.rankScore }
+    })
+    .sort((a, b) => b.rankScore - a.rankScore || a.createdAt.localeCompare(b.createdAt))
 }
 
 export async function listCommentsForModeration(status: CommentStatus | 'all' = 'pending', limit = 200): Promise<ModerationComment[]> {

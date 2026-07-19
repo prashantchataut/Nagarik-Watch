@@ -47,6 +47,16 @@ export default async function ExperimentsPage() {
                 </span>
               </div>
 
+              {analysis.sequential ? (
+                <p className="mt-3 text-meta text-ink-soft">
+                  Sequential z-test (frequentist, no alpha-spending correction): z=
+                  {analysis.sequential.z.toFixed(3)} ·{' '}
+                  {analysis.sequential.decisive
+                    ? `directional lead: ${analysis.sequential.leadingVariantId}`
+                    : 'not decisive yet'}
+                </p>
+              ) : null}
+
               <div className="mt-4 overflow-x-auto">
                 <table className="min-w-full divide-y divide-rule text-left">
                   <thead className="text-caption uppercase tracking-wide text-mute">

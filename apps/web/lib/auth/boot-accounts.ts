@@ -12,22 +12,22 @@ type AuthApi = {
 type BootAccountSpec = {
   emailKey: string
   passwordKey: string
+  nameKey: string
   role: string
-  displayName: string
 }
 
 const BOOT_SPECS: BootAccountSpec[] = [
   {
     emailKey: 'NEWSROOM_SUPERADMIN_EMAIL',
     passwordKey: 'NEWSROOM_SUPERADMIN_PASSWORD',
+    nameKey: 'NEWSROOM_SUPERADMIN_NAME',
     role: 'super_admin',
-    displayName: 'मुख्य एडमिन',
   },
   {
     emailKey: 'NEWSROOM_ADMIN_EMAIL',
     passwordKey: 'NEWSROOM_ADMIN_PASSWORD',
+    nameKey: 'NEWSROOM_ADMIN_NAME',
     role: 'admin',
-    displayName: 'एडमिन',
   },
 ]
 
@@ -51,16 +51,24 @@ const passwordSyncedThisProcess = new Set<string>()
 
 const ROLE_RANK: Record<string, number> = { admin: 1, super_admin: 2 }
 
-function configuredSpecs(): Array<BootAccountSpec & { email: string; password: string }> {
+type ConfiguredBootAccountSpec = BootAccountSpec & {
+  email: string
+  password: string
+  displayName: string
+}
+
+function configuredSpecs(): ConfiguredBootAccountSpec[] {
   const specs = BOOT_SPECS.flatMap((spec) => {
     const email = process.env[spec.emailKey]?.trim().toLowerCase()
     const password = process.env[spec.passwordKey]
     if (!email || !password) return []
-    return [{ ...spec, email, password }]
+    const displayName =
+      process.env[spec.nameKey]?.trim() || email.split('@')[0] || 'Newsroom account'
+    return [{ ...spec, email, password, displayName }]
   })
 
   // Same email in SUPERADMIN + ADMIN must not demote super_admin → admin.
-  const byEmail = new Map<string, BootAccountSpec & { email: string; password: string }>()
+  const byEmail = new Map<string, ConfiguredBootAccountSpec>()
   for (const spec of specs) {
     const existing = byEmail.get(spec.email)
     if (!existing || (ROLE_RANK[spec.role] ?? 0) >= (ROLE_RANK[existing.role] ?? 0)) {
@@ -108,14 +116,9 @@ async function findUserId(email: string): Promise<string | null> {
   })
 }
 
-async function createUserRow(
-  spec: BootAccountSpec & { email: string; password: string },
-): Promise<string> {
+async function createUserRow(spec: ConfiguredBootAccountSpec): Promise<string> {
   const id = randomUUID()
-  const name =
-    process.env[`${spec.emailKey.replace('_EMAIL', '')}_NAME`]?.trim() ||
-    spec.email.split('@')[0] ||
-    'Newsroom'
+  const name = spec.displayName
   const now = new Date()
 
   return withPool(async (pool) => {
@@ -163,11 +166,29 @@ async function assignBootRole(email: string, role: string, displayName: string):
   return withPool(async (pool) => {
     const attempts: Array<{ sql: string; params: unknown[] }> = [
       {
-        sql: `UPDATE "user" SET role = $1, "displayName" = $2 WHERE lower(email) = lower($3)`,
+        sql: `UPDATE "user"
+              SET role = $1,
+                  "displayName" = CASE
+                    WHEN "displayName" IS NULL
+                      OR btrim("displayName") = ''
+                      OR "displayName" IN ('मुख्य एडमिन', 'एडमिन')
+                    THEN $2
+                    ELSE "displayName"
+                  END
+              WHERE lower(email) = lower($3)`,
         params: [role, displayName, email],
       },
       {
-        sql: `UPDATE "user" SET role = $1, display_name = $2 WHERE lower(email) = lower($3)`,
+        sql: `UPDATE "user"
+              SET role = $1,
+                  display_name = CASE
+                    WHEN display_name IS NULL
+                      OR btrim(display_name) = ''
+                      OR display_name IN ('मुख्य एडमिन', 'एडमिन')
+                    THEN $2
+                    ELSE display_name
+                  END
+              WHERE lower(email) = lower($3)`,
         params: [role, displayName, email],
       },
       {
@@ -187,7 +208,11 @@ async function assignBootRole(email: string, role: string, displayName: string):
   })
 }
 
-async function syncCredentialPassword(userId: string, email: string, password: string): Promise<boolean> {
+async function syncCredentialPassword(
+  userId: string,
+  email: string,
+  password: string,
+): Promise<boolean> {
   const hashed = await hashPassword(password)
   const now = new Date()
   return withPool(async (pool) => {
@@ -242,7 +267,7 @@ async function syncCredentialPassword(userId: string, email: string, password: s
 
 async function seedOne(
   auth: AuthApi,
-  spec: BootAccountSpec & { email: string; password: string },
+  spec: ConfiguredBootAccountSpec,
 ): Promise<'created' | 'synced'> {
   let userId = await findUserId(spec.email)
   let created = false
@@ -253,10 +278,7 @@ async function seedOne(
         body: {
           email: spec.email,
           password: spec.password,
-          name:
-            process.env[`${spec.emailKey.replace('_EMAIL', '')}_NAME`]?.trim() ||
-            spec.email.split('@')[0] ||
-            'Newsroom',
+          name: spec.displayName,
           displayName: spec.displayName,
         },
       })
@@ -296,7 +318,9 @@ async function seedOne(
   const roleOk = await assignBootRole(spec.email, spec.role, spec.displayName)
   if (!roleOk) throw new Error(`Could not assign ${spec.role} to ${spec.email}.`)
 
-  console.info(`[auth] boot account ${created ? 'created' : 'synced'}: ${maskEmail(spec.email)} as ${spec.role}`)
+  console.info(
+    `[auth] boot account ${created ? 'created' : 'synced'}: ${maskEmail(spec.email)} as ${spec.role}`,
+  )
   return created ? 'created' : 'synced'
 }
 
@@ -316,7 +340,8 @@ export async function ensureNewsroomBootAccounts(auth: AuthApi): Promise<BootPro
         failed: [],
       }
       if (specs.length === 0) {
-        lastProvisionError = 'NEWSROOM_SUPERADMIN_EMAIL/PASSWORD (or ADMIN pair) is not set in Vercel.'
+        lastProvisionError =
+          'NEWSROOM_SUPERADMIN_EMAIL/PASSWORD (or ADMIN pair) is not set in Vercel.'
         console.error('[auth]', lastProvisionError)
         return result
       }

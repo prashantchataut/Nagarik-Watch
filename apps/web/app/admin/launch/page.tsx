@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getLaunchChecksAsync, launchScore } from '@/lib/launch-readiness'
+import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
 import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
@@ -10,9 +11,13 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
+function pct(value: number): string {
+  return `${Math.round(value * 100)}%`
+}
+
 export default async function LaunchPage() {
   await requireNewsroomSession()
-  const checks = await getLaunchChecksAsync()
+  const [checks, ops] = await Promise.all([getLaunchChecksAsync(), getOpsHealthSnapshot()])
   const score = launchScore(checks)
   return (
     <div>
@@ -29,6 +34,35 @@ export default async function LaunchPage() {
             <code className="text-caption text-mute">{check.key}</code>
           </AdminCard>
         ))}
+      </div>
+      <h2 className="mb-3 mt-8 font-display text-h2 text-ink">Ops health snapshot</h2>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <AdminCard>
+          <p className="font-display text-h3 text-ink">Database pool</p>
+          {ops.pool.configured ? (
+            <>
+              <p className="mt-1 text-meta text-ink-soft">
+                Saturation {pct(ops.pool.saturation)} · {ops.pool.totalCount}/{ops.pool.max} connections in use
+                {ops.pool.waitingCount > 0 ? ` · ${ops.pool.waitingCount} waiting` : ''}
+              </p>
+            </>
+          ) : (
+            <p className="mt-1 text-meta text-ink-soft">No shared pool has been created in this process yet.</p>
+          )}
+        </AdminCard>
+        <AdminCard>
+          <p className="font-display text-h3 text-ink">Cron heartbeats</p>
+          <div className="mt-1 grid gap-1">
+            {ops.cron.map((job) => (
+              <p key={job.job} className="text-meta text-ink-soft">
+                <span className={job.missed ? 'font-bold text-red-700' : 'font-bold text-brand-strong'}>
+                  {job.missed ? 'MISSED' : 'OK'}
+                </span>{' '}
+                {job.label} — {job.lastRunAt ? `last ran ${job.ageMinutes !== null ? Math.round(job.ageMinutes) : '?'} min ago` : 'never recorded'}
+              </p>
+            ))}
+          </div>
+        </AdminCard>
       </div>
     </div>
   )

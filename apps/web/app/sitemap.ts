@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getAuthors, getNavCategories, getStories, getTags } from '@/lib/content'
 import { SITE_URL, STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
+import { newsSitemapPriority } from '@/lib/algorithms/product/seo-dist'
 
 /**
  * Dynamic sitemap. Emits one <url> per locale (ne at root, en under /en) for every article,
@@ -90,6 +91,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const all = await getStories({ locale: 'ne', perPage: 1000 })
   for (const s of all.items) {
     const lastModified = new Date(s.publishedAt)
+    const ageHours = (Date.now() - lastModified.getTime()) / 3_600_000
+    // News-recency weighting keeps crawl priority honest for fresh/breaking
+    // stories instead of a flat constant across the whole archive.
+    const priority = 0.4 + newsSitemapPriority(ageHours, s.isBreaking, 0.8) * 0.5
     const languages: Record<string, string> = {
       ne: `${SITE_URL}/${s.category.slug}/${s.slug}`,
     }
@@ -102,7 +107,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${SITE_URL}${prefix(locale)}/${s.category.slug}/${s.slug}`,
         lastModified,
         changeFrequency: 'weekly',
-        priority: 0.7,
+        priority,
         alternates: { languages },
       })
     }

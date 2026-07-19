@@ -7,6 +7,7 @@ import {
   type BookmarkRecord,
 } from '@/lib/reader/state'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
+import { rankSavedForLater, savedEmptyState } from '@/lib/reader/saves'
 
 type SavedItem = {
   slug: string
@@ -15,6 +16,7 @@ type SavedItem = {
   titleEn?: string
   savedAt: string
   source: 'device' | 'account'
+  readingMinutes?: number
 }
 
 type ApiBookmark = {
@@ -32,6 +34,7 @@ function localItems(): SavedItem[] {
     titleEn: record.story.titleEn,
     savedAt: record.savedAt,
     source: 'device',
+    readingMinutes: record.story.readingMinutes,
   }))
 }
 
@@ -93,6 +96,11 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
     if (!ready) return ne ? 'लोड हुँदै…' : 'Loading…'
     return ne ? `${stories.length} सुरक्षित कथा` : `${stories.length} saved stories`
   }, [ne, ready, stories.length])
+
+  // Shorter, fresher saves surface first — the same "worth reading now" signal
+  // as the save-later-ranking heuristic, computed from real savedAt/readingMinutes.
+  const orderedStories = useMemo(() => rankSavedForLater(stories).map((item) => item.bookmark), [stories])
+  const emptyState = useMemo(() => savedEmptyState(stories), [stories])
 
   function removeStory(item: SavedItem) {
     const next = stories.filter((story) => story.slug !== item.slug)
@@ -176,8 +184,14 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
         </p>
       ) : null}
 
+      {emptyState === 'all-stale' ? (
+        <p role="status" className="mt-5 rounded-md border border-rule bg-surface-raised p-3 text-meta text-ink-soft" lang={ne ? 'ne' : 'en'}>
+          {ne ? 'तपाईंका सबै सुरक्षित समाचार पुराना छन् — पढ्ने वा हटाउने बेला भयो।' : 'All your saves are older than 30 days — time to read them or clear the list.'}
+        </p>
+      ) : null}
+
       <div className="mt-6 divide-y divide-rule border-y border-rule">
-        {stories.length ? stories.map((story) => {
+        {orderedStories.length ? orderedStories.map((story) => {
           const title = (!ne && story.titleEn) || story.titleNe || story.slug
           const href = `${ne ? '' : '/en'}/${story.category}/${story.slug}`
           return (

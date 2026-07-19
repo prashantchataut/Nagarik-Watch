@@ -4,6 +4,7 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { AD_PLACEMENTS, getAdMode, isAdPlacementKey, isNetworkAdsReady } from '@/lib/ads'
 import { getAdEventSummary } from '@/lib/ad-events'
 import { listHouseAds, upsertHouseAd } from '@/lib/house-ads'
+import { deliveryCoverage, fillRateAnomaly } from '@/lib/ads/yield-local'
 import { AdminPageHeader, AdminCard } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
@@ -45,6 +46,11 @@ export default async function AdsPage() {
   const summaryByPlacement = new Map(summaries.map((summary) => [summary.placementKey, summary]))
   const houseAds = await listHouseAds().catch(() => [])
   const houseByPlacement = new Map(houseAds.map((ad) => [ad.placementKey, ad]))
+  const deliveringPlacements = placements.filter(
+    (p) => houseByPlacement.get(p.key)?.active || (adMode === 'network' && networkReady),
+  ).length
+  const coverage = deliveryCoverage(deliveringPlacements, placements.length)
+  const coverageAnomaly = fillRateAnomaly(coverage, 1, 0.2)
 
   return (
     <div>
@@ -99,6 +105,26 @@ export default async function AdsPage() {
           </div>
         </AdminCard>
       </div>
+
+      <AdminCard
+        className={`mb-5 ${coverageAnomaly.anomalous ? 'border-l-4 border-l-red-500' : 'border-l-4 border-l-brand'}`}
+      >
+        <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="en">
+          Delivery coverage
+        </p>
+        <p className="mt-1 text-body text-ink" lang="en">
+          {deliveringPlacements}/{placements.length} slots have an active house ad or ready network delivery ({(coverage * 100).toFixed(0)}%).
+        </p>
+        {coverageAnomaly.anomalous ? (
+          <p className="mt-1 text-meta font-semibold text-red-700" lang="en">
+            Coverage is {(coverageAnomaly.drop * 100).toFixed(0)} points below the fully-wired baseline — configure more house ads or a network.
+          </p>
+        ) : (
+          <p className="mt-1 text-meta text-ink-soft" lang="en">
+            Local check only — no vendor fill/eCPM data is reported here.
+          </p>
+        )}
+      </AdminCard>
 
       <section className="mb-6 rounded-lg border border-rule bg-surface-raised p-5">
         <h2 className="font-display text-h1 text-ink" lang="ne">House ad creative</h2>
@@ -184,7 +210,9 @@ export default async function AdsPage() {
                           )}
                         </td>
                         <td className="px-4 py-3 align-top text-meta text-ink-soft" lang="en">
-                          {summary ? `${summary.impressions} imp · ${summary.clicks} click · ${(summary.ctr * 100).toFixed(1)}%` : '0 imp'}
+                          {summary
+                            ? `${summary.impressions} imp · ${summary.clicks} click · ${(summary.ctr * 100).toFixed(1)}% · attn ${(summary.averageAttention * 100).toFixed(0)}%`
+                            : '0 imp'}
                         </td>
                       </tr>
                     )

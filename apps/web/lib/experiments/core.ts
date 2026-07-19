@@ -33,6 +33,19 @@ export type ExperimentAnalysis = {
   decision: 'insufficient-data' | 'continue' | 'winner'
 }
 
+export type SequentialTestResult = {
+  controlVariantId: string
+  treatmentVariantId: string
+  z: number
+  decisive: boolean
+  leadingVariantId: string | null
+}
+
+export type ExperimentAnalysisWithModes = ExperimentAnalysis & {
+  /** Two-sided z-test on the first two variants; null unless exactly two exist. */
+  sequential: SequentialTestResult | null
+}
+
 const DEFAULT_ALPHA = 1
 const DEFAULT_BETA = 1
 
@@ -190,5 +203,80 @@ export function analyzeExperiment(
     winner: hasWinner ? (best?.variantId ?? null) : null,
     decision: !enoughData ? 'insufficient-data' : hasWinner ? 'winner' : 'continue',
   }
+}
+
+/**
+ * Two-proportion z-test (frequentist sequential monitoring). This is a
+ * classic, honest supplement to the Bayesian decision above — it does not
+ * apply alpha-spending correction for repeated looks, so callers should treat
+ * `decisive` as directional evidence, not a formal stopping rule.
+ */
+export function sequentialZTest(
+  control: VariantObservation,
+  treatment: VariantObservation,
+  zThreshold = 1.96,
+): SequentialTestResult {
+  const controlExposures = Math.max(0, Math.floor(control.exposures))
+  const treatmentExposures = Math.max(0, Math.floor(treatment.exposures))
+  const controlConversions = Math.min(controlExposures, Math.max(0, Math.floor(control.conversions)))
+  const treatmentConversions = Math.min(
+    treatmentExposures,
+    Math.max(0, Math.floor(treatment.conversions)),
+  )
+  const rateControl = controlExposures > 0 ? controlConversions / controlExposures : 0
+  const rateTreatment = treatmentExposures > 0 ? treatmentConversions / treatmentExposures : 0
+  const pooled =
+    (controlConversions + treatmentConversions) / Math.max(1, controlExposures + treatmentExposures)
+  const standardError =
+    Math.sqrt(
+      pooled * (1 - pooled) * (1 / Math.max(1, controlExposures) + 1 / Math.max(1, treatmentExposures)),
+    ) || 1
+  const z = (rateTreatment - rateControl) / standardError
+  const decisive = controlExposures > 0 && treatmentExposures > 0 && Math.abs(z) >= zThreshold
+
+  return {
+    controlVariantId: control.variantId,
+    treatmentVariantId: treatment.variantId,
+    z,
+    decisive,
+    leadingVariantId: decisive ? (z > 0 ? treatment.variantId : control.variantId) : null,
+  }
+}
+
+/**
+ * Runs both analysis modes against the same observations: the Bayesian
+ * posterior/probability-of-best decision already used by the admin page, plus
+ * a frequentist sequential z-test when the experiment has exactly two
+ * variants (the shape the z-test requires). Single source of truth so the
+ * admin page and any capability handler agree on one implementation.
+ */
+export function analyzeWithModes(
+  definition: Pick<
+    ExperimentDefinition,
+    'id' | 'variants' | 'minimumExposuresPerVariant' | 'winnerProbability'
+  >,
+  observations: VariantObservation[],
+  simulations = 8_000,
+): ExperimentAnalysisWithModes {
+  const bayesian = analyzeExperiment(definition, observations, simulations)
+  const [first, second] = definition.variants
+
+  let sequential: SequentialTestResult | null = null
+  if (first && second && definition.variants.length === 2) {
+    const byVariant = new Map(observations.map((item) => [item.variantId, item]))
+    const control = byVariant.get(first.id) ?? {
+      variantId: first.id,
+      exposures: 0,
+      conversions: 0,
+    }
+    const treatment = byVariant.get(second.id) ?? {
+      variantId: second.id,
+      exposures: 0,
+      conversions: 0,
+    }
+    sequential = sequentialZTest(control, treatment)
+  }
+
+  return { ...bayesian, sequential }
 }
 

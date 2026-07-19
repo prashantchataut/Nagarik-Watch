@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState, useTransition } from 'react'
-import type { Locale } from '@nagarikwatch/db'
+import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import {
   READER_BOOKMARKS_KEY,
   READER_HISTORY_KEY,
@@ -11,6 +11,9 @@ import {
 } from '@/lib/reader/state'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
 import { completedReadingDays, currentReadingStreak } from '@/lib/reader/retention'
+import { computeStreak, streakRisk } from '@/lib/reader/streaks'
+import { loyaltyFromLifetimeReads } from '@/lib/reader/loyalty'
+import { continueReadingForReader } from '@/lib/reader/personalize'
 
 type ApiHistory = {
   articleSlug: string
@@ -63,7 +66,7 @@ function mergeHistory(device: ReadingHistoryRecord[], account: ReadingHistoryRec
   return [...map.values()].sort((a, b) => b.readAt.localeCompare(a.readAt))
 }
 
-export function ReaderActivityPanel({ locale }: { locale: Locale }) {
+export function ReaderActivityPanel({ locale, catalog = [] }: { locale: Locale; catalog?: StoryCardData[] }) {
   const [history, setHistory] = useState<ReadingHistoryRecord[]>([])
   const [bookmarks, setBookmarks] = useState<BookmarkRecord[]>([])
   const [syncState, setSyncState] = useState<'loading' | 'synced' | 'device'>('loading')
@@ -114,6 +117,13 @@ export function ReaderActivityPanel({ locale }: { locale: Locale }) {
   )
   const readingDays = useMemo(() => completedReadingDays(history), [history])
   const streak = useMemo(() => currentReadingStreak(readingDays), [readingDays])
+  const streakSummary = useMemo(() => computeStreak(history), [history])
+  const risk = useMemo(() => streakRisk(streakSummary), [streakSummary])
+  const unfinished = useMemo(
+    () => (catalog.length ? continueReadingForReader(catalog, history) : null),
+    [catalog, history],
+  )
+  const loyalty = useMemo(() => loyaltyFromLifetimeReads(completed), [completed])
 
   function clearHistory() {
     const fingerprint = getOrCreateReaderId()
@@ -157,11 +167,54 @@ export function ReaderActivityPanel({ locale }: { locale: Locale }) {
         </span>
       </header>
 
+      {unfinished ? (
+        <a
+          href={`${english ? '/en' : ''}/${unfinished.category.slug}/${unfinished.slug}`}
+          className="reader-ledger__continue"
+          lang={english ? 'en' : 'ne'}
+        >
+          <span>{english ? 'Continue reading' : 'पढाइ जारी राखौं'}</span>
+          <strong>{english && unfinished.titleEn ? unfinished.titleEn : unfinished.titleNe}</strong>
+        </a>
+      ) : null}
+
+      {streakSummary.current > 0 ? (
+        <div className="reader-ledger__streak-badge" role="status" data-at-risk={risk.atRisk}>
+          <strong>
+            {english
+              ? `${streakSummary.current}-day reading streak`
+              : `${streakSummary.current} दिनको लगातार पढाइ`}
+          </strong>
+          <span>
+            {risk.atRisk
+              ? english
+                ? `Read one story in the next ${Math.ceil(risk.hoursRemaining)}h to keep it going.`
+                : `यो लगातार पढाइ जोगाउन आउँदो ${Math.ceil(risk.hoursRemaining)} घण्टाभित्र एक समाचार पढ्नुहोस्।`
+              : english
+                ? `Longest run so far: ${streakSummary.longest} day${streakSummary.longest === 1 ? '' : 's'}.`
+                : `अहिलेसम्मको सबैभन्दा लामो लगातार पढाइ: ${streakSummary.longest} दिन।`}
+          </span>
+        </div>
+      ) : null}
+
       <dl className="reader-ledger__stats">
         <div><dt>{english ? 'Stories opened' : 'खोलिएका समाचार'}</dt><dd>{history.length}</dd></div>
         <div><dt>{english ? 'Finished' : 'पूरा पढिएका'}</dt><dd>{completed}</dd></div>
         <div><dt>{english ? 'Time reading' : 'पढाइ समय'}</dt><dd>{totalMinutes}<small>{english ? ' min' : ' मिनेट'}</small></dd></div>
         <div><dt>{english ? 'Saved' : 'सुरक्षित'}</dt><dd>{bookmarks.length}</dd></div>
+        <div>
+          <dt>{english ? 'Loyalty' : 'निष्ठा'}</dt>
+          <dd data-loyalty-tier={loyalty.tier}>
+            {loyalty.tier}
+            {loyalty.readsToNextTier != null ? (
+              <small>
+                {english
+                  ? ` · ${loyalty.readsToNextTier} to ${loyalty.nextTier}`
+                  : ` · ${loyalty.nextTier} सम्म ${loyalty.readsToNextTier}`}
+              </small>
+            ) : null}
+          </dd>
+        </div>
       </dl>
       <div className="reader-ledger__calendar" aria-label={english ? 'Completed reading days' : 'पूरा पढाइ भएका दिन'}>
         <div>

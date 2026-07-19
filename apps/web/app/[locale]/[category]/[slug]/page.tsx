@@ -20,6 +20,7 @@ import { CommentSection } from '@/components/article/CommentSection'
 import { SpeculationRules } from '@/components/SpeculationRules'
 import { getSession } from '@/lib/auth/session'
 import { isPremiumSubscriber } from '@/lib/membership'
+import { shouldShowPaywall } from '@/lib/paywall/decision'
 import { PUBLICATION, SITE_URL } from '@/lib/site'
 import { publicShareImageUrl } from '@/lib/seo/share-image'
 
@@ -52,7 +53,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const title = locale === 'en' && article.seoTitleEn ? article.seoTitleEn : locale === 'en' && article.titleEn ? article.titleEn : article.seoTitleNe || article.titleNe
   const description = locale === 'en' && article.seoDescriptionEn ? article.seoDescriptionEn : article.seoDescriptionNe || (locale === 'en' ? article.deckEn : article.deckNe)
   const canonical = `${SITE_URL}${localizeHref(locale, `/${category}/${slug}`)}`
-  const shareImage = publicShareImageUrl(article.heroImage?.url, SITE_URL)
+  const shareImage = publicShareImageUrl(article.heroImage?.url, SITE_URL, {
+    width: article.heroImage?.width,
+    height: article.heroImage?.height,
+  })
   const nePath = `/${category}/${slug}`
   const enPath = `/en/${category}/${slug}`
   return {
@@ -92,7 +96,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
 
   const session = await getSession()
   const premiumReader = await isPremiumSubscriber(session)
-  const canReadFull = !article.premium || premiumReader
+  // Server gate for marked-premium articles. Soft free-article meter stays client-side
+  // (pass Infinity so non-premium articles are not hard-gated on the server).
+  const canReadFull = !shouldShowPaywall({
+    isMember: premiumReader,
+    freeRemaining: Infinity,
+    articlePremium: Boolean(article.premium),
+  })
   const body = english && article.bodyEn ? article.bodyEn : article.bodyNe
   const visibleBody = canReadFull ? body : previewBlocks(body)
   const [openingBody, remainingBody] = splitAfterParagraphs(visibleBody)

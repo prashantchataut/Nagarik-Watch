@@ -44,89 +44,12 @@ export interface NormalizedItem {
 }
 
 /**
- * Curated registry of official Nepali outlets with public RSS feeds.
- * Add or remove feeds here as outlets publish or retire them. Every entry
- * must point at the OUTLET'S OWN feed — never a third-party scraper.
+ * No third-party publisher is registered by default. Nagarik Watch is a
+ * first-party newsroom, not a competitor headline aggregator. The parser and
+ * fetch helpers remain available only for a future explicitly licensed agency
+ * feed supplied by the caller.
  */
-export const INGEST_SOURCES: readonly IngestSource[] = [
-  {
-    id: 'ekantipur',
-    name: 'कान्तिपुर',
-    feedUrl: 'https://ekantipur.com/rss',
-    sourceType: 'aggregated',
-    license: 'headline+link only',
-  },
-  {
-    id: 'ekantipur-news',
-    name: 'Kantipur News',
-    feedUrl: 'https://ekantipur.com/news/rss',
-    sourceType: 'aggregated',
-    license: 'headline+link only',
-  },
-  {
-    id: 'onlinekhabar',
-    name: 'अनलाइनखबर',
-    feedUrl: 'https://www.onlinekhabar.com/feed',
-    sourceType: 'aggregated',
-    license: 'headline+link only',
-  },
-  {
-    id: 'onlinekhabar-en',
-    name: 'Onlinekhabar English',
-    feedUrl: 'https://english.onlinekhabar.com/feed',
-    sourceType: 'aggregated',
-    license: 'headline+link only',
-  },
-  {
-    id: 'ratopati',
-    name: 'रातोपाती',
-    feedUrl: 'https://ratopati.com/rss',
-    sourceType: 'aggregated',
-    license: 'headline+link only',
-  },
-  {
-    id: 'setopati',
-    name: 'सेतोपाती',
-    feedUrl: 'https://www.setopati.com/rss',
-    sourceType: 'aggregated',
-    license: 'headline+link only',
-  },
-  {
-    id: 'himalayan-times',
-    name: 'The Himalayan Times',
-    feedUrl: 'https://thehimalayantimes.com/feed',
-    sourceType: 'aggregated',
-    license: 'headline+link only',
-  },
-  {
-    id: 'nepali-times',
-    name: 'Nepali Times',
-    feedUrl: 'https://www.nepalitimes.com/feed',
-    sourceType: 'aggregated',
-    license: 'headline+link only',
-  },
-  {
-    id: 'annapurna-post',
-    name: 'अन्नपूर्ण पोस्ट',
-    feedUrl: 'https://www.annapurnapost.com/rss/news.rss',
-    sourceType: 'aggregated',
-    license: 'headline+link only',
-  },
-  {
-    id: 'bbc-nepali',
-    name: 'BBC Nepali',
-    feedUrl: 'https://feeds.bbci.co.uk/nepali/rss.xml',
-    sourceType: 'wire',
-    license: 'headline+link only',
-  },
-  {
-    id: 'rss-gorkhapatra',
-    name: 'गोरखापत्र',
-    feedUrl: 'https://gorkhapatraonline.com/rss',
-    sourceType: 'aggregated',
-    license: 'headline+link only',
-  },
-] as const
+export const INGEST_SOURCES: readonly IngestSource[] = []
 
 const CDATA_RE = /^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/
 function decodeXmlEntities(value: string): string {

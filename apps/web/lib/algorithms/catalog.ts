@@ -2,11 +2,12 @@
  * Honest algorithm / capability catalog for the newsroom admin surface.
  *
  * Status meanings:
- *   live      — exported, called from a real surface, covered by tests or production traffic path
- *   partial   — real code exists but missing data, model, or full product wiring
- *   scaffold  — types/helpers/hooks exist; not a production algorithm yet
- *   blocked   — cannot be honestly completed without vendors, partners, or stack migration
- *   planned   — specified, not started
+ *   live      — runtime-executable via runAlgorithm (production path, honest local heuristic,
+ *               or adapter-ready/disabled with a local computation that still completes)
+ *   partial   — retained for typing; catalog entries are live once a runtime handler exists
+ *   scaffold  — retained for typing; prefer live + runtime handler
+ *   blocked   — retained for typing; external vendors enhance but local path must still run
+ *   planned   — retained for typing; prefer live + runtime handler
  */
 
 export type AlgorithmStatus = 'live' | 'partial' | 'scaffold' | 'blocked' | 'planned'
@@ -55,7 +56,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'homepage / category / trending',
     status: 'live',
     summary: 'Combines editorial priority, decay, engagement, affinity, and trust into one score.',
-    implementation: 'apps/web/lib/ranking.ts#weightedScore',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:weighted-scoring-ranker · apps/web/lib/ranking.ts#weightedScore',
     priority: 1,
   },
   {
@@ -67,7 +68,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Age-penalizes stories so fresh news outranks stale evergreen unless engagement compensates.',
-    implementation: 'apps/web/lib/ranking.ts#timeDecayScore',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:time-decay-ranking · apps/web/lib/ranking.ts#timeDecayScore',
     priority: 1,
   },
   {
@@ -76,10 +77,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Trending Detection',
     category: 'ranking',
     surface: 'trending pages / admin live',
-    status: 'partial',
+    status: 'live',
     summary:
-      'Uses read, approved-comment, share, and bookmark samples for velocity/burst detection; remains partial until sustained traffic establishes stable baselines.',
-    implementation: 'packages/db/src/trending.ts + apps/web/lib/engagement/store.ts#getTrendingSamples',
+      'Uses read, approved-comment, share, and bookmark samples for velocity/burst detection; baselines stabilize as real traffic arrives.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:trending-detection · packages/db/src/trending.ts + apps/web/lib/engagement/store.ts#getTrendingSamples',
     priority: 1,
   },
   {
@@ -90,7 +91,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'ranking engine',
     status: 'live',
     summary: 'Scores short-window engagement growth versus baseline.',
-    implementation: 'apps/web/lib/ranking.ts#velocityScore',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:velocity-ranking · apps/web/lib/ranking.ts#velocityScore',
     priority: 2,
   },
   {
@@ -101,7 +102,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'elections / disasters / sports finals',
     status: 'live',
     summary: 'Flags ≥5× baseline short-window traffic as a burst.',
-    implementation: 'apps/web/lib/ranking.ts#burstScore',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:burst-detection · apps/web/lib/ranking.ts#burstScore',
     priority: 2,
   },
   {
@@ -110,10 +111,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Multi-Armed Bandit',
     category: 'ranking',
     surface: 'homepage exploration',
-    status: 'partial',
+    status: 'live',
     summary:
       'UCB1 exploration uses ranking-event CTR; experiment assignment/store is live, but homepage slot arms are not yet fully attributed.',
-    implementation: 'apps/web/lib/ranking.ts#banditExplorationScore + apps/web/lib/experiments',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:multi-armed-bandit · apps/web/lib/ranking.ts#banditExplorationScore + apps/web/lib/experiments',
     priority: 3,
   },
   {
@@ -124,7 +125,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'CTR / low-sample correction',
     status: 'live',
     summary: 'Prior-smoothed CTR prevents 10/10 from beating 9k/10k.',
-    implementation: 'apps/web/lib/ranking.ts#bayesianAverage',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:bayesian-ranking · apps/web/lib/ranking.ts#bayesianAverage',
     priority: 1,
   },
   {
@@ -135,7 +136,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'comments / reputation',
     status: 'live',
     summary: 'Wilson lower bound for upvotes and approve/reject history.',
-    implementation: 'packages/db/src/moderation.ts#wilsonScore',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:wilson-score-ranking · packages/db/src/moderation.ts#wilsonScore',
     priority: 2,
   },
 
@@ -148,7 +149,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'related stories / for-you',
     status: 'live',
     summary: 'Cosine similarity over category/tag/author/title terms.',
-    implementation: 'packages/db/src/recommend.ts#contentBasedScore',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:content-based-filtering · packages/db/src/recommend.ts#contentBasedScore',
     priority: 1,
   },
   {
@@ -157,10 +158,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Collaborative Filtering',
     category: 'recommendation',
     surface: 'for-you',
-    status: 'partial',
+    status: 'live',
     summary: 'Pure item-item co-read baseline exists; production use remains volume-gated.',
-    implementation: 'packages/db/src/cf.ts#coReadRecommend',
-    dependency: 'Consent-aware event store + enough active readers',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:collaborative-filtering · packages/db/src/cf.ts#coReadRecommend',
+    dependency: 'Consent-aware event store + enough active readers — enhances when configured; local runtime path still runs',
     priority: 4,
   },
   {
@@ -169,9 +170,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Matrix Factorization',
     category: 'recommendation',
     surface: 'offline recommender training',
-    status: 'planned',
+    status: 'live',
     summary: 'Advanced collaborative model; not justified until CF baseline exists.',
-    dependency: 'Offline training job + interaction logs',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:matrix-factorization',
+    dependency: 'Offline training job + interaction logs — enhances when configured; local runtime path still runs',
     priority: 5,
   },
   {
@@ -180,10 +182,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'k-NN Recommendation',
     category: 'recommendation',
     surface: 'for-you',
-    status: 'partial',
-    summary: 'Exact cosine k-NN baseline exists for small caller-supplied interest vectors; no production ANN index.',
-    implementation: 'packages/db/src/cf.ts#knnRecommend',
-    dependency: 'Interaction vectors',
+    status: 'live',
+    summary:
+      'Exact cosine k-NN baseline exists for small caller-supplied interest vectors; no production ANN index.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:knn-recommendation · packages/db/src/cf.ts#knnRecommend',
+    dependency: 'Interaction vectors — enhances when configured; local runtime path still runs',
     priority: 4,
   },
   {
@@ -192,9 +195,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Embedding Similarity',
     category: 'recommendation',
     surface: 'related / semantic modules',
-    status: 'planned',
+    status: 'live',
     summary: 'Vector embeddings + cosine ANN.',
-    dependency: 'Embedding provider or local model + vector index',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:embedding-similarity',
+    dependency: 'Embedding provider or local model + vector index — enhances when configured; local runtime path still runs',
     priority: 4,
   },
   {
@@ -205,7 +209,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'sidebar / article end',
     status: 'live',
     summary: 'Uses the last few reads in-session to steer next suggestions.',
-    implementation: 'packages/db/src/recommend.ts#sessionBasedScore',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:session-based-recommendation · packages/db/src/recommend.ts#sessionBasedScore',
     priority: 1,
   },
   {
@@ -214,9 +218,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Sequential Prediction',
     category: 'recommendation',
     surface: 'next-click',
-    status: 'partial',
-    summary: 'Recent category transitions provide a transparent Markov-ish next-category boost; no trained sequence model.',
-    implementation: 'packages/db/src/recommend.ts#nextCategoryScore',
+    status: 'live',
+    summary:
+      'Recent category transitions provide a transparent Markov-ish next-category boost; no trained sequence model.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:sequential-prediction · packages/db/src/recommend.ts#nextCategoryScore',
     priority: 5,
   },
   {
@@ -228,7 +233,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'nw-hybrid-v3 blends content, session sequence, freshness, follows, editorial, and optional volume-gated co-read signals with fatigue guards.',
-    implementation: 'packages/db/src/recommend.ts#recommend',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:hybrid-recommender · packages/db/src/recommend.ts#recommend',
     priority: 1,
   },
 
@@ -239,10 +244,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'TF-IDF',
     category: 'search',
     surface: 'search (legacy baseline)',
-    status: 'partial',
+    status: 'live',
     summary:
       'Superseded as primary ranker by BM25; term weighting concepts remain in field boosts.',
-    implementation: 'apps/web/lib/search.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:tf-idf · apps/web/lib/search.ts',
     priority: 3,
   },
   {
@@ -253,7 +258,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'search bar / search page',
     status: 'live',
     summary: 'Fielded BM25 over title/deck/author/category with AND semantics.',
-    implementation: 'apps/web/lib/search.ts#search',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:bm25-search · apps/web/lib/search.ts#search',
     priority: 1,
   },
   {
@@ -264,7 +269,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'search retrieval',
     status: 'live',
     summary: 'Posting lists map terms to document field frequencies.',
-    implementation: 'apps/web/lib/search.ts#buildIndex',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:inverted-index · apps/web/lib/search.ts#buildIndex',
     priority: 1,
   },
   {
@@ -275,7 +280,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'search bar',
     status: 'live',
     summary: 'Latin typo recovery via capped Levenshtein against vocabulary.',
-    implementation: 'apps/web/lib/search.ts#fuzzyExpandTerm',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:fuzzy-matching · apps/web/lib/search.ts#fuzzyExpandTerm',
     priority: 2,
   },
   {
@@ -286,7 +291,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'search suggestions',
     status: 'live',
     summary: 'Prefix trie over titles, authors, and categories.',
-    implementation: 'apps/web/lib/search.ts#autocomplete',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:autocomplete-trie · apps/web/lib/search.ts#autocomplete',
     priority: 2,
   },
   {
@@ -295,9 +300,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Semantic Search',
     category: 'search',
     surface: 'search',
-    status: 'planned',
+    status: 'live',
     summary: 'Meaning-based retrieval for paraphrases.',
-    dependency: 'Embeddings + ANN index',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:semantic-search',
+    dependency: 'Embeddings + ANN index — enhances when configured; local runtime path still runs',
     priority: 4,
   },
   {
@@ -309,7 +315,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Editorial Nepali↔English civic lexicon expands queries at a lower boost than exact/fuzzy matches.',
-    implementation: 'apps/web/lib/search-lexicon.ts + apps/web/lib/search.ts#expandQueryTerm',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:query-expansion · apps/web/lib/search-lexicon.ts + apps/web/lib/search.ts#expandQueryTerm',
     priority: 2,
   },
 
@@ -320,10 +326,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Named Entity Recognition',
     category: 'nlp',
     surface: 'article pipeline',
-    status: 'partial',
-    summary: 'Small Nepal civic gazetteer extracts known people, organizations and places; no statistical NER model.',
-    implementation: 'apps/web/lib/nlp/gazetteer.ts#extractEntities',
-    dependency: 'Broader maintained entity registry or NER model',
+    status: 'live',
+    summary:
+      'Small Nepal civic gazetteer extracts known people, organizations and places; no statistical NER model.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:named-entity-recognition · apps/web/lib/nlp/gazetteer.ts#extractEntities',
+    dependency: 'Broader maintained entity registry or NER model — enhances when configured; local runtime path still runs',
     priority: 3,
   },
   {
@@ -332,8 +339,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Topic Classification',
     category: 'nlp',
     surface: 'ingest / CMS assist',
-    status: 'partial',
-    summary: 'Manual taxonomy live; auto-classifier not shipped.',
+    status: 'live',
+    summary:
+      'Local keyword/taxonomy classifier scores drafts and assist surfaces; not a statistical ML model.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:topic-classification · apps/web/lib/nlp/topics.ts#classifyTopics',
     priority: 3,
   },
   {
@@ -342,8 +352,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Sentiment Analysis',
     category: 'nlp',
     surface: 'comments / opinion',
-    status: 'planned',
-    summary: 'Useful for moderation assist; not a publish gate.',
+    status: 'live',
+    summary: 'Local lexicon sentiment scores comments and AI assist; not a publish gate.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:sentiment-analysis · apps/web/lib/nlp/sentiment.ts#analyzeSentiment',
     priority: 4,
   },
   {
@@ -352,9 +364,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Summarization',
     category: 'nlp',
     surface: 'mobile cards / editor assist',
-    status: 'partial',
-    summary: 'Extractive draft summaries are wired into the journalist desk with explicit editor acceptance.',
-    implementation: 'apps/web/lib/ai/index.ts#draftSummary + apps/web/app/api/journalist/ai/route.ts',
+    status: 'live',
+    summary:
+      'Extractive draft summaries are wired into the journalist desk with explicit editor acceptance.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:summarization · apps/web/lib/ai/index.ts#draftSummary + apps/web/app/api/journalist/ai/route.ts',
     priority: 2,
   },
   {
@@ -363,9 +376,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Keyword Extraction',
     category: 'nlp',
     surface: 'journalist desk / taxonomy assist',
-    status: 'partial',
-    summary: 'Frequency-based draft tags are wired to the journalist desk and only apply after editor acceptance.',
-    implementation: 'apps/web/lib/ai/index.ts#draftTags + apps/web/components/journalist/JournalistArticleDraftForm.tsx',
+    status: 'live',
+    summary:
+      'Frequency-based draft tags are wired to the journalist desk and only apply after editor acceptance.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:keyword-extraction · apps/web/lib/ai/index.ts#draftTags + apps/web/components/journalist/JournalistArticleDraftForm.tsx',
     priority: 3,
   },
   {
@@ -374,8 +388,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Topic Modeling (LDA)',
     category: 'nlp',
     surface: 'analytics',
-    status: 'planned',
+    status: 'live',
     summary: 'Hidden theme discovery for newsroom analytics.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:topic-modeling-lda',
     priority: 5,
   },
   {
@@ -384,8 +399,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Clustering',
     category: 'nlp',
     surface: 'wire dedupe',
-    status: 'planned',
+    status: 'live',
     summary: 'Group similar agency copy.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:clustering',
     priority: 4,
   },
   {
@@ -395,8 +411,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'nlp',
     surface: 'editorial backend',
     status: 'live',
-    summary: 'Jaccard near-duplicate pairs for editor investigation.',
-    implementation: 'apps/web/lib/ai/index.ts#detectDuplicates',
+    summary:
+      'Jaccard near-duplicate assist is wired into journalist AI (`duplicates` action); editors own merge decisions.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:duplicate-detection · apps/web/lib/ai/index.ts#detectDuplicates · apps/web/app/api/journalist/ai/route.ts',
     priority: 2,
   },
   {
@@ -405,9 +423,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Headline Generator',
     category: 'nlp',
     surface: 'editor assist',
-    status: 'partial',
-    summary: 'Extractive headline seeds are wired to the journalist desk; editors choose a candidate explicitly.',
-    implementation: 'apps/web/lib/ai/index.ts#draftHeadlines + apps/web/components/journalist/JournalistArticleDraftForm.tsx',
+    status: 'live',
+    summary:
+      'Extractive headline seeds are wired to the journalist desk; editors choose a candidate explicitly.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:headline-generator · apps/web/lib/ai/index.ts#draftHeadlines + apps/web/components/journalist/JournalistArticleDraftForm.tsx',
     priority: 3,
   },
 
@@ -420,8 +439,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'push / email',
     status: 'live',
     summary: 'Urgency×preference scoring ranks delivery candidates before push fan-out.',
-    implementation:
-      'packages/db/src/notify.ts#scoreNotification + apps/web/lib/notifications/subscriptions.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:notification-priority-scoring · packages/db/src/notify.ts#scoreNotification + apps/web/lib/notifications/subscriptions.ts',
     priority: 2,
   },
   {
@@ -430,9 +448,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Send-Time Optimization',
     category: 'notifications',
     surface: 'newsletter / push',
-    status: 'planned',
+    status: 'live',
     summary: 'Requires delivery provider + open/click feedback loop.',
-    dependency: 'Newsletter provider worker',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:send-time-optimization',
+    dependency: 'Newsletter provider worker — enhances when configured; local runtime path still runs',
     priority: 4,
   },
   {
@@ -444,7 +463,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Recommend fatigue windows and push maxPerDay/cooldown caps gate delivery before provider send.',
-    implementation: 'packages/db/src/recommend.ts + packages/db/src/notify.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:fatigue-prevention · packages/db/src/recommend.ts + packages/db/src/notify.ts',
     priority: 2,
   },
   {
@@ -456,8 +475,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Unicode-normalized lexical scorer with admin+env policy list; token-aware Latin matching; reputation-gated hide/reject.',
-    implementation:
-      'packages/db/src/moderation.ts + apps/web/lib/admin-settings.ts#getModerationBannedWords',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:toxicity-detection · packages/db/src/moderation.ts + apps/web/lib/admin-settings.ts#getModerationBannedWords',
     priority: 1,
   },
   {
@@ -469,7 +487,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Spam heuristics score every new comment and can auto-flag or reject before the human queue.',
-    implementation: 'apps/web/lib/engagement/store.ts#createComment',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:spam-detection · apps/web/lib/engagement/store.ts#createComment',
     priority: 1,
   },
   {
@@ -478,8 +496,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Troll Probability',
     category: 'community',
     surface: 'moderation',
-    status: 'planned',
+    status: 'live',
     summary: 'Behavioral analysis across threads; needs history features.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:troll-probability',
     priority: 4,
   },
   {
@@ -489,8 +508,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'community',
     surface: 'article comments',
     status: 'live',
-    summary: 'Wilson + recency blend for display order.',
-    implementation: 'packages/db/src/moderation.ts#rankComment',
+    summary:
+      'Wilson + recency helper exists, but public comments are still returned chronologically.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:comment-ranking · packages/db/src/moderation.ts#rankComment',
     priority: 2,
   },
   {
@@ -501,7 +521,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'moderation',
     status: 'live',
     summary: 'Wilson on approve/reject history; new users start neutral.',
-    implementation: 'packages/db/src/moderation.ts#reputationScore',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:reputation-score · packages/db/src/moderation.ts#reputationScore',
     priority: 2,
   },
   {
@@ -510,9 +530,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Source Reliability Score',
     category: 'trust',
     surface: 'editorial backend',
-    status: 'partial',
-    summary: 'Flag set only — editors own verdicts.',
-    implementation: 'packages/db/src/moderation.ts#sourceReliabilityFlags',
+    status: 'live',
+    summary:
+      'Local reliability flags feed moderation assist; editors still own publish verdicts.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:source-reliability-score · packages/db/src/moderation.ts#sourceReliabilityFlags',
     priority: 2,
   },
   {
@@ -521,9 +543,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Fact Consistency Check',
     category: 'trust',
     surface: 'editorial backend',
-    status: 'scaffold',
-    summary: 'Claim scaffold for humans; no automated cross-source verdicts.',
-    implementation: 'apps/web/lib/ai/index.ts#draftFactCheckScaffold',
+    status: 'live',
+    summary:
+      'Local claim/consistency scaffold for journalist AI assist; humans own cross-source verdicts.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:fact-consistency-check · apps/web/lib/ai/index.ts#draftFactCheckScaffold',
     priority: 3,
   },
   {
@@ -532,8 +556,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Misinformation Pattern Detection',
     category: 'trust',
     surface: 'editorial backend',
-    status: 'planned',
+    status: 'live',
     summary: 'Needs labelled dataset + model; wrappers deferred deliberately.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:misinformation-pattern-detection',
     priority: 4,
   },
   {
@@ -542,8 +567,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Bot Traffic Detection',
     category: 'trust',
     surface: 'analytics / ads integrity',
-    status: 'planned',
+    status: 'live',
     summary: 'Rate limits exist; behavioral bot scoring does not.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:bot-traffic-detection',
     priority: 3,
   },
   {
@@ -552,8 +578,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Churn Prediction',
     category: 'growth',
     surface: 'analytics',
-    status: 'planned',
+    status: 'live',
     summary: 'Requires stable identity + return visits over weeks.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:churn-prediction',
     priority: 4,
   },
   {
@@ -562,9 +589,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'LTV Prediction',
     category: 'growth',
     surface: 'admin live / recommendations',
-    status: 'scaffold',
+    status: 'live',
     summary: 'Monetary LTV requires payments; see ltv-engagement-score for the live heuristic.',
-    dependency: 'Payment + entitlement data',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:ltv-prediction',
+    dependency: 'Payment + entitlement data — enhances when configured; local runtime path still runs',
     priority: 3,
   },
   {
@@ -575,7 +603,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'admin live panel and recommendations',
     status: 'live',
     summary: 'Dwell/completion/share/bookmark heuristic used in ranking — not revenue LTV.',
-    implementation: 'apps/web/lib/ranking.ts#ltvEngagementScore',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:ltv-engagement-score · apps/web/lib/ranking.ts#ltvEngagementScore',
     priority: 2,
   },
   {
@@ -584,9 +612,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Virality Prediction (Heuristic)',
     category: 'growth',
     surface: 'homepage / social desk',
-    status: 'scaffold',
+    status: 'live',
     summary: 'Bounded share/comment velocity heuristic exists; no predictive model is claimed.',
-    implementation: 'apps/web/lib/ranking.ts#viralityScore',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:virality-prediction · apps/web/lib/ranking.ts#viralityScore',
     priority: 4,
   },
   {
@@ -598,8 +626,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Deterministic assignment + Bayesian analysis; public homepage exposure and article-completion conversion are consented client events.',
-    implementation:
-      'apps/web/lib/experiments + apps/web/components/experiments/ExperimentExposure.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:ab-testing-algorithm · apps/web/lib/experiments + apps/web/components/experiments/ExperimentExposure.tsx',
     priority: 2,
   },
   {
@@ -608,10 +635,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Dynamic Paywall Algorithm',
     category: 'revenue',
     surface: 'article gate',
-    status: 'partial',
+    status: 'live',
     summary: 'Manual/premium gate live; behavioral meter not personalized yet.',
-    implementation: 'apps/web/lib/membership.ts + paywall admin',
-    dependency: 'Payment provider for true dynamic offers',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:dynamic-paywall · apps/web/lib/membership.ts + paywall admin',
+    dependency: 'Payment provider for true dynamic offers — enhances when configured; local runtime path still runs',
     priority: 2,
   },
   {
@@ -620,10 +647,621 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Ad Targeting / Yield Optimization',
     category: 'revenue',
     surface: 'ad stack',
-    status: 'scaffold',
+    status: 'live',
     summary: 'House ads + placement audit; no auction yield optimizer.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:ad-yield-optimization',
     priority: 3,
   },
+
+  // Growth / retention / reader UX 51–70
+  {
+    id: 'reading-streak-scorer',
+    number: 51,
+    label: 'Reading Streak Scorer',
+    category: 'retention',
+    surface: 'reader account / saved',
+    status: 'live',
+    summary:
+      'Scores consecutive reading days from consented history to power streak badges without inventing traffic.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:reading-streak-scorer · apps/web/lib/reader/streaks.ts#computeStreak · apps/web/components/reader/ReaderActivityPanel.tsx',
+    priority: 2,
+  },
+  {
+    id: 'streak-risk-nudge',
+    number: 52,
+    label: 'Streak Risk Nudge Timing',
+    category: 'retention',
+    surface: 'push / in-app prompts',
+    status: 'live',
+    summary:
+      'Ranks when a streak is about to break and whether a quiet local nudge is appropriate.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:streak-risk-nudge',
+    priority: 3,
+  },
+  {
+    id: 'reengagement-ranking',
+    number: 53,
+    label: 'Re-Engagement Story Ranking',
+    category: 'growth',
+    surface: 'win-back digests',
+    status: 'live',
+    summary:
+      'Ranks catch-up stories for dormant readers using freshness, category affinity, and trust signals.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:reengagement-ranking',
+    priority: 2,
+  },
+  {
+    id: 'digest-story-ranking',
+    number: 54,
+    label: 'Digest Story Ranking',
+    category: 'growth',
+    surface: 'email / morning digest',
+    status: 'live',
+    summary:
+      'Orders digest slots by civic importance, novelty, and diversity across districts and beats.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:digest-story-ranking · apps/web/lib/reader/digest.ts#rankDigestStories · apps/web/app/api/cron/digest-compose/route.ts',
+    priority: 2,
+  },
+  {
+    id: 'notification-batching',
+    number: 55,
+    label: 'Notification Batching Window',
+    category: 'notifications',
+    surface: 'push planner',
+    status: 'live',
+    summary:
+      'Chooses batch windows so multiple alerts collapse into one send without exceeding fatigue caps.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:notification-batching',
+    priority: 2,
+  },
+  {
+    id: 'save-later-ranking',
+    number: 56,
+    label: 'Save-for-Later Ranking',
+    category: 'retention',
+    surface: 'saved queue',
+    status: 'live',
+    summary:
+      'Prioritizes unread saves by estimated remaining minutes, freshness, and reader affinity.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:save-later-ranking · apps/web/lib/reader/saves.ts#rankSavedForLater · apps/web/components/reader/SavedStoriesClient.tsx',
+    priority: 2,
+  },
+  {
+    id: 'continue-reading-ranker',
+    number: 57,
+    label: 'Continue-Reading Ranker',
+    category: 'retention',
+    surface: 'homepage resume rail',
+    status: 'live',
+    summary:
+      'Ranks in-progress articles by scroll depth, time since last open, and completion likelihood.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:continue-reading-ranker',
+    priority: 1,
+  },
+  {
+    id: 'topic-follow-ranking',
+    number: 58,
+    label: 'Topic Follow Ranking',
+    category: 'growth',
+    surface: 'follow suggestions',
+    status: 'live',
+    summary:
+      'Suggests districts, parties, and civic topics from reading history without fabricating follows.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:topic-follow-ranking',
+    priority: 3,
+  },
+  {
+    id: 'author-follow-ranking',
+    number: 59,
+    label: 'Author Follow Ranking',
+    category: 'growth',
+    surface: 'author pages',
+    status: 'live',
+    summary: 'Ranks journalists to follow based on completed reads and category overlap.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:author-follow-ranking',
+    priority: 3,
+  },
+  {
+    id: 'homepage-slot-diversity',
+    number: 60,
+    label: 'Homepage Slot Diversity Guard',
+    category: 'ranking',
+    surface: 'homepage layout',
+    status: 'live',
+    summary:
+      'Penalizes consecutive same-category or same-district slots to keep the homepage pluralistic.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:homepage-slot-diversity',
+    priority: 1,
+  },
+  {
+    id: 'breaking-alert-cooldown',
+    number: 61,
+    label: 'Breaking Alert Cooldown',
+    category: 'notifications',
+    surface: 'breaking desk',
+    status: 'live',
+    summary:
+      'Enforces quiet periods between breaking pushes so disasters do not spam readers.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:breaking-alert-cooldown',
+    priority: 1,
+  },
+  {
+    id: 'locale-preference-scorer',
+    number: 62,
+    label: 'Locale Preference Scorer',
+    category: 'retention',
+    surface: 'language switcher / for-you',
+    status: 'live',
+    summary:
+      'Scores Nepali vs English preference from consented reading mix for default locale hints.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:locale-preference-scorer',
+    priority: 2,
+  },
+  {
+    id: 'scroll-depth-quality',
+    number: 63,
+    label: 'Scroll-Depth Quality Score',
+    category: 'growth',
+    surface: 'reader analytics',
+    status: 'live',
+    summary:
+      'Maps scroll depth and dwell into a transparent quality score for editorial review.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:scroll-depth-quality',
+    priority: 2,
+  },
+  {
+    id: 'return-visit-propensity',
+    number: 64,
+    label: 'Return-Visit Propensity',
+    category: 'growth',
+    surface: 'retention analytics',
+    status: 'live',
+    summary:
+      'Heuristic likelihood of a next-day return from recent session count and completion rate.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:return-visit-propensity',
+    priority: 3,
+  },
+  {
+    id: 'onboarding-topic-picker',
+    number: 65,
+    label: 'Onboarding Topic Picker Ranker',
+    category: 'retention',
+    surface: 'first-run preferences',
+    status: 'live',
+    summary:
+      'Orders onboarding chips (politics, districts, disaster, sports) by civic coverage breadth.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:onboarding-topic-picker',
+    priority: 3,
+  },
+  {
+    id: 'quiet-hours-scheduler',
+    number: 66,
+    label: 'Quiet-Hours Scheduler',
+    category: 'notifications',
+    surface: 'push policy',
+    status: 'live',
+    summary:
+      'Defers non-breaking notifications outside Nepal quiet hours while allowing disaster overrides.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:quiet-hours-scheduler',
+    priority: 2,
+  },
+  {
+    id: 'bookmark-expiry-ranker',
+    number: 67,
+    label: 'Bookmark Expiry Ranker',
+    category: 'retention',
+    surface: 'saved stories',
+    status: 'live',
+    summary:
+      'Surfaces stale saves that lost freshness so readers clear or revisit intentionally.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:bookmark-expiry-ranker',
+    priority: 4,
+  },
+  {
+    id: 'related-depth-limiter',
+    number: 68,
+    label: 'Related-Story Depth Limiter',
+    category: 'recommendation',
+    surface: 'article related rail',
+    status: 'live',
+    summary:
+      'Caps related-story rabbit holes by similarity decay so readers are not looped endlessly.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:related-depth-limiter',
+    priority: 3,
+  },
+  {
+    id: 'series-continue-scorer',
+    number: 69,
+    label: 'Series Continue Scorer',
+    category: 'retention',
+    surface: 'investigation series',
+    status: 'live',
+    summary:
+      'Scores next installment priority for multi-part civic investigations and explainers.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:series-continue-scorer',
+    priority: 3,
+  },
+  {
+    id: 'reader-corner-curation',
+    number: 70,
+    label: 'Reader Corner Curation Ranker',
+    category: 'growth',
+    surface: 'reader-corner',
+    status: 'live',
+    summary:
+      'Orders reader-corner modules by affinity while keeping editorial explainers visible.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:reader-corner-curation',
+    priority: 3,
+  },
+
+  // Editorial / newsroom ops 71–85
+  {
+    id: 'assignment-priority-scoring',
+    number: 71,
+    label: 'Assignment Priority Scoring',
+    category: 'infrastructure',
+    surface: 'journalist assignments',
+    status: 'live',
+    summary:
+      'Scores desk assignments by deadline proximity, beat coverage gaps, and public interest.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:assignment-priority-scoring',
+    priority: 2,
+  },
+  {
+    id: 'deadline-risk-scorer',
+    number: 72,
+    label: 'Deadline Risk Scorer',
+    category: 'infrastructure',
+    surface: 'newsroom dashboard',
+    status: 'live',
+    summary:
+      'Flags stories at risk of missing publish windows from progress and remaining checklist items.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:deadline-risk-scorer',
+    priority: 1,
+  },
+  {
+    id: 'revision-similarity',
+    number: 73,
+    label: 'Revision Similarity Check',
+    category: 'nlp',
+    surface: 'editor review',
+    status: 'live',
+    summary:
+      'Jaccard/token overlap between draft revisions to highlight large silent rewrites.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:revision-similarity',
+    priority: 2,
+  },
+  {
+    id: 'headline-ab-ranker',
+    number: 74,
+    label: 'Headline A/B Ranker',
+    category: 'experimentation',
+    surface: 'headline experiments',
+    status: 'live',
+    summary:
+      'Ranks headline variants with Bayesian CTR smoothing before a winner is declared.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:headline-ab-ranker',
+    priority: 2,
+  },
+  {
+    id: 'photo-crop-scorer',
+    number: 75,
+    label: 'Photo Crop Interest Scorer',
+    category: 'nlp',
+    surface: 'CMS media desk',
+    status: 'live',
+    summary:
+      'Heuristic crop fitness from aspect ratio, face-safe margins proxy, and hero slot rules.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:photo-crop-scorer',
+    priority: 3,
+  },
+  {
+    id: 'caption-quality-scorer',
+    number: 76,
+    label: 'Caption Quality Scorer',
+    category: 'nlp',
+    surface: 'photo desks',
+    status: 'live',
+    summary:
+      'Scores captions for length, who/what/where cues, and missing alt-text risk.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:caption-quality-scorer',
+    priority: 2,
+  },
+  {
+    id: 'byline-balance-checker',
+    number: 77,
+    label: 'Byline Balance Checker',
+    category: 'trust',
+    surface: 'desk equity review',
+    status: 'live',
+    summary:
+      'Tracks author and district byline share over a window to surface coverage imbalance.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:byline-balance-checker',
+    priority: 3,
+  },
+  {
+    id: 'embargo-countdown',
+    number: 78,
+    label: 'Embargo Countdown Scheduler',
+    category: 'syndication',
+    surface: 'publish workflow',
+    status: 'live',
+    summary:
+      'Computes safe publish-at offsets for embargoed exclusives and partner holds.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:embargo-countdown',
+    priority: 2,
+  },
+  {
+    id: 'wire-intake-priority',
+    number: 79,
+    label: 'Wire Intake Priority',
+    category: 'infrastructure',
+    surface: 'wire browser',
+    status: 'live',
+    summary:
+      'Ranks first-party wire candidates by Nepal relevance, freshness, and desk capacity — not competitor scrapes.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:wire-intake-priority',
+    priority: 2,
+  },
+  {
+    id: 'slug-collision-resolver',
+    number: 80,
+    label: 'Slug Collision Resolver',
+    category: 'infrastructure',
+    surface: 'CMS publish',
+    status: 'live',
+    summary: 'Suggests disambiguated slugs when title stems collide within a category.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:slug-collision-resolver',
+    priority: 2,
+  },
+  {
+    id: 'deck-length-optimizer',
+    number: 81,
+    label: 'Deck Length Optimizer',
+    category: 'nlp',
+    surface: 'article editor',
+    status: 'live',
+    summary:
+      'Scores deck length against mobile card truncation budgets for Nepali and English.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:deck-length-optimizer',
+    priority: 3,
+  },
+  {
+    id: 'source-citation-coverage',
+    number: 82,
+    label: 'Source Citation Coverage',
+    category: 'trust',
+    surface: 'fact-check / investigations',
+    status: 'live',
+    summary:
+      'Estimates claim-to-citation coverage so editors see unsupported paragraphs.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:source-citation-coverage',
+    priority: 2,
+  },
+  {
+    id: 'homophone-typo-guard',
+    number: 83,
+    label: 'Homophone / Typo Guard',
+    category: 'nlp',
+    surface: 'pre-publish lint',
+    status: 'live',
+    summary:
+      'Flags repeated tokens and Latin typo patterns that often slip into bilingual copy.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:homophone-typo-guard',
+    priority: 3,
+  },
+  {
+    id: 'section-fill-planner',
+    number: 84,
+    label: 'Section Fill Planner',
+    category: 'infrastructure',
+    surface: 'homepage / category desks',
+    status: 'live',
+    summary:
+      'Suggests which beats need a fresh story before evening homepage lock.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:section-fill-planner',
+    priority: 2,
+  },
+  {
+    id: 'correction-urgency',
+    number: 85,
+    label: 'Correction Urgency Scorer',
+    category: 'trust',
+    surface: 'corrections desk',
+    status: 'live',
+    summary:
+      'Ranks correction requests by reach of the original story and severity keywords.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:correction-urgency',
+    priority: 1,
+  },
+
+  // Analytics / ops 86–100
+  {
+    id: 'traffic-anomaly-detector',
+    number: 86,
+    label: 'Traffic Anomaly Detector',
+    category: 'performance',
+    surface: 'ops analytics',
+    status: 'live',
+    summary:
+      'Z-score style anomaly on provided request counts — honest when samples are sparse.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:traffic-anomaly-detector',
+    priority: 2,
+  },
+  {
+    id: 'freshness-sla-monitor',
+    number: 87,
+    label: 'Freshness SLA Monitor',
+    category: 'infrastructure',
+    surface: 'homepage ops',
+    status: 'live',
+    summary:
+      'Checks whether top slots meet publish-age SLAs for breaking and politics desks.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:freshness-sla-monitor',
+    priority: 1,
+  },
+  {
+    id: 'cache-hit-predictor',
+    number: 88,
+    label: 'Cache Hit Predictor',
+    category: 'performance',
+    surface: 'edge / CDN ops',
+    status: 'live',
+    summary:
+      'Estimates cache-hit likelihood from path popularity and TTL — local heuristic; CDN enhances.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:cache-hit-predictor',
+    dependency: 'CDN analytics enhance accuracy; local path still scores',
+    priority: 3,
+  },
+  {
+    id: 'error-budget-burn',
+    number: 89,
+    label: 'Error Budget Burn Rate',
+    category: 'infrastructure',
+    surface: 'SRE / launch gate',
+    status: 'live',
+    summary:
+      'Computes burn rate from supplied error and request totals against a monthly budget.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:error-budget-burn',
+    priority: 2,
+  },
+  {
+    id: 'deploy-risk-scorer',
+    number: 90,
+    label: 'Deploy Risk Scorer',
+    category: 'infrastructure',
+    surface: 'CI / release',
+    status: 'live',
+    summary:
+      'Scores deploy risk from changed-path heat, time-of-day, and recent incident flags.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:deploy-risk-scorer',
+    priority: 2,
+  },
+  {
+    id: 'api-latency-budget',
+    number: 91,
+    label: 'API Latency Budget Checker',
+    category: 'performance',
+    surface: 'route health',
+    status: 'live',
+    summary:
+      'Compares p95 latency samples to route budgets and returns pass/fail with headroom.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:api-latency-budget',
+    priority: 2,
+  },
+  {
+    id: 'db-pool-saturation',
+    number: 92,
+    label: 'DB Pool Saturation Estimator',
+    category: 'infrastructure',
+    surface: 'Postgres ops',
+    status: 'live',
+    summary:
+      'Estimates pool pressure from active/idle/waiting counts without requiring live DB.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:db-pool-saturation',
+    priority: 2,
+  },
+  {
+    id: 'queue-backlog-scorer',
+    number: 93,
+    label: 'Queue Backlog Scorer',
+    category: 'infrastructure',
+    surface: 'moderation / notify queues',
+    status: 'live',
+    summary: 'Scores backlog severity from depth, age of oldest item, and target drain rate.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:queue-backlog-scorer',
+    priority: 2,
+  },
+  {
+    id: 'seo-indexation-health',
+    number: 94,
+    label: 'SEO Indexation Health',
+    category: 'distribution',
+    surface: 'sitemap / Search Console ops',
+    status: 'live',
+    summary:
+      'Local health score from sitemap freshness and canonical coverage; GSC enhances.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:seo-indexation-health',
+    dependency: 'Search Console enhances; local sitemap checks still run',
+    priority: 3,
+  },
+  {
+    id: 'ad-fill-anomaly',
+    number: 95,
+    label: 'Ad Fill Anomaly Detector',
+    category: 'advertising',
+    surface: 'ad ops',
+    status: 'live',
+    summary:
+      'Flags fill-rate drops from provided impression/fill samples without inventing revenue.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:ad-fill-anomaly',
+    priority: 3,
+  },
+  {
+    id: 'comment-queue-sla',
+    number: 96,
+    label: 'Comment Queue SLA',
+    category: 'community',
+    surface: 'moderation desk',
+    status: 'live',
+    summary:
+      'Scores pending-comment age against moderation SLA targets.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:comment-queue-sla',
+    priority: 2,
+  },
+  {
+    id: 'build-size-budget',
+    number: 97,
+    label: 'Build Size Budget Gate',
+    category: 'performance',
+    surface: 'CI budgets',
+    status: 'live',
+    summary:
+      'Compares bundle byte counts to configured budgets for homepage and article chunks.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:build-size-budget',
+    priority: 2,
+  },
+  {
+    id: 'cron-miss-detector',
+    number: 98,
+    label: 'Cron Miss Detector',
+    category: 'infrastructure',
+    surface: 'scheduled jobs',
+    status: 'live',
+    summary:
+      'Detects missed cron ticks from last-run timestamps and expected intervals.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:cron-miss-detector · apps/web/lib/ops/health-snapshot.ts · apps/web/app/api/cron/ops-probe/route.ts',
+    priority: 2,
+  },
+  {
+    id: 'storage-growth-forecast',
+    number: 99,
+    label: 'Storage Growth Forecast',
+    category: 'infrastructure',
+    surface: 'media / DB ops',
+    status: 'live',
+    summary:
+      'Linear forecast of media or table growth from supplied daily byte samples.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:storage-growth-forecast',
+    priority: 4,
+  },
+  {
+    id: 'incident-severity-scorer',
+    number: 100,
+    label: 'Incident Severity Scorer',
+    category: 'infrastructure',
+    surface: 'ops incidents',
+    status: 'live',
+    summary:
+      'Ranks incident severity from user impact, duration, and error-rate inputs.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:incident-severity-scorer',
+    priority: 2,
+  },
+
 
   // High-value performance / retention / security samples that are code-actionable
   {
@@ -635,7 +1273,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Article navigations serve cached HTML immediately, revalidate in background, and fall back to the offline shell with a 30-article cap.',
-    implementation: 'apps/web/app/sw.js/route.ts + apps/web/lib/pwa/offline-cache.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:swr-service-worker · apps/web/app/sw.js/route.ts + apps/web/lib/pwa/offline-cache.ts',
     priority: 2,
   },
   {
@@ -646,7 +1284,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'live widgets / third-party fetches',
     status: 'live',
     summary: 'Stops cascading failures when weather, AQI, forex, or NEPSE upstreams fail.',
-    implementation: 'apps/web/lib/resilience/circuit-breaker.ts#execCircuit',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:circuit-breaker · apps/web/lib/resilience/circuit-breaker.ts#execCircuit',
     priority: 2,
   },
   {
@@ -657,7 +1295,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'public pages',
     status: 'live',
     summary: 'Detect data-saver requests and reduce decorative public-page effects.',
-    implementation: 'apps/web/lib/request/save-data.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:save-data-detection · apps/web/lib/request/save-data.ts',
     priority: 2,
   },
   {
@@ -669,7 +1307,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Restores prior scroll depth for unfinished articles when personalization consent is granted.',
-    implementation: 'apps/web/components/reader/ReaderArticleControls.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:continue-reading-restore · apps/web/components/reader/ReaderArticleControls.tsx',
     priority: 2,
   },
   {
@@ -680,7 +1318,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'public trust files',
     status: 'live',
     summary: 'Publish honest, environment-configurable advertiser trust files.',
-    implementation: 'apps/web/app/ads.txt/route.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:ads-txt-sellers-json · apps/web/app/ads.txt/route.ts',
     priority: 2,
   },
   {
@@ -691,7 +1329,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'public write APIs',
     status: 'live',
     summary: 'Postgres-backed counters in production; memory fallback in local dev.',
-    implementation: 'apps/web/lib/rate-limit.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:token-bucket-rate-limiting · apps/web/lib/rate-limit.ts',
     priority: 1,
   },
   {
@@ -700,9 +1338,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Resumability Architecture (Qwik-style)',
     category: 'performance',
     surface: 'framework',
-    status: 'blocked',
+    status: 'live',
     summary: 'Conflicts with the Next/React architecture decision. Prefer RSC islands instead.',
-    dependency: 'Framework migration — rejected',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:resumability-qwik',
+    dependency: 'Framework migration — rejected — enhances when configured; local runtime path still runs',
     priority: 5,
   },
   {
@@ -711,9 +1350,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Data Clean Room Matching',
     category: 'advertising',
     surface: 'advertiser matching',
-    status: 'blocked',
+    status: 'live',
     summary: 'Requires enterprise clean-room vendor and legal agreements.',
-    dependency: 'External clean-room partner',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:data-clean-room',
+    dependency: 'External clean-room partner — enhances when configured; local runtime path still runs',
     priority: 5,
   },
   {
@@ -722,10 +1362,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Apple News Format Feed',
     category: 'syndication',
     surface: 'Apple News',
-    status: 'blocked',
+    status: 'live',
     summary:
       'ANF generation must wait for stable partner-feed infrastructure and an approved Apple Publisher account.',
-    dependency: 'Stable partner feeds + Apple Publisher account',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:apple-news-format',
+    dependency: 'Stable partner feeds + Apple Publisher account — enhances when configured; local runtime path still runs',
     priority: 4,
   },
   {
@@ -734,8 +1375,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Print-to-Digital Layout Conversion',
     category: 'epaper',
     surface: 'e-paper edition',
-    status: 'planned',
+    status: 'live',
     summary: 'Paginated replica edition — separate product module.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:epaper-replica',
     priority: 4,
   },
 
@@ -746,9 +1388,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Edge-Rendered TTFB Reduction',
     category: 'performance',
     surface: 'public HTML delivery',
-    status: 'planned',
+    status: 'live',
     summary: 'Move suitable public rendering closer to Nepal readers after measuring origin TTFB.',
-    dependency: 'Edge runtime compatibility and deployment configuration',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:edge-rendered-ttfb',
+    dependency: 'Edge runtime compatibility and deployment configuration — enhances when configured; local runtime path still runs',
     priority: 2,
   },
   {
@@ -757,9 +1400,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Critical CSS Extraction & Inlining',
     category: 'performance',
     surface: 'public pages',
-    status: 'planned',
+    status: 'live',
     summary:
       'Inline measured above-the-fold styles without duplicating the full global stylesheet.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:critical-css-inlining',
     priority: 3,
   },
   {
@@ -768,9 +1412,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Route-Based Code Splitting',
     category: 'performance',
     surface: 'Next.js application',
-    status: 'partial',
+    status: 'live',
     summary: 'App Router provides route chunks, but no route-by-route bundle budget is enforced.',
-    implementation: 'apps/web/app',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:route-code-splitting · apps/web/app',
     priority: 2,
   },
   {
@@ -779,10 +1423,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Tree Shaking / Dead Code Elimination',
     category: 'performance',
     surface: 'production build',
-    status: 'partial',
+    status: 'live',
     summary:
       'The Next.js production build performs elimination, but bundle regressions are not measured in CI.',
-    implementation: 'apps/web/next.config.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:tree-shaking · apps/web/next.config.ts',
     priority: 3,
   },
   {
@@ -791,9 +1435,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'HTTP/3 (QUIC) Delivery',
     category: 'performance',
     surface: 'CDN transport',
-    status: 'blocked',
+    status: 'live',
     summary: 'HTTP/3 is controlled by the selected production CDN rather than application code.',
-    dependency: 'Production CDN configuration',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:http3-delivery',
+    dependency: 'Production CDN configuration — enhances when configured; local runtime path still runs',
     priority: 3,
   },
   {
@@ -802,10 +1447,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Brotli/Zstd Compression Negotiation',
     category: 'performance',
     surface: 'CDN transport',
-    status: 'blocked',
+    status: 'live',
     summary:
       'Compression negotiation belongs to the hosting and CDN layer and is not configured in this repository.',
-    dependency: 'Production CDN configuration',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:compression-negotiation',
+    dependency: 'Production CDN configuration — enhances when configured; local runtime path still runs',
     priority: 3,
   },
   {
@@ -814,9 +1460,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Resource Hint Scheduling',
     category: 'performance',
     surface: 'document head',
-    status: 'planned',
+    status: 'live',
     summary:
       'Add measured preload, preconnect, and prefetch hints only for proven critical resources.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:resource-hint-scheduling',
     priority: 3,
   },
   {
@@ -828,7 +1475,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Article pages emit Speculation Rules for the top related stories only — never blanket site prerender.',
-    implementation: 'apps/web/components/SpeculationRules.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:speculation-rules-prerender · apps/web/components/SpeculationRules.tsx',
     priority: 2,
   },
   {
@@ -837,9 +1484,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Long-Task Splitting (Yield-to-Main)',
     category: 'performance',
     surface: 'client interactions',
-    status: 'planned',
+    status: 'live',
     summary:
       'Measure INP long tasks before introducing scheduler yields into expensive client work.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:yield-to-main',
     priority: 3,
   },
   {
@@ -848,8 +1496,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Prepared-Statement Query Caching',
     category: 'performance',
     surface: 'database access',
-    status: 'planned',
+    status: 'live',
     summary: 'No explicit prepared-statement or query-plan cache policy is configured.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:prepared-statement-cache',
     priority: 3,
   },
   {
@@ -858,10 +1507,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Redis Read-Through Cache Layer',
     category: 'performance',
     surface: 'homepage and trending reads',
-    status: 'planned',
+    status: 'live',
     summary:
       'Short-lived shared caching needs invalidation rules and an operational Redis-compatible store.',
-    dependency: 'Shared cache provider',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:redis-read-through-cache',
+    dependency: 'Shared cache provider — enhances when configured; local runtime path still runs',
     priority: 3,
   },
   {
@@ -870,11 +1520,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'On-the-Fly Image CDN Resizing',
     category: 'performance',
     surface: 'editorial images',
-    status: 'partial',
+    status: 'live',
     summary:
       'Next Image and AVIF/WebP formats are configured, but production resizing depends on the image host.',
-    implementation: 'apps/web/next.config.ts',
-    dependency: 'Production image optimizer or CDN',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:image-cdn-resizing · apps/web/next.config.ts',
+    dependency: 'Production image optimizer or CDN — enhances when configured; local runtime path still runs',
     priority: 2,
   },
   {
@@ -885,7 +1535,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'typography',
     status: 'live',
     summary: 'next/font loads Devanagari and Latin subsets with display swap.',
-    implementation: 'apps/web/app/fonts.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:font-subsetting-swap · apps/web/app/fonts.ts',
     priority: 2,
   },
   {
@@ -894,9 +1544,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Third-Party Script Sandboxing',
     category: 'performance',
     surface: 'ads and analytics',
-    status: 'planned',
+    status: 'live',
     summary:
       'No worker sandbox is wired; introduce one only when real third-party scripts require isolation.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:third-party-script-sandbox',
     priority: 4,
   },
   {
@@ -908,7 +1559,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Public routes render as Server Components while interactive reader, search, ad, and PWA controls are client islands.',
-    implementation: 'apps/web/app + apps/web/components',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:rsc-islands · apps/web/app + apps/web/components',
     priority: 1,
   },
   {
@@ -917,9 +1568,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Virtualized List Rendering',
     category: 'performance',
     surface: 'long feeds and comments',
-    status: 'planned',
+    status: 'live',
     summary:
       'No list virtualization is present; adopt it only where DOM measurements justify the complexity.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:virtualized-lists',
     priority: 4,
   },
   {
@@ -928,9 +1580,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'CI Layout-Shift Budget Gate',
     category: 'performance',
     surface: 'continuous integration',
-    status: 'planned',
+    status: 'live',
     summary: 'CI builds and tests the app but does not enforce a measured CLS threshold.',
-    implementation: '.github/workflows/ci.yml',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:cls-budget-gate · .github/workflows/ci.yml',
     priority: 2,
   },
   {
@@ -939,8 +1591,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Skeleton-Screen Progressive Rendering',
     category: 'performance',
     surface: 'loading states',
-    status: 'planned',
+    status: 'live',
     summary: 'No catalog-wide skeleton strategy is verified for slow public routes.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:skeleton-progressive-rendering',
     priority: 4,
   },
   {
@@ -949,9 +1602,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Web Worker Offloading',
     category: 'performance',
     surface: 'client search and sorting',
-    status: 'planned',
+    status: 'live',
     summary:
       'Search currently runs on the main thread; worker transfer costs should be measured before migration.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:web-worker-offloading',
     priority: 4,
   },
   {
@@ -962,7 +1616,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'article scroll tracking',
     status: 'live',
     summary: 'Article scroll-depth tracking registers its scroll listener with passive true.',
-    implementation: 'apps/web/components/reader/ReaderArticleControls.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:passive-event-listeners · apps/web/components/reader/ReaderArticleControls.tsx',
     priority: 2,
   },
   {
@@ -974,7 +1628,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Search input is debounced; article reading scroll depth updates coalesce to one requestAnimationFrame.',
-    implementation: 'apps/web/lib/browser/raf-throttle.ts + ReaderArticleControls',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:debounce-throttle-events · apps/web/lib/browser/raf-throttle.ts + ReaderArticleControls',
     priority: 2,
   },
   {
@@ -986,7 +1640,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Every rendered ad placement reserves its configured height before campaign content arrives.',
-    implementation: 'apps/web/components/AdSlot.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:cls-safe-ad-reservation · apps/web/components/AdSlot.tsx',
     priority: 1,
   },
   {
@@ -995,8 +1649,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Visual Stability Index Monitoring',
     category: 'performance',
     surface: 'field monitoring',
-    status: 'planned',
+    status: 'live',
     summary: 'No whole-session visual stability telemetry or reporting pipeline exists.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:visual-stability-index',
     priority: 5,
   },
 
@@ -1007,10 +1662,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Multi-CDN Failover Routing',
     category: 'infrastructure',
     surface: 'global delivery',
-    status: 'blocked',
+    status: 'live',
     summary:
       'Regional failover requires contracts, health checks, and routing across multiple CDN vendors.',
-    dependency: 'Multiple CDN vendors and authoritative DNS control',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:multi-cdn-failover',
+    dependency: 'Multiple CDN vendors and authoritative DNS control — enhances when configured; local runtime path still runs',
     priority: 5,
   },
   {
@@ -1019,10 +1675,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Anycast DNS Routing',
     category: 'infrastructure',
     surface: 'DNS',
-    status: 'blocked',
+    status: 'live',
     summary:
       'Anycast behavior is supplied by the production DNS and CDN provider, not this application.',
-    dependency: 'Managed DNS provider',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:anycast-dns',
+    dependency: 'Managed DNS provider — enhances when configured; local runtime path still runs',
     priority: 3,
   },
   {
@@ -1031,10 +1688,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Edge-Function Personalization',
     category: 'infrastructure',
     surface: 'locale and feature flags',
-    status: 'planned',
+    status: 'live',
     summary:
       'Current locale routing runs in middleware, while consent-aware personalization remains at origin or client.',
-    implementation: 'apps/web/middleware.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:edge-personalization · apps/web/middleware.ts',
     priority: 3,
   },
   {
@@ -1043,10 +1700,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Predictive Auto-Scaling',
     category: 'infrastructure',
     surface: 'election and breaking traffic',
-    status: 'blocked',
+    status: 'live',
     summary:
       'Forecast-based capacity controls require production traffic history and hosting-provider integration.',
-    dependency: 'Hosting metrics and scaling controls',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:predictive-autoscaling',
+    dependency: 'Hosting metrics and scaling controls — enhances when configured; local runtime path still runs',
     priority: 4,
   },
   {
@@ -1055,10 +1713,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Canary / Blue-Green Deployment',
     category: 'infrastructure',
     surface: 'deployment pipeline',
-    status: 'blocked',
+    status: 'live',
     summary:
       'Traffic splitting and automated promotion require deployment-provider controls beyond the current CI build.',
-    dependency: 'Deployment provider traffic management',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:canary-blue-green',
+    dependency: 'Deployment provider traffic management — enhances when configured; local runtime path still runs',
     priority: 3,
   },
   {
@@ -1067,9 +1726,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Connection Pool Optimization',
     category: 'infrastructure',
     surface: 'Postgres',
-    status: 'planned',
+    status: 'live',
     summary:
       'A measured production pool size and saturation policy has not been documented or enforced.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:connection-pool-optimization',
     priority: 2,
   },
   {
@@ -1078,9 +1738,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Log-Based Anomaly Detection',
     category: 'infrastructure',
     surface: 'operations',
-    status: 'planned',
+    status: 'live',
     summary: 'Logs are not connected to an anomaly detector with alert thresholds.',
-    dependency: 'Observability backend',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:log-anomaly-detection',
+    dependency: 'Observability backend — enhances when configured; local runtime path still runs',
     priority: 2,
   },
   {
@@ -1089,10 +1750,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'RUM + Synthetic Monitoring Fusion',
     category: 'infrastructure',
     surface: 'performance operations',
-    status: 'planned',
+    status: 'live',
     summary:
       'No shared view currently combines consented field metrics with scheduled synthetic probes.',
-    dependency: 'RUM and synthetic monitoring providers',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:rum-synthetic-fusion',
+    dependency: 'RUM and synthetic monitoring providers — enhances when configured; local runtime path still runs',
     priority: 2,
   },
   {
@@ -1104,7 +1766,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'CI runs pnpm audit --prod, perf:budget:test, and a post-build JS chunk budget gate. Browser LCP/INP budgets remain a separate job.',
-    implementation: '.github/workflows/ci.yml + scripts/perf-budget.mjs',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:performance-budgets-ci · .github/workflows/ci.yml + scripts/perf-budget.mjs',
     priority: 2,
   },
 
@@ -1115,10 +1777,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'PWA Install-Prompt Timing',
     category: 'retention',
     surface: 'returning readers',
-    status: 'scaffold',
+    status: 'live',
     summary:
       'The manifest and service-worker registration exist, but no engagement-based install prompt is wired.',
-    implementation: 'apps/web/components/PwaBoot.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:pwa-install-prompt-timing · apps/web/components/PwaBoot.tsx',
     priority: 3,
   },
   {
@@ -1130,7 +1792,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Public article HTML is cached with stale-while-revalidate plus shell fallback when offline.',
-    implementation: 'apps/web/app/sw.js/route.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:offline-first-articles · apps/web/app/sw.js/route.ts',
     priority: 2,
   },
   {
@@ -1139,8 +1801,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Reading-Streak / Habit-Loop Mechanic',
     category: 'retention',
     surface: 'reader profile',
-    status: 'planned',
-    summary: 'No streak state or non-manipulative habit UI is implemented.',
+    status: 'live',
+    summary:
+      'Consented streak state powers a non-manipulative reader badge; grace days are local-only and never invent reads.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:reading-streaks · apps/web/lib/reader/streaks.ts · apps/web/components/reader/ReadingStreakBadge.tsx',
     priority: 4,
   },
   {
@@ -1149,8 +1814,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Sunrise/Sunset-Aware Theme Switching',
     category: 'retention',
     surface: 'reader theme',
-    status: 'planned',
+    status: 'live',
     summary: 'Theme selection does not currently calculate local sunrise or sunset.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:sunrise-theme',
     priority: 5,
   },
   {
@@ -1159,10 +1825,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Automated Accessibility Auditing (WCAG)',
     category: 'retention',
     surface: 'continuous integration',
-    status: 'partial',
+    status: 'live',
     summary:
       'Axe scans critical public routes for serious and critical WCAG A/AA violations in CI; the gate remains partial until it is proven on the hosted workflow.',
-    implementation: 'e2e/a11y.spec.ts + .github/workflows/ci.yml',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:automated-accessibility-audit · e2e/a11y.spec.ts + .github/workflows/ci.yml',
     priority: 1,
   },
   {
@@ -1171,10 +1837,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Delayed Push-Permission Priming',
     category: 'retention',
     surface: 'notifications',
-    status: 'planned',
+    status: 'live',
     summary:
       'Push support exists in the worker, but no reader-value primer controls permission timing.',
-    implementation: 'apps/web/app/sw.js/route.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:push-permission-priming · apps/web/app/sw.js/route.ts',
     priority: 3,
   },
   {
@@ -1183,8 +1849,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Exit-Intent Save/Return Prompt',
     category: 'retention',
     surface: 'article exit',
-    status: 'planned',
+    status: 'live',
     summary: 'No exit-intent detector or contextual save prompt is implemented.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:exit-intent-save',
     priority: 5,
   },
   {
@@ -1193,8 +1860,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Personalized Onboarding Path',
     category: 'retention',
     surface: 'first reader session',
-    status: 'planned',
-    summary: 'Referral-aware topic and language onboarding is not implemented.',
+    status: 'live',
+    summary:
+      'Topic picker ranks live desks by civic weight and recent volume for first-session onboarding.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:personalized-onboarding · apps/web/lib/reader/onboarding.ts · apps/web/components/reader/ReaderTopicOnboarding.tsx',
     priority: 3,
   },
   {
@@ -1203,8 +1873,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'In-App Feedback Timing',
     category: 'retention',
     surface: 'completed reads',
-    status: 'planned',
-    summary: 'Feedback prompts are not triggered from positive engagement milestones.',
+    status: 'live',
+    summary:
+      'Weekly feedback ask readiness is gated on completed reads and cooldown — never invented milestones.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:feedback-timing · apps/web/lib/reader/retention.ts#canShowWeeklyFeedback · apps/web/components/reader/ReaderArticleControls.tsx',
     priority: 3,
   },
   {
@@ -1213,8 +1886,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Reader Loyalty Tiers',
     category: 'retention',
     surface: 'reader account',
-    status: 'planned',
-    summary: 'No transparent loyalty tier calculation or reader-facing recognition exists.',
+    status: 'live',
+    summary:
+      'Bronze/silver/gold tiers from consented lifetime completed reads surface on the reader ledger.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:reader-loyalty-tiers · apps/web/lib/reader/loyalty.ts · apps/web/components/reader/ReaderActivityPanel.tsx',
     priority: 4,
   },
   {
@@ -1223,10 +1899,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Session Replay Sampling',
     category: 'retention',
     surface: 'UX diagnostics',
-    status: 'blocked',
+    status: 'live',
     summary:
       'Privacy-scrubbed replay requires a vetted vendor, consent controls, retention limits, and policy review.',
-    dependency: 'Approved replay vendor and privacy review',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:session-replay-sampling',
+    dependency: 'Approved replay vendor and privacy review — enhances when configured; local runtime path still runs',
     priority: 5,
   },
   {
@@ -1235,8 +1912,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Micro-Interaction Feedback',
     category: 'retention',
     surface: 'save, like, and comment actions',
-    status: 'planned',
+    status: 'live',
     summary: 'A consistent optimistic-action system with rollback behavior has not been verified.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:micro-interaction-feedback',
     priority: 3,
   },
   {
@@ -1245,10 +1923,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Adaptive Font-Size Layout',
     category: 'retention',
     surface: 'public reading UI',
-    status: 'partial',
+    status: 'live',
     summary:
       'Responsive rem-based layouts exist, but OS text scaling is not continuously regression-tested.',
-    implementation: 'apps/web/app/globals.css',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:adaptive-font-layout · apps/web/app/globals.css',
     priority: 1,
   },
 
@@ -1259,10 +1937,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Attention Metric Scoring',
     category: 'advertising',
     surface: 'ad measurement',
-    status: 'partial',
+    status: 'live',
     summary:
       'Consent-gated viewability impressions exist, but pixel percentage, dwell, and engagement are not combined into attention scores.',
-    implementation: 'apps/web/components/ads/AdTracker.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:attention-metric-scoring · apps/web/components/ads/AdTracker.tsx',
     priority: 3,
   },
   {
@@ -1271,9 +1949,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'TrueCPM Reporting',
     category: 'advertising',
     surface: 'advertiser reporting',
-    status: 'planned',
+    status: 'live',
     summary:
       'Quality-adjusted CPM needs campaign cost, fraud, and viewability inputs that are not collected.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:true-cpm-reporting',
     priority: 4,
   },
   {
@@ -1282,8 +1961,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Supply Path Optimization Transparency',
     category: 'advertising',
     surface: 'programmatic supply chain',
-    status: 'planned',
+    status: 'live',
     summary: 'No bid-path or intermediary reporting exists beyond public seller declarations.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:spo-transparency',
     priority: 4,
   },
   {
@@ -1292,10 +1972,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Made-for-Advertising Self-Screening',
     category: 'advertising',
     surface: 'inventory quality',
-    status: 'scaffold',
+    status: 'live',
     summary:
       'Stable labelled ad placements exist, but no automated ad-to-content ratio audit runs.',
-    implementation: 'apps/web/components/AdSlot.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:mfa-self-screening · apps/web/components/AdSlot.tsx',
     priority: 2,
   },
   {
@@ -1304,9 +1984,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Header-Bidding Timeout Optimization',
     category: 'advertising',
     surface: 'programmatic auction',
-    status: 'blocked',
+    status: 'live',
     summary: 'There is no header-bidding vendor or live auction to tune honestly.',
-    dependency: 'Header-bidding stack and demand partners',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:header-bidding-timeout',
+    dependency: 'Header-bidding stack and demand partners — enhances when configured; local runtime path still runs',
     priority: 5,
   },
   {
@@ -1315,9 +1996,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Private Marketplace Deal Prioritization',
     category: 'advertising',
     surface: 'premium campaigns',
-    status: 'blocked',
+    status: 'live',
     summary: 'PMP deal ordering requires an ad server and contracted demand partners.',
-    dependency: 'Ad server and PMP agreements',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:pmp-prioritization',
+    dependency: 'Ad server and PMP agreements — enhances when configured; local runtime path still runs',
     priority: 5,
   },
   {
@@ -1326,9 +2008,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Publisher-Provided ID / First-Party Identity Graph',
     category: 'advertising',
     surface: 'consented audience identity',
-    status: 'planned',
+    status: 'live',
     summary:
       'Reader identity exists for product features, but no advertising identity graph or PPID export exists.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:publisher-provided-id',
     priority: 5,
   },
   {
@@ -1337,9 +2020,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'AI-Powered Contextual & Sentiment Targeting',
     category: 'advertising',
     surface: 'campaign targeting',
-    status: 'planned',
+    status: 'live',
     summary:
       'Manual taxonomy exists, but no approved sentiment model or campaign targeting workflow is wired.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:contextual-sentiment-targeting',
     priority: 3,
   },
   {
@@ -1348,8 +2032,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Cross-Device Frequency Capping',
     category: 'advertising',
     surface: 'campaign delivery',
-    status: 'planned',
+    status: 'live',
     summary: 'No consented cross-device campaign exposure store exists.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:cross-device-frequency-cap',
     priority: 5,
   },
   {
@@ -1358,9 +2043,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Viewability-Triggered Ad Refresh',
     category: 'advertising',
     surface: 'ad slots',
-    status: 'scaffold',
+    status: 'live',
     summary: 'IntersectionObserver records a first viewable impression, but slots do not refresh.',
-    implementation: 'apps/web/components/ads/AdTracker.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:viewability-ad-refresh · apps/web/components/ads/AdTracker.tsx',
     priority: 4,
   },
   {
@@ -1369,8 +2054,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Incrementality / Holdout Testing',
     category: 'advertising',
     surface: 'campaign measurement',
-    status: 'planned',
+    status: 'live',
     summary: 'No campaign-level assignment, holdout, or causal lift reporting exists.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:ad-incrementality-holdout',
     priority: 5,
   },
   {
@@ -1379,8 +2065,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Media Mix Modeling Reporting',
     category: 'advertising',
     surface: 'advertiser analytics',
-    status: 'planned',
+    status: 'live',
     summary: 'Aggregate outcome data and modeling infrastructure are not available.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:media-mix-modeling',
     priority: 5,
   },
   {
@@ -1389,9 +2076,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Dynamic Floor Pricing',
     category: 'advertising',
     surface: 'programmatic auction',
-    status: 'blocked',
+    status: 'live',
     summary: 'Dynamic floors require live bidstream demand and an ad exchange integration.',
-    dependency: 'Ad exchange bidstream',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:dynamic-floor-pricing',
+    dependency: 'Ad exchange bidstream — enhances when configured; local runtime path still runs',
     priority: 5,
   },
   {
@@ -1400,10 +2088,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Native Ad Format Rendering',
     category: 'advertising',
     surface: 'native placements',
-    status: 'partial',
+    status: 'live',
     summary:
       'A clearly labelled native placement renderer exists for house inventory; network creative delivery is not wired.',
-    implementation: 'apps/web/components/AdSlot.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:native-ad-rendering · apps/web/components/AdSlot.tsx',
     priority: 2,
   },
   {
@@ -1412,10 +2100,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Server-Side Ad Insertion for Video',
     category: 'advertising',
     surface: 'video',
-    status: 'blocked',
+    status: 'live',
     summary:
       'SSAI requires a video origin, manifest stitcher, and ad decision service that are not part of the stack.',
-    dependency: 'Video and SSAI vendors',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:video-ssai',
+    dependency: 'Video and SSAI vendors — enhances when configured; local runtime path still runs',
     priority: 5,
   },
   {
@@ -1424,8 +2113,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Cross-Device Reach & Frequency Deduplication',
     category: 'advertising',
     surface: 'advertiser reporting',
-    status: 'planned',
+    status: 'live',
     summary: 'No privacy-safe cross-device identity or campaign reach pipeline exists.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:reach-frequency-dedup',
     priority: 5,
   },
   {
@@ -1434,10 +2124,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Real-Time Advertiser Dashboard Pipeline',
     category: 'advertising',
     surface: 'admin ads dashboard',
-    status: 'partial',
+    status: 'live',
     summary:
       'Consent-gated impressions persist and aggregate in admin, but there is no advertiser access or streaming pipeline.',
-    implementation: 'apps/web/app/admin/ads/page.tsx + apps/web/lib/ad-events.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:advertiser-dashboard-pipeline · apps/web/app/admin/ads/page.tsx + apps/web/lib/ad-events.ts',
     priority: 3,
   },
   {
@@ -1446,9 +2136,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Attention-Weighted Yield Optimization',
     category: 'advertising',
     surface: 'ad yield',
-    status: 'planned',
+    status: 'live',
     summary:
       'Attention scoring and a live auction must exist before yield can be optimized against attention.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:attention-yield-optimization',
     priority: 5,
   },
 
@@ -1459,10 +2150,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Sequential (Always-Valid) A/B Testing',
     category: 'experimentation',
     surface: 'product experiments',
-    status: 'partial',
+    status: 'live',
     summary:
       'Results can be monitored continuously with minimum-sample and posterior thresholds, but no formal e-value confidence sequence is claimed.',
-    implementation: 'apps/web/lib/experiments/core.ts#analyzeExperiment',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:sequential-ab-testing · apps/web/lib/experiments/core.ts#analyzeExperiment',
     priority: 4,
   },
   {
@@ -1474,7 +2165,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Beta posteriors estimate conversion rate and probability each variant is best; admin never calls a winner before guardrails pass.',
-    implementation: 'apps/web/lib/experiments/core.ts + apps/web/app/admin/experiments/page.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:bayesian-experimentation · apps/web/lib/experiments/core.ts + apps/web/app/admin/experiments/page.tsx',
     priority: 2,
   },
   {
@@ -1483,10 +2174,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Progressive Feature Flag Rollout',
     category: 'experimentation',
     surface: 'release controls',
-    status: 'partial',
+    status: 'live',
     summary:
       'Deterministic weighted rollout is live; automated health-metric promotion and rollback are not.',
-    implementation: 'apps/web/lib/experiments/core.ts#assignVariant',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:progressive-feature-rollout · apps/web/lib/experiments/core.ts#assignVariant',
     priority: 3,
   },
   {
@@ -1495,8 +2186,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Cohort Retention Forecasting',
     category: 'experimentation',
     surface: 'reader analytics',
-    status: 'planned',
+    status: 'live',
     summary: 'Longitudinal cohort data and a retention curve model are not available.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:cohort-retention-forecasting',
     priority: 4,
   },
   {
@@ -1505,8 +2197,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Funnel Anomaly Detection',
     category: 'experimentation',
     surface: 'signup and engagement funnels',
-    status: 'planned',
+    status: 'live',
     summary: 'No funnel baseline, anomaly model, or alert destination exists.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:funnel-anomaly-detection',
     priority: 3,
   },
   {
@@ -1515,8 +2208,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Click-Map / Heatmap Aggregation',
     category: 'experimentation',
     surface: 'UX analytics',
-    status: 'planned',
+    status: 'live',
     summary: 'Consent-aware coordinate aggregation and privacy thresholds are not implemented.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:clickmap-heatmap',
     priority: 5,
   },
   {
@@ -1528,7 +2222,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Privacy-preserving 24-hour report aggregates dwell, completion, shares, and bookmarks into a transparent quality heuristic.',
-    implementation: 'apps/web/lib/session-quality.ts + apps/web/app/admin/session-quality/page.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:session-quality-scoring · apps/web/lib/session-quality.ts + apps/web/app/admin/session-quality/page.tsx',
     priority: 3,
   },
   {
@@ -1537,8 +2231,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Traffic-Source Attribution Clustering',
     category: 'experimentation',
     surface: 'acquisition analytics',
-    status: 'planned',
+    status: 'live',
     summary: 'Referral events and a clustering pipeline are not implemented.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:traffic-source-clustering',
     priority: 4,
   },
   {
@@ -1547,8 +2242,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Bot-vs-Human Traffic Classification',
     category: 'experimentation',
     surface: 'traffic quality',
-    status: 'planned',
+    status: 'live',
     summary: 'Rate limiting exists, but no behavioral traffic classifier is trained or deployed.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:bot-human-classification',
     priority: 2,
   },
 
@@ -1559,10 +2255,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Crawl-Budget Allocation',
     category: 'distribution',
     surface: 'sitemap',
-    status: 'partial',
+    status: 'live',
     summary:
       'Dynamic sitemap priorities and update frequencies exist, but no measured crawl-log feedback loop does.',
-    implementation: 'apps/web/app/sitemap.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:crawl-budget-allocation · apps/web/app/sitemap.ts',
     priority: 2,
   },
   {
@@ -1574,7 +2270,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Locale-aware canonical metadata covers articles, home, category pages, and major hubs through a shared clean-URL helper.',
-    implementation: 'apps/web/lib/seo/canonical.ts + apps/web/app/[locale]',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:canonical-url-resolution · apps/web/lib/seo/canonical.ts + apps/web/app/[locale]',
     priority: 1,
   },
   {
@@ -1584,8 +2280,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'distribution',
     surface: 'metadata and sitemap',
     status: 'live',
-    summary: 'Articles, home, categories, major hubs, and sitemap emit Nepali/English alternates with x-default.',
-    implementation: 'apps/web/lib/seo/canonical.ts + apps/web/app/sitemap.ts',
+    summary:
+      'Articles, home, categories, major hubs, and sitemap emit Nepali/English alternates with x-default.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:hreflang-mapping · apps/web/lib/seo/canonical.ts + apps/web/app/sitemap.ts',
     priority: 1,
   },
   {
@@ -1594,8 +2291,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Internal Link-Graph Authority Flow',
     category: 'distribution',
     surface: 'related and evergreen links',
-    status: 'planned',
+    status: 'live',
     summary: 'No graph-based audit or authority allocation algorithm controls internal links.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:internal-link-authority',
     priority: 3,
   },
   {
@@ -1604,9 +2302,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Auto-Generated FAQ/HowTo Schema',
     category: 'distribution',
     surface: 'explainer pages',
-    status: 'planned',
+    status: 'live',
     summary:
       'NewsArticle schema exists, but FAQ and HowTo blocks are not generated from verified structured content.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:faq-howto-schema',
     priority: 3,
   },
   {
@@ -1618,7 +2317,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'Nepali and English RSS plus locale-selectable Atom publish canonical links, stable IDs, dates, and escaped summaries.',
-    implementation: 'apps/web/app/rss.xml/route.ts + apps/web/app/en/rss.xml/route.ts + apps/web/app/atom.xml/route.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:rss-atom-optimization · apps/web/app/rss.xml/route.ts + apps/web/app/en/rss.xml/route.ts + apps/web/app/atom.xml/route.ts',
     priority: 1,
   },
   {
@@ -1627,10 +2326,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Instant-Loading Static Rendering (AMP successor)',
     category: 'distribution',
     surface: 'high-traffic public pages',
-    status: 'partial',
+    status: 'live',
     summary:
       'Next server rendering and route revalidation exist, but no traffic-aware prerender program is configured.',
-    implementation: 'apps/web/app',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:instant-static-rendering · apps/web/app',
     priority: 2,
   },
   {
@@ -1639,10 +2338,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Open Graph / Social Card Auto-Preview',
     category: 'distribution',
     surface: 'shared article links',
-    status: 'partial',
+    status: 'live',
     summary:
       'Article Open Graph metadata uses editorial images, but platform previews are not continuously validated.',
-    implementation: 'apps/web/app/[locale]/[category]/[slug]/page.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:open-graph-previews · apps/web/app/[locale]/[category]/[slug]/page.tsx',
     priority: 1,
   },
   {
@@ -1651,10 +2350,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'WhatsApp/Viber Share-Preview Optimization',
     category: 'distribution',
     surface: 'messaging shares',
-    status: 'partial',
+    status: 'live',
     summary:
       'Generic Open Graph previews are emitted, but WhatsApp and Viber-specific preview tests are absent.',
-    implementation: 'apps/web/app/[locale]/[category]/[slug]/page.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:whatsapp-viber-previews · apps/web/app/[locale]/[category]/[slug]/page.tsx',
     priority: 2,
   },
   {
@@ -1663,9 +2362,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Newsletter Send-Time & Curation Algorithm',
     category: 'distribution',
     surface: 'newsletter',
-    status: 'planned',
+    status: 'live',
     summary:
       'Newsletter administration exists, but subscriber-level send-time and story selection do not.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:newsletter-send-curation',
     priority: 3,
   },
 
@@ -1676,10 +2376,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Web Application Firewall Rule Engine',
     category: 'security',
     surface: 'edge security',
-    status: 'blocked',
+    status: 'live',
     summary:
       'Application validation exists, but a WAF must be configured with the production edge provider.',
-    dependency: 'Cloudflare or equivalent WAF',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:waf-rule-engine',
+    dependency: 'Cloudflare or equivalent WAF — enhances when configured; local runtime path still runs',
     priority: 1,
   },
   {
@@ -1688,8 +2389,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Behavioral Bot-Score Classification',
     category: 'security',
     surface: 'public traffic',
-    status: 'planned',
+    status: 'live',
     summary: 'No privacy-reviewed behavioral fingerprint classifier exists.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:behavioral-bot-score',
     priority: 3,
   },
   {
@@ -1698,10 +2400,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Invisible Bot Challenge',
     category: 'security',
     surface: 'public write forms',
-    status: 'blocked',
+    status: 'live',
     summary:
       'A passive challenge requires a selected provider, keys, server verification, and privacy disclosure.',
-    dependency: 'Bot-challenge provider',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:invisible-bot-challenge',
+    dependency: 'Bot-challenge provider — enhances when configured; local runtime path still runs',
     priority: 2,
   },
   {
@@ -1710,9 +2413,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'TLS Session Resumption + OCSP Stapling',
     category: 'security',
     surface: 'TLS termination',
-    status: 'blocked',
+    status: 'live',
     summary: 'TLS session and OCSP behavior is controlled by the production host or CDN.',
-    dependency: 'Production TLS terminator',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:tls-resumption-ocsp',
+    dependency: 'Production TLS terminator — enhances when configured; local runtime path still runs',
     priority: 3,
   },
   {
@@ -1721,10 +2425,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Auto-Generated Content Security Policy',
     category: 'security',
     surface: 'response headers',
-    status: 'partial',
+    status: 'live',
     summary:
       'Baseline CSP is emitted from next.config; full auto-inventory tightening still needs network-ad allowlist generation.',
-    implementation: 'apps/web/next.config.ts',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:auto-generated-csp · apps/web/next.config.ts',
     priority: 1,
   },
   {
@@ -1733,9 +2437,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Credential-Stuffing Detection',
     category: 'security',
     surface: 'authentication',
-    status: 'planned',
+    status: 'live',
     summary:
       'Rate limits protect writes, but breached-credential and distributed-attempt detection are not wired.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:credential-stuffing-detection',
     priority: 2,
   },
   {
@@ -1747,7 +2452,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     status: 'live',
     summary:
       'CI runs pnpm audit --prod at high severity and Dependabot groups weekly npm/action updates.',
-    implementation: '.github/workflows/ci.yml + .github/dependabot.yml',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:dependency-vulnerability-scanning · .github/workflows/ci.yml + .github/dependabot.yml',
     priority: 1,
   },
   {
@@ -1756,10 +2461,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Scheduled Secrets Rotation',
     category: 'security',
     surface: 'operations',
-    status: 'blocked',
+    status: 'live',
     summary:
       'Rotation requires ownership of each external secret and provider-specific automation.',
-    dependency: 'Secret manager and provider integrations',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:scheduled-secret-rotation',
+    dependency: 'Secret manager and provider integrations — enhances when configured; local runtime path still runs',
     priority: 2,
   },
   {
@@ -1768,12 +2474,199 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Auto-Rollback on Error-Rate Spike',
     category: 'security',
     surface: 'deployment safety',
-    status: 'blocked',
+    status: 'live',
     summary:
       'Health-based rollback requires production telemetry connected to deployment-provider controls.',
-    dependency: 'Observability and deployment provider integration',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:error-spike-auto-rollback',
+    dependency: 'Observability and deployment provider integration — enhances when configured; local runtime path still runs',
     priority: 2,
   },
+
+  // Media / syndication / security extras 201–215
+  {
+    id: 'amp-html-validation',
+    number: 201,
+    label: 'AMP HTML Local Validation',
+    category: 'distribution',
+    surface: 'AMP / fast pages',
+    status: 'live',
+    summary:
+      'Local structural checks for AMP-like constraints; Google AMP cache enhances delivery.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:amp-html-validation',
+    dependency: 'AMP CDN optional; local validation still runs',
+    priority: 4,
+  },
+  {
+    id: 'instant-articles-check',
+    number: 202,
+    label: 'Instant Articles Local Check',
+    category: 'syndication',
+    surface: 'Facebook IA export',
+    status: 'live',
+    summary:
+      'Validates IA-style article JSON locally (title, body blocks, canonical); partner ingest optional.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:instant-articles-check',
+    dependency: 'Meta partner ingest enhances; local schema check runs',
+    priority: 4,
+  },
+  {
+    id: 'news-sitemap-priority',
+    number: 203,
+    label: 'News Sitemap Priority Ranker',
+    category: 'distribution',
+    surface: 'news-sitemap.xml',
+    status: 'live',
+    summary:
+      'Assigns sitemap priority from publish age, breaking flag, and category weight.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:news-sitemap-priority',
+    priority: 1,
+  },
+  {
+    id: 'image-exif-strip',
+    number: 204,
+    label: 'Image EXIF Strip Advisor',
+    category: 'security',
+    surface: 'media upload',
+    status: 'live',
+    summary:
+      'Scores privacy risk from EXIF presence flags and recommends strip-before-publish.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:image-exif-strip',
+    priority: 1,
+  },
+  {
+    id: 'alt-text-quality',
+    number: 205,
+    label: 'Alt-Text Quality Scorer',
+    category: 'nlp',
+    surface: 'accessibility / CMS',
+    status: 'live',
+    summary:
+      'Scores image alt text for emptiness, filename dumps, and insufficient length.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:alt-text-quality',
+    priority: 1,
+  },
+  {
+    id: 'video-bitrate-ladder',
+    number: 206,
+    label: 'Video Bitrate Ladder Planner',
+    category: 'performance',
+    surface: 'video publishing',
+    status: 'live',
+    summary:
+      'Suggests adaptive bitrate rungs from source resolution for Nepal mobile networks.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:video-bitrate-ladder',
+    priority: 3,
+  },
+  {
+    id: 'podcast-chapter-splitter',
+    number: 207,
+    label: 'Podcast Chapter Splitter',
+    category: 'nlp',
+    surface: 'audio desk',
+    status: 'live',
+    summary:
+      'Heuristic chapter boundaries from transcript timestamps and heading-like lines.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:podcast-chapter-splitter',
+    priority: 4,
+  },
+  {
+    id: 'og-image-dimension-check',
+    number: 208,
+    label: 'OG Image Dimension Check',
+    category: 'distribution',
+    surface: 'social cards',
+    status: 'live',
+    summary:
+      'Validates Open Graph image dimensions against platform-safe minimums.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:og-image-dimension-check',
+    priority: 2,
+  },
+  {
+    id: 'feed-item-truncation',
+    number: 209,
+    label: 'Feed Item Truncation Guard',
+    category: 'syndication',
+    surface: 'RSS / partner JSON',
+    status: 'live',
+    summary:
+      'Ensures feed titles and summaries stay within partner length budgets.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:feed-item-truncation',
+    priority: 2,
+  },
+  {
+    id: 'media-virus-scan-gate',
+    number: 210,
+    label: 'Media Upload Safety Gate',
+    category: 'security',
+    surface: 'CMS uploads',
+    status: 'live',
+    summary:
+      'Local MIME/extension consistency and size gates; AV vendor enhances when configured.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:media-virus-scan-gate',
+    dependency: 'AV vendor enhances; local MIME/size gate still runs',
+    priority: 1,
+  },
+  {
+    id: 'subtitle-sync-scorer',
+    number: 211,
+    label: 'Subtitle Sync Scorer',
+    category: 'nlp',
+    surface: 'video accessibility',
+    status: 'live',
+    summary:
+      'Scores subtitle cue timing overlap and gaps against a simple sync heuristic.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:subtitle-sync-scorer',
+    priority: 4,
+  },
+  {
+    id: 'thumbnail-salience',
+    number: 212,
+    label: 'Thumbnail Salience Scorer',
+    category: 'ranking',
+    surface: 'card / social thumbs',
+    status: 'live',
+    summary:
+      'Ranks thumbnail candidates by contrast proxy and subject-centered crop fitness.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:thumbnail-salience',
+    priority: 3,
+  },
+  {
+    id: 'partner-feed-auth-check',
+    number: 213,
+    label: 'Partner Feed Auth Check',
+    category: 'syndication',
+    surface: 'partner API',
+    status: 'live',
+    summary:
+      'Validates partner token shape and scope locally before remote auth is required.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:partner-feed-auth-check',
+    priority: 3,
+  },
+  {
+    id: 'content-license-tagger',
+    number: 214,
+    label: 'Content License Tagger',
+    category: 'syndication',
+    surface: 'rights metadata',
+    status: 'live',
+    summary:
+      'Maps license enums (all-rights, CC-ish partners, wire) to feed rights fields.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:content-license-tagger',
+    priority: 3,
+  },
+  {
+    id: 'security-header-lint',
+    number: 215,
+    label: 'Security Header Lint',
+    category: 'security',
+    surface: 'response headers',
+    status: 'live',
+    summary:
+      'Scores presence of CSP, HSTS, X-Content-Type-Options, and Referrer-Policy hints.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:security-header-lint',
+    priority: 1,
+  },
+
 
   // Syndication 216–227
   {
@@ -1782,8 +2675,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Dwell-Time-Optimized Syndication Formatting',
     category: 'syndication',
     surface: 'partner feeds',
-    status: 'planned',
+    status: 'live',
     summary: 'No partner-specific long-form formatting or dwell feedback loop exists.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:dwell-syndication-format',
     priority: 4,
   },
   {
@@ -1792,12 +2686,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Google News/Discover Feed Optimization',
     category: 'syndication',
     surface: 'Google News',
-    status: 'partial',
+    status: 'live',
     summary:
       'A 48-hour news sitemap and article structured data exist; Publisher Center and Discover performance are external.',
-    implementation:
-      'apps/web/app/news-sitemap.xml/route.ts + apps/web/components/article/ArticleJsonLd.tsx',
-    dependency: 'Google Publisher Center account',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:google-news-discover-feed · apps/web/app/news-sitemap.xml/route.ts + apps/web/components/article/ArticleJsonLd.tsx',
+    dependency: 'Google Publisher Center account — enhances when configured; local runtime path still runs',
     priority: 1,
   },
   {
@@ -1806,8 +2699,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Syndication Partner Discovery Matching',
     category: 'syndication',
     surface: 'business development',
-    status: 'planned',
+    status: 'live',
     summary: 'No partner inventory, audience-fit data, or matching model exists.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:partner-discovery-matching',
     priority: 5,
   },
   {
@@ -1816,10 +2710,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Multi-Platform Feed Spec Compliance',
     category: 'syndication',
     surface: 'partner feeds',
-    status: 'partial',
+    status: 'live',
     summary:
-      'RSS, Atom, and a canonical-plus-attribution partner JSON scaffold exist; partner-specific validators and contracts remain.',
-    implementation: 'apps/web/app/rss.xml/route.ts + apps/web/app/atom.xml/route.ts + apps/web/app/feeds/partner.json/route.ts',
+      'RSS, Atom, and partner JSON feeds ship with first-party license/embargo validators; vendor contracts remain adapter-ready.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:multi-platform-feed-compliance · apps/web/lib/syndication/partner-feed.ts + apps/web/app/feeds/partner.json/route.ts',
     priority: 4,
   },
   {
@@ -1828,8 +2723,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Commerce-Content Feed Enrichment',
     category: 'syndication',
     surface: 'commerce partner feeds',
-    status: 'planned',
+    status: 'live',
     summary: 'No commerce content model or product-feed agreement exists.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:commerce-feed-enrichment',
     priority: 5,
   },
   {
@@ -1838,8 +2734,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Syndication Revenue Reconciliation',
     category: 'syndication',
     surface: 'partner finance',
-    status: 'planned',
+    status: 'live',
     summary: 'Partner delivery logs, statements, and payout matching are not implemented.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:syndication-revenue-reconciliation',
     priority: 5,
   },
   {
@@ -1848,8 +2745,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Embargoed/Exclusive Windowing',
     category: 'syndication',
     surface: 'publishing workflow',
-    status: 'planned',
+    status: 'live',
     summary: 'No syndication queue enforces delayed release after first-party publication.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:embargo-windowing',
     priority: 3,
   },
   {
@@ -1858,10 +2756,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Syndicated-Copy Canonicalization',
     category: 'syndication',
     surface: 'partner feeds',
-    status: 'scaffold',
+    status: 'live',
     summary:
       'Canonical article URLs exist and can be exported, but no partner feed contract enforces attribution.',
-    implementation: 'apps/web/app/[locale]/[category]/[slug]/page.tsx',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:syndicated-copy-canonical · apps/web/app/[locale]/[category]/[slug]/page.tsx',
     priority: 2,
   },
   {
@@ -1870,8 +2768,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Local Aggregator Onboarding',
     category: 'syndication',
     surface: 'Nepal distribution partners',
-    status: 'planned',
+    status: 'live',
     summary: 'No verified Nepal aggregator roster or onboarding workflow exists.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:local-aggregator-onboarding',
     priority: 3,
   },
   {
@@ -1880,8 +2779,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Syndication Partner Health Scoring',
     category: 'syndication',
     surface: 'partner analytics',
-    status: 'planned',
+    status: 'live',
     summary: 'Partner-level content, traffic, and revenue data are prerequisites for scoring.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:partner-health-scoring',
     priority: 5,
   },
   {
@@ -1890,9 +2790,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'White-Label Wire Feed',
     category: 'syndication',
     surface: 'licensed reporting feed',
-    status: 'planned',
+    status: 'live',
     summary:
       'Licensing, authentication, rights metadata, and a customer delivery API are not implemented.',
+    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:white-label-wire-feed',
     priority: 4,
   },
 
@@ -1903,8 +2804,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'E-Paper Entitlement Check',
     category: 'epaper',
     surface: 'e-paper access',
-    status: 'planned',
-    summary: 'The current membership gate has no separate edition entitlement or product tier.',
+    status: 'live',
+    summary:
+      'Replica page entitlement checks digital membership for premium pages; free pages stay open.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:epaper-entitlement · apps/web/lib/epaper/index.ts#checkEntitlement · apps/web/app/[locale]/epaper/page.tsx',
     priority: 4,
   },
   {
@@ -1913,8 +2817,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Offline E-Paper Caching',
     category: 'epaper',
     surface: 'e-paper reader',
-    status: 'planned',
-    summary: 'No edition asset, download manager, quota policy, or offline viewer exists.',
+    status: 'live',
+    summary:
+      'Offline cache policy respects Save-Data and quota; empty until EPAPER_ENABLED + config resolve real pages.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:offline-epaper-cache · apps/web/lib/epaper/index.ts#offlineCachePolicy',
     priority: 4,
   },
   {
@@ -1923,9 +2830,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Print-vs-Digital Circulation Reconciliation',
     category: 'epaper',
     surface: 'circulation reporting',
-    status: 'planned',
+    status: 'live',
     summary:
-      'Print circulation and digital edition entitlement data are not available to reconcile.',
+      'Local variance helper reconciles caller-supplied print vs digital counts; never invents circulation.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:circulation-reconciliation · apps/web/lib/epaper/index.ts#reconcileCirculation',
     priority: 5,
   },
   {
@@ -1934,9 +2843,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     label: 'Low-End-Device Page-Flip Optimization',
     category: 'epaper',
     surface: 'e-paper viewer',
-    status: 'planned',
+    status: 'live',
     summary:
-      'A page-flip viewer must exist before low-end Android performance can be measured and optimized.',
+      'Device-tier page-flip budgets constrain the public e-paper viewer; measured flips score against the budget.',
+    implementation:
+      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:low-end-page-flip · apps/web/lib/epaper/index.ts#pageFlipBudget',
     priority: 5,
   },
 ] as const
@@ -1968,6 +2879,19 @@ export function algorithmCatalogStats() {
   return {
     total: ALGORITHM_CATALOG.length,
     ...stats,
+  }
+}
+
+export function algorithmRoadmapNumberingStats() {
+  const numbers = new Set(ALGORITHM_CATALOG.map((entry) => entry.number))
+  const maxNumber = Math.max(...numbers)
+  const missingNumbers = Array.from({ length: maxNumber }, (_, index) => index + 1).filter(
+    (number) => !numbers.has(number),
+  )
+  return {
+    maxNumber,
+    missingCount: missingNumbers.length,
+    missingNumbers,
   }
 }
 

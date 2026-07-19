@@ -3,7 +3,7 @@ import { createHmac } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
-import { analyzeExperiment, assignVariant, type ExperimentAnalysis } from './core'
+import { analyzeWithModes, assignVariant, type ExperimentAnalysisWithModes } from './core'
 import { getExperimentDefinition, getExperimentDefinitions } from './definitions'
 
 export type ExperimentEventType = 'exposure' | 'conversion'
@@ -163,14 +163,14 @@ async function observationsFor(experimentId: string) {
 export async function listExperimentAnalyses(): Promise<
   Array<{
     definition: ReturnType<typeof getExperimentDefinitions>[number]
-    analysis: ExperimentAnalysis
+    analysis: ExperimentAnalysisWithModes
   }>
 > {
   const definitions = getExperimentDefinitions()
   return Promise.all(
     definitions.map(async (definition) => ({
       definition,
-      analysis: analyzeExperiment(definition, await observationsFor(definition.id)),
+      analysis: analyzeWithModes(definition, await observationsFor(definition.id)),
     })),
   )
 }

@@ -12,6 +12,18 @@
     {
       "path": "/api/notifications/deliver",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/interactions-rebuild",
+      "schedule": "15 */6 * * *"
+    },
+    {
+      "path": "/api/cron/digest-compose",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/ops-probe",
+      "schedule": "*/30 * * * *"
     }
   ]
 }

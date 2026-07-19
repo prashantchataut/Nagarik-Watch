@@ -28,11 +28,13 @@ export type SharedQueryable = {
 let pool: Pool | null = null
 let poolPromise: Promise<Pool | null> | null = null
 
-/** Default max is intentionally low for serverless + small Aiven plans. */
+/** Vercel can run many warm instances; a max of three per instance still exhausted
+ *  the production database (Postgres 53300), so each instance holds a single connection. */
+export const SHARED_POOL_MAX_PER_INSTANCE = 1
+
 function sharedPoolConfig(): PoolConfig | null {
   return postgresPoolConfig({
-    // Override per-module max:* callers — one process, one small pool.
-    max: Number(process.env.NW_DB_POOL_MAX ?? 3),
+    max: SHARED_POOL_MAX_PER_INSTANCE,
     idleTimeoutMillis: Number(process.env.NW_DB_IDLE_TIMEOUT_MS ?? 10_000),
     connectionTimeoutMillis: Number(process.env.NW_DB_CONNECT_TIMEOUT_MS ?? 5_000),
     allowExitOnIdle: true,
@@ -106,6 +108,19 @@ export async function withSharedClient<T>(fn: (client: PoolClient) => Promise<T>
     return await fn(client)
   } finally {
     client.release()
+  }
+}
+
+export type PoolStats = { totalCount: number; idleCount: number; waitingCount: number; max: number }
+
+/** Read-only snapshot for ops health reporting; never creates a pool as a side effect. */
+export function getPoolStats(): PoolStats | null {
+  if (!pool) return null
+  return {
+    totalCount: pool.totalCount,
+    idleCount: pool.idleCount,
+    waitingCount: pool.waitingCount,
+    max: SHARED_POOL_MAX_PER_INSTANCE,
   }
 }
 

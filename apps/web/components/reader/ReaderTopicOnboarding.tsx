@@ -1,18 +1,32 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import type { Category, Locale } from '@nagarikwatch/db'
+import { useEffect, useMemo, useState } from 'react'
+import type { Category, Locale, StoryCardData } from '@nagarikwatch/db'
 import { CONSENT_EVENT, getOrCreateReaderId, hasPersonalizationConsent, mergeConsent } from '@/lib/reader/consent'
 import { readLocalReaderPreferences, writeLocalReaderPreferences } from '@/lib/reader/preferences'
 import type { ReaderPreferences } from '@/lib/reader/preferences-store'
+import { onboardingCoverage, scoreOnboardingTopics } from '@/lib/reader/onboarding'
 
 const ONBOARDING_KEY = 'nw:reader-topic-onboarding:v1'
 
-export function ReaderTopicOnboarding({ locale, categories }: { locale: Locale; categories: Category[] }) {
+export function ReaderTopicOnboarding({
+  locale,
+  categories,
+  catalog = [],
+}: {
+  locale: Locale
+  categories: Category[]
+  catalog?: StoryCardData[]
+}) {
   const [visible, setVisible] = useState(false)
   const [consented, setConsented] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
   const english = locale === 'en'
+  const scoredTopics = useMemo(() => scoreOnboardingTopics(categories, catalog), [categories, catalog])
+  const coverage = useMemo(
+    () => onboardingCoverage(selected, scoredTopics.map((topic) => topic.slug)),
+    [selected, scoredTopics],
+  )
 
   useEffect(() => {
     const refresh = () => {
@@ -59,15 +73,29 @@ export function ReaderTopicOnboarding({ locale, categories }: { locale: Locale; 
       {consented ? (
         <>
           <div className="reader-onboarding__topics">
-            {categories.slice(0, 8).map((category) => {
+            {scoredTopics.map(({ category, recommended }) => {
               const active = selected.includes(category.slug)
               return (
-                <button key={category.slug} type="button" aria-pressed={active} onClick={() => setSelected((current) => active ? current.filter((item) => item !== category.slug) : [...current, category.slug])}>
+                <button
+                  key={category.slug}
+                  type="button"
+                  aria-pressed={active}
+                  data-recommended={recommended && !active}
+                  onClick={() => setSelected((current) => active ? current.filter((item) => item !== category.slug) : [...current, category.slug])}
+                >
                   {english ? category.nameEn || category.nameNe : category.nameNe}
+                  {recommended && !active ? <small aria-hidden="true">{english ? 'Popular' : 'चलेको'}</small> : null}
                 </button>
               )
             })}
           </div>
+          {selected.length > 0 ? (
+            <p className="reader-onboarding__coverage">
+              {english
+                ? `${selected.length} of ${scoredTopics.length} desks selected (${Math.round(coverage * 100)}% coverage)`
+                : `${scoredTopics.length} मध्ये ${selected.length} विभाग छानिए (${Math.round(coverage * 100)}% कभरेज)`}
+            </p>
+          ) : null}
           <button type="button" className="text-action" disabled={selected.length === 0} onClick={() => void save()}>
             {english ? 'Save topics' : 'विषय सुरक्षित गर्नुहोस्'}
           </button>

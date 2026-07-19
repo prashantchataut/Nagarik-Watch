@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { CONTRIBUTOR_ROLES } from '@/lib/admin-roles'
 import {
+  detectDuplicates,
   draftFactCheckScaffold,
   draftHeadlines,
   draftSummary,
@@ -10,10 +11,15 @@ import { getNewsroomSession } from '@/lib/auth/session'
 import { blocksFromShorthand } from '@/lib/content/blocks'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
+import { extractEntities } from '@/lib/nlp/gazetteer'
+import { classifyTopics } from '@/lib/nlp/topics'
+import { analyzeSentiment } from '@/lib/nlp/sentiment'
+import { extractKeywords } from '@/lib/nlp/keywords'
+import { scoreDraft } from '@/lib/journalist/desk-scoring'
 
 export const dynamic = 'force-dynamic'
 
-const ACTIONS = ['summary', 'headlines', 'tags', 'factCheck'] as const
+const ACTIONS = ['summary', 'headlines', 'tags', 'factCheck', 'duplicates', 'analyze'] as const
 type AssistanceAction = (typeof ACTIONS)[number]
 
 function isAction(value: unknown): value is AssistanceAction {
@@ -57,6 +63,61 @@ export async function POST(request: NextRequest) {
     titleNe: title,
     deckNe: '',
     bodyNe: blocksFromShorthand(body),
+  }
+
+  if (input.action === 'duplicates') {
+    const candidatesRaw = Array.isArray(input.candidates) ? input.candidates : []
+    const candidates = [
+      { id: 'current', titleNe: title, deckNe: '', bodyNe: article.bodyNe },
+      ...candidatesRaw.slice(0, 40).map((item, index) => {
+        const row = (item ?? {}) as Record<string, unknown>
+        return {
+          id: String(row.id ?? `candidate-${index}`),
+          titleNe: String(row.title ?? row.titleNe ?? ''),
+          deckNe: String(row.deck ?? row.deckNe ?? ''),
+          bodyNe: blocksFromShorthand(String(row.body ?? row.bodyNe ?? '')),
+        }
+      }),
+    ]
+    const pairs = detectDuplicates(candidates)
+    return NextResponse.json({
+      suggestion: {
+        status: 'draft',
+        needsEditorApproval: true,
+        generatedBy: 'extractive',
+        generatedAt: new Date().toISOString(),
+        data: { pairs },
+      },
+    })
+  }
+
+  if (input.action === 'analyze') {
+    const text = `${title}\n${body}`
+    const desk = scoreDraft({
+      deck: String(input.deck ?? ''),
+      caption: String(input.caption ?? ''),
+      claims: Number(input.claims ?? 0),
+      citations: Number(input.citations ?? 0),
+      slug: String(input.slug ?? ''),
+      slugTaken: Boolean(input.slugTaken),
+      previousText: String(input.previousText ?? ''),
+      currentText: text,
+    })
+    return NextResponse.json({
+      suggestion: {
+        status: 'draft',
+        needsEditorApproval: true,
+        generatedBy: 'extractive',
+        generatedAt: new Date().toISOString(),
+        data: {
+          entities: extractEntities(text),
+          topics: classifyTopics(text),
+          sentiment: analyzeSentiment(text),
+          keywords: extractKeywords(text),
+          desk,
+        },
+      },
+    })
   }
 
   const suggestion =

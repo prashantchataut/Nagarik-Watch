@@ -37,15 +37,20 @@ function isAdEvent(value: unknown): value is {
   placementKey: keyof typeof AD_PLACEMENTS
   mode: AdMode
   event: 'impression' | 'click'
+  attention?: number
 } {
   if (!value || typeof value !== 'object') return false
   const record = value as Record<string, unknown>
+  const attentionOk =
+    record.attention === undefined ||
+    (typeof record.attention === 'number' && Number.isFinite(record.attention) && record.attention >= 0 && record.attention <= 1)
   return (
     typeof record.placementKey === 'string' &&
     record.placementKey in AD_PLACEMENTS &&
     typeof record.mode === 'string' &&
     modes.has(record.mode as AdMode) &&
     typeof record.event === 'string' &&
-    events.has(record.event)
+    events.has(record.event) &&
+    attentionOk
   )
 }

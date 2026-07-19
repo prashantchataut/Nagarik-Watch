@@ -34,7 +34,12 @@ export function ArticleJsonLd({ article, locale, url, siteUrl, siteName }: JsonL
     name,
   }))
 
-  const image = [publicShareImageUrl(article.heroImage?.url, siteUrl)]
+  const image = [
+    publicShareImageUrl(article.heroImage?.url, siteUrl, {
+      width: article.heroImage?.width,
+      height: article.heroImage?.height,
+    }),
+  ]
 
   const json = {
     '@context': 'https://schema.org',

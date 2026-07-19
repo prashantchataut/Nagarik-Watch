@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import type { Locale, RecStrategy, StoryCardData } from '@nagarikwatch/db'
+import { RECOMMENDER_VERSION, type Locale, type RecStrategy, type StoryCardData } from '@nagarikwatch/db'
 import { StoryCard } from '@nagarikwatch/ui'
 import Link from 'next/link'
 import { CONSENT_EVENT, getOrCreateReaderId, hasPersonalizationConsent, mergeConsent } from '@/lib/reader/consent'
@@ -12,7 +12,8 @@ import {
   type BookmarkRecord,
   type ReadingHistoryRecord,
 } from '@/lib/reader/state'
-import { continueReadingForReader, recommendForReader } from '@/lib/reader/personalize'
+import { buildAffinity, continueReadingForReader, recommendForReader } from '@/lib/reader/personalize'
+import { rankDigestStories } from '@/lib/reader/digest'
 import { READER_PREFERENCES_EVENT, readLocalReaderPreferences, writeLocalReaderPreferences } from '@/lib/reader/preferences'
 import type { ReaderPreferences } from '@/lib/reader/preferences-store'
 
@@ -32,6 +33,16 @@ function reasonLabel(strategy: RecStrategy, locale: Locale) {
     'cold-start': ne ? 'सम्पादकीय ताजा क्रम' : 'Fresh editorial order',
   }
   return labels[strategy]
+}
+
+function fetchServerOrder(locale: Locale): Promise<Array<{ id: string; recStrategy: RecStrategy }> | null> {
+  const fingerprint = getOrCreateReaderId()
+  return fetch(
+    `/api/recommendations/personalized?fingerprint=${encodeURIComponent(fingerprint)}&locale=${locale}&limit=5`,
+    { cache: 'no-store' },
+  )
+    .then((r) => (r.ok ? r.json() : null))
+    .then((body) => (Array.isArray(body?.recommendations) ? body.recommendations : null))
 }
 
 function syncFromServer(catalog: StoryCardData[], locale: Locale) {
@@ -83,6 +94,11 @@ export function RecommendedForYou({ locale, catalog, className }: { locale: Loca
   const [history, setHistory] = useState<ReadingHistoryRecord[]>([])
   const [preferences, setPreferences] = useState<ReaderPreferences | null>(null)
   const [synced, setSynced] = useState(false)
+  // Server-computed order, including consented collaborative filtering, once
+  // the consented interaction matrix has enough readers. Null until it
+  // resolves; the client-side ranking below renders immediately in the
+  // meantime so the module never waits on a network round trip.
+  const [serverOrder, setServerOrder] = useState<Array<{ id: string; recStrategy: RecStrategy }> | null>(null)
   const lang = locale === 'en' ? 'en' : 'ne'
 
   useEffect(() => {
@@ -93,7 +109,10 @@ export function RecommendedForYou({ locale, catalog, className }: { locale: Loca
       setPreferences(readLocalReaderPreferences())
     }
     refresh()
-    if (hasPersonalizationConsent()) void syncFromServer(catalog, locale).then(() => setSynced(true)).catch(() => setSynced(false))
+    if (hasPersonalizationConsent()) {
+      void syncFromServer(catalog, locale).then(() => setSynced(true)).catch(() => setSynced(false))
+      void fetchServerOrder(locale).then(setServerOrder).catch(() => setServerOrder(null))
+    }
     window.addEventListener(CONSENT_EVENT, refresh)
     window.addEventListener(READER_PREFERENCES_EVENT, refresh)
     window.addEventListener('nw-reader-state-change', refresh)
@@ -104,8 +123,28 @@ export function RecommendedForYou({ locale, catalog, className }: { locale: Loca
     }
   }, [catalog, locale])
 
-  const recommendations = useMemo(() => enabled ? recommendForReader(catalog, bookmarks, history, 5, preferences) : recommendForReader(catalog, [], [], 5, null), [bookmarks, catalog, enabled, history, preferences])
+  const localRecommendations = useMemo(() => enabled ? recommendForReader(catalog, bookmarks, history, 5, preferences) : recommendForReader(catalog, [], [], 5, null), [bookmarks, catalog, enabled, history, preferences])
+
+  const recommendations = useMemo(() => {
+    if (!enabled || !serverOrder || serverOrder.length === 0) return localRecommendations
+    const byId = new Map(catalog.map((story) => [story.id, story]))
+    const resolved = serverOrder.flatMap((item) => {
+      const story = byId.get(item.id)
+      return story
+        ? [{ ...story, recScore: 0, recStrategy: item.recStrategy, recVersion: RECOMMENDER_VERSION }]
+        : []
+    })
+    // Falls back to the local ranking if the server list came back empty or
+    // referenced stories outside the client's already-loaded catalog page.
+    return resolved.length > 0 ? resolved : localRecommendations
+  }, [catalog, enabled, localRecommendations, serverOrder])
   const unfinished = useMemo(() => enabled ? continueReadingForReader(catalog, history) : null, [catalog, enabled, history])
+  const digest = useMemo(() => {
+    if (!enabled || !preferences?.dailyDigest) return []
+    const affinity = buildAffinity(bookmarks, history, catalog, preferences)
+    const recommendedIds = new Set(recommendations.map((item) => item.id))
+    return rankDigestStories(catalog, affinity, { limit: 3 }).filter((story) => !recommendedIds.has(story.id))
+  }, [bookmarks, catalog, enabled, history, preferences, recommendations])
 
   function enable() {
     mergeConsent({ personalization: true })
@@ -140,6 +179,21 @@ export function RecommendedForYou({ locale, catalog, className }: { locale: Loca
           </article>
         ))}
       </div>
+
+      {digest.length ? (
+        <div className="recommendation-desk__digest" aria-label={locale === 'en' ? 'Daily digest picks' : 'दैनिक सार छनोट'}>
+          <p className="editorial-kicker" lang="en">Daily digest</p>
+          <ol>
+            {digest.map((story) => (
+              <li key={story.id}>
+                <a href={`${locale === 'en' ? '/en' : ''}/${story.category.slug}/${story.slug}`} lang={lang}>
+                  {locale === 'en' && story.titleEn ? story.titleEn : story.titleNe}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
     </section>
   )
 }

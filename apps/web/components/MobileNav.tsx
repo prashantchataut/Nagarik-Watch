@@ -8,6 +8,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, swapLocale } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
 import { STATIC_HUBS, PROVINCES } from '@/lib/site'
+import type { AccountKind } from '@/lib/account-identity'
 import {
   IconBookmark,
   IconClose,
@@ -20,6 +21,7 @@ type MobileNavProps = {
   locale: Locale
   navCategories: Category[]
   account?: {
+    kind: AccountKind
     displayName: string
     kindLabel: string
     roleLabel: string
@@ -182,7 +184,12 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                         href={localizeHref(locale, `/${c.slug}`)}
                         onClick={() => setOpen(false)}
                         lang={catLang}
-                        aria-current={pathname === localizeHref(locale, `/${c.slug}`) || pathname.startsWith(`${localizeHref(locale, `/${c.slug}`)}/`) ? 'page' : undefined}
+                        aria-current={
+                          pathname === localizeHref(locale, `/${c.slug}`) ||
+                          pathname.startsWith(`${localizeHref(locale, `/${c.slug}`)}/`)
+                            ? 'page'
+                            : undefined
+                        }
                         className={DRAWER_LINK}
                       >
                         {label}
@@ -211,7 +218,15 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
               </DrawerSection>
 
               <DrawerSection
-                label={account ? (locale === 'en' ? 'Your account' : 'तपाईंको खाता') : locale === 'en' ? 'Reader account' : 'पाठक खाता'}
+                label={
+                  account
+                    ? locale === 'en'
+                      ? 'Your account'
+                      : 'तपाईंको खाता'
+                    : locale === 'en'
+                      ? 'Reader account'
+                      : 'पाठक खाता'
+                }
                 lang={locale === 'en' ? 'en' : 'ne'}
               >
                 <li>
@@ -223,22 +238,33 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                     <IconUser />
                     <span>
                       {account
-                        ? `${account.displayName} · ${account.kindLabel}`
+                        ? account.kind === 'reader'
+                          ? `${account.displayName} · ${account.kindLabel}`
+                          : locale === 'en'
+                            ? 'Account'
+                            : 'खाता'
                         : locale === 'en'
                           ? 'Reader sign in'
                           : 'पाठक लगइन'}
                     </span>
                   </Link>
                 </li>
-                {account ? (
+                {account?.kind === 'reader' ? (
                   <li>
-                    <p className="border-b border-rule px-1 py-2 text-caption text-mute" lang={locale === 'en' ? 'en' : 'ne'}>
+                    <p
+                      className="border-b border-rule px-1 py-2 text-caption text-mute"
+                      lang={locale === 'en' ? 'en' : 'ne'}
+                    >
                       {account.roleLabel}
                     </p>
                   </li>
                 ) : null}
                 <li>
-                  <Link href={readerCornerHref} onClick={() => setOpen(false)} className={DRAWER_LINK_ROW}>
+                  <Link
+                    href={readerCornerHref}
+                    onClick={() => setOpen(false)}
+                    className={DRAWER_LINK_ROW}
+                  >
                     <IconDesk />
                     <span>{locale === 'en' ? 'My news desk' : 'मेरो समाचार डेस्क'}</span>
                   </Link>
@@ -250,7 +276,11 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                   </Link>
                 </li>
                 <li>
-                  <Link href={profileHref} onClick={() => setOpen(false)} className={DRAWER_LINK_ROW}>
+                  <Link
+                    href={profileHref}
+                    onClick={() => setOpen(false)}
+                    className={DRAWER_LINK_ROW}
+                  >
                     <IconUser />
                     <span>{locale === 'en' ? 'Profile' : 'प्रोफाइल'}</span>
                   </Link>

@@ -12,7 +12,12 @@ import { RumBoot } from '@/components/RumBoot'
 import { getNavCategories } from '@/lib/content'
 import { PUBLICATION } from '@/lib/site'
 import { getSession } from '@/lib/auth/session'
-import { accountKindLabel, resolveAccountKind, roleDisplayLabel } from '@/lib/account-identity'
+import {
+  accountKindLabel,
+  resolveAccountKind,
+  roleDisplayLabel,
+  type AccountKind,
+} from '@/lib/account-identity'
 import { localizeHref } from '@/lib/i18n/locales'
 
 export async function PublicShell({ locale, children }: { locale: Locale; children: ReactNode }) {
@@ -22,12 +27,16 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
     getSession().catch(() => null),
   ])
   const account = session
-    ? {
-        displayName: session.displayName || session.email.split('@')[0] || session.email,
-        kindLabel: accountKindLabel(resolveAccountKind(session.role), locale),
-        roleLabel: roleDisplayLabel(session.role, locale),
-        profileHref: localizeHref(locale, '/auth/profile'),
-      }
+    ? (() => {
+        const kind: AccountKind = resolveAccountKind(session.role)
+        return {
+          kind,
+          displayName: session.displayName || session.email.split('@')[0] || session.email,
+          kindLabel: accountKindLabel(kind, locale),
+          roleLabel: roleDisplayLabel(session.role, locale),
+          profileHref: localizeHref(locale, '/auth/profile'),
+        }
+      })()
     : null
 
   return (
@@ -53,4 +62,3 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
     </>
   )
 }
-

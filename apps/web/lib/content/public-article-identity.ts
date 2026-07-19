@@ -2,6 +2,9 @@ import 'server-only'
 import { getArticleBySlug } from '@/lib/content'
 
 export type PublicArticleIdentity = {
+  /** Canonical story id (`StoryCardData.id`) — distinct from `slug`, and what
+   * reading history / recommendations key candidates by. */
+  id: string
   slug: string
   category: string
   titleNe: string
@@ -35,6 +38,7 @@ export async function getPublicArticleIdentity(
     .then((article) =>
       article
         ? {
+            id: article.id,
             slug: article.slug,
             category: article.category.slug,
             titleNe: article.titleNe,

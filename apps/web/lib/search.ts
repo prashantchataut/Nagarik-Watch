@@ -1,4 +1,5 @@
 import type { StoryCardData } from '@nagarikwatch/db'
+import { nearestByEmbedding } from './algorithms/product/local-embeddings'
 import { CIVIC_QUERY_LEXICON, lexiconExpandTerm, type QueryLexicon } from './search-lexicon'
 
 /**
@@ -401,7 +402,41 @@ export function search(
   }
 
   scored.sort((a, b) => b.score - a.score || b.publishedAt.localeCompare(a.publishedAt))
+
+  if (process.env.SEARCH_SEMANTIC_LOCAL === '1' && rawQuery.trim()) {
+    return blendLocalSemantic(index, rawQuery, scored, limit)
+  }
   return scored.slice(0, limit)
+}
+
+/** Optional local term-vector blend — never replaces BM25 as primary. */
+function blendLocalSemantic(
+  index: SearchIndex,
+  rawQuery: string,
+  bm25Hits: SearchResult[],
+  limit: number,
+): SearchResult[] {
+  const candidates = index.docs.map((doc) => ({
+    id: doc.story.id,
+    text: `${doc.titleNe} ${doc.titleEn} ${doc.deckNe} ${doc.deckEn}`,
+  }))
+  const semantic = nearestByEmbedding(rawQuery, candidates, Math.max(limit, 12))
+  const byId = new Map(bm25Hits.map((hit) => [hit.id, hit]))
+  const maxBm25 = bm25Hits[0]?.score ?? 1
+  for (const item of semantic) {
+    const story = index.docs.find((doc) => doc.story.id === item.id)?.story
+    if (!story) continue
+    const existing = byId.get(item.id)
+    const semanticBoost = Math.max(0, item.score) * maxBm25 * 0.35
+    if (existing) {
+      byId.set(item.id, { ...existing, score: existing.score + semanticBoost })
+    } else {
+      byId.set(item.id, { ...story, score: semanticBoost })
+    }
+  }
+  return [...byId.values()]
+    .sort((a, b) => b.score - a.score || b.publishedAt.localeCompare(a.publishedAt))
+    .slice(0, limit)
 }
 
 /** Prefix autocomplete from the title/author/category trie. */

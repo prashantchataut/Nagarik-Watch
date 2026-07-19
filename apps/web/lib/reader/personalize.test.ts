@@ -69,4 +69,19 @@ describe('reader personalization', () => {
     expect(recommended).toHaveLength(4)
     expect(recommended.filter((item) => item.category.slug === 'politics')).toHaveLength(2)
   })
+
+  it('accepts a consented interaction matrix option for CF volume gating', () => {
+    const catalog = [story('a1', 'politics'), story('a2', 'economy'), story('a3', 'world')]
+    const interactions: Record<string, Record<string, number>> = {}
+    for (let i = 0; i < 30; i++) {
+      interactions[`r${i}`] = { a1: 1, a2: i % 2, a3: 1 }
+    }
+    interactions.target = { a1: 1 }
+    const recommended = recommendForReader(catalog, [], [history('a1', 'politics')], {
+      limit: 3,
+      interactions,
+      readerId: 'target',
+    })
+    expect(recommended.length).toBeGreaterThan(0)
+  })
 })

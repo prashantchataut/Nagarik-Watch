@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { hasServerAnalyticsConsent } from '@/lib/reader/server-consent'
+import { recordRumSample } from '@/lib/engagement/rum-samples'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,8 +33,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid RUM metric.' }, { status: 400 })
   }
 
-  // The beacon adapter deliberately emits no identifiers. Platform log drains
-  // can consume this structured event until a durable analytics sink is added.
-  console.info('[rum]', { name, value, path })
+  await recordRumSample({ name, value, path })
   return new NextResponse(null, { status: 202 })
 }

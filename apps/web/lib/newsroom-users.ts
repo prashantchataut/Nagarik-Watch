@@ -2,7 +2,13 @@ import 'server-only'
 import { createHash, randomBytes, randomUUID } from 'node:crypto'
 import { NEWSROOM_ROLES, type NewsroomRole } from '@/lib/admin-roles'
 import { sendEmail } from '@/lib/email-provider'
-import { cleanText, ensureOperationalSchema, isProductionRuntime, toIso, type Queryable } from '@/lib/ops-db'
+import {
+  cleanText,
+  ensureOperationalSchema,
+  isProductionRuntime,
+  toIso,
+  type Queryable,
+} from '@/lib/ops-db'
 import { SITE_URL } from '@/lib/site'
 
 type UserRow = {
@@ -54,7 +60,10 @@ export type NewsroomInvite = {
 
 export type InviteAcceptance =
   | { ok: true; role: NewsroomRole }
-  | { ok: false; reason: 'invalid' | 'expired' | 'email_mismatch' | 'account_missing' | 'storage_unavailable' }
+  | {
+      ok: false
+      reason: 'invalid' | 'expired' | 'email_mismatch' | 'account_missing' | 'storage_unavailable'
+    }
 
 const invites = new Map<string, StoredInvite>()
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000
@@ -76,14 +85,22 @@ async function ensureSchema(): Promise<Queryable | null> {
       )
     `)
     await pool.query(`ALTER TABLE nw_user_invites ADD COLUMN IF NOT EXISTS token_hash text`)
-    await pool.query(`ALTER TABLE nw_user_invites ADD COLUMN IF NOT EXISTS expires_at timestamptz NOT NULL DEFAULT (now() + interval '7 days')`)
+    await pool.query(
+      `ALTER TABLE nw_user_invites ADD COLUMN IF NOT EXISTS expires_at timestamptz NOT NULL DEFAULT (now() + interval '7 days')`,
+    )
     await pool.query(`ALTER TABLE nw_user_invites ADD COLUMN IF NOT EXISTS accepted_at timestamptz`)
     await pool.query(`ALTER TABLE nw_user_invites ADD COLUMN IF NOT EXISTS revoked_at timestamptz`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS nw_user_invites_email_idx ON nw_user_invites(email, status)`)
-    await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS nw_user_invites_token_hash_idx ON nw_user_invites(token_hash) WHERE token_hash IS NOT NULL`)
+    await pool.query(
+      `CREATE INDEX IF NOT EXISTS nw_user_invites_email_idx ON nw_user_invites(email, status)`,
+    )
+    await pool.query(
+      `CREATE UNIQUE INDEX IF NOT EXISTS nw_user_invites_token_hash_idx ON nw_user_invites(token_hash) WHERE token_hash IS NOT NULL`,
+    )
     for (const table of ['"user"', 'user']) {
       try {
-        await pool.query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS disabled boolean NOT NULL DEFAULT false`)
+        await pool.query(
+          `ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS disabled boolean NOT NULL DEFAULT false`,
+        )
         break
       } catch {
         // Quoting differs by adapter; try the next candidate.
@@ -136,35 +153,41 @@ function validEmail(value: unknown): string | null {
 export function rolesAssignableBy(actorRole: NewsroomRole): NewsroomRole[] {
   const roles = NEWSROOM_ROLES.filter((role) => role !== 'reader')
   if (actorRole === 'super_admin') return [...roles]
-  if (actorRole === 'admin') return roles.filter((role) => role !== 'admin' && role !== 'super_admin')
+  if (actorRole === 'admin')
+    return roles.filter((role) => role !== 'admin' && role !== 'super_admin')
   return []
 }
 
-export async function listNewsroomUsers(fallback?: NewsroomUserRecord): Promise<NewsroomUserRecord[]> {
+export async function listNewsroomUsers(
+  fallback?: NewsroomUserRecord,
+): Promise<NewsroomUserRecord[]> {
   const pool = await ensureSchema()
   if (pool) {
-    const candidates = ['"user"', 'user']
+    // Better Auth uses the quoted Postgres table "user". Its timestamp columns
+    // are camelCase in the current schema, while older installs used snake_case.
+    // Never query unquoted `user`: PostgreSQL treats it as CURRENT_USER and then
+    // reports the misleading "column id does not exist" error.
+    const candidates = [
+      `SELECT id, email, name, role, disabled, "createdAt" AS created_at
+       FROM "user" ORDER BY "createdAt" DESC LIMIT 500`,
+      `SELECT id, email, name, role, disabled, created_at
+       FROM "user" ORDER BY created_at DESC LIMIT 500`,
+      `SELECT id, email, name, role, "createdAt" AS created_at
+       FROM "user" ORDER BY "createdAt" DESC LIMIT 500`,
+      `SELECT id, email, name, role, created_at
+       FROM "user" ORDER BY created_at DESC LIMIT 500`,
+    ]
     let lastError: unknown
-    for (const table of candidates) {
+    for (const query of candidates) {
       try {
-        const result = await pool.query<UserRow>(
-          `SELECT id, email, name, role, disabled, created_at FROM ${table} ORDER BY created_at DESC LIMIT 500`,
-        )
+        const result = await pool.query<UserRow>(query)
         return result.rows.map(userFromRow)
       } catch (error) {
         lastError = error
-        // Older schemas may lack disabled until ALTER runs; retry without it.
-        try {
-          const result = await pool.query<UserRow>(
-            `SELECT id, email, name, role, created_at FROM ${table} ORDER BY created_at DESC LIMIT 500`,
-          )
-          return result.rows.map(userFromRow)
-        } catch {
-          // Continue to next table quoting style.
-        }
       }
     }
-    if (isProductionRuntime()) throw new Error('Unable to read Better Auth users.', { cause: lastError })
+    if (isProductionRuntime())
+      throw new Error('Unable to read Better Auth users.', { cause: lastError })
   }
   return fallback ? [{ ...fallback, disabled: fallback.disabled ?? false }] : []
 }
@@ -182,10 +205,7 @@ export async function setNewsroomUserDisabled(input: {
   const users = await listNewsroomUsers()
   const target = users.find((user) => user.email.toLowerCase() === email)
   if (!target) return false
-  if (
-    input.actorRole !== 'super_admin' &&
-    ['admin', 'super_admin'].includes(target.role)
-  ) {
+  if (input.actorRole !== 'super_admin' && ['admin', 'super_admin'].includes(target.role)) {
     return false
   }
 
@@ -203,14 +223,17 @@ export async function setNewsroomUserDisabled(input: {
       lastError = error
     }
   }
-  if (isProductionRuntime()) throw new Error('Unable to update account disabled state.', { cause: lastError })
+  if (isProductionRuntime())
+    throw new Error('Unable to update account disabled state.', { cause: lastError })
   return false
 }
 
 export async function listNewsroomInvites(): Promise<NewsroomInvite[]> {
   const pool = await ensureSchema()
   if (pool) {
-    const result = await pool.query<InviteRow>(`SELECT id, email, role, invited_by, status, created_at, expires_at, accepted_at, revoked_at FROM nw_user_invites ORDER BY created_at DESC LIMIT 200`)
+    const result = await pool.query<InviteRow>(
+      `SELECT id, email, role, invited_by, status, created_at, expires_at, accepted_at, revoked_at FROM nw_user_invites ORDER BY created_at DESC LIMIT 200`,
+    )
     return result.rows.map(inviteFromRow)
   }
   return Array.from(invites.values())
@@ -218,11 +241,17 @@ export async function listNewsroomInvites(): Promise<NewsroomInvite[]> {
     .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
 }
 
-export async function createNewsroomInvite(input: { email: unknown; role: unknown; invitedBy: string; actorRole: NewsroomRole }): Promise<NewsroomInvite | null> {
+export async function createNewsroomInvite(input: {
+  email: unknown
+  role: unknown
+  invitedBy: string
+  actorRole: NewsroomRole
+}): Promise<NewsroomInvite | null> {
   const email = validEmail(input.email)
   if (!email) return null
   const role = normalizeRole(input.role)
-  if (!rolesAssignableBy(input.actorRole).includes(role)) throw new Error('You cannot assign that newsroom role.')
+  if (!rolesAssignableBy(input.actorRole).includes(role))
+    throw new Error('You cannot assign that newsroom role.')
 
   const token = randomBytes(32).toString('base64url')
   const tokenHash = hashToken(token)
@@ -237,19 +266,33 @@ export async function createNewsroomInvite(input: { email: unknown; role: unknow
   }
   const pool = await ensureSchema()
   if (pool) {
-    await pool.query(`UPDATE nw_user_invites SET status = 'revoked', revoked_at = now() WHERE lower(email) = lower($1) AND status = 'pending'`, [email])
+    await pool.query(
+      `UPDATE nw_user_invites SET status = 'revoked', revoked_at = now() WHERE lower(email) = lower($1) AND status = 'pending'`,
+      [email],
+    )
     const result = await pool.query<InviteRow>(
       `INSERT INTO nw_user_invites (id, email, role, invited_by, status, token_hash, created_at, expires_at)
        VALUES ($1,$2,$3,$4,'pending',$5,$6,$7)
        RETURNING id, email, role, invited_by, status, created_at, expires_at, accepted_at, revoked_at`,
-      [invite.id, invite.email, invite.role, invite.invitedBy, tokenHash, invite.createdAt, invite.expiresAt],
+      [
+        invite.id,
+        invite.email,
+        invite.role,
+        invite.invitedBy,
+        tokenHash,
+        invite.createdAt,
+        invite.expiresAt,
+      ],
     )
     const saved = inviteFromRow(result.rows[0]!)
     try {
       await deliverInvite(saved, token)
       return saved
     } catch (error) {
-      await pool.query(`UPDATE nw_user_invites SET status = 'revoked', revoked_at = now() WHERE id = $1`, [saved.id])
+      await pool.query(
+        `UPDATE nw_user_invites SET status = 'revoked', revoked_at = now() WHERE id = $1`,
+        [saved.id],
+      )
       throw error
     }
   }
@@ -264,7 +307,12 @@ export async function createNewsroomInvite(input: { email: unknown; role: unknow
     await deliverInvite(invite, token)
     return invite
   } catch (error) {
-    invites.set(invite.id, { ...invite, tokenHash, status: 'revoked', revokedAt: new Date().toISOString() })
+    invites.set(invite.id, {
+      ...invite,
+      tokenHash,
+      status: 'revoked',
+      revokedAt: new Date().toISOString(),
+    })
     throw error
   }
 }
@@ -294,7 +342,10 @@ export async function revokeNewsroomInvite(idValue: unknown): Promise<boolean> {
   if (!id) return false
   const pool = await ensureSchema()
   if (pool) {
-    const result = await pool.query(`UPDATE nw_user_invites SET status = 'revoked', revoked_at = now() WHERE id = $1 AND status = 'pending'`, [id])
+    const result = await pool.query(
+      `UPDATE nw_user_invites SET status = 'revoked', revoked_at = now() WHERE id = $1 AND status = 'pending'`,
+      [id],
+    )
     return Number(result.rowCount ?? 0) > 0
   }
   const invite = invites.get(id)
@@ -303,7 +354,10 @@ export async function revokeNewsroomInvite(idValue: unknown): Promise<boolean> {
   return true
 }
 
-export async function acceptNewsroomInvite(input: { token: unknown; email: string }): Promise<InviteAcceptance> {
+export async function acceptNewsroomInvite(input: {
+  token: unknown
+  email: string
+}): Promise<InviteAcceptance> {
   const token = cleanText(input.token, 500)
   const email = validEmail(input.email)
   if (!token || !email || token.length < 30) return { ok: false, reason: 'invalid' }
@@ -317,13 +371,21 @@ export async function acceptNewsroomInvite(input: { token: unknown; email: strin
     )
     const invite = inviteResult.rows[0]
     if (!invite || invite.status !== 'pending') return { ok: false, reason: 'invalid' }
-    if ((invite.expires_at instanceof Date ? invite.expires_at.getTime() : new Date(invite.expires_at).getTime()) <= Date.now()) return { ok: false, reason: 'expired' }
+    if (
+      (invite.expires_at instanceof Date
+        ? invite.expires_at.getTime()
+        : new Date(invite.expires_at).getTime()) <= Date.now()
+    )
+      return { ok: false, reason: 'expired' }
     if (invite.email.toLowerCase() !== email) return { ok: false, reason: 'email_mismatch' }
 
     let userExists = false
     for (const table of ['"user"', 'user']) {
       try {
-        const result = await pool.query<{ id: string }>(`SELECT id FROM ${table} WHERE lower(email) = lower($1) LIMIT 1`, [email])
+        const result = await pool.query<{ id: string }>(
+          `SELECT id FROM ${table} WHERE lower(email) = lower($1) LIMIT 1`,
+          [email],
+        )
         if (result.rows[0]) {
           userExists = true
           break
@@ -343,7 +405,10 @@ export async function acceptNewsroomInvite(input: { token: unknown; email: strin
     if (!claimed.rows[0]) return { ok: false, reason: 'invalid' }
     const updated = await updateUserRoleByEmail(email, invite.role)
     if (!updated) {
-      await pool.query(`UPDATE nw_user_invites SET status = 'pending', accepted_at = NULL WHERE id = $1 AND status = 'accepted'`, [invite.id])
+      await pool.query(
+        `UPDATE nw_user_invites SET status = 'pending', accepted_at = NULL WHERE id = $1 AND status = 'accepted'`,
+        [invite.id],
+      )
       return { ok: false, reason: 'account_missing' }
     }
     return { ok: true, role: invite.role }
@@ -374,27 +439,38 @@ export async function updateNewsroomUserRole(input: {
   if (!target) return false
   if (
     input.actorRole !== 'super_admin' &&
-    (['admin', 'super_admin'].includes(target.role) || ['admin', 'super_admin'].includes(desiredRole))
-  ) return false
+    (['admin', 'super_admin'].includes(target.role) ||
+      ['admin', 'super_admin'].includes(desiredRole))
+  )
+    return false
 
   return updateUserRoleByEmail(email, desiredRole)
 }
 
-export async function updateUserRoleByEmail(emailValue: unknown, roleValue: unknown): Promise<boolean> {
+export async function updateUserRoleByEmail(
+  emailValue: unknown,
+  roleValue: unknown,
+): Promise<boolean> {
   const email = validEmail(emailValue)
-  const role = NEWSROOM_ROLES.includes(roleValue as NewsroomRole) ? (roleValue as NewsroomRole) : null
+  const role = NEWSROOM_ROLES.includes(roleValue as NewsroomRole)
+    ? (roleValue as NewsroomRole)
+    : null
   if (!email || !role) return false
   const pool = await ensureSchema()
   if (!pool) return false
   let lastError: unknown
   for (const table of ['"user"', 'user']) {
     try {
-      const result = await pool.query(`UPDATE ${table} SET role = $1 WHERE lower(email) = lower($2)`, [role, email])
+      const result = await pool.query(
+        `UPDATE ${table} SET role = $1 WHERE lower(email) = lower($2)`,
+        [role, email],
+      )
       return Number(result.rowCount ?? 0) > 0
     } catch (error) {
       lastError = error
     }
   }
-  if (isProductionRuntime()) throw new Error('Unable to update Better Auth user role.', { cause: lastError })
+  if (isProductionRuntime())
+    throw new Error('Unable to update Better Auth user role.', { cause: lastError })
   return false
 }

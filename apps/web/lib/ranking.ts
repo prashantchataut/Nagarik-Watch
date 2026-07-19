@@ -217,7 +217,7 @@ export function rankStories<T extends StoryCardData>(
   signalFor: (story: T, index: number) => RankingSignals = () => ({}),
   now = new Date(),
 ): RankedStory<T>[] {
-  return stories
+  const ranked = stories
     .map((story, index) => {
       const rankSignals = { ...DEFAULT_SIGNALS, ...signalFor(story, index) }
       return {
@@ -226,8 +226,47 @@ export function rankStories<T extends StoryCardData>(
         rankSignals,
       }
     })
-    .filter((story) => Number.isFinite(story.rankScore))
+    .filter((story) => Number.isFinite(story.rankScore) && !story.rankSignals.doNotRecommend)
     .sort((a, b) => b.rankScore - a.rankScore || b.publishedAt.localeCompare(a.publishedAt))
+
+  return applyHomepageSlotDiversity(ranked)
+}
+
+/**
+ * Soft diversity pass: penalize long same-category streaks so hubs do not
+ * stack five politics stories in a row. Editorial CMS homepage order is
+ * unchanged — this applies to algorithmic hub ranking only.
+ */
+export function applyHomepageSlotDiversity<T extends RankedStory>(
+  ranked: T[],
+  maxSameCategoryStreak = 2,
+): T[] {
+  if (ranked.length <= 2) return ranked
+  const remaining = [...ranked]
+  const ordered: T[] = []
+  let streakCategory = ''
+  let streak = 0
+
+  while (remaining.length > 0) {
+    let pickIndex = 0
+    if (streak >= maxSameCategoryStreak) {
+      const alt = remaining.findIndex((story) => story.category.slug !== streakCategory)
+      if (alt >= 0) pickIndex = alt
+    }
+    const [picked] = remaining.splice(pickIndex, 1)
+    if (!picked) break
+    if (picked.category.slug === streakCategory) streak += 1
+    else {
+      streakCategory = picked.category.slug
+      streak = 1
+    }
+    const diversityBoost = streak <= maxSameCategoryStreak ? 1 : Math.max(0, 1 - streak / 5)
+    ordered.push({
+      ...picked,
+      rankSignals: { ...picked.rankSignals, diversityBoost },
+    })
+  }
+  return ordered
 }
 
 function textTerms(story: StoryCardData): Set<string> {

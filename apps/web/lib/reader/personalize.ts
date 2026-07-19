@@ -1,6 +1,8 @@
 import {
   continueReading,
+  knnRecommend,
   recommend,
+  storyTerms,
   type Bookmark,
   type ReaderProfile,
   type ReadingHistory,
@@ -46,7 +48,7 @@ export function buildAffinity(
   }
   for (const item of history) {
     const story = byId.get(item.articleId)
-    const completionWeight = item.completed ? 2.5 : Math.max(.5, item.scrollDepth / 100 * 2)
+    const completionWeight = item.completed ? 2.5 : Math.max(0.5, (item.scrollDepth / 100) * 2)
     bump(categories, story?.category.slug ?? item.categorySlug, completionWeight)
     if (story) story.authors.forEach((author) => bump(authors, author.slug, completionWeight))
     else item.authorSlugs?.forEach((slug) => bump(authors, slug, completionWeight))
@@ -66,6 +68,7 @@ function toProfile(
 ): ReaderProfile {
   const userId = 'browser-reader'
   return {
+    userId,
     bookmarks: bookmarks.map(
       (item): Bookmark => ({
         id: `bookmark:${item.articleId}`,
@@ -121,20 +124,76 @@ function toProfile(
   }
 }
 
+export type RecommendForReaderOptions = {
+  limit?: number
+  preferences?: ReaderPreferences | null
+  /** Consented reader×article matrix; CF activates only above volume floor. */
+  interactions?: Record<string, Record<string, number>>
+  readerId?: string
+}
+
+/**
+ * Prefer the hybrid recommender, then lightly boost with exact k-NN over
+ * story term vectors when the reader has affinity signal. Collaborative
+ * co-read stays volume-gated inside `recommend` (needs multi-reader matrix).
+ */
 export function recommendForReader(
   catalog: StoryCardData[],
   bookmarks: BookmarkRecord[],
   history: ReadingHistoryRecord[],
-  limit = 6,
-  preferences?: ReaderPreferences | null,
+  limitOrOptions: number | RecommendForReaderOptions = 6,
+  preferencesArg?: ReaderPreferences | null,
 ): PersonalizedStory[] {
-  return recommend(catalog, toProfile(bookmarks, history, preferences), {
-    limit,
+  const options: RecommendForReaderOptions =
+    typeof limitOrOptions === 'number'
+      ? { limit: limitOrOptions, preferences: preferencesArg }
+      : limitOrOptions
+  const limit = options.limit ?? 6
+  const preferences = options.preferences ?? preferencesArg ?? null
+  const profile = {
+    ...toProfile(bookmarks, history, preferences),
+    userId: options.readerId ?? 'browser-reader',
+  }
+  const interactions = options.interactions
+  const readerCount = interactions ? Object.keys(interactions).length : 0
+  const base = recommend(catalog, profile, {
+    limit: Math.max(limit, 12),
     maxPerCategory: 2,
     maxPerAuthor: 2,
     maxPerSource: 2,
     fatigueWindowHours: 48,
+    collaborative:
+      interactions && readerCount > 0
+        ? { enabled: true, interactions, minReaders: 25 }
+        : undefined,
   })
+
+  const affinity = buildAffinity(bookmarks, history, catalog, preferences)
+  const interest = new Map<string, number>()
+  for (const [key, value] of affinity.categories) interest.set(`cat:${key}`, value)
+  for (const [key, value] of affinity.topics) interest.set(`tag:${key}`, value)
+  for (const [key, value] of affinity.authors) interest.set(`author:${key}`, value)
+
+  if (interest.size === 0) return base.slice(0, limit)
+
+  const knn = knnRecommend(
+    interest,
+    catalog.map((story) => ({ id: story.id, vector: storyTerms(story), value: story })),
+    Math.max(limit * 2, 12),
+  )
+  const knnBoost = new Map(knn.map((item) => [item.id, item.similarity]))
+
+  return [...base]
+    .map((item) => {
+      const boost = knnBoost.get(item.id) ?? 0
+      if (boost <= 0) return item
+      return {
+        ...item,
+        recScore: item.recScore + boost * 0.35,
+      }
+    })
+    .sort((a, b) => b.recScore - a.recScore)
+    .slice(0, limit)
 }
 
 export function continueReadingForReader(

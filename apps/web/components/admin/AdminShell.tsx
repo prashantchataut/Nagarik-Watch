@@ -68,7 +68,12 @@ function primaryNavFor(desk: AdminDeskVariant, role: NewsroomRole): NavItem[] {
   return items
 }
 
-const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<NewsroomRole>; defaultOpen?: boolean }[] = [
+const NAV_GROUPS: {
+  heading: string
+  items: NavItem[]
+  roles?: ReadonlySet<NewsroomRole>
+  defaultOpen?: boolean
+}[] = [
   {
     heading: 'सम्पादन',
     defaultOpen: true,
@@ -76,7 +81,6 @@ const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<Newsr
     items: [
       { label: 'मिडिया', href: '/admin/media', icon: 'media', roles: MEDIA_MANAGER_ROLES },
       { label: 'लाइभ ब्लग', href: '/admin/live-blogs', icon: 'live', roles: EDITOR_ROLES },
-      { label: 'वायर', href: '/admin/wire', icon: 'live', roles: EDITOR_ROLES },
       { label: 'पत्रकार डेस्क', href: '/admin/journalists', icon: 'author', roles: EDITOR_ROLES },
     ],
   },
@@ -84,10 +88,20 @@ const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<Newsr
     heading: 'वर्गीकरण',
     roles: TAXONOMY_MANAGER_ROLES,
     items: [
-      { label: 'विभाग', href: '/admin/categories', icon: 'category', roles: TAXONOMY_MANAGER_ROLES },
+      {
+        label: 'विभाग',
+        href: '/admin/categories',
+        icon: 'category',
+        roles: TAXONOMY_MANAGER_ROLES,
+      },
       { label: 'ट्याग', href: '/admin/tags', icon: 'tag', roles: TAXONOMY_MANAGER_ROLES },
       { label: 'विषय', href: '/admin/topics', icon: 'topic', roles: TAXONOMY_MANAGER_ROLES },
-      { label: 'प्रदेश', href: '/admin/provinces', icon: 'province', roles: TAXONOMY_MANAGER_ROLES },
+      {
+        label: 'प्रदेश',
+        href: '/admin/provinces',
+        icon: 'province',
+        roles: TAXONOMY_MANAGER_ROLES,
+      },
       { label: 'लेखक', href: '/admin/authors', icon: 'author', roles: TAXONOMY_MANAGER_ROLES },
     ],
   },
@@ -95,11 +109,21 @@ const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<Newsr
     heading: 'समुदाय',
     roles: COMMUNITY_MANAGER_ROLES,
     items: [
-      { label: 'टिप्पणी', href: '/admin/comments', icon: 'comment', roles: COMMUNITY_MANAGER_ROLES },
+      {
+        label: 'टिप्पणी',
+        href: '/admin/comments',
+        icon: 'comment',
+        roles: COMMUNITY_MANAGER_ROLES,
+      },
       { label: 'टिप', href: '/admin/submissions', icon: 'tip', roles: COMMUNITY_MANAGER_ROLES },
       { label: 'सम्पर्क', href: '/admin/contact', icon: 'comment', roles: COMMUNITY_MANAGER_ROLES },
       { label: 'मतदान', href: '/admin/polls', icon: 'poll', roles: COMMUNITY_MANAGER_ROLES },
-      { label: 'न्युजलेटर', href: '/admin/newsletter', icon: 'newsletter', roles: NEWSLETTER_MANAGER_ROLES },
+      {
+        label: 'न्युजलेटर',
+        href: '/admin/newsletter',
+        icon: 'newsletter',
+        roles: NEWSLETTER_MANAGER_ROLES,
+      },
     ],
   },
   {
@@ -120,11 +144,21 @@ const NAV_GROUPS: { heading: string; items: NavItem[]; roles?: ReadonlySet<Newsr
       { label: 'लाइभ प्यानल', href: '/admin/live', icon: 'signal' },
       { label: 'एल्गोरिदम', href: '/admin/algorithms', icon: 'algorithm' },
       { label: 'प्रयोग', href: '/admin/experiments', icon: 'algorithm' },
-      { label: 'सेसन गुणस्तर', href: '/admin/session-quality', icon: 'signal', roles: ANALYTICS_ROLES },
+      {
+        label: 'सेसन गुणस्तर',
+        href: '/admin/session-quality',
+        icon: 'signal',
+        roles: ANALYTICS_ROLES,
+      },
       { label: 'खोज विश्लेषण', href: '/admin/search-analytics', icon: 'seo' },
       { label: 'लाइभ विजेट', href: '/admin/live-widgets', icon: 'widget' },
       { label: 'विज्ञापन', href: '/admin/ads', icon: 'ad' },
-      { label: 'सदस्यता', href: '/admin/paywall', icon: 'membership', roles: MEMBERSHIP_MANAGER_ROLES },
+      {
+        label: 'सदस्यता',
+        href: '/admin/paywall',
+        icon: 'membership',
+        roles: MEMBERSHIP_MANAGER_ROLES,
+      },
       { label: 'एसइओ', href: '/admin/seo', icon: 'seo' },
       { label: 'सेटिङ', href: '/admin/settings', icon: 'settings', roles: SETTINGS_MANAGER_ROLES },
     ],
@@ -342,9 +376,16 @@ function AdminSidebar({
   startNav: (cb: () => void) => void
 }) {
   return (
-    <aside className="admin-sidebar flex h-full w-[16.5rem] flex-col border-r border-rule bg-surface-raised" data-desk={desk}>
+    <aside
+      className="admin-sidebar flex h-full w-[16.5rem] flex-col border-r border-rule bg-surface-raised"
+      data-desk={desk}
+    >
       <div className="flex h-14 items-center gap-2.5 border-b border-rule px-4">
-        <Link href="/admin/dashboard" onClick={onNavigate} className="flex min-w-0 items-center gap-2.5">
+        <Link
+          href="/admin/dashboard"
+          onClick={onNavigate}
+          className="flex min-w-0 items-center gap-2.5"
+        >
           <LogoMark title="नागरिक वाच / Nagarik Watch" className="h-8 w-8 shrink-0" />
           <div className="min-w-0 leading-tight">
             <span className="block truncate font-display text-meta font-bold text-ink" lang="ne">
@@ -389,7 +430,11 @@ function AdminSidebar({
         </ul>
 
         {visibleGroups.map((group) => (
-          <details key={group.heading} className="mt-3 group/nav" open={group.defaultOpen || group.items.some((i) => isActivePath(clientPath, i.href))}>
+          <details
+            key={group.heading}
+            className="mt-3 group/nav"
+            open={group.defaultOpen || group.items.some((i) => isActivePath(clientPath, i.href))}
+          >
             <summary className="cursor-pointer list-none px-2.5 py-1.5 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-mute [&::-webkit-details-marker]:hidden">
               <span className="inline-flex items-center gap-1" lang="ne">
                 {group.heading}
@@ -476,7 +521,6 @@ function pageTitle(pathname: string): string {
     '/admin/polls': 'मतदान',
     '/admin/newsletter': 'न्युजलेटर',
     '/admin/live-blogs': 'लाइभ ब्लग',
-    '/admin/wire': 'वायर',
     '/admin/live': 'लाइभ प्यानल',
     '/admin/algorithms': 'एल्गोरिदम',
     '/admin/experiments': 'प्रयोग',
@@ -545,12 +589,6 @@ function NavIcon({ name }: { name: string }) {
         <svg {...props}>
           <circle cx="12" cy="12" r="3" />
           <path d="M5.5 5.5a9 9 0 0 0 0 13M18.5 5.5a9 9 0 0 1 0 13" />
-        </svg>
-      )
-    case 'wire':
-      return (
-        <svg {...props}>
-          <path d="M4 11h16M4 11a2 2 0 0 0 0 4h16a2 2 0 0 0 0-4M8 11V7a4 4 0 0 1 8 0v4M12 15v6" />
         </svg>
       )
     case 'category':

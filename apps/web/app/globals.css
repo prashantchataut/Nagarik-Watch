@@ -505,6 +505,14 @@
   .reader-ledger__dek, .preference-desk__header p:last-child, .notification-desk__dek { max-width: 67ch; margin-top: .55rem; color: var(--ink-soft); font-size: .92rem; line-height: 1.65; }
   .reader-ledger__sync, .preference-desk__status { justify-self: start; min-height: 2rem; display: inline-flex; align-items: center; border: 1px solid var(--rule); padding: .25rem .6rem; color: var(--ink-soft); font-size: .72rem; font-weight: 800; }
   .reader-ledger__sync[data-state='synced'], .preference-desk__status[data-state='saved'] { border-color: color-mix(in oklch, var(--up) 45%, var(--rule)); color: var(--up); }
+  .reader-ledger__continue { display: grid; gap: .2rem; margin-top: 1rem; padding: .85rem 0; border-block: 1px solid var(--rule); color: var(--ink); }
+  .reader-ledger__continue span { color: var(--brand-strong); font-size: .68rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+  .reader-ledger__continue strong { font-family: var(--font-mukta), sans-serif; font-size: 1.05rem; }
+  .reader-ledger__streak-badge { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem; margin-top: 1rem; padding: .6rem .85rem; border: 1px solid var(--rule); background: color-mix(in oklch, var(--brand) 8%, transparent); }
+  .reader-ledger__streak-badge strong { font-family: var(--font-mukta), sans-serif; font-size: 1rem; font-weight: 850; color: var(--brand-strong); }
+  .reader-ledger__streak-badge span { color: var(--ink-soft); font-size: .78rem; }
+  .reader-ledger__streak-badge[data-at-risk='true'] { border-color: color-mix(in oklch, var(--down) 45%, var(--rule)); background: color-mix(in oklch, var(--down) 8%, transparent); }
+  .reader-ledger__streak-badge[data-at-risk='true'] strong { color: var(--down); }
   .reader-ledger__stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 1.5rem; border-block: 1px solid var(--rule); }
   .reader-ledger__stats > div { min-width: 0; padding: 1rem 0; }
   .reader-ledger__stats > div:nth-child(odd) { padding-right: 1rem; border-right: 1px solid var(--rule); }
@@ -585,7 +593,10 @@
   .reader-onboarding h2 { margin-top: .25rem; font-size: clamp(1.35rem, 3vw, 2rem); font-weight: 850; }
   .reader-onboarding p:last-child { margin-top: .3rem; color: var(--ink-soft); font-size: .84rem; }
   .reader-onboarding__topics { display: flex; flex-wrap: wrap; gap: .5rem; }
-  .reader-onboarding__topics button { min-height: 2.75rem; border: 1px solid var(--rule); background: var(--surface); padding: .45rem .75rem; font-size: .8rem; font-weight: 750; }
+  .reader-onboarding__topics button { min-height: 2.75rem; border: 1px solid var(--rule); background: var(--surface); padding: .45rem .75rem; font-size: .8rem; font-weight: 750; display: inline-flex; align-items: center; gap: .35rem; }
+  .reader-onboarding__topics button[data-recommended='true'] { border-color: var(--brand); }
+  .reader-onboarding__topics button small { color: var(--brand-strong); font-size: .62rem; font-weight: 850; text-transform: uppercase; letter-spacing: .05em; }
+  .reader-onboarding__coverage { margin-top: -.25rem; color: var(--ink-soft); font-size: .78rem; }
   .reader-onboarding__topics button[aria-pressed='true'] { border-color: var(--brand); background: var(--brand); color: white; }
   .reader-onboarding__skip { position: absolute; top: .5rem; right: .75rem; min-height: 2.75rem; color: var(--mute); font-size: .72rem; }
 
@@ -931,6 +942,10 @@
   .recommendation-desk__continue { display: grid; gap: .2rem; margin-top: 1rem; padding: .85rem 0; border-block: 1px solid var(--rule); color: var(--ink); }
   .recommendation-desk__continue span { color: var(--brand-strong); font-size: .68rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
   .recommendation-desk__continue strong { font-family: var(--font-mukta), sans-serif; font-size: 1.05rem; }
+  .recommendation-desk__digest { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
+  .recommendation-desk__digest ol { display: grid; gap: .5rem; margin-top: .5rem; }
+  .recommendation-desk__digest a { color: var(--ink); font-size: .9rem; font-weight: 700; }
+  .recommendation-desk__digest a:hover { color: var(--brand-strong); }
 }
 @layer components {
   .admin-feedback-control { min-width: 18rem; }

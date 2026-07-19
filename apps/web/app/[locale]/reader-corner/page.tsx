@@ -62,12 +62,12 @@ export default async function ReaderCornerPage({ params }: { params: Promise<{ l
           </aside>
         </header>
 
-        <ReaderTopicOnboarding locale={locale} categories={categories} />
+        <ReaderTopicOnboarding locale={locale} categories={categories} catalog={storyPage.items} />
         <RecommendedForYou locale={locale} catalog={storyPage.items} className="reader-corner-recommendations" />
 
         <div className="reader-account-grid reader-account-grid--desk">
           <main className="reader-account-grid__main">
-            <ReaderActivityPanel locale={locale} />
+            <ReaderActivityPanel locale={locale} catalog={storyPage.items} />
             <ReaderPreferencePanel locale={locale} categories={categories} tags={tags} authors={authors} />
           </main>
           <aside className="reader-account-grid__rail">

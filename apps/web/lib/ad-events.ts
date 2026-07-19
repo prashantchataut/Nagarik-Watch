@@ -9,6 +9,7 @@ export type AdEventSummary = {
   impressions: number
   clicks: number
   ctr: number
+  averageAttention: number
 }
 
 type Queryable = {
@@ -22,9 +23,10 @@ type SummaryRow = {
   placement_key: string
   impressions: string | number
   clicks: string | number
+  avg_attention: string | number | null
 }
 
-const memory = new Map<string, { impressions: number; clicks: number }>()
+const memory = new Map<string, { impressions: number; clicks: number; attentionTotal: number; attentionSamples: number }>()
 let schemaReady: Promise<void> | null = null
 
 async function getPool(): Promise<Queryable | null> {
@@ -51,9 +53,11 @@ async function ensureSchema(): Promise<Queryable | null> {
             placement_key text NOT NULL,
             mode text NOT NULL,
             event text NOT NULL,
+            attention double precision,
             created_at timestamptz NOT NULL DEFAULT now()
           )
         `)
+        await pool.query(`ALTER TABLE nw_ad_events ADD COLUMN IF NOT EXISTS attention double precision`)
         await pool.query(
           `CREATE INDEX IF NOT EXISTS nw_ad_events_placement_idx ON nw_ad_events(placement_key, created_at DESC)`,
         )
@@ -72,18 +76,27 @@ export async function recordAdEvent(input: {
   placementKey: AdPlacementKey
   mode: AdMode
   event: AdEventType
+  attention?: number
 }): Promise<void> {
+  const attention =
+    typeof input.attention === 'number' && Number.isFinite(input.attention)
+      ? Math.max(0, Math.min(1, input.attention))
+      : null
   const pool = await ensureSchema()
   if (pool) {
     await pool.query(
-      `INSERT INTO nw_ad_events (placement_key, mode, event) VALUES ($1,$2,$3)`,
-      [input.placementKey, input.mode, input.event],
+      `INSERT INTO nw_ad_events (placement_key, mode, event, attention) VALUES ($1,$2,$3,$4)`,
+      [input.placementKey, input.mode, input.event, attention],
     )
     return
   }
-  const current = memory.get(input.placementKey) ?? { impressions: 0, clicks: 0 }
+  const current = memory.get(input.placementKey) ?? { impressions: 0, clicks: 0, attentionTotal: 0, attentionSamples: 0 }
   if (input.event === 'impression') current.impressions += 1
   if (input.event === 'click') current.clicks += 1
+  if (attention !== null) {
+    current.attentionTotal += attention
+    current.attentionSamples += 1
+  }
   memory.set(input.placementKey, current)
 }
 
@@ -93,7 +106,8 @@ export async function getAdEventSummary(): Promise<AdEventSummary[]> {
     const result = await pool.query<SummaryRow>(`
       SELECT placement_key,
         count(*) FILTER (WHERE event = 'impression') AS impressions,
-        count(*) FILTER (WHERE event = 'click') AS clicks
+        count(*) FILTER (WHERE event = 'click') AS clicks,
+        avg(attention) FILTER (WHERE attention IS NOT NULL) AS avg_attention
       FROM nw_ad_events
       WHERE created_at > now() - interval '30 days'
       GROUP BY placement_key
@@ -102,7 +116,13 @@ export async function getAdEventSummary(): Promise<AdEventSummary[]> {
     return result.rows.map((row) => {
       const impressions = Number(row.impressions ?? 0)
       const clicks = Number(row.clicks ?? 0)
-      return { placementKey: row.placement_key, impressions, clicks, ctr: impressions ? clicks / impressions : 0 }
+      return {
+        placementKey: row.placement_key,
+        impressions,
+        clicks,
+        ctr: impressions ? clicks / impressions : 0,
+        averageAttention: row.avg_attention === null ? 0 : Number(row.avg_attention),
+      }
     })
   }
   return Array.from(memory.entries()).map(([placementKey, counts]) => ({
@@ -110,5 +130,6 @@ export async function getAdEventSummary(): Promise<AdEventSummary[]> {
     impressions: counts.impressions,
     clicks: counts.clicks,
     ctr: counts.impressions ? counts.clicks / counts.impressions : 0,
+    averageAttention: counts.attentionSamples ? counts.attentionTotal / counts.attentionSamples : 0,
   }))
 }

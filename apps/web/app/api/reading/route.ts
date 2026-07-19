@@ -9,6 +9,7 @@ import {
 import { getSession } from '@/lib/auth/session'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { getPublicArticleIdentity } from '@/lib/content/public-article-identity'
+import { recordInteraction } from '@/lib/engagement/interaction-matrix'
 
 export const dynamic = 'force-dynamic'
 
@@ -87,6 +88,12 @@ export async function POST(request: NextRequest) {
     completed,
     sessionId,
   })
+
+  // Keyed by article.id (not slug) so it lines up with `candidate.id` in
+  // @nagarikwatch/db recommend() and with ReadingHistoryRecord.articleId.
+  const ownerKey = session?.userId || fingerprint
+  const weight = completed ? 2 : Math.max(0.25, readPercent / 100)
+  await recordInteraction(ownerKey, article.id, weight)
 
   return NextResponse.json({ ok: true }, { status: 202 })
 }

@@ -5,6 +5,17 @@ import { getOpsMigrationStatus } from '@/lib/ops-migrations'
 import { getPaymentAdapterState } from '@/lib/payments/adapter'
 import { isPayloadStorageWired } from '@/lib/storage-adapter'
 import { twoFactorConfigured } from '@/lib/security/mfa'
+import { lintSecurityHeaders } from '@/lib/security/header-lint'
+
+/** Reads the same header list Next.js actually applies (next.config.ts), so this check
+ *  fails honestly if a header is ever removed from the real response configuration. */
+async function configuredSecurityHeaderLint(): Promise<ReturnType<typeof lintSecurityHeaders>> {
+  const { default: nextConfig } = await import('@/next.config')
+  const entries = await nextConfig.headers?.()
+  const headerList = entries?.find((entry) => entry.source === '/:path*')?.headers ?? []
+  const asRecord = Object.fromEntries(headerList.map((header) => [header.key.toLowerCase(), header.value]))
+  return lintSecurityHeaders(asRecord)
+}
 
 export type LaunchCheck = {
   key: string
@@ -48,6 +59,7 @@ function verifiedSetting(
 
 function buildLaunchChecks(options?: {
   opsMigrations?: { applied: string[]; pending: string[]; storage: 'postgres' | 'unavailable' }
+  securityHeaders?: ReturnType<typeof lintSecurityHeaders>
 }): LaunchCheck[] {
   const dbMode = operationalStorageMode()
   const contentSource = value('CONTENT_SOURCE') || value('PAYLOAD_CONTENT_SOURCE')
@@ -220,6 +232,20 @@ function buildLaunchChecks(options?: {
         ? 'At least one configured live provider is available'
         : 'Manual newsroom overrides are required for unsupported live data',
     },
+    {
+      key: 'security-headers',
+      label: 'Security response headers',
+      status: !options?.securityHeaders
+        ? 'warn'
+        : options.securityHeaders.missing.length === 0
+          ? 'pass'
+          : 'fail',
+      detail: !options?.securityHeaders
+        ? 'Security header configuration not probed'
+        : options.securityHeaders.missing.length === 0
+          ? `${options.securityHeaders.present}/${options.securityHeaders.needed} baseline security headers configured`
+          : `Missing security headers: ${options.securityHeaders.missing.join(', ')}`,
+    },
   ]
 }
 
@@ -235,7 +261,8 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
     pending: [] as string[],
     storage: 'unavailable' as const,
   }))
-  return buildLaunchChecks({ opsMigrations })
+  const securityHeaders = await configuredSecurityHeaderLint().catch(() => undefined)
+  return buildLaunchChecks({ opsMigrations, securityHeaders })
 }
 
 export function launchScore(checks: LaunchCheck[]): number {
