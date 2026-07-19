@@ -15,7 +15,7 @@
     },
     {
       "path": "/api/cron/interactions-rebuild",
-      "schedule": "15 */6 * * *"
+      "schedule": "15 2 * * *"
     },
     {
       "path": "/api/cron/digest-compose",
@@ -23,7 +23,7 @@
     },
     {
       "path": "/api/cron/ops-probe",
-      "schedule": "*/30 * * * *"
+      "schedule": "30 3 * * *"
     }
   ]
 }
