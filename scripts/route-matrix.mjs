@@ -2,7 +2,7 @@
  * Enumerate public reader routes from the App Router tree and emit a CSV matrix
  * for audit/regression tracking. Run: node scripts/route-matrix.mjs
  */
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
 const root = process.cwd()
