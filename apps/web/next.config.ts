@@ -1,3 +1,5 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { NextConfig } from 'next'
 
 /**
@@ -6,6 +8,8 @@ import type { NextConfig } from 'next'
  *  - images: allow only the editorial media origins configured at build time.
  *  - security headers: baseline protection on every response.
  */
+const configDir = path.dirname(fileURLToPath(import.meta.url))
+const monorepoRoot = path.join(configDir, '../..')
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -93,6 +97,37 @@ const nextConfig: NextConfig = {
     'better-call',
     '@electric-sql/pglite',
   ],
+  // Monorepo root so NFT does not invent oversized traces from apps/web cwd.
+  outputFileTracingRoot: monorepoRoot,
+  // Keep serverless functions under Vercel's 250MB uncompressed limit.
+  outputFileTracingExcludes: {
+    '*': [
+      '**/.data/**',
+      '**/test-results/**',
+      '**/playwright-report/**',
+      '**/e2e/**',
+      '**/node_modules/@swc/core*/**',
+      '**/node_modules/@esbuild/**',
+      '**/node_modules/esbuild/**',
+      '**/node_modules/webpack/**',
+      '**/node_modules/terser/**',
+      '**/node_modules/uglify-js/**',
+      '**/node_modules/rollup/**',
+      '**/node_modules/playwright/**',
+      '**/node_modules/playwright-core/**',
+      '**/node_modules/@playwright/**',
+      '**/node_modules/@electric-sql/pglite/**',
+    ],
+    '/api/media/local/[filename]': [
+      '**/node_modules/**',
+      '**/.data/**',
+      '**/data/**',
+      '**/e2e/**',
+      '**/test-results/**',
+      '**/packages/**',
+      '**/apps/admin/**',
+    ],
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns,
