@@ -55,11 +55,14 @@ const EnvSchema = z.object({
 
 export type AppEnv = z.infer<typeof EnvSchema>
 
+/** Minimal env bag — avoids coupling library builds to @types/node global namespaces. */
+export type EnvSource = Record<string, string | undefined>
+
 /**
  * Parse and validate process.env. Throws a human-readable error listing every
  * problem at once (rather than failing one var at a time).
  */
-export function loadEnv(source: NodeJS.ProcessEnv = process.env): AppEnv {
+export function loadEnv(source: EnvSource = process.env): AppEnv {
   const parsed = EnvSchema.safeParse(source)
   if (!parsed.success) {
     const issues = parsed.error.issues
