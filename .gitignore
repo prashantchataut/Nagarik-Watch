@@ -65,7 +65,7 @@ nagarik-watch-latest.zip
 live-home.html
 live.css
 _archive_metadata/
-upload/
+/upload/
 *.exit
 VERIFICATION_TSC_WEB.log
 RECOVERY_*.json
