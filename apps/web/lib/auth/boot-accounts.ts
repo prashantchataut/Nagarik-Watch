@@ -1,7 +1,8 @@
 import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { hashPassword } from 'better-auth/crypto'
-import { getSharedPoolOrThrow } from '@/lib/pg-pool'
+import { getSharedPool } from '@/lib/pg-pool'
+import { getAuthPgliteQueryable } from '@/lib/auth/auth-pool'
 
 type AuthApi = {
   api: {
@@ -28,6 +29,24 @@ const BOOT_SPECS: BootAccountSpec[] = [
     passwordKey: 'NEWSROOM_ADMIN_PASSWORD',
     nameKey: 'NEWSROOM_ADMIN_NAME',
     role: 'admin',
+  },
+  {
+    emailKey: 'NEWSROOM_PUBLISHER_EMAIL',
+    passwordKey: 'NEWSROOM_PUBLISHER_PASSWORD',
+    nameKey: 'NEWSROOM_PUBLISHER_NAME',
+    role: 'publisher',
+  },
+  {
+    emailKey: 'NEWSROOM_EDITOR_EMAIL',
+    passwordKey: 'NEWSROOM_EDITOR_PASSWORD',
+    nameKey: 'NEWSROOM_EDITOR_NAME',
+    role: 'section_editor',
+  },
+  {
+    emailKey: 'NEWSROOM_REPORTER_EMAIL',
+    passwordKey: 'NEWSROOM_REPORTER_PASSWORD',
+    nameKey: 'NEWSROOM_REPORTER_NAME',
+    role: 'journalist',
   },
 ]
 
@@ -60,7 +79,7 @@ type ConfiguredBootAccountSpec = BootAccountSpec & {
 function configuredSpecs(): ConfiguredBootAccountSpec[] {
   const specs = BOOT_SPECS.flatMap((spec) => {
     const email = process.env[spec.emailKey]?.trim().toLowerCase()
-    const password = process.env[spec.passwordKey]
+    const password = process.env[spec.passwordKey]?.trim()
     if (!email || !password) return []
     const displayName =
       process.env[spec.nameKey]?.trim() || email.split('@')[0] || 'Newsroom account'
@@ -93,8 +112,11 @@ type Queryable = {
 }
 
 async function withPool<T>(fn: (pool: Queryable) => Promise<T>): Promise<T> {
-  const pool = await getSharedPoolOrThrow()
-  return fn(pool as unknown as Queryable)
+  const shared = await getSharedPool()
+  if (shared) return fn(shared as unknown as Queryable)
+  const pglite = await getAuthPgliteQueryable()
+  if (pglite) return fn(pglite as unknown as Queryable)
+  throw new Error('No auth database available for boot account provisioning.')
 }
 
 /** Postgres reserves USER — Better Auth stores rows in the quoted "user" table. */
@@ -138,12 +160,6 @@ async function createUserRow(spec: ConfiguredBootAccountSpec): Promise<string> {
       {
         table: '"user"',
         sql: `INSERT INTO "user" (id, name, email, "emailVerified", "createdAt", "updatedAt", role, "displayName")
-              VALUES ($1,$2,$3,true,$4,$5,$6,$7)`,
-        params: [id, name, spec.email, now, now, spec.role, spec.displayName],
-      },
-      {
-        table: 'user',
-        sql: `INSERT INTO user (id, name, email, "emailVerified", "createdAt", "updatedAt", role, "displayName")
               VALUES ($1,$2,$3,true,$4,$5,$6,$7)`,
         params: [id, name, spec.email, now, now, spec.role, spec.displayName],
       },
@@ -208,9 +224,25 @@ async function assignBootRole(email: string, role: string, displayName: string):
   })
 }
 
+async function normalizeUserEmail(userId: string, email: string): Promise<void> {
+  await withPool(async (pool) => {
+    for (const sql of [
+      `UPDATE "user" SET email = $1 WHERE id = $2 AND email <> $1`,
+      `UPDATE "user" SET email = $1 WHERE id = $2 AND email <> $1`,
+    ]) {
+      try {
+        await pool.query(sql, [email, userId])
+        return
+      } catch {
+        // next
+      }
+    }
+  })
+}
+
 async function syncCredentialPassword(
   userId: string,
-  email: string,
+  _email: string,
   password: string,
 ): Promise<boolean> {
   const hashed = await hashPassword(password)
@@ -235,6 +267,17 @@ async function syncCredentialPassword(
 
     if (existingId) {
       for (const sql of [
+        `UPDATE account SET password = $1, "updatedAt" = $2, "accountId" = $3 WHERE id = $4`,
+        `UPDATE account SET password = $1, updated_at = $2, account_id = $3 WHERE id = $4`,
+      ]) {
+        try {
+          const result = await pool.query(sql, [hashed, now, userId, existingId])
+          if (Number(result.rowCount ?? 0) > 0) return true
+        } catch {
+          // Fall back to password-only update if accountId column shape differs.
+        }
+      }
+      for (const sql of [
         `UPDATE account SET password = $1, "updatedAt" = $2 WHERE id = $3`,
         `UPDATE account SET password = $1, updated_at = $2 WHERE id = $3`,
       ]) {
@@ -248,6 +291,7 @@ async function syncCredentialPassword(
       return false
     }
 
+    // Better Auth sign-up uses accountId = userId for credential accounts.
     for (const sql of [
       `INSERT INTO account (id, "accountId", "providerId", "userId", password, "createdAt", "updatedAt")
        VALUES ($1,$2,'credential',$3,$4,$5,$6)`,
@@ -255,7 +299,7 @@ async function syncCredentialPassword(
        VALUES ($1,$2,'credential',$3,$4,$5,$6)`,
     ]) {
       try {
-        await pool.query(sql, [randomUUID(), email, userId, hashed, now, now])
+        await pool.query(sql, [randomUUID(), userId, userId, hashed, now, now])
         return true
       } catch {
         // next
@@ -305,6 +349,8 @@ async function seedOne(
     created = true
   }
 
+  await normalizeUserEmail(userId, spec.email)
+
   // Password sync is expensive (bcrypt). Do it for new users, once per warm
   // instance (so env password repairs work), or when AUTH_BOOT_SYNC_PASSWORD=true.
   const forceSync = process.env.AUTH_BOOT_SYNC_PASSWORD === 'true'
@@ -327,48 +373,56 @@ async function seedOne(
 /**
  * Provision / repair newsroom boot accounts from env.
  * Soft-fails: logs errors but never blocks Better Auth from serving sign-in.
- * Cached for the life of the warm serverless instance.
+ * Successful provision is cached for the warm instance; failures retry next call.
  */
 export async function ensureNewsroomBootAccounts(auth: AuthApi): Promise<BootProvisionResult> {
-  if (!provisionPromise) {
-    provisionPromise = (async (): Promise<BootProvisionResult> => {
-      const specs = configuredSpecs()
-      const result: BootProvisionResult = {
-        configured: specs.length,
-        created: [],
-        synced: [],
-        failed: [],
-      }
-      if (specs.length === 0) {
-        lastProvisionError =
-          'NEWSROOM_SUPERADMIN_EMAIL/PASSWORD (or ADMIN pair) is not set in Vercel.'
-        console.error('[auth]', lastProvisionError)
-        return result
-      }
+  if (provisionPromise) return provisionPromise
 
-      for (const spec of specs) {
-        try {
-          const status = await seedOne(auth, spec)
-          if (status === 'created') result.created.push(maskEmail(spec.email))
-          else result.synced.push(maskEmail(spec.email))
-        } catch (error) {
-          result.failed.push(maskEmail(spec.email))
-          console.error(`[auth] boot account provisioning failed for ${spec.email}`, error)
-        }
-      }
-
+  const run = (async (): Promise<BootProvisionResult> => {
+    const specs = configuredSpecs()
+    const result: BootProvisionResult = {
+      configured: specs.length,
+      created: [],
+      synced: [],
+      failed: [],
+    }
+    if (specs.length === 0) {
       lastProvisionError =
-        result.failed.length > 0
-          ? `Failed to provision ${result.failed.join(', ')}. Check DATABASE_URL and env passwords.`
-          : null
-      console.info('[auth] boot provision result', result)
-      return result
-    })().catch((error) => {
+        'NEWSROOM_SUPERADMIN_EMAIL/PASSWORD (or ADMIN pair) is not set in Vercel.'
+      console.error('[auth]', lastProvisionError)
       provisionPromise = null
-      throw error
-    })
-  }
-  return provisionPromise
+      return result
+    }
+
+    for (const spec of specs) {
+      try {
+        const status = await seedOne(auth, spec)
+        if (status === 'created') result.created.push(maskEmail(spec.email))
+        else result.synced.push(maskEmail(spec.email))
+      } catch (error) {
+        result.failed.push(maskEmail(spec.email))
+        console.error(`[auth] boot account provisioning failed for ${spec.email}`, error)
+      }
+    }
+
+    lastProvisionError =
+      result.failed.length > 0
+        ? `Failed to provision ${result.failed.join(', ')}. Check DATABASE_URL and env passwords.`
+        : null
+    console.info('[auth] boot provision result', result)
+
+    // Cache only full success so a cold env fix can retry without redeploy.
+    if (result.failed.length > 0) {
+      provisionPromise = null
+    }
+    return result
+  })().catch((error) => {
+    provisionPromise = null
+    throw error
+  })
+
+  provisionPromise = run
+  return run
 }
 
 /** Cheap login hint — env check only (no per-email DB round-trips). */

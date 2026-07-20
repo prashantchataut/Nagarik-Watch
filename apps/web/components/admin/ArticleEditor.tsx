@@ -7,6 +7,10 @@ import type { Category, Tag } from '@nagarikwatch/db'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import { canPublish, canEdit } from '@/lib/admin-roles'
 import { AdminInput, AdminTextarea, AdminSelect, AdminButton } from '@/components/admin/primitives'
+import {
+  HeroMediaField,
+  type HeroMediaLibraryItem,
+} from '@/components/admin/HeroMediaField'
 
 type ArticleDraft = {
   slug: string
@@ -32,6 +36,7 @@ type ArticleDraft = {
   premium: boolean
   commentsEnabled: boolean
   heroImageUrl: string
+  heroImageAlt: string
   heroCaption: string
   heroCredit: string
 }
@@ -60,6 +65,7 @@ const EMPTY: ArticleDraft = {
   premium: false,
   commentsEnabled: false,
   heroImageUrl: '',
+  heroImageAlt: '',
   heroCaption: '',
   heroCredit: '',
 }
@@ -106,12 +112,14 @@ export function ArticleEditor({
   tags,
   role,
   isNew,
+  mediaLibrary = [],
 }: {
   initial?: Partial<ArticleDraft> & { id?: string }
   categories: Category[]
   tags: Tag[]
   role: NewsroomRole
   isNew: boolean
+  mediaLibrary?: HeroMediaLibraryItem[]
 }) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement | null>(null)
@@ -184,6 +192,7 @@ export function ArticleEditor({
             premium: draft.premium,
             commentsEnabled: draft.commentsEnabled,
             heroImageUrl: read('heroImageUrl', draft.heroImageUrl) || undefined,
+            heroImageAlt: read('heroImageAlt', draft.heroImageAlt) || undefined,
             heroCaptionNe: read('heroCaption', draft.heroCaption) || undefined,
             heroCredit: read('heroCredit', draft.heroCredit) || undefined,
           }
@@ -577,35 +586,22 @@ export function ArticleEditor({
         </div>
         ) : null}
 
-        <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
-          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
-            फोटो
-          </p>
-          <AdminInput
-            label="फोटो URL"
-            name="heroImageUrl"
-            type="url"
-            value={draft.heroImageUrl}
-            onChange={(e) => update('heroImageUrl', e.target.value)}
-            lang="en"
-            placeholder="https://…"
-          />
-          <AdminInput
-            label="क्याप्सन"
-            name="heroCaption"
-            value={draft.heroCaption}
-            onChange={(e) => update('heroCaption', e.target.value)}
-            lang="ne"
-          />
-          <AdminInput
-            label="श्रेय"
-            name="heroCredit"
-            value={draft.heroCredit}
-            onChange={(e) => update('heroCredit', e.target.value)}
-            lang="ne"
-            hint="फोटोको स्रोत/फोटोग्राफर।"
-          />
-        </div>
+        <HeroMediaField
+          url={draft.heroImageUrl}
+          alt={draft.heroImageAlt}
+          caption={draft.heroCaption}
+          credit={draft.heroCredit}
+          library={mediaLibrary}
+          onChange={(next) =>
+            setDraft((d) => ({
+              ...d,
+              heroImageUrl: next.url ?? d.heroImageUrl,
+              heroImageAlt: next.alt ?? d.heroImageAlt,
+              heroCaption: next.caption ?? d.heroCaption,
+              heroCredit: next.credit ?? d.heroCredit,
+            }))
+          }
+        />
 
         <div className="flex justify-between gap-2">
           <AdminButton href="/admin/articles" variant="ghost">

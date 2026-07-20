@@ -4,10 +4,11 @@ import { getNewsroomSession } from '@/lib/auth/session'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { shorthandFromBlocks } from '@/lib/content/blocks'
 import { getPayloadJournalistDraft, isPayloadCanonical } from '@/lib/content/payload-admin-client'
-import { findArticleForAdmin } from '@/lib/content/store/json-store'
+import { findArticleForAdmin, updateArticle } from '@/lib/content/store/json-store'
 import {
   appendJournalistDraftRevision,
   getJournalistDraftMeta,
+  saveJournalistDraftMeta,
   setJournalistFeedback,
 } from '@/lib/journalist-workspace'
 import { enforceRateLimit } from '@/lib/rate-limit'
@@ -48,16 +49,28 @@ export async function POST(request: NextRequest) {
     action === 'revision' ? new Date().toISOString() : action === 'clear' ? null : current.revisionRequestedAt ?? null,
   )
   if (!next) return NextResponse.json({ error: 'Draft handoff not found.' }, { status: 404 })
+  let responseMeta = next
+  if (action === 'revision') {
+    responseMeta = await saveJournalistDraftMeta({ ...next, workflowStage: 'draft' })
+  }
   if (action === 'revision' && article) {
+    if (!isPayloadCanonical() && current.articleId) {
+      await updateArticle(
+        current.articleId,
+        { workflowStage: 'draft' },
+        session.userId,
+        session.newsroomRole,
+      )
+    }
     const tagSlugs = 'tagSlugs' in article && Array.isArray(article.tagSlugs) ? article.tagSlugs : []
     await appendJournalistDraftRevision({
-      articleId: next.articleId,
-      articleSlug: next.articleSlug,
-      reporterId: next.reporterId,
+      articleId: responseMeta.articleId,
+      articleSlug: responseMeta.articleSlug,
+      reporterId: responseMeta.reporterId,
       actorId: session.userId,
       actorRole: session.newsroomRole,
       action: 'returned',
-      stage: next.workflowStage,
+      stage: 'draft',
       snapshot: {
         titleNe: article.titleNe,
         titleEn: article.titleEn,
@@ -86,5 +99,5 @@ export async function POST(request: NextRequest) {
     summary: action === 'revision' ? `Revision requested for ${current.titleNe}` : action === 'clear' ? `Feedback cleared for ${current.titleNe}` : `Editorial note added for ${current.titleNe}`,
     meta: { reporterId, action },
   })
-  return NextResponse.json({ ok: true, meta: next })
+  return NextResponse.json({ ok: true, meta: responseMeta })
 }

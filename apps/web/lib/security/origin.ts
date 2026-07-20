@@ -37,6 +37,8 @@ export function isTrustedWriteRequest(request: NextRequest): boolean {
   if (allowHostPreview) {
     allowed.add('http://localhost:3000')
     allowed.add('http://127.0.0.1:3000')
+    allowed.add('http://localhost:3101')
+    allowed.add('http://127.0.0.1:3101')
   }
 
   const normalized = safeOrigin(origin)

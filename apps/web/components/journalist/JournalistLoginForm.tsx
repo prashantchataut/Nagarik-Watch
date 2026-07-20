@@ -35,14 +35,14 @@ export function JournalistLoginForm({ locale }: Props) {
         const response = await fetch('/api/auth/two-factor/verify-totp', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ code, trustDevice: true }),
         })
         if (!response.ok) {
           setError(ne ? 'कोड मिलेन वा म्याद सकियो।' : 'Invalid or expired authenticator code.')
           return
         }
-        router.refresh()
-        router.push(localizeHref(locale, '/journalist/dashboard'))
+        router.replace(localizeHref(locale, '/journalist/dashboard'))
       })
       return
     }
@@ -61,6 +61,7 @@ export function JournalistLoginForm({ locale }: Props) {
         const res = await fetch('/api/auth/sign-in/email', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ email, password }),
         })
         const body = await res.json().catch(() => ({}))
@@ -84,26 +85,26 @@ export function JournalistLoginForm({ locale }: Props) {
           return
         }
 
-        const sessionRes = await fetch('/api/auth/get-session', { cache: 'no-store' })
+        const sessionRes = await fetch('/api/auth/get-session', {
+          cache: 'no-store',
+          credentials: 'include',
+        })
         const sessionBody = (await sessionRes.json().catch(() => null)) as {
           user?: { role?: string }
         } | null
         const role = (sessionBody?.user?.role ?? 'reader') as NewsroomRole
 
         if (ADMIN_BASE_ROLES.has(role) && !JOURNALIST_DESK_ROLES.has(role)) {
-          router.refresh()
-          router.push('/admin/dashboard')
+          router.replace('/admin/dashboard')
           return
         }
 
         if (!JOURNALIST_DESK_ROLES.has(role) && role !== 'copy_editor' && role !== 'fact_checker') {
-          router.refresh()
-          router.push(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
+          router.replace(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
           return
         }
 
-        router.refresh()
-        router.push(localizeHref(locale, '/journalist/dashboard'))
+        router.replace(localizeHref(locale, '/journalist/dashboard'))
       } catch {
         setError(ne ? 'नेटवर्क त्रुटि। पुनः प्रयास गर्नुहोस्।' : 'Network error. Try again.')
       }

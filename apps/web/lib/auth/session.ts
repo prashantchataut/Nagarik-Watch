@@ -64,9 +64,8 @@ const NEWSROOM_ROLES: ReadonlySet<NewsroomRole> = new Set<NewsroomRole>([
  * doubling Better Auth / cookie work on the same navigation.
  */
 export const getSession = cache(async (): Promise<ReaderSession | null> => {
-  // Playwright production builds intentionally skip Better Auth/PGlite so the
-  // reader chrome stays up without a Postgres DATABASE_URL.
-  if (process.env.E2E_TEST === 'true') return null
+  // Playwright reader-only builds skip Better Auth so public pages stay up without Postgres.
+  if (process.env.E2E_TEST === 'true' && process.env.E2E_NEWSROOM !== 'true') return null
   try {
     const auth = await getAuth()
     const session = await auth.api.getSession({ headers: await headers() })

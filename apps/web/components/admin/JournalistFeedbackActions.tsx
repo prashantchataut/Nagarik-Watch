@@ -13,6 +13,7 @@ export function JournalistFeedbackActions({ identifier, reporterId, initialFeedb
       const response = await fetch('/api/admin/journalist-feedback', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ identifier, reporterId, feedback, action }),
       })
       const body = await response.json().catch(() => ({}))

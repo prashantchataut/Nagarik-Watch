@@ -190,7 +190,7 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
       <div className="notification-desk__permission">
         <div>
           <strong>{english ? 'Browser alerts' : 'ब्राउजर सूचना'}</strong>
-          <small>{!supported ? (english ? 'Not supported in this browser' : 'यो ब्राउजरमा उपलब्ध छैन') : pushRegistered ? (english ? 'Background push is connected' : 'पृष्ठभूमि सूचना जोडिएको छ') : pushPublicKey ? (english ? `Permission: ${permission}` : `अनुमति: ${permission}`) : (english ? 'Live alerts work while the site is open; background push needs provider configuration.' : 'साइट खुला हुँदा प्रत्यक्ष सूचना आउँछ; पृष्ठभूमि सूचनाका लागि provider configuration चाहिन्छ।')}</small>
+          <small>{!supported ? (english ? 'Not supported in this browser' : 'यो ब्राउजरमा उपलब्ध छैन') : pushRegistered ? (english ? 'Background alerts are on' : 'पृष्ठभूमि सूचना सक्रिय छ') : pushPublicKey ? (english ? `Permission: ${permission}` : `अनुमति: ${permission}`) : (english ? 'Alerts work while the site is open. Background alerts are not set up yet.' : 'साइट खुला हुँदा सूचना देखिन्छ। पृष्ठभूमि सूचना अहिले उपलब्ध छैन।')}</small>
         </div>
         {preferences?.browserAlerts ? (
           <button type="button" onClick={disableBrowserAlerts} className="text-action">{english ? 'Turn off' : 'बन्द गर्नुहोस्'}</button>

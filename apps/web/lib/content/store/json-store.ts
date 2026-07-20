@@ -8,8 +8,13 @@ import 'server-only'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { ArticleBlock, Locale, WorkflowStage } from '@nagarikwatch/db'
-import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
+import { ensureOperationalSchema, isProductionRuntime, runSchemaStatements, type Queryable } from '@/lib/ops-db'
 import { buildOriginalStarterArticles } from './seed-original'
+import type { NewsroomRole } from '@/lib/admin-roles'
+import {
+  assertWorkflowTransition,
+  isPublicWorkflowStage,
+} from '@/lib/editorial/workflow-transitions'
 
 const DATA_DIR = path.resolve(process.cwd(), 'data')
 const STORE_FILE = path.join(DATA_DIR, 'articles.json')
@@ -81,8 +86,8 @@ function parseDocument(doc: unknown): StoredArticle | null {
 }
 
 async function ensureArticlesTable(pool: Queryable): Promise<void> {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS nw_articles (
+  await runSchemaStatements(pool, [
+    `CREATE TABLE IF NOT EXISTS nw_articles (
       id TEXT PRIMARY KEY,
       slug TEXT NOT NULL,
       category_slug TEXT NOT NULL,
@@ -90,12 +95,10 @@ async function ensureArticlesTable(pool: Queryable): Promise<void> {
       published_at TIMESTAMPTZ,
       updated_at TIMESTAMPTZ NOT NULL,
       document JSONB NOT NULL
-    )
-  `)
-  await pool.query(
+    )`,
     `CREATE UNIQUE INDEX IF NOT EXISTS nw_articles_category_slug_uidx
      ON nw_articles (category_slug, slug)`,
-  )
+  ])
 }
 
 async function getArticlesPool(): Promise<Queryable | null> {
@@ -459,18 +462,61 @@ export async function updateArticle(
   id: string,
   patch: Partial<Omit<StoredArticle, 'id' | 'createdBy'>>,
   updatedBy: string,
+  actorRole?: NewsroomRole,
 ): Promise<StoredArticle | null> {
   const store = await read()
   const idx = store.articles.findIndex((a) => a.id === id)
   if (idx === -1) return null
   const existing = store.articles[idx]!
+  const nextStage = patch.workflowStage ?? existing.workflowStage
+
+  if (actorRole && patch.workflowStage && patch.workflowStage !== existing.workflowStage) {
+    assertWorkflowTransition({
+      role: actorRole,
+      from: existing.workflowStage,
+      to: patch.workflowStage,
+    })
+  }
+
+  const now_iso = now()
+  const firstPublish =
+    patch.workflowStage === 'published' && !isPublicWorkflowStage(existing.workflowStage)
+  const republish =
+    patch.workflowStage === 'published' && isPublicWorkflowStage(existing.workflowStage)
+  const unpublish =
+    patch.workflowStage !== undefined &&
+    !isPublicWorkflowStage(patch.workflowStage) &&
+    isPublicWorkflowStage(existing.workflowStage)
+
   const updated: StoredArticle = {
     ...existing,
     ...patch,
     id: existing.id,
     createdBy: existing.createdBy,
-    updatedAt: now(),
+    updatedAt: now_iso,
     updatedBy,
+    workflowStage: nextStage,
+    publishedAt: firstPublish
+      ? now_iso
+      : republish
+        ? existing.publishedAt
+        : unpublish
+          ? existing.publishedAt
+          : patch.publishedAt ?? existing.publishedAt,
+    noIndex:
+      patch.noIndex ??
+      (firstPublish || republish
+        ? false
+        : unpublish
+          ? true
+          : existing.noIndex),
+    includeInNewsSitemap:
+      patch.includeInNewsSitemap ??
+      (firstPublish || republish
+        ? true
+        : unpublish
+          ? false
+          : existing.includeInNewsSitemap),
     hasEnglish: Boolean(
       (patch.titleEn ?? existing.titleEn) && (patch.bodyEn ?? existing.bodyEn)?.length,
     ),

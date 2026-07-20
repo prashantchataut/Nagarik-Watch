@@ -133,6 +133,33 @@ jobs:
           CI: 'true'
           E2E_TEST: 'true'
 
+  payload-smoke:
+    name: payload content source smoke
+    if: ${{ secrets.PAYLOAD_PUBLIC_SERVER_URL != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Payload canonical env smoke
+        run: pnpm --filter @nagarikwatch/web test lib/content/content-source.test.ts
+        env:
+          CONTENT_SOURCE: payload
+          PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4

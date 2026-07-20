@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getNewsroomSession } from '@/lib/auth/session'
-import { CONTRIBUTOR_ROLES } from '@/lib/admin-roles'
+import { CONTRIBUTOR_ROLES, JOURNALIST_DESK_ROLES } from '@/lib/admin-roles'
+import {
+  assertWorkflowTransition,
+  reporterMayEditDraft,
+} from '@/lib/editorial/workflow-transitions'
 import { blocksFromShorthand, shorthandFromBlocks } from '@/lib/content/blocks'
 import {
   findArticleForAdmin,
@@ -73,10 +77,36 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const bodyText = String(body.bodyNe ?? '').trim()
   const workflowStage = body.workflowStage === 'submitted' ? 'submitted' : 'draft'
   if (!titleNe || !categorySlug || !bodyText) return NextResponse.json({ error: 'Title, category and body are required.' }, { status: 400 })
+
+  const articleId = meta.articleId || id
+  const existingArticle = isPayloadCanonical()
+    ? null
+    : await findArticleForAdmin(articleId)
+  const currentStage = existingArticle?.workflowStage ?? meta.workflowStage ?? 'draft'
+
+  const isReporter = JOURNALIST_DESK_ROLES.has(session.newsroomRole)
+  if (isReporter && !reporterMayEditDraft(currentStage as import('@nagarikwatch/db').WorkflowStage)) {
+    return NextResponse.json({ error: 'This draft is in review and cannot be edited.' }, { status: 409 })
+  }
+  if (workflowStage !== currentStage) {
+    try {
+      assertWorkflowTransition({
+        role: session.newsroomRole,
+        from: currentStage as Parameters<typeof assertWorkflowTransition>[0]['from'],
+        to: workflowStage as Parameters<typeof assertWorkflowTransition>[0]['to'],
+      })
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : 'Invalid workflow transition.' },
+        { status: 403 },
+      )
+    }
+  }
   const tagSlugs = tags(body.tagSlugs)
   const requestedNotificationTags = tags(body.notificationTags)
-  const notificationTags = requestedNotificationTags.length ? requestedNotificationTags.filter((slug) => tagSlugs.includes(slug)) : tagSlugs
-  const articleId = meta.articleId || id
+  const notificationTags = requestedNotificationTags.length
+    ? requestedNotificationTags.filter((slug) => tagSlugs.includes(slug))
+    : tagSlugs
   const internalNotes = [
     body.sourceNote ? `Source note: ${String(body.sourceNote).trim()}` : '',
     body.reportingLocation ? `Reporting location: ${String(body.reportingLocation).trim()}` : '',
@@ -113,7 +143,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           mediaReferenceUrl: String(body.heroImageUrl ?? '').trim() || undefined,
           heroImageUrl: String(body.heroImageUrl ?? '').trim() || undefined,
           tagSlugs,workflowStage,
-        }, session.userId)
+        }, session.userId, session.newsroomRole)
     if (!article) return NextResponse.json({ error: 'Draft not found.' }, { status: 404 })
     const nextMeta = await saveJournalistDraftMeta({
       ...meta,articleId,articleSlug: meta.articleSlug,titleNe,categorySlug,workflowStage,

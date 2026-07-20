@@ -39,12 +39,12 @@ export async function GET() {
     detail: `content=${contentSource}; storage=${operationalStorageMode()}`,
   }
 
-  if (operationalStorageMode() === 'postgres') {
+  if (operationalStorageMode() === 'postgres' || operationalStorageMode() === 'pglite') {
     const [name, check] = await timed('database', async () => {
       const pool = await getOperationalPool()
-      if (!pool) throw new Error('Postgres pool is unavailable')
+      if (!pool) throw new Error('Operational database pool is unavailable')
       await pool.query('SELECT 1 AS ok')
-      return 'Postgres reachable'
+      return operationalStorageMode() === 'pglite' ? 'PGlite reachable' : 'Postgres reachable'
     })
     checks[name] = check
   } else {

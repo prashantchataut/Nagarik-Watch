@@ -4,6 +4,8 @@ import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { Logo } from '@/components/Logo'
 import { JournalistLoginForm } from '@/components/journalist/JournalistLoginForm'
+import { getAuth } from '@/lib/auth'
+import { ensureNewsroomBootAccounts } from '@/lib/auth/boot-accounts'
 import { getSession } from '@/lib/auth/session'
 import {
   ADMIN_BASE_ROLES,
@@ -31,9 +33,24 @@ export default async function JournalistLoginPage({
   params: Promise<Params>
   searchParams: Promise<{ reason?: string }>
 }) {
-  const [{ locale: rawLocale }, query, session] = await Promise.all([params, searchParams, getSession()])
+  const [{ locale: rawLocale }, query] = await Promise.all([params, searchParams])
   const locale: Locale = asLocale(rawLocale)
   const ne = locale === 'ne'
+
+  let authReady = false
+  let bootFailed = false
+  try {
+    const auth = await getAuth()
+    const boot = await ensureNewsroomBootAccounts(
+      auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
+    )
+    authReady = boot.configured > 0 && boot.failed.length === 0
+    bootFailed = boot.failed.length > 0
+  } catch (error) {
+    console.error('[journalist/login] auth/boot failed', error)
+  }
+
+  const session = authReady ? await getSession() : null
   const role = (session?.role ?? 'reader') as NewsroomRole
 
   if (session && ADMIN_BASE_ROLES.has(role) && !JOURNALIST_DESK_ROLES.has(role)) {
@@ -77,7 +94,23 @@ export default async function JournalistLoginPage({
           </div>
         ) : null}
 
-        {!session || !notStaff ? <JournalistLoginForm locale={locale} /> : null}
+        {!authReady ? (
+          <aside className="newsroom-login-form__error" role="status">
+            {bootFailed
+              ? ne
+                ? 'प्रमाणीकरण खाता तयार हुन सकेन। विकास सर्भर पुनः सुरु गर्नुहोस्।'
+                : 'Could not provision sign-in accounts. Restart the dev server.'
+              : ne
+                ? 'प्रमाणीकरण सेवा अहिले उपलब्ध छैन।'
+                : 'Authentication is offline right now.'}
+          </aside>
+        ) : null}
+
+        {authReady && (!session || !notStaff) ? (
+          <div data-boot-ready="true">
+            <JournalistLoginForm locale={locale} />
+          </div>
+        ) : null}
 
         <p className="staff-gate__footer">
           <Link href={localizeHref(locale, '/')}>{ne ? '← गृहपृष्ठ' : '← Home'}</Link>

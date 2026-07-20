@@ -9,6 +9,7 @@ import { blocksFromShorthand } from '@/lib/content/blocks'
 import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { recordAuditEvent } from '@/lib/audit-log'
+import { revalidatePublishedArticle } from '@/lib/content/revalidate-published'
 
 export const dynamic = 'force-dynamic'
 
@@ -106,9 +107,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     id,
     patch as Parameters<typeof updateArticle>[1],
     session.userId,
+    session.newsroomRole,
   )
   if (!updated) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
-  if (requestedStage === 'published') {
+  if (requestedStage === 'published' || requestedStage === 'updated') {
+    revalidatePublishedArticle({
+      categorySlug: updated.categorySlug,
+      slug: updated.slug,
+      tagSlugs: updated.tagSlugs,
+    })
     await recordAuditEvent({
       session,
       action: 'publish',

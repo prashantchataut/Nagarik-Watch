@@ -1,0 +1,32 @@
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+
+describe('content source resolution', () => {
+  const env = process.env
+
+  beforeEach(() => {
+    vi.resetModules()
+    process.env = { ...env }
+  })
+
+  afterEach(() => {
+    process.env = env
+  })
+
+  it('uses Payload when CONTENT_SOURCE=payload and CMS URL is configured', async () => {
+    process.env.CONTENT_SOURCE = 'payload'
+    process.env.PAYLOAD_PUBLIC_SERVER_URL = 'https://cms.example.test'
+    process.env.NEXT_PHASE = 'phase-production-build'
+
+    const { isPayloadCanonical } = await import('./payload-admin-client')
+    expect(isPayloadCanonical()).toBe(true)
+  })
+
+  it('falls back to store when Payload is not canonical', async () => {
+    delete process.env.CONTENT_SOURCE
+    delete process.env.PAYLOAD_CONTENT_SOURCE
+    delete process.env.PAYLOAD_PUBLIC_SERVER_URL
+
+    const { isPayloadCanonical } = await import('./payload-admin-client')
+    expect(isPayloadCanonical()).toBe(false)
+  })
+})

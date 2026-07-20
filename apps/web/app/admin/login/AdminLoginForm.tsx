@@ -79,9 +79,13 @@ export function AdminLoginForm({
             setError('Sign-in unavailable. The account database could not be reached.')
             return
           }
+          if (res.status === 403 || /ORIGIN|CSRF/i.test(message + code)) {
+            setError('Request blocked by origin checks. Open /admin/login from this same site URL.')
+            return
+          }
           if (res.status === 401 || /not found|invalid password|INVALID/i.test(message + code)) {
             setError(
-              'Wrong email or password. Use lowercase email. If the browser autofilled an old password, clear it and try again.',
+              'Wrong email or password. Email is matched lowercase. If Vercel env passwords changed, set AUTH_BOOT_SYNC_PASSWORD=true once, redeploy, then sign in with the new password.',
             )
             return
           }

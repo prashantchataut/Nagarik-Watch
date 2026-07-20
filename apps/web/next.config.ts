@@ -74,12 +74,25 @@ const remotePatterns: RemotePattern[] = configuredPatterns.filter(
     ) === index,
 )
 
+if (process.env.NODE_ENV !== 'production' || process.env.E2E_NEWSROOM === 'true') {
+  for (const hostname of ['localhost', '127.0.0.1']) {
+    if (!remotePatterns.some((pattern) => pattern.hostname === hostname && pattern.protocol === 'http')) {
+      remotePatterns.push({ protocol: 'http', hostname, pathname: '/**' })
+    }
+  }
+}
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@nagarikwatch/ui', '@nagarikwatch/db'],
-  // Keep Better Auth outside Next's webpack graph. Its package re-exports
-  // (`isAPIError` via `@better-auth/core`) break production bundling.
-  serverExternalPackages: ['better-auth', '@better-auth/core', 'better-call'],
+  // Keep Better Auth and PGlite outside Next's webpack graph. Bundling PGlite
+  // breaks its import.meta.url WASM paths on Windows/Node 24 (URL realm mismatch).
+  serverExternalPackages: [
+    'better-auth',
+    '@better-auth/core',
+    'better-call',
+    '@electric-sql/pglite',
+  ],
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns,

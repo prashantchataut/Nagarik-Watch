@@ -13,9 +13,7 @@ import { createStoreContentSource } from './store/store-source'
 import { isPayloadCanonical } from './payload-admin-client'
 
 async function resolveSource(): Promise<ContentSource> {
-  const isProductionBuild = process.env.NEXT_PHASE === 'phase-production-build'
-
-  if (isPayloadCanonical() && !isProductionBuild) {
+  if (isPayloadCanonical()) {
     const { createPayloadContentSource } = await import('./payload-source')
     return createPayloadContentSource()
   }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Hero, StoryCard } from '@nagarikwatch/ui'
 import { asLocale } from '@/lib/i18n/locales'
 import { getHomepage, getNavCategories } from '@/lib/content'
+import { dedupeHomepage } from '@/lib/content/homepage-dedup'
 import { BreakingTicker } from '@/components/BreakingTicker'
 import { SectionBlock } from '@/components/home/SectionBlock'
 import { TodayInBrief } from '@/components/home/TodayInBrief'
@@ -52,13 +53,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     return <HomeEmptyEdition locale={locale} categories={categories} />
   }
 
+  const edition = dedupeHomepage(homepage)
+
   const catalog = Array.from(
     new Map(
       [
-        homepage.lead,
-        ...homepage.secondary,
-        ...homepage.breaking,
-        ...homepage.sections.flatMap((section) => [section.lead, ...section.items]),
+        edition.lead,
+        ...edition.secondary,
+        ...edition.breaking,
+        ...edition.sections.flatMap((section) => [section.lead, ...section.items]),
       ]
         .filter((story): story is NonNullable<typeof story> => Boolean(story))
         .map((story) => [story.id, story]),
@@ -66,7 +69,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   )
 
   const latest = [...catalog]
-    .filter((story) => story.id !== homepage.lead.id)
+    .filter((story) => story.id !== edition.lead.id)
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
 
   const secondaryIds = new Set(homepage.secondary.map((s) => s.id))
@@ -100,7 +103,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <div>
       <ExperimentExposure experimentId={HOME_LAYOUT_EXPERIMENT_ID} />
       <UtilityStrip locale={locale} />
-      <BreakingTicker stories={homepage.breaking} locale={locale} />
+      <BreakingTicker stories={edition.breaking} locale={locale} />
 
       <div className="mx-auto max-w-page px-4 pb-20 pt-4 sm:pt-6 lg:pb-16">
         {/* Lead first: no edition eyebrow band (chrome budget). */}
@@ -109,10 +112,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
         >
           <InstrumentedStory
-            articleSlug={homepage.lead.slug}
-            articleCategory={homepage.lead.category.slug}
+            articleSlug={edition.lead.slug}
+            articleCategory={edition.lead.category.slug}
           >
-            <Hero story={homepage.lead} locale={locale} className="xl:pr-8" />
+            <Hero story={edition.lead} locale={locale} className="xl:pr-8" />
           </InstrumentedStory>
 
           <div className="divide-y divide-rule border-y border-rule xl:border-y-0 xl:border-l xl:border-rule xl:pl-6">
@@ -122,7 +125,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             >
               {english ? 'Also today' : 'आजका अन्य'}
             </p>
-            {homepage.secondary.slice(0, 4).map((story, index) => (
+            {edition.secondary.slice(0, 4).map((story, index) => (
               <InstrumentedStory
                 key={story.id}
                 articleSlug={story.slug}
@@ -181,7 +184,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <RecommendedForYou locale={locale} catalog={catalog} className="mt-10" />
 
         <div className="mt-12 space-y-12 sm:mt-14 sm:space-y-16">
-          {homepage.sections.map((section, index) => (
+          {edition.sections.map((section, index) => (
             <SectionBlock
               key={section.category.slug}
               section={section}

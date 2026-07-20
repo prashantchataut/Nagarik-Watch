@@ -16,6 +16,7 @@ build/
 coverage/
 playwright-report/
 test-results/
+apps/web/.data/
 
 # Env — never commit real secrets. .env.example IS committed as documentation.
 .env

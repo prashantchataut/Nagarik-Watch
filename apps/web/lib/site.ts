@@ -12,22 +12,12 @@ export const SITE_URL = requiredSiteUrl().replace(/\/$/, '')
 
 export const PUBLICATION = {
   publisherName: process.env.NEXT_PUBLIC_PUBLICATION_NAME?.trim() || 'Nagarik Watch',
-  legalName:
-    process.env.NEXT_PUBLIC_PUBLICATION_LEGAL_NAME?.trim() ||
-    'Launch placeholder — legal entity pending verification',
-  editorInChief:
-    process.env.NEXT_PUBLIC_EDITOR_IN_CHIEF?.trim() ||
-    'Founding Editorial Board — individual name pending verification',
-  registrationNumber:
-    process.env.NEXT_PUBLIC_DOIB_NUMBER?.trim() ||
-    'Pending Department of Information and Broadcasting verification',
-  address:
-    process.env.NEXT_PUBLIC_NEWSROOM_ADDRESS?.trim() ||
-    'Kathmandu, Nepal — registered office pending verification',
+  legalName: process.env.NEXT_PUBLIC_PUBLICATION_LEGAL_NAME?.trim() || '',
+  editorInChief: process.env.NEXT_PUBLIC_EDITOR_IN_CHIEF?.trim() || '',
+  registrationNumber: process.env.NEXT_PUBLIC_DOIB_NUMBER?.trim() || '',
+  address: process.env.NEXT_PUBLIC_NEWSROOM_ADDRESS?.trim() || '',
   email: process.env.NEXT_PUBLIC_NEWSROOM_EMAIL?.trim() || 'contact@nagarikwatch.com',
-  phone:
-    process.env.NEXT_PUBLIC_NEWSROOM_PHONE?.trim() ||
-    'Phone number pending verification',
+  phone: process.env.NEXT_PUBLIC_NEWSROOM_PHONE?.trim() || '',
   ownership:
     'Nagarik Watch separates editorial, opinion, advertising and sponsored material. Corrections are recorded on article and policy pages.',
   logoPath: '/icon.svg',
@@ -35,8 +25,7 @@ export const PUBLICATION = {
 
 /** Hide unverified launch placeholders from the public footer/chrome. */
 export function isPublicPublicationValue(value: string | undefined): boolean {
-  if (!value?.trim()) return false
-  return !/pending verification|launch placeholder/i.test(value)
+  return Boolean(value?.trim())
 }
 
 export type StaticHubKey =

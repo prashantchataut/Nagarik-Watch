@@ -8,6 +8,7 @@ import { assertNewsroomRole, MEDIA_MANAGER_ROLES } from '@/lib/admin-roles'
 import { createMediaItem, listMediaItems } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { AdminPageHeader, AdminCard, AdminCallout, AdminButton, AdminInput, AdminTextarea } from '@/components/admin/primitives'
+import { MediaUploadForm } from '@/components/admin/MediaUploadForm'
 
 export const metadata: Metadata = { title: 'मिडिया', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
@@ -46,8 +47,9 @@ export default async function MediaPage() {
             <AdminInput label="Alt text" name="alt" required lang="en" />
             <AdminTextarea label="Caption" name="caption" rows={3} lang="en" />
             <AdminInput label="Credit" name="credit" lang="en" />
-            <AdminButton type="submit">Save media</AdminButton>
+            <AdminButton type="submit">Save media URL</AdminButton>
           </form>
+          {persistentStorage ? <MediaUploadForm /> : null}
         </AdminCard>
         <AdminCard>
           <h2 className="font-display text-h2 text-ink">Library</h2>

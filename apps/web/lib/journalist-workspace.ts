@@ -1,5 +1,5 @@
 import 'server-only'
-import { ensureOperationalSchema, isProductionRuntime, requireOperationalPool, type Queryable, toIso } from '@/lib/ops-db'
+import { ensureOperationalSchema, isProductionRuntime, requireOperationalPool, runSchemaStatements, type Queryable, toIso } from '@/lib/ops-db'
 import {
   createJournalistDraftRevision,
   normalizeJournalistDraftSnapshot,
@@ -68,8 +68,8 @@ const memory = new Map<string, JournalistDraftMeta>()
 const revisionMemory: JournalistDraftRevision[] = []
 
 async function setup(pool: Queryable) {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS nw_journalist_draft_meta (
+  await runSchemaStatements(pool, [
+    `CREATE TABLE IF NOT EXISTS nw_journalist_draft_meta (
       article_slug text PRIMARY KEY,
       article_id text,
       title_ne text,
@@ -88,21 +88,21 @@ async function setup(pool: Queryable) {
       revision_requested_at timestamptz,
       created_at timestamptz NOT NULL DEFAULT now(),
       updated_at timestamptz NOT NULL DEFAULT now()
-    );
-    ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS article_id text;
-    ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS title_ne text;
-    ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS category_slug text;
-    ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS workflow_stage text NOT NULL DEFAULT 'draft';
-    ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS media_reference_url text;
-    ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS notification_mode text NOT NULL DEFAULT 'none';
-    ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS notification_tags jsonb NOT NULL DEFAULT '[]'::jsonb;
-    ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS editor_feedback text;
-    ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS revision_requested_at timestamptz;
-    CREATE UNIQUE INDEX IF NOT EXISTS nw_journalist_draft_meta_article_id_idx
-      ON nw_journalist_draft_meta(article_id) WHERE article_id IS NOT NULL;
-    CREATE INDEX IF NOT EXISTS nw_journalist_draft_meta_reporter_idx
-      ON nw_journalist_draft_meta(reporter_id, updated_at DESC);
-    CREATE TABLE IF NOT EXISTS nw_journalist_draft_revisions (
+    )`,
+    `ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS article_id text`,
+    `ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS title_ne text`,
+    `ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS category_slug text`,
+    `ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS workflow_stage text NOT NULL DEFAULT 'draft'`,
+    `ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS media_reference_url text`,
+    `ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS notification_mode text NOT NULL DEFAULT 'none'`,
+    `ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS notification_tags jsonb NOT NULL DEFAULT '[]'::jsonb`,
+    `ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS editor_feedback text`,
+    `ALTER TABLE nw_journalist_draft_meta ADD COLUMN IF NOT EXISTS revision_requested_at timestamptz`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS nw_journalist_draft_meta_article_id_idx
+      ON nw_journalist_draft_meta(article_id) WHERE article_id IS NOT NULL`,
+    `CREATE INDEX IF NOT EXISTS nw_journalist_draft_meta_reporter_idx
+      ON nw_journalist_draft_meta(reporter_id, updated_at DESC)`,
+    `CREATE TABLE IF NOT EXISTS nw_journalist_draft_revisions (
       id text PRIMARY KEY,
       article_id text,
       article_slug text NOT NULL,
@@ -114,13 +114,13 @@ async function setup(pool: Queryable) {
       created_at timestamptz NOT NULL,
       content_hash text NOT NULL,
       snapshot jsonb NOT NULL
-    );
-    CREATE INDEX IF NOT EXISTS nw_journalist_draft_revisions_timeline_idx
-      ON nw_journalist_draft_revisions(reporter_id, article_slug, created_at DESC);
-    CREATE INDEX IF NOT EXISTS nw_journalist_draft_revisions_article_id_idx
+    )`,
+    `CREATE INDEX IF NOT EXISTS nw_journalist_draft_revisions_timeline_idx
+      ON nw_journalist_draft_revisions(reporter_id, article_slug, created_at DESC)`,
+    `CREATE INDEX IF NOT EXISTS nw_journalist_draft_revisions_article_id_idx
       ON nw_journalist_draft_revisions(reporter_id, article_id, created_at DESC)
-      WHERE article_id IS NOT NULL;
-  `)
+      WHERE article_id IS NOT NULL`,
+  ])
 }
 
 async function pool(): Promise<Queryable | null> {

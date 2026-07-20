@@ -8,6 +8,7 @@ import { AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditor } from '@/components/admin/ArticleEditor'
 import type { ArticleBlock } from '@nagarikwatch/db'
 import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
+import { listMediaItems } from '@/lib/media-library'
 
 export const metadata: Metadata = {
   title: 'Edit Article',
@@ -27,18 +28,26 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   const { id } = await params
   if (isPayloadCanonical()) redirect(payloadCollectionAdminUrl('articles', id))
 
-  const [categories, tags] = await Promise.all([getNavCategories(), Promise.resolve(seedTags)])
+  const [categories, tags, mediaLibrary] = await Promise.all([
+    getNavCategories(),
+    Promise.resolve(seedTags),
+    listMediaItems().catch(() => []),
+  ])
   const article = await findArticleForAdmin(id)
 
   if (!article) {
-    // Fallback: render the editor with empty state so the editor can still
-    // create new content rather than 404ing on a stale slug.
     return (
       <div>
         <AdminPageHeader
           subtitle={`"${id}" स्लगको समाचार फेला परेन। नयाँ समाचारको रूपमा बनाउनुहोस्।`}
         />
-        <ArticleEditor categories={categories} tags={tags} role={session.newsroomRole} isNew />
+        <ArticleEditor
+          categories={categories}
+          tags={tags}
+          role={session.newsroomRole}
+          isNew
+          mediaLibrary={mediaLibrary}
+        />
       </div>
     )
   }
@@ -73,6 +82,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
           premium: article.premium,
           commentsEnabled: article.commentsEnabled,
           heroImageUrl: article.heroImageUrl ?? '',
+          heroImageAlt: article.heroImageAlt ?? '',
           heroCaption: article.heroCaptionNe ?? '',
           heroCredit: article.heroCredit ?? '',
         }}
@@ -80,6 +90,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
         tags={tags}
         role={session.newsroomRole}
         isNew={false}
+        mediaLibrary={mediaLibrary}
       />
     </div>
   )

@@ -26,7 +26,13 @@ let schemaReady: Promise<void> | null = null
 let localWriteQueue = Promise.resolve()
 
 function isProductionRuntime(): boolean {
-  return process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE !== 'phase-production-build'
+  const isolatedE2e =
+    process.env.E2E_TEST === 'true' || process.env.E2E_NEWSROOM === 'true'
+  return (
+    process.env.NODE_ENV === 'production' &&
+    process.env.NEXT_PHASE !== 'phase-production-build' &&
+    !isolatedE2e
+  )
 }
 
 async function getPool(): Promise<Queryable | null> {

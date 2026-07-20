@@ -279,6 +279,22 @@ export default async function ArticlePage({
           {article.corrections?.length ? (
             <CorrectionNotice corrections={article.corrections} locale={readingLocale} className="mt-8" />
           ) : null}
+          <p className="mt-6 text-meta text-ink-soft print:hidden" lang={readingEnglish ? 'en' : 'ne'}>
+            {readingEnglish ? 'See an error?' : 'त्रुटि देख्नुभयो?'}{' '}
+            <Link
+              href={localizeHref(readingLocale, '/contact')}
+              className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+            >
+              {readingEnglish ? 'Request a correction' : 'सच्याइ अनुरोध गर्नुहोस्'}
+            </Link>
+            {' · '}
+            <Link
+              href={localizeHref(readingLocale, '/corrections-policy')}
+              className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+            >
+              {readingEnglish ? 'Corrections policy' : 'सच्याइ नीति'}
+            </Link>
+          </p>
           <TagRow tags={article.tags} locale={readingLocale} className="mt-8 border-t border-rule pt-6" />
           <div className="print:hidden">
             <CommentSection

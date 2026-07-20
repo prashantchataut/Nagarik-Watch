@@ -17,7 +17,8 @@ export type Queryable = {
 const readySchemas = new Map<string, Promise<void>>()
 
 export function isProductionRuntime(): boolean {
-  const isolatedE2e = process.env.E2E_TEST === 'true'
+  const isolatedE2e =
+    process.env.E2E_TEST === 'true' || process.env.E2E_NEWSROOM === 'true'
   return (
     process.env.NODE_ENV === 'production' &&
     process.env.NEXT_PHASE !== 'phase-production-build' &&
@@ -25,17 +26,39 @@ export function isProductionRuntime(): boolean {
   )
 }
 
-export function operationalStorageMode(): 'postgres' | 'memory' {
-  return resolveDatabaseUrl() ? 'postgres' : 'memory'
+export function operationalStorageMode(): 'postgres' | 'pglite' | 'memory' {
+  if (resolveDatabaseUrl()) return 'postgres'
+  if (
+    process.env.E2E_NEWSROOM === 'true' ||
+    process.env.ALLOW_PGLITE_AUTH === 'true'
+  ) {
+    return 'pglite'
+  }
+  return 'memory'
 }
 
 export async function getOperationalPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
-  if (operationalStorageMode() !== 'postgres') {
+  const mode = operationalStorageMode()
+  if (mode === 'memory') {
     if (isProductionRuntime()) {
       throw new Error('DATABASE_URL must point to Postgres for production operational storage.')
     }
     return null
+  }
+  if (mode === 'pglite') {
+    try {
+      const { getAuthPgliteQueryable } = await import('@/lib/auth/auth-pool')
+      const pglite = await getAuthPgliteQueryable()
+      return pglite as Queryable | null
+    } catch (error) {
+      console.error(
+        '[ops-db] could not acquire PGlite operational pool',
+        error instanceof Error ? error.message : error,
+      )
+      if (isProductionRuntime()) throw error
+      return null
+    }
   }
   try {
     const pool = await getSharedPool()
@@ -85,6 +108,14 @@ export async function ensureOperationalSchema(
 
 export function toIso(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString()
+}
+
+/** PGlite rejects multi-statement prepared queries; run DDL one statement at a time. */
+export async function runSchemaStatements(pool: Queryable, statements: string[]): Promise<void> {
+  for (const statement of statements) {
+    const sql = statement.trim()
+    if (sql) await pool.query(sql)
+  }
 }
 
 export function cleanText(value: unknown, max = 500): string {

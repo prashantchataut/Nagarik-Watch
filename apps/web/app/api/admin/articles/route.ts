@@ -8,6 +8,7 @@ import { blocksFromShorthand } from '@/lib/content/blocks'
 import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { recordAuditEvent } from '@/lib/audit-log'
+import { revalidatePublishedArticle } from '@/lib/content/revalidate-published'
 
 export const dynamic = 'force-dynamic'
 
@@ -117,6 +118,11 @@ export async function POST(request: NextRequest) {
       createdBy: session.userId,
     })
     if (requestedStage === 'published') {
+      revalidatePublishedArticle({
+        categorySlug: article.categorySlug,
+        slug: article.slug,
+        tagSlugs: article.tagSlugs,
+      })
       await recordAuditEvent({
         session,
         action: 'publish',

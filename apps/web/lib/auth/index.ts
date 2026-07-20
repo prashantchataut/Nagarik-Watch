@@ -78,7 +78,7 @@ function trustedOrigins(): string[] {
     process.env.VERCEL_PROJECT_PRODUCTION_URL,
     ...(process.env.NODE_ENV === 'production'
       ? []
-      : ['http://localhost:3000', 'http://127.0.0.1:3000']),
+      : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3101', 'http://127.0.0.1:3101']),
   ]
   return Array.from(
     new Set(
