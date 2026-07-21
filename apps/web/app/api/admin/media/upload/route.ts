@@ -18,7 +18,7 @@ export const runtime = 'nodejs'
 
 /**
  * POST /api/admin/media/upload — multipart file → storage adapter → media library row.
- * Uses Vercel Blob when BLOB_READ_WRITE_TOKEN is set; otherwise persists to local disk.
+ * Prefer order: Cloudflare R2 binding → Vercel Blob → local disk (dev/E2E only).
  */
 export async function POST(request: NextRequest) {
   if (!isTrustedWriteRequest(request)) {
@@ -78,7 +78,15 @@ export async function POST(request: NextRequest) {
 
   let blobUrl: string
   try {
-    if (token) {
+    const { saveR2MediaFile } = await import('@/lib/storage/r2-media-store')
+    const r2 = await saveR2MediaFile({
+      buffer,
+      safeFilename: safeName,
+      contentType: validated.contentType,
+    })
+    if (r2) {
+      blobUrl = r2.url
+    } else if (token) {
       const pathname = `newsroom/${Date.now().toString(36)}-${safeName}`
       const blob = await put(pathname, buffer, {
         access: 'public',
@@ -91,7 +99,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            'BLOB_READ_WRITE_TOKEN is required for media uploads on Vercel. Local disk storage is development-only.',
+            'Configure Cloudflare R2 (MEDIA_BUCKET + STORAGE_PUBLIC_BASE_URL) or BLOB_READ_WRITE_TOKEN for production uploads.',
         },
         { status: 503 },
       )

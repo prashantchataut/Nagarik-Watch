@@ -86,6 +86,9 @@ if (process.env.NODE_ENV !== 'production' || process.env.E2E_NEWSROOM === 'true'
   }
 }
 
+/** Slim server bundle for Cloudflare Workers Free (3 MiB gzip limit). */
+const isCloudflareWorkers = process.env.CF_WORKERS === '1'
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@nagarikwatch/ui', '@nagarikwatch/db'],
@@ -96,6 +99,9 @@ const nextConfig: NextConfig = {
     '@better-auth/core',
     'better-call',
     '@electric-sql/pglite',
+    ...(isCloudflareWorkers
+      ? ['pg', 'stripe', 'web-push', '@vercel/blob', 'kysely', '@better-auth/kysely-adapter']
+      : []),
   ],
   // Monorepo root so NFT does not invent oversized traces from apps/web cwd.
   outputFileTracingRoot: monorepoRoot,
@@ -117,6 +123,15 @@ const nextConfig: NextConfig = {
       '**/node_modules/playwright-core/**',
       '**/node_modules/@playwright/**',
       '**/node_modules/@electric-sql/pglite/**',
+      ...(isCloudflareWorkers
+        ? [
+            '**/node_modules/stripe/**',
+            '**/node_modules/web-push/**',
+            '**/node_modules/@vercel/blob/**',
+            '**/node_modules/pg/**',
+            '**/node_modules/pg-*/**',
+          ]
+        : []),
     ],
     '/api/media/local/[filename]': [
       '**/node_modules/**',
@@ -128,9 +143,27 @@ const nextConfig: NextConfig = {
       '**/apps/admin/**',
     ],
   },
-  images: {
-    formats: ['image/avif', 'image/webp'],
-    remotePatterns,
+  images: isCloudflareWorkers
+    ? { unoptimized: true, remotePatterns }
+    : {
+        formats: ['image/avif', 'image/webp'],
+        remotePatterns,
+      },
+  webpack: (config, { isServer }) => {
+    if (isServer && isCloudflareWorkers) {
+      const stub = (name: string) => path.join(configDir, 'lib/cf-stubs', name)
+      config.resolve ??= {}
+      config.resolve.alias = {
+        ...(config.resolve.alias as Record<string, string | false>),
+        'next/dist/server/og/image-response': false,
+        '@electric-sql/pglite': false,
+        pg: stub('pg.ts'),
+        stripe: stub('stripe.ts'),
+        'web-push': stub('web-push.ts'),
+        '@vercel/blob': stub('vercel-blob.ts'),
+      }
+    }
+    return config
   },
   eslint: {
     // Root flat config is validated in CI via `pnpm lint`; do not fail
@@ -148,3 +181,7 @@ const nextConfig: NextConfig = {
 }
 
 export default nextConfig
+
+// Enable Cloudflare bindings during `next dev` (OpenNext adapter).
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
+initOpenNextCloudflareForDev()

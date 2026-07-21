@@ -1,0 +1,11 @@
+# Copied to apps/web/.dev.vars for local `wrangler` / OpenNext preview.
+# NEXTJS_ENV selects which Next.js .env* files load (defaults to production).
+NEXTJS_ENV=development
+
+# Typical secrets / vars for preview
+AUTH_SECRET=
+BETTER_AUTH_SECRET=
+REVALIDATE_SECRET=
+# DATABASE_URL=  # optional
+CONTENT_SOURCE=json
+NEXT_PUBLIC_LAUNCH_STATUS=preview

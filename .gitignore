@@ -4,6 +4,8 @@ node_modules/
 
 # Build outputs
 .next/
+.open-next/
+.wrangler/
 out/
 dist/
 build/
@@ -22,6 +24,10 @@ apps/web/.data/
 .env
 .env.*
 !.env.example
+.dev.vars
+!.dev.vars.example
+apps/web/.dev.vars
+!apps/web/.dev.vars.example
 
 # Editor / OS
 .DS_Store

@@ -38,6 +38,8 @@
     "migrate:ops": "pnpm --filter @nagarikwatch/web migrate:ops",
     "build:web": "pnpm verify:workspaces && pnpm --filter @nagarikwatch/web... build",
     "build:admin": "pnpm verify:workspaces && pnpm --filter @nagarikwatch/admin... build",
+    "deploy:web:cf": "pnpm --filter @nagarikwatch/web deploy:free",
+    "preview:web:cf": "pnpm --filter @nagarikwatch/web preview",
     "verify:deploy": "pnpm verify:lockfile && pnpm build:web && pnpm build:admin",
     "verify:workspaces": "node scripts/verify-canonical-workspaces.mjs"
   },
@@ -50,10 +52,11 @@
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "globals": "^15.15.0",
-    "next": "15.4.11",
+    "next": "15.5.18",
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
     "turbo": "^2.3.3",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "wrangler": "^4.112.0"
   }
 }
