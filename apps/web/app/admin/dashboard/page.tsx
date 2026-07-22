@@ -86,7 +86,7 @@ export default async function DashboardPage() {
         <p className="admin-page-subtitle" lang="ne">
           {blurb}
         </p>
-        <div className="mt-3.5 flex flex-wrap gap-2">
+        <div className="admin-quick-strip">
           {canCreate(role) ? (
             <AdminButton href="/admin/articles/new">+ नयाँ समाचार</AdminButton>
           ) : null}

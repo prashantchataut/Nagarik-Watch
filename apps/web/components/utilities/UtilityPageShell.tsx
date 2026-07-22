@@ -65,34 +65,55 @@ export function UtilityPageShell({
   children: ReactNode
 }) {
   const en = locale === 'en'
+  const showToolNav = Boolean(currentPath)
+
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
       <HubIndexHeader title={title} lead={description} lang={en ? 'en' : 'ne'} />
-      <div className="utility-workspace mt-8">
-        <aside>
-          <nav aria-label={en ? 'Utility tools' : 'उपयोगी उपकरण'} className="utility-sidebar">
-            <h2>{en ? 'Tools' : 'उपकरण'}</h2>
-            <ul>
-              {UTILITY_LINKS.map((item) => {
-                const active = currentPath === item.path
-                return (
-                  <li key={item.path}>
-                    <Link
-                      href={localizeHref(locale, item.path)}
-                      aria-current={active ? 'page' : undefined}
-                      className={active ? 'is-active' : undefined}
-                    >
-                      <strong>{en ? item.en : item.ne}</strong>
-                      <span>{en ? item.noteEn : item.noteNe}</span>
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
+      {showToolNav ? (
+        <div className="utility-workspace">
+          <nav aria-label={en ? 'Utility tools' : 'उपयोगी उपकरण'} className="utility-mobile-nav">
+            {UTILITY_LINKS.map((item) => {
+              const active = currentPath === item.path
+              return (
+                <Link
+                  key={item.path}
+                  href={localizeHref(locale, item.path)}
+                  aria-current={active ? 'page' : undefined}
+                  className={active ? 'is-active' : undefined}
+                >
+                  {en ? item.en : item.ne}
+                </Link>
+              )
+            })}
           </nav>
-        </aside>
-        <div className="min-w-0">{children}</div>
-      </div>
+          <aside>
+            <nav aria-label={en ? 'Utility tools' : 'उपयोगी उपकरण'} className="utility-sidebar">
+              <h2>{en ? 'Tools' : 'उपकरण'}</h2>
+              <ul>
+                {UTILITY_LINKS.map((item) => {
+                  const active = currentPath === item.path
+                  return (
+                    <li key={item.path}>
+                      <Link
+                        href={localizeHref(locale, item.path)}
+                        aria-current={active ? 'page' : undefined}
+                        className={active ? 'is-active' : undefined}
+                      >
+                        <strong>{en ? item.en : item.ne}</strong>
+                        <span>{en ? item.noteEn : item.noteNe}</span>
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </nav>
+          </aside>
+          <div className="min-w-0">{children}</div>
+        </div>
+      ) : (
+        <div className="mt-8">{children}</div>
+      )}
     </div>
   )
 }
@@ -102,16 +123,16 @@ export function UtilityDirectory({ locale }: { locale: Locale }) {
   return (
     <div className="utility-directory">
       {UTILITY_LINKS.map((item, index) => (
-        <article key={item.path}>
+        <Link key={item.path} href={localizeHref(locale, item.path)}>
           <p className="utility-index">{String(index + 1).padStart(2, '0')}</p>
           <div>
-            <h2>
-              <Link href={localizeHref(locale, item.path)}>{en ? item.en : item.ne}</Link>
-            </h2>
+            <h2>{en ? item.en : item.ne}</h2>
             <p>{en ? item.noteEn : item.noteNe}</p>
           </div>
-          <span aria-hidden="true">→</span>
-        </article>
+          <span className="utility-directory__arrow" aria-hidden="true">
+            →
+          </span>
+        </Link>
       ))}
     </div>
   )

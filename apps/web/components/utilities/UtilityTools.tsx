@@ -23,14 +23,20 @@ function ToolPanel({
   title,
   summary,
   children,
+  compact = true,
 }: {
   locale: Locale
   title: string
   summary: string
   children: ReactNode
+  /** Slim header under the page masthead (default on tool routes). */
+  compact?: boolean
 }) {
   return (
-    <section className="utility-tool" lang={locale === 'en' ? 'en' : 'ne'}>
+    <section
+      className={compact ? 'utility-tool utility-tool--compact' : 'utility-tool'}
+      lang={locale === 'en' ? 'en' : 'ne'}
+    >
       <header>
         <h2>{title}</h2>
         <p>{summary}</p>

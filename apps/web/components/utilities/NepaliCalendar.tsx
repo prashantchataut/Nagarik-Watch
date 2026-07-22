@@ -5,6 +5,8 @@ import type { Locale } from '@nagarikwatch/db'
 import {
   BS_MONTHS,
   BS_MONTHS_EN,
+  BS_YEAR_MAX,
+  BS_YEAR_MIN,
   adToBs,
   bsMonthLength,
   bsToAd,
@@ -15,13 +17,16 @@ import {
 const WEEKDAY_NE = ['आइत', 'सोम', 'मंगल', 'बुध', 'बिहि', 'शुक्र', 'शनि']
 const WEEKDAY_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+type DayCell = {
+  day: number
+  weekday: number
+  adDay: number
+  events: ReturnType<typeof eventsForBsDay>
+}
+
 /**
- * Hamro Patro / Onlinekhabar-style BS calendar. Renders one month at a time with
- * prev/next navigation, the current AD month highlighted, today marked, and dots on
- * dates that carry a festival or public holiday (hover/tap reveals the name).
- *
- * All date math is client-side from the shared db helpers — no fetch, works offline.
- * The supported BS year range (2080–2087) gates navigation at both ends.
+ * Editorial Bikram Sambat month desk: navigate months, mark today, select a day
+ * for festival detail, and list the month agenda. Date math is local (offline).
  */
 export function NepaliCalendar({ locale }: { locale: Locale }) {
   const en = locale === 'en'
@@ -29,20 +34,28 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
 
   const [year, setYear] = useState(todayBs.year)
   const [month, setMonth] = useState(todayBs.month)
+  const [selectedDay, setSelectedDay] = useState(todayBs.day)
 
   const length = bsMonthLength(year, month)
   const firstAd = bsToAd(year, month, 1)
   const startWeekday = firstAd ? firstAd.getUTCDay() : 0
 
   const cells = useMemo(() => {
-    const out: Array<{ day: number; events: ReturnType<typeof eventsForBsDay> }> = []
+    const out: DayCell[] = []
     for (let d = 1; d <= length; d++) {
-      out.push({ day: d, events: eventsForBsDay(month, d) })
+      const ad = bsToAd(year, month, d)
+      out.push({
+        day: d,
+        weekday: ad ? ad.getUTCDay() : (startWeekday + d - 1) % 7,
+        adDay: ad ? ad.getUTCDate() : d,
+        events: eventsForBsDay(month, d),
+      })
     }
     return out
-  }, [length, month])
+  }, [length, month, year, startWeekday])
 
   const monthName = en ? BS_MONTHS_EN[month - 1] : BS_MONTHS[month - 1]
+  const selected = cells.find((c) => c.day === selectedDay) ?? cells[0]
   const holidaysThisMonth = useMemo(() => {
     const list: Array<{ day: number; nameNe: string; nameEn: string; holiday?: boolean }> = []
     for (const c of cells) {
@@ -61,121 +74,144 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
       m = 1
       y += 1
     }
-    if (y < 2080 || y > 2087) return
+    if (y < BS_YEAR_MIN || y > BS_YEAR_MAX) return
     setMonth(m)
     setYear(y)
+    setSelectedDay(1)
   }
 
+  const jumpToday = () => {
+    setYear(todayBs.year)
+    setMonth(todayBs.month)
+    setSelectedDay(todayBs.day)
+  }
+
+  const viewingTodayMonth = year === todayBs.year && month === todayBs.month
+  const adRangeLabel = firstAd
+    ? firstAd.toLocaleDateString(en ? 'en-GB' : 'ne-NP', { month: 'long', year: 'numeric' })
+    : ''
+
   return (
-    <section
-      className="mt-6 rounded-lg border border-rule bg-surface-raised p-5"
-      lang={en ? 'en' : 'ne'}
-    >
-      <div className="flex items-center justify-between">
+    <section className="calendar-workspace" lang={en ? 'en' : 'ne'}>
+      <header className="calendar-header">
         <div>
-          <h2 className="font-display text-h2 text-ink">
+          <p className="calendar-kicker">{en ? 'Bikram Sambat' : 'विक्रम संवत्'}</p>
+          <h2>
             {monthName} {en ? year : toDevanagari(year)}
           </h2>
-          <p className="mt-0.5 text-caption text-mute">
-            {firstAd ? firstAd.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : ''}
-          </p>
+          <p>{adRangeLabel}</p>
         </div>
-        <div className="flex gap-1">
-          <NavButton onClick={() => go(-1)} label={en ? 'Previous month' : 'अघिल्लो महिना'}>
+        <div className="calendar-actions">
+          <button type="button" onClick={() => go(-1)} aria-label={en ? 'Previous month' : 'अघिल्लो महिना'}>
             ‹
-          </NavButton>
-          <NavButton onClick={() => go(1)} label={en ? 'Next month' : 'अर्को महिना'}>
+          </button>
+          <button type="button" onClick={jumpToday} disabled={viewingTodayMonth && selectedDay === todayBs.day}>
+            {en ? 'Today' : 'आज'}
+          </button>
+          <button type="button" onClick={() => go(1)} aria-label={en ? 'Next month' : 'अर्को महिना'}>
             ›
-          </NavButton>
+          </button>
         </div>
-      </div>
+      </header>
 
-      <div className="mt-4 grid grid-cols-7 gap-1 text-center">
-        {(en ? WEEKDAY_EN : WEEKDAY_NE).map((w) => (
-          <div key={w} className="py-1 text-meta font-semibold text-ink-soft">
+      <div className="calendar-grid" role="grid" aria-label={en ? `${monthName} ${year}` : `${monthName} ${toDevanagari(year)}`}>
+        {(en ? WEEKDAY_EN : WEEKDAY_NE).map((w, i) => (
+          <div key={w} className={`calendar-weekday${i === 6 ? ' is-saturday' : ''}`} role="columnheader">
             {w}
           </div>
         ))}
         {Array.from({ length: startWeekday }).map((_, i) => (
-          <div key={`pad-${i}`} aria-hidden="true" />
+          <div key={`pad-${i}`} className="calendar-blank" aria-hidden="true" />
         ))}
         {cells.map((c) => {
-          const isToday = c.day === todayBs.day && month === todayBs.month && year === todayBs.year
+          const isToday = c.day === todayBs.day && viewingTodayMonth
+          const isSelected = c.day === selectedDay
           const hasHoliday = c.events.some((e) => e.holiday)
-          const hasEvent = c.events.length > 0
-          const title = c.events.map((e) => (en ? e.nameEn : e.nameNe)).join(', ')
+          const primaryEvent = c.events[0]
+          const label = [
+            en ? String(c.day) : toDevanagari(c.day),
+            primaryEvent ? (en ? primaryEvent.nameEn : primaryEvent.nameNe) : null,
+            isToday ? (en ? 'today' : 'आज') : null,
+          ]
+            .filter(Boolean)
+            .join(', ')
+
           return (
-            <div
+            <button
               key={c.day}
-              title={title}
+              type="button"
+              role="gridcell"
+              aria-selected={isSelected}
+              aria-current={isToday ? 'date' : undefined}
+              aria-label={label}
+              onClick={() => setSelectedDay(c.day)}
               className={[
-                'relative flex aspect-square items-center justify-center rounded-md text-body',
-                isToday
-                  ? 'bg-brand font-bold text-surface'
-                  : hasHoliday
-                    ? 'bg-brand-tint font-semibold text-brand-strong'
-                    : hasEvent
-                      ? 'font-semibold text-ink'
-                      : 'text-ink-soft',
-              ].join(' ')}
+                'calendar-day',
+                isToday ? 'is-today' : '',
+                isSelected ? 'is-selected' : '',
+                hasHoliday ? 'is-holiday' : c.events.length ? 'has-event' : '',
+                c.weekday === 6 ? 'is-saturday' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
             >
-              {en ? c.day : toDevanagari(c.day)}
-              {hasEvent && !isToday && (
-                <span
-                  className={`absolute bottom-1 h-1 w-1 rounded-full ${
-                    hasHoliday ? 'bg-brand-strong' : 'bg-mute'
-                  }`}
-                  aria-hidden="true"
-                />
-              )}
-            </div>
+              <span className="calendar-day__nums">
+                <strong>{en ? c.day : toDevanagari(c.day)}</strong>
+                <span className="calendar-day__ad" aria-hidden="true">
+                  {c.adDay}
+                </span>
+              </span>
+              {primaryEvent ? (
+                <small>{en ? primaryEvent.nameEn : primaryEvent.nameNe}</small>
+              ) : null}
+            </button>
           )
         })}
       </div>
 
-      {holidaysThisMonth.length > 0 && (
-        <div className="mt-5 border-t border-rule pt-4">
-          <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft">
-            {en ? 'Events this month' : 'यो महिनाका पर्व'}
+      {selected ? (
+        <div className="calendar-selection" aria-live="polite">
+          <p className="calendar-selection__date">
+            {en ? selected.day : toDevanagari(selected.day)} {monthName}
+            <span>
+              · {en ? 'AD' : 'इस्वी'} {selected.adDay}
+            </span>
           </p>
-          <ul className="mt-2 grid gap-1.5">
+          {selected.events.length > 0 ? (
+            <ul>
+              {selected.events.map((e, i) => (
+                <li key={`${e.nameEn}-${i}`}>
+                  <span>{en ? e.nameEn : e.nameNe}</span>
+                  {e.holiday ? <em>{en ? 'Public holiday' : 'सार्वजनिक बिदा'}</em> : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="calendar-selection__empty">
+              {en ? 'No festival listed for this date.' : 'यो मितिमा सूचीबद्ध पर्व छैन।'}
+            </p>
+          )}
+        </div>
+      ) : null}
+
+      {holidaysThisMonth.length > 0 ? (
+        <div className="calendar-agenda">
+          <h3>{en ? 'This month' : 'यो महिना'}</h3>
+          <ul>
             {holidaysThisMonth.map((e, i) => (
-              <li key={`${e.day}-${e.nameEn}-${i}`} className="flex items-baseline gap-2 text-body">
-                <span className="w-8 shrink-0 font-semibold text-brand-strong">
-                  {en ? e.day : toDevanagari(e.day)}
-                </span>
-                <span className="text-ink-soft">{en ? e.nameEn : e.nameNe}</span>
-                {e.holiday && (
-                  <span className="rounded-full bg-brand-tint px-2 py-0.5 text-caption font-semibold text-brand-strong">
-                    {en ? 'Holiday' : 'बिदा'}
-                  </span>
-                )}
+              <li key={`${e.day}-${e.nameEn}-${i}`}>
+                <button type="button" className="calendar-agenda__day" onClick={() => setSelectedDay(e.day)}>
+                  <time dateTime={`${year}-${String(month).padStart(2, '0')}-${String(e.day).padStart(2, '0')}`}>
+                    {en ? e.day : toDevanagari(e.day)}
+                  </time>
+                </button>
+                <span>{en ? e.nameEn : e.nameNe}</span>
+                {e.holiday ? <em>{en ? 'Holiday' : 'बिदा'}</em> : <span />}
               </li>
             ))}
           </ul>
         </div>
-      )}
+      ) : null}
     </section>
-  )
-}
-
-function NavButton({
-  onClick,
-  label,
-  children,
-}: {
-  onClick: () => void
-  label: string
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-rule text-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
-    >
-      {children}
-    </button>
   )
 }

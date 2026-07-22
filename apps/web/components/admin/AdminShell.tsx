@@ -424,7 +424,7 @@ function AdminSidebar({
         <Link
           href="/admin/dashboard"
           onClick={onNavigate}
-          className="flex min-w-0 flex-1 items-center gap-2"
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-sm px-0.5 py-0.5 hover:bg-surface"
         >
           <LogoMark title="नागरिक वाच / Nagarik Watch" className="h-7 w-7 shrink-0" />
           <div className="min-w-0 leading-tight">
@@ -519,7 +519,7 @@ function AdminSidebar({
 
       <div className="border-t border-rule p-2.5">
         <div className="flex items-start gap-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-brand text-caption font-bold text-surface">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-brand text-caption font-bold text-surface">
             {initials || 'N'}
           </span>
           <div className="min-w-0 flex-1">
