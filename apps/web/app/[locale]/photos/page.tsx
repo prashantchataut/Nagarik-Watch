@@ -40,22 +40,24 @@ export default async function PhotosPage({ params }: { params: Promise<{ locale:
       </header>
 
       {photoStories.length > 0 ? (
-        <ul className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {photoStories.map((story) => {
+        <ul className="mt-6 grid gap-6 md:grid-cols-2">
+          {photoStories.map((story, index) => {
             const title = en && story.titleEn ? story.titleEn : story.titleNe
             const href = localizeHref(locale, `/photos/${story.slug}`)
+            const span = index === 0 ? 'md:col-span-2' : ''
             return (
-              <li key={story.slug}>
+              <li key={story.slug} className={span}>
                 <Link href={href} className="group block border-b border-rule pb-5">
                   {story.heroImage?.url && !story.heroImage.url.startsWith('data:') ? (
-                    <div className="relative mb-3 aspect-[4/3] overflow-hidden bg-surface-raised">
+                    <div
+                      className={`relative mb-3 overflow-hidden bg-surface-raised ${index === 0 ? 'aspect-[21/9]' : 'aspect-[4/3]'}`}
+                    >
                       <Image
                         src={story.heroImage.url}
-                        alt=""
+                        alt={story.heroImage.alt || title}
                         fill
                         className="object-cover transition-transform duration-slow group-hover:scale-[1.02]"
                         sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
-                        aria-hidden
                       />
                     </div>
                   ) : null}

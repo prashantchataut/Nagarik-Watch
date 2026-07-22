@@ -102,13 +102,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <div>
       <ExperimentExposure experimentId={HOME_LAYOUT_EXPERIMENT_ID} />
-      <UtilityStrip locale={locale} />
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
       <div className="mx-auto max-w-page px-4 pb-20 pt-4 sm:pt-6 lg:pb-16">
-        {/* Lead first: no edition eyebrow band (chrome budget). */}
+        {/* First fold: one lead composition only (chrome budget). */}
         <section
-          className="grid gap-8 border-b border-rule pb-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(15rem,0.55fr)_minmax(14rem,0.48fr)] xl:gap-0 xl:pb-10"
+          className="grid gap-8 border-b border-rule pb-8 xl:grid-cols-[minmax(0,1.55fr)_minmax(16rem,0.7fr)] xl:gap-0 xl:pb-10"
           aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
         >
           <InstrumentedStory
@@ -139,7 +138,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 />
               </InstrumentedStory>
             ))}
-            <p className="py-3 xl:hidden">
+            <p className="py-3">
               <Link
                 href={localizeHref(locale, '/latest')}
                 className="inline-flex min-h-11 items-center text-meta font-bold text-brand-strong underline-offset-4 hover:underline"
@@ -149,21 +148,43 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </Link>
             </p>
           </div>
-
-          {/* Latest rail is desktop-only: BottomNav owns Latest on phone. */}
-          <LatestRail
-            stories={latest}
-            locale={locale}
-            className="hidden xl:block xl:border-l xl:pl-6"
-          />
         </section>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-10">
+        <LatestRail stories={latest} locale={locale} className="mt-8 hidden border-y border-rule py-6 xl:block" />
+
+        <div className="mt-12 space-y-12 sm:mt-14 sm:space-y-16">
+          {edition.sections.slice(0, 3).map((section, index) => (
+            <SectionBlock
+              key={section.category.slug}
+              section={section}
+              locale={locale}
+              layout={sectionLayouts[index % sectionLayouts.length]}
+            />
+          ))}
+        </div>
+
+        <ProvinceHub locale={locale} className="mt-12 sm:mt-14" />
+
+        {edition.sections.length > 3 ? (
+          <div className="mt-12 space-y-12 sm:mt-14 sm:space-y-16">
+            {edition.sections.slice(3).map((section, index) => (
+              <SectionBlock
+                key={section.category.slug}
+                section={section}
+                locale={locale}
+                layout={sectionLayouts[(index + 3) % sectionLayouts.length]}
+              />
+            ))}
+          </div>
+        ) : null}
+
+        <div className="mt-12 grid gap-8 lg:mt-14 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-10">
           <TodayInBrief stories={briefPool} locale={locale} />
           {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
         </div>
 
-        <HomeLiveBoard locale={locale} className="mt-8 lg:hidden" />
+        <UtilityStrip locale={locale} />
+        <HomeLiveBoard locale={locale} className="mt-8" />
 
         <AdSlot
           locale={locale}
@@ -182,19 +203,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </section>
 
         <RecommendedForYou locale={locale} catalog={catalog} className="mt-10" />
-
-        <div className="mt-12 space-y-12 sm:mt-14 sm:space-y-16">
-          {edition.sections.map((section, index) => (
-            <SectionBlock
-              key={section.category.slug}
-              section={section}
-              locale={locale}
-              layout={sectionLayouts[index % sectionLayouts.length]}
-            />
-          ))}
-        </div>
-
-        <ProvinceHub locale={locale} className="mt-12 sm:mt-14" />
 
         <div className="mt-12 grid gap-10 lg:mt-14 lg:grid-cols-2 lg:gap-12">
           <TodayInHistory locale={locale} stories={historyStories} />

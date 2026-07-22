@@ -10,7 +10,7 @@ import { NotificationCenter } from '@/components/reader/NotificationCenter'
 import { RecommendedForYou } from '@/components/reader/RecommendedForYou'
 import { ReaderTopicOnboarding } from '@/components/reader/ReaderTopicOnboarding'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export async function generateMetadata({
   params,
@@ -45,10 +45,12 @@ export default async function ReaderCornerPage({
   ])
 
   return (
-    <div className="account-page account-page--wide" lang={english ? 'en' : 'ne'}>
-      <header className="account-page__header">
-        <h1>{english ? 'Reading desk' : 'पढाइ डेस्क'}</h1>
-        <p className="account-page__email" style={{ wordBreak: 'normal' }}>
+    <div className="mx-auto max-w-page px-4 py-8 sm:py-12" lang={english ? 'en' : 'ne'}>
+      <header className="border-b border-rule pb-6">
+        <h1 className="font-display text-display font-extrabold text-ink">
+          {english ? 'Reading desk' : 'पढाइ डेस्क'}
+        </h1>
+        <p className="mt-2 max-w-body text-body text-ink-soft">
           {session
             ? english
               ? 'History, interests, and alerts for this account.'
@@ -57,22 +59,29 @@ export default async function ReaderCornerPage({
               ? 'Works on this device. Sign in to sync across phones.'
               : 'यो उपकरणमा चल्छ। सिङ्कका लागि लगइन गर्नुहोस्।'}
         </p>
-        <nav className="account-page__subnav" aria-label={english ? 'Desk links' : 'डेस्क लिंक'}>
-          <Link href={localizeHref(locale, '/saved')}>{english ? 'Saved' : 'सुरक्षित'}</Link>
-          <Link href={localizeHref(locale, session ? '/auth/profile' : '/auth/login')}>
+        <nav className="mt-4 flex flex-wrap gap-4" aria-label={english ? 'Desk links' : 'डेस्क लिंक'}>
+          <Link
+            href={localizeHref(locale, '/saved')}
+            className="text-meta font-bold text-brand-strong"
+          >
+            {english ? 'Saved' : 'सुरक्षित'}
+          </Link>
+          <Link
+            href={localizeHref(locale, session ? '/auth/profile' : '/auth/login')}
+            className="text-meta font-bold text-brand-strong"
+          >
             {session ? (english ? 'Account' : 'खाता') : english ? 'Sign in' : 'लगइन'}
           </Link>
         </nav>
       </header>
 
-      <ReaderTopicOnboarding locale={locale} categories={categories} catalog={storyPage.items} />
-      <RecommendedForYou
-        locale={locale}
-        catalog={storyPage.items}
-        className="reader-corner-recommendations"
-      />
-
-      <div className="account-desk-stack">
+      <div className="mt-8 space-y-10">
+        <ReaderTopicOnboarding locale={locale} categories={categories} catalog={storyPage.items} />
+        <RecommendedForYou
+          locale={locale}
+          catalog={storyPage.items}
+          className="reader-corner-recommendations"
+        />
         <ReaderActivityPanel locale={locale} catalog={storyPage.items} />
         <NotificationCenter locale={locale} />
         <ReaderPreferencePanel

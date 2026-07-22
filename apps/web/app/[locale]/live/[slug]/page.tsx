@@ -1,10 +1,15 @@
-﻿import type { Metadata } from 'next'
+import { staticLiveBlogParams } from '@/lib/static-export-params'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getLiveBlogBySlug } from '@/lib/live-blog-admin'
 import { liveBlogJsonLd } from '@/lib/json-ld'
 
-export const dynamic = 'force-dynamic'
+export function generateStaticParams() {
+  return staticLiveBlogParams()
+}
+
+export const dynamic = 'force-static'
 
 function formatDate(value?: string, locale = 'ne'): string {
   if (!value) return ' - '
@@ -61,14 +66,14 @@ export default async function LiveBlogPage({
   })
 
   return (
-    <main className="mx-auto max-w-page px-4 py-8 sm:py-12">
+    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <header className="max-w-4xl border-y border-rule py-7" lang={english ? 'en' : 'ne'}>
         <div className="flex flex-wrap items-center gap-3">
-          <span className={`rounded-full px-3 py-1 text-caption font-bold ${blog.status === 'live' ? 'bg-brand text-surface' : 'border border-rule text-ink-soft'}`}>
+          <span className={`inline-flex px-3 py-1 text-caption font-bold ${blog.status === 'live' ? 'bg-brand text-surface' : 'border border-rule text-ink-soft'}`}>
             {blog.status === 'live'
               ? english ? 'LIVE' : 'लाइभ'
-              : english ? 'COVERAGE CLOSED' : 'लाइभ विवरण समाप्त'}
+              : english ? 'Coverage closed' : 'लाइभ विवरण समाप्त'}
           </span>
           <span className="text-caption text-mute">
             {english ? 'Last updated' : 'अन्तिम अपडेट'}: {formatDate(blog.updatedAt, locale)}
@@ -103,6 +108,6 @@ export default async function LiveBlogPage({
           </p>
         )}
       </section>
-    </main>
+    </div>
   )
 }

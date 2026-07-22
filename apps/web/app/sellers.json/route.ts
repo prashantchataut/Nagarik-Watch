@@ -1,3 +1,4 @@
+export const dynamic = 'force-static'
 import { PUBLICATION } from '@/lib/site'
 
 function defaultSellersJson(): string {

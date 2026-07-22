@@ -31,7 +31,7 @@ export function JournalistWorkspaceShell({
     ['dashboard', '/journalist/dashboard', ne ? 'डेस्क' : 'Desk'],
     ['assignments', '/journalist/assignments', ne ? 'समाचार' : 'Stories'],
     ['new', '/journalist/articles/new', ne ? 'नयाँ' : 'New'],
-    ['tools', '/journalist/tools', ne ? 'उपकरण' : 'Tools'],
+    ['feedback', '/journalist/feedback', ne ? 'प्रतिक्रिया' : 'Feedback'],
     ['profile', '/journalist/profile', ne ? 'प्रोफाइल' : 'Profile'],
   ] as const
 

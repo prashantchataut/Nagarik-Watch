@@ -66,6 +66,7 @@ const NEWSROOM_ROLES: ReadonlySet<NewsroomRole> = new Set<NewsroomRole>([
 export const getSession = cache(async (): Promise<ReaderSession | null> => {
   // Playwright reader-only builds skip Better Auth so public pages stay up without Postgres.
   if (process.env.E2E_TEST === 'true' && process.env.E2E_NEWSROOM !== 'true') return null
+  if (process.env.CF_PAGES_STATIC === '1') return null
   try {
     const auth = await getAuth()
     const session = await auth.api.getSession({ headers: await headers() })

@@ -1,6 +1,13 @@
+import { staticTagParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
 import { permanentRedirect } from 'next/navigation'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
+
+export const dynamic = 'force-static'
+
+export function generateStaticParams() {
+  return staticTagParams()
+}
 
 export const metadata: Metadata = {
   title: 'Topic',

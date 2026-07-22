@@ -1,3 +1,4 @@
+export const dynamic = 'force-static'
 import type { MetadataRoute } from 'next'
 import { getAuthors, getNavCategories, getStories, getTags } from '@/lib/content'
 import { isPublicMembershipEnabled } from '@/lib/membership'

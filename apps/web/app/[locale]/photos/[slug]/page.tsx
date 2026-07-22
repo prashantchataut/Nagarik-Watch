@@ -1,14 +1,15 @@
+import { staticPhotoParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
-import { getArticleBySlug, getStories } from '@/lib/content'
+import { getArticleBySlug } from '@/lib/content'
 import { imageGalleryJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/site'
 import { formatDate } from '@nagarikwatch/db'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export async function generateMetadata({
   params,
@@ -110,9 +111,6 @@ export default async function PhotoGalleryPage({
   )
 }
 
-export async function generateStaticParams() {
-  const { items } = await getStories({ locale: 'ne', category: 'photo-story', perPage: 30 }).catch(
-    () => ({ items: [] as Awaited<ReturnType<typeof getStories>>['items'] }),
-  )
-  return items.map((item) => ({ locale: 'ne', slug: item.slug }))
+export function generateStaticParams() {
+  return staticPhotoParams()
 }

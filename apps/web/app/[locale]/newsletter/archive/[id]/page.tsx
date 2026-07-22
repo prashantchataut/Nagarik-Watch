@@ -1,3 +1,4 @@
+import { staticNewsletterIssueParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -5,7 +6,11 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { listNewsletterIssues } from '@/lib/newsletter-admin'
 import { SITE_URL } from '@/lib/site'
 
-export const dynamic = 'force-dynamic'
+export function generateStaticParams() {
+  return staticNewsletterIssueParams()
+}
+
+export const dynamic = 'force-static'
 
 export async function generateMetadata({
   params,

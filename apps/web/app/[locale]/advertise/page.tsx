@@ -14,16 +14,10 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
   )
 
   return (
-    <main className="mx-auto max-w-page px-4 py-10" lang={lang}>
+    <div className="mx-auto max-w-page px-4 py-10" lang={lang}>
       <header className="grid gap-8 border-b border-rule pb-8 lg:grid-cols-[1fr_0.42fr] lg:items-end">
         <div>
-          <p
-            className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
-            lang="en"
-          >
-            Media kit
-          </p>
-          <h1 className="mt-2 font-display text-[clamp(2.2rem,9vw,4.5rem)] font-extrabold leading-tight text-ink">
+          <h1 className="font-display text-[clamp(2.2rem,9vw,4.5rem)] font-extrabold leading-tight text-ink">
             {en ? 'Advertise with Nagarik Watch' : 'नागरिक वाचमा विज्ञापन'}
           </h1>
           <p className="mt-4 max-w-3xl text-body-lg leading-relaxed text-ink-soft">
@@ -32,7 +26,7 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
               : 'व्यावसायिक अभियान सम्पादकीय कामबाट अलग राखिन्छ। हरेक विज्ञापन, native unit र sponsored package पाठकसम्म पुग्नुअघि स्पष्ट लेबल हुन्छ।'}
           </p>
         </div>
-        <div className="rounded-xl border border-rule bg-surface-raised p-5">
+        <div className="border border-rule bg-surface-raised p-5">
           <p className="text-meta font-bold text-ink">
             {en ? 'Sales contact' : 'विज्ञापन सम्पर्क'}
           </p>
@@ -203,7 +197,7 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
           ))}
         </ul>
       </section>
-    </main>
+    </div>
   )
 }
 

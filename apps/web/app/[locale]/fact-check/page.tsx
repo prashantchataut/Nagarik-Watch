@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import type { Locale, StoryCardData } from '@nagarikwatch/db'
+import type { Locale } from '@nagarikwatch/db'
 import { StoryCard } from '@nagarikwatch/ui'
 import { getStories } from '@/lib/content'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
@@ -52,19 +52,13 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
       `${story.titleNe} ${story.titleEn ?? ''} ${story.deckNe ?? ''}`,
     ),
   )
-  const stories = candidates.length > 0 ? candidates : items.slice(0, 4)
+  const stories = candidates
 
   return (
     <div className="mx-auto max-w-page px-4 py-8" lang={lang}>
       <header className="grid gap-6 border-b border-rule pb-8 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,0.42fr)] lg:items-end">
         <div>
-          <p
-            className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
-            lang="en"
-          >
-            Fact Check Desk
-          </p>
-          <h1 className="mt-2 font-display text-[clamp(2.05rem,9vw,4rem)] font-extrabold leading-tight text-ink">
+          <h1 className="font-display text-[clamp(2.05rem,9vw,4rem)] font-extrabold leading-tight text-ink">
             {en ? 'Claims need evidence, not volume' : 'दाबीलाई आवाज होइन, प्रमाण चाहिन्छ'}
           </h1>
           <p className="mt-3 max-w-3xl text-body-lg leading-relaxed text-ink-soft">
@@ -89,7 +83,7 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
       </header>
 
       <section className="mt-8 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
-        <div className="rounded-xl border border-rule bg-surface-raised p-5">
+        <div className="border border-rule bg-surface-raised p-5">
           <h2 className="font-display text-h2 font-extrabold text-ink">
             {en ? 'Verdict labels' : 'निर्णय लेबल'}
           </h2>
@@ -105,7 +99,7 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
             ))}
           </div>
         </div>
-        <div className="rounded-xl border border-rule bg-surface-raised p-5">
+        <div className="border border-rule bg-surface-raised p-5">
           <h2 className="font-display text-h2 font-extrabold text-ink">
             {en ? 'How one check moves' : 'एउटा जाँच कसरी अघि बढ्छ'}
           </h2>
@@ -115,7 +109,7 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
                 key={item.en}
                 className="grid grid-cols-[2.5rem_1fr] gap-3 border-t border-rule pt-3 first:border-t-0 first:pt-0 sm:border-t sm:pt-3"
               >
-                <span className="font-mono text-caption font-bold text-brand-strong">
+                <span className="font-display text-caption font-bold text-brand-strong">
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <span className="font-semibold text-ink">{en ? item.en : item.ne}</span>
@@ -128,13 +122,7 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
       <section className="mt-10">
         <div className="flex items-end justify-between gap-4 border-b border-rule pb-3">
           <div>
-            <p
-              className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
-              lang="en"
-            >
-              Published checks
-            </p>
-            <h2 className="mt-1 font-display text-h1 font-extrabold text-ink">
+            <h2 className="font-display text-h1 font-extrabold text-ink">
               {en ? 'Recent verification work' : 'हालका तथ्य-जाँच सामग्री'}
             </h2>
           </div>
@@ -148,7 +136,9 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
 
         {stories.length > 0 ? (
           <div className="mt-6 grid gap-7 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)]">
-            <FactLead story={stories[0]!} locale={locale} />
+            <div className="border border-rule bg-surface-raised p-5">
+              <StoryCard story={stories[0]!} locale={locale} variant="featured" />
+            </div>
             <div className="grid gap-5">
               {stories.slice(1).map((story) => (
                 <StoryCard key={story.id} story={story} locale={locale} variant="horizontal" />
@@ -156,7 +146,7 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
             </div>
           </div>
         ) : (
-          <div className="mt-6 rounded-xl border border-rule bg-surface-raised p-6">
+          <div className="mt-6 border border-rule bg-surface-raised p-6">
             <p className="font-display text-h2 font-bold text-ink">
               {en ? 'No fact-check has been published yet.' : 'अहिले तथ्य-जाँच प्रकाशित भएको छैन।'}
             </p>
@@ -168,17 +158,6 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
           </div>
         )}
       </section>
-    </div>
-  )
-}
-
-function FactLead({ story, locale }: { story: StoryCardData; locale: Locale }) {
-  return (
-    <div className="rounded-xl border border-rule bg-surface-raised p-5">
-      <p className="mb-4 inline-flex rounded-full bg-brand-tint px-3 py-1 text-caption font-bold uppercase tracking-wide text-brand-strong">
-        {locale === 'en' ? 'Needs evidence' : 'प्रमाण चाहिने'}
-      </p>
-      <StoryCard story={story} locale={locale} variant="featured" />
     </div>
   )
 }
@@ -198,3 +177,4 @@ export async function generateMetadata({
     alternates: { canonical: localizeHref(locale, '/fact-check') },
   }
 }
+

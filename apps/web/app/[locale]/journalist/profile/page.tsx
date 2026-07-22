@@ -8,7 +8,7 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
 
 export const metadata: Metadata = { title: 'Journalist profile', robots: { index: false, follow: false } }
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export default async function JournalistProfilePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale: Locale = asLocale((await params).locale)

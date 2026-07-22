@@ -11,7 +11,7 @@ import { AdminPageHeader, AdminCard, AdminCallout, AdminButton, AdminInput, Admi
 import { MediaUploadForm } from '@/components/admin/MediaUploadForm'
 
 export const metadata: Metadata = { title: 'मिडिया', robots: { index: false, follow: false } }
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 async function saveMedia(formData: FormData) {
   'use server'

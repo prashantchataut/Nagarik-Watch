@@ -57,4 +57,4 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 }
 
 // Search is inherently user-driven, so it is dynamic per request.
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'

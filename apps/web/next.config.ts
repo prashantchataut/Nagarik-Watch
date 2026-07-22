@@ -88,8 +88,11 @@ if (process.env.NODE_ENV !== 'production' || process.env.E2E_NEWSROOM === 'true'
 
 /** Slim server bundle for Cloudflare Workers Free (3 MiB gzip limit). */
 const isCloudflareWorkers = process.env.CF_WORKERS === '1'
+/** Static HTML export for Cloudflare Pages Free (no Worker script size limit). */
+const isStaticPagesExport = process.env.CF_PAGES_STATIC === '1'
 
 const nextConfig: NextConfig = {
+  ...(isStaticPagesExport ? { output: 'export' as const, trailingSlash: true } : {}),
   reactStrictMode: true,
   transpilePackages: ['@nagarikwatch/ui', '@nagarikwatch/db'],
   // Keep Better Auth and PGlite outside Next's webpack graph. Bundling PGlite
@@ -143,7 +146,7 @@ const nextConfig: NextConfig = {
       '**/apps/admin/**',
     ],
   },
-  images: isCloudflareWorkers
+  images: isStaticPagesExport || isCloudflareWorkers
     ? { unoptimized: true, remotePatterns }
     : {
         formats: ['image/avif', 'image/webp'],
@@ -182,6 +185,7 @@ const nextConfig: NextConfig = {
 
 export default nextConfig
 
-// Enable Cloudflare bindings during `next dev` (OpenNext adapter).
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
-initOpenNextCloudflareForDev()
+if (!isStaticPagesExport) {
+  initOpenNextCloudflareForDev()
+}

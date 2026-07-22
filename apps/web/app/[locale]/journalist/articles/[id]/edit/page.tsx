@@ -1,3 +1,4 @@
+import { staticLocaleArticleIdParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 import type { Locale } from '@nagarikwatch/db'
@@ -12,7 +13,11 @@ import { shorthandFromBlocks } from '@/lib/content/blocks'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
 import { JournalistArticleDraftForm } from '@/components/journalist/JournalistArticleDraftForm'
 
-export const dynamic = 'force-dynamic'
+export function generateStaticParams() {
+  return staticLocaleArticleIdParams()
+}
+
+export const dynamic = 'force-static'
 export const metadata: Metadata = { title: 'Edit journalist draft', robots: { index: false, follow: false } }
 
 export default async function JournalistEditPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
@@ -37,7 +42,7 @@ export default async function JournalistEditPage({ params }: { params: Promise<{
   const bodyNe = shorthandFromBlocks(article.bodyNe)
   const articleTags = 'tagSlugs' in article ? article.tagSlugs : []
   return (
-    <JournalistWorkspaceShell locale={locale} name={session.displayName || session.email} roleLabel={roleLabel} active="assignments">
+    <JournalistWorkspaceShell locale={locale} name={session.displayName || session.email} roleLabel={roleLabel} active="new">
       <JournalistArticleDraftForm
         locale={locale}
         categories={categories}

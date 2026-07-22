@@ -4,7 +4,7 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { listNewsletterIssues } from '@/lib/newsletter-admin'
 import { SITE_URL } from '@/lib/site'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export async function generateMetadata({
   params,

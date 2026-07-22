@@ -1,77 +1,93 @@
 import type { Metadata } from 'next'
-import { asLocale } from '@/lib/i18n/locales'
+import Link from 'next/link'
+import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getSession } from '@/lib/auth/session'
 import { checkEntitlement, listReplicaPages } from '@/lib/epaper'
+import { LiveDeskShell } from '@/components/public/LiveDeskShell'
+import { isPublicMembershipEnabled } from '@/lib/membership'
+import { canonicalAlternates } from '@/lib/seo/canonical'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
-export const metadata: Metadata = {
-  title: 'E-paper',
-  description: 'Digital replica edition index.',
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const locale = asLocale((await params).locale)
+  const en = locale === 'en'
+  return {
+    title: en ? 'E-paper' : 'ई-पेपर',
+    description: en ? 'Digital replica edition index.' : 'डिजिटल प्रतिलिपि संस्करण सूची।',
+    alternates: canonicalAlternates(locale, '/epaper'),
+  }
 }
 
 export default async function EpaperPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const en = locale === 'en'
+  const membershipPublic = isPublicMembershipEnabled()
   const [{ enabled, editions }, session] = await Promise.all([
     listReplicaPages(),
     getSession().catch(() => null),
   ])
 
   return (
-    <main className="live-page">
-      <header>
-        <p className="section-kicker">{en ? 'Digital replica' : 'डिजिटल प्रतिलिपि'}</p>
-        <h1>{en ? 'E-paper' : 'ई-पेपर'}</h1>
-        <p>
-          {en
-            ? 'Page-for-page replica editions of the print newspaper.'
-            : 'छापा पत्रिकाको पृष्ठ-दर-पृष्ठ डिजिटल प्रतिलिपि।'}
-        </p>
-      </header>
-
-      {!enabled ? (
-        <div className="live-empty" role="status">
-          <strong>{en ? 'E-paper is not yet available' : 'ई-पेपर अहिले उपलब्ध छैन'}</strong>
-          <p>
-            {en
-              ? 'The digital replica edition has not been configured for this site yet. Check back once the newsroom publishes print editions here.'
-              : 'यो साइटका लागि डिजिटल प्रतिलिपि संस्करण अझै कन्फिगर गरिएको छैन। समाचार कक्षले यहाँ छापा संस्करण प्रकाशित गरेपछि फेरि जाँच गर्नुहोस्।'}
+    <LiveDeskShell
+      locale={en ? 'en' : 'ne'}
+      title={en ? 'E-paper' : 'ई-पेपर'}
+      dek={
+        en
+          ? 'Page-for-page replica editions of the print newspaper.'
+          : 'छापा पत्रिकाको पृष्ठ-दर-पृष्ठ डिजिटल प्रतिलिपि।'
+      }
+    >
+      {!enabled || editions.length === 0 ? (
+        <div className="border-y border-rule py-10" role="status" lang={en ? 'en' : 'ne'}>
+          <p className="font-display text-h2 font-bold text-ink">
+            {en ? 'E-paper is not yet available' : 'ई-पेपर अहिले उपलब्ध छैन'}
           </p>
-        </div>
-      ) : editions.length === 0 ? (
-        <div className="live-empty" role="status">
-          <strong>{en ? 'No replica editions published yet' : 'हालसम्म कुनै प्रतिलिपि संस्करण प्रकाशित छैन'}</strong>
-          <p>
+          <p className="mt-3 max-w-body text-body text-ink-soft">
             {en
-              ? 'No configured edition data was found.'
-              : 'कुनै कन्फिगर गरिएको संस्करण डाटा फेला परेन।'}
+              ? 'The digital replica has not been published yet. Meanwhile, read the latest stories or browse the newsletter archive.'
+              : 'डिजिटल प्रतिलिपि अझै प्रकाशित भएको छैन। यसबीच ताजा समाचार पढ्नुहोस् वा न्युजलेटर अभिलेख हेर्नुहोस्।'}
           </p>
+          <div className="mt-6 flex flex-wrap gap-4">
+            <Link href={localizeHref(locale, '/latest')} className="text-meta font-bold text-brand-strong">
+              {en ? 'Latest news' : 'ताजा समाचार'}
+            </Link>
+            <Link
+              href={localizeHref(locale, '/newsletter/archive')}
+              className="text-meta font-bold text-brand-strong"
+            >
+              {en ? 'Newsletter archive' : 'न्युजलेटर अभिलेख'}
+            </Link>
+          </div>
         </div>
       ) : (
         <section aria-labelledby="editions-heading">
-          <h2 id="editions-heading">{en ? 'Available editions' : 'उपलब्ध संस्करणहरू'}</h2>
-          <div className="alert-list">
+          <h2 id="editions-heading" className="font-display text-h2 font-extrabold text-ink">
+            {en ? 'Available editions' : 'उपलब्ध संस्करणहरू'}
+          </h2>
+          <ul className="mt-4 divide-y divide-rule border-y border-rule">
             {editions.map((edition) => (
-              <article key={`${edition.date}-${edition.edition}`}>
-                <div>
-                  <h2>{edition.edition}</h2>
-                  <p>{new Date(edition.date).toLocaleDateString(en ? 'en-GB' : 'ne-NP')}</p>
-                  <p>
-                    {en
-                      ? `${edition.pages.length} page(s)`
-                      : `${edition.pages.length} पृष्ठ`}
-                  </p>
-                </div>
-              </article>
+              <li key={`${edition.date}-${edition.edition}`} className="py-4">
+                <p className="font-display text-h3 font-bold text-ink">{edition.edition}</p>
+                <p className="mt-1 text-meta text-ink-soft">
+                  {new Date(edition.date).toLocaleDateString(en ? 'en-GB' : 'ne-NP')}
+                  {' · '}
+                  {en ? `${edition.pages.length} page(s)` : `${edition.pages.length} पृष्ठ`}
+                </p>
+              </li>
             ))}
-          </div>
-          {editions.some((edition) => edition.pages.some((page) => page.premium)) ? (
-            <EntitlementNotice enabled premium={await isAnyPremiumBlocked(editions, session)} en={en} />
+          </ul>
+          {membershipPublic &&
+          editions.some((edition) => edition.pages.some((page) => page.premium)) ? (
+            <EntitlementNotice premium={await isAnyPremiumBlocked(editions, session)} en={en} />
           ) : null}
         </section>
       )}
-    </main>
+    </LiveDeskShell>
   )
 }
 
@@ -89,10 +105,10 @@ async function isAnyPremiumBlocked(
   return false
 }
 
-function EntitlementNotice({ premium, en }: { enabled: boolean; premium: boolean; en: boolean }) {
+function EntitlementNotice({ premium, en }: { premium: boolean; en: boolean }) {
   if (!premium) return null
   return (
-    <p className="text-caption text-mute">
+    <p className="mt-4 text-caption text-mute">
       {en
         ? 'Some pages in this edition require a digital membership.'
         : 'यो संस्करणका केही पृष्ठहरूलाई डिजिटल सदस्यता चाहिन्छ।'}

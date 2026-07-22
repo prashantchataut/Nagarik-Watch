@@ -13,7 +13,7 @@ export default async function NotFound() {
       <div className="grid gap-10 border-b-2 border-ink pb-10 lg:grid-cols-[12rem_1fr] lg:items-end">
         <p className="font-display text-[clamp(5rem,14vw,10rem)] font-bold leading-none tracking-[-0.08em] text-brand" aria-hidden="true">४०४</p>
         <div>
-          <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong">Page not found</p>
+          <p className="text-caption font-bold text-brand-strong">404</p>
           <h1 className="mt-2 font-display text-display text-ink" lang="ne">{ne.notFoundHeading}</h1>
           <p className="mt-1 font-display text-h2 text-ink-soft" lang="en">{en.notFoundHeading}</p>
           <div className="mt-4 max-w-body space-y-1 text-body-lg leading-relaxed text-ink-soft">

@@ -24,7 +24,7 @@ export async function generateMetadata({
   }
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export default async function TrendingPage({
   params,
@@ -45,7 +45,7 @@ export default async function TrendingPage({
   const hasLiveSignal = samples.length > 0 && ranked.some((story) => story.trendingScore > 0)
 
   return (
-    <main className="mx-auto max-w-page px-4 py-8 sm:py-12">
+    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
       <AdSlot locale={locale} placementKey="trending-top" />
       <HubIndexHeader
         title={english ? 'Trending now' : 'अहिले चर्चामा'}
@@ -65,8 +65,13 @@ export default async function TrendingPage({
         <ol className="mt-8 divide-y divide-rule border-y border-rule">
           {ranked.map((story, index) => (
             <li key={story.slug} className="grid gap-4 py-6 sm:grid-cols-[3rem_minmax(0,1fr)]">
-              <span className="font-mono text-h2 font-bold tabular-nums text-mute" aria-hidden="true">
-                {String(index + 1).padStart(2, '0')}
+              <span className="font-display text-h2 font-extrabold tabular-nums text-brand-strong" aria-hidden="true">
+                {english
+                  ? String(index + 1)
+                  : String(index + 1)
+                      .split('')
+                      .map((d) => '०१२३४५६७८९'[Number(d)] ?? d)
+                      .join('')}
               </span>
               <StoryCard story={story} locale={locale} variant="horizontal" />
             </li>
@@ -78,6 +83,6 @@ export default async function TrendingPage({
         </p>
       )}
       <AdSlot locale={locale} placementKey="trending-inline" variant="inline" />
-    </main>
+    </div>
   )
 }

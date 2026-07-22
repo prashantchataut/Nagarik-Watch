@@ -9,7 +9,7 @@ import { listJournalistDraftMeta } from '@/lib/journalist-workspace'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
 
 export const metadata: Metadata = { title: 'Journalist dashboard', robots: { index: false, follow: false } }
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export default async function JournalistDashboard({ params }: { params: Promise<{ locale: string }> }) {
   const locale: Locale = asLocale((await params).locale)
@@ -29,6 +29,11 @@ export default async function JournalistDashboard({ params }: { params: Promise<
       <main className="newsroom-page">
         <header className="newsroom-page__header">
           <h1>{ne ? 'डेस्क' : 'Desk'}</h1>
+          <p>
+            {ne
+              ? 'ड्राफ्ट लेख्नुहोस्, समीक्षामा पठाउनुहोस्, सम्पादकीय प्रतिक्रिया हेर्नुहोस्।'
+              : 'Write drafts, submit for review, and track editor feedback.'}
+          </p>
         </header>
 
         <dl className="newsroom-pulse" aria-label={ne ? 'कार्य स्थिति' : 'Work status'}>
@@ -44,10 +49,17 @@ export default async function JournalistDashboard({ params }: { params: Promise<
             <dt>{ne ? 'संशोधन माग' : 'Revisions'}</dt>
             <dd>{revisions}</dd>
           </div>
-          <div>
-            <dt>{ne ? 'प्रकाशन अधिकार' : 'Publish access'}</dt>
-            <dd>{canPublish ? (ne ? 'छ' : 'Yes') : (ne ? 'छैन' : 'No')}</dd>
-          </div>
+          {canPublish ? (
+            <div>
+              <dt>{ne ? 'भूमिका' : 'Role'}</dt>
+              <dd>{roleLabel}</dd>
+            </div>
+          ) : (
+            <div>
+              <dt>{ne ? 'अर्को कदम' : 'Next step'}</dt>
+              <dd>{ne ? 'ड्राफ्ट' : 'Draft'}</dd>
+            </div>
+          )}
         </dl>
 
         <div className="newsroom-dashboard-grid">

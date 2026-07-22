@@ -1,11 +1,19 @@
-# Copied to apps/web/.dev.vars for local `wrangler` / OpenNext preview.
-# NEXTJS_ENV selects which Next.js .env* files load (defaults to production).
 NEXTJS_ENV=development
-
-# Typical secrets / vars for preview
-AUTH_SECRET=
-BETTER_AUTH_SECRET=
-REVALIDATE_SECRET=
-# DATABASE_URL=  # optional
+AUTH_SECRET=37gxr9AM6GmF7uV1UGVVP-xc0m97qiVdmGhZb8I10oc
+BETTER_AUTH_SECRET=37gxr9AM6GmF7uV1UGVVP-xc0m97qiVdmGhZb8I10oc
+REVALIDATE_SECRET=rV1zg80Gs3u2F0PzuwUlZ3h4f2JbAfLOCtnLI9sF2O0
+# Paste your Neon / Supabase connection string:
+# DATABASE_URL=postgresql://...
 CONTENT_SOURCE=json
 NEXT_PUBLIC_LAUNCH_STATUS=preview
+ENABLE_WEB_ADMIN_SCAFFOLD=true
+# After first deploy, set to your app origin:
+# NEXT_PUBLIC_SITE_URL=https://nagarik-watch-app.workers.dev
+# BETTER_AUTH_URL=https://nagarik-watch-app.workers.dev
+# First-boot newsroom login (change password after login):
+NEWSROOM_SUPERADMIN_EMAIL=owner@nagarikwatch.com
+NEWSROOM_SUPERADMIN_PASSWORD=kubBYtWf89XCdnRo
+NEWSROOM_SUPERADMIN_NAME=Newsroom Owner
+NEWSROOM_ADMIN_EMAIL=editor@nagarikwatch.com
+NEWSROOM_ADMIN_PASSWORD=uiZ-3Oa-Tsygdlqd
+NEWSROOM_ADMIN_NAME=Newsroom Admin

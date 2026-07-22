@@ -1,3 +1,4 @@
+import { staticArticleIdParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getNavCategories } from '@/lib/content'
@@ -10,12 +11,17 @@ import type { ArticleBlock } from '@nagarikwatch/db'
 import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 import { listMediaItems } from '@/lib/media-library'
 
+export const dynamic = 'force-static'
+
+export function generateStaticParams() {
+  return staticArticleIdParams()
+}
+
 export const metadata: Metadata = {
   title: 'Edit Article',
   robots: { index: false, follow: false },
 }
 
-export const dynamic = 'force-dynamic'
 
 /**
  * Article edit page. Resolves draft or published stories through the admin

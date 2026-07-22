@@ -4,7 +4,7 @@ import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { isPublicMembershipEnabled, membershipMode } from '@/lib/membership'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 type Params = { locale: string }
 
@@ -78,11 +78,11 @@ export default async function MembershipPage({ params }: { params: Promise<Param
           <p className="mt-2 text-body leading-relaxed text-ink" lang={ne ? 'ne' : 'en'}>
             {mode === 'payment'
               ? ne
-                ? 'भुक्तानी कन्फिगरेसन उपलब्ध छ। उत्पादन परीक्षणपछि मात्र checkout सार्वजनिक गर्नुहोस्।'
-                : 'Payment configuration is present. Publish checkout only after a production transaction test.'
+                ? 'अनलाइन भुक्तानी उपलब्ध छ। सदस्यता योजना तलबाट सुरु गर्न सकिन्छ।'
+                : 'Online payment is available. Choose a plan below to continue.'
               : ne
-                ? 'अहिले म्यानुअल सक्रियता चलिरहेको छ। अनुरोध आएपछि न्यूजरुमले सदस्य पहुँच सक्रिय गर्छ।'
-                : 'Manual activation is currently in use. The newsroom enables access after reviewing a request.'}
+                ? 'सदस्यता अनुरोध आएपछि समाचार कक्षले पहुँच सक्रिय गर्छ।'
+                : 'After you request membership, the newsroom enables access.'}
           </p>
         </aside>
       </header>

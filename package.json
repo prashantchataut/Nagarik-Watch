@@ -38,7 +38,9 @@
     "migrate:ops": "pnpm --filter @nagarikwatch/web migrate:ops",
     "build:web": "pnpm verify:workspaces && pnpm --filter @nagarikwatch/web... build",
     "build:admin": "pnpm verify:workspaces && pnpm --filter @nagarikwatch/admin... build",
-    "deploy:web:cf": "pnpm --filter @nagarikwatch/web deploy:free",
+    "deploy:web:cf": "pnpm --filter @nagarikwatch/web deploy:app",
+    "deploy:web:static": "pnpm --filter @nagarikwatch/web deploy:pages",
+    "build:web:pages": "pnpm --filter @nagarikwatch/web build:pages",
     "preview:web:cf": "pnpm --filter @nagarikwatch/web preview",
     "verify:deploy": "pnpm verify:lockfile && pnpm build:web && pnpm build:admin",
     "verify:workspaces": "node scripts/verify-canonical-workspaces.mjs"

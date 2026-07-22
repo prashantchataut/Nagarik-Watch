@@ -4,9 +4,10 @@ import { asLocale } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
 import { getMostReadStats } from '@/lib/engagement/store'
 import { AdSlot } from '@/components/AdSlot'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export async function generateMetadata({
   params,
@@ -42,31 +43,32 @@ export default async function MostReadPage({
     : catalog.items.slice(0, 18)
 
   return (
-    <main className="mx-auto max-w-page px-4 py-8 sm:py-12">
-      <header className="max-w-3xl border-b border-rule pb-7" lang={english ? 'en' : 'ne'}>
-        <p className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong">
-          {english ? 'Seven-day reading' : 'सात दिनको पढाइ'}
-        </p>
-        <h1 className="mt-2 font-display text-display font-extrabold leading-tight text-ink">
-          {english ? 'Most read' : 'धेरै पढिएका'}
-        </h1>
-        <p className="mt-3 max-w-body text-body-lg leading-relaxed text-ink-soft">
-          {eligible.length
+    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
+      <HubIndexHeader
+        title={english ? 'Most read' : 'धेरै पढिएका'}
+        lead={
+          eligible.length
             ? english
               ? 'Ordered from privacy-preserving first-party reading activity. Stories need at least three distinct readers before they enter this list.'
               : 'पहिचान नखुल्ने आफ्नै पढाइ तथ्याङ्कका आधारमा क्रमबद्ध। कम्तीमा तीन फरक पाठक पुगेपछि मात्र समाचार यो सूचीमा आउँछ।'
             : english
               ? 'There is not enough verified reading activity yet, so the newest published stories are shown without popularity claims.'
-              : 'विश्वसनीय पढाइ तथ्याङ्क अझै पर्याप्त छैन। त्यसैले लोकप्रियताको दाबी नगरी नयाँ प्रकाशित समाचार देखाइएको छ।'}
-        </p>
-      </header>
+              : 'विश्वसनीय पढाइ तथ्याङ्क अझै पर्याप्त छैन। त्यसैले लोकप्रियताको दाबी नगरी नयाँ प्रकाशित समाचार देखाइएको छ।'
+        }
+        lang={english ? 'en' : 'ne'}
+      />
 
       {ranked.length ? (
         <ol className="mt-8 divide-y divide-rule border-y border-rule">
           {ranked.map((story, index) => (
             <li key={story.slug} className="grid gap-4 py-6 sm:grid-cols-[3rem_minmax(0,1fr)]">
-              <span className="font-mono text-h2 font-bold tabular-nums text-mute" aria-hidden="true">
-                {String(index + 1).padStart(2, '0')}
+              <span className="font-display text-h2 font-extrabold tabular-nums text-brand-strong" aria-hidden="true">
+                {english
+                  ? String(index + 1)
+                  : String(index + 1)
+                      .split('')
+                      .map((d) => '०१२३४५६७८९'[Number(d)] ?? d)
+                      .join('')}
               </span>
               <StoryCard story={story} locale={locale} variant="horizontal" />
             </li>
@@ -78,6 +80,6 @@ export default async function MostReadPage({
         </p>
       )}
       <AdSlot locale={locale} placementKey="hub-inline" variant="native" />
-    </main>
+    </div>
   )
 }

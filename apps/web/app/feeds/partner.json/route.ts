@@ -1,39 +1,16 @@
 import { distributionStory, getDistributionStories } from '@/lib/feeds/stories'
 import { SITE_URL } from '@/lib/site'
-import {
-  checkPartnerTokenShape,
-  isPastEmbargo,
-  licenseTagFor,
-  truncateForFeed,
-} from '@/lib/syndication/partner-feed'
+import { isPastEmbargo, licenseTagFor, truncateForFeed } from '@/lib/syndication/partner-feed'
 
-export const dynamic = 'force-dynamic'
-
-function configuredPartnerTokens(): Set<string> {
-  return new Set(
-    (process.env.PARTNER_FEED_TOKENS ?? '')
-      .split(',')
-      .map((token) => token.trim())
-      .filter(Boolean),
-  )
-}
+export const dynamic = 'force-static'
 
 function embargoMinutes(): number {
   const raw = Number(process.env.PARTNER_FEED_EMBARGO_MINUTES ?? 0)
   return Number.isFinite(raw) && raw > 0 ? raw : 0
 }
 
-export async function GET(request: Request) {
-  const tokens = configuredPartnerTokens()
-  if (tokens.size > 0) {
-    const token = new URL(request.url).searchParams.get('token')
-    const shape = checkPartnerTokenShape(token)
-    if (!shape.ok || !tokens.has(token ?? '')) {
-      return Response.json({ error: 'A valid partner token is required.' }, { status: 401 })
-    }
-  }
-
-  const locale = new URL(request.url).searchParams.get('locale') === 'en' ? 'en' : 'ne'
+export async function GET() {
+  const locale = 'ne'
   const items = await getDistributionStories(locale)
   const delayMinutes = embargoMinutes()
 

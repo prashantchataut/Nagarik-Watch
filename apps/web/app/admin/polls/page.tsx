@@ -7,7 +7,7 @@ import { recordAuditEvent } from '@/lib/audit-log'
 import { AdminPageHeader, AdminCard, AdminButton, AdminInput, AdminTextarea, AdminSelect, StatusBadge } from '@/components/admin/primitives'
 
 export const metadata: Metadata = { title: 'मतदान', robots: { index: false, follow: false } }
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 async function savePoll(formData: FormData) {
   'use server'

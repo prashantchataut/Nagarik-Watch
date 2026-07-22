@@ -91,10 +91,10 @@ export function ContactForm({ locale }: { locale: Locale }) {
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex h-11 w-fit items-center justify-center rounded-full bg-brand px-6 text-body font-bold text-surface hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint focus:ring-offset-2 disabled:cursor-wait disabled:opacity-60"
+        className="inline-flex h-11 min-w-[11rem] w-fit items-center justify-center rounded-md bg-brand px-6 text-body font-bold text-surface hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint focus:ring-offset-2 disabled:cursor-wait disabled:opacity-60"
       >
         {pending
-          ? english ? 'Sending…' : 'पठाउँदै…'
+          ? english ? 'Sending...' : 'पठाउँदै...'
           : english ? 'Send to newsroom' : 'न्युजरुममा पठाउनुहोस्'}
       </button>
       <p className="text-caption leading-relaxed text-mute">

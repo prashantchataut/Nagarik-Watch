@@ -1,8 +1,15 @@
+import { staticUtilityToolParams } from '@/lib/static-export-params'
 import { notFound } from 'next/navigation'
 import { asLocale } from '@/lib/i18n/locales'
 import { UtilityPageShell } from '@/components/utilities/UtilityPageShell'
 import { AgeCalculatorTool, CurrencyConverterTool, DateConverterTool, PreetiUnicodeTool, UnitConverterTool } from '@/components/utilities/UtilityTools'
 import { NepaliCalendar } from '@/components/utilities/NepaliCalendar'
+
+export const dynamic = 'force-static'
+
+export function generateStaticParams() {
+  return staticUtilityToolParams()
+}
 
 const meta = {
   calendar: ['Nepali calendar', 'नेपाली पात्रो', 'Browse Bikram Sambat months, festivals and holidays.', 'विक्रम संवत् महिना, पर्व र बिदा हेर्नुहोस्।'],

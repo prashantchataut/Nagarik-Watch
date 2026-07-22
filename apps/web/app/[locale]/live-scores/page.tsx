@@ -1,5 +1,111 @@
-﻿import { asLocale } from '@/lib/i18n/locales'
+import Link from 'next/link'
+import type { Metadata } from 'next'
+import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getCricketScores, getFootballScores } from '@/lib/live/sports'
-export const dynamic='force-dynamic'
-export default async function LiveScoresPage({params}:{params:Promise<{locale:string}>}){const locale=asLocale((await params).locale);const en=locale==='en';const [football,cricket]=await Promise.all([getFootballScores(),getCricketScores()]);return <div className="live-page"><header><p className="section-kicker">{en?'Verified live desk':'प्रमाणित प्रत्यक्ष डेस्क'}</p><h1>{en?'Live scores':'प्रत्यक्ष स्कोर'}</h1><p>{en?'Scores are shown only when a provider or newsroom editor has supplied verified data.':'प्रदायक वा समाचार कक्षले प्रमाणित तथ्य दिएको अवस्थामा मात्र स्कोर देखाइन्छ।'}</p></header><ScoreSection title={en?'Football':'फुटबल'} envelope={football}/><ScoreSection title={en?'Cricket':'क्रिकेट'} envelope={cricket}/></div>}
-function ScoreSection({title,envelope}:{title:string;envelope:{status:string;source:string;updatedAt:string;data:Array<Record<string,unknown>>;error?:string}}){return <section className="score-section"><div className="score-section__head"><h2>{title}</h2><span>{envelope.source}</span></div>{envelope.status==='ok'&&envelope.data.length?<div className="score-list">{envelope.data.map((m,i)=><article key={i}><strong>{String(m.home??m.teamA??'')}</strong><b>{String(m.score??' - ')}</b><strong>{String(m.away??m.teamB??'')}</strong><span>{String(m.status??m.league??'')}</span></article>)}</div>:<div className="live-empty"><strong>Live data unavailable</strong><p>No verified match data is available right now. This page will update automatically when the provider or newsroom feed is available.</p></div>}</section>}
+import { LiveDeskShell } from '@/components/public/LiveDeskShell'
+import { canonicalAlternates } from '@/lib/seo/canonical'
+
+export const dynamic = 'force-static'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const locale = asLocale((await params).locale)
+  const en = locale === 'en'
+  return {
+    title: en ? 'Live scores' : 'प्रत्यक्ष स्कोर',
+    description: en
+      ? 'Verified football and cricket scores.'
+      : 'प्रमाणित फुटबल र क्रिकेट स्कोर।',
+    alternates: canonicalAlternates(locale, '/live-scores'),
+  }
+}
+
+export default async function LiveScoresPage({ params }: { params: Promise<{ locale: string }> }) {
+  const locale = asLocale((await params).locale)
+  const en = locale === 'en'
+  const [football, cricket] = await Promise.all([getFootballScores(), getCricketScores()])
+
+  return (
+    <LiveDeskShell
+      locale={en ? 'en' : 'ne'}
+      title={en ? 'Live scores' : 'प्रत्यक्ष स्कोर'}
+      dek={
+        en
+          ? 'Scores appear only when a verified provider feed is available.'
+          : 'प्रमाणित प्रदायक फिड उपलब्ध हुँदा मात्र स्कोर देखाइन्छ।'
+      }
+      aside={
+        <p className="text-meta text-ink-soft" lang={en ? 'en' : 'ne'}>
+          <Link href={localizeHref(locale, '/sports')} className="font-semibold text-brand-strong">
+            {en ? 'Sports desk' : 'खेलकुद'}
+          </Link>
+          {en ? ' for stories and fixtures context.' : ' मा कथा र खेलतालिका हेर्नुहोस्।'}
+        </p>
+      }
+    >
+      <ScoreSection
+        title={en ? 'Football' : 'फुटबल'}
+        envelope={football}
+        emptyNe="प्रमाणित फुटबल स्कोर अहिले उपलब्ध छैन।"
+        emptyEn="No verified football scores are available right now."
+        locale={locale}
+      />
+      <ScoreSection
+        title={en ? 'Cricket' : 'क्रिकेट'}
+        envelope={cricket}
+        emptyNe="प्रमाणित क्रिकेट स्कोर अहिले उपलब्ध छैन।"
+        emptyEn="No verified cricket scores are available right now."
+        locale={locale}
+      />
+    </LiveDeskShell>
+  )
+}
+
+function ScoreSection({
+  title,
+  envelope,
+  emptyNe,
+  emptyEn,
+  locale,
+}: {
+  title: string
+  envelope: {
+    status: string
+    source: string
+    updatedAt: string
+    data: Array<Record<string, unknown>>
+  }
+  emptyNe: string
+  emptyEn: string
+  locale: 'ne' | 'en'
+}) {
+  const en = locale === 'en'
+  const ok = envelope.status === 'ok' && envelope.data.length > 0
+  return (
+    <section className="border-t border-rule py-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-display text-h2 font-extrabold text-ink">{title}</h2>
+        <span className="text-caption text-mute">{envelope.source}</span>
+      </div>
+      {ok ? (
+        <ul className="mt-4 divide-y divide-rule border-y border-rule">
+          {envelope.data.map((m, i) => (
+            <li key={i} className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-3 font-display text-body text-ink">
+              <strong className="font-semibold">{String(m.home ?? m.teamA ?? '')}</strong>
+              <b className="tabular-nums">{String(m.score ?? '-')}</b>
+              <strong className="text-right font-semibold">{String(m.away ?? m.teamB ?? '')}</strong>
+              <span className="col-span-3 text-caption text-mute">{String(m.status ?? m.league ?? '')}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-4 border-y border-rule py-6 text-body text-ink-soft" lang={en ? 'en' : 'ne'}>
+          {en ? emptyEn : emptyNe}
+        </p>
+      )}
+    </section>
+  )
+}

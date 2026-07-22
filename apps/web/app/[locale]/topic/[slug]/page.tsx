@@ -1,12 +1,19 @@
+import { staticTopicParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import type { CategoryRef, Locale } from '@nagarikwatch/db'
 import { notFound } from 'next/navigation'
-import { StoryCard } from '@nagarikwatch/ui'
+import { StoryGrid } from '@nagarikwatch/ui'
 import { getStories, getTag } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref, localePrefix } from '@/lib/i18n/locales'
 import { Pagination } from '@/components/Pagination'
+
+export const dynamic = 'force-static'
+
+export function generateStaticParams() {
+  return staticTopicParams()
+}
 
 type Params = { locale: string; slug: string }
 
@@ -65,7 +72,7 @@ export default async function TopicPage({
         )}
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <span
-            className="inline-flex items-center border-l-2 border-brand pl-3 text-meta font-bold text-brand-strong"
+            className="inline-flex items-center rounded-sm bg-brand-tint px-2.5 py-1 text-meta font-bold text-brand-strong"
             lang={nameLang}
           >
             {dict.storyCountTopic(result.total)}
@@ -84,16 +91,14 @@ export default async function TopicPage({
 
       {result.items.length === 0 ? (
         <p className="mt-12 text-body-lg text-ink-soft" lang={lang}>
-          {dict.emptyEnglish}
+          {locale === 'en'
+            ? 'No published stories on this topic yet.'
+            : 'यस विषयमा अझै प्रकाशित समाचार छैन।'}
         </p>
       ) : (
-        <ul className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {result.items.map((s) => (
-            <li key={s.slug}>
-              <StoryCard story={s} locale={locale} variant="default" />
-            </li>
-          ))}
-        </ul>
+        <div className="mt-8">
+          <StoryGrid stories={result.items} locale={locale} />
+        </div>
       )}
 
       <Pagination

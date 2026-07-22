@@ -19,13 +19,20 @@ import { SpeculationRules } from '@/components/SpeculationRules'
 import { SpeakableJsonLd } from '@/components/seo/Schema'
 import { PrintButton } from '@/components/article/PrintButton'
 import { ReactionBar } from '@/components/article/ReactionBar'
+import { ShareBar } from '@/components/article/ShareBar'
 import { getSession } from '@/lib/auth/session'
 import { isPremiumSubscriber, isPublicMembershipEnabled } from '@/lib/membership'
 import { shouldShowPaywall } from '@/lib/paywall/decision'
 import { PUBLICATION, SITE_URL } from '@/lib/site'
 import { publicShareImageUrl } from '@/lib/seo/share-image'
 
-export const dynamic = 'force-dynamic'
+
+import { staticArticleParams } from '@/lib/static-export-params'
+export const dynamic = 'force-static'
+
+export function generateStaticParams() {
+  return staticArticleParams()
+}
 
 function previewBlocks(blocks: ArticleBlock[]): ArticleBlock[] {
   let paragraphs = 0
@@ -196,26 +203,39 @@ export default async function ArticlePage({
             publishedAt={article.publishedAt}
             source={article.source}
           />
-          <div className="article-trust-ledger__facts">
-            <span>
-              {readingEnglish
-                ? `${article.readingMinutes} min read`
-                : `${article.readingMinutes} मिनेट पढाइ`}
-            </span>
-            {article.updatedAt ? (
+          <ShareBar
+            url={canonical}
+            title={title}
+            locale={readingLocale}
+            articleSlug={slug}
+            articleCategory={category}
+            className="mt-4 print:hidden"
+          />
+          <details className="article-trust-ledger__facts mt-4 print:hidden">
+            <summary className="cursor-pointer text-meta font-semibold text-ink-soft">
+              {readingEnglish ? 'About this story' : 'यस समाचारबारे'}
+            </summary>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-meta text-mute">
               <span>
-                {readingEnglish ? 'Updated' : 'अद्यावधिक'}: {formatDate(article.updatedAt, readingLocale)}
+                {readingEnglish
+                  ? `${article.readingMinutes} min read`
+                  : `${article.readingMinutes} मिनेट पढाइ`}
               </span>
-            ) : null}
-            {article.factCheckStatus === 'verified' ? (
-              <span className="text-up">{readingEnglish ? 'Facts verified' : 'तथ्य प्रमाणित'}</span>
-            ) : null}
-            {article.source ? (
-              <span>{readingEnglish ? 'Source-linked report' : 'स्रोत लिंक गरिएको समाचार'}</span>
-            ) : (
-              <span>{readingEnglish ? 'Nagarik Watch newsroom' : 'नागरिक वाच न्युजरुम'}</span>
-            )}
-          </div>
+              {article.updatedAt ? (
+                <span>
+                  {readingEnglish ? 'Updated' : 'अद्यावधिक'}: {formatDate(article.updatedAt, readingLocale)}
+                </span>
+              ) : null}
+              {article.factCheckStatus === 'verified' ? (
+                <span className="text-up">{readingEnglish ? 'Facts verified' : 'तथ्य प्रमाणित'}</span>
+              ) : null}
+              {article.source ? (
+                <span>{readingEnglish ? 'Source-linked report' : 'स्रोत लिंक गरिएको समाचार'}</span>
+              ) : (
+                <span>{readingEnglish ? 'Nagarik Watch newsroom' : 'नागरिक वाच न्युजरुम'}</span>
+              )}
+            </div>
+          </details>
         </div>
       </header>
 
@@ -259,6 +279,14 @@ export default async function ArticlePage({
             locale={readingLocale}
             articleSlug={slug}
             articleCategory={category}
+          />
+          <ShareBar
+            url={canonical}
+            title={title}
+            locale={readingLocale}
+            articleSlug={slug}
+            articleCategory={category}
+            className="mt-6 print:hidden"
           />
           <div className="mt-8 border-t border-rule pt-5 print:hidden">
             <ReaderArticleControls

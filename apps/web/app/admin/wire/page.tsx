@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Wire retired',
   robots: { index: false, follow: false },
 }
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 /**
  * Competitor RSS monitoring is intentionally retired. Nagarik Watch's

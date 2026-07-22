@@ -181,7 +181,7 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
           placeholder={dict.searchPlaceholder}
           aria-label={dict.searchAria}
           autoComplete="off"
-          className="w-full rounded-md border border-rule bg-surface-raised py-3 pl-12 pr-12 text-body-lg text-ink shadow-card placeholder:text-mute focus:border-brand"
+          className="w-full border border-rule bg-surface-raised py-3 pl-12 pr-12 text-body-lg text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand"
         />
         {query && (
           <button
@@ -198,6 +198,11 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
       {hasQuery && results.length > 0 && (
         <p className="mt-3 text-meta text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
           {dict.searchResults(results.length)}
+          {corpus.length >= 100
+            ? locale === 'en'
+              ? ' (search covers the latest indexed stories on this page load).'
+              : ' (यो खोजीले यस पृष्ठ लोडका पछिल्ला अनुक्रमित समाचार समेट्छ)।'
+            : ''}
         </p>
       )}
 
@@ -245,6 +250,9 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
                         <span key={idx}>{s.text}</span>
                       ),
                     )}
+                  </span>
+                  <span className="text-caption font-semibold text-mute">
+                    {r.categoryLabel}
                   </span>
                   {r.authors.length > 0 && (
                     <span className="text-meta text-ink-soft">

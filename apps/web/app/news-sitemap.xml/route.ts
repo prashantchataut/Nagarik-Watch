@@ -1,3 +1,4 @@
+export const dynamic = 'force-static'
 import { getStories } from '@/lib/content'
 import { SITE_URL } from '@/lib/site'
 import { escapeXml } from '@/lib/xml'

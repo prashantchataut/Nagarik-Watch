@@ -26,10 +26,6 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
     locale === 'en'
       ? 'No verified Nagarik Watch stories have been published in this section yet.'
       : 'यो खण्डमा नागरिक वाचका प्रमाणित समाचार अझै प्रकाशित भएका छैनन्।'
-  const liveNotice =
-    locale === 'en'
-      ? `Live ranking uses first-party reads, comments, impressions and clicks when available (${engagement.storyCount} stories with activity in the last 2 hours). Quiet stories fall back to editorial priority and recency.`
-      : `लाइभ र्‍याङ्किङले उपलब्ध पहिलो-पक्ष पढाइ, टिप्पणी, इम्प्रेसन र क्लिक प्रयोग गर्छ (पछिल्लो २ घण्टामा ${engagement.storyCount} कथा सक्रिय)। शान्त कथाहरू सम्पादकीय प्राथमिकता र ताजापनमा झर्छन्।`
 
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
@@ -38,12 +34,6 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
         lead={localizedLead(locale, hub)}
         lang={lang}
       />
-
-      {hub.mode === 'trending' || hub.mode === 'latest' ? (
-        <aside className="mt-5 border-y border-rule py-3 text-meta leading-relaxed text-ink-soft" lang={lang}>
-          {liveNotice}
-        </aside>
-      ) : null}
 
       {hub.mode === 'utility' ? (
         <div className="mt-8">

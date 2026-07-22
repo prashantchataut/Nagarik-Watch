@@ -7,7 +7,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { getSession } from '@/lib/auth/session'
 import { ReaderProfileCard } from '@/components/reader/ReaderProfileCard'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
   title: 'Account',

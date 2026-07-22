@@ -23,7 +23,7 @@ export async function generateMetadata({
   }
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 const PER_PAGE = 24
 
@@ -46,7 +46,7 @@ export default async function LatestPage({
   const result = await getStories({ locale, page, perPage: PER_PAGE })
 
   return (
-    <main className="mx-auto max-w-page px-4 py-8 sm:py-12">
+    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
       <AdSlot locale={locale} placementKey="latest-top" />
       <HubIndexHeader
         title={english ? 'Latest news' : 'ताजा समाचार'}
@@ -67,10 +67,15 @@ export default async function LatestPage({
                 className="grid gap-4 py-6 sm:grid-cols-[3rem_minmax(0,1fr)]"
               >
                 <span
-                  className="font-mono text-h2 font-bold tabular-nums text-mute"
+                  className="font-display text-h2 font-extrabold tabular-nums text-brand-strong"
                   aria-hidden="true"
                 >
-                  {String((result.page - 1) * PER_PAGE + index + 1).padStart(2, '0')}
+                  {locale === 'en'
+                    ? String((result.page - 1) * PER_PAGE + index + 1)
+                    : String((result.page - 1) * PER_PAGE + index + 1)
+                        .split('')
+                        .map((d) => '०१२३४५६७८९'[Number(d)] ?? d)
+                        .join('')}
                 </span>
                 <StoryCard
                   story={story}
@@ -100,6 +105,6 @@ export default async function LatestPage({
             : 'सम्पादकीय समीक्षा पूरा भएको समाचार अझै प्रकाशित छैन।'}
         </p>
       )}
-    </main>
+    </div>
   )
 }

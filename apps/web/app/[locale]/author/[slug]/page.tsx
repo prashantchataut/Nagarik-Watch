@@ -1,12 +1,19 @@
+import { staticAuthorParams } from '@/lib/static-export-params'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import type { CategoryRef, Locale } from '@nagarikwatch/db'
 import { notFound } from 'next/navigation'
-import { StoryCard, SectionHeader } from '@nagarikwatch/ui'
+import { SectionHeader, StoryGrid } from '@nagarikwatch/ui'
 import { getAuthor } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
+
+export const dynamic = 'force-static'
+
+export function generateStaticParams() {
+  return staticAuthorParams()
+}
 
 type Params = { locale: string; slug: string }
 
@@ -61,7 +68,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
           )}
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <span
-              className="inline-flex items-center border-l-2 border-brand pl-3 text-meta font-bold text-brand-strong"
+              className="inline-flex items-center rounded-sm bg-brand-tint px-2.5 py-1 text-meta font-bold text-brand-strong"
               lang={lang}
             >
               {dict.storyCount(stories.total)}
@@ -119,18 +126,16 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
 
       {stories.items.length === 0 ? (
         <p className="mt-12 text-body-lg text-ink-soft" lang={lang}>
-          {dict.emptyEnglish}
+          {locale === 'en'
+            ? 'No published stories by this author yet.'
+            : 'यस लेखकका अझै प्रकाशित समाचार छैनन्।'}
         </p>
       ) : (
         <section className="mt-8" aria-label={dict.authorStories}>
           <SectionHeader title={dict.authorStories} locale={locale} />
-          <ul className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {stories.items.map((s) => (
-              <li key={s.slug}>
-                <StoryCard story={s} locale={locale} variant="default" />
-              </li>
-            ))}
-          </ul>
+          <div className="mt-6">
+            <StoryGrid stories={stories.items} locale={locale} />
+          </div>
         </section>
       )}
     </div>

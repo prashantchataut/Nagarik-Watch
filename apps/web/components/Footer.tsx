@@ -3,7 +3,6 @@ import type { Category, Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
-import { NewsletterInline } from '@/components/NewsletterInline'
 import { ManageCookiesButton } from '@/components/ManageCookiesButton'
 import { PUBLICATION, isPublicPublicationValue } from '@/lib/site'
 
@@ -212,9 +211,14 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
                 {PUBLICATION.editorInChief}
               </p>
             ) : null}
-            <div className="mt-5">
-              <NewsletterInline locale={locale} />
-            </div>
+            <p className="mt-5 text-meta text-ink-soft" lang={lang}>
+              <Link
+                href={localizeHref(locale, '/newsletter/archive')}
+                className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+              >
+                {locale === 'en' ? 'Newsletter archive' : 'न्युजलेटर अभिलेख'}
+              </Link>
+            </p>
           </div>
         </div>
 

@@ -3,7 +3,7 @@ import { ReaderAuthShell } from '@/components/auth/ReaderAuthShell'
 import { AcceptNewsroomInvite } from '@/components/auth/AcceptNewsroomInvite'
 import { getSession } from '@/lib/auth/session'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 export const metadata: Metadata = { title: 'Newsroom invitation', robots: { index: false, follow: false } }
 
 export default async function Page({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ token?: string }> }) {

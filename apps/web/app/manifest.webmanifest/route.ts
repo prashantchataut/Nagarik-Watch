@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export function GET(_request: NextRequest) {
   const manifest = {

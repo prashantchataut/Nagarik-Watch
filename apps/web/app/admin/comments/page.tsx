@@ -8,7 +8,7 @@ import { AdminPageHeader, AdminEmptyState, AdminFilterLink, AdminCard, AdminTabl
 import { CommentModerationActions } from '@/components/admin/CommentModerationActions'
 
 export const metadata: Metadata = { title: 'टिप्पणी', robots: { index: false, follow: false } }
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 const allowed = new Set<CommentStatus | 'all'>(['pending', 'approved', 'rejected', 'flagged', 'all'])
 
@@ -21,7 +21,17 @@ function commentStatusTone(status: CommentStatus): 'attention' | 'success' | 'da
 
 export default async function CommentsPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   const session = await requireNewsroomSession()
-  if (!canModerateComments(session.newsroomRole)) return null
+  if (!canModerateComments(session.newsroomRole)) {
+    return (
+      <div>
+        <AdminPageHeader subtitle="टिप्पणी मोडरेशन" />
+        <AdminEmptyState
+          title="अनुमति छैन"
+          body="यो भूमिकाबाट टिप्पणी मोडरेशन गर्न मिल्दैन। सम्पादक वा मोडरेटर खाता चाहिन्छ।"
+        />
+      </div>
+    )
+  }
   const requested = (await searchParams).status ?? 'pending'
   const status = allowed.has(requested as CommentStatus | 'all') ? (requested as CommentStatus | 'all') : 'pending'
   const comments = await listCommentsForModeration(status)
@@ -31,7 +41,9 @@ export default async function CommentsPage({ searchParams }: { searchParams: Pro
       <AdminPageHeader subtitle="Moderation queue, spam review and reader trust controls" />
       <nav className="mb-5 flex flex-wrap gap-2" aria-label="Comment status filter">
         {(['pending', 'flagged', 'approved', 'rejected', 'all'] as const).map((value) => (
-          <AdminFilterLink key={value} href={value === 'pending' ? '/admin/comments' : `/admin/comments?status=${value}`} active={status === value}>{value}</AdminFilterLink>
+          <AdminFilterLink key={value} href={value === 'pending' ? '/admin/comments' : `/admin/comments?status=${value}`} active={status === value}>
+            {value === 'pending' ? 'पेन्डिङ' : value === 'flagged' ? 'फ्ल्याग' : value === 'approved' ? 'स्वीकृत' : value === 'rejected' ? 'अस्वीकृत' : 'सबै'}
+          </AdminFilterLink>
         ))}
       </nav>
       <AdminCard className="overflow-hidden !p-0">

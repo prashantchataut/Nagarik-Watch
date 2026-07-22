@@ -14,7 +14,6 @@ import {
   runAllAlgorithms,
   type AlgorithmRunResult,
 } from '@/lib/algorithms/runtime'
-import type { AlgorithmMode } from '@/lib/algorithms/types'
 import {
   bayesianAverage,
   banditExplorationScore,
@@ -36,7 +35,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 const STATUS_TONE: Record<AlgorithmStatus, 'success' | 'attention' | 'neutral' | 'danger'> = {
   live: 'success',
@@ -44,13 +43,6 @@ const STATUS_TONE: Record<AlgorithmStatus, 'success' | 'attention' | 'neutral' |
   scaffold: 'neutral',
   blocked: 'danger',
   planned: 'neutral',
-}
-
-const MODE_TONE: Record<AlgorithmMode, 'success' | 'attention' | 'neutral' | 'danger'> = {
-  production: 'success',
-  local: 'neutral',
-  'adapter-ready': 'attention',
-  'adapter-disabled': 'danger',
 }
 
 export default async function AlgorithmsPage() {
@@ -294,6 +286,8 @@ function CatalogSection({
   entries: readonly AlgorithmEntry[]
   resultsById: Map<string, AlgorithmRunResult>
 }) {
+  const top = entries.slice(0, 6)
+  const rest = entries.slice(6)
   return (
     <>
       <div className="mb-4 border-b border-rule pb-3">
@@ -303,53 +297,38 @@ function CatalogSection({
         <p className="mt-1 text-meta text-mute">{description}</p>
       </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {entries.map((algorithm) => {
+        {top.map((algorithm) => {
           const result = resultsById.get(algorithm.id)
           return (
             <div key={algorithm.id} data-algorithm-id={algorithm.id}>
               <AdminCard className="h-full">
                 <div className="flex flex-wrap items-start justify-between gap-2">
-                  <p className="text-caption font-bold uppercase tracking-wide text-brand-strong">
+                  <p className="text-caption font-bold text-brand-strong">
                     #{algorithm.number} · {algorithm.category}
                   </p>
-                  <div className="flex flex-wrap gap-1">
-                    <OpsCheckBadge status={result?.ok ? 'pass' : 'fail'} />
-                    {result ? (
-                      <span className={`admin-status admin-status--${MODE_TONE[result.mode]}`}>
-                        {result.mode}
-                      </span>
-                    ) : null}
-                  </div>
+                  <OpsCheckBadge status={result?.ok ? 'pass' : 'fail'} />
                 </div>
                 <h3 className="admin-section-title">{algorithm.label}</h3>
                 <p className="mt-2 text-meta text-ink-soft">{algorithm.summary}</p>
-                <p className="mt-2 text-caption text-mute">
-                  Surface: {result?.surface ?? algorithm.surface}
-                </p>
-                {typeof result?.score === 'number' ? (
-                  <p className="mt-1 font-mono text-caption text-ink-soft">
-                    score {result.score.toFixed(4)} · {result.ms}ms
-                  </p>
-                ) : null}
-                {result?.detail ? (
-                  <p className="mt-1 break-words text-caption text-mute">{result.detail}</p>
-                ) : null}
-                {result?.reason && !result.ok ? (
-                  <p className="mt-2 text-caption font-semibold text-red-800">
-                    Reason: {result.reason}
-                  </p>
-                ) : null}
-                {algorithm.dependency ? (
-                  <p className="mt-2 text-caption font-semibold text-amber-800">
-                    Dependency: {algorithm.dependency}
-                  </p>
-                ) : null}
-                <p className="mt-2 text-caption text-mute">Priority {algorithm.priority}</p>
               </AdminCard>
             </div>
           )
         })}
       </div>
+      {rest.length ? (
+        <details className="mt-4 border border-rule p-4">
+          <summary className="cursor-pointer text-meta font-bold text-ink">
+            बाँकी {rest.length} एन्ट्री
+          </summary>
+          <ul className="mt-3 grid gap-2 text-meta text-ink-soft md:grid-cols-2">
+            {rest.map((algorithm) => (
+              <li key={algorithm.id}>
+                #{algorithm.number} {algorithm.label}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
     </>
   )
 }

@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nagarik-watch",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-07-20",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "workers_dev": true,
+  "preview_urls": true,
+  "vars": {
+    "CONTENT_SOURCE": "json",
+    "NEXT_PUBLIC_LAUNCH_STATUS": "preview",
+    "ENABLE_WEB_ADMIN_SCAFFOLD": "true"
+  }
+}

@@ -201,9 +201,6 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
           </ul>
 
           <div className="hidden shrink-0 items-center gap-1.5 py-1.5 lg:flex">
-            <Link href={utilitiesHref} className={PRIMARY_CTA} lang={lang}>
-              {locale === 'en' ? 'Utilities' : 'पात्रो'}
-            </Link>
             <Link href={latestHref} className={PRIMARY_CTA} lang={lang}>
               {dict.navLatest}
             </Link>

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: 'Newsroom MFA setup',
   robots: { index: false, follow: false },
 }
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export default async function StaffMfaSetupPage({
   params,

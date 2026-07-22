@@ -4,7 +4,7 @@ import { ReaderAuthShell } from '@/components/auth/ReaderAuthShell'
 import { ChangePasswordForm } from '@/components/reader/ChangePasswordForm'
 import { getSession } from '@/lib/auth/session'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 export const metadata: Metadata = { title: 'Change password', robots: { index: false, follow: false } }
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: raw } = await params

@@ -15,7 +15,12 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const pathname = (await headers()).get('x-pathname') ?? ''
+  const requestHeaders = await headers()
+  const pathname =
+    requestHeaders.get('x-pathname') ??
+    requestHeaders.get('x-invoke-path') ??
+    requestHeaders.get('next-url')?.replace(/^https?:\/\/[^/]+/, '') ??
+    ''
   if (pathname === '/admin/login' || pathname.startsWith('/admin/login/')) return children
 
   if (process.env.ENABLE_WEB_ADMIN_SCAFFOLD === 'false') {

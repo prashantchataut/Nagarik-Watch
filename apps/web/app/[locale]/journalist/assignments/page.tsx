@@ -10,7 +10,7 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
 
 export const metadata: Metadata = { title: 'My newsroom stories', robots: { index: false, follow: false } }
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export default async function JournalistAssignmentsPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale: Locale = asLocale((await params).locale)
@@ -46,6 +46,11 @@ export default async function JournalistAssignmentsPage({ params }: { params: Pr
       <main className="newsroom-page">
         <header className="newsroom-page__header">
           <h1>{ne ? 'मेरा समाचार' : 'My stories'}</h1>
+          <p>
+            {ne
+              ? 'प्राथमिकता स्कोरले समयसीमा, कभरेज खाडल र बाँकी चेकलिस्ट मिलाएर कुन ड्राफ्ट पहिले खोल्ने देखाउँछ।'
+              : 'Priority score blends deadline pressure, coverage gap, and remaining checklist items so you know which draft to open first.'}
+          </p>
         </header>
 
         <dl className="newsroom-queue-summary" aria-label={ne ? 'कतार सारांश' : 'Queue summary'}>
@@ -69,7 +74,11 @@ export default async function JournalistAssignmentsPage({ params }: { params: Pr
               <span className="newsroom-story-list__index">{String(index + 1).padStart(2, '0')}</span>
               <div>
                 <p className="newsroom-story-list__meta">
-                  {draft.categorySlug || (ne ? 'विभाग नखुलेको' : 'No desk')} · {draft.workflowStage} · {ne ? 'प्राथमिकता' : 'priority'} {desk.deskScore.toFixed(2)}
+                  {draft.categorySlug || (ne ? 'विभाग नखुलेको' : 'No desk')}
+                  {' · '}
+                  {stageLabel(draft.workflowStage, ne)}
+                  {' · '}
+                  {ne ? 'प्राथमिकता' : 'priority'} {desk.deskScore.toFixed(1)}
                 </p>
                 <h2>{draft.titleNe || draft.articleSlug}</h2>
                 <p>{draft.editorFeedback || draft.editorPitch || (ne ? 'सम्पादकीय नोट छैन।' : 'No editorial note yet.')}</p>
@@ -91,4 +100,16 @@ export default async function JournalistAssignmentsPage({ params }: { params: Pr
       </main>
     </JournalistWorkspaceShell>
   )
+}
+
+function stageLabel(stage: string, ne: boolean): string {
+  const map: Record<string, { ne: string; en: string }> = {
+    draft: { ne: 'ड्राफ्ट', en: 'Draft' },
+    submitted: { ne: 'समीक्षामा', en: 'In review' },
+    revision: { ne: 'संशोधन', en: 'Revision' },
+    published: { ne: 'प्रकाशित', en: 'Published' },
+  }
+  const hit = map[stage]
+  if (!hit) return stage
+  return ne ? hit.ne : hit.en
 }

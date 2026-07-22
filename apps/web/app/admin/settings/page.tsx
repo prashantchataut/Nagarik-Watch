@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 async function saveSetting(formData: FormData) {
   'use server'

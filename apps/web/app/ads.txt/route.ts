@@ -1,3 +1,4 @@
+export const dynamic = 'force-static'
 import { PUBLICATION, SITE_URL } from '@/lib/site'
 
 function defaultAdsTxt(): string {

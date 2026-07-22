@@ -1,6 +1,7 @@
 export { cn } from './cn'
 export { default as tailwindPreset } from './tailwind-preset'
 export { StoryCard, type StoryCardVariant } from './StoryCard'
+export { StoryGrid } from './StoryGrid'
 export { Byline } from './Byline'
 export { CategoryLabel } from './CategoryLabel'
 export { Dateline } from './Dateline'

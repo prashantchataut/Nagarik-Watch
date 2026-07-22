@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { headers } from 'next/headers'
 import './globals.css'
 import { fontVariables } from './fonts'
+import { isStaticPagesExport } from '@/lib/build-mode'
 import { SITE_URL } from '@/lib/site'
 
 const themeBootScript = `(() => {
@@ -27,8 +28,11 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const headerStore = await headers()
-  const lang = headerStore.get('x-locale') === 'en' ? 'en' : 'ne'
+  let lang: 'ne' | 'en' = 'ne'
+  if (!isStaticPagesExport) {
+    const headerStore = await headers()
+    lang = headerStore.get('x-locale') === 'en' ? 'en' : 'ne'
+  }
   return (
     <html lang={lang} className={fontVariables} suppressHydrationWarning>
       <head>

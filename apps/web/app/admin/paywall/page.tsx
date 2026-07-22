@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 function subscriptionStatusTone(status: string): 'success' | 'attention' | 'neutral' | 'danger' {
   if (status === 'active' || status === 'trialing' || status === 'comped') return 'success'
@@ -45,11 +45,17 @@ export default async function PaywallPage() {
 
   return (
     <div>
-      <AdminPageHeader subtitle="Manual subscriber override and premium access controls" />
+      <AdminPageHeader subtitle="सदस्यता अहिले सार्वजनिक रूपमा बन्द छ (Option A: निःशुल्क + विज्ञापन)। यो पृष्ठ म्यानुअल अपवादका लागि मात्र।" />
+      <AdminCard className="mb-5">
+        <p className="text-body text-ink-soft" lang="ne">
+          सार्वजनिक साइटमा सदस्यता CTA देखाइँदैन जबसम्म <code className="font-mono text-ink" lang="en">NEXT_PUBLIC_MEMBERSHIP_PUBLIC=true</code> सेट हुँदैन। हालको mode:{' '}
+          <code className="font-mono text-ink" lang="en">{mode}</code>.
+        </p>
+      </AdminCard>
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.35fr]">
         <AdminCard>
           <p className="text-meta text-ink-soft" lang="ne">
-            Membership mode: <code className="font-mono text-ink" lang="en">{mode}</code>. Payment provider नहुँदा manual override प्रयोग हुन्छ।
+            आन्तरिक म्यानुअल सदस्य override (स्टाफ मात्र)।
           </p>
           <form action={saveSubscription} className="mt-5 grid gap-3">
             <AdminInput label="Reader email" name="email" type="email" required lang="en" />
@@ -92,7 +98,7 @@ export default async function PaywallPage() {
                       <span className={`admin-status admin-status--${subscriptionStatusTone(item.status)}`}>{item.status}</span>
                     </td>
                     <td className="text-meta text-ink-soft">{item.plan}</td>
-                    <td className="text-caption text-mute">{item.expiresAt ? new Date(item.expiresAt).toLocaleDateString() : '—'}</td>
+                    <td className="text-caption text-mute">{item.expiresAt ? new Date(item.expiresAt).toLocaleDateString() : '-'}</td>
                   </tr>
                 ))}
               </tbody>

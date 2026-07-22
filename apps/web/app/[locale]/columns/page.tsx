@@ -5,7 +5,7 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getAuthors, getStories } from '@/lib/content'
 import { SITE_URL } from '@/lib/site'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export async function generateMetadata({
   params,
@@ -45,12 +45,14 @@ export default async function ColumnsPage({
   return (
     <div className="mx-auto max-w-page px-4 pb-16 pt-10">
       <header className="border-b border-rule pb-6">
-        <p className="text-caption font-bold uppercase tracking-wide text-brand-strong">
-          {en ? 'Columns' : 'स्तम्भ'}
-        </p>
-        <h1 className="mt-2 font-display text-[clamp(2rem,5vw,3.4rem)] font-black text-ink">
+        <h1 className="font-display text-[clamp(2rem,5vw,3.4rem)] font-black text-ink">
           {en ? 'Columnists and analysis' : 'स्तम्भकार र विश्लेषण'}
         </h1>
+        <p className="mt-3 max-w-body text-body-lg text-ink-soft">
+          {en
+            ? 'Opinion with a distinct voice. Bylines first, then the latest columns.'
+            : 'छुट्टै स्वरका विचार। पहिले स्तम्भकार, त्यसपछि नयाँ स्तम्भ।'}
+        </p>
       </header>
 
       {columnists.length ? (
@@ -60,7 +62,7 @@ export default async function ColumnsPage({
           </h2>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {columnists.map((author) => (
-              <li key={author.slug} className="border border-rule p-4">
+              <li key={author.slug} className="border-b border-rule py-4">
                 <Link
                   href={localizeHref(locale, `/author/${author.slug}`)}
                   className="font-display text-body-lg font-bold text-ink hover:text-brand-strong"

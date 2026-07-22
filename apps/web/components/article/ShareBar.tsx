@@ -65,29 +65,22 @@ export function ShareBar({
       aria-label={dict.shareLabel}
     >
       <span
-        className="mr-1 text-meta font-semibold uppercase tracking-wide text-ink-soft"
+        className="mr-1 text-meta font-semibold text-ink-soft"
         lang={locale === 'en' ? 'en' : 'ne'}
       >
         {dict.shareLabel}
       </span>
-      <button
-        type="button"
-        onClick={onCopy}
-        className="article-action-link"
-        lang={locale === 'en' ? 'en' : 'ne'}
-      >
-        <LinkIcon />
-        {copied ? dict.shareCopied : dict.shareCopyLink}
-      </button>
       <a
         href={fb}
         target="_blank"
         rel="noopener noreferrer"
-        className="article-icon-action"
+        className="article-action-link"
         aria-label={dict.shareFacebook}
         onClick={trackShare}
+        lang={locale === 'en' ? 'en' : 'ne'}
       >
         <FacebookIcon />
+        {dict.shareFacebook}
       </a>
       <a
         href={x}
@@ -99,6 +92,15 @@ export function ShareBar({
       >
         <XIcon />
       </a>
+      <button
+        type="button"
+        onClick={onCopy}
+        className="article-action-link"
+        lang={locale === 'en' ? 'en' : 'ne'}
+      >
+        <LinkIcon />
+        {copied ? dict.shareCopied : dict.shareCopyLink}
+      </button>
       <span aria-live="polite" className="sr-only">
         {copied ? dict.shareCopied : ''}
       </span>

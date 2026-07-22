@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 const statusOptions: { value: 'all' | SubmissionStatus; label: string }[] = [
   { value: 'all', label: 'सबै' },

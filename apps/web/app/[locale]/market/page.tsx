@@ -151,7 +151,7 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
                 {forex.data.map((r) => (
                   <tr key={r.iso3}>
                     <td className="py-2.5 pr-4 font-semibold text-ink" lang="en">
-                      {r.iso3} — {r.name}
+                      {r.iso3}: {r.name}
                     </td>
                     <td className="py-2.5 pr-4 tabular-nums text-ink">
                       {localizeNumber(r.buy.toFixed(2), locale)}

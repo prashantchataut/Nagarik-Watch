@@ -1,3 +1,4 @@
+export const dynamic = 'force-static'
 import { getStories, getNavCategories } from '@/lib/content'
 import { PUBLICATION, SITE_URL } from '@/lib/site'
 
