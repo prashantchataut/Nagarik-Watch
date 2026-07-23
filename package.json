@@ -40,8 +40,9 @@
     "build:admin": "pnpm verify:workspaces && pnpm --filter @nagarikwatch/admin... build",
     "deploy:web:cf": "pnpm --filter @nagarikwatch/web deploy:app",
     "deploy:web:static": "pnpm --filter @nagarikwatch/web deploy:pages",
-    "build:web:pages": "pnpm --filter @nagarikwatch/web build:pages",
-    "preview:web:cf": "pnpm --filter @nagarikwatch/web preview",
+  "build:web:pages": "pnpm --filter @nagarikwatch/web build:pages",
+  "build:cf-pages": "node scripts/cf-pages-build.mjs",
+  "preview:web:cf": "pnpm --filter @nagarikwatch/web preview",
     "verify:deploy": "pnpm verify:lockfile && pnpm build:web && pnpm build:admin",
     "verify:workspaces": "node scripts/verify-canonical-workspaces.mjs"
   },

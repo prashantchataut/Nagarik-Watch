@@ -3,7 +3,6 @@ import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localePrefix } from '@/lib/i18n/locales'
 import { getRealNepse, getRealForex, getRealGoldSilver } from '@/lib/live/real'
 import { localizeNumber, relativeTime } from '@/lib/live/format'
-import { LiveWidget } from '@nagarikwatch/ui'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 
@@ -15,20 +14,14 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
   const dict = getDictionary(locale)
   const lang = locale === 'en' ? 'en' : 'ne'
   const en = locale === 'en'
-  const labels = {
-    mock: dict.liveMock,
-    sourcePrefix: dict.liveSourcePrefix,
-    loading: dict.liveLoading,
-    error: dict.liveError,
-    empty: dict.liveEmpty,
-    retry: dict.liveRetry,
-  }
 
   const [nepse, forex, goldSilver] = await Promise.all([
     getRealNepse(locale),
     getRealForex(locale),
     getRealGoldSilver(locale),
   ])
+
+  const nepseUp = Boolean(nepse.data && nepse.data.change >= 0)
 
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
@@ -42,91 +35,83 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
         lang={lang}
       />
 
-      <div className="mt-8 grid gap-4 border-y border-rule py-6 sm:grid-cols-2 lg:grid-cols-3">
-        {/* NEPSE */}
-        <LiveWidget
-          title={dict.nepseTitle}
-          titleLang="en"
-          status={nepse.status}
-          source={sourceFor(nepse.source, locale)}
-          updatedLabel={relativeTime(nepse.updatedAt, locale)}
-          mock={false}
-          labels={labels}
-          tone={nepse.data && nepse.data.change >= 0 ? 'up' : 'down'}
-        >
+      <section className="market-board" aria-label={en ? 'Market board' : 'बजार बोर्ड'}>
+        <div className="market-board__lead">
+          <p className="market-board__label" lang="en">
+            {dict.nepseTitle}
+          </p>
           {nepse.data ? (
-            <div>
-              <p className="font-display text-h1 font-bold text-ink">
+            <>
+              <p className="market-board__value">
                 {localizeNumber(nepse.data.index.toFixed(2), locale)}
               </p>
-              <p
-                className={
-                  nepse.data.change >= 0
-                    ? 'text-meta font-semibold text-up'
-                    : 'text-meta font-semibold text-down'
-                }
-              >
-                <span aria-hidden="true">{nepse.data.change >= 0 ? '▲' : '▼'}</span>{' '}
+              <p className={nepseUp ? 'market-board__change is-up' : 'market-board__change is-down'}>
+                <span aria-hidden="true">{nepseUp ? '▲' : '▼'}</span>{' '}
                 {Math.abs(nepse.data.change).toFixed(2)} (
                 {Math.abs(nepse.data.changePercent).toFixed(2)}%)
               </p>
-            </div>
-          ) : null}
-        </LiveWidget>
+            </>
+          ) : (
+            <p className="market-board__empty" lang={lang}>
+              {en ? 'Index feed unavailable.' : 'सूचकाङ्क फिड उपलब्ध छैन।'}
+            </p>
+          )}
+          <p className="market-board__meta">
+            {sourceFor(nepse.source, locale)} · {relativeTime(nepse.updatedAt, locale)}
+          </p>
+        </div>
 
-        {/* Gold */}
-        <LiveWidget
-          title={en ? 'Gold' : 'सुन'}
-          titleLang={lang}
-          status={goldSilver.status}
-          source={sourceFor(goldSilver.source, locale)}
-          updatedLabel={relativeTime(goldSilver.updatedAt, locale)}
-          mock={false}
-          labels={labels}
-        >
-          {goldSilver.data ? (
-            <div>
-              <p className="font-display text-h1 font-bold text-ink">
-                रु. {localizeNumber(goldSilver.data.goldTolaNpr.toLocaleString(), locale)}
+        <div className="market-board__rail">
+          <div>
+            <p className="market-board__label" lang={lang}>
+              {en ? 'Gold' : 'सुन'}
+            </p>
+            {goldSilver.data ? (
+              <>
+                <p className="market-board__value market-board__value--sm">
+                  रु. {localizeNumber(goldSilver.data.goldTolaNpr.toLocaleString(), locale)}
+                </p>
+                <p className="market-board__hint" lang={lang}>
+                  {en ? 'per tola (11.664g)' : 'प्रति तोला'}
+                </p>
+              </>
+            ) : (
+              <p className="market-board__empty" lang={lang}>
+                {en ? 'Unavailable' : 'उपलब्ध छैन'}
               </p>
-              <p className="text-meta text-mute" lang={lang}>
-                {en ? 'per tola (11.664g)' : 'प्रति तोला'}
+            )}
+          </div>
+          <div>
+            <p className="market-board__label" lang={lang}>
+              {en ? 'Silver' : 'चाँदी'}
+            </p>
+            {goldSilver.data ? (
+              <>
+                <p className="market-board__value market-board__value--sm">
+                  रु. {localizeNumber(goldSilver.data.silverTolaNpr.toLocaleString(), locale)}
+                </p>
+                <p className="market-board__hint" lang={lang}>
+                  {en ? 'per tola' : 'प्रति तोला'}
+                </p>
+              </>
+            ) : (
+              <p className="market-board__empty" lang={lang}>
+                {en ? 'Unavailable' : 'उपलब्ध छैन'}
               </p>
-            </div>
-          ) : null}
-        </LiveWidget>
+            )}
+          </div>
+          <p className="market-board__meta market-board__meta--span">
+            {sourceFor(goldSilver.source, locale)} · {relativeTime(goldSilver.updatedAt, locale)}
+          </p>
+        </div>
+      </section>
 
-        {/* Silver */}
-        <LiveWidget
-          title={en ? 'Silver' : 'चाँदी'}
-          titleLang={lang}
-          status={goldSilver.status}
-          source={sourceFor(goldSilver.source, locale)}
-          updatedLabel={relativeTime(goldSilver.updatedAt, locale)}
-          mock={false}
-          labels={labels}
-        >
-          {goldSilver.data ? (
-            <div>
-              <p className="font-display text-h1 font-bold text-ink">
-                रु. {localizeNumber(goldSilver.data.silverTolaNpr.toLocaleString(), locale)}
-              </p>
-              <p className="text-meta text-mute" lang={lang}>
-                {en ? 'per tola' : 'प्रति तोला'}
-              </p>
-            </div>
-          ) : null}
-        </LiveWidget>
-      </div>
-
-      {/* Forex table */}
-      <section className="mt-8 border-y border-rule py-6">
+      <section className="mt-10 border-y border-rule py-6">
         <h2 className="font-display text-h2 text-ink" lang={lang}>
-          {en ? 'Forex Rates (NRB)' : 'विदेशी मुद्रा दर (नराे)'}
+          {en ? 'Forex rates (NRB)' : 'विदेशी मुद्रा दर (ने.रा.बै.)'}
         </h2>
         <p className="mt-1 text-caption text-mute" lang={lang}>
-          {sourceFor(forex.source, locale)} ·{' '}
-          {relativeTime(forex.updatedAt, locale)}
+          {sourceFor(forex.source, locale)} · {relativeTime(forex.updatedAt, locale)}
         </p>
         {forex.data && forex.data.length > 0 ? (
           <div className="mt-4 overflow-x-auto">

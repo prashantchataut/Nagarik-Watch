@@ -89,9 +89,9 @@ export function LiveWidget({
   return (
     <section
       className={cn(
-        // A 2px top hairline carries the tone; never a left/right side stripe (impeccable ban).
-        'relative flex flex-col rounded-md border border-rule bg-surface-raised p-3',
-        'before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:rounded-t-md',
+        // Flat panel: top tone hairline only; no raised card, radius, or side stripe.
+        'relative flex flex-col border border-rule bg-surface p-3',
+        'before:absolute before:inset-x-0 before:top-0 before:h-0.5',
         toneAccent[tone],
         className,
       )}

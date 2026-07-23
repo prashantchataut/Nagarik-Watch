@@ -82,6 +82,10 @@ function flattenNepaliRoot() {
 try {
   process.env.CONTENT_SOURCE = process.env.CONTENT_SOURCE || 'json'
   process.env.NEXT_PUBLIC_LAUNCH_STATUS = process.env.NEXT_PUBLIC_LAUNCH_STATUS || 'preview'
+  if (!process.env.NEXT_PUBLIC_SITE_URL?.trim()) {
+    process.env.NEXT_PUBLIC_SITE_URL =
+      process.env.CF_PAGES_URL?.trim() || 'https://nagarik-watch.pages.dev'
+  }
 
   run('node', ['scripts/patch-page-dynamic.mjs'])
   if (existsSync(middlewarePath)) renameSync(middlewarePath, middlewareBak)

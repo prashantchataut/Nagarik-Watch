@@ -3,7 +3,8 @@
  * Kept free of browser Cache APIs so Vitest can cover eligibility rules.
  */
 
-export const OFFLINE_CACHE_VERSION = 'v3'
+/** Bump on SW strategy changes so activate clears stale HTML shells. */
+export const OFFLINE_CACHE_VERSION = 'v4'
 
 export const SHELL_CACHE_NAME = `nagarik-watch-shell-${OFFLINE_CACHE_VERSION}`
 export const ARTICLE_CACHE_NAME = `nagarik-watch-articles-${OFFLINE_CACHE_VERSION}`
@@ -12,8 +13,19 @@ export const IMAGE_CACHE_NAME = `nagarik-watch-images-${OFFLINE_CACHE_VERSION}`
 export const ARTICLE_CACHE_LIMIT = 30
 export const IMAGE_CACHE_LIMIT = 80
 
+/**
+ * Precached for offline fallback only. HTML at `/` must never be served
+ * cache-first while online — hashed Next.js chunks rotate every deploy.
+ */
 export const SHELL_PRECACHE_URLS = [
   '/',
+  '/manifest.webmanifest',
+  '/icon.svg',
+  '/apple-icon.png',
+] as const
+
+/** Icons/manifest may use cache-first; HTML must not. */
+export const SHELL_ASSET_URLS = [
   '/manifest.webmanifest',
   '/icon.svg',
   '/apple-icon.png',

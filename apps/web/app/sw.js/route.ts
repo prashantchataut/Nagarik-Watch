@@ -4,6 +4,7 @@ import {
   CURRENT_OFFLINE_CACHE_NAMES,
   IMAGE_CACHE_LIMIT,
   IMAGE_CACHE_NAME,
+  SHELL_ASSET_URLS,
   SHELL_CACHE_NAME,
   SHELL_PRECACHE_URLS,
   buildOfflineWorkerHelpersSource,
@@ -17,6 +18,7 @@ const ARTICLE_CACHE_NAME = ${JSON.stringify(ARTICLE_CACHE_NAME)}
 const IMAGE_CACHE_NAME = ${JSON.stringify(IMAGE_CACHE_NAME)}
 const CURRENT_OFFLINE_CACHE_NAMES = ${JSON.stringify([...CURRENT_OFFLINE_CACHE_NAMES])}
 const SHELL_PRECACHE_URLS = ${JSON.stringify([...SHELL_PRECACHE_URLS])}
+const SHELL_ASSET_URLS = ${JSON.stringify([...SHELL_ASSET_URLS])}
 const ARTICLE_CACHE_LIMIT = ${ARTICLE_CACHE_LIMIT}
 const IMAGE_CACHE_LIMIT = ${IMAGE_CACHE_LIMIT}
 
@@ -92,21 +94,32 @@ async function staleWhileRevalidate(request, cacheName, limit) {
   return networkPromise
 }
 
+/**
+ * Network-first HTML. Cache-first would keep old script/CSS hashes after deploys
+ * and surface MIME/ChunkLoadError failures against /_next/static/not-found.txt.
+ */
 async function handleArticleNavigation(request) {
-  const cached = await caches.match(request, { cacheName: ARTICLE_CACHE_NAME })
-
-  const networkPromise = fetch(request).then(async (response) => {
+  try {
+    const response = await fetch(request)
     await putIfCacheable(ARTICLE_CACHE_NAME, request, response, ARTICLE_CACHE_LIMIT)
     return response
-  })
-
-  if (cached) {
-    networkPromise.catch(() => undefined)
-    return cached
+  } catch {
+    const cached = await caches.match(request, { cacheName: ARTICLE_CACHE_NAME })
+    if (cached) return cached
+    const shell = await caches.match('/')
+    if (shell) return shell
+    throw new TypeError('Network unavailable and no offline shell cached')
   }
+}
 
+async function handleShellNavigation(request) {
   try {
-    return await networkPromise
+    const response = await fetch(request)
+    const url = new URL(request.url)
+    if (url.pathname === '/' || url.pathname === '') {
+      await putIfCacheable(SHELL_CACHE_NAME, request, response, SHELL_PRECACHE_URLS.length + 2)
+    }
+    return response
   } catch {
     const shell = await caches.match('/')
     if (shell) return shell
@@ -122,7 +135,17 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return
   if (isOfflineExcludedPath(url.pathname)) return
 
-  if (request.destination === 'manifest' || SHELL_PRECACHE_URLS.indexOf(url.pathname) !== -1) {
+  // Navigations before asset cache-first — never serve stale HTML online.
+  if (request.mode === 'navigate') {
+    if (isPublicArticleNavigationPath(url.pathname)) {
+      event.respondWith(handleArticleNavigation(request))
+      return
+    }
+    event.respondWith(handleShellNavigation(request))
+    return
+  }
+
+  if (request.destination === 'manifest' || SHELL_ASSET_URLS.indexOf(url.pathname) !== -1) {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached
@@ -140,22 +163,6 @@ self.addEventListener('fetch', (event) => {
 
   if (request.destination === 'image') {
     event.respondWith(staleWhileRevalidate(request, IMAGE_CACHE_NAME, IMAGE_CACHE_LIMIT))
-    return
-  }
-
-  if (request.mode === 'navigate' && isPublicArticleNavigationPath(url.pathname)) {
-    event.respondWith(handleArticleNavigation(request))
-    return
-  }
-
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request).catch(async () => {
-        const shell = await caches.match('/')
-        if (shell) return shell
-        throw new TypeError('Network unavailable and no offline shell cached')
-      })
-    )
   }
 })
 

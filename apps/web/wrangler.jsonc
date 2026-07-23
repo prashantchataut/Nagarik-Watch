@@ -10,6 +10,7 @@
   },
   "vars": {
     "CONTENT_SOURCE": "json",
-    "NEXT_PUBLIC_LAUNCH_STATUS": "preview"
+    "NEXT_PUBLIC_LAUNCH_STATUS": "preview",
+    "NEXT_PUBLIC_SITE_URL": "https://nagarik-watch.pages.dev"
   }
 }

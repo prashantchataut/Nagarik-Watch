@@ -37,11 +37,18 @@ export default function GlobalError({
             <div className="mt-8 flex flex-wrap gap-3">
               <button
                 type="button"
-                onClick={reset}
+                onClick={() => {
+                  try {
+                    sessionStorage.removeItem('nw-chunk-reload')
+                  } catch {
+                    /* ignore */
+                  }
+                  window.location.reload()
+                }}
                 className="min-h-13 border border-brand bg-brand px-6 text-meta font-bold text-surface hover:bg-brand-strong"
                 lang="ne"
               >
-                पुनः प्रयास गर्नुहोस्
+                पृष्ठ रिफ्रेश गर्नुहोस्
               </button>
               <button
                 type="button"

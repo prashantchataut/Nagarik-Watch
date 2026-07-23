@@ -1,9 +1,40 @@
 import type { Locale } from '@nagarikwatch/db'
 
+function normalizeOrigin(value: string | undefined | null): string | null {
+  if (!value?.trim()) return null
+  const trimmed = value.trim().replace(/\/$/, '')
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  return `https://${trimmed}`
+}
+
+/**
+ * Canonical public origin for metadata, feeds, and auth redirects.
+ * Prefer an explicit NEXT_PUBLIC_SITE_URL; fall back to platform preview URLs so
+ * Cloudflare Pages / Vercel CI can collect page data without failing the build.
+ */
 function requiredSiteUrl(): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL
+  const configured =
+    normalizeOrigin(process.env.NEXT_PUBLIC_SITE_URL) ||
+    normalizeOrigin(process.env.SITE_URL) ||
+    normalizeOrigin(process.env.BETTER_AUTH_URL) ||
+    normalizeOrigin(process.env.CF_PAGES_URL) ||
+    normalizeOrigin(process.env.VERCEL_PROJECT_PRODUCTION_URL) ||
+    normalizeOrigin(process.env.VERCEL_URL)
+
+  if (configured) return configured
+
+  if (
+    process.env.CF_PAGES === '1' ||
+    process.env.CF_PAGES_STATIC === '1' ||
+    process.env.CF_WORKERS === '1'
+  ) {
+    return 'https://nagarik-watch.pages.dev'
+  }
+
   if (process.env.NODE_ENV === 'production') {
-    throw new Error('NEXT_PUBLIC_SITE_URL is required in production')
+    throw new Error(
+      'NEXT_PUBLIC_SITE_URL is required in production (set the canonical public origin).',
+    )
   }
   return 'http://localhost:3000'
 }
