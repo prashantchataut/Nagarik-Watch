@@ -60,13 +60,13 @@ Dashboard settings:
 
 | Setting | Value |
 |---------|--------|
-| Build command | `pnpm build:cf-pages` |
+| Build command | `pnpm build` (auto-routes to static export when `CF_PAGES=1`) or `pnpm build:cf-pages` |
 | Build output directory | `apps/web/out` |
 | Root directory | `/` (repo root) |
 
 Set `NEXT_PUBLIC_SITE_URL` in Pages → Settings → Environment variables (production domain). Without it, the build falls back to `CF_PAGES_URL` or `https://nagarik-watch.pages.dev`.
 
-Do **not** use root `pnpm run build` on Pages — that builds Payload admin too and still needs the site URL during Next page-data collection.
+Do **not** point the output directory at `.next` — the Pages path is the static `out/` folder from `build:cf-pages`.
 
 ## Deploy (free)
 

@@ -12,6 +12,15 @@ function normalizeOrigin(value: string | undefined | null): string | null {
  * Prefer an explicit NEXT_PUBLIC_SITE_URL; fall back to platform preview URLs so
  * Cloudflare Pages / Vercel CI can collect page data without failing the build.
  */
+function isHostedCi(): boolean {
+  const cfPages = String(process.env.CF_PAGES || '').toLowerCase()
+  if (cfPages === '1' || cfPages === 'true') return true
+  if (process.env.CF_PAGES_STATIC === '1' || process.env.CF_WORKERS === '1') return true
+  if (process.env.VERCEL === '1') return true
+  const ci = String(process.env.CI || '').toLowerCase()
+  return ci === '1' || ci === 'true'
+}
+
 function requiredSiteUrl(): string {
   const configured =
     normalizeOrigin(process.env.NEXT_PUBLIC_SITE_URL) ||
@@ -23,11 +32,8 @@ function requiredSiteUrl(): string {
 
   if (configured) return configured
 
-  if (
-    process.env.CF_PAGES === '1' ||
-    process.env.CF_PAGES_STATIC === '1' ||
-    process.env.CF_WORKERS === '1'
-  ) {
+  // Hosted CI / CF builds often omit the public origin on first setup.
+  if (isHostedCi()) {
     return 'https://nagarik-watch.pages.dev'
   }
 
