@@ -49,7 +49,7 @@ function run(cmd, args, env = {}) {
     cwd: appDir,
     stdio: 'inherit',
     env: { ...process.env, CF_PAGES_STATIC: '1', ...env },
-    shell: false,
+    shell: process.platform === 'win32',
   })
   if (result.status !== 0) process.exit(result.status ?? 1)
 }
@@ -100,7 +100,7 @@ try {
       'wrangler',
       'pages',
       'deploy',
-      outDir,
+      './out',
       '--project-name=nagarik-watch',
       '--branch=main',
     ])

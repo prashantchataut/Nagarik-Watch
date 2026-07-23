@@ -3,7 +3,10 @@
   "name": "nagarik-watch",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-07-20",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
@@ -13,6 +16,12 @@
   "vars": {
     "CONTENT_SOURCE": "json",
     "NEXT_PUBLIC_LAUNCH_STATUS": "preview",
-    "ENABLE_WEB_ADMIN_SCAFFOLD": "true"
+    "ENABLE_WEB_ADMIN_SCAFFOLD": "true",
+    "NEXT_PUBLIC_SITE_URL": "https://nagarik-watch.pages.dev",
+    "BETTER_AUTH_URL": "https://nagarik-watch.pages.dev",
+    "NEWSROOM_SUPERADMIN_EMAIL": "owner@nagarikwatch.com",
+    "NEWSROOM_SUPERADMIN_NAME": "Newsroom Owner",
+    "NEWSROOM_ADMIN_EMAIL": "editor@nagarikwatch.com",
+    "NEWSROOM_ADMIN_NAME": "Newsroom Admin"
   }
 }
