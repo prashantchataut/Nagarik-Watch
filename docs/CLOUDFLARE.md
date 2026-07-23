@@ -54,22 +54,21 @@ pnpm exec wrangler secret put DATABASE_URL
 
 Vars in `wrangler.jsonc`: `CONTENT_SOURCE=json`, `NEXT_PUBLIC_LAUNCH_STATUS=preview`, plus override `NEXT_PUBLIC_SITE_URL` / `BETTER_AUTH_URL` to your real domain after first deploy.
 
-## Cloudflare Pages (static export)
+## Cloudflare Pages / Workers Builds (static export)
 
-Dashboard settings (classic Pages **or** Workers Builds against this repo):
+Build produces `apps/web/out`. Hosting options:
 
-| Setting | Value |
-|---------|--------|
-| Build command | `pnpm build` (routes to static export on Cloudflare CI) or `pnpm build:cf-pages` |
-| Build output directory | `apps/web/out` |
-| Root directory | `/` (repo root) |
-| Deploy command | leave empty on classic Pages; Workers Builds can keep `npx wrangler deploy` |
+| Host | Build | Deploy |
+|------|--------|--------|
+| **Workers Builds** (default `npx wrangler deploy`) | `pnpm build` | keep default — root `wrangler.jsonc` serves `apps/web/out` as Worker assets |
+| **Classic Pages** | `pnpm build` | leave Deploy empty; output dir `apps/web/out` |
+| Explicit Pages upload | `pnpm build` | `pnpm deploy:cf-pages` |
 
-Root `wrangler.jsonc` sets `pages_build_output_dir` to `apps/web/out` so the default Workers Builds deploy (`npx wrangler deploy`) uploads the static export. Prefer `pnpm deploy:cf-pages` if you customize the deploy command.
+Do **not** use bare `npx wrangler deploy` without the root `wrangler.jsonc` assets config — monorepo autoconfig fails.
 
-Set `NEXT_PUBLIC_SITE_URL` in Pages → Settings → Environment variables (production domain). Without it, the build falls back to `CF_PAGES_URL` or `https://nagarik-watch.pages.dev`.
+Set `NEXT_PUBLIC_SITE_URL` in the project env (production domain). Without it, the build falls back to `CF_PAGES_URL` or `https://nagarik-watch.pages.dev`.
 
-Do **not** point the output directory at `.next` — the Pages path is the static `out/` folder from `build:cf-pages`.
+Do **not** point the output directory at `.next` — the static path is `apps/web/out`.
 
 ## Deploy (free)
 

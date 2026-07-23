@@ -1,9 +1,13 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  // Cloudflare Workers Builds runs `npx wrangler deploy` from the monorepo root.
-  // This Pages config makes that succeed without changing the dashboard deploy command.
-  // OpenNext Worker config stays in apps/web/wrangler.jsonc (run from that directory).
+  // Workers Builds runs `npx wrangler deploy` from the monorepo root.
+  // A Pages-style `pages_build_output_dir` still hits workspace autoconfig and fails.
+  // Assets-only config is already "configured", so deploy skips that detection.
+  // OpenNext SSR Worker config remains apps/web/wrangler.jsonc (deploy from that dir).
   "name": "nagarik-watch",
   "compatibility_date": "2026-07-20",
-  "pages_build_output_dir": "apps/web/out"
+  "assets": {
+    "directory": "./apps/web/out",
+    "not_found_handling": "404-page"
+  }
 }
