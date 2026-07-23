@@ -63,6 +63,9 @@ Dashboard settings:
 | Build command | `pnpm build` (routes to static export on Cloudflare CI) or `pnpm build:cf-pages` |
 | Build output directory | `apps/web/out` |
 | Root directory | `/` (repo root) |
+| Deploy command | **leave empty** (Pages uploads `apps/web/out` automatically) |
+
+If the host forces a Deploy command, use `pnpm deploy:cf-pages` — never `npx wrangler deploy` from the repo root (monorepo Workers detection fails).
 
 Set `NEXT_PUBLIC_SITE_URL` in Pages → Settings → Environment variables (production domain). Without it, the build falls back to `CF_PAGES_URL` or `https://nagarik-watch.pages.dev`.
 

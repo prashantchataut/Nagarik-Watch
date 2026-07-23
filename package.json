@@ -43,6 +43,7 @@
     "deploy:web:static": "pnpm --filter @nagarikwatch/web deploy:pages",
     "build:web:pages": "pnpm --filter @nagarikwatch/web build:pages",
     "build:cf-pages": "node scripts/cf-pages-build.mjs",
+    "deploy:cf-pages": "node scripts/cf-pages-deploy.mjs",
     "preview:web:cf": "pnpm --filter @nagarikwatch/web preview",
     "verify:deploy": "pnpm verify:lockfile && pnpm build:web && pnpm build:admin",
     "verify:workspaces": "node scripts/verify-canonical-workspaces.mjs"
