@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Cloudflare Workers Builds runs `npx wrangler deploy` from the monorepo root.
+  // This Pages config makes that succeed without changing the dashboard deploy command.
+  // OpenNext Worker config stays in apps/web/wrangler.jsonc (run from that directory).
+  "name": "nagarik-watch",
+  "compatibility_date": "2026-07-20",
+  "pages_build_output_dir": "apps/web/out"
+}

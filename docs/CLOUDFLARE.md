@@ -56,16 +56,16 @@ Vars in `wrangler.jsonc`: `CONTENT_SOURCE=json`, `NEXT_PUBLIC_LAUNCH_STATUS=prev
 
 ## Cloudflare Pages (static export)
 
-Dashboard settings:
+Dashboard settings (classic Pages **or** Workers Builds against this repo):
 
 | Setting | Value |
 |---------|--------|
 | Build command | `pnpm build` (routes to static export on Cloudflare CI) or `pnpm build:cf-pages` |
 | Build output directory | `apps/web/out` |
 | Root directory | `/` (repo root) |
-| Deploy command | **leave empty** (Pages uploads `apps/web/out` automatically) |
+| Deploy command | leave empty on classic Pages; Workers Builds can keep `npx wrangler deploy` |
 
-If the host forces a Deploy command, use `pnpm deploy:cf-pages` — never `npx wrangler deploy` from the repo root (monorepo Workers detection fails).
+Root `wrangler.jsonc` sets `pages_build_output_dir` to `apps/web/out` so the default Workers Builds deploy (`npx wrangler deploy`) uploads the static export. Prefer `pnpm deploy:cf-pages` if you customize the deploy command.
 
 Set `NEXT_PUBLIC_SITE_URL` in Pages → Settings → Environment variables (production domain). Without it, the build falls back to `CF_PAGES_URL` or `https://nagarik-watch.pages.dev`.
 
