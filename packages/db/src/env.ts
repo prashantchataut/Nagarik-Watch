@@ -59,10 +59,19 @@ export type AppEnv = z.infer<typeof EnvSchema>
 export type EnvSource = Record<string, string | undefined>
 
 /**
+ * Read env without referencing the Node `process` global by name.
+ * Downstream packages (e.g. @nagarikwatch/ui) typecheck db sources without @types/node.
+ */
+function readDefaultEnvSource(): EnvSource {
+  const g = globalThis as typeof globalThis & { process?: { env?: EnvSource } }
+  return g.process?.env ?? {}
+}
+
+/**
  * Parse and validate process.env. Throws a human-readable error listing every
  * problem at once (rather than failing one var at a time).
  */
-export function loadEnv(source: EnvSource = process.env): AppEnv {
+export function loadEnv(source: EnvSource = readDefaultEnvSource()): AppEnv {
   const parsed = EnvSchema.safeParse(source)
   if (!parsed.success) {
     const issues = parsed.error.issues

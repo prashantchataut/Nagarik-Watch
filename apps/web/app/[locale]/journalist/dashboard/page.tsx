@@ -28,12 +28,22 @@ export default async function JournalistDashboard({ params }: { params: Promise<
     <JournalistWorkspaceShell locale={locale} name={session.displayName || session.email} roleLabel={roleLabel} active="dashboard">
       <main className="newsroom-page">
         <header className="newsroom-page__header">
-          <h1>{ne ? 'डेस्क' : 'Desk'}</h1>
-          <p>
-            {ne
-              ? 'ड्राफ्ट लेख्नुहोस्, समीक्षामा पठाउनुहोस्, सम्पादकीय प्रतिक्रिया हेर्नुहोस्।'
-              : 'Write drafts, submit for review, and track editor feedback.'}
-          </p>
+          <div>
+            <h1>{ne ? 'डेस्क' : 'Desk'}</h1>
+            <p>
+              {ne
+                ? 'ड्राफ्ट लेख्नुहोस्, समीक्षामा पठाउनुहोस्, सम्पादकीय प्रतिक्रिया हेर्नुहोस्।'
+                : 'Write drafts, submit for review, and track editor feedback.'}
+            </p>
+          </div>
+          <div className="newsroom-page__header-actions">
+            <Link className="newsroom-primary-action" href={localizeHref(locale, '/journalist/articles/new')}>
+              {ne ? 'नयाँ ड्राफ्ट' : 'New draft'}
+            </Link>
+            <Link className="newsroom-inline-link" href={localizeHref(locale, '/journalist/feedback')}>
+              {ne ? 'प्रतिक्रिया' : 'Feedback'}
+            </Link>
+          </div>
         </header>
 
         <dl className="newsroom-pulse" aria-label={ne ? 'कार्य स्थिति' : 'Work status'}>

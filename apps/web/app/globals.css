@@ -1425,8 +1425,15 @@
   .newsroom-mobilebar a:hover, .newsroom-mobilebar a:focus-visible { border-color: var(--brand); color: var(--ink); }
   .newsroom-mobilebar a[aria-current='page'] { border-color: var(--brand); color: var(--ink); font-weight: 900; }
   .newsroom-page { width: min(100%, 76rem); margin-inline: auto; padding: 1rem 1rem 4.5rem; }
-  .newsroom-page__header { padding-bottom: .85rem; border-bottom: 1px solid var(--rule); }
+  .newsroom-page__header {
+    display: grid;
+    gap: .85rem;
+    padding-bottom: .85rem;
+    border-bottom: 1px solid var(--rule);
+  }
   .newsroom-page__header h1 { font-size: 1.35rem; font-weight: 850; letter-spacing: -.02em; line-height: 1.2; }
+  .newsroom-page__header > p { max-width: 62ch; margin-top: .35rem; color: var(--ink-soft); font-size: .88rem; line-height: 1.55; }
+  .newsroom-page__header-actions { display: flex; flex-wrap: wrap; gap: .55rem; align-items: center; }
   .newsroom-primary-action { min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--brand); background: var(--brand); padding: .65rem 1rem; color: var(--surface); font-size: .82rem; font-weight: 850; }
   .newsroom-primary-action:hover, .newsroom-primary-action:focus-visible { background: var(--brand-strong); outline: 2px solid var(--brand-tint); outline-offset: 2px; }
   .newsroom-inline-link { min-height: 2.75rem; display: inline-flex; align-items: center; color: var(--ink); font-size: .82rem; font-weight: 800; text-decoration: underline; text-underline-offset: .18em; }
@@ -1589,6 +1596,13 @@
   .newsroom-login__mast { min-height: 4.5rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--rule); }
   .newsroom-login__mast span { color: var(--mute); font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
   .newsroom-login__grid { width: min(100%, 76rem); margin: clamp(2rem,7vw,7rem) auto 0; display: grid; gap: 3rem; }
+  .newsroom-login__kicker {
+    color: var(--mute);
+    font-size: .68rem;
+    font-weight: 850;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
   .newsroom-login__brief h1 { max-width: 13ch; margin-top: .7rem; font-size: clamp(2.8rem,7vw,5.7rem); font-weight: 850; letter-spacing: -.05em; line-height: .94; }
   .newsroom-login__brief > p:last-of-type { max-width: 63ch; margin-top: 1.25rem; color: var(--ink-soft); font-size: 1rem; line-height: 1.75; }
   .newsroom-login__brief dl { margin-top: 2rem; border-top: 3px solid var(--ink); }
@@ -1715,6 +1729,7 @@
     .newsroom-signout small { display: block; margin-top: .35rem; color: color-mix(in oklch,var(--down) 70%,white); font-size: .64rem; line-height: 1.4; }
     .newsroom-mobilebar { display: none; }
     .newsroom-page { padding: 1.25rem 1.5rem 5rem; }
+    .newsroom-page__header { grid-template-columns: minmax(0,1fr) auto; align-items: end; }
     .newsroom-dashboard-grid { grid-template-columns: minmax(0,1fr) 16rem; }
     .newsroom-studio__tabs { top: 0; padding-inline: 1.5rem; }
     .newsroom-studio__layout { display: grid; grid-template-columns: minmax(0,1fr) 17rem; }

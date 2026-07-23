@@ -60,7 +60,7 @@ Dashboard settings:
 
 | Setting | Value |
 |---------|--------|
-| Build command | `pnpm build` (auto-routes to static export when `CF_PAGES=1`) or `pnpm build:cf-pages` |
+| Build command | `pnpm build` (routes to static export on Cloudflare CI) or `pnpm build:cf-pages` |
 | Build output directory | `apps/web/out` |
 | Root directory | `/` (repo root) |
 

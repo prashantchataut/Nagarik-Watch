@@ -63,60 +63,93 @@ export default async function JournalistLoginPage({
   const notStaff = query.reason === 'not_staff' || (session != null && !canUseJournalistDesk(role))
   const kind = session ? resolveAccountKind(session.role) : null
 
+  const briefItems = ne
+    ? [
+        ['01', 'शीर्षक, शरीर, ट्याग'],
+        ['02', 'स्रोत र प्रमाण नोट'],
+        ['03', 'ढाँचा र चेकलिस्ट'],
+        ['04', 'स्वतः सुरक्षित → समीक्षा'],
+      ]
+    : [
+        ['01', 'Headline, body, tags'],
+        ['02', 'Source and evidence notes'],
+        ['03', 'Frames and checklist'],
+        ['04', 'Autosave → review'],
+      ]
+
   return (
-    <main className="staff-gate" lang={ne ? 'ne' : 'en'}>
-      <div className="staff-gate__card staff-gate__card--wide">
-        <Link href={localizeHref(locale, '/')} className="staff-gate__brand" aria-label={ne ? 'गृहपृष्ठ' : 'Home'}>
+    <main className="newsroom-login" lang={ne ? 'ne' : 'en'}>
+      <div className="newsroom-login__mast">
+        <Link href={localizeHref(locale, '/')} aria-label={ne ? 'गृहपृष्ठ' : 'Home'}>
           <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
         </Link>
+        <span>{ne ? 'रिपोर्टर डेस्क' : 'Reporter desk'}</span>
+      </div>
 
-        <header className="staff-gate__header">
+      <div className="newsroom-login__grid">
+        <section className="newsroom-login__brief">
+          <p className="newsroom-login__kicker">{ne ? 'न्यूजरुम पहुँच' : 'Newsroom access'}</p>
           <h1>{ne ? 'पत्रकार लगइन' : 'Journalist login'}</h1>
           <p>
             {ne
-              ? 'रिपोर्टर डेस्क — ड्राफ्ट लेख्नुहोस्, प्रमाण नोट राख्नुहोस्, सम्पादकलाई पठाउनुहोस्।'
-              : 'Reporter desk — write drafts, attach evidence notes, submit to editors.'}
+              ? 'ड्राफ्ट लेख्नुहोस्, प्रमाण नोट राख्नुहोस्, सम्पादकलाई पठाउनुहोस्। यो डेस्क निमन्त्रित रिपोर्टरका लागि मात्र हो।'
+              : 'Write drafts, attach evidence notes, and submit to editors. This desk is for invited reporters only.'}
           </p>
-        </header>
+          <dl aria-label={ne ? 'उपलब्ध उपकरण' : 'Available tools'}>
+            {briefItems.map(([n, label]) => (
+              <div key={n}>
+                <dt>{n}</dt>
+                <dd>{label}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
 
-        <ul className="staff-gate__tools" aria-label={ne ? 'उपलब्ध उपकरण' : 'Available tools'}>
-          <li>{ne ? 'स्टुडियो: शीर्षक, सामग्री, ट्याग' : 'Studio: headline, body, tags'}</li>
-          <li>{ne ? 'स्रोत/प्रमाण र स्थान नोट' : 'Source/evidence and location notes'}</li>
-          <li>{ne ? 'ढाँचा र लेखन चेकलिस्ट' : 'Story frames and writing checklist'}</li>
-          <li>{ne ? 'स्वतः सुरक्षित र समीक्षा पठाउने' : 'Autosave and submit for review'}</li>
-        </ul>
+        <section className="newsroom-login__form">
+          <header>
+            <p className="newsroom-login__kicker">{ne ? 'साइन इन' : 'Sign in'}</p>
+            <h2>{ne ? 'खाता खोल्नुहोस्' : 'Open your desk'}</h2>
+            <p>
+              {ne
+                ? 'सम्पादकले दिएको इमेल र पासवर्ड प्रयोग गर्नुहोस्।'
+                : 'Use the email and password your editor provisioned.'}
+            </p>
+          </header>
 
-        {notStaff ? (
-          <div role="status" className="newsroom-login-form__error">
-            {ne
-              ? `यो खाता ${kind ? accountKindLabel(kind, 'ne') : 'पाठक खाता'} हो (${session ? roleDisplayLabel(session.role, 'ne') : 'पाठक'})। पत्रकार पहुँचका लागि सम्पादक निमन्त्रणा चाहिन्छ।`
-              : `Signed in as ${kind ? accountKindLabel(kind, 'en') : 'a reader'} (${session ? roleDisplayLabel(session.role, 'en') : 'Reader'}). Journalist access needs an editor invite.`}
-          </div>
-        ) : null}
+          {notStaff ? (
+            <div role="status" className="newsroom-login-form__error">
+              {ne
+                ? `यो खाता ${kind ? accountKindLabel(kind, 'ne') : 'पाठक खाता'} हो (${session ? roleDisplayLabel(session.role, 'ne') : 'पाठक'})। पत्रकार पहुँचका लागि सम्पादक निमन्त्रणा चाहिन्छ।`
+                : `Signed in as ${kind ? accountKindLabel(kind, 'en') : 'a reader'} (${session ? roleDisplayLabel(session.role, 'en') : 'Reader'}). Journalist access needs an editor invite.`}
+            </div>
+          ) : null}
 
-        {!authReady ? (
-          <aside className="newsroom-login-form__error" role="status">
-            {bootFailed
-              ? ne
-                ? 'प्रमाणीकरण खाता तयार हुन सकेन। विकास सर्भर पुनः सुरु गर्नुहोस्।'
-                : 'Could not provision sign-in accounts. Restart the dev server.'
-              : ne
-                ? 'प्रमाणीकरण सेवा अहिले उपलब्ध छैन।'
-                : 'Authentication is offline right now.'}
-          </aside>
-        ) : null}
+          {!authReady ? (
+            <aside className="newsroom-login-form__error" role="status">
+              {bootFailed
+                ? ne
+                  ? 'प्रमाणीकरण खाता तयार हुन सकेन। विकास सर्भर पुनः सुरु गर्नुहोस्।'
+                  : 'Could not provision sign-in accounts. Restart the dev server.'
+                : ne
+                  ? 'प्रमाणीकरण सेवा अहिले उपलब्ध छैन।'
+                  : 'Authentication is offline right now.'}
+            </aside>
+          ) : null}
 
-        {authReady && (!session || !notStaff) ? (
-          <div data-boot-ready="true">
-            <JournalistLoginForm locale={locale} />
-          </div>
-        ) : null}
+          {authReady && (!session || !notStaff) ? (
+            <div data-boot-ready="true">
+              <JournalistLoginForm locale={locale} />
+            </div>
+          ) : null}
 
-        <p className="staff-gate__footer">
-          <Link href={localizeHref(locale, '/')}>{ne ? '← गृहपृष्ठ' : '← Home'}</Link>
-          <Link href="/admin/login">{ne ? 'एडमिन लगइन' : 'Admin login'}</Link>
-          <Link href={localizeHref(locale, '/auth/forgot-password')}>{ne ? 'पासवर्ड बिर्सनुभयो?' : 'Forgot password?'}</Link>
-        </p>
+          <footer>
+            <Link href={localizeHref(locale, '/')}>{ne ? '← गृहपृष्ठ' : '← Home'}</Link>
+            <Link href="/admin/login">{ne ? 'एडमिन लगइन' : 'Admin login'}</Link>
+            <Link href={localizeHref(locale, '/auth/forgot-password')}>
+              {ne ? 'पासवर्ड बिर्सनुभयो?' : 'Forgot password?'}
+            </Link>
+          </footer>
+        </section>
       </div>
     </main>
   )

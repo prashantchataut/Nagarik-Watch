@@ -40,47 +40,83 @@ export default async function AdminLoginPage({
   if (session) redirect('/admin/dashboard')
 
   return (
-    <main className="staff-gate" lang="en">
-      <div className="staff-gate__card">
-        <Link href="/" className="staff-gate__brand" aria-label="Nagarik Watch home">
+    <main className="newsroom-login newsroom-login--admin" lang="en">
+      <div className="newsroom-login__mast">
+        <Link href="/" aria-label="Nagarik Watch home">
           <Logo siteName="नागरिक वाच" />
         </Link>
+        <span>Ops console</span>
+      </div>
 
-        <header className="staff-gate__header">
+      <div className="newsroom-login__grid">
+        <section className="newsroom-login__brief">
+          <p className="newsroom-login__kicker">Staff only</p>
           <h1>Newsroom login</h1>
-          <p>Editors and admins only.</p>
-        </header>
-
-        {!authReady ? (
-          <aside className="newsroom-login-form__error" role="status">
-            <strong>Auth offline.</strong>
-            <span style={{ display: 'block', marginTop: '0.35rem' }}>
-              Check DATABASE_URL and try again.
-            </span>
-          </aside>
-        ) : null}
-
-        {authReady && boot.lastError ? (
-          <aside className="newsroom-login-form__error" role="status" style={{ opacity: 0.9 }}>
-            <strong>Account repair incomplete.</strong>
-            <span style={{ display: 'block', marginTop: '0.35rem' }}>
-              {boot.lastError} Use the NEWSROOM_* email/password from Vercel env.
-            </span>
-          </aside>
-        ) : null}
-
-        {authReady && boot.configured && boot.maskedEmails.length > 0 ? (
-          <p className="text-caption text-mute" style={{ marginBottom: '1rem' }} lang="en">
-            Boot account: {boot.maskedEmails.join(', ')}
+          <p>
+            Editors, publishers, and admins manage publishing, roles, and live desks here.
+            Reporter drafts live on the journalist desk.
           </p>
-        ) : null}
+          <dl aria-label="What you can do">
+            <div>
+              <dt>01</dt>
+              <dd>Publish queue and CMS</dd>
+            </div>
+            <div>
+              <dt>02</dt>
+              <dd>Roles, invites, audit</dd>
+            </div>
+            <div>
+              <dt>03</dt>
+              <dd>Live blogs and widgets</dd>
+            </div>
+            <div>
+              <dt>04</dt>
+              <dd>Ads, SEO, launch checks</dd>
+            </div>
+          </dl>
+        </section>
 
-        <AdminLoginForm resetComplete={query.reset === 'success'} databaseOnline={authReady} />
+        <section className="newsroom-login__form">
+          <header>
+            <p className="newsroom-login__kicker">Sign in</p>
+            <h2>Open the console</h2>
+            <p>Editors and admins only.</p>
+          </header>
 
-        <p className="staff-gate__footer">
-          <Link href="/">← Home</Link>
-          <Link href="/auth/forgot-password?next=%2Fadmin%2Flogin">Forgot password?</Link>
-        </p>
+          {!authReady ? (
+            <aside className="newsroom-login-form__error" role="status">
+              <strong>Auth offline.</strong>
+              <span style={{ display: 'block', marginTop: '0.35rem' }}>
+                Check DATABASE_URL and try again.
+              </span>
+            </aside>
+          ) : null}
+
+          {authReady && boot.lastError ? (
+            <aside className="newsroom-login-form__error" role="status" style={{ opacity: 0.9 }}>
+              <strong>Account repair incomplete.</strong>
+              <span style={{ display: 'block', marginTop: '0.35rem' }}>
+                {boot.lastError} Use the NEWSROOM_* email/password from env.
+              </span>
+            </aside>
+          ) : null}
+
+          {authReady && boot.configured && boot.maskedEmails.length > 0 ? (
+            <p className="newsroom-login-form__ok" lang="en">
+              Boot account: {boot.maskedEmails.join(', ')}
+            </p>
+          ) : null}
+
+          {authReady ? (
+            <AdminLoginForm resetComplete={query.reset === 'success'} databaseOnline={authReady} />
+          ) : null}
+
+          <footer>
+            <Link href="/">← Home</Link>
+            <Link href="/ne/journalist/login">Journalist desk</Link>
+            <Link href="/auth/forgot-password?next=%2Fadmin%2Flogin">Forgot password?</Link>
+          </footer>
+        </section>
       </div>
     </main>
   )

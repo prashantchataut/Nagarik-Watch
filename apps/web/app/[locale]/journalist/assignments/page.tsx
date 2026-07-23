@@ -45,12 +45,19 @@ export default async function JournalistAssignmentsPage({ params }: { params: Pr
     <JournalistWorkspaceShell locale={locale} name={session.displayName || session.email} roleLabel={roleLabel} active="assignments">
       <main className="newsroom-page">
         <header className="newsroom-page__header">
-          <h1>{ne ? 'मेरा समाचार' : 'My stories'}</h1>
-          <p>
-            {ne
-              ? 'प्राथमिकता स्कोरले समयसीमा, कभरेज खाडल र बाँकी चेकलिस्ट मिलाएर कुन ड्राफ्ट पहिले खोल्ने देखाउँछ।'
-              : 'Priority score blends deadline pressure, coverage gap, and remaining checklist items so you know which draft to open first.'}
-          </p>
+          <div>
+            <h1>{ne ? 'मेरा समाचार' : 'My stories'}</h1>
+            <p>
+              {ne
+                ? 'प्राथमिकता स्कोरले समयसीमा, कभरेज खाडल र बाँकी चेकलिस्ट मिलाएर कुन ड्राफ्ट पहिले खोल्ने देखाउँछ।'
+                : 'Priority score blends deadline pressure, coverage gap, and remaining checklist items so you know which draft to open first.'}
+            </p>
+          </div>
+          <div className="newsroom-page__header-actions">
+            <Link className="newsroom-primary-action" href={localizeHref(locale, '/journalist/articles/new')}>
+              {ne ? 'नयाँ ड्राफ्ट' : 'New draft'}
+            </Link>
+          </div>
         </header>
 
         <dl className="newsroom-queue-summary" aria-label={ne ? 'कतार सारांश' : 'Queue summary'}>
