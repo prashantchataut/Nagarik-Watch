@@ -2,12 +2,9 @@
  * Static staff gateway written into apps/web/out/admin after Pages export.
  * Full /admin ops need a dynamic Workers/OpenNext deploy; static hosting strips APIs.
  */
-export function buildStaffAdminHtml(options: {
-  siteUrl: string
-  cmsAdminUrl: string
-}): string {
-  const site = options.siteUrl.replace(/\/$/, '') || 'https://nagarikwatch.com'
-  const cms = options.cmsAdminUrl.replace(/\/$/, '')
+export function buildStaffAdminHtml(options) {
+  const site = String(options.siteUrl || '').replace(/\/$/, '') || 'https://nagarikwatch.com'
+  const cms = String(options.cmsAdminUrl || '').replace(/\/$/, '')
   const cmsBlock = cms
     ? `<p class="lead">सम्पादकीय CMS यहाँ उपलब्ध छ:</p>
        <p><a class="primary" href="${cms}">${cms.replace(/^https?:\/\//, '')} खोल्नुहोस्</a></p>`
