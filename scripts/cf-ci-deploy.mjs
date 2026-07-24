@@ -24,16 +24,14 @@ if (!existsSync(configPath)) {
 
 console.log('[deploy] wrangler deploy --config wrangler.jsonc --no-autoconfig')
 
-const wranglerArgs = ['deploy', '--config', 'wrangler.jsonc', '--no-autoconfig']
-
+const wranglerBin = path.join(root, 'node_modules', 'wrangler', 'bin', 'wrangler.js')
 const result = spawnSync(
-  process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm',
-  ['exec', 'wrangler', ...wranglerArgs],
+  process.execPath,
+  [wranglerBin, 'deploy', '--config', 'wrangler.jsonc', '--no-autoconfig'],
   {
     cwd: root,
     env: process.env,
     stdio: 'inherit',
-    // Avoid shell:true on Windows — paths with spaces (e.g. "side quests") get split.
     shell: false,
   },
 )
