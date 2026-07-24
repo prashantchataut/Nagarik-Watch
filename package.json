@@ -11,6 +11,7 @@
     "dev": "turbo run dev",
     "build": "node scripts/ci-build.mjs",
     "build:turbo": "turbo run build",
+    "deploy": "node scripts/cf-ci-deploy.mjs",
     "typecheck": "turbo run typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

@@ -1,9 +1,5 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  // Workers Builds runs `npx wrangler deploy` from the monorepo root.
-  // A Pages-style `pages_build_output_dir` still hits workspace autoconfig and fails.
-  // Assets-only config is already "configured", so deploy skips that detection.
-  // OpenNext SSR Worker config remains apps/web/wrangler.jsonc (deploy from that dir).
   "name": "nagarik-watch",
   "compatibility_date": "2026-07-20",
   "assets": {

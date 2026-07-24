@@ -54,21 +54,31 @@ pnpm exec wrangler secret put DATABASE_URL
 
 Vars in `wrangler.jsonc`: `CONTENT_SOURCE=json`, `NEXT_PUBLIC_LAUNCH_STATUS=preview`, plus override `NEXT_PUBLIC_SITE_URL` / `BETTER_AUTH_URL` to your real domain after first deploy.
 
-## Cloudflare Pages / Workers Builds (static export)
+## Cloudflare Workers Builds (this is what is failing)
 
-Build produces `apps/web/out`. Hosting options:
+Your dashboard is using **Workers Builds**, not classic Pages upload.
 
-| Host | Build | Deploy |
-|------|--------|--------|
-| **Workers Builds** (default `npx wrangler deploy`) | `pnpm build` | keep default — root `wrangler.jsonc` serves `apps/web/out` as Worker assets |
-| **Classic Pages** | `pnpm build` | leave Deploy empty; output dir `apps/web/out` |
-| Explicit Pages upload | `pnpm build` | `pnpm deploy:cf-pages` |
+| Setting | Set to exactly this |
+|---------|---------------------|
+| Build command | `pnpm build` |
+| Deploy command | `pnpm run deploy` |
+| Root directory | `/` (empty / repo root) |
 
-Do **not** use bare `npx wrangler deploy` without the root `wrangler.jsonc` assets config — monorepo autoconfig fails.
+`pnpm run deploy` runs `wrangler deploy --no-autoconfig` against root `wrangler.jsonc` (static assets from `apps/web/out`).
 
-Set `NEXT_PUBLIC_SITE_URL` in the project env (production domain). Without it, the build falls back to `CF_PAGES_URL` or `https://nagarik-watch.pages.dev`.
+Do **not** leave Deploy as `npx wrangler deploy` unless you are on a commit that includes the assets-only root `wrangler.jsonc` (that path also works after that commit). Prefer `pnpm run deploy`.
 
-Do **not** point the output directory at `.next` — the static path is `apps/web/out`.
+### Classic Pages (optional alternative)
+
+| Setting | Value |
+|---------|--------|
+| Build command | `pnpm build` |
+| Build output directory | `apps/web/out` |
+| Deploy command | *(leave empty)* |
+
+Set `NEXT_PUBLIC_SITE_URL` in project env. Without it, the build falls back to `CF_PAGES_URL` or `https://nagarik-watch.pages.dev`.
+
+Do **not** point the output directory at `.next`.
 
 ## Deploy (free)
 
