@@ -7,8 +7,14 @@ import { getSession } from '@/lib/auth/session'
 import { checkEntitlement, listReplicaPages } from '@/lib/epaper'
 import { LiveDeskShell } from '@/components/public/LiveDeskShell'
 import { canonicalAlternates } from '@/lib/seo/canonical'
+import { staticEpaperDateParams } from '@/lib/static-export-params'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
+
+export async function generateStaticParams() {
+  const { editions } = await listReplicaPages()
+  return staticEpaperDateParams(editions.map((edition) => edition.date))
+}
 
 export async function generateMetadata({
   params,

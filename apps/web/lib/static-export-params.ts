@@ -156,3 +156,9 @@ export function staticLocaleArticleIdParams() {
     readPublishedArticles().map((article) => ({ locale, id: article.id })),
   )
 }
+
+export function staticEpaperDateParams(dates: string[]) {
+  const values = [...new Set(dates.filter(Boolean))]
+  if (values.length === 0) return [] as Array<{ locale: Locale; date: string }>
+  return localeFieldParams('date', values)
+}
