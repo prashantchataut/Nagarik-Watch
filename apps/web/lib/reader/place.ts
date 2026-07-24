@@ -10,7 +10,6 @@ import {
   type LivePlace,
 } from '@/lib/live/places'
 import { readLocalReaderPreferences, writeLocalReaderPreferences } from '@/lib/reader/preferences'
-import { defaultReaderPreferences } from '@/lib/reader/preferences-store'
 
 function writeCookie(slug: string) {
   const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : ''
@@ -41,7 +40,21 @@ export function writeLocalPlace(slug: string) {
   localStorage.setItem(LIVE_PLACE_STORAGE_KEY, place.slug)
   writeCookie(place.slug)
 
-  const current = readLocalReaderPreferences() ?? defaultReaderPreferences()
+  const current = readLocalReaderPreferences() ?? {
+    categories: [] as string[],
+    tags: [] as string[],
+    authors: [] as string[],
+    provinces: [] as string[],
+    breaking: true,
+    followedTopics: true,
+    followedAuthors: true,
+    dailyDigest: false,
+    browserAlerts: false,
+    quietStart: 22 as number | null,
+    quietEnd: 7 as number | null,
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kathmandu',
+    updatedAt: new Date(0).toISOString(),
+  }
   const provinces = [...new Set([place.provinceSlug, ...current.provinces.filter((p) => p !== place.provinceSlug)])]
   writeLocalReaderPreferences({
     ...current,
