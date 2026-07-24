@@ -40,63 +40,48 @@ export default async function AdminLoginPage({
   if (session) redirect('/admin/dashboard')
 
   return (
-    <main className="newsroom-login newsroom-login--admin" lang="en">
+    <main className="newsroom-login newsroom-login--admin" lang="ne">
       <div className="newsroom-login__mast">
-        <Link href="/" aria-label="Nagarik Watch home">
+        <Link href="/" aria-label="नागरिक वाच गृहपृष्ठ">
           <Logo siteName="नागरिक वाच" />
         </Link>
-        <span>Ops console</span>
+        <span>न्युजरुम</span>
       </div>
 
       <div className="newsroom-login__grid">
         <section className="newsroom-login__brief">
-          <p className="newsroom-login__kicker">Staff only</p>
-          <h1>Newsroom login</h1>
+          <h1>सम्पादकीय लगइन</h1>
           <p>
-            Editors, publishers, and admins manage publishing, roles, and live desks here.
-            Reporter drafts live on the journalist desk.
+            सम्पादक, प्रकाशक र एडमिन यहाँबाट प्रकाशन, भूमिका र लाइभ डेस्क चलाउँछन्।
+            रिपोर्टिङ ड्राफ्ट पत्रकार डेस्कमा हुन्छ।
           </p>
-          <dl aria-label="What you can do">
-            <div>
-              <dt>01</dt>
-              <dd>Publish queue and CMS</dd>
-            </div>
-            <div>
-              <dt>02</dt>
-              <dd>Roles, invites, audit</dd>
-            </div>
-            <div>
-              <dt>03</dt>
-              <dd>Live blogs and widgets</dd>
-            </div>
-            <div>
-              <dt>04</dt>
-              <dd>Ads, SEO, launch checks</dd>
-            </div>
-          </dl>
+          <ul className="mt-6 space-y-2 text-meta text-ink-soft">
+            <li>प्रकाशन कतार र CMS</li>
+            <li>भूमिका, निमन्त्रणा, अडिट</li>
+            <li>लाइभ ब्लग र विजेट</li>
+          </ul>
         </section>
 
         <section className="newsroom-login__form">
           <header>
-            <p className="newsroom-login__kicker">Sign in</p>
-            <h2>Open the console</h2>
-            <p>Editors and admins only.</p>
+            <h2>साइन इन</h2>
+            <p>स्टाफ खाता मात्र।</p>
           </header>
 
           {!authReady ? (
             <aside className="newsroom-login-form__error" role="status">
-              <strong>Auth offline.</strong>
+              <strong>लगइन सेवा अफलाइन।</strong>
               <span style={{ display: 'block', marginTop: '0.35rem' }}>
-                Check DATABASE_URL and try again.
+                DATABASE_URL जाँच्नुहोस्।
               </span>
             </aside>
           ) : null}
 
           {authReady && boot.lastError ? (
             <aside className="newsroom-login-form__error" role="status" style={{ opacity: 0.9 }}>
-              <strong>Account repair incomplete.</strong>
+              <strong>खाता मर्मत अधुरो।</strong>
               <span style={{ display: 'block', marginTop: '0.35rem' }}>
-                {boot.lastError} Use the NEWSROOM_* email/password from env.
+                NEWSROOM_* इमेल/पासवर्ड प्रयोग गर्नुहोस्।
               </span>
             </aside>
           ) : null}
@@ -112,9 +97,9 @@ export default async function AdminLoginPage({
           ) : null}
 
           <footer>
-            <Link href="/">← Home</Link>
-            <Link href="/ne/journalist/login">Journalist desk</Link>
-            <Link href="/auth/forgot-password?next=%2Fadmin%2Flogin">Forgot password?</Link>
+            <Link href="/">← गृहपृष्ठ</Link>
+            <Link href="/journalist/login">पत्रकार डेस्क</Link>
+            <Link href="/auth/forgot-password?next=%2Fadmin%2Flogin">पासवर्ड बिर्सनुभयो?</Link>
           </footer>
         </section>
       </div>

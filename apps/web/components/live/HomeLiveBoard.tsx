@@ -1,18 +1,13 @@
 import type { Locale } from '@nagarikwatch/db'
 import { LiveWidget } from '@nagarikwatch/ui'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { getRealWeather, getRealAqi, getRealNepse, getRealForex } from '@/lib/live/real'
-import { aqiBand, localizeNumber, relativeTime } from '@/lib/live/format'
+import { getRealNepse, getRealForex } from '@/lib/live/real'
+import { localizeNumber, relativeTime } from '@/lib/live/format'
+import { ReaderPlaceLive } from '@/components/live/ReaderPlaceLive'
 
 /**
- * HomeLiveBoard — the homepage "live data" row: weather, air quality, NEPSE index, and
- * NRB forex as full LiveWidget cards (spec Phase 4 §10-12, Phase 6). It is the card-shell
- * counterpart to the slim desktop UtilityStrip, surfaced on the homepage so mobile readers
- * (who never see the desktop strip) still get the glance values.
- *
- * Async server component: every card reads its REAL upstream (Open-Meteo, nepalstock.com,
- * Nepal Rastra Bank) and the shared LiveWidget shell renders source + freshness + MOCK badge
- * honestly. A failed upstream degrades to a MOCK value rather than blocking the homepage.
+ * Homepage live row: place-aware weather/AQI (client, so static export can personalize),
+ * plus NEPSE and NRB forex from server providers.
  */
 export async function HomeLiveBoard({ locale, className }: { locale: Locale; className?: string }) {
   const dict = getDictionary(locale)
@@ -26,52 +21,15 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
     retry: dict.liveRetry,
   }
 
-  const weather = await getRealWeather(locale)
-  const aqi = await getRealAqi(locale)
   const nepse = await getRealNepse(locale)
   const forex = await getRealForex(locale)
-
   const showMock = true
 
   return (
     <section className={className} aria-label={lang === 'ne' ? 'लाइभ जानकारी' : 'Live information'}>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {/* Weather */}
-        <LiveWidget
-          title={dict.weatherTitle}
-          titleLang={lang}
-          status={weather.status}
-          source={sourceFor(weather.source, locale)}
-          updatedLabel={relativeTime(weather.updatedAt, locale)}
-          mock={showMock && weather.mock}
-          labels={labels}
-        >
-          {weather.data ? (
-            <p>
-              <span className="font-display text-h2 font-bold text-ink">
-                {localizeNumber(weather.data.tempC, locale)}°C
-              </span>{' '}
-              <span className="text-meta text-ink-soft" lang={lang}>
-                {locale === 'en' ? weather.data.placeEn : weather.data.placeNe}
-              </span>
-            </p>
-          ) : null}
-        </LiveWidget>
+        <ReaderPlaceLive locale={locale} variant="board" />
 
-        {/* AQI */}
-        <LiveWidget
-          title={dict.aqiTitle}
-          titleLang={lang}
-          status={aqi.status}
-          source={sourceFor(aqi.source, locale)}
-          updatedLabel={relativeTime(aqi.updatedAt, locale)}
-          mock={showMock && aqi.mock}
-          labels={labels}
-        >
-          {aqi.data ? <AqiValue aqi={aqi.data.aqi} locale={locale} /> : null}
-        </LiveWidget>
-
-        {/* NEPSE */}
         <LiveWidget
           title={dict.nepseTitle}
           titleLang="en"
@@ -99,7 +57,6 @@ export async function HomeLiveBoard({ locale, className }: { locale: Locale; cla
           ) : null}
         </LiveWidget>
 
-        {/* Forex (NRB daily rates) */}
         <LiveWidget
           title={locale === 'en' ? 'Forex (NRB)' : 'विदेशी मुद्रा (नराे)'}
           titleLang={lang}
@@ -154,28 +111,6 @@ function NepseDelta({
         {up ? upLabel : downLabel}
       </span>
     </span>
-  )
-}
-
-function AqiValue({ aqi, locale }: { aqi: number; locale: Locale }) {
-  const { band, label } = aqiBand(aqi, locale)
-  const color =
-    band === 'good'
-      ? 'text-aqi-good'
-      : band === 'moderate'
-        ? 'text-aqi-moderate'
-        : band === 'severe'
-          ? 'text-aqi-severe'
-          : 'text-aqi-unhealthy'
-  return (
-    <p>
-      <span className={`font-display text-h2 font-bold ${color}`}>
-        {localizeNumber(aqi, locale)}
-      </span>{' '}
-      <span className="text-meta text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
-        {label}
-      </span>
-    </p>
   )
 }
 

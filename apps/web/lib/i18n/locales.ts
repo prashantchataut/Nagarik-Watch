@@ -62,8 +62,14 @@ export function localizeHref(locale: Locale, path: string): string {
  * the same content in the other language rather than always being sent to the home page.
  */
 export function swapLocale(pathname: string): string {
-  const isEn = pathname === '/en' || pathname.startsWith('/en/')
-  const rest = isEn ? pathname.slice(3) : pathname // strip "/en" prefix if present
+  // Middleware may expose the default locale as an internal `/ne` prefix; never
+  // treat that as part of the public URL or we create `/en/ne/...` 404s.
+  let path = pathname || '/'
+  if (path === '/ne' || path.startsWith('/ne/')) {
+    path = path.slice(3) || '/'
+  }
+  const isEn = path === '/en' || path.startsWith('/en/')
+  const rest = isEn ? path.slice(3) : path
   const tail = rest === '' ? '/' : rest
   return isEn ? tail : `/en${tail === '/' ? '' : tail}`
 }

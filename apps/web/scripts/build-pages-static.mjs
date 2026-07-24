@@ -11,6 +11,7 @@ import {
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
+import { buildStaffAdminHtml } from './staff-admin-gateway.mjs'
 
 const appDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const middlewarePath = path.join(appDir, 'middleware.ts')
@@ -93,6 +94,22 @@ try {
   for (const segment of ['auth', 'journalist']) stashLocaleSegment(segment)
   run('pnpm', ['exec', 'next', 'build'])
   flattenNepaliRoot()
+
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    process.env.CF_PAGES_URL?.trim() ||
+    'https://nagarikwatch.com'
+  const cmsAdminUrl =
+    process.env.NEXT_PUBLIC_CMS_ADMIN_URL?.trim() ||
+    process.env.PAYLOAD_ADMIN_URL?.trim() ||
+    ''
+  mkdirSync(path.join(outDir, 'admin'), { recursive: true })
+  writeFileSync(
+    path.join(outDir, 'admin', 'index.html'),
+    buildStaffAdminHtml({ siteUrl, cmsAdminUrl }),
+    'utf8',
+  )
+  console.log('Wrote static staff gateway: out/admin/index.html')
 
   if (process.argv.includes('--deploy')) {
     run('pnpm', [

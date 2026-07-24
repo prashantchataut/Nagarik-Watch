@@ -1,14 +1,11 @@
 import type { Locale } from '@nagarikwatch/db'
-import { getRealWeather, getRealAqi, getRealNepse } from '@/lib/live/real'
-import { aqiBand, localizeNumber, relativeTime } from '@/lib/live/format'
+import { getRealNepse } from '@/lib/live/real'
+import { localizeNumber, relativeTime } from '@/lib/live/format'
+import { ReaderPlaceLive } from '@/components/live/ReaderPlaceLive'
 
 export async function UtilityStrip({ locale }: { locale: Locale }) {
   const lang = locale === 'en' ? 'en' : 'ne'
-  const [weather, aqi, nepse] = await Promise.all([
-    getRealWeather(locale),
-    getRealAqi(locale),
-    getRealNepse(locale),
-  ])
+  const nepse = await getRealNepse(locale)
 
   const items: Array<{
     label: string
@@ -17,17 +14,6 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
     href?: string
     tone?: string
   }> = []
-  if (weather.status === 'ok' && weather.data) {
-    items.push({
-      label: locale === 'en' ? weather.data.placeEn : weather.data.placeNe,
-      value: `${localizeNumber(weather.data.tempC, locale)}°C`,
-      note: weather.source,
-    })
-  }
-  if (aqi.status === 'ok' && aqi.data) {
-    const band = aqiBand(aqi.data.aqi, locale)
-    items.push({ label: 'AQI', value: localizeNumber(aqi.data.aqi, locale), note: band.label })
-  }
   if (nepse.status === 'ok' && nepse.data) {
     const up = nepse.data.changePercent >= 0
     items.push({
@@ -39,10 +25,6 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
     })
   }
 
-  if (items.length === 0) return null
-
-  const updated = relativeTime(nepse.updatedAt, locale)
-
   return (
     <div
       className="hidden border-b border-rule bg-surface-raised/70 lg:block"
@@ -50,19 +32,14 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
       aria-label={locale === 'en' ? 'Daily reference line' : 'दैनिक सन्दर्भ लाइन'}
     >
       <div className="mx-auto flex max-w-page items-center gap-5 overflow-x-auto px-4 py-2 text-caption text-ink-soft [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <span
-          className="shrink-0 font-bold uppercase tracking-[0.16em] text-brand-strong"
-          lang={lang}
-        >
+        <span className="shrink-0 font-bold text-brand-strong" lang={lang}>
           {locale === 'en' ? 'Reference' : 'सन्दर्भ'}
         </span>
+        <ReaderPlaceLive locale={locale} variant="strip" />
         {items.map((item) => {
           const inner = (
             <>
-              <span
-                className="font-semibold uppercase tracking-wide text-mute"
-                lang={item.label === 'NEPSE' || item.label === 'AQI' ? 'en' : lang}
-              >
+              <span className="font-semibold text-mute" lang="en">
                 {item.label}
               </span>
               <span className="font-semibold text-ink">{item.value}</span>
@@ -83,9 +60,9 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
             </span>
           )
         })}
-        {updated ? (
+        {nepse.updatedAt ? (
           <span className="ml-auto shrink-0 text-mute" lang={lang}>
-            {updated}
+            {relativeTime(nepse.updatedAt, locale)}
           </span>
         ) : null}
       </div>
