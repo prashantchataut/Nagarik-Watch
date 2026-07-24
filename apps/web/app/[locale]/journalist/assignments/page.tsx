@@ -5,36 +5,33 @@ import type { Locale } from '@nagarikwatch/db'
 import { getNewsroomSession } from '@/lib/auth/session'
 import { CONTRIBUTOR_ROLES, NEWSROOM_ROLE_LABELS_EN, NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
 import { listJournalistDraftMeta } from '@/lib/journalist-workspace'
-import { scoreAssignment } from '@/lib/journalist/desk-scoring'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
 
-export const metadata: Metadata = { title: 'My newsroom stories', robots: { index: false, follow: false } }
-export const dynamic = 'force-static'
+export const metadata: Metadata = {
+  title: 'My drafts',
+  robots: { index: false, follow: false },
+}
+export const dynamic = 'force-dynamic'
 
-export default async function JournalistAssignmentsPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function JournalistAssignmentsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
   const locale: Locale = asLocale((await params).locale)
   const ne = locale === 'ne'
   const session = await getNewsroomSession()
   if (!session) redirect(localizeHref(locale, '/journalist/login'))
-  if (!CONTRIBUTOR_ROLES.has(session.newsroomRole)) redirect(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
+  if (!CONTRIBUTOR_ROLES.has(session.newsroomRole)) {
+    redirect(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
+  }
   const drafts = await listJournalistDraftMeta(session.userId)
-  const roleLabel = ne ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole] : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
-  const scoredDrafts = [...drafts]
-    .map((draft) => {
-      const hoursSinceUpdate = Math.max(
-        0,
-        (Date.now() - Date.parse(draft.updatedAt)) / 3_600_000,
-      )
-      const desk = scoreAssignment({
-        deadlineHours: draft.revisionRequestedAt ? 6 : draft.workflowStage === 'submitted' ? 12 : 36,
-        coverageGap: draft.revisionRequestedAt ? 0.9 : draft.workflowStage === 'submitted' ? 0.6 : 0.3,
-        checklistRemaining: draft.revisionRequestedAt ? 3 : draft.workflowStage === 'submitted' ? 1 : 0,
-        hoursLeft: Math.max(1, 48 - hoursSinceUpdate),
-      })
-      return { draft, desk }
-    })
-    .sort((a, b) => b.desk.deskScore - a.desk.deskScore)
+  const roleLabel = ne
+    ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole]
+    : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
+
+  const sorted = [...drafts].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
   const grouped = {
     revision: drafts.filter((item) => item.revisionRequestedAt),
     review: drafts.filter((item) => item.workflowStage === 'submitted' && !item.revisionRequestedAt),
@@ -42,19 +39,27 @@ export default async function JournalistAssignmentsPage({ params }: { params: Pr
   }
 
   return (
-    <JournalistWorkspaceShell locale={locale} name={session.displayName || session.email} roleLabel={roleLabel} active="assignments">
+    <JournalistWorkspaceShell
+      locale={locale}
+      name={session.displayName || session.email}
+      roleLabel={roleLabel}
+      active="assignments"
+    >
       <main className="newsroom-page">
         <header className="newsroom-page__header">
           <div>
-            <h1>{ne ? 'मेरा समाचार' : 'My stories'}</h1>
+            <h1>{ne ? 'मेरा ड्राफ्ट' : 'My drafts'}</h1>
             <p>
               {ne
-                ? 'प्राथमिकता स्कोरले समयसीमा, कभरेज खाडल र बाँकी चेकलिस्ट मिलाएर कुन ड्राफ्ट पहिले खोल्ने देखाउँछ।'
-                : 'Priority score blends deadline pressure, coverage gap, and remaining checklist items so you know which draft to open first.'}
+                ? 'तपाईंका ड्राफ्ट, समीक्षामा रहेका र संशोधन अनुरोध भएका कथा।'
+                : 'Your drafts, stories in review, and pieces with revision requests.'}
             </p>
           </div>
           <div className="newsroom-page__header-actions">
-            <Link className="newsroom-primary-action" href={localizeHref(locale, '/journalist/articles/new')}>
+            <Link
+              className="newsroom-primary-action"
+              href={localizeHref(locale, '/journalist/articles/new')}
+            >
               {ne ? 'नयाँ ड्राफ्ट' : 'New draft'}
             </Link>
           </div>
@@ -76,32 +81,56 @@ export default async function JournalistAssignmentsPage({ params }: { params: Pr
         </dl>
 
         <div className="newsroom-story-list">
-          {scoredDrafts.length ? scoredDrafts.map(({ draft, desk }, index) => (
-            <article key={draft.articleSlug} data-stage={draft.revisionRequestedAt ? 'revision' : draft.workflowStage}>
-              <span className="newsroom-story-list__index">{String(index + 1).padStart(2, '0')}</span>
-              <div>
-                <p className="newsroom-story-list__meta">
-                  {draft.categorySlug || (ne ? 'विभाग नखुलेको' : 'No desk')}
-                  {' · '}
-                  {stageLabel(draft.workflowStage, ne)}
-                  {' · '}
-                  {ne ? 'प्राथमिकता' : 'priority'} {desk.deskScore.toFixed(1)}
-                </p>
-                <h2>{draft.titleNe || draft.articleSlug}</h2>
-                <p>{draft.editorFeedback || draft.editorPitch || (ne ? 'सम्पादकीय नोट छैन।' : 'No editorial note yet.')}</p>
-                <small>{ne ? 'अन्तिम परिवर्तन' : 'Last changed'} {new Date(draft.updatedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}</small>
-              </div>
-              {draft.articleId ? (
-                <Link href={localizeHref(locale, `/journalist/articles/${draft.articleId}/edit`)}>{ne ? 'खोल्नुहोस्' : 'Open'}</Link>
-              ) : (
-                <span className="newsroom-story-list__legacy">{ne ? 'Legacy draft' : 'Legacy draft'}</span>
-              )}
-            </article>
-          )) : (
-            <div className="newsroom-empty">
-              <strong>{ne ? 'पहिलो समाचारबाट सुरु गर्नुहोस्' : 'Start with your first story'}</strong>
-              <p>{ne ? 'रिपोर्टिङ नोटसहित ड्राफ्ट लेख्नुहोस् र समीक्षामा पठाउनुहोस्।' : 'Write a sourced draft and submit it for editorial review.'}</p>
-            </div>
+          {sorted.length ? (
+            sorted.map((draft, index) => (
+              <article
+                key={draft.articleSlug}
+                data-stage={draft.revisionRequestedAt ? 'revision' : draft.workflowStage}
+              >
+                <span className="newsroom-story-list__index">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <p className="newsroom-story-list__meta">
+                    {draft.categorySlug || (ne ? 'विभाग नखुलेको' : 'No desk')}
+                    {' · '}
+                    {stageLabel(draft.workflowStage, ne)}
+                    {draft.revisionRequestedAt
+                      ? ne
+                        ? ' · संशोधन अनुरोध'
+                        : ' · revision requested'
+                      : ''}
+                  </p>
+                  <h2>{draft.titleNe || draft.articleSlug}</h2>
+                  <p>
+                    {draft.editorFeedback ||
+                      draft.editorPitch ||
+                      (ne ? 'सम्पादकीय नोट छैन।' : 'No editorial note yet.')}
+                  </p>
+                  <small>
+                    {ne ? 'अन्तिम परिवर्तन' : 'Last changed'}{' '}
+                    {new Date(draft.updatedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}
+                  </small>
+                </div>
+                {draft.articleId ? (
+                  <Link
+                    href={localizeHref(locale, `/journalist/articles/${draft.articleId}/edit`)}
+                  >
+                    {ne ? 'खोल्नुहोस्' : 'Open'}
+                  </Link>
+                ) : (
+                  <span className="newsroom-story-list__legacy">
+                    {ne ? 'पुरानो ड्राफ्ट' : 'Legacy draft'}
+                  </span>
+                )}
+              </article>
+            ))
+          ) : (
+            <p className="newsroom-empty">
+              {ne
+                ? 'अहिले ड्राफ्ट छैन। नयाँ कथा सुरु गर्नुहोस्।'
+                : 'No drafts yet. Start a new story.'}
+            </p>
           )}
         </div>
       </main>
@@ -109,14 +138,8 @@ export default async function JournalistAssignmentsPage({ params }: { params: Pr
   )
 }
 
-function stageLabel(stage: string, ne: boolean): string {
-  const map: Record<string, { ne: string; en: string }> = {
-    draft: { ne: 'ड्राफ्ट', en: 'Draft' },
-    submitted: { ne: 'समीक्षामा', en: 'In review' },
-    revision: { ne: 'संशोधन', en: 'Revision' },
-    published: { ne: 'प्रकाशित', en: 'Published' },
-  }
-  const hit = map[stage]
-  if (!hit) return stage
-  return ne ? hit.ne : hit.en
+function stageLabel(stage: string, ne: boolean) {
+  if (stage === 'submitted') return ne ? 'समीक्षामा' : 'In review'
+  if (stage === 'published') return ne ? 'प्रकाशित' : 'Published'
+  return ne ? 'ड्राफ्ट' : 'Draft'
 }

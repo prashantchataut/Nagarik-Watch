@@ -75,6 +75,28 @@ export interface StoryCardData {
   premium?: boolean
   /** Optional reading-time, used by some card variants. */
   readingMinutes?: number
+  /** Province slug (e.g. bagmati) when geo-tagged. */
+  province?: string
+  /** District slug when geo-tagged. */
+  district?: string
+  /** Original exclusive / investigation. */
+  exclusive?: boolean
+  /** Editor-curated pick for the editor-picks desk. */
+  editorPick?: boolean
+  /** Data-journalism desk flag. */
+  dataStory?: boolean
+  /** Photo desk: has a gallery or multi-image body. */
+  hasGallery?: boolean
+  /** Video desk: has an embed/video. */
+  hasVideo?: boolean
+  /** Fact-check desk status when this is a fact-check piece. */
+  factCheckStatus?:
+    | 'not_fact_check'
+    | 'in_review'
+    | 'verified'
+    | 'false'
+    | 'mixed'
+    | 'context_needed'
 }
 
 // ---------------------------------------------------------------------------

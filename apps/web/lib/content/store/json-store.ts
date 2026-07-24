@@ -63,6 +63,18 @@ export type StoredArticle = {
   readingMinutes: number
   createdBy: string
   updatedBy: string
+  province?: string
+  district?: string
+  exclusive?: boolean
+  editorPick?: boolean
+  dataStory?: boolean
+  factCheckStatus?:
+    | 'not_fact_check'
+    | 'in_review'
+    | 'verified'
+    | 'false'
+    | 'mixed'
+    | 'context_needed'
 }
 
 type StoreShape = {
@@ -402,6 +414,12 @@ export async function createArticle(input: {
   commentsEnabled?: boolean
   locale?: Locale
   createdBy: string
+  province?: string
+  district?: string
+  exclusive?: boolean
+  editorPick?: boolean
+  dataStory?: boolean
+  factCheckStatus?: StoredArticle['factCheckStatus']
 }): Promise<StoredArticle> {
   const store = await read()
   const dup = store.articles.find(
@@ -453,6 +471,12 @@ export async function createArticle(input: {
     readingMinutes: estimateReadingMinutes(input.bodyNe),
     createdBy: input.createdBy,
     updatedBy: input.createdBy,
+    province: input.province,
+    district: input.district,
+    exclusive: input.exclusive,
+    editorPick: input.editorPick,
+    dataStory: input.dataStory,
+    factCheckStatus: input.factCheckStatus,
   }
   await write({ ...store, articles: [...store.articles, article] })
   return article

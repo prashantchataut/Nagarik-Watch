@@ -37,6 +37,28 @@ export type StoryListOptions = {
   exclude?: string[]
   /** Cap the number returned (handy for "related" picks). */
   limit?: number
+  /** Province slug filter (geo desk). */
+  province?: string
+  /** District slug filter (geo desk). */
+  district?: string
+  /** Exclusive reports desk. */
+  exclusive?: boolean
+  /** Editor's picks desk. */
+  editorPick?: boolean
+  /** Data journalism desk. */
+  dataStory?: boolean
+  /** Photo desk (gallery / multi-image). */
+  hasGallery?: boolean
+  /** Video desk (embed). */
+  hasVideo?: boolean
+  /** Fact-check desk (status not not_fact_check). */
+  factCheck?: boolean
+  /** Full-text query across title/deck. */
+  q?: string
+  /** Inclusive published-at lower bound (ISO). */
+  dateFrom?: string
+  /** Inclusive published-at upper bound (ISO). */
+  dateTo?: string
 }
 
 export type ContentSource = {

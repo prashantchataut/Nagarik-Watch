@@ -3,6 +3,7 @@ import type { Locale } from '@nagarikwatch/db'
 import { AdSlot } from '@/components/AdSlot'
 import { AD_PLACEMENTS } from '@/lib/ads'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import Link from 'next/link'
 
 export default async function AdvertisePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale: Locale = asLocale((await params).locale)
@@ -15,156 +16,76 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
 
   return (
     <div className="mx-auto max-w-page px-4 py-10" lang={lang}>
-      <header className="grid gap-8 border-b border-rule pb-8 lg:grid-cols-[1fr_0.42fr] lg:items-end">
-        <div>
-          <h1 className="font-display text-[clamp(2.2rem,9vw,4.5rem)] font-extrabold leading-tight text-ink">
-            {en ? 'Advertise with Nagarik Watch' : 'नागरिक वाचमा विज्ञापन'}
-          </h1>
-          <p className="mt-4 max-w-3xl text-body-lg leading-relaxed text-ink-soft">
-            {en
-              ? 'Commercial campaigns are sold separately from editorial work. Every ad, native unit and sponsored package is visibly labelled before it reaches readers.'
-              : 'व्यावसायिक अभियान सम्पादकीय कामबाट अलग राखिन्छ। हरेक विज्ञापन, native unit र sponsored package पाठकसम्म पुग्नुअघि स्पष्ट लेबल हुन्छ।'}
-          </p>
-        </div>
-        <div className="border border-rule bg-surface-raised p-5">
-          <p className="text-meta font-bold text-ink">
-            {en ? 'Sales contact' : 'विज्ञापन सम्पर्क'}
-          </p>
-          <p className="mt-2 text-body text-ink-soft" lang="en">
+      <header className="border-b border-rule pb-8">
+        <h1 className="font-display text-h1 text-ink sm:text-display">
+          {en ? 'Advertise with Nagarik Watch' : 'नागरिक वाचमा विज्ञापन'}
+        </h1>
+        <p className="mt-4 max-w-body text-body-lg leading-relaxed text-ink-soft">
+          {en
+            ? 'Commercial campaigns stay separate from editorial work. Every ad and sponsored package is labelled before readers see it.'
+            : 'व्यावसायिक अभियान सम्पादकीय कामबाट अलग रहन्छ। हरेक विज्ञापन र प्रायोजित सामग्री पाठकले देख्नुअघि लेबल हुन्छ।'}
+        </p>
+        <p className="mt-4 text-body text-ink">
+          <a href="mailto:ads@nagarikwatch.com" className="font-semibold text-brand-strong">
             ads@nagarikwatch.com
-          </p>
-          <p className="mt-2 text-meta text-ink-soft">
+          </a>
+          <span className="text-ink-soft">
             {en
-              ? 'Share campaign dates, target surface, creative size and billing details.'
-              : 'अभियान मिति, लक्षित सतह, creative size र billing विवरण पठाउनुहोस्।'}
-          </p>
-        </div>
+              ? ' · Send dates, target surface, creative size and billing details.'
+              : ' · अभियान मिति, लक्षित सतह, रचना आकार र बिलिङ विवरण पठाउनुहोस्।'}
+          </span>
+        </p>
       </header>
 
-      <section
-        className="mt-8 grid gap-4 md:grid-cols-3"
-        aria-label={en ? 'Commercial principles' : 'व्यावसायिक नियम'}
-      >
-        {(en
-          ? [
-              [
-                'Clear labels',
-                'Advertisement, sponsored and native units are never disguised as newsroom copy.',
-              ],
-              [
-                'Reserved sizes',
-                'Slots reserve width and height before campaigns load, reducing layout shift.',
-              ],
-              [
-                'Stable keys',
-                'Sales and engineering use the same placement keys for reporting and delivery.',
-              ],
-            ]
-          : [
-              [
-                'स्पष्ट label',
-                'विज्ञापन, sponsored र native सामग्री न्यूजरुम copy जसरी लुकाइँदैन।',
-              ],
-              ['सुरक्षित आकार', 'अभियान load हुनुअघि slot को width र height सुरक्षित हुन्छ।'],
-              [
-                'स्थिर key',
-                'Sales र engineering ले reporting र delivery का लागि एउटै placement key प्रयोग गर्छन्।',
-              ],
-            ]
-        ).map(([title, body]) => (
-          <article key={title} className="rounded-xl border border-rule bg-surface-raised p-5">
-            <h2 className="font-display text-h2 text-ink">{title}</h2>
-            <p className="mt-2 text-body leading-relaxed text-ink-soft">{body}</p>
-          </article>
-        ))}
+      <section className="mt-10 border-y border-rule py-8" aria-label={en ? 'Principles' : 'नियम'}>
+        <h2 className="font-display text-h2 text-ink">{en ? 'How we sell' : 'हामी कसरी बेच्छौं'}</h2>
+        <ul className="mt-4 max-w-body space-y-4 text-body text-ink-soft">
+          <li>
+            <strong className="text-ink">{en ? 'Clear labels. ' : 'स्पष्ट लेबल। '}</strong>
+            {en
+              ? 'Advertisement and sponsored units are never disguised as newsroom copy.'
+              : 'विज्ञापन र प्रायोजित सामग्री न्यूजरुम सामग्री जस्तो लुकाइँदैन।'}
+          </li>
+          <li>
+            <strong className="text-ink">{en ? 'Reserved sizes. ' : 'सुरक्षित आकार। '}</strong>
+            {en
+              ? 'Slots reserve width and height before campaigns load, reducing layout shift.'
+              : 'अभियान लोड हुनुअघि स्लटको चौडाइ र उचाइ सुरक्षित हुन्छ।'}
+          </li>
+          <li>
+            <strong className="text-ink">{en ? 'Shared keys. ' : 'साझा कुञ्जी। '}</strong>
+            {en
+              ? 'Sales and delivery use the same placement keys for reporting.'
+              : 'बिक्री र डेलिभरीले रिपोर्टिङका लागि एउटै प्लेसमेन्ट कुञ्जी प्रयोग गर्छन्।'}
+          </li>
+        </ul>
       </section>
 
-      <section className="mt-10" aria-label={en ? 'Featured placements' : 'प्रमुख विज्ञापन स्थान'}>
-        <div className="flex flex-wrap items-end justify-between gap-3 border-b border-rule pb-3">
-          <div>
-            <p
-              className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong"
-              lang="en"
-            >
-              Inventory
-            </p>
-            <h2 className="font-display text-h1 text-ink">
-              {en ? 'Featured ad inventory' : 'प्रमुख विज्ञापन inventory'}
-            </h2>
-          </div>
-          <a
-            href="#placement-table"
-            className="text-meta font-semibold text-brand-strong hover:underline"
-          >
-            {en ? 'View all placements' : 'सबै placement हेर्नुहोस्'}
-          </a>
-        </div>
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          {featured.map((p) => (
-            <div key={p.key} className="rounded-xl border border-rule bg-surface-raised p-4">
-              <AdSlot
-                locale={locale}
-                placementKey={p.key}
-                variant={
-                  p.size === 'billboard' ? 'billboard' : p.size === 'mobile' ? 'mobile' : 'rail'
-                }
-              />
-              <dl className="mt-4 grid gap-2 text-meta text-ink-soft sm:grid-cols-2">
-                <div>
-                  <dt className="font-semibold text-ink">Key</dt>
-                  <dd lang="en">{p.key}</dd>
-                </div>
-                <div>
-                  <dt className="font-semibold text-ink">Size</dt>
-                  <dd lang="en">
-                    {p.width}×{p.height}
-                  </dd>
-                </div>
-                <div className="sm:col-span-2">
-                  <dt className="font-semibold text-ink">{en ? 'Position' : 'स्थान'}</dt>
-                  <dd>{p.position}</dd>
-                </div>
-              </dl>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section
-        id="placement-table"
-        className="mt-12"
-        aria-label={en ? 'Placement table' : 'Placement तालिका'}
-      >
-        <h2 className="font-display text-h1 text-ink">
-          {en ? 'Placement reference' : 'Placement reference'}
+      <section className="mt-10">
+        <h2 className="font-display text-h2 text-ink">
+          {en ? 'Featured placements' : 'मुख्य प्लेसमेन्ट'}
         </h2>
-        <div className="mt-4 overflow-x-auto rounded-xl border border-rule bg-surface-raised">
-          <table className="min-w-full divide-y divide-rule text-left text-meta">
-            <thead className="bg-surface text-caption uppercase tracking-wide text-mute">
-              <tr>
-                <th className="px-4 py-3 font-semibold">Surface</th>
-                <th className="px-4 py-3 font-semibold">Key</th>
-                <th className="px-4 py-3 font-semibold">Size</th>
-                <th className="px-4 py-3 font-semibold">
-                  {en ? 'Where it appears' : 'देखिने ठाउँ'}
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[36rem] border-collapse text-left text-meta">
+            <thead>
+              <tr className="border-b border-ink">
+                <th className="py-3 pr-4 font-semibold text-ink">
+                  {en ? 'Surface' : 'सतह'}
                 </th>
+                <th className="py-3 pr-4 font-semibold text-ink">{en ? 'Size' : 'आकार'}</th>
+                <th className="py-3 font-semibold text-ink">{en ? 'Notes' : 'नोट'}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-rule">
-              {placements.map((p) => (
-                <tr key={p.key}>
-                  <td className="px-4 py-3 font-semibold text-ink" lang="en">
-                    {p.surface}
-                  </td>
-                  <td className="px-4 py-3">
-                    <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-ink-soft">
-                      {p.key}
-                    </code>
-                  </td>
-                  <td className="px-4 py-3" lang="en">
+            <tbody>
+              {featured.map((p) => (
+                <tr key={p.key} className="border-b border-rule">
+                  <td className="py-3 pr-4 text-ink">{en ? p.label : p.descriptionNe.split('।')[0] || p.label}</td>
+                  <td className="py-3 pr-4 tabular-nums text-ink-soft">
                     {p.width}×{p.height}
                   </td>
-                  <td className="px-4 py-3 text-ink-soft">{p.position}</td>
+                  <td className="py-3 text-ink-soft">
+                    {en ? p.descriptionEn : p.descriptionNe}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -172,30 +93,16 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
         </div>
       </section>
 
-      <section className="mt-12 rounded-xl border border-rule bg-surface-raised p-6">
-        <h2 className="font-display text-h1 text-ink">
-          {en ? 'What we will not sell' : 'हामी के बेच्दैनौँ'}
-        </h2>
-        <ul className="mt-4 grid gap-3 text-body text-ink-soft md:grid-cols-2">
-          {(en
-            ? [
-                'Unlabelled sponsored stories',
-                'Ads that imitate breaking-news alerts',
-                'Political or financial claims without required disclosure',
-                'Creative that breaks privacy, safety or platform rules',
-              ]
-            : [
-                'लेबल नभएको sponsored story',
-                'ब्रेकिङ समाचार alert जस्तै देखिने विज्ञापन',
-                'आवश्यक disclosure बिना राजनीतिक वा वित्तीय दाबी',
-                'privacy, safety वा platform rule तोड्ने creative',
-              ]
-          ).map((item) => (
-            <li key={item} className="rounded-lg border border-rule bg-surface p-3">
-              {item}
-            </li>
-          ))}
-        </ul>
+      <section className="mt-12 border-t border-rule pt-8">
+        <h2 className="font-display text-h2 text-ink">{en ? 'Sample slot' : 'नमूना स्लट'}</h2>
+        <div className="mt-4">
+          <AdSlot locale={locale} placementKey="home-billboard" variant="billboard" />
+        </div>
+        <p className="mt-6">
+          <Link href={localizeHref(locale, '/contact')} className="font-semibold text-brand-strong">
+            {en ? 'Contact the newsroom →' : 'न्यूजरुमलाई सम्पर्क गर्नुहोस् →'}
+          </Link>
+        </p>
       </section>
     </div>
   )
@@ -206,13 +113,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
-  const locale: Locale = asLocale((await params).locale)
+  const locale = asLocale((await params).locale)
   return {
     title: locale === 'en' ? 'Advertise' : 'विज्ञापन',
-    description:
-      locale === 'en'
-        ? 'Nagarik Watch media kit, ad placement inventory and commercial labelling rules.'
-        : 'नागरिक वाच media kit, विज्ञापन placement inventory र commercial labelling नियम।',
     alternates: { canonical: localizeHref(locale, '/advertise') },
   }
 }

@@ -188,11 +188,11 @@ export default async function ArticlePage({
           ) : null}
           <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
         </div>
-        <h1 className="mt-5 max-w-[19ch] font-display text-[clamp(2.3rem,6vw,4.5rem)] font-black leading-[1.04] tracking-[-0.025em] text-ink">
+        <h1 className="mt-5 max-w-[22ch] font-display text-h1 leading-tight tracking-[-0.02em] text-ink sm:text-display">
           {title}
         </h1>
         {deck ? (
-          <p className="article-deck mt-5 max-w-[48rem] text-[1.2rem] leading-relaxed text-ink-soft sm:text-[1.4rem]">
+          <p className="article-deck mt-5 max-w-[48rem] text-body-lg leading-relaxed text-ink-soft">
             {deck}
           </p>
         ) : null}
@@ -211,31 +211,27 @@ export default async function ArticlePage({
             articleCategory={category}
             className="mt-4 print:hidden"
           />
-          <details className="article-trust-ledger__facts mt-4 print:hidden">
-            <summary className="cursor-pointer text-meta font-semibold text-ink-soft">
-              {readingEnglish ? 'About this story' : 'यस समाचारबारे'}
-            </summary>
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-meta text-mute">
+          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-meta text-ink-soft print:hidden">
+            <span>
+              {readingEnglish
+                ? `${article.readingMinutes} min read`
+                : `${article.readingMinutes} मिनेट पढाइ`}
+            </span>
+            {article.updatedAt ? (
               <span>
-                {readingEnglish
-                  ? `${article.readingMinutes} min read`
-                  : `${article.readingMinutes} मिनेट पढाइ`}
+                {readingEnglish ? 'Updated' : 'अद्यावधिक'}:{' '}
+                {formatDate(article.updatedAt, readingLocale)}
               </span>
-              {article.updatedAt ? (
-                <span>
-                  {readingEnglish ? 'Updated' : 'अद्यावधिक'}: {formatDate(article.updatedAt, readingLocale)}
-                </span>
-              ) : null}
-              {article.factCheckStatus === 'verified' ? (
-                <span className="text-up">{readingEnglish ? 'Facts verified' : 'तथ्य प्रमाणित'}</span>
-              ) : null}
-              {article.source ? (
-                <span>{readingEnglish ? 'Source-linked report' : 'स्रोत लिंक गरिएको समाचार'}</span>
-              ) : (
-                <span>{readingEnglish ? 'Nagarik Watch newsroom' : 'नागरिक वाच न्युजरुम'}</span>
-              )}
-            </div>
-          </details>
+            ) : null}
+            {article.factCheckStatus === 'verified' ? (
+              <span className="text-up">{readingEnglish ? 'Facts verified' : 'तथ्य प्रमाणित'}</span>
+            ) : null}
+            {article.source ? (
+              <span>{readingEnglish ? 'Source-linked report' : 'स्रोत लिंक गरिएको समाचार'}</span>
+            ) : (
+              <span>{readingEnglish ? 'Nagarik Watch newsroom' : 'नागरिक वाच न्युजरुम'}</span>
+            )}
+          </div>
         </div>
       </header>
 

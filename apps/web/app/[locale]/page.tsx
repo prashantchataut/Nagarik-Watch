@@ -92,12 +92,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const photoOfDay =
     catalog.find(
       (story) =>
-        Boolean(story.heroImage?.url) &&
-        !story.heroImage!.url.startsWith('data:') &&
-        (story.category.slug === 'photo-story' ||
-          story.category.slug === 'photos' ||
-          /photo|फोटो|gallery|ग्याल/i.test(`${story.titleNe} ${story.titleEn || ''}`)),
-    ) || null
+        Boolean(story.hasGallery) ||
+        (Boolean(story.heroImage?.url) &&
+          !story.heroImage!.url.startsWith('data:') &&
+          (story.tags?.some((t) => t.slug === 'photo-story') ||
+            story.category.slug === 'photos')),
+    ) ||
+    catalog.find(
+      (story) =>
+        Boolean(story.heroImage?.url) && !story.heroImage!.url.startsWith('data:'),
+    ) ||
+    null
 
   return (
     <div>
@@ -150,7 +155,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </section>
 
-        <LatestRail stories={latest} locale={locale} className="mt-8 hidden border-y border-rule py-6 xl:block" />
+        <LatestRail stories={latest} locale={locale} className="mt-8 border-y border-rule py-6" />
 
         <div className="mt-12 space-y-12 sm:mt-14 sm:space-y-16">
           {edition.sections.slice(0, 3).map((section, index) => (

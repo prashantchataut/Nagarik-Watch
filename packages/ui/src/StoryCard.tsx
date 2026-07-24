@@ -56,12 +56,21 @@ function isDataUrl(url: string): boolean {
   return url.startsWith('data:')
 }
 
+function isPublicMembershipEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_MEMBERSHIP_PUBLIC === 'true'
+}
+
 function PremiumBadge({ locale }: { locale: Locale }) {
   return (
     <span className="inline-flex rounded-sm bg-ink px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-surface">
       {locale === 'en' ? 'Premium' : 'सदस्य'}
     </span>
   )
+}
+
+function MembershipMarker({ story, locale }: { story: StoryCardData; locale: Locale }) {
+  if (!isPublicMembershipEnabled() || !story.premium) return null
+  return <PremiumBadge locale={locale} />
 }
 
 export function StoryCard({
@@ -81,7 +90,7 @@ export function StoryCard({
   if (layout === 'compact') {
     return (
       <article className={cn('group relative', className)}>
-        <div className="mb-1 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" />{story.premium ? <PremiumBadge locale={locale} /> : null}</div>
+        <div className="mb-1 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" /><MembershipMarker story={story} locale={locale} /></div>
         <h3
           className="text-h3 font-display text-ink group-hover:text-brand-strong transition-colors duration-fast ease-out-quint"
           lang={titleLang}
@@ -101,7 +110,7 @@ export function StoryCard({
   if (layout === 'text-led') {
     return (
       <article className={cn('group relative flex flex-col', className)}>
-        <div className="mb-1.5 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" />{story.premium ? <PremiumBadge locale={locale} /> : null}</div>
+        <div className="mb-1.5 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" /><MembershipMarker story={story} locale={locale} /></div>
         <h3
           className="font-display text-h2 leading-snug text-ink group-hover:text-brand-strong transition-colors duration-fast ease-out-quint"
           lang={titleLang}
@@ -140,7 +149,7 @@ export function StoryCard({
         <div className="border-b border-rule bg-ink px-4 py-4 text-surface sm:px-5 sm:py-5">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <CategoryLabel category={story.category} locale={locale} as="span" className="bg-surface px-2 py-0.5 text-ink" />
-            {story.premium ? <PremiumBadge locale={locale} /> : null}
+            <MembershipMarker story={story} locale={locale} />
           </div>
           <h3 className="font-display text-h2 leading-tight text-surface" lang={titleLang}>
             <Link href={href} className="transition-opacity duration-fast ease-out-quint hover:opacity-80">
@@ -170,7 +179,7 @@ export function StoryCard({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <div className="mb-1 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" />{story.premium ? <PremiumBadge locale={locale} /> : null}</div>
+          <div className="mb-1 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" /><MembershipMarker story={story} locale={locale} /></div>
           <h3
             className="text-body-lg font-display text-ink leading-snug group-hover:text-brand-strong transition-colors duration-fast ease-out-quint"
             lang={titleLang}
@@ -215,7 +224,7 @@ export function StoryCard({
           />
         </div>
       )}
-      <div className="mb-2 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" />{story.premium ? <PremiumBadge locale={locale} /> : null}</div>
+      <div className="mb-2 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" /><MembershipMarker story={story} locale={locale} /></div>
       <HeadingTag
         className={cn(
           'font-display text-ink group-hover:text-brand-strong transition-colors duration-fast ease-out-quint',

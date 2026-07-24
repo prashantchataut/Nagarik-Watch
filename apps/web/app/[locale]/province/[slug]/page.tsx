@@ -29,6 +29,7 @@ export default async function Page({
     <div>
       <PublicHubPage
         locale={locale}
+        province={slug}
         hub={{
           key: 'archive',
           path: `/province/${slug}`,

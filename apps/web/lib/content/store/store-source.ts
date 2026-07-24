@@ -17,6 +17,7 @@ import type {
   Tag,
 } from '@nagarikwatch/db'
 import type { ContentSource, StoryListOptions } from '../source'
+import { matchesStoryListFilters, storyHasGallery, storyHasVideo } from '../story-filters'
 import { categories, categoryBySlug } from '../seed/categories'
 import { authors, authorBySlug } from '../seed/authors'
 import { tags, tagBySlug } from '../seed/tags'
@@ -36,6 +37,7 @@ function toCard(a: StoredArticle, locale: Locale): StoryCardData {
     .map((id) => authors.find((au) => au.id === id))
     .filter((au): au is Author => Boolean(au))
   const heroImage = a.heroImageUrl ? { url: a.heroImageUrl, alt: a.heroImageAlt ?? '' } : undefined
+  const cardTags = a.tagSlugs.map((slug) => tagBySlug.get(slug)).filter((t): t is Tag => Boolean(t))
   return {
     id: a.id,
     slug: a.slug,
@@ -48,11 +50,20 @@ function toCard(a: StoredArticle, locale: Locale): StoryCardData {
     heroImage,
     byline: cardAuthors.map((au) => au.name).join(', '),
     authors: cardAuthors.map((au) => ({ id: au.id, slug: au.slug, name: au.name })),
+    tags: cardTags,
     publishedAt: a.publishedAt,
     hasEnglish: a.hasEnglish,
     isBreaking: a.isBreaking,
     premium: a.premium,
     readingMinutes: a.readingMinutes,
+    province: a.province,
+    district: a.district,
+    exclusive: a.exclusive,
+    editorPick: a.editorPick,
+    dataStory: a.dataStory,
+    hasGallery: storyHasGallery({ hasGallery: a.bodyNe.filter((b) => b.type === 'image').length >= 2, bodyNe: a.bodyNe, heroImage }),
+    hasVideo: storyHasVideo({ bodyNe: a.bodyNe }),
+    factCheckStatus: a.factCheckStatus,
   } as StoryCardData
 }
 
@@ -84,6 +95,10 @@ function toFullArticle(a: StoredArticle, locale: Locale): Article {
     commentsEnabled: a.commentsEnabled,
     readingMinutes: a.readingMinutes,
     updatedAt: a.updatedAt,
+    province: a.province,
+    district: a.district,
+    exclusive: a.exclusive,
+    factCheckStatus: a.factCheckStatus,
   } as Article
 }
 
@@ -180,21 +195,40 @@ export function createStoreContentSource(): ContentSource {
       }
     },
     async getStories(opts: StoryListOptions): Promise<PaginatedStories> {
-      const { items, total } = await store.listArticles({
+      const locale = opts.locale ?? 'ne'
+      const perPage = opts.perPage ?? PER_PAGE
+      const page = opts.page ?? 1
+      // Pull a wide window then filter desk fields client-side (JSON store).
+      const { items: raw } = await store.listArticles({
         category: opts.category,
         locale: opts.locale,
-        limit: opts.perPage ?? PER_PAGE,
-        offset: ((opts.page ?? 1) - 1) * (opts.perPage ?? PER_PAGE),
+        limit: 500,
+        offset: 0,
       })
-      let filtered = items
-      if (opts.exclude) filtered = filtered.filter((a) => !opts.exclude!.includes(a.slug))
-      if (opts.limit) filtered = filtered.slice(0, opts.limit)
-      const locale = opts.locale ?? 'ne'
+      let filtered = raw
+      if (opts.author) {
+        filtered = filtered.filter((a) =>
+          a.authorIds.some((id) => authors.find((au) => au.id === id)?.slug === opts.author),
+        )
+      }
+      if (opts.tag) {
+        filtered = filtered.filter((a) => a.tagSlugs.includes(opts.tag!))
+      }
+      if (opts.exclude?.length) {
+        filtered = filtered.filter((a) => !opts.exclude!.includes(a.slug))
+      }
+      const cards = filtered
+        .map((a) => toCard(a, locale))
+        .filter((card) => matchesStoryListFilters(card, opts))
+      const total = cards.length
+      const start = (page - 1) * perPage
+      let pageItems = cards.slice(start, start + perPage)
+      if (opts.limit) pageItems = pageItems.slice(0, opts.limit)
       return {
-        items: filtered.map((a) => toCard(a, locale)),
+        items: pageItems,
         total,
-        page: opts.page ?? 1,
-        totalPages: Math.ceil(total / (opts.perPage ?? PER_PAGE)) || 1,
+        page,
+        totalPages: Math.ceil(total / perPage) || 1,
       }
     },
     async getNavCategories(): Promise<Category[]> {

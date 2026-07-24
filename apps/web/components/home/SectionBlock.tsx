@@ -36,7 +36,7 @@ type SectionBlockProps = {
   locale: Locale
   className?: string
   /** Force a specific layout instead of the auto-rotating default. */
-  layout?: 'lead-rail' | 'overlay-grid' | 'text-led' | 'default-grid'
+  layout?: 'lead-rail' | 'overlay-grid' | 'text-led'
 }
 
 /**
@@ -44,10 +44,8 @@ type SectionBlockProps = {
  * so the page never reads as identical-card-grid slop (impeccable ban):
  *
  *  - lead-rail: featured card on the left + horizontal rail on the right.
- *    The eKantipur / NYT pattern for the top section.
- *  - overlay-grid: 3 image-led cards with headline-on-image. Magazine feel.
- *  - text-led: 2-col headline-forward columns, no images. Opinion / analysis.
- *  - default-grid: uniform 3-col default cards. Fallback.
+ *  - overlay-grid: 3 image-led cards with headline-on-image.
+ *  - text-led: headline-forward columns, no images.
  *
  * The layout auto-rotates by section index so consecutive sections don't
  * repeat. Callers can force a layout via the `layout` prop.
@@ -61,7 +59,6 @@ export function SectionBlock({ section, locale, className, layout }: SectionBloc
 
   if (!section.lead && section.items.length === 0) return null
 
-  // Pick layout: explicit prop > rotation by item count.
   const all = section.lead ? [section.lead, ...section.items] : section.items
   const chosen =
     layout ?? (all.length >= 4 ? 'lead-rail' : all.length >= 3 ? 'overlay-grid' : 'text-led')
@@ -80,7 +77,6 @@ export function SectionBlock({ section, locale, className, layout }: SectionBloc
         {chosen === 'lead-rail' && <LeadRail section={section} locale={locale} />}
         {chosen === 'overlay-grid' && <OverlayGrid items={all} locale={locale} />}
         {chosen === 'text-led' && <TextLedColumns items={all} locale={locale} />}
-        {chosen === 'default-grid' && <DefaultGrid items={all} locale={locale} />}
       </div>
     </section>
   )
@@ -89,7 +85,7 @@ export function SectionBlock({ section, locale, className, layout }: SectionBloc
 function LeadRail({ section, locale }: { section: HomepageSection; locale: Locale }) {
   const lead = section.lead
   const rail = lead ? section.items : section.items.slice(1)
-  if (!lead) return <DefaultGrid items={section.items} locale={locale} />
+  if (!lead) return <TextLedColumns items={section.items} locale={locale} />
   return (
     <div className="grid gap-8 md:grid-cols-2">
       <RankedCard story={lead} locale={locale} variant="featured" priority={false} />
@@ -108,7 +104,7 @@ function LeadRail({ section, locale }: { section: HomepageSection; locale: Local
 
 function OverlayGrid({ items, locale }: { items: HomepageSection['items']; locale: Locale }) {
   const withImages = items.filter((s) => s.heroImage).slice(0, 3)
-  if (withImages.length === 0) return <DefaultGrid items={items} locale={locale} />
+  if (withImages.length === 0) return <TextLedColumns items={items} locale={locale} />
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {withImages.map((s, i) => (
@@ -125,17 +121,5 @@ function TextLedColumns({ items, locale }: { items: HomepageSection['items']; lo
         <RankedCard key={s.slug} story={s} locale={locale} variant="text-led" />
       ))}
     </div>
-  )
-}
-
-function DefaultGrid({ items, locale }: { items: HomepageSection['items']; locale: Locale }) {
-  return (
-    <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((s) => (
-        <li key={s.slug}>
-          <RankedCard story={s} locale={locale} variant="default" />
-        </li>
-      ))}
-    </ul>
   )
 }

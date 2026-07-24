@@ -47,12 +47,7 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
   const locale: Locale = asLocale((await params).locale)
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
-  const { items } = await getStories({ locale, perPage: 12 })
-  const stories = items.filter((story) =>
-    /fact|दाबी|तथ्य|गलत|सही|भ्रम/i.test(
-      `${story.titleNe} ${story.titleEn ?? ''} ${story.deckNe ?? ''}`,
-    ),
-  )
+  const { items: stories } = await getStories({ locale, factCheck: true, perPage: 12 })
 
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-12" lang={lang}>

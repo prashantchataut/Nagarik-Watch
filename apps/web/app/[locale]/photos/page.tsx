@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import type { Locale, Article } from '@nagarikwatch/db'
+import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localePrefix, localizeHref } from '@/lib/i18n/locales'
-import { getArticleBySlug, getStories } from '@/lib/content'
+import { getStories } from '@/lib/content'
 
 export const revalidate = 300
 
@@ -12,13 +12,11 @@ export default async function PhotosPage({ params }: { params: Promise<{ locale:
   const locale: Locale = asLocale(rawLocale)
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
-  const { items } = await getStories({ locale, perPage: 40 })
-  const articles = await Promise.all(
-    items.map((story) => getArticleBySlug(story.category.slug, story.slug, locale)),
-  )
-  const photoStories = articles
-    .filter((article): article is Article => Boolean(article && hasPhotoMaterial(article)))
-    .slice(0, 12)
+  const { items: photoStories } = await getStories({
+    locale,
+    hasGallery: true,
+    perPage: 12,
+  })
 
   return (
     <div className="mx-auto max-w-page px-4 py-6 sm:py-8">
@@ -81,12 +79,6 @@ export default async function PhotosPage({ params }: { params: Promise<{ locale:
       )}
     </div>
   )
-}
-
-function hasPhotoMaterial(article: Article): boolean {
-  if (article.heroImage?.url && !article.heroImage.url.startsWith('data:')) return true
-  const blocks = article.language === 'en' && article.bodyEn ? article.bodyEn : article.bodyNe
-  return blocks.some((block) => block.type === 'image')
 }
 
 export async function generateMetadata({

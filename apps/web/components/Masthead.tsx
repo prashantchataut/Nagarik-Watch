@@ -85,61 +85,21 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
       className="nw-masthead sticky top-0 z-40 border-b border-rule bg-surface"
       data-condensed={condensed ? 'true' : 'false'}
     >
-      {/* Band 1 — Utility */}
-      <div className="nw-masthead__utility border-b border-rule bg-surface-raised">
-        <div className="mx-auto flex max-w-page items-center justify-between gap-2 px-3 py-1 sm:px-4">
-          <p lang={lang} className="min-w-0 truncate text-caption font-semibold text-ink-soft" suppressHydrationWarning>
-            {dateLabel ? dict.mastheadDate(dateLabel) : '\u00a0'}
-            {dateLabel ? (
-              <>
-                <span className="mx-1.5 text-mute" aria-hidden="true">
-                  ·
-                </span>
-                <span className="text-brand-strong">{locale === 'en' ? 'Kathmandu' : 'काठमाडौं'}</span>
-              </>
-            ) : null}
-          </p>
-
-          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
-            <Link href={utilitiesHref} className={`${UTIL_LINK} hidden sm:inline-flex`} lang={lang}>
-              {locale === 'en' ? 'Utilities' : 'पात्रो / मिति'}
-            </Link>
-            <Link
-              href={localizeHref(locale, '/contact')}
-              className={`${UTIL_LINK} hidden md:inline-flex`}
-              lang={lang}
-            >
-              {locale === 'en' ? 'Contact' : 'सम्पर्क'}
-            </Link>
-            <span className="mx-1 hidden h-4 w-px bg-rule sm:block" aria-hidden="true" />
-            <Link
-              href={accountHref}
-              className={`${UTIL_LINK} hidden sm:inline-flex`}
-              lang={lang}
-              title={accountTitle}
-            >
-              <IconUser />
-              <span className="max-w-[7rem] truncate">{accountLabel}</span>
-            </Link>
-            <Link href={savedHref} className={`${UTIL_ICON} hidden sm:inline-flex`} title={dict.navSaved} aria-label={dict.navSaved}>
-              <IconBookmark />
-            </Link>
-            <Link href={searchHref} className={UTIL_ICON} title={dict.search} aria-label={dict.search}>
-              <IconSearch />
-            </Link>
-            <ThemeToggle locale={locale} className="!h-9 !w-9 !rounded-none" />
-          </div>
-        </div>
-      </div>
-
-      {/* Band 2 — Brand */}
+      {/* Band 1 — Brand + utilities (merged; condensed collapses utility chrome) */}
       <div className="mx-auto max-w-page px-3 sm:px-4">
         <div className="nw-masthead__brand grid grid-cols-[auto_1fr_auto] items-center gap-2 border-b border-ink py-2.5 md:grid-cols-[1fr_auto_1fr] md:border-b-2 md:py-3.5">
-          <div className="flex items-center md:hidden">
+          <div className="flex items-center gap-1 md:hidden">
             <MobileNav locale={locale} navCategories={navCategories} account={account} />
           </div>
 
-          <div className="hidden md:block" aria-hidden="true" />
+          <div className="hidden min-w-0 items-center gap-2 md:flex" lang={lang}>
+            <p className="truncate text-caption font-semibold text-ink-soft" suppressHydrationWarning>
+              {dateLabel ? dict.mastheadDate(dateLabel) : '\u00a0'}
+            </p>
+            <Link href={utilitiesHref} className={`${UTIL_LINK} hidden lg:inline-flex`}>
+              {locale === 'en' ? 'Utilities' : 'पात्रो'}
+            </Link>
+          </div>
 
           <Link
             href={homeHref}
@@ -152,7 +112,28 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
             />
           </Link>
 
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end gap-0.5 sm:gap-1">
+            <Link
+              href={accountHref}
+              className={`${UTIL_LINK} hidden sm:inline-flex`}
+              lang={lang}
+              title={accountTitle}
+            >
+              <IconUser />
+              <span className="max-w-[7rem] truncate">{accountLabel}</span>
+            </Link>
+            <Link
+              href={savedHref}
+              className={`${UTIL_ICON} hidden sm:inline-flex`}
+              title={dict.navSaved}
+              aria-label={dict.navSaved}
+            >
+              <IconBookmark />
+            </Link>
+            <Link href={searchHref} className={UTIL_ICON} title={dict.search} aria-label={dict.search}>
+              <IconSearch />
+            </Link>
+            <ThemeToggle locale={locale} className="!h-9 !w-9 !rounded-none" />
             <Link
               href={toggleHref}
               className="inline-flex h-9 min-w-[4.5rem] items-center justify-center rounded-md bg-brand px-3 text-meta font-black text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
@@ -165,7 +146,7 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
         </div>
       </div>
 
-      {/* Band 3 — Primary categories (always on) */}
+      {/* Band 2 — Primary categories */}
       <nav aria-label={dict.primaryNav} className="nw-masthead__primary border-t border-rule bg-surface">
         <div className="mx-auto flex max-w-page items-stretch gap-2 px-3 sm:px-4">
           <ul className="flex min-w-0 flex-1 flex-nowrap items-center gap-x-1 overflow-x-auto sm:gap-x-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -208,8 +189,8 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
         </div>
       </nav>
 
-      {/* Band 4 — Topics */}
-      <TopicsStrip locale={locale} topics={topics} />
+      {/* Topics: hide when condensed to keep chrome to 2 bands while scrolling */}
+      {!condensed ? <TopicsStrip locale={locale} topics={topics} /> : null}
     </header>
   )
 }

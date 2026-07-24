@@ -26,16 +26,18 @@ export default async function DashboardPage() {
   const newsroom = await requireNewsroomSession()
 
   const [allStories, categories, pendingReviews] = await Promise.all([
-    getStories({ locale: 'ne', perPage: 20 }),
+    getStories({ locale: 'ne', perPage: 500 }),
     getNavCategories(),
     listPendingJournalistReviews().catch(() => []),
   ])
 
+  const publishedTotal = allStories.total
   const published = allStories.items
   const scheduledCount = published.filter(
-    (story) => Number.isFinite(Date.parse(story.publishedAt)) && Date.parse(story.publishedAt) > Date.now(),
+    (story) =>
+      Number.isFinite(Date.parse(story.publishedAt)) && Date.parse(story.publishedAt) > Date.now(),
   ).length
-  const breakingCount = published.filter((s) => 'isBreaking' in s && s.isBreaking).length
+  const breakingCount = published.filter((s) => s.isBreaking).length
 
   const locale: Locale = 'ne'
   const role = newsroom.newsroomRole
@@ -46,23 +48,58 @@ export default async function DashboardPage() {
   const metrics =
     desk === 'super' || desk === 'admin'
       ? [
-          { label: 'प्रकाशित', value: published.length, href: '/admin/articles', tone: 'brand' as const },
-          { label: 'समीक्षा पर्खाइ', value: pendingReviews.length, href: '/admin/journalists', tone: 'default' as const },
+          {
+            label: 'प्रकाशित',
+            value: publishedTotal,
+            href: '/admin/articles',
+            tone: 'brand' as const,
+          },
+          {
+            label: 'समीक्षा पर्खाइ',
+            value: pendingReviews.length,
+            href: '/admin/journalists',
+            tone: 'default' as const,
+          },
           { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'danger' as const },
           { label: 'विभाग', value: categories.length, href: '/admin/categories', tone: 'brand' as const },
         ]
       : desk === 'editor'
         ? [
-            { label: 'प्रकाशित', value: published.length, href: '/admin/articles', tone: 'brand' as const },
-            { label: 'पत्रकार इनबक्स', value: pendingReviews.length, href: '/admin/journalists', tone: 'default' as const },
-            { label: 'तालिका', value: scheduledCount, href: '/admin/articles?status=scheduled', tone: 'default' as const },
+            {
+              label: 'प्रकाशित',
+              value: publishedTotal,
+              href: '/admin/articles',
+              tone: 'brand' as const,
+            },
+            {
+              label: 'पत्रकार इनबक्स',
+              value: pendingReviews.length,
+              href: '/admin/journalists',
+              tone: 'default' as const,
+            },
+            {
+              label: 'तालिका',
+              value: scheduledCount,
+              href: '/admin/articles?status=scheduled',
+              tone: 'default' as const,
+            },
             { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'danger' as const },
           ]
         : [
-            { label: 'प्रकाशित', value: published.length, href: '/admin/articles', tone: 'brand' as const },
+            {
+              label: 'प्रकाशित',
+              value: publishedTotal,
+              href: '/admin/articles',
+              tone: 'brand' as const,
+            },
             { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'danger' as const },
             { label: 'विभाग', value: categories.length, href: '/admin/categories', tone: 'brand' as const },
-            { label: 'तालिका', value: scheduledCount, href: '/admin/articles?status=scheduled', tone: 'default' as const },
+            {
+              label: 'तालिका',
+              value: scheduledCount,
+              href: '/admin/articles?status=scheduled',
+              tone: 'default' as const,
+            },
           ]
 
   const blurb =

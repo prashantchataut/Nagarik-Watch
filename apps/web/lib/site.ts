@@ -186,8 +186,8 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/rashifal',
     titleNe: 'राशिफल',
     titleEn: 'Horoscope',
-    leadNe: 'आजको दैनिक राशिफल — १२ राशिको भविष्यवाणी, भाग्य अंक र रंग।',
-    leadEn: 'Today’s daily horoscope — forecasts for all 12 signs, lucky numbers and colors.',
+    leadNe: 'आजको दैनिक राशिफल: १२ राशिको भविष्यवाणी, भाग्य अंक र रंग।',
+    leadEn: "Today's daily horoscope: forecasts for all 12 signs, lucky numbers and colors.",
     mode: 'utility',
   },
   {

@@ -1,6 +1,6 @@
-import type { Article, Locale, StoryCardData } from '@nagarikwatch/db'
+import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import { StoryCard } from '@nagarikwatch/ui'
-import { getArticleBySlug, getStories } from '@/lib/content'
+import { getStories, type StoryListOptions } from '@/lib/content'
 import { rankStories } from '@/lib/ranking'
 import { buildStoryEngagementIndex, signalsForStory } from '@/lib/ranking-signals'
 import { localizedLead, localizedTitle, type StaticHub } from '@/lib/site'
@@ -10,13 +10,78 @@ import { AdSlot } from '@/components/AdSlot'
 import { ReaderSubmissionForm } from '@/components/forms/ReaderSubmissionForm'
 import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
 
-export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: Locale }) {
+/** Map each hub key to real getStories filters — never return the unfiltered national pool for specialty desks. */
+export function hubStoryFilters(hubKey: StaticHub['key']): StoryListOptions {
+  switch (hubKey) {
+    case 'editor-picks':
+      return { editorPick: true }
+    case 'exclusive':
+      return { exclusive: true }
+    case 'data-stories':
+      return { dataStory: true }
+    case 'fact-check':
+      return { factCheck: true }
+    case 'election':
+      return { tag: 'local-election' }
+    case 'results':
+      return { tag: 'exam-results' }
+    case 'sports':
+    case 'sports-live':
+      return { category: 'sports' }
+    case 'video':
+      return { hasVideo: true }
+    case 'photos':
+      return { hasGallery: true }
+    case 'opinion':
+      return { category: 'opinion' }
+    case 'reader-corner':
+    case 'submit-story':
+      return { tag: 'reader-submission' }
+    case 'archive':
+    case 'latest':
+    case 'trending':
+    case 'most-read':
+    case 'market':
+    case 'utilities':
+    case 'rashifal':
+    case 'disaster-alerts':
+    case 'membership':
+      return {}
+    default: {
+      const _exhaustive: never = hubKey
+      void _exhaustive
+      return {}
+    }
+  }
+}
+
+export async function PublicHubPage({
+  hub,
+  locale,
+  province,
+  district,
+  extraFilters,
+}: {
+  hub: StaticHub
+  locale: Locale
+  province?: string
+  district?: string
+  extraFilters?: StoryListOptions
+}) {
+  const filters: StoryListOptions = {
+    locale,
+    perPage: 40,
+    ...hubStoryFilters(hub.key),
+    ...extraFilters,
+    ...(province ? { province } : {}),
+    ...(district ? { district } : {}),
+  }
+
   const [{ items }, engagement] = await Promise.all([
-    getStories({ locale, perPage: 40 }),
+    getStories(filters),
     buildStoryEngagementIndex(120),
   ])
-  const hubStories = await storiesForHub(hub.key, items, locale)
-  const ranked = rankStories(hubStories, (story, index) => signalsForStory(story, engagement, index))
+  const ranked = rankStories(items, (story, index) => signalsForStory(story, engagement, index))
   const stories = ranked.slice(0, 12)
   const leadStory = stories[0]
   const sideStories = stories.slice(1, 4)
@@ -24,8 +89,8 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
   const lang = locale === 'en' ? 'en' : 'ne'
   const empty =
     locale === 'en'
-      ? 'No verified Nagarik Watch stories have been published in this section yet.'
-      : 'यो खण्डमा नागरिक वाचका प्रमाणित समाचार अझै प्रकाशित भएका छैनन्।'
+      ? 'No stories have been published in this section yet.'
+      : 'यो खण्डमा अझै समाचार प्रकाशित भएका छैनन्।'
 
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
@@ -65,14 +130,9 @@ export async function PublicHubPage({ hub, locale }: { hub: StaticHub; locale: L
             ))}
           </div>
         </section>
-      ) : (
+      ) : hub.key === 'submit-story' ? null : (
         <div className="mt-8 border-y border-rule py-10" lang={lang}>
           <p className="max-w-body text-body-lg text-ink-soft">{empty}</p>
-          <p className="mt-2 max-w-body text-meta text-ink-muted">
-            {locale === 'en'
-              ? 'The section stays visibly empty rather than being filled with invented reporting or generic demo cards.'
-              : 'बनावटी समाचार वा सामान्य डेमो कार्ड राख्नुको सट्टा यो खण्ड स्पष्ट रूपमा खाली देखाइएको छ।'}
-          </p>
         </div>
       )}
 
@@ -125,7 +185,10 @@ function ReaderSubmissionWorkflow({ locale }: { locale: Locale }) {
       </h2>
       <ol className="mt-4 grid border border-rule text-body text-ink-soft md:grid-cols-4">
         {steps.map((step, index) => (
-          <li key={step} className="border-b border-rule p-4 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0">
+          <li
+            key={step}
+            className="border-b border-rule p-4 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
+          >
             <span className="block text-caption font-semibold text-brand-strong">
               {locale === 'en' ? `Step ${index + 1}` : `चरण ${index + 1}`}
             </span>
@@ -143,31 +206,21 @@ function ReaderSubmissionWorkflow({ locale }: { locale: Locale }) {
   )
 }
 
-async function storiesForHub(
+/** @deprecated Prefer hubStoryFilters + getStories. Kept for callers that already hold cards. */
+export function filterCardsForHub(
   hubKey: StaticHub['key'],
   cards: StoryCardData[],
-  locale: Locale,
-): Promise<StoryCardData[]> {
-  const taggedHub = new Set(['editor-picks', 'exclusive', 'data-stories'])
-  if (!taggedHub.has(hubKey)) return cards
-
-  const articles = await Promise.all(
-    cards.map((story) => getArticleBySlug(story.category.slug, story.slug, locale)),
-  )
-  return articles.filter((article): article is Article => {
-    if (!article) return false
-    const tagSlugs = new Set(article.tags.map((tag) => tag.slug))
-    if (hubKey === 'editor-picks') return tagSlugs.has('editor-pick') || article.isBreaking
-    if (hubKey === 'exclusive')
-      return Boolean(article.exclusive) || tagSlugs.has('exclusive-report')
-    if (hubKey === 'data-stories')
-      return tagSlugs.has('data-story') || article.bodyNe.some(isDataBlock)
+): StoryCardData[] {
+  const filters = hubStoryFilters(hubKey)
+  return cards.filter((story) => {
+    if (filters.editorPick && !story.editorPick) return false
+    if (filters.exclusive && !story.exclusive) return false
+    if (filters.dataStory && !story.dataStory) return false
+    if (filters.factCheck) {
+      if (!story.factCheckStatus || story.factCheckStatus === 'not_fact_check') return false
+    }
+    if (filters.category && story.category.slug !== filters.category) return false
+    if (filters.tag && !story.tags?.some((t) => t.slug === filters.tag)) return false
     return true
   })
-}
-
-function isDataBlock(block: Article['bodyNe'][number]): boolean {
-  if (block.type === 'list' && block.items.length >= 3) return true
-  if (block.type === 'embed' && /data|chart|flourish|tableau/i.test(block.url)) return true
-  return false
 }

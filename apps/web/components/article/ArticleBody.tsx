@@ -29,19 +29,14 @@ const AD_AFTER_PARAGRAPH = 4
 export function ArticleBody({ blocks, locale, source, className }: ArticleBodyProps) {
   let paragraphCount = 0
   let adInjected = false
-  let firstParagraphRendered = false
 
   const out: React.ReactNode[] = []
 
   blocks.forEach((block, i) => {
-    const isFirstParagraph = !firstParagraphRendered && block.type === 'paragraph'
-    if (isFirstParagraph) firstParagraphRendered = true
-    out.push(
-      <BlockRenderer key={`b-${i}`} block={block} locale={locale} dropCap={isFirstParagraph} />,
-    )
+    out.push(<BlockRenderer key={`b-${i}`} block={block} locale={locale} />)
     if (block.type === 'paragraph') {
       paragraphCount += 1
-      if (!adInjected && paragraphCount >= AD_AFTER_PARAGRAPH) {
+      if (!adInjected && paragraphCount >= AD_AFTER_PARAGRAPH && blocks.length > 6) {
         out.push(
           <AdSlot
             key={`ad-${i}`}
@@ -79,7 +74,7 @@ export function CorrectionNotice({
   return (
     <aside
       className={cn(
-        'rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-ink',
+        'border border-rule bg-brand-tint px-4 py-3 text-sm text-ink',
         className,
       )}
       aria-labelledby="corrections-heading"
@@ -156,29 +151,15 @@ function formatCorrectionDate(value: string, locale: Locale) {
 function BlockRenderer({
   block,
   locale,
-  dropCap,
 }: {
   block: ArticleBlock
   locale: Locale
-  dropCap?: boolean
 }) {
   const lang = locale === 'en' ? 'en' : 'ne'
   switch (block.type) {
     case 'paragraph':
-      if (dropCap && block.text.length > 1) {
-        const first = block.text[0]!
-        const rest = block.text.slice(1)
-        return (
-          <p className="text-[1.2rem] leading-[1.9] text-ink sm:text-[1.26rem]" lang={lang}>
-            <span className="float-left mr-2 mt-1 font-display text-[3.5rem] leading-[0.8] text-brand">
-              {first}
-            </span>
-            {rest}
-          </p>
-        )
-      }
       return (
-        <p className="text-[1.2rem] leading-[1.9] text-ink sm:text-[1.26rem]" lang={lang}>
+        <p className="text-body-lg leading-[1.7] text-ink" lang={lang}>
           {block.text}
         </p>
       )
@@ -200,7 +181,7 @@ function BlockRenderer({
     case 'image':
       return (
         <figure className="my-2">
-          <div className="relative overflow-hidden rounded-lg aspect-[16/9]">
+          <div className="relative aspect-[16/9] overflow-hidden">
             <Image
               src={block.image.url}
               alt={block.image.alt}
@@ -224,10 +205,10 @@ function BlockRenderer({
       const quote = locale === 'en' && block.quoteEn ? block.quoteEn : block.quoteNe
       const quoteLang = locale === 'en' && block.quoteEn ? 'en' : 'ne'
       return (
-        <blockquote className="my-4 border-y-2 border-brand py-6" lang={quoteLang}>
+        <blockquote className="my-4 bg-brand-tint px-5 py-6" lang={quoteLang}>
           <p className="font-display text-h2 leading-tight text-ink">{quote}</p>
           {block.attribution && (
-            <footer className="mt-3 text-meta font-semibold uppercase tracking-wide text-brand-strong">
+            <footer className="mt-3 text-meta font-semibold text-brand-strong">
               <cite className="not-italic">{block.attribution}</cite>
             </footer>
           )}
@@ -240,11 +221,7 @@ function BlockRenderer({
 
     case 'list': {
       const items = block.items.map((it, idx) => (
-        <li
-          key={idx}
-          lang={lang}
-          className="text-[1.2rem] leading-[1.9] text-ink sm:text-[1.26rem]"
-        >
+        <li key={idx} lang={lang} className="text-body-lg leading-[1.7] text-ink">
           {it}
         </li>
       ))
@@ -262,8 +239,11 @@ function BlockRenderer({
       return <AdSlot locale={locale} placementKey={placementKey} variant="inline" />
     }
 
-    default:
+    default: {
+      const _exhaustive: never = block
+      void _exhaustive
       return null
+    }
   }
 }
 

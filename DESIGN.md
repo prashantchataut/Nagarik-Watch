@@ -175,7 +175,17 @@ Tokens: `space-1`=4 … `space-2`=8 … up to `space-12`=128.
 
 ## 5. Component inventory
 
-The primitives in `packages/ui`. Each is accessible (keyboard, focus-visible, ARIA where
+Editorial card primitives live in `packages/ui` (`StoryCard`, `StoryGrid`, `Hero`,
+`SectionHeader`, `CategoryLabel`, `Byline`, `Dateline`, `LiveWidget`, skeletons).
+
+**Chrome and article surfaces live in `apps/web/components/`** (Masthead, Footer,
+BreakingTicker, ArticleBody, ShareBar, AdSlot, PublicShell, HubIndexHeader, etc.).
+Each is accessible (keyboard, focus-visible, ARIA where needed) and themable via the
+chosen palette tokens.
+
+**Editorial (apps/web + packages/ui):**
+
+The primitives in `packages/ui` and chrome in `apps/web/components`. Each is accessible (keyboard, focus-visible, ARIA where
 needed) and themable via the chosen palette tokens.
 
 **Editorial:**

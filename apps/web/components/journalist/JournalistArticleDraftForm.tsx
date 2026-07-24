@@ -22,6 +22,10 @@ type DraftValues = {
   notificationMode: 'none' | 'breaking' | 'followers'
   notificationTags: string[]
   workflowStage: string
+  province: string
+  district: string
+  exclusive: boolean
+  editorPick: boolean
 }
 
 type Props = {
@@ -46,6 +50,7 @@ const empty: DraftValues = {
   titleNe: '', titleEn: '', slug: '', categorySlug: '', deckNe: '', bodyNe: '', tagSlugs: [],
   heroImageUrl: '', reportingLocation: '', sourceNote: '', editorPitch: '', customHomepageText: '',
   customSocialText: '', notificationMode: 'none', notificationTags: [], workflowStage: 'draft',
+  province: '', district: '', exclusive: false, editorPick: false,
 }
 
 const EDITOR_TABS = ['story', 'evidence', 'distribution', 'preview'] as const
@@ -296,7 +301,7 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
 
       <section className="newsroom-assist" aria-label={ne ? 'सम्पादकीय सुझाव' : 'Editorial suggestions'}>
         <div>
-          <strong>{ne ? 'सुझाव मात्र — स्वतः सुरक्षित हुँदैन' : 'Suggestions only — never auto-saved'}</strong>
+          <strong>{ne ? 'सुझाव मात्र; स्वतः सुरक्षित हुँदैन' : 'Suggestions only; never auto-saved'}</strong>
         </div>
         <div className="newsroom-assist__actions">
           {([
@@ -357,6 +362,10 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
           <section className="newsroom-studio__panel" hidden={tab !== 'evidence'} aria-hidden={tab !== 'evidence'}>
             <div className="newsroom-studio__section-intro"><h2>{ne ? 'समाचार पुष्टि' : 'Reporting evidence'}</h2><p>{ne ? 'यी विवरण सार्वजनिक सामग्री होइनन्। सम्पादकले रिपोर्टिङको आधार, प्रमाण र जोखिम बुझ्न प्रयोग गर्छन्।' : 'These fields are private to the newsroom. They let editors understand the reporting basis, evidence and risk.'}</p></div>
             <label className="newsroom-field"><span>{ne ? 'रिपोर्टिङ स्थान' : 'Reporting location'}</span><input value={draft.reportingLocation} onChange={(event) => patch('reportingLocation', event.target.value)} placeholder={ne ? 'जिल्ला, पालिका वा घटनास्थल' : 'District, municipality or reporting location'} /></label>
+            <label className="newsroom-field"><span>{ne ? 'प्रदेश स्लग' : 'Province slug'}</span><input value={draft.province} onChange={(event) => patch('province', event.target.value)} placeholder="bagmati" /></label>
+            <label className="newsroom-field"><span>{ne ? 'जिल्ला स्लग' : 'District slug'}</span><input value={draft.district} onChange={(event) => patch('district', event.target.value)} placeholder="kathmandu" /></label>
+            <label className="newsroom-field newsroom-field--check"><span><input type="checkbox" checked={draft.exclusive} onChange={(event) => patch('exclusive', event.target.checked)} /> {ne ? 'विशेष रिपोर्ट' : 'Exclusive'}</span></label>
+            <label className="newsroom-field newsroom-field--check"><span><input type="checkbox" checked={draft.editorPick} onChange={(event) => patch('editorPick', event.target.checked)} /> {ne ? 'सम्पादकको रोजाइ' : "Editor's pick"}</span></label>
             <label className="newsroom-field"><span>{ne ? 'स्रोत र प्रमाण नोट' : 'Source and evidence note'}</span><textarea value={draft.sourceNote} onChange={(event) => patch('sourceNote', event.target.value)} rows={8} placeholder={ne ? 'कोसँग कुरा गरियो? कुन कागजात हेरियो? के पुष्टि हुन बाँकी छ?' : 'Who was interviewed? Which documents were reviewed? What remains unverified?'} /></label>
             <section className="newsroom-source-check">
               <h3>{ne ? 'स्रोत विश्वसनीयता संकेत' : 'Source reliability flags'}</h3>

@@ -427,6 +427,54 @@ export const Articles: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     {
+      name: 'province',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Province slug (e.g. bagmati) for geo desks.',
+      },
+    },
+    {
+      name: 'district',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'District slug for local desks.',
+      },
+    },
+    {
+      name: 'exclusive',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'editorPick',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'dataStory',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'factCheckStatus',
+      type: 'select',
+      defaultValue: 'not_fact_check',
+      options: [
+        { label: 'Not a fact check', value: 'not_fact_check' },
+        { label: 'In review', value: 'in_review' },
+        { label: 'Verified', value: 'verified' },
+        { label: 'False', value: 'false' },
+        { label: 'Mixed', value: 'mixed' },
+        { label: 'Context needed', value: 'context_needed' },
+      ],
+      admin: { position: 'sidebar' },
+    },
+    {
       name: 'notificationMode',
       type: 'select',
       defaultValue: 'none',

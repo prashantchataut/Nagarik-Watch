@@ -112,6 +112,10 @@ export async function POST(request: NextRequest) {
           workflowStage,sourceType: 'original',noIndex: true,includeInNewsSitemap: false,
           premium: false,commentsEnabled: true,
           locale: body.locale === 'en' ? 'en' : 'ne',createdBy: session.userId,
+          province: String(body.province ?? '').trim() || undefined,
+          district: String(body.district ?? '').trim() || undefined,
+          exclusive: body.exclusive === true,
+          editorPick: body.editorPick === true,
         })
 
     const meta = await saveJournalistDraftMeta({

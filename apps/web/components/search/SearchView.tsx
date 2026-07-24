@@ -20,6 +20,8 @@ import { HubIndexHeader } from '@/components/HubIndexHeader'
 type SearchViewProps = {
   locale: Locale
   corpus: SearchableStory[]
+  /** Max stories indexed; disclosed in the UI when results may be incomplete. */
+  corpusCap?: number
 }
 
 const DEBOUNCE_MS = 300
@@ -32,7 +34,7 @@ const RECENT_MAX = 6
  * + Enter + Escape keyboard control, recent-search chips (sessionStorage), and the three empty
  * states (no query / no results / recents).
  */
-export function SearchView({ locale, corpus }: SearchViewProps) {
+export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const dict = getDictionary(locale)
@@ -198,10 +200,10 @@ export function SearchView({ locale, corpus }: SearchViewProps) {
       {hasQuery && results.length > 0 && (
         <p className="mt-3 text-meta text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
           {dict.searchResults(results.length)}
-          {corpus.length >= 100
+          {corpusCap && corpus.length >= corpusCap
             ? locale === 'en'
-              ? ' (search covers the latest indexed stories on this page load).'
-              : ' (यो खोजीले यस पृष्ठ लोडका पछिल्ला अनुक्रमित समाचार समेट्छ)।'
+              ? ` (indexed up to ${corpusCap} recent stories per load).`
+              : ` (प्रत्येक लोडमा बढीमा ${corpusCap} हालसालैका समाचार अनुक्रमित)।`
             : ''}
         </p>
       )}

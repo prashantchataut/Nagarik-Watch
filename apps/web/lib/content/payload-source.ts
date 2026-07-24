@@ -155,6 +155,11 @@ function asCard(doc: PayloadDoc): StoryCardData {
         .map((row) => asAuthor(row.author))
         .filter((author): author is { id: string; slug: string; name: string } => author !== null)
     : []
+  const bodyNe = Array.isArray(doc.bodyNe) ? (doc.bodyNe as ArticleBlock[]) : []
+  const imageBlocks = bodyNe.filter((b) => b.type === 'image').length
+  const hasVideo = bodyNe.some(
+    (b) => b.type === 'embed' && (b.provider === 'youtube' || /youtu|vimeo|video/i.test(b.url)),
+  )
   return {
     id: String(doc.id),
     slug: String(doc.slug ?? ''),
@@ -174,11 +179,21 @@ function asCard(doc: PayloadDoc): StoryCardData {
     isBreaking: Boolean(doc.isBreaking),
     premium: doc.premium === true,
     readingMinutes: doc.readingMinutes ? Number(doc.readingMinutes) : undefined,
+    province: doc.province ? String(doc.province) : undefined,
+    district: doc.district ? String(doc.district) : undefined,
+    exclusive: doc.exclusive === true,
+    editorPick: doc.editorPick === true,
+    dataStory: doc.dataStory === true,
+    hasGallery: imageBlocks >= 2 || Boolean(doc.photoGallery),
+    hasVideo,
+    factCheckStatus: doc.factCheckStatus
+      ? (String(doc.factCheckStatus) as StoryCardData['factCheckStatus'])
+      : undefined,
   }
 }
 
 type PayloadFindOptions = {
-  where?: Record<string, Record<string, unknown>>
+  where?: Record<string, unknown>
   sort?: string
   limit?: number
   page?: number
@@ -203,7 +218,21 @@ async function payloadFind<T extends PayloadDoc>(
   if (options.depth !== undefined) params.set('depth', String(options.depth))
 
   for (const [field, operators] of Object.entries(options.where ?? {})) {
-    for (const [operator, rawValue] of Object.entries(operators)) {
+    if (field === 'or' && Array.isArray(operators)) {
+      operators.forEach((clause, index) => {
+        if (!clause || typeof clause !== 'object') return
+        for (const [innerField, innerOps] of Object.entries(clause as Record<string, unknown>)) {
+          if (!innerOps || typeof innerOps !== 'object') continue
+          for (const [operator, rawValue] of Object.entries(innerOps as Record<string, unknown>)) {
+            const value = Array.isArray(rawValue) ? rawValue.join(',') : String(rawValue)
+            params.set(`where[or][${index}][${innerField}][${operator}]`, value)
+          }
+        }
+      })
+      continue
+    }
+    if (!operators || typeof operators !== 'object' || Array.isArray(operators)) continue
+    for (const [operator, rawValue] of Object.entries(operators as Record<string, unknown>)) {
       const value = Array.isArray(rawValue) ? rawValue.join(',') : String(rawValue)
       params.set(`where[${field}][${operator}]`, value)
     }
@@ -242,20 +271,64 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
     async getStories(opts: StoryListOptions): Promise<PaginatedStories> {
       const page = opts.page ?? 1
       const perPage = opts.limit && !opts.page ? opts.limit : (opts.perPage ?? PER_PAGE)
-      const where: Record<string, Record<string, unknown>> = publicArticleWhere()
+      const where: Record<string, unknown> = publicArticleWhere()
       if (opts.category) where['category.slug'] = { equals: opts.category }
       if (opts.author) where['authors.author.slug'] = { equals: opts.author }
       if (opts.tag) where['tags.tag.slug'] = { equals: opts.tag }
       if (opts.locale === 'en') where.englishStatus = { equals: 'published' }
       if (opts.exclude?.length) where.slug = { not_in: opts.exclude }
+      if (opts.province) where.province = { equals: opts.province }
+      if (opts.district) where.district = { equals: opts.district }
+      if (opts.exclusive === true) where.exclusive = { equals: true }
+      if (opts.editorPick === true) where.editorPick = { equals: true }
+      if (opts.dataStory === true) where.dataStory = { equals: true }
+      if (opts.factCheck === true) {
+        where.factCheckStatus = {
+          in: ['in_review', 'verified', 'false', 'mixed', 'context_needed'],
+        }
+      }
+      if (opts.dateFrom) {
+        where.publishAt = {
+          ...((where.publishAt as Record<string, unknown> | undefined) ?? {}),
+          greater_than_equal: opts.dateFrom,
+        }
+      }
+      if (opts.dateTo) {
+        where.publishAt = {
+          ...((where.publishAt as Record<string, unknown> | undefined) ?? {}),
+          less_than_equal: opts.dateTo,
+        }
+      }
+      if (opts.q?.trim()) {
+        where.or = [
+          { titleNe: { contains: opts.q.trim() } },
+          { titleEn: { contains: opts.q.trim() } },
+          { deckNe: { contains: opts.q.trim() } },
+        ]
+      }
+      // Gallery/video desks need body inspection — fetch a wider page then filter.
+      const needsBodyFilter = opts.hasGallery === true || opts.hasVideo === true
       const { docs, totalDocs, totalPages } = await payloadFind<PayloadDoc>('articles', {
         where,
-        limit: perPage,
-        page,
+        limit: needsBodyFilter ? Math.max(perPage * 4, 48) : perPage,
+        page: needsBodyFilter ? 1 : page,
         sort: '-publishAt',
         depth: 1,
       })
-      const items = (docs as unknown as PayloadDoc[]).map(asCard)
+      let items = (docs as unknown as PayloadDoc[]).map(asCard)
+      if (opts.hasGallery === true) items = items.filter((c) => c.hasGallery)
+      if (opts.hasVideo === true) items = items.filter((c) => c.hasVideo)
+      if (needsBodyFilter) {
+        const total = items.length
+        const start = (page - 1) * perPage
+        items = items.slice(start, start + perPage)
+        return {
+          items,
+          page,
+          totalPages: Math.max(1, Math.ceil(total / perPage)),
+          total,
+        }
+      }
       return {
         items,
         page,
@@ -506,6 +579,12 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
     noindex: doc.noIndex === true,
     doNotRecommend: doc.doNotRecommend === true,
     commentsEnabled: doc.commentsEnabled !== false,
+    province: doc.province ? String(doc.province) : undefined,
+    district: doc.district ? String(doc.district) : undefined,
+    exclusive: doc.exclusive === true,
+    factCheckStatus: doc.factCheckStatus
+      ? (String(doc.factCheckStatus) as Article['factCheckStatus'])
+      : undefined,
     readingMinutes: Number(
       doc.readingMinutes ?? Math.max(1, Math.ceil(countArticleWords(bodyNe) / 180)),
     ),

@@ -143,6 +143,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           mediaReferenceUrl: String(body.heroImageUrl ?? '').trim() || undefined,
           heroImageUrl: String(body.heroImageUrl ?? '').trim() || undefined,
           tagSlugs,workflowStage,
+          province: String(body.province ?? '').trim() || undefined,
+          district: String(body.district ?? '').trim() || undefined,
+          exclusive: body.exclusive === true,
+          editorPick: body.editorPick === true,
         }, session.userId, session.newsroomRole)
     if (!article) return NextResponse.json({ error: 'Draft not found.' }, { status: 404 })
     const nextMeta = await saveJournalistDraftMeta({

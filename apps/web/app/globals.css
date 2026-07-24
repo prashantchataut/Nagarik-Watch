@@ -489,7 +489,7 @@
   .admin-metric {
     display: block;
     border: 1px solid var(--rule);
-    border-left: 3px solid var(--rule);
+    border-left: 1px solid var(--rule);
     border-radius: 0;
     background: var(--surface-raised);
     padding: .75rem .9rem;
@@ -956,7 +956,7 @@
     display: grid;
     align-content: center;
     gap: .3rem;
-    border-left: 3px solid var(--brand);
+    border-left: 1px solid var(--brand);
     border-block: 1px solid var(--rule);
     border-right: 1px solid var(--rule);
     background: color-mix(in oklch, var(--brand-tint) 55%, var(--surface));
@@ -1282,14 +1282,14 @@
   .reader-ledger__streak-badge span { color: var(--ink-soft); font-size: .78rem; }
   .reader-ledger__streak-badge[data-at-risk='true'] { border-color: color-mix(in oklch, var(--down) 45%, var(--rule)); background: color-mix(in oklch, var(--down) 8%, transparent); }
   .reader-ledger__streak-badge[data-at-risk='true'] strong { color: var(--down); }
-  .reader-ledger__stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 1.5rem; border-block: 1px solid var(--rule); }
+  .reader-ledger__stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 1.5rem; border-block: 1px solid var(--rule); gap: 0; }
   .reader-ledger__stats > div { min-width: 0; padding: 1rem 0; }
   .reader-ledger__stats > div:nth-child(odd) { padding-right: 1rem; border-right: 1px solid var(--rule); }
   .reader-ledger__stats > div:nth-child(even) { padding-left: 1rem; }
   .reader-ledger__stats > div:nth-child(n+3) { border-top: 1px solid var(--rule); }
-  .reader-ledger__stats dt { color: var(--mute); font-size: .7rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
-  .reader-ledger__stats dd { margin-top: .3rem; font-family: var(--font-mukta), sans-serif; font-size: 2.2rem; font-weight: 850; line-height: 1; }
-  .reader-ledger__stats small { color: var(--ink-soft); font-size: .8rem; font-weight: 700; }
+  .reader-ledger__stats dt { color: var(--mute); font-size: .8rem; font-weight: 650; letter-spacing: 0; text-transform: none; }
+  .reader-ledger__stats dd { margin-top: .25rem; font-family: var(--font-mukta), sans-serif; font-size: 1.25rem; font-weight: 700; line-height: 1.2; color: var(--ink); }
+  .reader-ledger__stats small { color: var(--ink-soft); font-size: .8rem; font-weight: 600; }
   .reader-ledger__calendar { display: grid; gap: .85rem; margin-top: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--rule); }
   .reader-ledger__calendar strong, .reader-ledger__calendar span { display: block; }
   .reader-ledger__calendar span { margin-top: .2rem; color: var(--mute); font-size: .74rem; }

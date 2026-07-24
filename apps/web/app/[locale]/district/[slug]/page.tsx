@@ -30,6 +30,7 @@ export default async function Page({
   return (
     <PublicHubPage
       locale={locale}
+      district={slug}
       hub={{
         key: 'archive',
         path: `/district/${slug}`,

@@ -72,12 +72,23 @@ export default async function EpaperPage({ params }: { params: Promise<{ locale:
           <ul className="mt-4 divide-y divide-rule border-y border-rule">
             {editions.map((edition) => (
               <li key={`${edition.date}-${edition.edition}`} className="py-4">
-                <p className="font-display text-h3 font-bold text-ink">{edition.edition}</p>
-                <p className="mt-1 text-meta text-ink-soft">
-                  {new Date(edition.date).toLocaleDateString(en ? 'en-GB' : 'ne-NP')}
-                  {' · '}
-                  {en ? `${edition.pages.length} page(s)` : `${edition.pages.length} पृष्ठ`}
-                </p>
+                <Link
+                  href={localizeHref(locale, `/epaper/${edition.date}`)}
+                  className="group block"
+                >
+                  <p className="font-display text-h3 font-bold text-ink group-hover:text-brand-strong">
+                    {edition.edition}
+                  </p>
+                  <p className="mt-1 text-meta text-ink-soft">
+                    {new Date(edition.date).toLocaleDateString(en ? 'en-GB' : 'ne-NP')}
+                    {' · '}
+                    {en ? `${edition.pages.length} page(s)` : `${edition.pages.length} पृष्ठ`}
+                    {' · '}
+                    <span className="font-semibold text-brand-strong">
+                      {en ? 'Open' : 'खोल्नुहोस्'}
+                    </span>
+                  </p>
+                </Link>
               </li>
             ))}
           </ul>

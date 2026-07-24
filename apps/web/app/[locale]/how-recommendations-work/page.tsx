@@ -4,8 +4,8 @@ import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 
 export const metadata: Metadata = {
-  title: 'How recommendations work',
-  description: 'How Nagarik Watch ranks recommended stories and notifications.',
+  title: 'सिफारिस कसरी काम गर्छ',
+  description: 'नागरिक वाचले सिफारिस समाचार र सूचना कसरी क्रमबद्ध गर्छ।',
 }
 
 const stages = [

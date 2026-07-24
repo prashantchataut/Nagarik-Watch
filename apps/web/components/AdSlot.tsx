@@ -80,9 +80,6 @@ export async function AdSlot({
           <span className="text-caption font-bold uppercase tracking-[0.16em] text-ink-soft">
             {adLabel}
           </span>
-          <span className="mt-1 block text-caption text-mute" lang="en">
-            {placement.width} × {placement.height} · {placement.key}
-          </span>
         </div>
         {mode === 'house' && houseAd?.active ? (
           <a

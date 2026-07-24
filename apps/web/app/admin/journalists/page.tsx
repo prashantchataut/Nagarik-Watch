@@ -41,7 +41,11 @@ export default async function AdminJournalistsPage() {
               {drafts.map((draft) => (
                 <tr key={`${draft.articleSlug}-${draft.updatedAt}`} className="align-top">
                   <td><strong className="block text-meta text-ink">{draft.titleNe}</strong><code className="mt-1 block font-mono text-caption text-ink-soft">{draft.articleSlug}</code><span className="mt-1 block text-caption text-mute">{draft.categorySlug} · {draft.workflowStage}</span></td>
-                  <td className="text-meta text-ink-soft"><code>{draft.reporterId}</code></td>
+                  <td className="text-meta text-ink-soft">
+                    {draft.reporterId.includes('@')
+                      ? draft.reporterId
+                      : draft.reporterId.slice(0, 8)}
+                  </td>
                   <td className="max-w-xs text-meta text-ink-soft"><strong className="block text-ink">{draft.reportingLocation ?? 'स्थान नखुलेको'}</strong><span className="mt-1 block">{draft.sourceNote ?? draft.editorPitch ?? 'प्रमाण नोट छैन'}</span></td>
                   <td className="max-w-xs text-meta text-ink-soft"><span className="block">Alert: {draft.notificationMode}</span><span className="mt-1 block">{draft.notificationTags.join(', ') || 'ट्याग छैन'}</span></td>
                   <td className="min-w-[22rem]"><JournalistFeedbackActions identifier={draft.articleId || draft.articleSlug} reporterId={draft.reporterId} initialFeedback={draft.editorFeedback} /></td>

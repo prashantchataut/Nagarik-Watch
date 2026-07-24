@@ -17,6 +17,25 @@ function isoDaysAgo(days: number, hour = 8): string {
  * Editable via /admin/articles. No third-party outlet copy.
  */
 export function buildOriginalStarterArticles(createdBy = 'newsroom-boot'): StoredArticle[] {
+  const provinces = [
+    'koshi',
+    'madhesh',
+    'bagmati',
+    'gandaki',
+    'lumbini',
+    'karnali',
+    'sudurpashchim',
+  ] as const
+  const districtsByProvince: Record<(typeof provinces)[number], string> = {
+    koshi: 'jhapa',
+    madhesh: 'dhanusha',
+    bagmati: 'kathmandu',
+    gandaki: 'kaski',
+    lumbini: 'rupandehi',
+    karnali: 'surkhet',
+    sudurpashchim: 'kailali',
+  }
+
   const base = (
     partial: Pick<
       StoredArticle,
@@ -50,7 +69,7 @@ export function buildOriginalStarterArticles(createdBy = 'newsroom-boot'): Store
     }
   }
 
-  return [
+  const articles = [
     base({
       id: "art-nw-politics-1",
       slug: "parliament-monsoon-session-agenda",
@@ -1718,4 +1737,61 @@ export function buildOriginalStarterArticles(createdBy = 'newsroom-boot'): Store
       reportingLocation: 'काठमाडौं',
     }),
   ]
+
+  return articles.map((article, index) => {
+    const province = provinces[index % provinces.length]!
+    const district = districtsByProvince[province]
+    const next = { ...article, province, district }
+    if (index % 7 === 0) {
+      next.editorPick = true
+      next.tagSlugs = Array.from(new Set([...next.tagSlugs, 'editor-pick']))
+    }
+    if (index % 11 === 0) {
+      next.exclusive = true
+      next.tagSlugs = Array.from(new Set([...next.tagSlugs, 'exclusive-report']))
+    }
+    if (index % 13 === 0) {
+      next.dataStory = true
+      next.tagSlugs = Array.from(new Set([...next.tagSlugs, 'data-story']))
+    }
+    if (index % 17 === 0) {
+      next.factCheckStatus = 'verified'
+      next.tagSlugs = Array.from(new Set([...next.tagSlugs, 'fact-check']))
+    }
+    if (article.categorySlug === 'politics' && index % 5 === 1) {
+      next.tagSlugs = Array.from(new Set([...next.tagSlugs, 'local-election']))
+    }
+    if (article.categorySlug === 'society' && index % 5 === 2) {
+      next.tagSlugs = Array.from(new Set([...next.tagSlugs, 'exam-results']))
+    }
+    if (index % 9 === 0 && !next.bodyNe.some((b) => b.type === 'embed')) {
+      next.bodyNe = [
+        ...next.bodyNe,
+        {
+          type: 'embed',
+          provider: 'youtube',
+          url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+          caption: 'भिडियो',
+        },
+      ]
+      next.tagSlugs = Array.from(new Set([...next.tagSlugs, 'video-report']))
+    }
+    if (index % 8 === 0) {
+      next.bodyNe = [
+        ...next.bodyNe,
+        {
+          type: 'image',
+          image: { url: '/og-default.svg', alt: article.titleNe },
+          caption: article.titleNe,
+        },
+        {
+          type: 'image',
+          image: { url: '/og-default.svg', alt: article.titleNe },
+          caption: article.titleNe,
+        },
+      ]
+      next.tagSlugs = Array.from(new Set([...next.tagSlugs, 'photo-story']))
+    }
+    return next
+  })
 }

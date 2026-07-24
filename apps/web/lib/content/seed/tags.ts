@@ -106,6 +106,22 @@ export const tags: Tag[] = [
     descriptionNe: 'फोटो पत्रकारिता र दृश्य कथाका सामग्री।',
     descriptionEn: 'Photojournalism and visual-story packages.',
   },
+  {
+    id: 'tag-exam-results',
+    slug: 'exam-results',
+    nameNe: 'परीक्षा नतिजा',
+    nameEn: 'Exam results',
+    descriptionNe: 'SEE, कक्षा १२ र सार्वजनिक परीक्षाका नतिजा र व्याख्या।',
+    descriptionEn: 'SEE, Grade XII and public examination results and explainers.',
+  },
+  {
+    id: 'tag-fact-check',
+    slug: 'fact-check',
+    nameNe: 'तथ्य-जाँच',
+    nameEn: 'Fact check',
+    descriptionNe: 'दाबी, प्रमाण र निष्कर्षसहितका तथ्य-जाँच सामग्री।',
+    descriptionEn: 'Fact-check pieces with claim, evidence and verdict.',
+  },
 ]
 
 export const tagById = new Map(tags.map((t) => [t.id, t]))

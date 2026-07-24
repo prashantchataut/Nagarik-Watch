@@ -19,7 +19,7 @@ export default async function SearchPage({ params }: { params: Promise<Params> }
 
   // No locale filter here so a Nepali query still surfaces English-headlined stories and vice
   // versa; the SearchView renders whichever title matches.
-  const { items } = await getStories({ perPage: 100, limit: 100 })
+  const { items } = await getStories({ perPage: 500, limit: 500 })
 
   const corpus: SearchableStory[] = items.map((s) => ({
     id: s.id,
@@ -38,7 +38,7 @@ export default async function SearchPage({ params }: { params: Promise<Params> }
     heroImage: s.heroImage ? { url: s.heroImage.url, alt: s.heroImage.alt } : null,
   }))
 
-  return <SearchView locale={locale} corpus={corpus} />
+  return <SearchView locale={locale} corpus={corpus} corpusCap={500} />
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
@@ -56,5 +56,4 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   }
 }
 
-// Search is inherently user-driven, so it is dynamic per request.
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
