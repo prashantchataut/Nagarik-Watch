@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
+import securityHeaders from './lib/security/baseline-headers.json' with { type: 'json' }
 
 /**
  * apps/web Next.js config (plain ESM — avoids next.config.ts + TypeScript 7 breakage).
@@ -8,33 +9,9 @@ import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
  *  - images: allow only the editorial media origins configured at build time.
  *  - security headers: baseline protection on every response.
  */
+
 const configDir = path.dirname(fileURLToPath(import.meta.url))
 const monorepoRoot = path.join(configDir, '../..')
-const securityHeaders = [
-  { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
-  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
-  {
-    key: 'Content-Security-Policy',
-    value: [
-      "default-src 'self'",
-      "base-uri 'self'",
-      "frame-ancestors 'self'",
-      "object-src 'none'",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self' data:",
-      "style-src 'self' 'unsafe-inline'",
-      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
-      "frame-src 'self' https://challenges.cloudflare.com",
-      "connect-src 'self' https:",
-      "media-src 'self' https: blob:",
-      "form-action 'self'",
-      'upgrade-insecure-requests',
-    ].join('; '),
-  },
-]
 
 function configuredRemotePattern(value) {
   if (!value) return null

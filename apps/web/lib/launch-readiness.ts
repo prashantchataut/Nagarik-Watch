@@ -11,14 +11,12 @@ import { getSentryState } from '@/lib/observability/sentry'
 import { getTtsState } from '@/lib/ai/tts'
 import { getSemanticProviderState } from '@/lib/ai/semantic-provider'
 
-/** Reads the same header list Next.js actually applies (next.config.mjs), so this check
- *  fails honestly if a header is ever removed from the real response configuration. */
+import baselineSecurityHeaders from '@/lib/security/baseline-headers.json'
+
+/** Lints the shared baseline header list also applied by next.config.mjs. */
 async function configuredSecurityHeaderLint(): Promise<ReturnType<typeof lintSecurityHeaders>> {
-  const { default: nextConfig } = await import('@/next.config')
-  const entries = await nextConfig.headers?.()
-  const headerList = entries?.find((entry) => entry.source === '/:path*')?.headers ?? []
   const asRecord = Object.fromEntries(
-    headerList.map((header) => [header.key.toLowerCase(), header.value]),
+    baselineSecurityHeaders.map((header) => [header.key.toLowerCase(), header.value]),
   )
   return lintSecurityHeaders(asRecord)
 }
