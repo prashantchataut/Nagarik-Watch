@@ -158,7 +158,8 @@ export function staticLocaleArticleIdParams() {
 }
 
 export function staticEpaperDateParams(dates: string[]) {
+  // output: export rejects an empty generateStaticParams result with a misleading
+  // "missing generateStaticParams" error — always emit at least one path.
   const values = [...new Set(dates.filter(Boolean))]
-  if (values.length === 0) return [] as Array<{ locale: Locale; date: string }>
-  return localeFieldParams('date', values)
+  return localeFieldParams('date', values.length > 0 ? values : ['preview'])
 }
