@@ -20,6 +20,8 @@ const tailwindPreset: Partial<Config> = {
           DEFAULT: 'var(--brand)',
           strong: 'var(--brand-strong)',
           tint: 'var(--brand-tint)',
+          bar: 'var(--brand-bar)',
+          'bar-active': 'var(--brand-bar-active)',
         },
         surface: {
           DEFAULT: 'var(--surface)',

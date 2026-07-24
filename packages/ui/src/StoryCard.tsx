@@ -164,9 +164,9 @@ export function StoryCard({
 
   if (layout === 'horizontal') {
     return (
-      <article className={cn('group relative flex gap-4', className)}>
-        {story.heroImage && (
-          <div className="relative block w-28 shrink-0 overflow-hidden rounded-sm aspect-[4/3]">
+      <article className={cn('group relative flex gap-3', className)}>
+        {story.heroImage ? (
+          <div className="relative block w-24 shrink-0 overflow-hidden aspect-[4/3] sm:w-28">
             <Image
               src={story.heroImage.url}
               alt=""
@@ -177,20 +177,18 @@ export function StoryCard({
               aria-hidden="true"
             />
           </div>
-        )}
+        ) : null}
         <div className="min-w-0 flex-1">
-          <div className="mb-1 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" /><MembershipMarker story={story} locale={locale} /></div>
+          <div className="mb-0.5 flex flex-wrap items-center gap-2">
+            <CategoryLabel category={story.category} locale={locale} as="span" />
+            <MembershipMarker story={story} locale={locale} />
+          </div>
           <h3
-            className="text-body-lg font-display text-ink leading-snug group-hover:text-brand-strong transition-colors duration-fast ease-out-quint"
+            className="text-body font-display font-bold text-ink leading-snug group-hover:text-brand-strong transition-colors duration-fast ease-out-quint sm:text-body-lg"
             lang={titleLang}
           >
             <Link href={href}>{title}</Link>
           </h3>
-          {deck && (
-            <p className="mt-1 line-clamp-2 text-meta text-ink-soft" lang={titleLang}>
-              {deck}
-            </p>
-          )}
           <div className="mt-1">
             <Byline authors={story.authors} locale={locale} publishedAt={story.publishedAt} />
           </div>

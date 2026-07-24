@@ -20,7 +20,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     requestHeaders.get('x-pathname') ??
     requestHeaders.get('x-invoke-path') ??
     requestHeaders.get('next-url')?.replace(/^https?:\/\/[^/]+/, '') ??
-    ''
+    // OpenNext admin Worker may omit locale middleware; fall back to the admin root.
+    '/admin'
   if (pathname === '/admin/login' || pathname.startsWith('/admin/login/')) return children
 
   if (process.env.ENABLE_WEB_ADMIN_SCAFFOLD === 'false') {

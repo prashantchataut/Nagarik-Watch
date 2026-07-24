@@ -1,16 +1,12 @@
 /**
  * Nagarik Watch — design tokens.
  * Palette: A (Civic Crimson) — CHOSEN, see DESIGN.md §2.
- * All colors in OKLCH. Neutrals are tinted toward the brand hue (chroma 0.004–0.02);
- * there is no pure #000 or #fff anywhere (impeccable law).
- *
- * Dark-mode tokens invert L and slightly reduce chroma, brand hue preserved.
- * These are consumed via the Tailwind preset in tailwind-preset.ts.
+ * Light mode: warm-tinted neutrals (not pure white). Dark mode: true black surfaces
+ * (user requirement 2026-07-24) with near-white ink and crimson for accents only —
+ * never pink headlines on a reddish-brown ground.
  *
  * Every text/background pair below was verified against WCAG AA (≥4.5:1 for body text)
- * in both light and dark via an OKLCH→sRGB→relative-luminance script. The mute, dark
- * brand, dark brand-tint, and dark breaking tokens were deliberately tuned above the
- * prior values so captions, pagination pills, and the ticker text all clear AA.
+ * in both light and dark via an OKLCH→sRGB→relative-luminance script.
  */
 
 :root {
@@ -18,6 +14,9 @@
   --brand: oklch(0.55 0.18 25);
   --brand-strong: oklch(0.45 0.2 25);
   --brand-tint: oklch(0.96 0.02 25);
+  /* Solid desk/nav bar — never lightened in dark mode */
+  --brand-bar: oklch(0.42 0.18 25);
+  --brand-bar-active: oklch(0.32 0.16 25);
 
   /* Surfaces (warm-tinted neutrals, not white) */
   --surface: oklch(0.985 0.004 25);
@@ -32,79 +31,67 @@
   --rule: oklch(0.9 0.008 25);
 
   /* Semantic */
-  --breaking: oklch(0.5 0.22 27); /* stronger than brand, for the breaking bar */
+  --breaking: oklch(0.5 0.22 27);
   --link: var(--brand);
   --focus-ring: oklch(0.55 0.18 25);
 
-  /* Accent — reserved gold for the breaking label / "live" affordance only.
-     Committed-strategy second color so the chrome is not one-note red. ≤5% of surface. */
   --accent-gold: oklch(0.78 0.13 85);
 
-  /* Semantic live-data states. Used by market up/down, sports, AQI bands, disaster levels.
-     Never the only signal (DESIGN.md §11: no colour-only meaning) — widgets pair these with
-     an arrow/▲▼ glyph or a text label. Greens/ambers kept civic, not neon. AA on surface. */
-  --up: oklch(0.5 0.13 150); /* market gain / positive */
-  --down: oklch(0.52 0.18 25); /* market loss / negative (warm, not the brand crimson) */
+  --up: oklch(0.5 0.13 150);
+  --down: oklch(0.52 0.18 25);
   --aqi-good: oklch(0.55 0.12 150);
   --aqi-moderate: oklch(0.62 0.12 85);
   --aqi-unhealthy: oklch(0.55 0.18 45);
   --aqi-severe: oklch(0.48 0.2 25);
 
-  /* Spacing (4px base) */
-  --space-1: 0.25rem; /* 4 */
-  --space-2: 0.5rem; /* 8 */
-  --space-3: 0.75rem; /* 12 */
-  --space-4: 1rem; /* 16 */
-  --space-6: 1.5rem; /* 24 */
-  --space-8: 2rem; /* 32 */
-  --space-12: 3rem; /* 48 */
-  --space-16: 4rem; /* 64 */
-  --space-24: 6rem; /* 96 */
-  --space-32: 8rem; /* 128 */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
 
-  /* Layout */
-  --page-max: 80rem; /* 1280px — homepage grid */
-  --body-max: 42.5rem; /* 680px — article column (65–75ch) */
+  --page-max: 80rem;
+  --body-max: 42.5rem;
 
-  /* Radii — moderate rounding (user pick).
-     News sites stay mostly flat, but controls/buttons/cards soften to feel modern,
-     and pills/chips go fully round. */
   --radius-0: 0;
-  --radius-1: 4px; /* small surfaces, inputs */
-  --radius-2: 8px; /* buttons, cards — the default */
-  --radius-3: 12px; /* large cards, overlays */
-  --radius-full: 9999px; /* pills, icon buttons */
+  --radius-1: 2px;
+  --radius-2: 4px;
+  --radius-3: 6px;
+  --radius-full: 9999px;
 
-  /* Motion — exponential ease-out only (impeccable law). No bounce/elastic. */
   --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-fast: 120ms;
   --dur-base: 200ms;
   --dur-slow: 320ms;
 
-  /* Elevation */
   --shadow-overlay: 0 8px 32px oklch(0.2 0.02 25 / 0.12);
-  /* Soft card lift on hover/raised surfaces (flat by default; news stays typographic). */
   --shadow-card: 0 1px 2px oklch(0.2 0.02 25 / 0.06);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Dark tokens: invert L, slightly reduce chroma, preserve brand hue.
-       brand/brand-tint/breaking tuned so every pair clears AA (see header note). */
-    --brand: oklch(0.72 0.15 25);
-    --brand-strong: oklch(0.78 0.15 25);
-    --brand-tint: oklch(0.34 0.045 25);
+    --brand: oklch(0.68 0.17 25);
+    --brand-strong: oklch(0.74 0.16 25);
+    --brand-tint: oklch(0.16 0 0);
+    --brand-bar: oklch(0.42 0.18 25);
+    --brand-bar-active: oklch(0.32 0.16 25);
 
-    --surface: oklch(0.18 0.012 25);
-    --surface-raised: oklch(0.22 0.012 25);
+    --surface: oklch(0 0 0);
+    --surface-raised: oklch(0.14 0 0);
 
-    --ink: oklch(0.93 0.008 25);
-    --ink-soft: oklch(0.8 0.012 25);
-    --mute: oklch(0.64 0.015 25);
+    --ink: oklch(0.96 0 0);
+    --ink-soft: oklch(0.78 0 0);
+    --mute: oklch(0.62 0 0);
 
-    --rule: oklch(0.32 0.012 25);
-    --breaking: oklch(0.56 0.2 27);
-    --focus-ring: oklch(0.78 0.15 25);
+    --rule: oklch(0.28 0 0);
+    --breaking: oklch(0.55 0.2 27);
+    --focus-ring: oklch(0.74 0.16 25);
+    --link: oklch(0.74 0.16 25);
 
     --accent-gold: oklch(0.82 0.12 85);
 
@@ -115,24 +102,26 @@
     --aqi-unhealthy: oklch(0.7 0.16 45);
     --aqi-severe: oklch(0.68 0.18 25);
 
-    --shadow-overlay: 0 8px 32px oklch(0 0 0 / 0.4);
-    --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3);
+    --shadow-overlay: 0 8px 32px oklch(0 0 0 / 0.55);
+    --shadow-card: 0 1px 2px oklch(0 0 0 / 0.45);
   }
 }
 
-/* Explicit dark-mode class (user toggle), overrides the media query. */
 :root[data-theme='dark'] {
-  --brand: oklch(0.72 0.15 25);
-  --brand-strong: oklch(0.78 0.15 25);
-  --brand-tint: oklch(0.34 0.045 25);
-  --surface: oklch(0.18 0.012 25);
-  --surface-raised: oklch(0.22 0.012 25);
-  --ink: oklch(0.93 0.008 25);
-  --ink-soft: oklch(0.8 0.012 25);
-  --mute: oklch(0.64 0.015 25);
-  --rule: oklch(0.32 0.012 25);
-  --breaking: oklch(0.56 0.2 27);
-  --focus-ring: oklch(0.78 0.15 25);
+  --brand: oklch(0.68 0.17 25);
+  --brand-strong: oklch(0.74 0.16 25);
+  --brand-tint: oklch(0.16 0 0);
+  --brand-bar: oklch(0.42 0.18 25);
+  --brand-bar-active: oklch(0.32 0.16 25);
+  --surface: oklch(0 0 0);
+  --surface-raised: oklch(0.14 0 0);
+  --ink: oklch(0.96 0 0);
+  --ink-soft: oklch(0.78 0 0);
+  --mute: oklch(0.62 0 0);
+  --rule: oklch(0.28 0 0);
+  --breaking: oklch(0.55 0.2 27);
+  --focus-ring: oklch(0.74 0.16 25);
+  --link: oklch(0.74 0.16 25);
   --accent-gold: oklch(0.82 0.12 85);
   --up: oklch(0.72 0.14 150);
   --down: oklch(0.7 0.16 25);
@@ -140,15 +129,16 @@
   --aqi-moderate: oklch(0.78 0.13 85);
   --aqi-unhealthy: oklch(0.7 0.16 45);
   --aqi-severe: oklch(0.68 0.18 25);
-  --shadow-overlay: 0 8px 32px oklch(0 0 0 / 0.4);
-  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3);
+  --shadow-overlay: 0 8px 32px oklch(0 0 0 / 0.55);
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.45);
 }
 
 :root[data-theme='light'] {
-  /* Re-declare light tokens so the [data-theme] class wins over the dark media query. */
   --brand: oklch(0.55 0.18 25);
   --brand-strong: oklch(0.45 0.2 25);
   --brand-tint: oklch(0.96 0.02 25);
+  --brand-bar: oklch(0.42 0.18 25);
+  --brand-bar-active: oklch(0.32 0.16 25);
   --surface: oklch(0.985 0.004 25);
   --surface-raised: oklch(0.99 0.003 25);
   --ink: oklch(0.22 0.02 25);
@@ -157,6 +147,7 @@
   --rule: oklch(0.9 0.008 25);
   --breaking: oklch(0.5 0.22 27);
   --focus-ring: oklch(0.55 0.18 25);
+  --link: var(--brand);
   --accent-gold: oklch(0.78 0.13 85);
   --up: oklch(0.5 0.13 150);
   --down: oklch(0.52 0.18 25);
@@ -168,14 +159,12 @@
   --shadow-card: 0 1px 2px oklch(0.2 0.02 25 / 0.06);
 }
 
-/* Global focus ring (a11y baseline). Visible on every interactive element. */
 :where(a, button, [tabindex], input, select, textarea):focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
   border-radius: var(--radius-1);
 }
 
-/* Reduced-motion: kill all non-essential animation (impeccable law). */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -11,17 +11,17 @@ import type { MediaRef } from '@nagarikwatch/db'
  */
 
 const CATEGORY_COLORS: Record<string, { from: string; to: string }> = {
-  politics: { from: '#9E1F22', to: '#C02A2A' },
-  society: { from: '#8B4513', to: '#C02A2A' },
-  business: { from: '#1F3A5F', to: '#2E5A8F' },
-  sports: { from: '#1B5E20', to: '#2E7D32' },
-  world: { from: '#37474F', to: '#546E7A' },
-  technology: { from: '#4A148C', to: '#6A1B9A' },
-  entertainment: { from: '#BF360C', to: '#E64A19' },
-  health: { from: '#00695C', to: '#00897B' },
-  education: { from: '#0D47A1', to: '#1565C0' },
-  opinion: { from: '#3E2723', to: '#5D4037' },
-  default: { from: '#9E1F22', to: '#C02A2A' },
+  politics: { from: '#141014', to: '#3A181C' },
+  society: { from: '#121214', to: '#2A2420' },
+  business: { from: '#0E1218', to: '#1A2838' },
+  sports: { from: '#0E1410', to: '#1A2E1E' },
+  world: { from: '#121416', to: '#242C32' },
+  technology: { from: '#121018', to: '#261E36' },
+  entertainment: { from: '#161210', to: '#3A2418' },
+  health: { from: '#0E1414', to: '#1A2E2C' },
+  education: { from: '#0E1218', to: '#1A2840' },
+  opinion: { from: '#141210', to: '#2A2420' },
+  default: { from: '#101010', to: '#2A1618' },
 }
 
 function hashSeed(seed: string): number {
@@ -74,10 +74,10 @@ function renderSvg(
     `<pattern id="p" patternUnits="userSpaceOnUse" width="20" height="20"><path d="M0 0L20 20M20 0L0 20" stroke="#ffffff" stroke-width="0.5" opacity="0.05"/></pattern>`,
     `<pattern id="p" patternUnits="userSpaceOnUse" width="48" height="42"><path d="M24 2L46 40L2 40Z" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.05"/></pattern>`,
   ]
-  const eyeMark = `<g transform="translate(${w - 70} ${h - 60})" opacity="0.18"><path d="M0 20 Q25 8 50 20 Q25 32 0 20 Z" fill="#ffffff"/><circle cx="25" cy="20" r="6" fill="${colors.from}"/><circle cx="25" cy="19" r="2.5" fill="#ffffff"/></g>`
-  const fontSize = Math.max(20, Math.floor(w / 18))
-  const subFontSize = Math.max(12, Math.floor(w / 40))
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${colors.from}"/><stop offset="100%" stop-color="${colors.to}"/></linearGradient>${patterns[pattern]}</defs><rect width="${w}" height="${h}" fill="url(#bg)"/><rect width="${w}" height="${h}" fill="url(#p)"/>${eyeMark}<text x="40" y="${h - 50}" font-family="'Mukta','Noto Sans Devanagari',sans-serif" font-size="${fontSize}" font-weight="700" fill="#ffffff" opacity="0.92">${safeLabel}</text><text x="40" y="${h - 20}" font-family="'Inter',sans-serif" font-size="${subFontSize}" font-weight="500" fill="#ffffff" opacity="0.6" letter-spacing="2">NAGARIK WATCH</text></svg>`
+  const eyeMark = `<rect x="${w - 120}" y="${h - 48}" width="80" height="3" fill="#ffffff" opacity="0.35"/>`
+  const fontSize = Math.max(18, Math.floor(w / 22))
+  const subFontSize = Math.max(11, Math.floor(w / 48))
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${colors.from}"/><stop offset="100%" stop-color="${colors.to}"/></linearGradient><linearGradient id="vignette" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="#000000" stop-opacity="0.15"/><stop offset="55%" stop-color="#000000" stop-opacity="0.05"/><stop offset="100%" stop-color="#000000" stop-opacity="0.45"/></linearGradient>${patterns[pattern]}</defs><rect width="${w}" height="${h}" fill="url(#bg)"/><rect width="${w}" height="${h}" fill="url(#p)"/><rect width="${w}" height="${h}" fill="url(#vignette)"/>${eyeMark}<text x="36" y="${h - 44}" font-family="'Mukta','Noto Sans Devanagari',sans-serif" font-size="${fontSize}" font-weight="700" fill="#ffffff" opacity="0.95">${safeLabel}</text><text x="36" y="${h - 18}" font-family="Georgia,serif" font-size="${subFontSize}" font-weight="600" fill="#ffffff" opacity="0.55" letter-spacing="2.5">NAGARIK WATCH</text></svg>`
 }
 
 /** Compatibility wrapper matching the old unsplash() signature. */

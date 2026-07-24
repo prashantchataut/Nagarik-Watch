@@ -3,9 +3,8 @@ import type { CategoryRef, Locale } from '@nagarikwatch/db'
 import { cn } from './cn'
 
 /**
- * Category accent pill. Renders the `.category-pill` base class (brand-tint background,
- * brand-strong text, no side-stripe per the impeccable ban). Links to the locale-correct
- * category landing page; pass `as="span"` to render non-interactive (e.g. inside a link).
+ * Editorial category kicker (underline + brand ink). Not a rounded chip.
+ * Links to the locale-correct category landing; pass `as="span"` inside another link.
  */
 type CategoryLabelProps = {
   category: CategoryRef
@@ -24,22 +23,24 @@ export function CategoryLabel({
 }: CategoryLabelProps) {
   const label = locale === 'en' && category.nameEn ? category.nameEn : category.nameNe
   const href = `${locale === 'en' ? '/en' : ''}${prefix}/${category.slug}`
-
-  const content = <span lang={locale === 'en' ? 'en' : 'ne'}>{label}</span>
+  const lang = locale === 'en' && category.nameEn ? 'en' : 'ne'
+  const classes = cn('category-pill', className)
 
   if (as === 'span') {
-    return <span className={cn('category-pill', className)}>{content}</span>
+    return (
+      <span className={classes} lang={lang}>
+        {label}
+      </span>
+    )
   }
 
   return (
     <Link
       href={href}
-      className={cn(
-        'category-pill transition-colors duration-fast ease-out-quint hover:brightness-95',
-        className,
-      )}
+      lang={lang}
+      className={cn(classes, 'transition-colors duration-fast ease-out-quint hover:text-brand')}
     >
-      {content}
+      {label}
     </Link>
   )
 }

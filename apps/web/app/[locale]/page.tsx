@@ -109,27 +109,27 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <ExperimentExposure experimentId={HOME_LAYOUT_EXPERIMENT_ID} />
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
-      <div className="mx-auto max-w-page px-4 pb-20 pt-4 sm:pt-6 lg:pb-16">
-        {/* First fold: one lead composition only (chrome budget). */}
+      <div className="mx-auto max-w-page px-4 pb-16 pt-3 sm:pt-4 lg:pb-14">
+        {/* Dense front page: lead + also-today rail */}
         <section
-          className="grid gap-8 border-b border-rule pb-8 xl:grid-cols-[minmax(0,1.55fr)_minmax(16rem,0.7fr)] xl:gap-0 xl:pb-10"
+          className="grid gap-6 border-b-2 border-ink pb-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(17rem,0.75fr)] xl:gap-0 xl:pb-7"
           aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
         >
           <InstrumentedStory
             articleSlug={edition.lead.slug}
             articleCategory={edition.lead.category.slug}
           >
-            <Hero story={edition.lead} locale={locale} className="xl:pr-8" />
+            <Hero story={edition.lead} locale={locale} className="xl:pr-7" />
           </InstrumentedStory>
 
-          <div className="divide-y divide-rule border-y border-rule xl:border-y-0 xl:border-l xl:border-rule xl:pl-6">
+          <div className="divide-y divide-rule border-y border-rule xl:border-y-0 xl:border-l xl:border-rule xl:pl-5">
             <p
-              className="pb-2.5 pt-1 text-meta font-bold text-ink-soft xl:pt-0"
+              className="pb-2 pt-1 text-caption font-extrabold uppercase tracking-[0.08em] text-ink xl:pt-0"
               lang={english ? 'en' : 'ne'}
             >
               {english ? 'Also today' : 'आजका अन्य'}
             </p>
-            {edition.secondary.slice(0, 4).map((story, index) => (
+            {edition.secondary.slice(0, 5).map((story, index) => (
               <InstrumentedStory
                 key={story.id}
                 articleSlug={story.slug}
@@ -139,14 +139,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   story={story}
                   locale={locale}
                   variant="horizontal"
-                  className={`py-3.5 first:pt-1 last:pb-0 ${index >= 3 ? 'hidden xl:block' : ''}`}
+                  className={`py-2.5 first:pt-1 last:pb-0 ${index >= 4 ? 'hidden xl:block' : ''}`}
                 />
               </InstrumentedStory>
             ))}
-            <p className="py-3">
+            <p className="py-2.5">
               <Link
                 href={localizeHref(locale, '/latest')}
-                className="inline-flex min-h-11 items-center text-meta font-bold text-brand-strong underline-offset-4 hover:underline"
+                className="inline-flex min-h-10 items-center text-meta font-bold text-brand-strong underline-offset-4 hover:underline"
                 lang={english ? 'en' : 'ne'}
               >
                 {english ? 'Latest updates' : 'ताजा अपडेट'}
@@ -155,9 +155,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </section>
 
-        <LatestRail stories={latest} locale={locale} className="mt-8 border-y border-rule py-6" />
+        <LatestRail stories={latest} locale={locale} className="mt-5 border-y border-rule py-4" />
 
-        <div className="mt-12 space-y-12 sm:mt-14 sm:space-y-16">
+        <div className="mt-8 space-y-8 sm:mt-10 sm:space-y-10">
           {edition.sections.slice(0, 3).map((section, index) => (
             <SectionBlock
               key={section.category.slug}
@@ -168,10 +168,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           ))}
         </div>
 
-        <ProvinceHub locale={locale} className="mt-12 sm:mt-14" />
+        <ProvinceHub locale={locale} className="mt-8 sm:mt-10" />
 
         {edition.sections.length > 3 ? (
-          <div className="mt-12 space-y-12 sm:mt-14 sm:space-y-16">
+          <div className="mt-8 space-y-8 sm:mt-10 sm:space-y-10">
             {edition.sections.slice(3).map((section, index) => (
               <SectionBlock
                 key={section.category.slug}
@@ -183,22 +183,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         ) : null}
 
-        <div className="mt-12 grid gap-8 lg:mt-14 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-10">
+        <div className="mt-8 grid gap-6 lg:mt-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-8">
           <TodayInBrief stories={briefPool} locale={locale} />
           {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
         </div>
 
         <UtilityStrip locale={locale} />
-        <HomeLiveBoard locale={locale} className="mt-8" />
+        <HomeLiveBoard locale={locale} className="mt-6" />
 
         <AdSlot
           locale={locale}
           placementKey="home-billboard"
           variant="billboard"
-          className="mt-10"
+          className="mt-8"
         />
 
-        <section className="mt-10 border-y border-rule py-6" aria-labelledby="home-newsletter">
+        <section className="mt-8 border-y border-rule py-5" aria-labelledby="home-newsletter">
           <div className="mx-auto max-w-xl">
             <h2 id="home-newsletter" className="sr-only" lang={english ? 'en' : 'ne'}>
               {english ? 'Newsletter' : 'न्युजलेटर'}
@@ -207,14 +207,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </section>
 
-        <RecommendedForYou locale={locale} catalog={catalog} className="mt-10" />
+        <RecommendedForYou locale={locale} catalog={catalog} className="mt-8" />
 
-        <div className="mt-12 grid gap-10 lg:mt-14 lg:grid-cols-2 lg:gap-12">
+        <div className="mt-8 grid gap-8 lg:mt-10 lg:grid-cols-2 lg:gap-10">
           <TodayInHistory locale={locale} stories={historyStories} />
           <PhotoOfTheDay locale={locale} story={photoOfDay} />
         </div>
 
-        <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="mt-12" />
+        <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="mt-8" />
       </div>
     </div>
   )

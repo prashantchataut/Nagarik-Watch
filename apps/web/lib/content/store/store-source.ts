@@ -23,8 +23,22 @@ import { authors, authorBySlug } from '../seed/authors'
 import { tags, tagBySlug } from '../seed/tags'
 import * as store from './json-store'
 import type { StoredArticle } from './json-store'
+import { placeholder } from '../seed/media'
 
 const PER_PAGE = 12
+
+function resolveHero(a: StoredArticle) {
+  if (a.heroImageUrl) {
+    return { url: a.heroImageUrl, alt: a.heroImageAlt ?? a.titleNe }
+  }
+  const label =
+    (categoryBySlug.get(a.categorySlug)?.nameNe ?? a.categorySlug).slice(0, 28)
+  const media = placeholder(a.slug, a.categorySlug, label, a.titleNe, {
+    w: 1600,
+    h: 900,
+  })
+  return { url: media.url, alt: media.alt }
+}
 
 function toCard(a: StoredArticle, locale: Locale): StoryCardData {
   const cat = categoryBySlug.get(a.categorySlug) ?? {
@@ -36,7 +50,7 @@ function toCard(a: StoredArticle, locale: Locale): StoryCardData {
   const cardAuthors = a.authorIds
     .map((id) => authors.find((au) => au.id === id))
     .filter((au): au is Author => Boolean(au))
-  const heroImage = a.heroImageUrl ? { url: a.heroImageUrl, alt: a.heroImageAlt ?? '' } : undefined
+  const heroImage = resolveHero(a)
   const cardTags = a.tagSlugs.map((slug) => tagBySlug.get(slug)).filter((t): t is Tag => Boolean(t))
   return {
     id: a.id,

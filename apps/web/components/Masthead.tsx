@@ -36,9 +36,6 @@ const UTIL_LINK =
 const UTIL_ICON =
   'inline-flex h-9 w-9 items-center justify-center text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
-const PRIMARY_CTA =
-  'inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-md bg-brand px-3 text-caption font-bold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
-
 export function Masthead({ locale, navCategories, topics = [], account = null }: MastheadProps) {
   const dict = getDictionary(locale)
   const pathname = usePathname() ?? '/'
@@ -146,10 +143,10 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
         </div>
       </div>
 
-      {/* Band 2 — Primary categories */}
-      <nav aria-label={dict.primaryNav} className="nw-masthead__primary border-t border-rule bg-surface">
-        <div className="mx-auto flex max-w-page items-stretch gap-2 px-3 sm:px-4">
-          <ul className="flex min-w-0 flex-1 flex-nowrap items-center gap-x-1 overflow-x-auto sm:gap-x-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* Band 2 — Primary categories as a solid news desk bar */}
+      <nav aria-label={dict.primaryNav} className="nw-masthead__primary border-t border-brand-bar bg-brand-bar text-surface">
+        <div className="mx-auto flex max-w-page items-stretch gap-1 px-3 sm:gap-2 sm:px-4">
+          <ul className="flex min-w-0 flex-1 flex-nowrap items-center gap-x-0.5 overflow-x-auto sm:gap-x-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <li>
               <NavLink href={homeHref} active={pathname === '/' || pathname === '/en'}>
                 <HomeGlyph />
@@ -181,8 +178,12 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
             </li>
           </ul>
 
-          <div className="hidden shrink-0 items-center gap-1.5 py-1.5 lg:flex">
-            <Link href={latestHref} className={PRIMARY_CTA} lang={lang}>
+          <div className="hidden shrink-0 items-center py-1.5 lg:flex">
+            <Link
+              href={latestHref}
+              className="inline-flex min-h-9 items-center border border-surface/50 bg-surface px-3 text-caption font-bold text-brand-bar transition-colors duration-fast ease-out-quint hover:bg-brand-tint"
+              lang={lang}
+            >
               {dict.navLatest}
             </Link>
           </div>
@@ -222,8 +223,8 @@ function NavLink({
       aria-current={active ? 'page' : undefined}
       className={
         active
-          ? 'inline-flex min-h-11 cursor-pointer items-center gap-1.5 whitespace-nowrap border-b-[3px] border-brand pt-[3px] text-meta font-black text-ink sm:text-body'
-          : 'inline-flex min-h-11 cursor-pointer items-center gap-1.5 whitespace-nowrap border-b-[3px] border-transparent pt-[3px] text-meta font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-rule hover:text-ink sm:text-body'
+          ? 'inline-flex min-h-11 cursor-pointer items-center gap-1.5 whitespace-nowrap bg-brand-bar-active px-2.5 text-meta font-black text-surface sm:px-3 sm:text-body'
+          : 'inline-flex min-h-11 cursor-pointer items-center gap-1.5 whitespace-nowrap px-2.5 text-meta font-bold text-surface/90 transition-colors duration-fast ease-out-quint hover:bg-brand-bar-active/80 hover:text-surface sm:px-3 sm:text-body'
       }
     >
       {children}

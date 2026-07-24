@@ -99,6 +99,16 @@ const nextConfig = {
             '**/node_modules/@vercel/blob/**',
             '**/node_modules/pg/**',
             '**/node_modules/pg-*/**',
+            '**/node_modules/sass/**',
+            '**/node_modules/sass-embedded/**',
+            '**/node_modules/@playwright/**',
+            '**/node_modules/playwright/**',
+            '**/node_modules/playwright-core/**',
+            '**/node_modules/next/dist/compiled/next-devtools/**',
+            '**/node_modules/next/dist/server/capsize-font-metrics.json',
+            '**/node_modules/react-dom/**/react-dom-server*.development.js',
+            '**/node_modules/react-dom/**/react-dom.development.js',
+            '**/node_modules/react/**/react.development.js',
           ]
         : []),
     ],
@@ -131,6 +141,11 @@ const nextConfig = {
         stripe: stub('stripe.ts'),
         'web-push': stub('web-push.ts'),
         '@vercel/blob': stub('vercel-blob.ts'),
+        sass: false,
+        'sass-embedded': false,
+        '@/lib/algorithms/catalog': stub('algorithms-catalog.ts'),
+        [path.join(configDir, 'lib/algorithms/catalog')]: stub('algorithms-catalog.ts'),
+        [path.join(configDir, 'lib/algorithms/catalog.ts')]: stub('algorithms-catalog.ts'),
       }
     }
     return config

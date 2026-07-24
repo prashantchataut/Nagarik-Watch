@@ -103,13 +103,17 @@ try {
     process.env.NEXT_PUBLIC_CMS_ADMIN_URL?.trim() ||
     process.env.PAYLOAD_ADMIN_URL?.trim() ||
     ''
+  const adminAppUrl =
+    process.env.NEXT_PUBLIC_ADMIN_APP_URL?.trim() ||
+    process.env.ADMIN_APP_URL?.trim() ||
+    ''
   mkdirSync(path.join(outDir, 'admin'), { recursive: true })
   writeFileSync(
     path.join(outDir, 'admin', 'index.html'),
-    buildStaffAdminHtml({ siteUrl, cmsAdminUrl }),
+    buildStaffAdminHtml({ siteUrl, cmsAdminUrl, adminAppUrl }),
     'utf8',
   )
-  console.log('Wrote static staff gateway: out/admin/index.html')
+  console.log(`Wrote static staff gateway → ${adminAppUrl}/admin/login`)
 
   if (process.argv.includes('--deploy')) {
     run('pnpm', [

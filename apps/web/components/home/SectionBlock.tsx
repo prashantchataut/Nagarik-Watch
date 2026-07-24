@@ -73,7 +73,7 @@ export function SectionBlock({ section, locale, className, layout }: SectionBloc
         moreLabel={dict.seeAll}
       />
 
-      <div className="mt-6">
+      <div className="mt-4">
         {chosen === 'lead-rail' && <LeadRail section={section} locale={locale} />}
         {chosen === 'overlay-grid' && <OverlayGrid items={all} locale={locale} />}
         {chosen === 'text-led' && <TextLedColumns items={all} locale={locale} />}
@@ -87,12 +87,12 @@ function LeadRail({ section, locale }: { section: HomepageSection; locale: Local
   const rail = lead ? section.items : section.items.slice(1)
   if (!lead) return <TextLedColumns items={section.items} locale={locale} />
   return (
-    <div className="grid gap-8 md:grid-cols-2">
+    <div className="grid gap-5 md:grid-cols-2 md:gap-6">
       <RankedCard story={lead} locale={locale} variant="featured" priority={false} />
       {rail.length > 0 && (
         <ul className="flex flex-col divide-y divide-rule">
           {rail.map((s) => (
-            <li key={s.slug} className="py-3 first:pt-0 last:pb-0">
+            <li key={s.slug} className="py-2.5 first:pt-0 last:pb-0">
               <RankedCard story={s} locale={locale} variant="horizontal" />
             </li>
           ))}

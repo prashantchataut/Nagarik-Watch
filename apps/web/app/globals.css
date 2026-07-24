@@ -6,8 +6,8 @@
 
 /*
  * apps/web base layer. Civic Crimson palette comes from tokens.css; this file only adds
- * element-level resets and component utilities that map onto those tokens. No pure black or
- * white anywhere (impeccable law): surfaces, text, and rules all use the tinted tokens.
+ * element-level resets and component utilities that map onto those tokens.
+ * Light mode: warm-tinted surfaces. Dark mode: true black (user requirement) — no brand wash.
  */
 @layer base {
   html {
@@ -19,13 +19,30 @@
   body {
     overflow-x: hidden;
     background-color: var(--surface);
-    background-image:
-      radial-gradient(ellipse 120% 80% at 50% -20%, color-mix(in oklch, var(--brand) 8%, transparent), transparent 55%),
-      linear-gradient(180deg, color-mix(in oklch, var(--ink) 2.5%, var(--surface)), var(--surface) 28rem);
     color: var(--ink);
     font-family: var(--font-source-sans), var(--font-devanagari), system-ui, sans-serif;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* Soft atmosphere only in light mode. Dark stays flat black. */
+  :root[data-theme='light'] body,
+  :root:not([data-theme]) body {
+    background-image: linear-gradient(
+      180deg,
+      color-mix(in oklch, var(--ink) 2%, var(--surface)),
+      var(--surface) 18rem
+    );
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) body {
+      background-image: none;
+    }
+  }
+
+  :root[data-theme='dark'] body {
+    background-image: none;
   }
 
   /* Devanagari content run: switch to the Devanagari-optimised stack. */
@@ -39,8 +56,17 @@
     font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
   }
 
+  /* Newspaper rule: headlines inherit ink. Brand color is for in-body links only. */
   a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .article-body a,
+  .prose a {
     color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
   }
 
   img,
@@ -75,17 +101,23 @@
     border-radius: var(--radius-2);
   }
 
-  /* Desk label: compact editorial metadata, not another rounded chip. */
+  /* Desk kicker: uppercase editorial label with a rule, never a soft pill. */
   .category-pill {
     display: inline-flex;
     align-items: center;
     color: var(--brand-strong);
     border-bottom: 2px solid var(--brand);
-    padding: 0 0 0.15rem;
-    font-size: 0.72rem;
+    padding: 0 0 0.12rem;
+    font-size: 0.6875rem;
     font-weight: 800;
-    letter-spacing: 0.045em;
-    line-height: 1.35;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .category-pill[lang='ne'] {
+    letter-spacing: 0.02em;
+    text-transform: none;
   }
 
   /* Reader text-resize (FontSizeControl). The control sets data-reading-size on <html>; we

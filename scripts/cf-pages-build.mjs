@@ -1,8 +1,7 @@
-#!/usr/bin/env node
 /**
  * Cloudflare Pages build entry.
- * Sets a build-time site origin when the dashboard var is missing, then runs the
- * static Pages export (not the full turbo monorepo build / Payload admin).
+ * Forces a reachable build-time origin (pages.dev) so static generation never hangs
+ * on an unreachable custom domain / cached DNS. Override with CF_PAGES_SITE_URL.
  */
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -17,9 +16,10 @@ function withHttps(value) {
   return `https://${trimmed}`
 }
 
+// Prefer an explicit build origin; never fall back to a possibly-unreachable apex
+// from apps/web/.env.local during offline / edge-cache-stale periods.
 const siteUrl =
-  withHttps(process.env.NEXT_PUBLIC_SITE_URL) ||
-  withHttps(process.env.SITE_URL) ||
+  withHttps(process.env.CF_PAGES_SITE_URL) ||
   withHttps(process.env.CF_PAGES_URL) ||
   'https://nagarik-watch.pages.dev'
 
@@ -29,8 +29,11 @@ const env = {
   CF_PAGES: process.env.CF_PAGES || '1',
   CF_PAGES_STATIC: '1',
   NEXT_PUBLIC_SITE_URL: siteUrl,
+  SITE_URL: siteUrl,
   BETTER_AUTH_URL: withHttps(process.env.BETTER_AUTH_URL) || siteUrl,
 }
+
+console.log(`[build:cf-pages] NEXT_PUBLIC_SITE_URL=${siteUrl}`)
 
 const result = spawnSync(
   'pnpm',

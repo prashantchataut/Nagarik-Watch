@@ -304,10 +304,10 @@ clears both altitudes; Palette C (Forest) clears them even more strongly., -
 
 ## 12. Dark mode (user toggle, not default)
 
-Dark mode tokens are derived from the chosen palette by inverting L and slightly reducing
-chroma, with the brand hue preserved. Surfaces become deep warm-tinted (Palette A) /
-cool-tinted (B/C) near-blacks, never pure black. Article body in dark mode uses a slightly
-larger line-height and a touch lower contrast for comfortable night reading., -
+**Decision (2026-07-24):** Dark mode uses **true black** surfaces (`oklch(0 0 0)`), raised
+panels at `oklch(0.14 0 0)`, and chroma-0 ink. Brand crimson is accents only (nav bar,
+links, category rules), never a reddish-brown page wash and never pink body headlines.
+Light mode remains warm-tinted Civic Crimson neutrals., -
 
 ## Open design questions (resolve in Phase 1)
 
@@ -325,4 +325,4 @@ larger line-height and a touch lower contrast for comfortable night reading., -
 | 2026-06-18 | Light-first, dark as toggle | Reading scene forces it |
 | 2026-06-18 | Noto Sans Devanagari + Mukta + Inter | Free, OFL, best coverage |
 | 2026-07-19 | Latin UI: **Source Sans 3** (not Inter) | Matches `fonts.ts`; Inter is anti-slop reflex-reject |
-| 2026-07-19 | Monetization Option A (free + ads) | PRODUCT.md; public membership chrome off by default |
+| 2026-07-24 | Dark mode: **true black** surfaces | Founder: reddish soft dark looked amateur; black + crimson accents |

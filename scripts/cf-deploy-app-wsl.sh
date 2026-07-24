@@ -35,23 +35,40 @@ if [ -f "${WIN}/apps/web/.dev.vars" ]; then
 fi
 cp -f "${WIN}/apps/web/wrangler.admin.jsonc" "${DEST}/apps/web/wrangler.admin.jsonc"
 
+# Unreachable custom domain in .env.local causes SSG ETIMEDOUT — neutralize for build.
+if [ -f "${DEST}/apps/web/.env.local" ]; then
+  sed -i '/^NEXT_PUBLIC_SITE_URL=/d;/^BETTER_AUTH_URL=/d' "${DEST}/apps/web/.env.local" || true
+fi
+
 cd "${DEST}"
 pnpm install --frozen-lockfile
 
 cd "${DEST}/apps/web"
 export CF_WORKERS=1
-export NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-https://nagarik-watch.prashantchataut8s-projects.workers.dev}"
+export NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-http://127.0.0.1:3000}"
 export BETTER_AUTH_URL="${BETTER_AUTH_URL:-$NEXT_PUBLIC_SITE_URL}"
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=4096}"
 
 echo "Building OpenNext (CF_WORKERS=1)..."
 pnpm exec opennextjs-cloudflare build
 
-HANDLER=".open-next/server-functions/default/handler.mjs"
+HANDLER=".open-next/server-functions/default/apps/web/handler.mjs"
+if [ ! -f "${HANDLER}" ]; then
+  HANDLER=".open-next/server-functions/default/handler.mjs"
+fi
 if [ -f "${HANDLER}" ]; then
-  echo "Minifying handler.mjs with esbuild..."
+  echo "Minifying ${HANDLER} with esbuild..."
   pnpm exec esbuild "${HANDLER}" --minify --outfile="${HANDLER}.min" --allow-overwrite --log-level=error || true
   if [ -f "${HANDLER}.min" ]; then
     mv -f "${HANDLER}.min" "${HANDLER}"
+  fi
+fi
+MW=".open-next/middleware/handler.mjs"
+if [ -f "${MW}" ]; then
+  echo "Minifying ${MW} with esbuild..."
+  pnpm exec esbuild "${MW}" --minify --outfile="${MW}.min" --allow-overwrite --log-level=error || true
+  if [ -f "${MW}.min" ]; then
+    mv -f "${MW}.min" "${MW}"
   fi
 fi
 

@@ -50,12 +50,23 @@ export CF_WORKERS=1
 export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=4096}"
 pnpm exec opennextjs-cloudflare build
 
-HANDLER=".open-next/server-functions/default/handler.mjs"
+HANDLER=".open-next/server-functions/default/apps/web/handler.mjs"
+if [ ! -f "${HANDLER}" ]; then
+  HANDLER=".open-next/server-functions/default/handler.mjs"
+fi
 if [ -f "${HANDLER}" ] && command -v npx >/dev/null; then
-  echo "Running esbuild minify on handler.mjs..."
+  echo "Running esbuild minify on ${HANDLER}..."
   npx --yes esbuild "${HANDLER}" --minify --outfile="${HANDLER}.min" --allow-overwrite --log-level=error || true
   if [ -f "${HANDLER}.min" ]; then
     mv -f "${HANDLER}.min" "${HANDLER}"
+  fi
+fi
+MW=".open-next/middleware/handler.mjs"
+if [ -f "${MW}" ]; then
+  echo "Running esbuild minify on ${MW}..."
+  npx --yes esbuild "${MW}" --minify --outfile="${MW}.min" --allow-overwrite --log-level=error || true
+  if [ -f "${MW}.min" ]; then
+    mv -f "${MW}.min" "${MW}"
   fi
 fi
 
