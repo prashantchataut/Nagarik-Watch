@@ -33,10 +33,10 @@ export BETTER_AUTH_URL="http://127.0.0.1:3000"
 # Raise static generation timeout in the WSL tree only
 python3 - <<'PY'
 from pathlib import Path
-p = Path.home() / "nagarik-watch/apps/web/next.config.ts"
+p = Path.home() / "nagarik-watch/apps/web/next.config.mjs"
 t = p.read_text(encoding="utf-8")
-needle = "const nextConfig: NextConfig = {"
-insert = "const nextConfig: NextConfig = {\n  staticPageGenerationTimeout: 300,\n"
+needle = "const nextConfig = {"
+insert = "const nextConfig = {\n  staticPageGenerationTimeout: 300,\n"
 if "staticPageGenerationTimeout" not in t and needle in t:
     p.write_text(t.replace(needle, insert, 1), encoding="utf-8")
     print("patched_staticPageGenerationTimeout=yes")

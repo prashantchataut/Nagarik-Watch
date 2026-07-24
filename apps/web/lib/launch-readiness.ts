@@ -11,7 +11,7 @@ import { getSentryState } from '@/lib/observability/sentry'
 import { getTtsState } from '@/lib/ai/tts'
 import { getSemanticProviderState } from '@/lib/ai/semantic-provider'
 
-/** Reads the same header list Next.js actually applies (next.config.ts), so this check
+/** Reads the same header list Next.js actually applies (next.config.mjs), so this check
  *  fails honestly if a header is ever removed from the real response configuration. */
 async function configuredSecurityHeaderLint(): Promise<ReturnType<typeof lintSecurityHeaders>> {
   const { default: nextConfig } = await import('@/next.config')

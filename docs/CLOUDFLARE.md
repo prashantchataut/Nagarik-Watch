@@ -68,6 +68,8 @@ Your dashboard is using **Workers Builds**, not classic Pages upload.
 
 Do **not** leave Deploy as `npx wrangler deploy` unless you are on a commit that includes the assets-only root `wrangler.jsonc` (that path also works after that commit). Prefer `pnpm run deploy`.
 
+**Production branch:** set Workers Builds / Pages to build **`main` only**. Dependabot PRs that bump TypeScript 7 break Next’s `next.config.ts` loader (`fileExists` crash). Config is now `next.config.mjs` and TypeScript is pinned to 5.9.x.
+
 ### Classic Pages (optional alternative)
 
 | Setting | Value |

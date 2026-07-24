@@ -1,9 +1,9 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { NextConfig } from 'next'
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
 
 /**
- * apps/web Next.js config.
+ * apps/web Next.js config (plain ESM — avoids next.config.ts + TypeScript 7 breakage).
  *  - transpilePackages: workspace packages ship TypeScript source.
  *  - images: allow only the editorial media origins configured at build time.
  *  - security headers: baseline protection on every response.
@@ -16,7 +16,6 @@ const securityHeaders = [
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
-  // Baseline CSP — tighten via ADS/analytics allowlists when network ads go live.
   {
     key: 'Content-Security-Policy',
     value: [
@@ -37,20 +36,13 @@ const securityHeaders = [
   },
 ]
 
-type RemotePattern = {
-  protocol: 'http' | 'https'
-  hostname: string
-  port?: string
-  pathname?: string
-}
-
-function configuredRemotePattern(value: string | undefined): RemotePattern | null {
+function configuredRemotePattern(value) {
   if (!value) return null
   try {
     const url = new URL(value)
     if (url.protocol !== 'http:' && url.protocol !== 'https:') return null
     return {
-      protocol: url.protocol.slice(0, -1) as 'http' | 'https',
+      protocol: url.protocol.slice(0, -1),
       hostname: url.hostname,
       port: url.port || undefined,
       pathname: '/**',
@@ -66,9 +58,9 @@ const configuredPatterns = [
   process.env.NEXT_PUBLIC_PAYLOAD_URL,
 ]
   .map(configuredRemotePattern)
-  .filter((pattern): pattern is RemotePattern => pattern !== null)
+  .filter((pattern) => pattern !== null)
 
-const remotePatterns: RemotePattern[] = configuredPatterns.filter(
+const remotePatterns = configuredPatterns.filter(
   (pattern, index, all) =>
     all.findIndex(
       (candidate) =>
@@ -91,12 +83,11 @@ const isCloudflareWorkers = process.env.CF_WORKERS === '1'
 /** Static HTML export for Cloudflare Pages Free (no Worker script size limit). */
 const isStaticPagesExport = process.env.CF_PAGES_STATIC === '1'
 
-const nextConfig: NextConfig = {
-  ...(isStaticPagesExport ? { output: 'export' as const, trailingSlash: true } : {}),
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  ...(isStaticPagesExport ? { output: 'export', trailingSlash: true } : {}),
   reactStrictMode: true,
   transpilePackages: ['@nagarikwatch/ui', '@nagarikwatch/db'],
-  // Keep Better Auth and PGlite outside Next's webpack graph. Bundling PGlite
-  // breaks its import.meta.url WASM paths on Windows/Node 24 (URL realm mismatch).
   serverExternalPackages: [
     'better-auth',
     '@better-auth/core',
@@ -106,9 +97,7 @@ const nextConfig: NextConfig = {
       ? ['pg', 'stripe', 'web-push', '@vercel/blob', 'kysely', '@better-auth/kysely-adapter']
       : []),
   ],
-  // Monorepo root so NFT does not invent oversized traces from apps/web cwd.
   outputFileTracingRoot: monorepoRoot,
-  // Keep serverless functions under Vercel's 250MB uncompressed limit.
   outputFileTracingExcludes: {
     '*': [
       '**/.data/**',
@@ -146,18 +135,19 @@ const nextConfig: NextConfig = {
       '**/apps/admin/**',
     ],
   },
-  images: isStaticPagesExport || isCloudflareWorkers
-    ? { unoptimized: true, remotePatterns }
-    : {
-        formats: ['image/avif', 'image/webp'],
-        remotePatterns,
-      },
+  images:
+    isStaticPagesExport || isCloudflareWorkers
+      ? { unoptimized: true, remotePatterns }
+      : {
+          formats: ['image/avif', 'image/webp'],
+          remotePatterns,
+        },
   webpack: (config, { isServer }) => {
     if (isServer && isCloudflareWorkers) {
-      const stub = (name: string) => path.join(configDir, 'lib/cf-stubs', name)
+      const stub = (name) => path.join(configDir, 'lib/cf-stubs', name)
       config.resolve ??= {}
       config.resolve.alias = {
-        ...(config.resolve.alias as Record<string, string | false>),
+        ...(config.resolve.alias ?? {}),
         'next/dist/server/og/image-response': false,
         '@electric-sql/pglite': false,
         pg: stub('pg.ts'),
@@ -169,8 +159,6 @@ const nextConfig: NextConfig = {
     return config
   },
   eslint: {
-    // Root flat config is validated in CI via `pnpm lint`; do not fail
-    // production builds when the lint plugin cannot resolve shared packages.
     ignoreDuringBuilds: true,
   },
   async headers() {
@@ -185,7 +173,6 @@ const nextConfig: NextConfig = {
 
 export default nextConfig
 
-import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
 if (!isStaticPagesExport) {
   initOpenNextCloudflareForDev()
 }
