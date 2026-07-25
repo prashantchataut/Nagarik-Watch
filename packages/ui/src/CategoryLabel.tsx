@@ -22,7 +22,7 @@ export function CategoryLabel({
   className,
 }: CategoryLabelProps) {
   const label = locale === 'en' && category.nameEn ? category.nameEn : category.nameNe
-  const href = `${locale === 'en' ? '/en' : ''}${prefix}/${category.slug}`
+  const href = `${locale === 'en' ? '/en' : ''}${prefix}/${category.slug}/`
   const lang = locale === 'en' && category.nameEn ? 'en' : 'ne'
   const classes = cn('category-pill', className)
 

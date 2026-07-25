@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useId, useRef, useState } from 'react'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { localizeHref, swapLocale } from '@/lib/i18n/locales'
+import { localizeHref, pathsMatch, swapLocale } from '@/lib/i18n/locales'
 import { LogoMark } from '@/components/Logo'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { STATIC_HUBS, PROVINCES } from '@/lib/site'
@@ -172,7 +172,7 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                   <Link
                     href={homeHref}
                     onClick={() => setOpen(false)}
-                    aria-current={pathname === homeHref ? 'page' : undefined}
+                    aria-current={pathsMatch(pathname, homeHref) ? 'page' : undefined}
                     className={`${DRAWER_LINK} font-semibold text-ink`}
                   >
                     {dict.home}
@@ -181,18 +181,14 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                 {navCategories.map((c) => {
                   const label = locale === 'en' && c.nameEn ? c.nameEn : c.nameNe
                   const catLang = locale === 'en' && c.nameEn ? 'en' : 'ne'
+                  const href = localizeHref(locale, `/${c.slug}`)
                   return (
                     <li key={c.slug}>
                       <Link
-                        href={localizeHref(locale, `/${c.slug}`)}
+                        href={href}
                         onClick={() => setOpen(false)}
                         lang={catLang}
-                        aria-current={
-                          pathname === localizeHref(locale, `/${c.slug}`) ||
-                          pathname.startsWith(`${localizeHref(locale, `/${c.slug}`)}/`)
-                            ? 'page'
-                            : undefined
-                        }
+                        aria-current={pathsMatch(pathname, href) ? 'page' : undefined}
                         className={DRAWER_LINK}
                       >
                         {label}

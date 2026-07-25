@@ -50,9 +50,24 @@ export function t(locale: Locale, key: DictionaryKey): string {
  */
 export function localizeHref(locale: Locale, path: string): string {
   const prefix = localePrefix(locale)
-  if (path === '/') return prefix || '/'
+  if (path === '/') return prefix ? `${prefix}/` : '/'
   const normalized = path.startsWith('/') ? path : `/${path}`
-  return `${prefix}${normalized}`
+  let href = `${prefix}${normalized}`
+  // Keep query/hash intact; otherwise match trailingSlash static export.
+  const hashIdx = href.indexOf('#')
+  const queryIdx = href.indexOf('?')
+  const cut =
+    hashIdx >= 0 && queryIdx >= 0
+      ? Math.min(hashIdx, queryIdx)
+      : hashIdx >= 0
+        ? hashIdx
+        : queryIdx
+  if (cut >= 0) {
+    const base = href.slice(0, cut)
+    const rest = href.slice(cut)
+    return `${base.endsWith('/') ? base : `${base}/`}${rest}`
+  }
+  return href.endsWith('/') ? href : `${href}/`
 }
 
 /**
@@ -69,7 +84,16 @@ export function swapLocale(pathname: string): string {
     path = path.slice(3) || '/'
   }
   const isEn = path === '/en' || path.startsWith('/en/')
-  const rest = isEn ? path.slice(3) : path
-  const tail = rest === '' ? '/' : rest
-  return isEn ? tail : `/en${tail === '/' ? '' : tail}`
+  const rest = isEn ? path.slice(3) || '/' : path
+  const clean = rest.replace(/\/+$/, '') || '/'
+  return isEn ? localizeHref('ne', clean) : localizeHref('en', clean)
+}
+
+/** Compare pathnames ignoring trailing slashes (static export uses trailingSlash). */
+export function pathsMatch(pathname: string, href: string): boolean {
+  const a = pathname.replace(/\/+$/, '') || '/'
+  const b = href.replace(/\/+$/, '') || '/'
+  if (a === b) return true
+  if (b === '/' || b === '/en') return a === b
+  return a.startsWith(`${b}/`)
 }

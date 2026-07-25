@@ -109,27 +109,27 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <ExperimentExposure experimentId={HOME_LAYOUT_EXPERIMENT_ID} />
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
-      <div className="mx-auto max-w-page px-4 pb-16 pt-3 sm:pt-4 lg:pb-14">
+      <div className="mx-auto max-w-page px-3 pb-14 pt-3 sm:px-4 sm:pt-4 lg:pb-12">
         {/* Dense front page: lead + also-today rail */}
         <section
-          className="grid gap-6 border-b-2 border-ink pb-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(17rem,0.75fr)] xl:gap-0 xl:pb-7"
+          className="grid gap-6 border-b-2 border-ink pb-6 xl:grid-cols-[minmax(0,1.75fr)_minmax(16.5rem,0.7fr)] xl:gap-0 xl:pb-8"
           aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
         >
           <InstrumentedStory
             articleSlug={edition.lead.slug}
             articleCategory={edition.lead.category.slug}
           >
-            <Hero story={edition.lead} locale={locale} className="xl:pr-7" />
+            <Hero story={edition.lead} locale={locale} className="xl:pr-8" />
           </InstrumentedStory>
 
-          <div className="divide-y divide-rule border-y border-rule xl:border-y-0 xl:border-l xl:border-rule xl:pl-5">
+          <aside className="divide-y divide-rule border-y border-rule bg-surface-raised/60 xl:border-y-0 xl:border-l-2 xl:border-ink xl:bg-transparent xl:pl-5">
             <p
-              className="pb-2 pt-1 text-caption font-extrabold uppercase tracking-[0.08em] text-ink xl:pt-0"
+              className="pb-2.5 pt-2 text-caption font-extrabold uppercase tracking-[0.1em] text-brand-strong xl:pt-0"
               lang={english ? 'en' : 'ne'}
             >
               {english ? 'Also today' : 'आजका अन्य'}
             </p>
-            {edition.secondary.slice(0, 5).map((story, index) => (
+            {edition.secondary.slice(0, 6).map((story, index) => (
               <InstrumentedStory
                 key={story.id}
                 articleSlug={story.slug}
@@ -139,11 +139,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   story={story}
                   locale={locale}
                   variant="horizontal"
-                  className={`py-2.5 first:pt-1 last:pb-0 ${index >= 4 ? 'hidden xl:block' : ''}`}
+                  className={`py-3 first:pt-1.5 last:pb-0 ${index >= 5 ? 'hidden xl:block' : ''}`}
                 />
               </InstrumentedStory>
             ))}
-            <p className="py-2.5">
+            <p className="py-3">
               <Link
                 href={localizeHref(locale, '/latest')}
                 className="inline-flex min-h-10 items-center text-meta font-bold text-brand-strong underline-offset-4 hover:underline"
@@ -152,12 +152,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 {english ? 'Latest updates' : 'ताजा अपडेट'}
               </Link>
             </p>
-          </div>
+          </aside>
         </section>
 
-        <LatestRail stories={latest} locale={locale} className="mt-5 border-y border-rule py-4" />
+        <LatestRail stories={latest} locale={locale} className="mt-6 border-y-2 border-ink py-5" />
 
-        <div className="mt-8 space-y-8 sm:mt-10 sm:space-y-10">
+        <div className="mt-8 space-y-9 sm:mt-10 sm:space-y-11">
           {edition.sections.slice(0, 3).map((section, index) => (
             <SectionBlock
               key={section.category.slug}

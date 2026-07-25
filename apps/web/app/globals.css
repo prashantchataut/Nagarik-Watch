@@ -217,39 +217,32 @@
   }
 }
 
-/* Sticky condensing masthead (Ratopati-led portal chrome). */
+/* Sticky condensing masthead — commercial Nepali portal chrome. */
 .nw-masthead {
   transition: box-shadow var(--dur-fast) var(--ease-out-quint);
-  background: var(--surface);
 }
 .nw-masthead[data-condensed='true'] {
   box-shadow:
-    0 1px 0 var(--rule),
-    0 8px 20px color-mix(in oklch, var(--ink) 6%, transparent);
+    0 1px 0 color-mix(in oklch, var(--ink) 18%, transparent),
+    0 10px 24px color-mix(in oklch, var(--ink) 10%, transparent);
 }
 .nw-masthead[data-condensed='true'] .nw-masthead__utility,
 .nw-masthead[data-condensed='true'] .nw-masthead__topics {
   display: none;
 }
-.nw-masthead[data-condensed='true'] .nw-masthead__brand {
-  padding-top: 0.35rem;
-  padding-bottom: 0.35rem;
+.nw-masthead[data-condensed='true'] .nw-masthead__chrome {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 .nw-masthead[data-condensed='true'] .nw-masthead__logo {
-  transform: scale(0.88);
-  transform-origin: center;
+  transform: scale(0.9);
+  transform-origin: left center;
 }
 .nw-masthead[data-condensed='true'] .nw-masthead__primary {
-  border-top-width: 0;
   border-bottom: 2px solid var(--brand);
 }
-/* Primary category rail: always visible, dense newsroom band. */
 .nw-masthead__primary {
   display: block;
-  background: color-mix(in oklch, var(--surface-raised) 88%, var(--brand) 4%);
-}
-.nw-masthead__brand {
-  border-bottom-color: var(--ink) !important;
 }
 .nw-masthead__logo {
   transition: transform var(--dur-fast) var(--ease-out-quint);

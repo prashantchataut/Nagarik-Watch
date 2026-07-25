@@ -50,7 +50,7 @@ function deckFor(story: StoryCardData, locale: Locale): string | undefined {
   return locale === 'en' ? story.deckEn : story.deckNe
 }
 function hrefFor(story: StoryCardData, locale: Locale): string {
-  return `${locale === 'en' ? '/en' : ''}/${story.category.slug}/${story.slug}`
+  return `${locale === 'en' ? '/en' : ''}/${story.category.slug}/${story.slug}/`
 }
 function isDataUrl(url: string): boolean {
   return url.startsWith('data:')

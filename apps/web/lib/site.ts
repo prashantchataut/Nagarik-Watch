@@ -367,11 +367,12 @@ export const SECONDARY_NAV_HUBS = [
   'photos',
 ] as const satisfies readonly (typeof STATIC_HUBS)[number]['key'][]
 
-/** Ratopati-style topics strip under primary nav. Curated desks first; live tags append in PublicShell. */
+/** Topics strip under primary nav. Curated desks first; live tags append in PublicShell. */
 export const TOPICS_STRIP_HUBS = [
   'latest',
   'trending',
   'most-read',
+  'editor-picks',
   'exclusive',
   'fact-check',
   'market',
