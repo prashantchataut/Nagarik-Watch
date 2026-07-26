@@ -146,17 +146,17 @@ export function StoryCard({
             aria-hidden="true"
           />
         </div>
-        <div className="border-b border-rule bg-ink px-4 py-4 text-surface sm:px-5 sm:py-5">
+        <div className="border-b border-rule bg-surface-raised px-4 py-4 text-ink sm:px-5 sm:py-5">
           <div className="mb-2 flex flex-wrap items-center gap-2">
-            <CategoryLabel category={story.category} locale={locale} as="span" className="bg-surface px-2 py-0.5 text-ink" />
+            <CategoryLabel category={story.category} locale={locale} as="span" />
             <MembershipMarker story={story} locale={locale} />
           </div>
-          <h3 className="font-display text-h2 leading-tight text-surface" lang={titleLang}>
-            <Link href={href} className="transition-opacity duration-fast ease-out-quint hover:opacity-80">
+          <h3 className="font-display text-h2 leading-tight text-ink" lang={titleLang}>
+            <Link href={href} className="transition-colors duration-fast ease-out-quint hover:text-brand-strong">
               {title}
             </Link>
           </h3>
-          {deck && <p className="mt-2 line-clamp-2 text-meta leading-relaxed text-surface/80" lang={titleLang}>{deck}</p>}
+          {deck && <p className="mt-2 line-clamp-2 text-meta leading-relaxed text-ink-soft" lang={titleLang}>{deck}</p>}
         </div>
       </article>
     )

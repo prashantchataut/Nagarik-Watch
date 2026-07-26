@@ -110,19 +110,31 @@
     text-transform: none;
   }
 
-  /* Reader text-resize (FontSizeControl). The control sets data-reading-size on <html>; we
-     scale only the article reading column so the choice never leaks into chrome or cards.
-     The scale multiplies the body-lg paragraph/list sizes. Headings are intentionally left
-     to the type scale so hierarchy holds at every step. */
+  /* Reader text-resize (FontSizeControl). The control sets data-reading-size on <html>. */
+  .reading-scale {
+    --reading-scale: 1;
+  }
   .reading-scale p,
-  .reading-scale li {
-    font-size: calc(1.1875rem * var(--reading-scale, 1));
+  .reading-scale li,
+  .reading-scale blockquote {
+    font-size: calc(1.125rem * var(--reading-scale, 1));
+    line-height: 1.75;
   }
   :root[data-reading-size='sm'] {
     --reading-scale: 0.92;
   }
   :root[data-reading-size='lg'] {
-    --reading-scale: 1.15;
+    --reading-scale: 1.18;
+  }
+  :root[data-reading-size='sm'] .reading-scale p,
+  :root[data-reading-size='sm'] .reading-scale li,
+  :root[data-reading-size='sm'] .reading-scale blockquote {
+    font-size: calc(1.125rem * 0.92);
+  }
+  :root[data-reading-size='lg'] .reading-scale p,
+  :root[data-reading-size='lg'] .reading-scale li,
+  :root[data-reading-size='lg'] .reading-scale blockquote {
+    font-size: calc(1.125rem * 1.18);
   }
 
   /* Theme toggle: both icons render in the DOM, CSS picks the visible one from data-theme.
@@ -141,18 +153,27 @@
     display: none;
   }
 
-  /* Reader focus mode: the article column becomes calmer while global chrome remains server
-     rendered and reachable. This class is toggled by a leaf client component only. */
-  .reader-focus-mode body {
-    background: var(--surface-raised);
+  /* Reader focus mode: calm column, quieter chrome and ads. */
+  html.reader-focus-mode .nw-masthead__topics,
+  html.reader-focus-mode .nw-masthead__chrome .nw-masthead__utility,
+  body.reader-focus-mode .nw-masthead__topics {
+    display: none;
   }
-  .reader-focus-mode article header,
-  .reader-focus-mode .reading-scale {
-    max-width: 46rem;
+  html.reader-focus-mode #article-reading-column,
+  body.reader-focus-mode #article-reading-column {
+    max-width: 42rem;
+    margin-inline: auto;
   }
-  .reader-focus-mode article figure,
-  .reader-focus-mode article + section {
-    opacity: 0.72;
+  html.reader-focus-mode article aside,
+  html.reader-focus-mode .ad-slot,
+  body.reader-focus-mode article aside,
+  body.reader-focus-mode [data-ad-slot] {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  html.reader-focus-mode article figure,
+  body.reader-focus-mode article figure {
+    opacity: 0.85;
   }
 }
 
@@ -213,8 +234,8 @@
 }
 .nw-masthead[data-condensed='true'] {
   box-shadow:
-    0 1px 0 color-mix(in oklch, var(--ink) 18%, transparent),
-    0 10px 24px color-mix(in oklch, var(--ink) 10%, transparent);
+    0 1px 0 var(--chrome-rule),
+    0 8px 20px color-mix(in oklch, var(--ink) 8%, transparent);
 }
 .nw-masthead[data-condensed='true'] .nw-masthead__utility,
 .nw-masthead[data-condensed='true'] .nw-masthead__topics {
@@ -660,8 +681,9 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    border-bottom: 1px solid color-mix(in oklch, var(--paper) 12%, transparent);
+    border-bottom: 1px solid var(--chrome-rule);
     background: var(--chrome);
+    color: var(--on-chrome);
     padding: .5rem 1rem;
   }
   .auth-chrome__logo { display: inline-flex; min-height: 2.75rem; align-items: center; }
@@ -669,11 +691,11 @@
     display: inline-flex;
     min-height: 2.75rem;
     align-items: center;
-    color: color-mix(in oklch, var(--paper) 80%, transparent);
+    color: var(--on-chrome-soft);
     font-size: .85rem;
     font-weight: 700;
   }
-  .auth-chrome__back:hover { color: var(--paper); }
+  .auth-chrome__back:hover { color: var(--on-chrome); }
   .auth-chrome__main { width: min(100%, 28rem); margin-inline: auto; }
 
   .account-page {
@@ -1828,18 +1850,81 @@
 }
 
 @layer components {
-  .article-utility-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.25rem; border-block: 1px solid var(--rule); padding-block: .65rem; }
-  .article-utility-bar__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
-  .article-utility-bar__actions button { min-height: 2.75rem; border-bottom: 2px solid transparent; color: var(--ink-soft); font-size: .78rem; font-weight: 850; }
-  .article-utility-bar__actions button:hover, .article-utility-bar__actions button[aria-pressed='true'] { border-color: var(--brand); color: var(--brand-strong); }
-  .article-utility-bar__actions button:disabled { cursor: not-allowed; opacity: .45; }
-  .article-utility-bar__status { display: flex; flex-wrap: wrap; gap: .35rem 1rem; color: var(--mute); font-size: .72rem; }
+  .article-utility-bar {
+    display: grid;
+    gap: .65rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-2);
+    background: var(--surface);
+    padding: .75rem .85rem;
+  }
+  .article-utility-bar__status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem 1rem;
+    color: var(--mute);
+    font-size: .72rem;
+  }
   .article-utility-bar__status strong { color: var(--ink); font-size: .9rem; }
-  .article-utility-bar__status [data-warning='true'] { color: var(--warning); }
-  .article-feedback { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; padding-top: .6rem; border-top: 1px solid var(--rule); font-size: .78rem; font-weight: 800; }
-  .article-feedback button { min-height: 2.5rem; border: 1px solid var(--rule); padding: .35rem .7rem; color: var(--ink-soft); }
+  .article-utility-bar__status [data-warning='true'] { color: var(--breaking); }
+  .article-feedback {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem 1rem;
+    padding-top: .6rem;
+    border-top: 1px solid var(--rule);
+    font-size: .78rem;
+    font-weight: 800;
+  }
+  .article-feedback button {
+    min-height: 2.5rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-2);
+    padding: .35rem .7rem;
+    color: var(--ink-soft);
+  }
 
-  .install-prompt { position: fixed; z-index: 70; right: 1rem; bottom: 1rem; width: min(28rem, calc(100vw - 2rem)); display: grid; gap: 1rem; border: 2px solid var(--ink); background: var(--surface); padding: 1rem; box-shadow: 6px 6px 0 color-mix(in oklch, var(--ink) 22%, transparent); }
+  .article-tools-bar { display: grid; gap: .55rem; }
+  .article-tools-bar__primary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem .65rem;
+  }
+  .article-tools-bar__group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem;
+  }
+  .article-tools-bar__label {
+    color: var(--mute);
+    font-size: .68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .article-tools-bar__btn {
+    min-height: 2.5rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-2);
+    background: var(--surface-raised);
+    padding: .35rem .75rem;
+    color: var(--ink);
+    font-size: .78rem;
+    font-weight: 800;
+  }
+  .article-tools-bar__btn:hover,
+  .article-tools-bar__btn[aria-pressed='true'] {
+    border-color: var(--brand);
+    color: var(--brand-strong);
+  }
+  .article-tools-bar__btn:disabled { cursor: not-allowed; opacity: .45; }
+  .article-tools-bar__hint { color: var(--mute); font-size: .72rem; line-height: 1.45; }
+  .article-tools-bar__share { border-top: 1px solid var(--rule); padding-top: .55rem; }
+
+  .install-prompt { position: fixed; z-index: 70; right: 1rem; bottom: 1rem; width: min(28rem, calc(100vw - 2rem)); display: grid; gap: 1rem; border: 2px solid var(--ink); border-radius: var(--radius-2); background: var(--surface); padding: 1rem; box-shadow: 6px 6px 0 color-mix(in oklch, var(--ink) 22%, transparent); }
   .install-prompt p { margin-top: .3rem; color: var(--ink-soft); font-size: .82rem; line-height: 1.5; }
   .install-prompt__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
   .install-prompt__actions button { min-height: 2.75rem; font-size: .78rem; font-weight: 800; }
@@ -1884,9 +1969,10 @@
   .article-action-link:hover, .article-action-link--active { border-color: var(--brand); color: var(--brand-strong); }
   .article-icon-action { width: 2.65rem; height: 2.65rem; display: inline-grid; place-items: center; border: 1px solid var(--rule); color: var(--ink-soft); transition: border-color .15s ease,color .15s ease; }
   .article-icon-action:hover, .article-icon-action--active { border-color: var(--brand); color: var(--brand-strong); }
-  .article-font-control { display: inline-flex; align-items: end; border-bottom: 1px solid var(--rule); }
-  .article-font-control__step { width: 2.45rem; min-height: 2.65rem; display: grid; place-items: center; border-bottom: 2px solid transparent; color: var(--ink-soft); font-family: var(--font-mukta),var(--font-source-sans),sans-serif; font-weight: 800; }
-  .article-font-control__step:hover, .article-font-control__step--active { border-color: var(--brand); color: var(--brand-strong); }
+  .article-font-control { display: inline-flex; align-items: stretch; border: 1px solid var(--rule); border-radius: var(--radius-2); overflow: hidden; }
+  .article-font-control__step { width: 2.45rem; min-height: 2.5rem; display: grid; place-items: center; border-right: 1px solid var(--rule); color: var(--ink-soft); font-family: var(--font-mukta),var(--font-source-sans),sans-serif; font-weight: 800; background: var(--surface); }
+  .article-font-control__step:last-child { border-right: 0; }
+  .article-font-control__step:hover, .article-font-control__step--active { background: var(--brand-tint); color: var(--brand-strong); }
   .article-tools-menu { position: relative; }
   .article-tools-menu__trigger { min-height: 2.75rem; display: inline-flex; align-items: center; gap: .45rem; border-bottom: 2px solid var(--rule); color: var(--ink-soft); font-size: .78rem; font-weight: 850; }
   .article-tools-menu__trigger:hover, .article-tools-menu__trigger[aria-expanded='true'] { border-color: var(--brand); color: var(--brand-strong); }

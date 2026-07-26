@@ -182,7 +182,7 @@ export default async function ArticlePage({
         <div className="flex flex-wrap items-center gap-2">
           <CategoryLabel category={article.category} locale={readingLocale} />
           {membershipPublic && article.premium ? (
-            <span className="border border-ink bg-ink px-2 py-0.5 text-caption font-bold uppercase tracking-wide text-surface">
+            <span className="rounded-md border border-ink bg-ink px-2 py-0.5 text-caption font-bold uppercase tracking-wide text-paper">
               {readingEnglish ? 'Premium' : 'सदस्य'}
             </span>
           ) : null}
@@ -259,13 +259,27 @@ export default async function ArticlePage({
       ) : null}
 
       <div className="mx-auto mt-8 grid max-w-[76rem] gap-10 px-4 lg:grid-cols-[minmax(0,43rem)_18rem] lg:justify-center">
-        <div id="article-reading-column">
+        <div id="article-reading-column" className="min-w-0">
+          <div className="sticky top-[4.5rem] z-30 -mx-1 mb-6 bg-surface/95 px-1 py-2 backdrop-blur-sm print:hidden sm:top-[5.25rem]">
+            <ReaderArticleControls
+              story={article}
+              locale={readingLocale}
+              title={title}
+              href={href}
+              shareUrl={canonical}
+              articleSlug={slug}
+              articleCategory={category}
+              readingMinutes={article.readingMinutes}
+              premiumReader={premiumReader}
+              membershipPublic={membershipPublic}
+            />
+          </div>
           <ReadingProgress locale={readingLocale} targetId="article-reading-column" />
           <ArticleBody
             blocks={openingBody}
             locale={readingLocale}
             source={article.source}
-            className="mt-8"
+            className="mt-6"
           />
           <AdSlot locale={readingLocale} placementKey="article-top-billboard" variant="billboard" className="print:hidden" />
           {remainingBody.length ? (
@@ -284,20 +298,6 @@ export default async function ArticlePage({
             articleCategory={category}
             className="mt-6 print:hidden"
           />
-          <div className="mt-8 border-t border-rule pt-5 print:hidden">
-            <ReaderArticleControls
-              story={article}
-              locale={readingLocale}
-              title={title}
-              href={href}
-              shareUrl={canonical}
-              articleSlug={slug}
-              articleCategory={category}
-              readingMinutes={article.readingMinutes}
-              premiumReader={premiumReader}
-              membershipPublic={membershipPublic}
-            />
-          </div>
           <AdSlot locale={readingLocale} placementKey="article-native-related" variant="native" className="print:hidden" />
           {membershipPublic && !canReadFull ? <PaywallNotice locale={readingLocale} /> : null}
           {article.corrections?.length ? (

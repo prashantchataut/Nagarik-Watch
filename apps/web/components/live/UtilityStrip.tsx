@@ -27,7 +27,7 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
 
   return (
     <div
-      className="hidden border-b border-rule bg-surface-raised/70 lg:block"
+      className="hidden border-y border-rule bg-surface-raised lg:block"
       role="complementary"
       aria-label={locale === 'en' ? 'Daily reference line' : 'दैनिक सन्दर्भ लाइन'}
     >

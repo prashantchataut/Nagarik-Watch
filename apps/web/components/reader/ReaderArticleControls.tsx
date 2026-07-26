@@ -51,26 +51,44 @@ export function ReaderArticleControls({
   const [personalized, setPersonalized] = useState(false)
   const [speechSupported, setSpeechSupported] = useState(false)
   const [speaking, setSpeaking] = useState(false)
+  const [speechHint, setSpeechHint] = useState<string | null>(null)
   const [historySyncFailed, setHistorySyncFailed] = useState(false)
   const [meter, setMeter] = useState<{ count: number; limit: number } | null>(null)
   const [showFeedback, setShowFeedback] = useState(false)
   const [readingSessionId] = useState(() =>
     globalThis.crypto?.randomUUID?.() ?? `read-${Date.now()}-${Math.random().toString(36).slice(2)}`,
   )
-  const lang = locale === 'en' ? 'en' : 'ne'
+  const english = locale === 'en'
+  const lang = english ? 'en' : 'ne'
 
   useEffect(() => {
-    setSpeechSupported(
+    const supported =
       typeof window !== 'undefined' &&
-        'speechSynthesis' in window &&
-        'SpeechSynthesisUtterance' in window,
-    )
+      'speechSynthesis' in window &&
+      'SpeechSynthesisUtterance' in window
+    setSpeechSupported(supported)
+    if (!supported) {
+      setSpeechHint(
+        english
+          ? 'Listen is not available in this browser.'
+          : 'यो ब्राउजरमा सुन्ने सुविधा उपलब्ध छैन।',
+      )
+    }
     return () => {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel()
       }
     }
-  }, [])
+  }, [english])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('reader-focus-mode', readingMode)
+    document.body?.classList.toggle('reader-focus-mode', readingMode)
+    return () => {
+      document.documentElement.classList.remove('reader-focus-mode')
+      document.body?.classList.remove('reader-focus-mode')
+    }
+  }, [readingMode])
 
   useEffect(() => {
     if (!membershipPublic || premiumReader) return
@@ -199,33 +217,105 @@ export function ReaderArticleControls({
     }
   }, [href, readingMinutes, story.category.slug, story.id, story.slug, story.titleNe, title, readingSessionId])
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('reader-focus-mode', readingMode)
-    return () => document.documentElement.classList.remove('reader-focus-mode')
-  }, [readingMode])
-
   const remaining = useMemo(
     () => remainingReadingMinutes(readingMinutes, scrollDepth),
     [readingMinutes, scrollDepth],
   )
 
+  function pickVoice(voices: SpeechSynthesisVoice[], preferNe: boolean): SpeechSynthesisVoice | null {
+    if (!voices.length) return null
+    const ranked = preferNe
+      ? [
+          (v: SpeechSynthesisVoice) => /^ne\b/i.test(v.lang),
+          (v: SpeechSynthesisVoice) => /nepali/i.test(v.name),
+          (v: SpeechSynthesisVoice) => /^hi\b/i.test(v.lang),
+          (v: SpeechSynthesisVoice) => /hindi|devanagari|indic/i.test(`${v.name} ${v.lang}`),
+        ]
+      : [
+          (v: SpeechSynthesisVoice) => /^en-US\b/i.test(v.lang),
+          (v: SpeechSynthesisVoice) => /^en\b/i.test(v.lang),
+        ]
+    for (const match of ranked) {
+      const found = voices.find(match)
+      if (found) return found
+    }
+    return voices[0] ?? null
+  }
+
   function toggleNarrator() {
     if (!speechSupported) return
-    if (window.speechSynthesis.speaking) {
+    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
       window.speechSynthesis.cancel()
       setSpeaking(false)
       return
     }
-    const body = document.querySelector('[data-narrator-body="true"]')?.textContent?.trim() ?? ''
-    const text = [title, body].filter(Boolean).join('. ')
-    if (!text) return
-    const utterance = new SpeechSynthesisUtterance(text.slice(0, 8000))
-    utterance.lang = locale === 'en' ? 'en-US' : 'ne-NP'
-    utterance.rate = 0.92
-    utterance.onend = () => setSpeaking(false)
-    utterance.onerror = () => setSpeaking(false)
-    setSpeaking(true)
-    window.speechSynthesis.speak(utterance)
+
+    const bodies = Array.from(document.querySelectorAll('[data-narrator-body="true"]'))
+      .map((node) => node.textContent?.trim() ?? '')
+      .filter(Boolean)
+    const text = [title, ...bodies].filter(Boolean).join('. ').replace(/\s+/g, ' ').trim()
+    if (!text) {
+      setSpeechHint(
+        english
+          ? 'No article text was found to read aloud.'
+          : 'सुनाउन मिल्ने लेख पाठ भेटिएन।',
+      )
+      return
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text.slice(0, 12000))
+    const preferNe = !english
+    utterance.lang = preferNe ? 'ne-NP' : 'en-US'
+    utterance.rate = preferNe ? 0.88 : 0.95
+
+    function startWithVoices(voices: SpeechSynthesisVoice[]) {
+      const voice = pickVoice(voices, preferNe)
+      if (voice) {
+        utterance.voice = voice
+        utterance.lang = voice.lang || utterance.lang
+        if (preferNe && !/^ne\b/i.test(voice.lang) && !/nepali/i.test(voice.name)) {
+          setSpeechHint(
+            english
+              ? 'Nepali system voice not found; using the closest available voice.'
+              : 'नेपाली सिस्टम आवाज भेटिएन; नजिकको उपलब्ध आवाज प्रयोग हुँदैछ।',
+          )
+        } else {
+          setSpeechHint(null)
+        }
+      } else if (preferNe) {
+        setSpeechHint(
+          'नेपाली आवाज यस उपकरणमा छैन। ब्राउजर/OS मा भाषा प्याक थप्नुहोस्।',
+        )
+      }
+      utterance.onend = () => setSpeaking(false)
+      utterance.onerror = () => {
+        setSpeaking(false)
+        setSpeechHint(
+          english
+            ? 'Audio playback failed in this browser.'
+            : 'यो ब्राउजरमा आवाज बजाउन सकिएन।',
+        )
+      }
+      setSpeaking(true)
+      window.speechSynthesis.cancel()
+      window.speechSynthesis.speak(utterance)
+    }
+
+    const existing = window.speechSynthesis.getVoices()
+    if (existing.length) {
+      startWithVoices(existing)
+      return
+    }
+    // Chrome loads voices asynchronously.
+    const onVoices = () => {
+      window.speechSynthesis.removeEventListener('voiceschanged', onVoices)
+      startWithVoices(window.speechSynthesis.getVoices())
+    }
+    window.speechSynthesis.addEventListener('voiceschanged', onVoices)
+    window.setTimeout(() => {
+      window.speechSynthesis.removeEventListener('voiceschanged', onVoices)
+      startWithVoices(window.speechSynthesis.getVoices())
+    }, 400)
   }
 
   return (
@@ -242,25 +332,48 @@ export function ReaderArticleControls({
         onReadingModeChange={setReadingMode}
         speechSupported={speechSupported}
         speaking={speaking}
+        speechHint={speechHint}
         onToggleNarrator={toggleNarrator}
       />
       <div className="article-utility-bar__status" aria-live="polite">
-        <span><strong>{remaining}</strong> {locale === 'en' ? 'min left' : 'मिनेट बाँकी'}</span>
-        {meter ? <span>{locale === 'en' ? `Free reads this session: ${meter.count}/${meter.limit}` : `यो सत्रका निःशुल्क पढाइ: ${meter.count}/${meter.limit}`}</span> : null}
-        {historySyncFailed ? <span data-warning="true">{locale === 'en' ? 'Device-only history' : 'इतिहास उपकरणमा मात्र'}</span> : null}
+        <span>
+          <strong>{remaining}</strong> {locale === 'en' ? 'min left' : 'मिनेट बाँकी'}
+        </span>
+        {meter ? (
+          <span>
+            {locale === 'en'
+              ? `Free reads this session: ${meter.count}/${meter.limit}`
+              : `यो सत्रका निःशुल्क पढाइ: ${meter.count}/${meter.limit}`}
+          </span>
+        ) : null}
+        {historySyncFailed ? (
+          <span data-warning="true">
+            {locale === 'en' ? 'Device-only history' : 'इतिहास उपकरणमा मात्र'}
+          </span>
+        ) : null}
         {!personalized ? <span>{locale === 'en' ? 'History off' : 'इतिहास बन्द'}</span> : null}
       </div>
       {showFeedback ? (
         <div className="article-feedback" role="group" aria-label={locale === 'en' ? 'Article feedback' : 'समाचार प्रतिक्रिया'}>
           <span>{locale === 'en' ? 'Was this report useful?' : 'यो समाचार उपयोगी भयो?'}</span>
-          <button type="button" onClick={() => {
-            localStorage.setItem('nw:reader-feedback:last-answer', 'useful')
-            setShowFeedback(false)
-          }}>{locale === 'en' ? 'Yes' : 'भयो'}</button>
-          <button type="button" onClick={() => {
-            localStorage.setItem('nw:reader-feedback:last-answer', 'not-useful')
-            setShowFeedback(false)
-          }}>{locale === 'en' ? 'Not really' : 'खासै भएन'}</button>
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.setItem('nw:reader-feedback:last-answer', 'useful')
+              setShowFeedback(false)
+            }}
+          >
+            {locale === 'en' ? 'Yes' : 'भयो'}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.setItem('nw:reader-feedback:last-answer', 'not-useful')
+              setShowFeedback(false)
+            }}
+          >
+            {locale === 'en' ? 'Not really' : 'खासै भएन'}
+          </button>
         </div>
       ) : null}
     </div>

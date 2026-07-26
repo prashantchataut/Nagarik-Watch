@@ -28,7 +28,15 @@ const tailwindPreset: Partial<Config> = {
           raised: 'var(--surface-raised)',
         },
         paper: 'var(--paper)',
-        chrome: 'var(--chrome)',
+        chrome: {
+          DEFAULT: 'var(--chrome)',
+          rule: 'var(--chrome-rule)',
+        },
+        'on-chrome': {
+          DEFAULT: 'var(--on-chrome)',
+          soft: 'var(--on-chrome-soft)',
+        },
+        scrim: 'var(--scrim)',
         ink: {
           DEFAULT: 'var(--ink)',
           soft: 'var(--ink-soft)',

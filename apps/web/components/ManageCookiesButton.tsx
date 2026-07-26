@@ -8,7 +8,7 @@ export function ManageCookiesButton({ locale }: { locale: Locale }) {
     <button
       type="button"
       onClick={() => openCookiePreferences('customize')}
-      className="text-left text-meta text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline"
+      className="inline-flex min-h-11 items-center rounded-md border border-brand bg-brand px-4 text-meta font-bold text-paper hover:bg-brand-strong"
       lang={locale === 'en' ? 'en' : 'ne'}
     >
       {locale === 'en' ? 'Manage cookies' : 'कुकी व्यवस्थापन'}

@@ -45,6 +45,25 @@ description: >-
   explicit request.
 - Accounts remain optional for saved stories / history — never framed as a paywall.
 
+## Cookies and consent
+
+- Cookie banner + `/cookies` must use proper Devanagari (never mojibake `????`).
+- Categories: necessary (always on), personalization, analytics (Plausible after consent), house ad measurement only — no Meta/Google pixels, no data sale.
+- Consent cookies last up to 12 months; re-prompt when categories change.
+
+## Article reader UX
+
+- Article tools (bookmark, text size, reader focus, listen, share) stay visible in a sticky bar — not buried in a collapsed menu at the bottom.
+- Body copy must use `.reading-scale` so font-size controls work.
+- Listen uses Web Speech API; pick Nepali/Hindi/Devanagari voices when available and show an honest hint when falling back or missing.
+- Reader mode toggles `reader-focus-mode` on `html`/`body`: quieter chrome, hide topics/noise, narrower column — not a gimmick toggle with no CSS.
+- Soften radii (`--radius-*`); avoid pure black text on light surfaces — use token ink/muted pairs; brand CTAs use `text-paper` on crimson/ink fills.
+
+## Admin / static Pages
+
+- Public Pages export cannot host the full OpenNext admin desk (APIs stripped; Worker often over Free 3 MiB gzip).
+- `/admin` on static hosts shows a clear gateway (set `NEXT_PUBLIC_ADMIN_APP_URL` or Workers Paid / slim desk) — never “not enough data” wording.
+
 ## Copy tone
 
 - Public empty states: honest (“No saved stories yet”), never fake seed news framed as user data.

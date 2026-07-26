@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { BookmarkButton } from '@/components/reader/BookmarkButton'
@@ -18,10 +18,11 @@ type ArticleToolsMenuProps = {
   onReadingModeChange: (next: boolean) => void
   speechSupported: boolean
   speaking: boolean
+  speechHint?: string | null
   onToggleNarrator: () => void
 }
 
-/** Calm overflow menu for bookmark, text size, share, reader view, and listen. */
+/** Always-visible article toolbar: bookmark, size, listen, reader view, share. */
 export function ArticleToolsMenu({
   story,
   locale,
@@ -33,30 +34,23 @@ export function ArticleToolsMenu({
   onReadingModeChange,
   speechSupported,
   speaking,
+  speechHint,
   onToggleNarrator,
 }: ArticleToolsMenuProps) {
   const dict = getDictionary(locale)
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
-  const menuId = useId()
-  const [open, setOpen] = useState(false)
-  const rootRef = useRef<HTMLDivElement>(null)
+  const shareId = useId()
+  const [shareOpen, setShareOpen] = useState(false)
 
   useEffect(() => {
-    if (!open) return
-    function onPointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
+    if (!shareOpen) return
+    function onKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') setShareOpen(false)
     }
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('mousedown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [open])
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [shareOpen])
 
   const modeLabel = readingMode
     ? en
@@ -67,66 +61,63 @@ export function ArticleToolsMenu({
       : 'पढाइ दृश्य'
   const listenLabel = speaking
     ? en
-      ? 'Stop audio'
-      : 'आवाज रोक्नुहोस्'
+      ? 'Stop'
+      : 'रोक्नुहोस्'
     : en
       ? 'Listen'
       : 'सुन्नुहोस्'
 
   return (
-    <div ref={rootRef} className="article-tools-menu">
-      <button
-        type="button"
-        className="article-tools-menu__trigger"
-        aria-expanded={open}
-        aria-controls={menuId}
-        aria-haspopup="menu"
-        onClick={() => setOpen((value) => !value)}
-        lang={lang}
-      >
-        {en ? 'Article tools' : 'समाचार उपकरण'}
-        <span aria-hidden="true">{open ? '−' : '+'}</span>
-      </button>
-      {open ? (
-        <div id={menuId} className="article-tools-menu__panel" role="menu" lang={lang}>
-          <div className="article-tools-menu__row" role="none">
-            <BookmarkButton story={story} locale={locale} variant="pill" />
-          </div>
-          <div className="article-tools-menu__row" role="none">
-            <span className="article-tools-menu__label">{dict.fontSizeLabel}</span>
-            <FontSizeControl locale={locale} />
-          </div>
-          <div className="article-tools-menu__row article-tools-menu__row--share" role="none">
-            <ShareBar
-              url={shareUrl}
-              title={title}
-              locale={locale}
-              articleSlug={articleSlug}
-              articleCategory={articleCategory}
-              className="flex-col items-start gap-2"
-            />
-          </div>
-          <div className="article-tools-menu__row article-tools-menu__actions" role="none">
-            <button
-              type="button"
-              role="menuitem"
-              className="article-tools-menu__action"
-              aria-pressed={readingMode}
-              onClick={() => onReadingModeChange(!readingMode)}
-            >
-              {modeLabel}
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              className="article-tools-menu__action"
-              aria-pressed={speaking}
-              disabled={!speechSupported}
-              onClick={onToggleNarrator}
-            >
-              {listenLabel}
-            </button>
-          </div>
+    <div className="article-tools-bar" lang={lang}>
+      <div className="article-tools-bar__primary">
+        <BookmarkButton story={story} locale={locale} variant="pill" />
+        <div className="article-tools-bar__group">
+          <span className="article-tools-bar__label">{dict.fontSizeLabel}</span>
+          <FontSizeControl locale={locale} />
+        </div>
+        <button
+          type="button"
+          className="article-tools-bar__btn"
+          aria-pressed={readingMode}
+          onClick={() => onReadingModeChange(!readingMode)}
+        >
+          {modeLabel}
+        </button>
+        <button
+          type="button"
+          className="article-tools-bar__btn"
+          aria-pressed={speaking}
+          disabled={!speechSupported}
+          title={speechHint ?? undefined}
+          onClick={onToggleNarrator}
+        >
+          {listenLabel}
+        </button>
+        <button
+          type="button"
+          className="article-tools-bar__btn"
+          aria-expanded={shareOpen}
+          aria-controls={shareId}
+          onClick={() => setShareOpen((value) => !value)}
+        >
+          {en ? 'Share' : 'सेयर'}
+        </button>
+      </div>
+      {speechHint && !speaking ? (
+        <p className="article-tools-bar__hint" role="status">
+          {speechHint}
+        </p>
+      ) : null}
+      {shareOpen ? (
+        <div id={shareId} className="article-tools-bar__share">
+          <ShareBar
+            url={shareUrl}
+            title={title}
+            locale={locale}
+            articleSlug={articleSlug}
+            articleCategory={articleCategory}
+            className="flex-wrap gap-2"
+          />
         </div>
       ) : null}
     </div>

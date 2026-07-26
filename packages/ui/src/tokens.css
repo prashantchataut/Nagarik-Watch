@@ -1,9 +1,9 @@
 /**
  * Nagarik Watch — design tokens.
  * Palette: A (Civic Crimson) — CHOSEN, see DESIGN.md §2.
- * Light and dark share the same structure: black chrome, crimson desk, neutral page.
- * Dark page surface is true black (user requirement). Paper/on-brand text stays light
- * in both themes so brand buttons never flip to black-on-crimson.
+ * Light: paper masthead/footer + crimson category desk + paper page.
+ * Dark: black chrome + crimson desk + true-black page.
+ * --paper stays light in both themes so brand CTAs never flip to black-on-crimson.
  */
 
 :root {
@@ -14,11 +14,15 @@
   --brand-bar: oklch(0.42 0.18 25);
   --brand-bar-active: oklch(0.32 0.16 25);
 
-  /* Always-stable chrome (masthead / footer / on-brand text) */
-  --chrome: oklch(0 0 0);
+  /* Masthead / footer chrome — light is paper, dark is black */
+  --chrome: oklch(0.995 0 0);
+  --on-chrome: oklch(0.2 0 0);
+  --on-chrome-soft: oklch(0.42 0 0);
+  --chrome-rule: oklch(0.88 0 0);
   --paper: oklch(0.985 0 0);
+  --scrim: oklch(0.2 0 0 / 0.45);
 
-  /* Page surfaces — light is clean paper white (same structure as dark black) */
+  /* Page surfaces — light is clean paper white */
   --surface: oklch(0.99 0 0);
   --surface-raised: oklch(0.965 0 0);
 
@@ -56,9 +60,9 @@
   --body-max: 42.5rem;
 
   --radius-0: 0;
-  --radius-1: 2px;
-  --radius-2: 4px;
-  --radius-3: 6px;
+  --radius-1: 4px;
+  --radius-2: 8px;
+  --radius-3: 12px;
   --radius-full: 9999px;
 
   --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
@@ -79,7 +83,11 @@
     --brand-bar-active: oklch(0.32 0.16 25);
 
     --chrome: oklch(0 0 0);
+    --on-chrome: oklch(0.96 0 0);
+    --on-chrome-soft: oklch(0.72 0 0);
+    --chrome-rule: oklch(0.28 0 0);
     --paper: oklch(0.985 0 0);
+    --scrim: oklch(0 0 0 / 0.62);
 
     --surface: oklch(0 0 0);
     --surface-raised: oklch(0.12 0 0);
@@ -114,7 +122,11 @@
   --brand-bar: oklch(0.42 0.18 25);
   --brand-bar-active: oklch(0.32 0.16 25);
   --chrome: oklch(0 0 0);
+  --on-chrome: oklch(0.96 0 0);
+  --on-chrome-soft: oklch(0.72 0 0);
+  --chrome-rule: oklch(0.28 0 0);
   --paper: oklch(0.985 0 0);
+  --scrim: oklch(0 0 0 / 0.62);
   --surface: oklch(0 0 0);
   --surface-raised: oklch(0.12 0 0);
   --ink: oklch(0.96 0 0);
@@ -141,8 +153,12 @@
   --brand-tint: oklch(0.96 0.015 25);
   --brand-bar: oklch(0.42 0.18 25);
   --brand-bar-active: oklch(0.32 0.16 25);
-  --chrome: oklch(0 0 0);
+  --chrome: oklch(0.995 0 0);
+  --on-chrome: oklch(0.2 0 0);
+  --on-chrome-soft: oklch(0.42 0 0);
+  --chrome-rule: oklch(0.88 0 0);
   --paper: oklch(0.985 0 0);
+  --scrim: oklch(0.2 0 0 / 0.45);
   --surface: oklch(0.99 0 0);
   --surface-raised: oklch(0.965 0 0);
   --ink: oklch(0.2 0 0);

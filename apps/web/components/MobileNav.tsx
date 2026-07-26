@@ -32,7 +32,10 @@ type MobileNavProps = {
 
 // 44×44 minimum touch target (WCAG 2.5.5).
 const ICON_BTN =
-  'inline-flex h-11 w-11 items-center justify-center border border-transparent text-ink-soft transition-colors duration-fast ease-out-quint hover:border-rule hover:bg-brand-tint hover:text-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand'
+  'inline-flex h-11 w-11 items-center justify-center rounded-md border border-transparent text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-on-chrome focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand'
+
+const DRAWER_ICON_BTN =
+  'inline-flex h-11 w-11 items-center justify-center rounded-md border border-transparent text-ink-soft transition-colors duration-fast ease-out-quint hover:border-rule hover:bg-brand-tint hover:text-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand'
 
 const DRAWER_LINK =
   'block border-b border-rule px-1 py-3 text-body-lg text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand'
@@ -157,7 +160,7 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label={dict.closeMenu}
-                className={ICON_BTN}
+                className={DRAWER_ICON_BTN}
               >
                 <IconClose width={20} height={20} />
               </button>

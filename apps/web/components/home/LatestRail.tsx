@@ -46,7 +46,7 @@ export function LatestRail({ stories, locale, className }: LatestRailProps) {
           return (
             <li key={story.id} className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-3 py-3.5">
               <span
-                className="font-display text-h2 font-black leading-none tabular-nums text-rule"
+                className="font-display text-h2 font-black leading-none tabular-nums text-brand"
                 aria-hidden="true"
               >
                 {toLocaleDigits(index + 1, locale)}

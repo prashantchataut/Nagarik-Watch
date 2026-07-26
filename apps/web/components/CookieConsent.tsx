@@ -54,7 +54,6 @@ export function CookieConsent({ locale }: { locale: Locale }) {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         event.preventDefault()
-        // Dismiss without writing: reader must still choose on next visit.
         setVisible(false)
         return
       }
@@ -105,113 +104,117 @@ export function CookieConsent({ locale }: { locale: Locale }) {
         type="button"
         aria-hidden="true"
         tabIndex={-1}
-        className="fixed inset-0 z-40 bg-ink/25 motion-safe:transition-opacity motion-safe:duration-base motion-safe:ease-out-quint"
+        className="fixed inset-0 z-40 bg-scrim"
         onClick={() => setVisible(false)}
       />
       <section
         ref={dialogRef}
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-rule bg-surface pb-[calc(3.5rem+env(safe-area-inset-bottom))] shadow-[0_-8px_32px_oklch(0.2_0.02_25/0.12)] lg:bottom-0 lg:pb-0"
+        className="fixed inset-x-3 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-50 max-h-[min(85dvh,36rem)] overflow-y-auto rounded-xl border border-rule bg-surface shadow-overlay sm:inset-x-auto sm:bottom-6 sm:left-6 sm:right-auto sm:w-[min(28rem,calc(100vw-2rem))] lg:bottom-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="cookie-consent-title"
         aria-describedby="cookie-consent-body"
         lang={lang}
       >
-        <div className="mx-auto max-w-page px-4 py-5 sm:px-6 sm:py-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
-            <div className="min-w-0 max-w-prose flex-1">
-              <p id="cookie-consent-title" className="font-display text-h3 font-bold text-ink">
-                {en ? 'Cookies on Nagarik Watch' : 'नागरिक वाचमा कुकी'}
-              </p>
-              <p id="cookie-consent-body" className="mt-2 text-body leading-relaxed text-ink-soft">
-                {en
-                  ? 'Essential cookies keep the site working. Optional cookies help with recommendations, privacy-friendly analytics, and measuring our own house ads. Nothing optional runs until you choose.'
-                  : 'आवश्यक कुकीले साइट चलाउँछ। वैकल्पिक कुकी सिफारिस, गोपनीयता-मैत्री एनालिटिक्स, र हाम्रै विज्ञापन मापनका लागि हुन्। तपाईंले छनोट नगरेसम्म वैकल्पिक कुकी चल्दैनन्।'}{' '}
-                <Link
-                  href={localizeHref(locale, '/cookies')}
-                  className="font-semibold text-brand-strong underline-offset-2 hover:underline"
-                >
-                  {en ? 'Cookie policy' : 'कुकी नीति'}
-                </Link>
-              </p>
+        <div className="border-b border-rule px-5 py-4">
+          <p id="cookie-consent-title" className="font-display text-h3 font-bold text-ink">
+            {en ? 'Cookies on Nagarik Watch' : 'नागरिक वाचमा कुकी'}
+          </p>
+          <p id="cookie-consent-body" className="mt-2 text-meta leading-relaxed text-ink-soft">
+            {en
+              ? 'Essential cookies keep the site working. Optional cookies help with recommendations, privacy-friendly analytics, and measuring our own house ads.'
+              : 'आवश्यक कुकीले साइट चलाउँछ। वैकल्पिक कुकी सिफारिस, गोपनीयता-मैत्री एनालिटिक्स, र हाम्रै विज्ञापन मापनका लागि हुन्।'}{' '}
+            <Link
+              href={localizeHref(locale, '/cookies')}
+              className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+            >
+              {en ? 'Cookie policy' : 'कुकी नीति'}
+            </Link>
+          </p>
+        </div>
 
-              {customize ? (
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  <CategoryToggle
-                    locale={locale}
-                    titleEn="Personalisation"
-                    titleNe="व्यक्तिगत"
-                    descEn="Saved stories, interests, local desk ranking"
-                    descNe="सुरक्षित लेख, रुचि, स्थानीय डेस्क क्रम"
-                    href={localizeHref(locale, '/cookies#personalization')}
-                    checked={personalization}
-                    onChange={setPersonalization}
-                  />
-                  <CategoryToggle
-                    locale={locale}
-                    titleEn="Analytics"
-                    titleNe="एनालिटिक्स"
-                    descEn="Privacy-friendly visit counts"
-                    descNe="गोपनीयता-मैत्री भिजिट गणना"
-                    href={localizeHref(locale, '/cookies#analytics')}
-                    checked={analytics}
-                    onChange={setAnalytics}
-                  />
-                  <CategoryToggle
-                    locale={locale}
-                    titleEn="Advertising measure"
-                    titleNe="विज्ञापन मापन"
-                    descEn="First-party house-ad clicks only"
-                    descNe="घरको विज्ञापन क्लिक मात्र"
-                    href={localizeHref(locale, '/cookies#advertising')}
-                    checked={advertising}
-                    onChange={setAdvertising}
-                  />
-                </div>
-              ) : null}
+        <div className="px-5 py-4">
+          {customize ? (
+            <div className="grid gap-3">
+              <CategoryToggle
+                locale={locale}
+                titleEn="Personalisation"
+                titleNe="व्यक्तिगत"
+                descEn="Saved stories, interests, continue reading"
+                descNe="सुरक्षित लेख, रुचि, जारी पढाइ"
+                checked={personalization}
+                onChange={setPersonalization}
+              />
+              <CategoryToggle
+                locale={locale}
+                titleEn="Analytics"
+                titleNe="एनालिटिक्स"
+                descEn="Privacy-friendly visit counts"
+                descNe="गोपनीयता-मैत्री भिजिट गणना"
+                checked={analytics}
+                onChange={setAnalytics}
+              />
+              <CategoryToggle
+                locale={locale}
+                titleEn="Advertising measure"
+                titleNe="विज्ञापन मापन"
+                descEn="House-ad clicks only"
+                descNe="घरको विज्ञापन क्लिक मात्र"
+                checked={advertising}
+                onChange={setAdvertising}
+              />
             </div>
+          ) : (
+            <ul className="grid gap-2 text-meta text-ink-soft">
+              <li>
+                <strong className="text-ink">{en ? 'Essential' : 'आवश्यक'}</strong>
+                {' — '}
+                {en ? 'Always on for security and language.' : 'सुरक्षा र भाषाका लागि सधैं सक्रिय।'}
+              </li>
+              <li>
+                <strong className="text-ink">{en ? 'Optional' : 'वैकल्पिक'}</strong>
+                {' — '}
+                {en ? 'Off until you choose.' : 'तपाईंले छानेपछि मात्र।'}
+              </li>
+            </ul>
+          )}
+        </div>
 
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[16rem]">
+        <div className="grid gap-2 border-t border-rule px-5 py-4">
+          <button
+            ref={initialFocusRef}
+            type="button"
+            onClick={() => decide({ personalization: false, analytics: false, advertising: false })}
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-rule bg-surface px-4 text-meta font-semibold text-ink hover:border-brand hover:text-brand-strong"
+          >
+            {en ? 'Essential only' : 'आवश्यक मात्र'}
+          </button>
+          {customize ? (
+            <button
+              type="button"
+              onClick={() => decide({ personalization, analytics, advertising })}
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-brand bg-brand px-4 text-meta font-bold text-paper hover:bg-brand-strong"
+            >
+              {en ? 'Save choices' : 'छनोट सुरक्षित गर्नुहोस्'}
+            </button>
+          ) : (
+            <>
               <button
-                ref={initialFocusRef}
                 type="button"
-                onClick={() =>
-                  decide({ personalization: false, analytics: false, advertising: false })
-                }
-                className="inline-flex min-h-12 w-full items-center justify-center border border-rule bg-surface px-4 text-meta font-semibold text-ink hover:border-brand hover:text-brand-strong"
+                onClick={() => setCustomize(true)}
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-rule px-4 text-meta font-semibold text-ink hover:border-brand hover:text-brand-strong"
               >
-                {en ? 'Essential only' : 'आवश्यक मात्र'}
+                {en ? 'Choose options' : 'विकल्प छान्नुहोस्'}
               </button>
-              {customize ? (
-                <button
-                  type="button"
-                  onClick={() => decide({ personalization, analytics, advertising })}
-                  className="inline-flex min-h-12 w-full items-center justify-center border border-brand bg-brand px-4 text-meta font-bold text-paper hover:bg-brand-strong"
-                >
-                  {en ? 'Save choices' : 'छनोट सुरक्षित गर्नुहोस्'}
-                </button>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setCustomize(true)}
-                    className="inline-flex min-h-12 w-full items-center justify-center border border-rule px-4 text-meta font-semibold text-ink hover:border-brand hover:text-brand-strong"
-                  >
-                    {en ? 'Choose options' : 'विकल्प छान्नुहोस्'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      decide({ personalization: true, analytics: true, advertising: true })
-                    }
-                    className="inline-flex min-h-12 w-full items-center justify-center border border-brand bg-brand px-4 text-meta font-bold text-paper hover:bg-brand-strong"
-                  >
-                    {en ? 'Accept optional' : 'वैकल्पिक स्वीकार'}
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
+              <button
+                type="button"
+                onClick={() => decide({ personalization: true, analytics: true, advertising: true })}
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-brand bg-brand px-4 text-meta font-bold text-paper hover:bg-brand-strong"
+              >
+                {en ? 'Accept optional' : 'वैकल्पिक स्वीकार'}
+              </button>
+            </>
+          )}
         </div>
       </section>
     </>
@@ -224,7 +227,6 @@ function CategoryToggle({
   titleNe,
   descEn,
   descNe,
-  href,
   checked,
   onChange,
 }: {
@@ -233,12 +235,11 @@ function CategoryToggle({
   titleNe: string
   descEn: string
   descNe: string
-  href: string
   checked: boolean
   onChange: (value: boolean) => void
 }) {
   return (
-    <label className="flex items-start gap-3 border border-rule bg-surface-raised px-3 py-3 text-meta text-ink-soft">
+    <label className="flex cursor-pointer items-start gap-3 rounded-md border border-rule bg-surface px-3 py-3 text-meta text-ink-soft">
       <input
         type="checkbox"
         checked={checked}
@@ -249,12 +250,7 @@ function CategoryToggle({
         <span className="block font-semibold text-ink">
           {locale === 'en' ? titleEn : titleNe}
         </span>
-        <span className="mt-1 block leading-snug">
-          {locale === 'en' ? descEn : descNe}{' '}
-          <Link href={href} className="font-semibold text-brand-strong underline-offset-2 hover:underline">
-            {locale === 'en' ? 'Details' : 'विवरण'}
-          </Link>
-        </span>
+        <span className="mt-1 block leading-snug">{locale === 'en' ? descEn : descNe}</span>
       </span>
     </label>
   )

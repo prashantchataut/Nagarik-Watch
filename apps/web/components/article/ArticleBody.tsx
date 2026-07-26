@@ -51,7 +51,7 @@ export function ArticleBody({ blocks, locale, source, className }: ArticleBodyPr
   })
 
   return (
-    <div className={cn('space-y-6', className)} data-narrator-body="true">
+    <div className={cn('reading-scale space-y-6', className)} data-narrator-body="true">
       {source && <AttributionLine source={source} locale={locale} />}
       {out}
     </div>

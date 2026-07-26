@@ -1,7 +1,7 @@
 import type { SVGProps } from 'react'
 import { cn } from '@nagarikwatch/ui'
 
-type LogoTone = 'default' | 'onDark'
+type LogoTone = 'default' | 'onDark' | 'chrome'
 
 type LogoMarkProps = SVGProps<SVGSVGElement> & { title: string; tone?: LogoTone }
 
@@ -13,7 +13,8 @@ type LogoMarkProps = SVGProps<SVGSVGElement> & { title: string; tone?: LogoTone 
  * flat and typographic so it remains legible in a favicon, a masthead, and print.
  */
 export function LogoMark({ title, className, tone = 'default', ...props }: LogoMarkProps) {
-  const markFill = tone === 'onDark' ? '#f7f7f7' : 'var(--ink)'
+  const markFill =
+    tone === 'onDark' ? 'var(--paper)' : tone === 'chrome' ? 'var(--on-chrome)' : 'var(--ink)'
   return (
     <svg
       viewBox="0 0 96 96"
@@ -46,7 +47,18 @@ export function Logo({
   tone = 'default',
 }: LogoProps) {
   const siteNameLang = /[A-Za-z]/.test(siteName) ? 'en' : 'ne'
-  const onDark = tone === 'onDark'
+  const titleClass =
+    tone === 'onDark'
+      ? 'text-paper'
+      : tone === 'chrome'
+        ? 'text-on-chrome'
+        : 'text-ink'
+  const subClass =
+    tone === 'onDark'
+      ? 'text-paper/70'
+      : tone === 'chrome'
+        ? 'text-on-chrome-soft'
+        : 'text-ink-soft'
 
   if (markOnly) {
     return <LogoMark title={`${siteName} / Nagarik Watch`} className={className} tone={tone} />
@@ -68,7 +80,7 @@ export function Logo({
         <span
           className={cn(
             'font-display text-[1.35rem] font-black tracking-[-0.035em] sm:text-[1.75rem]',
-            onDark ? 'text-[#f7f7f7]' : 'text-ink',
+            titleClass,
           )}
           lang={siteNameLang}
         >
@@ -77,7 +89,7 @@ export function Logo({
         <span
           className={cn(
             'mt-1 border-t-2 border-brand pt-1 text-[0.55rem] font-black uppercase tracking-[0.22em] sm:text-[0.6rem]',
-            onDark ? 'text-white/70' : 'text-ink-soft',
+            subClass,
           )}
           lang="en"
         >

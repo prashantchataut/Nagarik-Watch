@@ -67,19 +67,22 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
     lang: locale === 'en' && c.nameEn ? 'en' : 'ne',
   }))
 
+  const linkClass =
+    'inline-block border-b border-transparent text-body text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-on-chrome'
+
   return (
-    <footer className="mt-14 border-t-4 border-brand bg-chrome text-paper pb-20 lg:pb-0">
+    <footer className="mt-14 border-t-4 border-brand bg-chrome text-on-chrome pb-20 lg:pb-0">
       <div className="mx-auto max-w-page px-4 py-10">
-        <div className="flex flex-col gap-5 border-b border-white/15 pb-8 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-5 border-b border-chrome-rule pb-8 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-lg">
             <span className="flex items-center gap-3">
               <LogoMark
                 title={`${dict.siteName} / Nagarik Watch`}
-                tone="onDark"
+                tone="chrome"
                 className="h-14 w-14"
               />
               <span className="flex flex-col leading-none">
-                <span className="font-display text-h2 font-bold text-white" lang="ne">
+                <span className="font-display text-h2 font-bold text-on-chrome" lang="ne">
                   {dict.siteName}
                 </span>
                 <span
@@ -90,10 +93,10 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
                 </span>
               </span>
             </span>
-            <p className="mt-4 text-body text-white/75" lang={lang}>
+            <p className="mt-4 text-body text-on-chrome-soft" lang={lang}>
               {dict.tagline}
             </p>
-            <p className="mt-3 text-meta leading-relaxed text-white/55" lang={lang}>
+            <p className="mt-3 text-meta leading-relaxed text-mute" lang={lang}>
               {locale === 'en'
                 ? 'Devanagari-first reporting for Nepal and the Nepali diaspora.'
                 : 'नेपाल र नेपाली डायस्पोराका लागि देवनागरी-पहिलो रिपोर्टिङ।'}
@@ -113,29 +116,21 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
 
         <div className="grid gap-8 py-8 sm:grid-cols-2 lg:grid-cols-4">
           <nav aria-label={locale === 'en' ? 'News sections' : 'समाचार विभाग'}>
-            <p className="text-meta font-bold uppercase tracking-wide text-white" lang={lang}>
+            <p className="text-meta font-bold uppercase tracking-wide text-on-chrome" lang={lang}>
               {locale === 'en' ? 'Sections' : 'विभाग'}
             </p>
             <ul className="mt-3 grid gap-y-2">
               {categoryLinks.length > 0
                 ? categoryLinks.map((s) => (
                     <li key={s.href}>
-                      <Link
-                        href={s.href}
-                        className="inline-block border-b border-transparent text-body text-white/70 transition-colors duration-fast ease-out-quint hover:border-brand hover:text-white"
-                        lang={s.lang}
-                      >
+                      <Link href={s.href} className={linkClass} lang={s.lang}>
                         {s.label}
                       </Link>
                     </li>
                   ))
                 : deskLinks.slice(0, 6).map((s) => (
                     <li key={s.href}>
-                      <Link
-                        href={s.href}
-                        className="inline-block border-b border-transparent text-body text-white/70 transition-colors duration-fast ease-out-quint hover:border-brand hover:text-white"
-                        lang={lang}
-                      >
+                      <Link href={s.href} className={linkClass} lang={lang}>
                         {s.label}
                       </Link>
                     </li>
@@ -144,17 +139,13 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
           </nav>
 
           <nav aria-label={locale === 'en' ? 'Desks' : 'डेस्क'}>
-            <p className="text-meta font-bold uppercase tracking-wide text-white" lang={lang}>
+            <p className="text-meta font-bold uppercase tracking-wide text-on-chrome" lang={lang}>
               {locale === 'en' ? 'Desks' : 'डेस्क'}
             </p>
             <ul className="mt-3 grid gap-y-2">
               {deskLinks.map((s) => (
                 <li key={s.href}>
-                  <Link
-                    href={s.href}
-                    className="inline-block border-b border-transparent text-body text-white/70 transition-colors duration-fast ease-out-quint hover:border-brand hover:text-white"
-                    lang={lang}
-                  >
+                  <Link href={s.href} className={linkClass} lang={lang}>
                     {s.label}
                   </Link>
                 </li>
@@ -163,17 +154,13 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
           </nav>
 
           <nav aria-label={dict.footerSections}>
-            <p className="text-meta font-bold uppercase tracking-wide text-white" lang={lang}>
+            <p className="text-meta font-bold uppercase tracking-wide text-on-chrome" lang={lang}>
               {locale === 'en' ? 'About & policy' : 'बारेमा र नीति'}
             </p>
             <ul className="mt-3 grid gap-y-2">
               {aboutLinks.map((s) => (
                 <li key={s.href}>
-                  <Link
-                    href={s.href}
-                    className="inline-block border-b border-transparent text-body text-white/70 transition-colors duration-fast ease-out-quint hover:border-brand hover:text-white"
-                    lang={lang}
-                  >
+                  <Link href={s.href} className={linkClass} lang={lang}>
                     {s.label}
                   </Link>
                 </li>
@@ -182,18 +169,18 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
           </nav>
 
           <div>
-            <p className="text-meta font-bold uppercase tracking-wide text-white" lang={lang}>
+            <p className="text-meta font-bold uppercase tracking-wide text-on-chrome" lang={lang}>
               {locale === 'en' ? 'Contact' : 'सम्पर्क'}
             </p>
-            <address className="mt-3 not-italic text-body text-white/70" lang={lang}>
-              <p className="font-semibold text-white">{PUBLICATION.publisherName}</p>
+            <address className="mt-3 not-italic text-body text-on-chrome-soft" lang={lang}>
+              <p className="font-semibold text-on-chrome">{PUBLICATION.publisherName}</p>
               {isPublicPublicationValue(PUBLICATION.address) ? (
                 <p className="mt-1">{PUBLICATION.address}</p>
               ) : null}
               <p className="mt-1">
                 <a
                   href={`mailto:${PUBLICATION.email}`}
-                  className="rounded-sm transition-colors duration-fast ease-out-quint hover:text-white"
+                  className="rounded-sm transition-colors duration-fast ease-out-quint hover:text-on-chrome"
                 >
                   {PUBLICATION.email}
                 </a>
@@ -204,7 +191,7 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
             </address>
             {isPublicPublicationValue(registration) ? (
               <p
-                className="mt-3 border border-white/20 bg-white/5 px-3 py-2 text-caption text-white/70"
+                className="mt-3 rounded-md border border-chrome-rule bg-surface-raised px-3 py-2 text-caption text-on-chrome-soft"
                 lang={lang}
               >
                 <span className="font-semibold uppercase tracking-wide" lang={lang}>
@@ -214,12 +201,12 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
               </p>
             ) : null}
             {isPublicPublicationValue(PUBLICATION.editorInChief) ? (
-              <p className="mt-2 text-caption text-white/50" lang={lang}>
+              <p className="mt-2 text-caption text-mute" lang={lang}>
                 {locale === 'en' ? 'Responsible editor' : 'जिम्मेवार सम्पादक'}:{' '}
                 {PUBLICATION.editorInChief}
               </p>
             ) : null}
-            <p className="mt-5 text-meta text-white/70" lang={lang}>
+            <p className="mt-5 text-meta text-on-chrome-soft" lang={lang}>
               <Link
                 href={localizeHref(locale, '/newsletter/archive')}
                 className="font-semibold text-brand underline-offset-2 hover:underline"
@@ -230,14 +217,14 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
           </div>
         </div>
 
-        <div className="border-t border-white/15 pt-6">
-          <p className="text-caption text-white/60" lang={lang}>
+        <div className="border-t border-chrome-rule pt-6">
+          <p className="text-caption text-mute" lang={lang}>
             {dict.footerCopyright(year)}
           </p>
-          <p className="mt-2 max-w-3xl text-caption text-white/45" lang={lang}>
+          <p className="mt-2 max-w-3xl text-caption text-mute" lang={lang}>
             {PUBLICATION.ownership}
           </p>
-          <p className="mt-2 max-w-3xl text-caption text-white/45" lang={lang}>
+          <p className="mt-2 max-w-3xl text-caption text-mute" lang={lang}>
             {dict.footerDisclaimer}
           </p>
           <div className="mt-3">
@@ -270,7 +257,7 @@ function SocialLink({
         rel={href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
         aria-label={label}
         title={label}
-        className="inline-flex h-10 w-10 items-center justify-center border border-white/25 text-white/75 transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand hover:text-white focus:outline-none focus:ring-2 focus:ring-brand"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-chrome-rule text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand hover:text-paper focus:outline-none focus:ring-2 focus:ring-brand"
         lang={locale === 'en' ? 'en' : 'ne'}
       >
         <svg

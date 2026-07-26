@@ -104,49 +104,54 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ) ||
     null
 
+  const topSections = edition.sections.slice(0, 3)
+  const moreSections = edition.sections.slice(3)
+
   return (
-    <div>
+    <div className="home-edition">
       <ExperimentExposure experimentId={HOME_LAYOUT_EXPERIMENT_ID} />
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
-      <div className="mx-auto max-w-page px-3 pb-14 pt-3 sm:px-4 sm:pt-4 lg:pb-12">
-        {/* Dense front page: lead + also-today rail */}
+      <div className="mx-auto max-w-page px-3 pt-4 sm:px-4 sm:pt-5">
+        {/* Front page: lead + also-today */}
         <section
-          className="grid gap-6 border-b-2 border-ink pb-6 xl:grid-cols-[minmax(0,1.75fr)_minmax(16.5rem,0.7fr)] xl:gap-0 xl:pb-8"
+          className="grid gap-6 border-b-2 border-ink pb-7 xl:grid-cols-[minmax(0,1.7fr)_minmax(17rem,0.75fr)] xl:items-start xl:gap-8 xl:pb-8"
           aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
         >
           <InstrumentedStory
             articleSlug={edition.lead.slug}
             articleCategory={edition.lead.category.slug}
           >
-            <Hero story={edition.lead} locale={locale} className="xl:pr-8" />
+            <Hero story={edition.lead} locale={locale} />
           </InstrumentedStory>
 
-          <aside className="divide-y divide-rule border-y border-rule bg-surface-raised/60 xl:border-y-0 xl:border-l-2 xl:border-ink xl:bg-transparent xl:pl-5">
+          <aside className="min-w-0 xl:border-l-2 xl:border-ink xl:pl-6">
             <p
-              className="pb-2.5 pt-2 text-caption font-extrabold uppercase tracking-[0.1em] text-brand-strong xl:pt-0"
+              className="mb-3 text-caption font-extrabold uppercase tracking-[0.1em] text-brand-strong"
               lang={english ? 'en' : 'ne'}
             >
               {english ? 'Also today' : 'आजका अन्य'}
             </p>
-            {edition.secondary.slice(0, 6).map((story, index) => (
-              <InstrumentedStory
-                key={story.id}
-                articleSlug={story.slug}
-                articleCategory={story.category.slug}
-              >
-                <StoryCard
-                  story={story}
-                  locale={locale}
-                  variant="horizontal"
-                  className={`py-3 first:pt-1.5 last:pb-0 ${index >= 5 ? 'hidden xl:block' : ''}`}
-                />
-              </InstrumentedStory>
-            ))}
-            <p className="py-3">
+            <div className="divide-y divide-rule border-y border-rule">
+              {edition.secondary.slice(0, 6).map((story, index) => (
+                <InstrumentedStory
+                  key={story.id}
+                  articleSlug={story.slug}
+                  articleCategory={story.category.slug}
+                >
+                  <StoryCard
+                    story={story}
+                    locale={locale}
+                    variant="horizontal"
+                    className={`py-3.5 ${index >= 5 ? 'hidden xl:block' : ''}`}
+                  />
+                </InstrumentedStory>
+              ))}
+            </div>
+            <p className="pt-4">
               <Link
                 href={localizeHref(locale, '/latest')}
-                className="inline-flex min-h-10 items-center text-meta font-bold text-brand-strong underline-offset-4 hover:underline"
+                className="inline-flex min-h-10 items-center rounded-md text-meta font-bold text-brand-strong underline-offset-4 hover:underline"
                 lang={english ? 'en' : 'ne'}
               >
                 {english ? 'Latest updates' : 'ताजा अपडेट'}
@@ -155,10 +160,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </aside>
         </section>
 
-        <LatestRail stories={latest} locale={locale} className="mt-6 border-y-2 border-ink py-5" />
+        <LatestRail stories={latest} locale={locale} className="mt-7 border-y-2 border-ink py-5" />
 
-        <div className="mt-8 space-y-9 sm:mt-10 sm:space-y-11">
-          {edition.sections.slice(0, 3).map((section, index) => (
+        <div className="mt-9 space-y-10 sm:mt-11 sm:space-y-12">
+          {topSections.map((section, index) => (
             <SectionBlock
               key={section.category.slug}
               section={section}
@@ -168,11 +173,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           ))}
         </div>
 
-        <ProvinceHub locale={locale} className="mt-8 sm:mt-10" />
+        <ProvinceHub locale={locale} className="mt-10 sm:mt-12" />
 
-        {edition.sections.length > 3 ? (
-          <div className="mt-8 space-y-8 sm:mt-10 sm:space-y-10">
-            {edition.sections.slice(3).map((section, index) => (
+        {moreSections.length ? (
+          <div className="mt-10 space-y-10 sm:mt-12 sm:space-y-12">
+            {moreSections.map((section, index) => (
               <SectionBlock
                 key={section.category.slug}
                 section={section}
@@ -183,13 +188,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         ) : null}
 
-        <div className="mt-8 grid gap-6 lg:mt-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-8">
+        <div className="mt-10 grid gap-8 border-t border-rule pt-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-10">
           <TodayInBrief stories={briefPool} locale={locale} />
           {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
         </div>
+      </div>
 
+      <div className="mt-8">
         <UtilityStrip locale={locale} />
-        <HomeLiveBoard locale={locale} className="mt-6" />
+      </div>
+
+      <div className="mx-auto max-w-page px-3 pb-14 sm:px-4 lg:pb-12">
+        <HomeLiveBoard locale={locale} className="mt-8" />
 
         <AdSlot
           locale={locale}
@@ -198,7 +208,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           className="mt-8"
         />
 
-        <section className="mt-8 border-y border-rule py-5" aria-labelledby="home-newsletter">
+        <section className="mt-8 rounded-md border border-rule bg-surface-raised px-4 py-5 sm:px-6" aria-labelledby="home-newsletter">
           <div className="mx-auto max-w-xl">
             <h2 id="home-newsletter" className="sr-only" lang={english ? 'en' : 'ne'}>
               {english ? 'Newsletter' : 'न्युजलेटर'}
@@ -209,7 +219,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         <RecommendedForYou locale={locale} catalog={catalog} className="mt-8" />
 
-        <div className="mt-8 grid gap-8 lg:mt-10 lg:grid-cols-2 lg:gap-10">
+        <div className="mt-8 grid gap-8 border-t border-rule pt-8 lg:grid-cols-2 lg:gap-10">
           <TodayInHistory locale={locale} stories={historyStories} />
           <PhotoOfTheDay locale={locale} story={photoOfDay} />
         </div>

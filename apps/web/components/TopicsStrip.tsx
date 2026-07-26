@@ -58,7 +58,7 @@ export function TopicsStrip({
         {searchHref ? (
           <Link
             href={searchHref}
-            className="hidden min-h-8 shrink-0 items-center gap-2 border border-rule bg-surface px-3 text-caption font-semibold text-mute transition-colors duration-fast ease-out-quint hover:border-ink-soft hover:text-ink sm:inline-flex"
+            className="hidden min-h-8 shrink-0 items-center gap-2 rounded-md border border-rule bg-surface px-3 text-caption font-semibold text-mute transition-colors duration-fast ease-out-quint hover:border-ink-soft hover:text-ink sm:inline-flex"
             lang={locale === 'en' ? 'en' : 'ne'}
           >
             <IconSearch />

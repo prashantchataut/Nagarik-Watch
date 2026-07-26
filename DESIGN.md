@@ -307,7 +307,11 @@ clears both altitudes; Palette C (Forest) clears them even more strongly., -
 **Decision (2026-07-24):** Dark mode uses **true black** surfaces (`oklch(0 0 0)`), raised
 panels at `oklch(0.14 0 0)`, and chroma-0 ink. Brand crimson is accents only (nav bar,
 links, category rules), never a reddish-brown page wash and never pink body headlines.
-Light mode remains warm-tinted Civic Crimson neutrals., -
+Light mode remains warm-tinted Civic Crimson neutrals.
+
+**Decision (2026-07-26):** Masthead/footer `--chrome` is **paper in light mode** and **black
+in dark mode**, with `--on-chrome` for text. Only the crimson category desk stays dark in
+both themes. This stops light mode reading as an inverted portal., -
 
 ## Open design questions (resolve in Phase 1)
 
@@ -326,3 +330,4 @@ Light mode remains warm-tinted Civic Crimson neutrals., -
 | 2026-06-18 | Noto Sans Devanagari + Mukta + Inter | Free, OFL, best coverage |
 | 2026-07-19 | Latin UI: **Source Sans 3** (not Inter) | Matches `fonts.ts`; Inter is anti-slop reflex-reject |
 | 2026-07-24 | Dark mode: **true black** surfaces | Founder: reddish soft dark looked amateur; black + crimson accents |
+| 2026-07-26 | Light chrome: **paper masthead/footer** | Light mode felt dark because chrome was always black |

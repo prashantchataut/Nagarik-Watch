@@ -1,0 +1,16 @@
+---
+description: Prefer design-taste-frontend and impeccable for UI work; top priority for visual redesigns
+alwaysApply: true
+---
+
+# Design skill priority (Nagarik Watch)
+
+When doing frontend / visual / UX work on this repo:
+
+1. Read and follow `design-taste-frontend` (Leonxlnx taste-skill) first for anti-slop direction.
+2. Then apply the project `nagarik-watch-product` skill for public vs staff, auth, and monetization rules.
+3. Use impeccable / DESIGN.md tokens already in the repo (Civic Crimson, Devanagari-first).
+4. Prefer dense editorial news-portal patterns over SaaS landing templates.
+5. Do not invent third-party tracker copy; cookie and privacy pages must stay honest.
+
+Never mention competitor news portals by name in UI copy or code comments.
