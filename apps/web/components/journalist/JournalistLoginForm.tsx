@@ -69,12 +69,20 @@ export function JournalistLoginForm({ locale }: Props) {
           const code =
             (body as { error?: { code?: string }; code?: string }).error?.code ??
             (body as { code?: string }).code
-          if (code === 'ACCOUNT_DISABLED' || res.status === 403) {
+          if (code === 'ACCOUNT_DISABLED') {
             setError(
               ne
                 ? 'यो खाता न्यूजरुमद्वारा निष्क्रिय गरिएको छ।'
                 : 'This account has been disabled by the newsroom.',
             )
+            return
+          }
+          if (
+            code === 'INVALID_ORIGIN' ||
+            code === 'MISSING_OR_NULL_ORIGIN' ||
+            res.status === 403
+          ) {
+            setError(authClientErrorMessage(res.status, body, locale))
             return
           }
           setError(authClientErrorMessage(res.status, body, locale))

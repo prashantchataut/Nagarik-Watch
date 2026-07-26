@@ -131,7 +131,9 @@ export function StoryCard({
 
   // image-led: keep photography and copy in separate, legible planes. This avoids
   // the generic gradient-overlay treatment and preserves headline contrast at every crop.
-  if (layout === 'overlay' && story.heroImage) {
+  // Prefer photographic mosaics only. SVG stand-ins look unfinished at large aspect,
+  // so fall through to the default image+copy card instead of a giant empty plane.
+  if (layout === 'overlay' && story.heroImage && !isDataUrl(story.heroImage.url)) {
     return (
       <article className={cn('group relative border-t-2 border-brand pt-3', className)}>
         <div className="relative aspect-[4/3] overflow-hidden rounded-sm sm:aspect-[3/4]">
@@ -165,8 +167,8 @@ export function StoryCard({
   if (layout === 'horizontal') {
     return (
       <article className={cn('group relative flex gap-3', className)}>
-        {story.heroImage ? (
-          <div className="relative block w-24 shrink-0 overflow-hidden aspect-[4/3] sm:w-28">
+        <div className="relative block w-24 shrink-0 overflow-hidden aspect-[4/3] bg-brand-tint sm:w-28">
+          {story.heroImage ? (
             <Image
               src={story.heroImage.url}
               alt=""
@@ -176,8 +178,10 @@ export function StoryCard({
               className="object-cover"
               aria-hidden="true"
             />
-          </div>
-        ) : null}
+          ) : (
+            <span className="absolute inset-y-0 left-0 w-1 bg-brand" aria-hidden="true" />
+          )}
+        </div>
         <div className="min-w-0 flex-1">
           <div className="mb-0.5 flex flex-wrap items-center gap-2">
             <CategoryLabel category={story.category} locale={locale} as="span" />
@@ -205,14 +209,19 @@ export function StoryCard({
   const isFeatured = layout === 'featured'
   const HeadingTag = isFeatured ? 'h2' : 'h3'
   const imgSizes = isFeatured ? '(min-width: 1024px) 60vw, 100vw' : '(min-width: 768px) 33vw, 100vw'
+  const placeholderMedia = story.heroImage ? isDataUrl(story.heroImage.url) : false
 
   return (
     <article className={cn('group relative flex flex-col', className)}>
       {story.heroImage && (
         <div
           className={cn(
-            'relative block overflow-hidden rounded-sm mb-3',
-            isFeatured ? 'aspect-[16/9]' : 'aspect-[4/3]',
+            'relative block overflow-hidden rounded-sm mb-3 bg-brand-tint',
+            isFeatured
+              ? placeholderMedia
+                ? 'aspect-[16/9] sm:aspect-[2/1]'
+                : 'aspect-[16/9]'
+              : 'aspect-[4/3]',
           )}
         >
           <Image
@@ -238,7 +247,7 @@ export function StoryCard({
         <Link href={href}>{title}</Link>
       </HeadingTag>
       {deck && (
-        <p className="mt-2 text-body-lg text-ink-soft leading-relaxed" lang={titleLang}>
+        <p className="mt-2 text-body-lg text-ink-soft leading-relaxed line-clamp-3" lang={titleLang}>
           {deck}
         </p>
       )}

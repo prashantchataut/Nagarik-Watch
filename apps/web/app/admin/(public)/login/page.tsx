@@ -19,15 +19,20 @@ export default async function AdminLoginPage({
 }: {
   searchParams: Promise<{ reset?: string }>
 }) {
-  // Create auth + repair boot accounts before the form is usable. Skipping
-  // password sync left existing NEWSROOM_* users returning 401 forever.
+  // Create auth before the form is usable. Boot password sync can take seconds on a
+  // cold Postgres link — race it so the form still appears quickly.
   let authReady = false
   try {
     const auth = await getAuth()
-    await ensureNewsroomBootAccounts(
-      auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
-    )
     authReady = true
+    await Promise.race([
+      ensureNewsroomBootAccounts(
+        auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
+      ),
+      new Promise<void>((resolve) => {
+        setTimeout(resolve, 2500)
+      }),
+    ])
   } catch (error) {
     console.error('[admin/login] auth/boot failed', error)
   }

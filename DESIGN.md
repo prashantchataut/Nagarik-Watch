@@ -372,3 +372,5 @@ both themes. This stops light mode reading as an inverted portal., -
 | 2026-07-26 | Homepage density **7/10**; soft section rules | Sparse SaaS spacing + thick ink rules felt unfinished vs Nepali portal craft |
 | 2026-07-26 | Latest rail = image + deck + meta | Headline-only lists read as blank wireframes |
 | 2026-07-26 | Hide demo/placeholder polls on public | Real portal cannot show “test/demo” poll copy |
+| 2026-07-26 | Category desks: **desk/stack/mosaic** only | text-led columns + giant SVG mosaics left empty cells and looked unfinished vs OnlineKhabar packing |
+| 2026-07-26 | Treat `data:` heroes as soft media | Never blow SVG stand-ins to full overlay cards; prefer packed horizontal desks |

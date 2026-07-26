@@ -22,6 +22,7 @@ export function Hero({ story, locale, className }: HeroProps) {
   const titleLang = locale === 'en' && story.titleEn ? 'en' : 'ne'
   const unoptimized = story.heroImage ? story.heroImage.url.startsWith('data:') : false
   const hasImage = Boolean(story.heroImage?.url)
+  const placeholderMedia = unoptimized
 
   return (
     <article className={cn('group', className)}>
@@ -54,7 +55,10 @@ export function Hero({ story, locale, className }: HeroProps) {
       {hasImage ? (
         <Link
           href={href}
-          className="relative mt-5 block aspect-[16/10] overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:aspect-[16/9] sm:mt-6"
+          className={cn(
+            'relative mt-4 block overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:mt-5',
+            placeholderMedia ? 'aspect-[16/9] sm:aspect-[2.2/1]' : 'aspect-[16/10] sm:aspect-[16/9]',
+          )}
         >
           <Image
             src={story.heroImage!.url}
@@ -67,7 +71,7 @@ export function Hero({ story, locale, className }: HeroProps) {
           />
         </Link>
       ) : (
-        <div className="mt-5 border-y-2 border-ink" aria-hidden="true" />
+        <div className="mt-5 border-y border-rule" aria-hidden="true" />
       )}
     </article>
   )

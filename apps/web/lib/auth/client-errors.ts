@@ -19,13 +19,34 @@ export function authClientErrorMessage(
       : 'Sign-in is temporarily unavailable. The account database could not be reached — check DATABASE_URL.'
   }
 
-  if (status === 403 || code === 'ACCOUNT_DISABLED') {
+  if (status === 429 || /TOO_MANY|RATE/i.test(`${code}${serverMessage ?? ''}`)) {
+    return locale === 'ne'
+      ? 'धेरै पटक प्रयास भयो। करिब एक मिनेट पर्खेर फेरि प्रयास गर्नुहोस्।'
+      : 'Too many sign-in attempts. Wait about a minute, then try again.'
+  }
+
+  if (
+    code === 'INVALID_ORIGIN' ||
+    code === 'MISSING_OR_NULL_ORIGIN' ||
+    /ORIGIN|CSRF/i.test(`${code}${serverMessage ?? ''}`)
+  ) {
+    return locale === 'ne'
+      ? 'उत्पत्ति जाँचले अनुरोध रोकेको छ। https://www.nagarikwatch.com बाट खोल्नुहोस्।'
+      : 'Request blocked by origin checks. Open the site on https://www.nagarikwatch.com and try again.'
+  }
+
+  if (code === 'ACCOUNT_DISABLED') {
     return locale === 'ne'
       ? 'यो खाता न्यूजरुमद्वारा निष्क्रिय गरिएको छ।'
       : 'This account has been disabled by the newsroom.'
   }
 
-  if (serverMessage && code === 'AUTH_UNAVAILABLE') return serverMessage
+  if (status === 403) {
+    return (
+      serverMessage ??
+      (locale === 'ne' ? 'लगइन अनुमति छैन।' : 'Sign-in was forbidden.')
+    )
+  }
 
   return (
     serverMessage ??

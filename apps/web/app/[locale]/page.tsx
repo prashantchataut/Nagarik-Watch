@@ -75,7 +75,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const briefStories = latest.filter((s) => !secondaryIds.has(s.id)).slice(0, 5)
   const briefPool = briefStories.length >= 3 ? briefStories : latest.slice(0, 5)
 
-  const sectionLayouts = ['lead-rail', 'text-led', 'overlay-grid'] as const
+  const sectionLayouts = ['desk', 'stack', 'mosaic'] as const
 
   const today = new Date()
   const monthDay = `${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
@@ -164,36 +164,49 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         <LatestRail stories={latest} locale={locale} className="mt-5 border-b border-rule pb-5" />
 
-        <div className="mt-6 space-y-7 sm:mt-7 sm:space-y-8">
-          {topSections.map((section, index) => (
-            <SectionBlock
-              key={section.category.slug}
-              section={section}
-              locale={locale}
-              layout={sectionLayouts[index % sectionLayouts.length]}
-            />
-          ))}
+        <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(17rem,0.42fr)] xl:items-start xl:gap-6">
+          <div className="min-w-0 space-y-6 sm:space-y-7">
+            {topSections.map((section, index) => (
+              <SectionBlock
+                key={section.category.slug}
+                section={section}
+                locale={locale}
+                layout={sectionLayouts[index % sectionLayouts.length]}
+              />
+            ))}
+          </div>
+          <aside className="hidden min-w-0 xl:block">
+            <TodayInBrief stories={briefPool} locale={locale} className="sticky top-28" />
+          </aside>
         </div>
 
-        <ProvinceHub locale={locale} className="mt-7 sm:mt-8" />
+        <ProvinceHub locale={locale} className="mt-6 sm:mt-7" />
 
         {moreSections.length ? (
-          <div className="mt-7 space-y-7 sm:mt-8 sm:space-y-8">
+          <div className="mt-6 space-y-6 sm:mt-7 sm:space-y-7">
             {moreSections.map((section, index) => (
               <SectionBlock
                 key={section.category.slug}
                 section={section}
                 locale={locale}
-                layout={sectionLayouts[(index + 3) % sectionLayouts.length]}
+                layout={sectionLayouts[(index + 1) % sectionLayouts.length]}
               />
             ))}
           </div>
         ) : null}
 
-        <div className="mt-7 grid gap-6 border-t border-rule pt-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-8">
+        <div className="mt-6 grid gap-6 border-t border-rule pt-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-8 xl:hidden">
           <TodayInBrief stories={briefPool} locale={locale} />
           {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
         </div>
+
+        {activePoll ? (
+          <div className="mt-6 hidden border-t border-rule pt-6 xl:block">
+            <div className="mx-auto max-w-xl">
+              <PollOfDay locale={locale} poll={activePoll} />
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-6">

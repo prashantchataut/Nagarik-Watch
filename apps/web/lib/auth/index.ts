@@ -52,7 +52,7 @@ if (
 
 const EFFECTIVE_AUTH_SECRET = AUTH_SECRET ?? 'local-dev-auth-secret-change-before-production-32'
 
-function normalizeOrigin(value: string | undefined): string | null {
+function normalizeOrigin(value: string | undefined | null): string | null {
   if (!value) return null
   const raw = value.trim()
   if (!raw) return null
@@ -66,21 +66,70 @@ function normalizeOrigin(value: string | undefined): string | null {
 }
 
 function authBaseUrl(): string {
-  return normalizeOrigin(process.env.BETTER_AUTH_URL) ?? SITE_URL
+  return (
+    normalizeOrigin(process.env.BETTER_AUTH_URL) ??
+    normalizeOrigin(process.env.NEXT_PUBLIC_SITE_URL) ??
+    SITE_URL
+  )
 }
 
-function trustedOrigins(): string[] {
+/** Canonical public hosts for newsroom + reader auth (www, apex, Vercel alias). */
+const KNOWN_PRODUCTION_ORIGINS = [
+  'https://www.nagarikwatch.com',
+  'https://nagarikwatch.com',
+  'https://nagarik-watch.vercel.app',
+] as const
+
+function hostFromHeader(value: string | null): string | null {
+  if (!value) return null
+  const host = value.split(',')[0]?.trim().toLowerCase()
+  if (!host) return null
+  return host.replace(/:\d+$/, '')
+}
+
+/** Only trust Host/X-Forwarded-Host when it is clearly our deployment surface. */
+function isAllowedAuthHost(host: string): boolean {
+  if (
+    host === 'www.nagarikwatch.com' ||
+    host === 'nagarikwatch.com' ||
+    host === 'nagarik-watch.vercel.app'
+  ) {
+    return true
+  }
+  // Preview / deployment aliases for this project only — not every *.vercel.app.
+  if (host.endsWith('.vercel.app') && host.includes('nagarik-watch')) return true
+  if (process.env.NODE_ENV !== 'production') {
+    return host === 'localhost' || host === '127.0.0.1'
+  }
+  return false
+}
+
+function staticTrustedOrigins(): string[] {
+  const fromEnv = (process.env.AUTH_TRUSTED_ORIGINS ?? '')
+    .split(',')
+    .map((value) => normalizeOrigin(value))
+    .filter((value): value is string => Boolean(value))
+
   const candidates = [
+    ...KNOWN_PRODUCTION_ORIGINS,
+    ...fromEnv,
     SITE_URL,
     process.env.BETTER_AUTH_URL,
     process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.SITE_URL,
     process.env.VERCEL_URL,
     process.env.VERCEL_BRANCH_URL,
     process.env.VERCEL_PROJECT_PRODUCTION_URL,
     ...(process.env.NODE_ENV === 'production'
       ? []
-      : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3101', 'http://127.0.0.1:3101']),
+      : [
+          'http://localhost:3000',
+          'http://127.0.0.1:3000',
+          'http://localhost:3101',
+          'http://127.0.0.1:3101',
+        ]),
   ]
+
   return Array.from(
     new Set(
       candidates
@@ -88,6 +137,27 @@ function trustedOrigins(): string[] {
         .filter((value): value is string => Boolean(value)),
     ),
   )
+}
+
+/**
+ * Better Auth CSRF compares Origin/Referer to this list whenever cookies are
+ * present. Empty BETTER_AUTH_URL / SITE_URL previously omitted apex
+ * nagarikwatch.com and some aliases, which surfaces as 403 INVALID_ORIGIN.
+ */
+async function resolveTrustedOrigins(request?: Request): Promise<string[]> {
+  const allowed = new Set(staticTrustedOrigins())
+  if (!request) return [...allowed]
+
+  const host =
+    hostFromHeader(request.headers.get('x-forwarded-host')) ||
+    hostFromHeader(request.headers.get('host'))
+  if (host && isAllowedAuthHost(host)) {
+    allowed.add(`https://${host}`)
+    if (process.env.NODE_ENV !== 'production') {
+      allowed.add(`http://${host}`)
+    }
+  }
+  return [...allowed]
 }
 
 function escapeEmailHtml(value: string): string {
@@ -123,7 +193,7 @@ async function buildAuth(): Promise<AuthInstance> {
   const auth = betterAuth({
     secret: EFFECTIVE_AUTH_SECRET,
     baseURL: authBaseUrl(),
-    trustedOrigins: trustedOrigins(),
+    trustedOrigins: (request) => resolveTrustedOrigins(request),
     database: { dialect, type: 'postgres' },
     appName: 'Nagarik Watch',
     plugins: [
@@ -250,8 +320,9 @@ async function buildAuth(): Promise<AuthInstance> {
     },
     rateLimit: {
       enabled: process.env.NODE_ENV === 'production',
+      // Sign-in retries + MFA share this bucket; 20/min was easy to trip while debugging.
       window: 60,
-      max: 20,
+      max: 60,
       storage: 'database',
       modelName: 'rateLimit',
     },

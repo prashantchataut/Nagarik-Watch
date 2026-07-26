@@ -73,14 +73,35 @@ export function AdminLoginForm({
         })
         const body = await res.json().catch(() => ({}))
         if (!res.ok) {
-          const code = typeof body?.error?.code === 'string' ? body.error.code : ''
+          const code =
+            (typeof body?.code === 'string' && body.code) ||
+            (typeof body?.error?.code === 'string' && body.error.code) ||
+            ''
           const message = String(body?.message ?? body?.error?.message ?? '')
           if (res.status === 503 || code === 'AUTH_UNAVAILABLE') {
             setError('Sign-in unavailable. The account database could not be reached.')
             return
           }
-          if (res.status === 403 || /ORIGIN|CSRF/i.test(message + code)) {
-            setError('Request blocked by origin checks. Open /admin/login from this same site URL.')
+          if (res.status === 429 || /TOO_MANY|RATE/i.test(message + code)) {
+            setError('Too many sign-in attempts. Wait about a minute, then try again.')
+            return
+          }
+          if (code === 'ACCOUNT_DISABLED') {
+            setError('This account has been disabled by the newsroom.')
+            return
+          }
+          if (
+            code === 'INVALID_ORIGIN' ||
+            code === 'MISSING_OR_NULL_ORIGIN' ||
+            /ORIGIN|CSRF/i.test(message + code)
+          ) {
+            setError(
+              'Request blocked by origin checks. Use https://www.nagarikwatch.com/admin/login (not a cached or extension-injected page), then hard-refresh.',
+            )
+            return
+          }
+          if (res.status === 403) {
+            setError(message || 'Sign-in was forbidden. Try again from www.nagarikwatch.com.')
             return
           }
           if (res.status === 401 || /not found|invalid password|INVALID/i.test(message + code)) {

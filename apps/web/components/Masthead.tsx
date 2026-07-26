@@ -110,7 +110,7 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
               className={`${UTIL_LINK} nw-masthead__utility hidden lg:inline-flex`}
               lang={lang}
             >
-              {locale === 'en' ? 'Calendar' : 'पात्रो'}
+              {locale === 'en' ? 'Utilities' : 'उपयोगी'}
             </Link>
             <Link
               href={accountHref}
@@ -185,7 +185,28 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
             </li>
           </ul>
 
-          <div className="hidden shrink-0 items-center py-1.5 lg:flex">
+          <div className="hidden shrink-0 items-center gap-1.5 py-1.5 lg:flex">
+            <Link
+              href={utilitiesHref}
+              className="inline-flex min-h-9 items-center rounded-sm bg-paper/15 px-2.5 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-paper/25"
+              lang={lang}
+            >
+              {locale === 'en' ? 'Calendar' : 'पात्रो'}
+            </Link>
+            <Link
+              href={localizeHref(locale, '/market')}
+              className="inline-flex min-h-9 items-center rounded-sm bg-paper/15 px-2.5 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-paper/25"
+              lang={lang}
+            >
+              {locale === 'en' ? 'Market' : 'बजार'}
+            </Link>
+            <Link
+              href={localizeHref(locale, '/health')}
+              className="inline-flex min-h-9 items-center rounded-sm bg-paper/15 px-2.5 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-paper/25"
+              lang={lang}
+            >
+              {locale === 'en' ? 'Health' : 'स्वास्थ्य'}
+            </Link>
             <Link
               href={latestHref}
               className="inline-flex min-h-9 items-center rounded-md bg-paper px-3 text-caption font-bold text-brand-bar transition-colors duration-fast ease-out-quint hover:bg-brand-tint"

@@ -15,7 +15,15 @@ export function isTrustedWriteRequest(request: NextRequest): boolean {
   if (!origin) return process.env.NODE_ENV !== 'production'
 
   const allowed = new Set(
-    [SITE_URL, process.env.NEXT_PUBLIC_SITE_URL, process.env.BETTER_AUTH_URL, process.env.SITE_URL]
+    [
+      SITE_URL,
+      process.env.NEXT_PUBLIC_SITE_URL,
+      process.env.BETTER_AUTH_URL,
+      process.env.SITE_URL,
+      'https://www.nagarikwatch.com',
+      'https://nagarikwatch.com',
+      'https://nagarik-watch.vercel.app',
+    ]
       .filter((value): value is string => Boolean(value?.trim()))
       .map((value) => safeOrigin(value))
       .filter((value): value is string => Boolean(value)),

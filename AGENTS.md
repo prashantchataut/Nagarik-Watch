@@ -33,6 +33,9 @@ article. Do not spray cosmetic edits across the whole tree in one pass.
 - Polls: real editorial questions only; gate demo/placeholder content from public UI.
 - One live/reference band; do not duplicate weather/NEPSE/forex in strip + card grid.
 - Mukta for Devanagari display; Noto for body; Source Sans 3 for Latin UI.
+- Category bands use **desk / stack / mosaic** only. Never sparse text-only 3-col with
+  empty cells. Never giant SVG placeholder grids.
+- `data:` hero URLs are soft stand-ins: small thumbs OK, full-bleed overlay cards not.
 
 ### Explicit anti-goals
 
@@ -40,6 +43,8 @@ article. Do not spray cosmetic edits across the whole tree in one pass.
 - Demo strings (`test`, `demo`, `what is this ?`) on public surfaces.
 - Thick `border-ink` page-wide section chops as default.
 - SaaS hero / metric / glass patterns on reader pages.
+- Empty grid columns when a section has only 1–2 stories.
+- Diagonal-stripe SVG blocks that read as broken images.
 
 ## Engineering guardrails
 
