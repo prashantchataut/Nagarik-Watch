@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { hasAnalyticsConsent, hasPersonalizationConsent } from '@/lib/reader/consent'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
 
 /**
  * Fires a one-shot first-party ranking impression when ≥40% of the card is visible.
@@ -21,6 +22,7 @@ export function RankingImpression({
     const node = ref.current
     if (!node || sent.current) return
     if (!hasAnalyticsConsent() && !hasPersonalizationConsent()) return
+    if (!hasLivePublicApi()) return
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -50,6 +52,7 @@ export function RankingImpression({
 
 export function trackRankingClick(articleSlug: string, articleCategory: string) {
   if (typeof window === 'undefined') return
+  if (!hasLivePublicApi()) return
   if (!hasAnalyticsConsent() && !hasPersonalizationConsent()) return
   void fetch('/api/ranking-events', {
     method: 'POST',
@@ -61,6 +64,7 @@ export function trackRankingClick(articleSlug: string, articleCategory: string) 
 
 export function trackRankingShare(articleSlug: string, articleCategory: string) {
   if (typeof window === 'undefined') return
+  if (!hasLivePublicApi()) return
   if (!hasAnalyticsConsent() && !hasPersonalizationConsent()) return
   void fetch('/api/ranking-events', {
     method: 'POST',

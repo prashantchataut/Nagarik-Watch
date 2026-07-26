@@ -93,7 +93,11 @@ export function PollOfDay({
       setMyVote(record)
       if (body.results) setResults(body.results)
     } catch {
-      setError(locale === 'en' ? 'Your vote could not be saved. Please try again.' : 'तपाईंको मत सुरक्षित हुन सकेन। फेरि प्रयास गर्नुहोस्।')
+      setError(
+        locale === 'en'
+          ? 'Your vote could not be saved. Please try again.'
+          : 'तपाईंको मत सुरक्षित हुन सकेन। फेरि प्रयास गर्नुहोस्।',
+      )
     } finally {
       setSubmitting(false)
     }
@@ -103,13 +107,25 @@ export function PollOfDay({
 
   return (
     <section className={className} aria-labelledby={`poll-${poll.id}`}>
-      <div className="border-y border-rule bg-surface-raised py-5">
-        <p className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong" lang={lang}>
-          {heading}
-        </p>
-        <h2 id={`poll-${poll.id}`} className="mt-2 font-display text-h2 font-bold leading-tight text-ink" lang={lang}>
+      <div className="border border-rule bg-surface-raised px-4 py-4 sm:px-5 sm:py-5">
+        <div>
+          <p
+            className="text-meta font-extrabold text-brand-strong"
+            lang={lang}
+          >
+            {heading}
+          </p>
+          <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
+        </div>
+
+        <h2
+          id={`poll-${poll.id}`}
+          className="mt-3 font-display text-h3 font-bold leading-snug text-ink sm:text-h2"
+          lang={lang}
+        >
           {poll.question}
         </h2>
+
         <ul className="mt-4 grid gap-2">
           {optionEntries.map((option) => {
             const count = results[option.id] ?? 0
@@ -123,24 +139,41 @@ export function PollOfDay({
                   onClick={() => castVote(option.id)}
                   disabled={Boolean(myVote) || submitting}
                   aria-pressed={selected}
-                  className="relative min-h-11 w-full overflow-hidden border border-rule bg-surface px-3 py-2.5 text-left transition-colors hover:border-brand disabled:cursor-default"
+                  className="relative min-h-10 w-full overflow-hidden border border-rule bg-surface px-3 py-2 text-left transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand active:scale-[0.99] disabled:cursor-default disabled:hover:border-rule disabled:hover:bg-surface"
                 >
                   {showResults ? (
-                    <span className="absolute inset-y-0 left-0 bg-brand-tint" style={{ width: `${percentage}%` }} aria-hidden="true" />
+                    <span
+                      className="absolute inset-y-0 left-0 bg-brand-tint"
+                      style={{ width: `${percentage}%` }}
+                      aria-hidden="true"
+                    />
                   ) : null}
                   <span className="relative flex items-center justify-between gap-3">
-                    <span className="font-semibold text-ink" lang={lang}>{selected ? '✓ ' : ''}{option.label}</span>
-                    {showResults ? <span className="text-meta font-bold tabular-nums text-ink-soft">{percentage}%</span> : null}
+                    <span className="text-meta font-semibold leading-snug text-ink sm:text-body" lang={lang}>
+                      {selected ? '✓ ' : ''}
+                      {option.label}
+                    </span>
+                    {showResults ? (
+                      <span className="shrink-0 text-meta font-bold tabular-nums text-ink-soft">
+                        {percentage}%
+                      </span>
+                    ) : null}
                   </span>
                 </button>
               </li>
             )
           })}
         </ul>
-        <p className="mt-3 text-caption text-ink-soft" aria-live="polite" lang={lang}>
-          {error || (myVote
-            ? (locale === 'en' ? `Vote recorded · ${totalVotes} total votes` : `मत सुरक्षित भयो · जम्मा ${totalVotes} मत`)
-            : (locale === 'en' ? 'Choose one option. One vote per reader.' : 'एउटा विकल्प छान्नुहोस्। प्रत्येक पाठकलाई एक मत।'))}
+
+        <p className="mt-3 border-t border-rule pt-3 text-caption text-ink-soft" aria-live="polite" lang={lang}>
+          {error ||
+            (myVote
+              ? locale === 'en'
+                ? `Vote recorded. ${totalVotes} total votes.`
+                : `मत सुरक्षित भयो। जम्मा ${totalVotes} मत।`
+              : locale === 'en'
+                ? 'Choose one option. One vote per reader.'
+                : 'एउटा विकल्प छान्नुहोस्। प्रत्येक पाठकलाई एक मत।')}
         </p>
       </div>
     </section>

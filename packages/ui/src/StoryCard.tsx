@@ -133,7 +133,7 @@ export function StoryCard({
   // the generic gradient-overlay treatment and preserves headline contrast at every crop.
   if (layout === 'overlay' && story.heroImage) {
     return (
-      <article className={cn('group relative border-t-4 border-ink pt-3', className)}>
+      <article className={cn('group relative border-t-2 border-brand pt-3', className)}>
         <div className="relative aspect-[4/3] overflow-hidden rounded-sm sm:aspect-[3/4]">
           <Image
             src={story.heroImage.url}
@@ -189,6 +189,11 @@ export function StoryCard({
           >
             <Link href={href}>{title}</Link>
           </h3>
+          {deck ? (
+            <p className="mt-1 line-clamp-2 text-caption leading-relaxed text-ink-soft" lang={titleLang}>
+              {deck}
+            </p>
+          ) : null}
           <div className="mt-1">
             <Byline authors={story.authors} locale={locale} publishedAt={story.publishedAt} />
           </div>

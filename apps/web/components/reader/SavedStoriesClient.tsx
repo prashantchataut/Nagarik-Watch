@@ -8,6 +8,7 @@ import {
   type BookmarkRecord,
 } from '@/lib/reader/state'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
 import { rankSavedForLater, savedEmptyState } from '@/lib/reader/saves'
 import { localizeHref } from '@/lib/i18n/locales'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
@@ -70,6 +71,10 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
     let cancelled = false
     const local = localItems()
     setStories(local)
+    if (!hasLivePublicApi()) {
+      setReady(true)
+      return
+    }
     const fingerprint = getOrCreateReaderId()
     if (!fingerprint) {
       setReady(true)
@@ -119,6 +124,7 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
       READER_BOOKMARKS_KEY,
       JSON.stringify(local.filter((record) => record.story.slug !== item.slug)),
     )
+    if (!hasLivePublicApi()) return
     const fingerprint = getOrCreateReaderId()
     if (!fingerprint) return
     startTransition(async () => {
@@ -144,6 +150,7 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
     const current = stories
     setStories([])
     localStorage.removeItem(READER_BOOKMARKS_KEY)
+    if (!hasLivePublicApi()) return
     const fingerprint = getOrCreateReaderId()
     if (!fingerprint) return
     startTransition(async () => {

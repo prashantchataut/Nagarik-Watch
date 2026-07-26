@@ -115,10 +115,7 @@ async function handleArticleNavigation(request) {
 async function handleShellNavigation(request) {
   try {
     const response = await fetch(request)
-    const url = new URL(request.url)
-    if (url.pathname === '/' || url.pathname === '') {
-      await putIfCacheable(SHELL_CACHE_NAME, request, response, SHELL_PRECACHE_URLS.length + 2)
-    }
+    // Do not cache HTML documents in the shell cache while online.
     return response
   } catch {
     const shell = await caches.match('/')

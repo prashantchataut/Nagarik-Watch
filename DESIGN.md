@@ -122,8 +122,8 @@ appropriate line-height (Devanagari needs ~1.6–1.7 line-height for body, more 
 
 - **Devanagari body:** "Noto Sans Devanagari" (Google Fonts, free, OFL). Best open-source
   coverage of Nepali matras and conjuncts. Fallback: "Mukta", system Devanagari.
-- **Devanagari display (headlines):** "Mukta" (Google Fonts, OFL) at heavier weights, or
-  "Baloo 2 Devanagari" for a slightly more characterful display. To be A/B'd in Phase 1.
+- **Devanagari display (headlines):** **Mukta** (Google Fonts, OFL) at heavier weights.
+  Locked 2026-07-26 (founder preference). Baloo 2 is retired as an A/B candidate.
 - **Latin / English section / UI numbers:** "Source Sans 3" (Google Fonts, OFL). Editorial
   Latin companion to Mukta/Noto; deliberately not Inter (anti-slop / DESIGN decision 2026-07-19).
   CSS variable is `--font-source-sans` (historical `--font-inter` alias removed); the loaded
@@ -164,14 +164,52 @@ everywhere is monotony).
 
 Tokens: `space-1`=4 … `space-2`=8 … up to `space-12`=128.
 
+### Density dial (homepage and section indexes)
+
+**Decision (2026-07-26):** Portal surfaces target **dense editorial packing**, not gallery
+whitespace. Readers come to scan many stories; blank mid-page voids read as unfinished.
+
+| Dial | Homepage target | Notes |
+|------|-----------------|-------|
+| Visual density | **7 / 10** | Tight story rows, image+deck on rails, packed section bands |
+| Design variance | **5 / 10** | Structured multi-column grids, not artsy asymmetry |
+| Motion | **3 / 10** | Hover/focus only; no scroll theatre |
+
+Reference craft bar for packing: serious Nepali news portals (e.g. OnlineKhabar-class
+information density). We match **story packing and scan rhythm**, never ad clutter,
+autoplay, or interstitial traps. PRODUCT.md still bans tabloid chrome.
+
 **Layout primitives:**
 
 - Page max-width: **1280px** for the homepage grid; **680px** for the article body
   column; **1200px** for section/category pages.
-- Gutter: 24px desktop, 16px mobile.
+- Gutter: 16–20px desktop, 12–16px mobile (tighter than SaaS defaults).
+- Homepage section stack: prefer `space-y-6`–`8`, not `10`–`12`.
 - The article body is **not** wrapped in a card, it sits on the page surface with a
   hairline rule above the byline. Cards are used only where the card affordance is right
-  (story grids, related stories, most-read). No nested cards, ever., -
+  (story grids, related stories, most-read). No nested cards, ever.
+
+### Section separation
+
+**Do not** use full-width heavy ink rules (`border-*-2/3 border-ink`) as the default
+section divider. Those shout “wireframe” and chop the page into sparse bands.
+
+**Preferred:**
+
+1. Hairline `border-rule` under the section header row.
+2. A short brand underline under the section title only (≈2–3rem wide, `brand` or
+   `brand-strong`), not a page-wide bar.
+3. Vertical rhythm + background tint (`surface-raised` / `brand-tint`) when a module
+   needs a stronger boundary (poll, live reference).
+
+### Nepali kickers and labels
+
+Devanagari must never inherit Latin “tracked uppercase” costume.
+
+- **Banned on `lang="ne"`:** `text-transform: uppercase` and `letter-spacing` above
+  `0.02em` (prefer `0`).
+- Category kickers: brand color + weight + optional short underline. Sentence case.
+- Latin-only micro-labels (EN locale, ISO codes) may use modest tracking ≤ `0.06em`.
 
 ## 5. Component inventory
 
@@ -313,17 +351,16 @@ Light mode remains warm-tinted Civic Crimson neutrals.
 in dark mode**, with `--on-chrome` for text. Only the crimson category desk stays dark in
 both themes. This stops light mode reading as an inverted portal., -
 
-## Open design questions (resolve in Phase 1)
+## Open design questions
 
-- Mukta vs Baloo 2 for Devanagari display, A/B the lead-story headline.
 - Do opinion/columns use a serif for editorial distinction, or stay in the system sans?
 - Final masthead wordmark treatment (Devanagari-primary lockup vs bilingual stacked).
-- Weather widget: include in masthead, or drop for simplicity?
+- Live reference: keep a single compact strip, or fold weather into the masthead?
 
 ## Decision log
 
 | Date | Decision | Rationale |
-|, , , |, , , , , , , , , , , |, , , , , , |
+|------|----------|-----------|
 | 2026-06-18 | **Palette A, Civic Crimson CHOSEN** | Founder pick; civic fit, flag-adjacent, distinct from Setopati/Ratopati |
 | 2026-06-18 | 3 palettes proposed; A recommended | Ownability + civic fit |
 | 2026-06-18 | Light-first, dark as toggle | Reading scene forces it |
@@ -331,3 +368,7 @@ both themes. This stops light mode reading as an inverted portal., -
 | 2026-07-19 | Latin UI: **Source Sans 3** (not Inter) | Matches `fonts.ts`; Inter is anti-slop reflex-reject |
 | 2026-07-24 | Dark mode: **true black** surfaces | Founder: reddish soft dark looked amateur; black + crimson accents |
 | 2026-07-26 | Light chrome: **paper masthead/footer** | Light mode felt dark because chrome was always black |
+| 2026-07-26 | **Mukta locked** for Devanagari display | Founder preference; end Baloo A/B |
+| 2026-07-26 | Homepage density **7/10**; soft section rules | Sparse SaaS spacing + thick ink rules felt unfinished vs Nepali portal craft |
+| 2026-07-26 | Latest rail = image + deck + meta | Headline-only lists read as blank wireframes |
+| 2026-07-26 | Hide demo/placeholder polls on public | Real portal cannot show “test/demo” poll copy |

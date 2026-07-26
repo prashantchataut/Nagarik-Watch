@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import type { Locale } from '@nagarikwatch/db'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
 
 type Comment = {
   id: string
@@ -39,6 +40,15 @@ export function CommentSection({
 
   useEffect(() => {
     let cancelled = false
+    if (!hasLivePublicApi()) {
+      setLoading(false)
+      setError(
+        ne
+          ? 'टिप्पणी यस स्थिर होस्टमा उपलब्ध छैन।'
+          : 'Comments are not available on this static host.',
+      )
+      return
+    }
     fetch(
       `/api/comments?articleSlug=${encodeURIComponent(articleSlug)}&articleCategory=${encodeURIComponent(articleCategory)}`,
       { cache: 'no-store' },
@@ -89,6 +99,14 @@ export function CommentSection({
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
+    if (!hasLivePublicApi()) {
+      setError(
+        ne
+          ? 'टिप्पणी यस स्थिर होस्टमा उपलब्ध छैन।'
+          : 'Comments are not available on this static host.',
+      )
+      return
+    }
     const form = new FormData(event.currentTarget)
     const authorName = String(form.get('authorName') ?? '').trim()
     const bodyNe = String(form.get('bodyNe') ?? '').trim()

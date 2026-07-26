@@ -95,6 +95,25 @@ export async function listPolls(): Promise<Poll[]> {
   return (await readLocal()).sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
+/**
+ * Public homepage must never show draft-quality / placeholder poll copy
+ * (e.g. "what is this ?", "test", "demo"). Hide those until editors publish real copy.
+ */
+export function isPublicReadyPoll(poll: Pick<Poll, 'question' | 'options'>): boolean {
+  const question = cleanText(poll.question, 220)
+  const options = poll.options.map((option) => cleanText(option, 160)).filter(Boolean)
+  if (!question || options.length < 2) return false
+  if (question.length < 12) return false
+  if (options.some((option) => option.length < 2)) return false
+
+  const blob = [question, ...options].join('\n').toLowerCase()
+  const placeholder =
+    /\b(test|demo|trail|trial|else|asdf|lorem|xxx|foo|bar|baz)\b|what is this\s*\?/i
+  if (placeholder.test(blob)) return false
+
+  return true
+}
+
 export async function getActivePoll(): Promise<PublicPoll | null> {
   try {
     const pool = await ensureSchema()
@@ -111,7 +130,7 @@ export async function getActivePoll(): Promise<PublicPoll | null> {
         .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0] ?? null
     }
 
-    if (!poll) return null
+    if (!poll || !isPublicReadyPoll(poll)) return null
     return { ...poll, results: await getPollVoteCounts(poll.id) }
   } catch (error) {
     if (isProductionRuntime()) throw error

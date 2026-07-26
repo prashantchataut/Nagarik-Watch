@@ -73,7 +73,7 @@ export function SectionBlock({ section, locale, className, layout }: SectionBloc
         moreLabel={dict.seeAll}
       />
 
-      <div className="mt-4">
+      <div className="mt-3">
         {chosen === 'lead-rail' && <LeadRail section={section} locale={locale} />}
         {chosen === 'overlay-grid' && <OverlayGrid items={all} locale={locale} />}
         {chosen === 'text-led' && <TextLedColumns items={all} locale={locale} />}
@@ -116,7 +116,7 @@ function OverlayGrid({ items, locale }: { items: HomepageSection['items']; local
 
 function TextLedColumns({ items, locale }: { items: HomepageSection['items']; locale: Locale }) {
   return (
-    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
       {items.slice(0, 6).map((s) => (
         <RankedCard key={s.slug} story={s} locale={locale} variant="text-led" />
       ))}

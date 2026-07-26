@@ -28,12 +28,21 @@ const env = {
   NODE_ENV: 'production',
   CF_PAGES: process.env.CF_PAGES || '1',
   CF_PAGES_STATIC: '1',
+  NEXT_PUBLIC_STATIC_EXPORT: '1',
   NEXT_PUBLIC_SITE_URL: siteUrl,
   SITE_URL: siteUrl,
   BETTER_AUTH_URL: withHttps(process.env.BETTER_AUTH_URL) || siteUrl,
+  // Desk login lives on the full app host (not static Pages). Override with ADMIN_APP_URL.
+  NEXT_PUBLIC_ADMIN_APP_URL:
+    withHttps(process.env.NEXT_PUBLIC_ADMIN_APP_URL) ||
+    withHttps(process.env.ADMIN_APP_URL) ||
+    withHttps(process.env.CF_ADMIN_APP_URL) ||
+    'https://nagarik-watch.vercel.app',
 }
 
 console.log(`[build:cf-pages] NEXT_PUBLIC_SITE_URL=${siteUrl}`)
+console.log(`[build:cf-pages] NEXT_PUBLIC_ADMIN_APP_URL=${env.NEXT_PUBLIC_ADMIN_APP_URL}`)
+console.log(`[build:cf-pages] NEXT_PUBLIC_STATIC_EXPORT=1`)
 
 const result = spawnSync(
   'pnpm',

@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { REACTION_EMOJIS, type ReactionEmoji } from '@/lib/engagement/reactions-client'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
 
 function reactionVisitorKey(): string {
   if (typeof window === 'undefined') return ''
@@ -35,11 +36,12 @@ export function ReactionBar({
   const [pending, startTransition] = useTransition()
 
   useEffect(() => {
+    if (!hasLivePublicApi()) return
     let cancelled = false
     fetch(`/api/reactions?articleSlug=${encodeURIComponent(articleSlug)}`, { cache: 'no-store' })
-      .then((response) => response.json())
-      .then((data: { counts?: Record<ReactionEmoji, number> }) => {
-        if (!cancelled && data.counts) setCounts(data.counts)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { counts?: Record<ReactionEmoji, number> } | null) => {
+        if (!cancelled && data?.counts) setCounts(data.counts)
       })
       .catch(() => undefined)
     return () => {
@@ -48,6 +50,7 @@ export function ReactionBar({
   }, [articleSlug])
 
   function toggle(emoji: ReactionEmoji) {
+    if (!hasLivePublicApi()) return
     const previous = counts
     const wasActive = Boolean(active[emoji])
     setCounts((current) => ({

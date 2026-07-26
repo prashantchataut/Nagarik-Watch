@@ -90,10 +90,13 @@ Withholding, clickbait, emotional manipulation.
 These are real outlets we have studied and explicitly do **not** want to copy the
 weaknesses of:
 
+- **Dense Nepali portals (craft bar):** we want their **information packing** and
+  scan rhythm (story rows with image + deck, tight section bands). We do **not** want
+  ad density that hurts readability, autoplay, or interstitial traps.
 - **Setopati, Ratopati** (inspiration sites): we admire the editorial breadth and the
   signature opinion/blog identity, and we aim to **match their depth**. We do **not** want
-  their visual clutter, ad-density that hurts readability, or generic WordPress-y density.
-  Our bar is a faster, cleaner, more typographically considered version of the same idea.
+  their visual clutter or generic WordPress-y chrome. Our bar is a faster, more
+  typographically considered version of the same idea, without SaaS-blank whitespace.
 - **Ad-heavy tabloid density**: no auto-playing video, no full-screen interstitials, no
   popups that block reading, no ad between every paragraph.
 - **Sensationalist vernacular news aesthetic**: no red-and-yellow alarmist color blocks,

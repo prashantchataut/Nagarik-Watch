@@ -6,6 +6,7 @@ import {
   hasAnalyticsConsent,
   hasPersonalizationConsent,
 } from '@/lib/reader/consent'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
 
 const SESSION_VISITOR_KEY = 'nw_experiment_visitor'
 
@@ -37,6 +38,7 @@ async function postExperimentEvent(
 ): Promise<string | null> {
   const visitorKey = experimentVisitorKey()
   if (!visitorKey || !experimentId) return null
+  if (!hasLivePublicApi()) return null
   try {
     const response = await fetch('/api/experiments', {
       method: 'POST',

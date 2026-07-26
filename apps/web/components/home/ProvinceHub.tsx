@@ -11,7 +11,7 @@ export function ProvinceHub({ locale, className }: { locale: Locale; className?:
     <section className={className} aria-label={lang === 'ne' ? 'प्रदेश' : 'Provinces'}>
       <SectionHeader title={lang === 'ne' ? 'प्रदेश' : 'Provinces'} locale={locale} />
       <ul
-        className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7 lg:gap-2"
+        className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-7 lg:gap-2"
         role="list"
       >
         {PROVINCES.map((p) => {
@@ -21,7 +21,7 @@ export function ProvinceHub({ locale, className }: { locale: Locale; className?:
             <li key={p.slug}>
               <Link
                 href={href}
-                className="group flex min-h-[5.5rem] cursor-pointer flex-col justify-between border border-rule bg-surface-raised px-3 py-3 transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="group flex min-h-[4.25rem] cursor-pointer flex-col justify-between border border-rule bg-surface-raised px-3 py-2.5 transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 lang={lang}
               >
                 <span className="font-display text-body-lg font-bold leading-snug text-ink group-hover:text-brand-strong">

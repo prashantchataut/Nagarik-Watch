@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readdirSync,
   renameSync,
+  rmSync,
   statSync,
   writeFileSync,
 } from 'node:fs'
@@ -26,7 +27,14 @@ function stashPath(fromRelative, toRelative) {
   const to = path.join(appDir, toRelative)
   if (!existsSync(from)) return
   mkdirSync(path.dirname(to), { recursive: true })
-  renameSync(from, to)
+  // Prefer rename; on Windows, AV/indexers often lock trees so fall back to copy+remove.
+  try {
+    if (existsSync(to)) rmSync(to, { recursive: true, force: true })
+    renameSync(from, to)
+  } catch {
+    cpSync(from, to, { recursive: true, force: true })
+    rmSync(from, { recursive: true, force: true })
+  }
   stashed.push({ from, to })
 }
 
@@ -42,7 +50,13 @@ function restoreStashed() {
   for (const { from, to } of stashed.reverse()) {
     if (!existsSync(to)) continue
     mkdirSync(path.dirname(from), { recursive: true })
-    renameSync(to, from)
+    try {
+      if (existsSync(from)) rmSync(from, { recursive: true, force: true })
+      renameSync(to, from)
+    } catch {
+      cpSync(to, from, { recursive: true, force: true })
+      rmSync(to, { recursive: true, force: true })
+    }
   }
 }
 

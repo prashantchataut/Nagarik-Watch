@@ -56,4 +56,4 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   }
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'

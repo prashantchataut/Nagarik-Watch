@@ -9,6 +9,7 @@ import {
   type BookmarkRecord,
 } from '@/lib/reader/state'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
 
 type BookmarkStory = Pick<StoryCardData, 'id' | 'slug' | 'category' | 'titleNe'> &
   Partial<StoryCardData>
@@ -31,11 +32,13 @@ export function BookmarkButton({
     setBookmarked(
       local.some((record) => record.articleId === story.id || record.story.slug === story.slug),
     )
+    if (!hasLivePublicApi()) return
     const fp = getOrCreateReaderId()
     if (!fp) return
     fetch(`/api/bookmarks?fingerprint=${encodeURIComponent(fp)}`)
-      .then((r) => r.json())
-      .then((data: { bookmarks?: { articleSlug: string }[] }) => {
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { bookmarks?: { articleSlug: string }[] } | null) => {
+        if (!data) return
         if (!(data.bookmarks ?? []).some((b) => b.articleSlug === story.slug)) return
         setBookmarked(true)
         if ('authors' in story && 'publishedAt' in story) {
@@ -66,6 +69,7 @@ export function BookmarkButton({
   function toggle() {
     const nextBookmarked = !bookmarked
     persistLocal(nextBookmarked)
+    if (!hasLivePublicApi()) return
     const fp = getOrCreateReaderId()
     if (!fp) return
     setSyncError(false)
@@ -84,7 +88,7 @@ export function BookmarkButton({
         })
         if (!response.ok) throw new Error(`Bookmark sync failed: ${response.status}`)
       } catch (error) {
-        persistLocal(!nextBookmarked)
+        // Keep the local save; only flag that account sync failed.
         setSyncError(true)
         void error
       }

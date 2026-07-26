@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import type { AdMode } from '@/lib/ads'
 import { hasAdvertisingConsent } from '@/lib/reader/consent'
 import { attentionScore } from '@/lib/ads/attention'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
 
 const VIEWABILITY_THRESHOLD = 0.5
 
@@ -15,6 +16,7 @@ export function AdTracker({ placementKey, mode }: { placementKey: string; mode: 
     const node = ref.current?.closest('[data-ad-placement]')
     if (!node || fired.current) return
     if (!hasAdvertisingConsent()) return
+    if (!hasLivePublicApi()) return
 
     let viewableSinceMs: number | null = null
     let dwellMs = 0

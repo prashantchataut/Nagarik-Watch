@@ -100,14 +100,15 @@
     padding: 0 0 0.12rem;
     font-size: 0.6875rem;
     font-weight: 800;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     line-height: 1.3;
     text-transform: uppercase;
   }
 
   .category-pill[lang='ne'] {
-    letter-spacing: 0.02em;
+    letter-spacing: 0;
     text-transform: none;
+    font-weight: 700;
   }
 
   /* Reader text-resize (FontSizeControl). The control sets data-reading-size on <html>. */
@@ -1389,7 +1390,7 @@
   .reader-shortcuts strong { color: var(--ink); font-size: .94rem; }
   .reader-shortcuts small { margin-top: .2rem; color: var(--ink-soft); font-size: .76rem; line-height: 1.5; }
 
-  .recommendation-desk { border-block: 3px solid var(--ink); padding: 1.2rem 0 1.5rem; }
+  .recommendation-desk { border-block: 1px solid var(--rule); padding: 1rem 0 1.25rem; }
   .recommendation-desk__header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; }
   .recommendation-desk__header h2 { margin-top: .35rem; font-size: clamp(1.8rem,4vw,3rem); font-weight: 850; }
   .recommendation-desk__header p:last-child { max-width: 58ch; margin-top: .5rem; color: var(--ink-soft); font-size: .84rem; line-height: 1.55; }
@@ -1833,7 +1834,7 @@
   .recommendation-desk__item[data-featured='true'] { grid-row: span 2; }
   .recommendation-desk__reason { display: block; margin-bottom: .55rem; color: var(--brand-strong); font-size: .68rem; font-weight: 850; letter-spacing: .04em; }
   .recommendation-desk__continue { display: grid; gap: .2rem; margin-top: 1rem; padding: .85rem 0; border-block: 1px solid var(--rule); color: var(--ink); }
-  .recommendation-desk__continue span { color: var(--brand-strong); font-size: .68rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+  .recommendation-desk__continue span { color: var(--brand-strong); font-size: .75rem; font-weight: 750; letter-spacing: 0; text-transform: none; }
   .recommendation-desk__continue strong { font-family: var(--font-mukta), sans-serif; font-size: 1.05rem; }
   .recommendation-desk__digest { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
   .recommendation-desk__digest ol { display: grid; gap: .5rem; margin-top: .5rem; }

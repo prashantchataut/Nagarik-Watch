@@ -16,6 +16,7 @@ import { buildAffinity, continueReadingForReader, recommendForReader } from '@/l
 import { rankDigestStories } from '@/lib/reader/digest'
 import { READER_PREFERENCES_EVENT, readLocalReaderPreferences, writeLocalReaderPreferences } from '@/lib/reader/preferences'
 import type { ReaderPreferences } from '@/lib/reader/preferences-store'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
 
 type ServerBookmark = { articleSlug: string; articleCategory: string; articleTitleNe: string; createdAt: string }
 type ServerHistory = { articleSlug: string; articleCategory: string; articleTitleNe: string; articleTagSlugs?: string[]; articleAuthorSlugs?: string[]; readPercent: number; dwellSeconds: number; completed: boolean; sessions: number; firstReadAt: string; readAt: string }
@@ -36,6 +37,7 @@ function reasonLabel(strategy: RecStrategy, locale: Locale) {
 }
 
 function fetchServerOrder(locale: Locale): Promise<Array<{ id: string; recStrategy: RecStrategy }> | null> {
+  if (!hasLivePublicApi()) return Promise.resolve(null)
   const fingerprint = getOrCreateReaderId()
   return fetch(
     `/api/recommendations/personalized?fingerprint=${encodeURIComponent(fingerprint)}&locale=${locale}&limit=5`,
@@ -46,6 +48,7 @@ function fetchServerOrder(locale: Locale): Promise<Array<{ id: string; recStrate
 }
 
 function syncFromServer(catalog: StoryCardData[], locale: Locale) {
+  if (!hasLivePublicApi()) return Promise.resolve()
   const fingerprint = getOrCreateReaderId()
   const byRoute = new Map(catalog.map((story) => [`${story.category.slug}:${story.slug}`, story]))
   return Promise.all([

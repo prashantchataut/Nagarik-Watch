@@ -19,6 +19,7 @@ import { rafThrottle } from '@/lib/browser/raf-throttle'
 import { addArticleToSessionMeter, FREE_ARTICLE_METER_KEY } from '@/lib/free-article-meter'
 import { canShowWeeklyFeedback } from '@/lib/reader/retention'
 import { ArticleToolsMenu } from '@/components/article/ArticleToolsMenu'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
 
 type ReaderArticleControlsProps = {
   story: StoryCardData
@@ -181,6 +182,7 @@ export function ReaderArticleControls({
       localStorage.setItem(READER_HISTORY_KEY, JSON.stringify(next))
       window.dispatchEvent(new Event('nw-reader-state-change'))
       if (completed) trackExperimentConversion(ARTICLE_COMPLETION_EXPERIMENT_ID)
+      if (!hasLivePublicApi()) return
       void fetch('/api/reading', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },

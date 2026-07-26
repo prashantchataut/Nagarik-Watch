@@ -3,10 +3,8 @@ import type { Locale } from '@nagarikwatch/db'
 import { cn } from './cn'
 
 /**
- * Section heading with a hairline rule below (DESIGN.md §5). The h2 carries the section
- * title in the brand color; an optional "थप →" / "More →" link sits to the right and
- * points at the section landing page. The link is hidden from assistive tech when no
- * href is supplied, so the rule still renders as a pure divider.
+ * Section heading with hairline rule + short brand title underline (DESIGN.md §4).
+ * Avoid full-width heavy ink bars; those read as wireframe section chops.
  */
 type SectionHeaderProps = {
   title: string
@@ -31,17 +29,20 @@ export function SectionHeader({
   return (
     <div
       className={cn(
-        'flex items-end justify-between gap-4 border-b-2 border-ink pb-2',
+        'flex items-end justify-between gap-4 border-b border-rule pb-2',
         className,
       )}
     >
-      <h2 className="font-display text-h3 font-extrabold tracking-tight text-ink" lang={lang}>
-        {title}
-      </h2>
+      <div className="min-w-0">
+        <h2 className="font-display text-h3 font-extrabold tracking-tight text-ink" lang={lang}>
+          {title}
+        </h2>
+        <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
+      </div>
       {href && moreLabel && (
         <Link
           href={href}
-          className="shrink-0 text-meta font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+          className="mb-0.5 shrink-0 text-meta font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong"
           lang={locale === 'en' ? 'en' : 'ne'}
         >
           {moreLabel}

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: 'My drafts',
   robots: { index: false, follow: false },
 }
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export default async function JournalistAssignmentsPage({
   params,
