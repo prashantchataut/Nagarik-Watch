@@ -34,7 +34,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         </p>
         <a
           href="/admin/login"
-          className="mt-7 inline-flex min-h-11 items-center justify-center rounded-md bg-brand px-5 font-semibold text-surface"
+          className="mt-7 inline-flex min-h-11 items-center justify-center rounded-md bg-brand px-5 font-semibold text-paper"
         >
           Open login
         </a>

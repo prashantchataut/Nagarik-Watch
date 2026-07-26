@@ -33,7 +33,7 @@ export default function AdminIndexPage() {
         {cms ? (
           <a
             href={cms}
-            className="inline-flex min-h-12 items-center justify-center bg-brand px-4 text-meta font-bold text-surface hover:bg-brand-strong"
+            className="inline-flex min-h-12 items-center justify-center bg-brand px-4 text-meta font-bold text-paper hover:bg-brand-strong"
           >
             Payload CMS खोल्नुहोस्
           </a>

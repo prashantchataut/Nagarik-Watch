@@ -36,14 +36,14 @@ export function BreakingTicker({ stories, locale, className }: BreakingTickerPro
   return (
     <div
       className={cn(
-        'ticker-host flex items-stretch border-b border-breaking/30 bg-breaking text-surface',
+        'ticker-host flex items-stretch border-b border-breaking/30 bg-breaking text-paper',
         className,
       )}
       role="region"
       aria-label={label}
     >
       <span
-        className="z-10 flex shrink-0 items-center gap-2 bg-breaking px-4 py-2 text-meta font-bold uppercase tracking-wide text-surface"
+        className="z-10 flex shrink-0 items-center gap-2 bg-breaking px-4 py-2 text-meta font-bold uppercase tracking-wide text-paper"
         lang={locale === 'en' ? 'en' : 'ne'}
       >
         {/* Pulsing live dot — the "this is happening now" affordance. */}
@@ -57,12 +57,12 @@ export function BreakingTicker({ stories, locale, className }: BreakingTickerPro
         <ul className="ticker-track py-2">
           {loop.map((item, i) => (
             <li key={`${item.slug}-${i}`} className="mx-4 inline-flex items-center">
-              <span aria-hidden="true" className="mr-2 text-surface/50">
+              <span aria-hidden="true" className="mr-2 text-paper/50">
                 •
               </span>
               <Link
                 href={item.href}
-                className="text-meta font-medium text-surface transition-opacity duration-fast ease-out-quint hover:opacity-80"
+                className="text-meta font-medium text-paper transition-opacity duration-fast ease-out-quint hover:opacity-80"
                 lang={item.lang}
               >
                 {item.title}

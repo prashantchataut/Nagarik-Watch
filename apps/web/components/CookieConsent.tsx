@@ -186,7 +186,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
                 <button
                   type="button"
                   onClick={() => decide({ personalization, analytics, advertising })}
-                  className="inline-flex min-h-12 w-full items-center justify-center border border-brand bg-brand px-4 text-meta font-bold text-surface hover:bg-brand-strong"
+                  className="inline-flex min-h-12 w-full items-center justify-center border border-brand bg-brand px-4 text-meta font-bold text-paper hover:bg-brand-strong"
                 >
                   {en ? 'Save choices' : 'छनोट सुरक्षित गर्नुहोस्'}
                 </button>
@@ -204,7 +204,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
                     onClick={() =>
                       decide({ personalization: true, analytics: true, advertising: true })
                     }
-                    className="inline-flex min-h-12 w-full items-center justify-center border border-brand bg-brand px-4 text-meta font-bold text-surface hover:bg-brand-strong"
+                    className="inline-flex min-h-12 w-full items-center justify-center border border-brand bg-brand px-4 text-meta font-bold text-paper hover:bg-brand-strong"
                   >
                     {en ? 'Accept optional' : 'वैकल्पिक स्वीकार'}
                   </button>

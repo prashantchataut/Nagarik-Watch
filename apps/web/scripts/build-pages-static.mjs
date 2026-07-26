@@ -90,45 +90,16 @@ function flattenNepaliRoot() {
   )
 }
 
-function writePublicDeskGateways(siteUrl) {
+function writeJournalistGateway(siteUrl) {
   const desks = [
-    {
-      dir: path.join(outDir, 'auth', 'login'),
-      titleNe: 'पाठक लगइन',
-      leadNe:
-        'यो स्थिर पब्लिक होस्टमा पूर्ण लगइन अहिले उपलब्ध छैन। बचत गरिएका समाचार र खाता सुविधाका लागि पूर्ण एप होस्ट चाहिन्छ। अहिले समाचार पढ्न गृहपृष्ठमा फर्कनुहोस्।',
-      titleEn: 'Reader sign-in',
-      leadEn:
-        'Full sign-in is not available on this static public host yet. Saved stories and account tools need the full app host. Return home to keep reading.',
-      primaryLabelNe: 'गृहपृष्ठमा फर्कनुहोस्',
-    },
-    {
-      dir: path.join(outDir, 'auth', 'signup'),
-      titleNe: 'खाता खोल्नुहोस्',
-      leadNe:
-        'स्थिर पब्लिक होस्टमा नयाँ खाता खोल्ने फारम अहिले चल्दैन। समाचार निःशुल्क पढ्न सकिन्छ; खाता सुविधा पूर्ण होस्टमा आउँछ।',
-      titleEn: 'Create an account',
-      leadEn:
-        'Account signup is not available on this static public host yet. News stays free to read; account tools return on the full app host.',
-      primaryLabelNe: 'गृहपृष्ठमा फर्कनुहोस्',
-    },
-    {
-      dir: path.join(outDir, 'auth', 'profile'),
-      titleNe: 'खाता प्रोफाइल',
-      leadNe:
-        'प्रोफाइल यस स्थिर होस्टमा उपलब्ध छैन। पढाइ जारी राख्न गृहपृष्ठमा जानुहोस्।',
-      titleEn: 'Account profile',
-      leadEn: 'Profile is not available on this static host. Return home to keep reading.',
-      primaryLabelNe: 'गृहपृष्ठमा फर्कनुहोस्',
-    },
     {
       dir: path.join(outDir, 'journalist', 'login'),
       titleNe: 'पत्रकार डेस्क',
       leadNe:
-        'पत्रकार लगइन यस स्थिर पब्लिक होस्टमा चल्दैन। समाचारकक्ष पहुँच पूर्ण एप होस्टमा मात्र उपलब्ध छ। आम पाठकका लागि गृहपृष्ठ खुला छ।',
+        'पत्रकार लगइन यस स्थिर पब्लिक होस्टमा चल्दैन। समाचारकक्ष पहुँच पूर्ण एप होस्टमा मात्र उपलब्ध छ। आम पाठकका लागि गृहपृष्ठ र सुरक्षित समाचार खुला छ।',
       titleEn: 'Journalist desk',
       leadEn:
-        'Journalist sign-in is not available on this static public host. Newsroom access needs the full app host. The public homepage stays open for readers.',
+        'Journalist sign-in is not available on this static public host. Newsroom access needs the full app host. Readers can still use the homepage and saved stories.',
       primaryLabelNe: 'गृहपृष्ठमा फर्कनुहोस्',
     },
   ]
@@ -150,20 +121,10 @@ function writePublicDeskGateways(siteUrl) {
     )
   }
 
-  mkdirSync(path.join(outDir, 'en', 'auth', 'login'), { recursive: true })
-  mkdirSync(path.join(outDir, 'en', 'auth', 'signup'), { recursive: true })
-  mkdirSync(path.join(outDir, 'en', 'auth', 'profile'), { recursive: true })
   mkdirSync(path.join(outDir, 'en', 'journalist', 'login'), { recursive: true })
-  for (const segment of [
-    ['auth', 'login'],
-    ['auth', 'signup'],
-    ['auth', 'profile'],
-    ['journalist', 'login'],
-  ]) {
-    const src = path.join(outDir, ...segment, 'index.html')
-    const dest = path.join(outDir, 'en', ...segment, 'index.html')
-    if (existsSync(src)) cpSync(src, dest, { force: true })
-  }
+  const src = path.join(outDir, 'journalist', 'login', 'index.html')
+  const dest = path.join(outDir, 'en', 'journalist', 'login', 'index.html')
+  if (existsSync(src)) cpSync(src, dest, { force: true })
 }
 
 try {
@@ -177,7 +138,7 @@ try {
   run('node', ['scripts/patch-page-dynamic.mjs'])
   if (existsSync(middlewarePath)) renameSync(middlewarePath, middlewareBak)
   for (const segment of ['api', 'admin']) stashAppSegment(segment)
-  for (const segment of ['auth', 'journalist']) stashLocaleSegment(segment)
+  for (const segment of ['journalist']) stashLocaleSegment(segment)
   run('pnpm', ['exec', 'next', 'build'])
   flattenNepaliRoot()
 
@@ -199,9 +160,9 @@ try {
     buildStaffAdminHtml({ siteUrl, cmsAdminUrl, adminAppUrl }),
     'utf8',
   )
-  writePublicDeskGateways(siteUrl)
+  writeJournalistGateway(siteUrl)
   console.log(`Wrote static staff gateway → ${adminAppUrl}/admin/login`)
-  console.log('Wrote static auth/journalist gateways')
+  console.log('Wrote static journalist gateway')
 
   if (process.argv.includes('--deploy')) {
     run('pnpm', [

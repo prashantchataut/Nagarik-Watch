@@ -18,7 +18,7 @@ export function PaywallNotice({ locale }: { locale: Locale }) {
           : 'You have reached the preview limit. Membership unlocks the full article, archive access and synced saved reading.'}
       </p>
       <div className="mt-5 flex flex-wrap gap-3">
-        <Link href={localizeHref(locale, '/membership')} className="inline-flex h-11 items-center rounded-full bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong">
+        <Link href={localizeHref(locale, '/membership')} className="inline-flex h-11 items-center rounded-full bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong">
           {ne ? 'सदस्यता हेर्नुहोस्' : 'View membership'}
         </Link>
         <Link href={localizeHref(locale, '/auth/login')} className="inline-flex h-11 items-center rounded-full border border-rule px-5 text-body font-bold text-ink hover:border-brand hover:text-brand-strong">

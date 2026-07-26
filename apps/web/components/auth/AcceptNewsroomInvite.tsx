@@ -15,7 +15,7 @@ export function AcceptNewsroomInvite({ locale, token, signedIn }: { locale: 'ne'
     return (
       <div className="grid gap-3" lang={ne ? 'ne' : 'en'}>
         <p className="text-body text-ink-soft">{ne ? 'निमन्त्रणा स्वीकार गर्न, निमन्त्रणा आएको यही इमेल प्रयोग गरेर खाता बनाउनुहोस् वा लगइन गर्नुहोस्।' : 'Sign up or sign in with the same email that received the invitation.'}</p>
-        <Link href={`${ne ? '' : '/en'}/auth/signup?next=${encodeURIComponent(next)}`} className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong">{ne ? 'खाता बनाउनुहोस्' : 'Create account'}</Link>
+        <Link href={`${ne ? '' : '/en'}/auth/signup?next=${encodeURIComponent(next)}`} className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong">{ne ? 'खाता बनाउनुहोस्' : 'Create account'}</Link>
         <Link href={`${ne ? '' : '/en'}/auth/login?next=${encodeURIComponent(next)}`} className="inline-flex h-12 items-center justify-center rounded-full border border-rule px-5 text-body font-bold text-ink hover:border-brand hover:text-brand-strong">{ne ? 'लगइन गर्नुहोस्' : 'Sign in'}</Link>
       </div>
     )
@@ -57,9 +57,9 @@ export function AcceptNewsroomInvite({ locale, token, signedIn }: { locale: 'ne'
     <div className="grid gap-4" lang={ne ? 'ne' : 'en'}>
       {message && <div role={status === 'error' ? 'alert' : 'status'} className={`rounded-md border px-4 py-3 text-meta font-semibold ${status === 'error' ? 'border-breaking/30 bg-brand-tint text-brand-strong' : 'border-rule bg-surface-raised text-ink'}`}>{message}</div>}
       {status === 'accepted' ? (
-        <Link href={`${ne ? '' : '/en'}/auth/login?invite=accepted`} className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong">{ne ? 'फेरि लगइन गर्नुहोस्' : 'Sign in again'}</Link>
+        <Link href={`${ne ? '' : '/en'}/auth/login?invite=accepted`} className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong">{ne ? 'फेरि लगइन गर्नुहोस्' : 'Sign in again'}</Link>
       ) : (
-        <button type="button" onClick={accept} disabled={pending || !token} className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60">{pending ? (ne ? 'स्वीकार हुँदै…' : 'Accepting…') : (ne ? 'निमन्त्रणा स्वीकार गर्नुहोस्' : 'Accept invitation')}</button>
+        <button type="button" onClick={accept} disabled={pending || !token} className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60">{pending ? (ne ? 'स्वीकार हुँदै…' : 'Accepting…') : (ne ? 'निमन्त्रणा स्वीकार गर्नुहोस्' : 'Accept invitation')}</button>
       )}
     </div>
   )

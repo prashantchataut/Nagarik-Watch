@@ -27,12 +27,13 @@ import { SITE_URL } from '@/lib/site'
 import { sendEmail } from '@/lib/email-provider'
 import { isUserDisabledById } from './disabled-users'
 import { ensureNewsroomBootAccounts } from './boot-accounts'
+import { isGoogleAuthPublicEnabled } from './flags'
 
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET
 
 export function isGoogleAuthConfigured(): boolean {
   return (
-    process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true' &&
+    isGoogleAuthPublicEnabled() &&
     Boolean(process.env.GOOGLE_CLIENT_ID?.trim()) &&
     Boolean(process.env.GOOGLE_CLIENT_SECRET?.trim())
   )

@@ -44,7 +44,7 @@ export function HomeEmptyEdition({ locale, categories }: HomeEmptyEditionProps) 
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
             href={localizeHref(locale, '/latest')}
-            className="inline-flex min-h-11 cursor-pointer items-center bg-brand px-5 text-meta font-bold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="inline-flex min-h-11 cursor-pointer items-center bg-brand px-5 text-meta font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             {english ? 'Read latest' : 'ताजा पढ्नुहोस्'}
           </Link>

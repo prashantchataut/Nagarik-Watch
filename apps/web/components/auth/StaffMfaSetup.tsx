@@ -88,7 +88,7 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
           </p>
         ) : null}
         <button
-          className="min-h-11 rounded-md bg-brand px-5 font-bold text-surface"
+          className="min-h-11 rounded-md bg-brand px-5 font-bold text-paper"
           disabled={pending}
         >
           {pending
@@ -144,7 +144,7 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
           </p>
         ) : null}
         <button
-          className="min-h-11 rounded-md bg-brand px-5 font-bold text-surface"
+          className="min-h-11 rounded-md bg-brand px-5 font-bold text-paper"
           disabled={pending}
         >
           {pending

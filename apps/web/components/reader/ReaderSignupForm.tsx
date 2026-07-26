@@ -66,7 +66,11 @@ export function ReaderSignupForm({ locale, next, googleEnabled = false }: { loca
         router.refresh()
         router.push(safeNext(next) ?? (ne ? '/saved' : '/en/saved'))
       } catch {
-        setError(ne ? 'नेटवर्क त्रुटि। पुनः प्रयास गर्नुहोस्।' : 'Network error. Please retry.')
+        setError(
+          ne
+            ? 'खाता सर्भर अहिले उपलब्ध छैन। सुरक्षित समाचार यस उपकरणमा अझै काम गर्छ।'
+            : 'Account server is unavailable right now. Saved stories still work on this device.',
+        )
       }
     })
   }
@@ -137,7 +141,7 @@ export function ReaderSignupForm({ locale, next, googleEnabled = false }: { loca
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {pending ? (
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'खाता बन्दै…' : 'Creating…'}</span>

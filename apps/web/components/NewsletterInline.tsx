@@ -92,7 +92,7 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
           />
           <button
             type="submit"
-            className="inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center bg-brand px-4 text-body font-semibold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-tint disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center bg-brand px-4 text-body font-semibold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-tint disabled:cursor-not-allowed disabled:opacity-60"
             lang={lang}
             disabled={status === 'submitting'}
           >

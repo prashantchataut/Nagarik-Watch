@@ -166,7 +166,7 @@ export function PollsManager() {
               type="button"
               onClick={save}
               disabled={!draft.questionNe && !draft.questionEn}
-              className="rounded-md bg-brand px-4 py-2 text-body font-semibold text-surface-raised disabled:opacity-40 hover:bg-brand-strong"
+              className="rounded-md bg-brand px-4 py-2 text-body font-semibold text-paper-raised disabled:opacity-40 hover:bg-brand-strong"
             >
               Save draft
             </button>

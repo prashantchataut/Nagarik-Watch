@@ -1,9 +1,6 @@
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
-import { StaffMfaSetup } from '@/components/auth/StaffMfaSetup'
-import { getUnverifiedNewsroomSession } from '@/lib/auth/session'
-import { asLocale } from '@/lib/i18n/locales'
-import { twoFactorConfigured } from '@/lib/security/mfa'
+import Link from 'next/link'
+import { asLocale, localizeHref } from '@/lib/i18n/locales'
 
 export const metadata: Metadata = {
   title: 'Newsroom MFA setup',
@@ -11,27 +8,40 @@ export const metadata: Metadata = {
 }
 export const dynamic = 'force-static'
 
+/** MFA setup needs a live auth host; keep a clear static page instead of a dead redirect. */
 export default async function StaffMfaSetupPage({
   params,
 }: {
   params: Promise<{ locale: string }>
 }) {
   const locale = asLocale((await params).locale)
-  const session = await getUnverifiedNewsroomSession()
-  if (!session) redirect(locale === 'en' ? '/en/auth/login' : '/auth/login')
-  if (!twoFactorConfigured()) redirect('/admin/dashboard')
-  if (session.twoFactorEnabled) redirect('/admin/dashboard')
-
+  const ne = locale === 'ne'
   return (
-    <main className="mx-auto max-w-xl px-5 py-16" lang={locale}>
+    <main className="mx-auto max-w-xl px-5 py-16" lang={locale === 'en' ? 'en' : 'ne'}>
       <p className="text-caption font-bold uppercase tracking-wide text-brand-strong">
-        Newsroom security
+        {ne ? 'समाचारकक्ष सुरक्षा' : 'Newsroom security'}
       </p>
       <h1 className="mt-3 font-display text-display text-ink">
-        {locale === 'ne' ? 'दुई चरणीय प्रमाणीकरण सेटअप' : 'Set up two-factor authentication'}
+        {ne ? 'दुई चरणीय प्रमाणीकरण' : 'Two-factor authentication'}
       </h1>
-      <div className="mt-8 rounded-lg border border-rule bg-surface-raised p-6">
-        <StaffMfaSetup locale={locale} />
+      <p className="mt-4 text-body text-ink-soft">
+        {ne
+          ? 'MFA सेटअप पूर्ण एप होस्टमा मात्र चल्छ। पाठक लगइन र सुरक्षित समाचार अझै उपलब्ध छन्।'
+          : 'MFA setup runs on the full app host only. Reader sign-in and saved stories remain available.'}
+      </p>
+      <div className="mt-8 flex flex-wrap gap-3">
+        <Link
+          href={localizeHref(locale, '/auth/login')}
+          className="inline-flex min-h-11 items-center bg-brand px-4 text-meta font-bold text-paper hover:bg-brand-strong"
+        >
+          {ne ? 'पाठक लगइन' : 'Reader sign-in'}
+        </Link>
+        <Link
+          href={localizeHref(locale, '/')}
+          className="inline-flex min-h-11 items-center border border-rule px-4 text-meta font-bold text-ink hover:border-brand"
+        >
+          {ne ? 'गृहपृष्ठ' : 'Home'}
+        </Link>
       </div>
     </main>
   )

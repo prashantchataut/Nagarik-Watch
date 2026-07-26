@@ -151,7 +151,7 @@ export function ReaderSubmissionForm({ locale }: Props) {
 
       <TurnstileField siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
 
-      <button type="submit" disabled={pending} className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-surface hover:bg-brand-strong disabled:opacity-60">
+      <button type="submit" disabled={pending} className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:opacity-60">
         {pending ? (ne ? 'पठाउँदै…' : 'Submitting…') : ne ? 'न्यूजरुममा पठाउनुहोस्' : 'Send to newsroom'}
       </button>
     </form>

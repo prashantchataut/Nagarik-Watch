@@ -1,36 +1,33 @@
 /**
  * Nagarik Watch — design tokens.
  * Palette: A (Civic Crimson) — CHOSEN, see DESIGN.md §2.
- * Light mode: warm-tinted neutrals (not pure white). Dark mode: true black surfaces
- * (user requirement 2026-07-24) with near-white ink and crimson for accents only —
- * never pink headlines on a reddish-brown ground.
- *
- * Every text/background pair below was verified against WCAG AA (≥4.5:1 for body text)
- * in both light and dark via an OKLCH→sRGB→relative-luminance script.
+ * Light and dark share the same structure: black chrome, crimson desk, neutral page.
+ * Dark page surface is true black (user requirement). Paper/on-brand text stays light
+ * in both themes so brand buttons never flip to black-on-crimson.
  */
 
 :root {
   /* Brand — Civic Crimson */
   --brand: oklch(0.55 0.18 25);
   --brand-strong: oklch(0.45 0.2 25);
-  --brand-tint: oklch(0.96 0.02 25);
-  /* Solid desk/nav bar — never lightened in dark mode */
+  --brand-tint: oklch(0.96 0.015 25);
   --brand-bar: oklch(0.42 0.18 25);
   --brand-bar-active: oklch(0.32 0.16 25);
 
-  /* Surfaces (warm-tinted neutrals, not white) */
-  --surface: oklch(0.985 0.004 25);
-  --surface-raised: oklch(0.99 0.003 25);
+  /* Always-stable chrome (masthead / footer / on-brand text) */
+  --chrome: oklch(0 0 0);
+  --paper: oklch(0.985 0 0);
 
-  /* Ink (warm near-black). mute lifted to 0.55 so it clears AA on surface (4.67:1). */
-  --ink: oklch(0.22 0.02 25);
-  --ink-soft: oklch(0.4 0.015 25);
-  --mute: oklch(0.55 0.014 25);
+  /* Page surfaces — light is clean paper white (same structure as dark black) */
+  --surface: oklch(0.99 0 0);
+  --surface-raised: oklch(0.965 0 0);
 
-  /* Lines */
-  --rule: oklch(0.9 0.008 25);
+  --ink: oklch(0.2 0 0);
+  --ink-soft: oklch(0.4 0 0);
+  --mute: oklch(0.52 0 0);
 
-  /* Semantic */
+  --rule: oklch(0.88 0 0);
+
   --breaking: oklch(0.5 0.22 27);
   --link: var(--brand);
   --focus-ring: oklch(0.55 0.18 25);
@@ -69,8 +66,8 @@
   --dur-base: 200ms;
   --dur-slow: 320ms;
 
-  --shadow-overlay: 0 8px 32px oklch(0.2 0.02 25 / 0.12);
-  --shadow-card: 0 1px 2px oklch(0.2 0.02 25 / 0.06);
+  --shadow-overlay: 0 8px 32px oklch(0 0 0 / 0.1);
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.06);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -81,8 +78,11 @@
     --brand-bar: oklch(0.42 0.18 25);
     --brand-bar-active: oklch(0.32 0.16 25);
 
+    --chrome: oklch(0 0 0);
+    --paper: oklch(0.985 0 0);
+
     --surface: oklch(0 0 0);
-    --surface-raised: oklch(0.14 0 0);
+    --surface-raised: oklch(0.12 0 0);
 
     --ink: oklch(0.96 0 0);
     --ink-soft: oklch(0.78 0 0);
@@ -113,8 +113,10 @@
   --brand-tint: oklch(0.16 0 0);
   --brand-bar: oklch(0.42 0.18 25);
   --brand-bar-active: oklch(0.32 0.16 25);
+  --chrome: oklch(0 0 0);
+  --paper: oklch(0.985 0 0);
   --surface: oklch(0 0 0);
-  --surface-raised: oklch(0.14 0 0);
+  --surface-raised: oklch(0.12 0 0);
   --ink: oklch(0.96 0 0);
   --ink-soft: oklch(0.78 0 0);
   --mute: oklch(0.62 0 0);
@@ -136,15 +138,17 @@
 :root[data-theme='light'] {
   --brand: oklch(0.55 0.18 25);
   --brand-strong: oklch(0.45 0.2 25);
-  --brand-tint: oklch(0.96 0.02 25);
+  --brand-tint: oklch(0.96 0.015 25);
   --brand-bar: oklch(0.42 0.18 25);
   --brand-bar-active: oklch(0.32 0.16 25);
-  --surface: oklch(0.985 0.004 25);
-  --surface-raised: oklch(0.99 0.003 25);
-  --ink: oklch(0.22 0.02 25);
-  --ink-soft: oklch(0.4 0.015 25);
-  --mute: oklch(0.55 0.014 25);
-  --rule: oklch(0.9 0.008 25);
+  --chrome: oklch(0 0 0);
+  --paper: oklch(0.985 0 0);
+  --surface: oklch(0.99 0 0);
+  --surface-raised: oklch(0.965 0 0);
+  --ink: oklch(0.2 0 0);
+  --ink-soft: oklch(0.4 0 0);
+  --mute: oklch(0.52 0 0);
+  --rule: oklch(0.88 0 0);
   --breaking: oklch(0.5 0.22 27);
   --focus-ring: oklch(0.55 0.18 25);
   --link: var(--brand);
@@ -155,8 +159,8 @@
   --aqi-moderate: oklch(0.62 0.12 85);
   --aqi-unhealthy: oklch(0.55 0.18 45);
   --aqi-severe: oklch(0.48 0.2 25);
-  --shadow-overlay: 0 8px 32px oklch(0.2 0.02 25 / 0.12);
-  --shadow-card: 0 1px 2px oklch(0.2 0.02 25 / 0.06);
+  --shadow-overlay: 0 8px 32px oklch(0 0 0 / 0.1);
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.06);
 }
 
 :where(a, button, [tabindex], input, select, textarea):focus-visible {

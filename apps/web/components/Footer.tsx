@@ -68,7 +68,7 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
   }))
 
   return (
-    <footer className="mt-14 border-t-4 border-brand bg-black text-white pb-20 lg:pb-0">
+    <footer className="mt-14 border-t-4 border-brand bg-chrome text-paper pb-20 lg:pb-0">
       <div className="mx-auto max-w-page px-4 py-10">
         <div className="flex flex-col gap-5 border-b border-white/15 pb-8 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-lg">

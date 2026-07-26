@@ -45,7 +45,7 @@ export default function GlobalError({
                   }
                   window.location.reload()
                 }}
-                className="min-h-13 border border-brand bg-brand px-6 text-meta font-bold text-surface hover:bg-brand-strong"
+                className="min-h-13 border border-brand bg-brand px-6 text-meta font-bold text-paper hover:bg-brand-strong"
                 lang="ne"
               >
                 पृष्ठ रिफ्रेश गर्नुहोस्

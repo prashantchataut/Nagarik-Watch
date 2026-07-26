@@ -83,7 +83,7 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
       data-condensed={condensed ? 'true' : 'false'}
     >
       {/* Band 1 — Black brand chrome: logo left, utilities right */}
-      <div className="nw-masthead__chrome border-b border-white/10 bg-black text-white">
+      <div className="nw-masthead__chrome border-b border-white/10 bg-chrome text-paper">
         <div className="mx-auto flex max-w-page items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3">
           <div className="flex shrink-0 items-center gap-1 md:hidden">
             <MobileNav locale={locale} navCategories={navCategories} account={account} />

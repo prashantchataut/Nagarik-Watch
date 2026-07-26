@@ -1,4 +1,4 @@
-@import '@nagarikwatch/ui/tokens.css';
+﻿@import '@nagarikwatch/ui/tokens.css';
 
 @tailwind base;
 @tailwind components;
@@ -7,7 +7,8 @@
 /*
  * apps/web base layer. Civic Crimson palette comes from tokens.css; this file only adds
  * element-level resets and component utilities that map onto those tokens.
- * Light mode: warm-tinted surfaces. Dark mode: true black (user requirement) — no brand wash.
+ * Light and dark share the same structure: flat page wash, black chrome, crimson desk.
+ * Dark page surface is true black. On-brand text uses --paper in both themes.
  */
 @layer base {
   html {
@@ -25,20 +26,9 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Soft atmosphere only in light mode. Dark stays flat black. */
-  :root[data-theme='light'] body,
-  :root:not([data-theme]) body {
-    background-image: linear-gradient(
-      180deg,
-      color-mix(in oklch, var(--ink) 2%, var(--surface)),
-      var(--surface) 18rem
-    );
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme='light']) body {
-      background-image: none;
-    }
+  /* Flat page wash in both themes — chrome carries brand, page stays neutral. */
+  body {
+    background-image: none;
   }
 
   :root[data-theme='dark'] body {
@@ -431,14 +421,14 @@
   }
   .admin-button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
   .admin-button:disabled { cursor: not-allowed; opacity: .52; }
-  .admin-button--primary { background: var(--brand); color: var(--surface); border: 1px solid var(--brand); }
+  .admin-button--primary { background: var(--brand); color: var(--paper); border: 1px solid var(--brand); }
   .admin-button--primary:hover:not(:disabled) { background: var(--brand-strong); border-color: var(--brand-strong); }
   .admin-button--secondary { border: 1px solid var(--rule); color: var(--ink); background: var(--surface); }
   .admin-button--secondary:hover:not(:disabled) { border-color: var(--brand); color: var(--brand-strong); }
   .admin-button--ghost { color: var(--ink-soft); background: transparent; border: 1px solid transparent; }
   .admin-button--ghost:hover:not(:disabled) { background: var(--brand-tint); color: var(--brand-strong); }
   .admin-button--danger { border: 1px solid color-mix(in oklch, var(--breaking) 35%, var(--rule)); color: var(--breaking); background: transparent; }
-  .admin-button--danger:hover:not(:disabled) { background: var(--breaking); color: var(--surface); }
+  .admin-button--danger:hover:not(:disabled) { background: var(--breaking); color: var(--paper); }
   .admin-field { display: grid; gap: .35rem; }
   .admin-field-label { color: var(--ink); font-size: .78rem; font-weight: 750; }
   .admin-field-label span { color: var(--brand); }
@@ -594,12 +584,13 @@
     flex-direction: column;
     justify-content: flex-end;
     gap: 1rem;
-    background: oklch(0.24 0.035 28);
-    color: oklch(0.96 0.006 28);
+    background: var(--chrome);
+    color: var(--paper);
     padding: 2.5rem 2.25rem;
+    border-right: 1px solid color-mix(in oklch, var(--paper) 12%, transparent);
   }
   .auth-editorial__eyebrow {
-    color: oklch(0.84 0.06 28);
+    color: color-mix(in oklch, var(--paper) 70%, var(--brand) 30%);
     font-size: .72rem;
     font-weight: 800;
     letter-spacing: .14em;
@@ -611,8 +602,9 @@
     font-weight: 750;
     line-height: 1.35;
     letter-spacing: -.02em;
+    color: var(--paper);
   }
-  .auth-editorial--newsroom { background: oklch(0.22 0.04 28); }
+  .auth-editorial--newsroom { background: var(--chrome); }
   .auth-editorial--newsroom::before,
   .auth-editorial--newsroom::after { display: none; }
   .auth-form-column {
@@ -668,8 +660,8 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    border-bottom: 1px solid var(--rule);
-    background: var(--surface);
+    border-bottom: 1px solid color-mix(in oklch, var(--paper) 12%, transparent);
+    background: var(--chrome);
     padding: .5rem 1rem;
   }
   .auth-chrome__logo { display: inline-flex; min-height: 2.75rem; align-items: center; }
@@ -677,11 +669,11 @@
     display: inline-flex;
     min-height: 2.75rem;
     align-items: center;
-    color: var(--ink-soft);
-    font-size: .84rem;
+    color: color-mix(in oklch, var(--paper) 80%, transparent);
+    font-size: .85rem;
     font-weight: 700;
   }
-  .auth-chrome__back:hover { color: var(--brand-strong); }
+  .auth-chrome__back:hover { color: var(--paper); }
   .auth-chrome__main { width: min(100%, 28rem); margin-inline: auto; }
 
   .account-page {
@@ -784,7 +776,7 @@
     cursor: pointer;
   }
   .account-btn:disabled { opacity: .6; cursor: wait; }
-  .account-btn--primary { border: 1px solid var(--brand); background: var(--brand); color: var(--surface); }
+  .account-btn--primary { border: 1px solid var(--brand); background: var(--brand); color: var(--paper); }
   .account-btn--primary:hover:not(:disabled) { background: var(--brand-strong); border-color: var(--brand-strong); }
   .account-btn--ghost { border: 1px solid var(--rule); background: transparent; color: var(--ink-soft); }
   .account-btn--ghost:hover:not(:disabled) { border-color: var(--breaking); color: var(--breaking); }
@@ -1085,7 +1077,7 @@
   .calendar-day.is-holiday { background: color-mix(in oklch, var(--brand-tint) 55%, transparent); }
   .calendar-day.is-holiday small { color: var(--brand-strong); font-weight: 750; }
   .calendar-day.has-event strong { color: var(--ink); }
-  .calendar-day.is-today strong { background: var(--brand); color: var(--surface); }
+  .calendar-day.is-today strong { background: var(--brand); color: var(--paper); }
   .calendar-day.is-selected { box-shadow: inset 0 0 0 2px var(--brand); }
   .calendar-day.is-selected:not(.is-today) { background: color-mix(in oklch, var(--brand-tint) 70%, var(--surface)); }
   .calendar-selection {
@@ -1524,7 +1516,7 @@
   .newsroom-studio__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
   .newsroom-studio__actions button { min-height: 2.75rem; border: 1px solid var(--rule); padding: .55rem .85rem; font-size: .76rem; font-weight: 850; }
   .newsroom-studio__actions button:focus-visible { outline: 2px solid var(--brand-tint); outline-offset: 2px; }
-  .newsroom-studio__actions button[data-primary='true'] { border-color: var(--brand); background: var(--brand); color: var(--surface); }
+  .newsroom-studio__actions button[data-primary='true'] { border-color: var(--brand); background: var(--brand); color: var(--paper); }
   .newsroom-studio__status { padding: .65rem 1rem; border-bottom: 1px solid var(--rule); background: var(--surface-raised); color: var(--ink); font-size: .78rem; font-weight: 800; }
   .newsroom-studio__status[data-type='error'] { background: color-mix(in oklch, var(--down) 12%, var(--surface)); color: var(--down); }
   .newsroom-assist { display: grid; gap: .65rem; border-bottom: 1px solid var(--rule); background: var(--surface-raised); padding: .85rem 1rem; }
@@ -1532,7 +1524,7 @@
   .newsroom-assist__actions, .newsroom-assist__decision { display: flex; flex-wrap: wrap; gap: .45rem; }
   .newsroom-assist button { min-height: 2.75rem; border: 1px solid var(--rule); background: var(--surface); padding: .45rem .65rem; font-size: .72rem; font-weight: 800; }
   .newsroom-assist button:focus-visible { outline: 2px solid var(--brand-tint); outline-offset: 2px; }
-  .newsroom-assist button[data-accept='true'] { border-color: var(--brand); background: var(--brand); color: var(--surface); }
+  .newsroom-assist button[data-accept='true'] { border-color: var(--brand); background: var(--brand); color: var(--paper); }
   .newsroom-assist__review { border-top: 1px solid var(--rule); padding-top: .65rem; }
   .newsroom-assist__review > p { color: var(--ink-soft); font-size: .72rem; }
   .newsroom-assist__review blockquote, .newsroom-assist__review > ul, .newsroom-assist__review > ol { margin: .55rem 0; border: 1px solid var(--rule); background: var(--surface); padding: .65rem; font-size: .82rem; line-height: 1.5; }
@@ -1561,7 +1553,7 @@
     color: var(--ink-soft);
   }
   .newsroom-studio__tabs { position: sticky; top: 3.5rem; z-index: 20; display: flex; gap: .85rem; overflow-x: auto; border-bottom: 1px solid var(--rule); background: var(--surface); padding-inline: 1rem; white-space: nowrap; }
-  .newsroom-studio__tabs span { min-width: 1rem; min-height: 1rem; display: inline-grid; place-items: center; margin-left: .25rem; background: var(--down); color: var(--surface); font-size: .62rem; border-radius: 999px; }
+  .newsroom-studio__tabs span { min-width: 1rem; min-height: 1rem; display: inline-grid; place-items: center; margin-left: .25rem; background: var(--down); color: var(--paper); font-size: .62rem; border-radius: 999px; }
   .newsroom-studio__layout { width: min(100%, 92rem); margin-inline: auto; }
   .newsroom-studio__canvas { min-width: 0; padding: 1rem 1rem 3.5rem; }
   .newsroom-studio__rail { display: grid; align-content: start; gap: 1rem; padding: 1rem 1rem 3.5rem; border-top: 1px solid var(--rule); background: var(--surface-raised); }
@@ -1831,7 +1823,7 @@
   .admin-feedback-control textarea { width: 100%; min-height: 6rem; border: 1px solid var(--rule); background: var(--surface); padding: .65rem; color: var(--ink); font-size: .82rem; line-height: 1.55; }
   .admin-feedback-control > div { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .55rem; }
   .admin-feedback-control button { min-height: 2.4rem; border: 1px solid var(--rule); padding: .45rem .65rem; color: var(--ink-soft); font-size: .7rem; font-weight: 800; }
-  .admin-feedback-control button:first-child { border-color: var(--brand); background: var(--brand); color: var(--surface); }
+  .admin-feedback-control button:first-child { border-color: var(--brand); background: var(--brand); color: var(--paper); }
   .admin-feedback-control p { margin-top: .4rem; color: var(--brand-strong); font-size: .7rem; font-weight: 750; }
 }
 

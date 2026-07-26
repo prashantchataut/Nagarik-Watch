@@ -519,7 +519,7 @@ function AdminSidebar({
 
       <div className="border-t border-rule p-2.5">
         <div className="flex items-start gap-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-brand text-caption font-bold text-surface">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-brand text-caption font-bold text-paper">
             {initials || 'N'}
           </span>
           <div className="min-w-0 flex-1">

@@ -45,9 +45,13 @@ export function ReaderLoginForm({ locale, next, notice, googleEnabled = false }:
           return
         }
         router.refresh()
-        router.push(safeNext(next) ?? (ne ? '/saved' : '/en/saved'))
+        router.push(safeNext(next) ?? (ne ? '/saved/' : '/en/saved/'))
       } catch {
-        setError(ne ? 'नेटवर्क त्रुटि।' : 'Network error.')
+        setError(
+          ne
+            ? 'लगइन सर्भर अहिले उपलब्ध छैन। सुरक्षित समाचार यस उपकरणमा अझै काम गर्छ।'
+            : 'Sign-in server is unavailable right now. Saved stories still work on this device.',
+        )
       }
     })
   }
@@ -98,7 +102,7 @@ export function ReaderLoginForm({ locale, next, notice, googleEnabled = false }:
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-surface transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {pending ? (
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'लगइन हुँदै…' : 'Signing in…'}</span>
@@ -111,18 +115,23 @@ export function ReaderLoginForm({ locale, next, notice, googleEnabled = false }:
 
       <div className="flex items-center justify-between text-caption">
         <Link
-          href={ne ? '/auth/forgot-password' : '/en/auth/forgot-password'}
+          href={ne ? '/auth/forgot-password/' : '/en/auth/forgot-password/'}
           className="text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline"
         >
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'पासवर्ड भुल्नुभयो?' : 'Forgot password?'}</span>
         </Link>
         <Link
-          href={`${ne ? '' : '/en'}/auth/signup${safeNext(next) ? `?next=${encodeURIComponent(safeNext(next)!)}` : ''}`}
+          href={`${ne ? '' : '/en'}/auth/signup/${safeNext(next) ? `?next=${encodeURIComponent(safeNext(next)!)}` : ''}`}
           className="font-semibold text-brand underline-offset-2 hover:underline"
         >
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'नयाँ खाता' : 'Sign up'}</span>
         </Link>
       </div>
+      <p className="text-center text-caption text-mute" lang={ne ? 'ne' : 'en'}>
+        <Link href={ne ? '/saved/' : '/en/saved/'} className="font-semibold text-brand-strong underline-offset-2 hover:underline">
+          {ne ? 'उपकरणमा सुरक्षित समाचार' : 'Saved stories on this device'}
+        </Link>
+      </p>
     </form>
   )
 }
