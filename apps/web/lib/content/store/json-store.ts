@@ -122,7 +122,13 @@ async function insertSeedArticles(pool: Queryable, articles: StoredArticle[]): P
     await pool.query(
       `INSERT INTO nw_articles (id, slug, category_slug, workflow_stage, published_at, updated_at, document)
        VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb)
-       ON CONFLICT (id) DO NOTHING`,
+       ON CONFLICT (id) DO UPDATE SET
+         slug = EXCLUDED.slug,
+         category_slug = EXCLUDED.category_slug,
+         workflow_stage = EXCLUDED.workflow_stage,
+         published_at = EXCLUDED.published_at,
+         updated_at = EXCLUDED.updated_at,
+         document = EXCLUDED.document`,
       [
         article.id,
         article.slug,
@@ -136,7 +142,16 @@ async function insertSeedArticles(pool: Queryable, articles: StoredArticle[]): P
   }
 }
 
-/** Insert any edition articles missing by id (never overwrite editor edits). */
+/** Drop legacy short starters so the full art-ed-* edition is the public inventory. */
+async function purgeLegacyStarterRows(pool: Queryable): Promise<void> {
+  await pool.query(`DELETE FROM nw_articles WHERE id LIKE 'art-nw-%'`)
+}
+
+function withoutLegacyStarters(articles: StoredArticle[]): StoredArticle[] {
+  return articles.filter((article) => !String(article.id).startsWith('art-nw-'))
+}
+
+/** Insert any edition articles missing by id (never overwrite non-seed editor rows). */
 function missingSeedArticles(existing: StoredArticle[]): StoredArticle[] {
   const haveIds = new Set(existing.map((article) => article.id))
   const haveSlugs = new Set(existing.map((article) => `${article.categorySlug}:${article.slug}`))
@@ -147,10 +162,11 @@ function missingSeedArticles(existing: StoredArticle[]): StoredArticle[] {
 }
 
 async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
+  await purgeLegacyStarterRows(pool)
   const result = await pool.query<{ document: unknown }>(`SELECT document FROM nw_articles`)
-  const articles = result.rows
-    .map((row) => parseDocument(row.document))
-    .filter((a): a is StoredArticle => Boolean(a))
+  const articles = withoutLegacyStarters(
+    result.rows.map((row) => parseDocument(row.document)).filter((a): a is StoredArticle => Boolean(a)),
+  )
 
   if (articles.length === 0) {
     const seeded = buildOriginalStarterArticles()
@@ -202,20 +218,23 @@ async function readFromFile(): Promise<StoreShape> {
   try {
     const raw = await fs.readFile(STORE_FILE, 'utf-8')
     const parsed = JSON.parse(raw) as StoreShape
-    if (!parsed.articles?.length) {
+    const existing = withoutLegacyStarters(parsed.articles ?? [])
+    if (!existing.length) {
       const seeded = buildOriginalStarterArticles()
       const store = { articles: seeded, version: 1 }
       await fs.mkdir(DATA_DIR, { recursive: true })
       await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
       return store
     }
-    const missing = missingSeedArticles(parsed.articles)
-    if (missing.length === 0) return parsed
-    const store = { articles: [...parsed.articles, ...missing], version: parsed.version ?? 1 }
-    try {
-      await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
-    } catch {
-      // Read-only FS — return merged in-memory edition for this process.
+    const missing = missingSeedArticles(existing)
+    const articles = missing.length ? [...existing, ...missing] : existing
+    const store = { articles, version: parsed.version ?? 1 }
+    if (missing.length || articles.length !== (parsed.articles?.length ?? 0)) {
+      try {
+        await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
+      } catch {
+        // Read-only FS — return merged in-memory edition for this process.
+      }
     }
     return store
   } catch {

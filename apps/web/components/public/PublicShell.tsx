@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { Suspense, type ReactNode } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { Masthead } from '@/components/Masthead'
 import { Footer } from '@/components/Footer'
@@ -23,6 +23,7 @@ import { localizeHref } from '@/lib/i18n/locales'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { HtmlLangSync } from '@/components/HtmlLangSync'
 import type { TopicChip } from '@/components/TopicsStrip'
+import { UtilityStrip } from '@/components/live/UtilityStrip'
 
 function buildTopicChips(locale: Locale, tags: Awaited<ReturnType<typeof getTags>>): TopicChip[] {
   const shortNe: Record<string, string> = {
@@ -95,6 +96,16 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
       </a>
       <SiteJsonLd siteName={PUBLICATION.publisherName} />
       <Masthead locale={locale} navCategories={navCategories} topics={topics} account={account} />
+      <Suspense
+        fallback={
+          <div
+            className="h-9 border-b border-rule bg-surface-raised"
+            aria-hidden="true"
+          />
+        }
+      >
+        <UtilityStrip locale={locale} />
+      </Suspense>
       <main id="main" className="min-h-[55vh] pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0">
         {children}
       </main>

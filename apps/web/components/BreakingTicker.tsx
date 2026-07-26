@@ -43,7 +43,11 @@ export function BreakingTicker({ stories, locale, className }: BreakingTickerPro
       aria-label={label}
     >
       <span
-        className="z-10 flex shrink-0 items-center gap-2 bg-breaking px-4 py-2 text-meta font-bold uppercase tracking-wide text-paper"
+        className={
+          locale === 'en'
+            ? 'z-10 flex shrink-0 items-center gap-2 bg-breaking px-4 py-2 text-meta font-bold uppercase tracking-wide text-paper'
+            : 'z-10 flex shrink-0 items-center gap-2 bg-breaking px-4 py-2 text-meta font-bold tracking-normal text-paper'
+        }
         lang={locale === 'en' ? 'en' : 'ne'}
       >
         {/* Pulsing live dot — the "this is happening now" affordance. */}

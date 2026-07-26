@@ -10,9 +10,11 @@ export type TopicChip = {
   href: string
   label: string
   lang?: string
+  /** Optional small mark / thumb URL (data: SVG ok at this size). */
+  imageUrl?: string
 }
 
-/** Dense topics rail under the category desk, with a search affordance. */
+/** Dense topics rail under the category desk, with search. */
 export function TopicsStrip({
   locale,
   topics,
@@ -30,25 +32,41 @@ export function TopicsStrip({
       aria-label={locale === 'en' ? 'Topics' : 'विषय'}
       className="nw-masthead__topics border-b border-rule bg-surface-raised"
     >
-      <div className="mx-auto flex max-w-page items-center gap-3 px-3 py-1.5 sm:px-4">
-        <ul className="flex min-w-0 flex-1 items-center gap-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {topics.map((topic, index) => {
+      <div className="mx-auto flex max-w-page items-center gap-2 px-3 py-1.5 sm:gap-3 sm:px-4">
+        <ul className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {topics.map((topic) => {
             const active = pathsMatch(pathname, topic.href)
+            const initial = topic.label.trim().charAt(0) || '·'
             return (
-              <li key={`${topic.href}-${topic.label}`} className="flex shrink-0 items-center">
-                {index > 0 ? (
-                  <span className="mx-2 h-3 w-px bg-rule" aria-hidden="true" />
-                ) : null}
+              <li key={`${topic.href}-${topic.label}`} className="shrink-0">
                 <Link
                   href={topic.href}
                   lang={topic.lang ?? (locale === 'en' ? 'en' : 'ne')}
                   aria-current={active ? 'page' : undefined}
                   className={
                     active
-                      ? 'inline-flex min-h-8 items-center whitespace-nowrap text-caption font-bold text-brand-strong'
-                      : 'inline-flex min-h-8 items-center whitespace-nowrap text-caption font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:text-ink'
+                      ? 'inline-flex min-h-9 items-center gap-1.5 rounded-sm bg-brand-tint px-2 text-caption font-bold text-brand-strong'
+                      : 'inline-flex min-h-9 items-center gap-1.5 rounded-sm px-2 text-caption font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint/60 hover:text-ink'
                   }
                 >
+                  {topic.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- tiny chip mark; next/image is overkill
+                    <img
+                      src={topic.imageUrl}
+                      alt=""
+                      width={18}
+                      height={18}
+                      className="h-[18px] w-[18px] rounded-full object-cover"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <span
+                      className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-full bg-brand text-[0.6rem] font-black text-paper"
+                      aria-hidden="true"
+                    >
+                      {initial}
+                    </span>
+                  )}
                   {topic.label}
                 </Link>
               </li>
@@ -58,7 +76,7 @@ export function TopicsStrip({
         {searchHref ? (
           <Link
             href={searchHref}
-            className="hidden min-h-8 shrink-0 items-center gap-2 rounded-md border border-rule bg-surface px-3 text-caption font-semibold text-mute transition-colors duration-fast ease-out-quint hover:border-ink-soft hover:text-ink sm:inline-flex"
+            className="hidden min-h-9 shrink-0 items-center gap-2 rounded-sm border border-rule bg-surface px-3 text-caption font-semibold text-mute transition-colors duration-fast ease-out-quint hover:border-ink-soft hover:text-ink sm:inline-flex"
             lang={locale === 'en' ? 'en' : 'ne'}
           >
             <IconSearch />

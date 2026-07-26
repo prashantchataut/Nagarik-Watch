@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
+import Link from 'next/link'
 import { Hero, StoryCard } from '@nagarikwatch/ui'
-import { asLocale } from '@/lib/i18n/locales'
+import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getHomepage, getNavCategories } from '@/lib/content'
 import { dedupeHomepage } from '@/lib/content/homepage-dedup'
 import { BreakingTicker } from '@/components/BreakingTicker'
@@ -20,11 +22,9 @@ import {
 import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 import { NewsletterInline } from '@/components/NewsletterInline'
-import { UtilityStrip } from '@/components/live/UtilityStrip'
 import { TodayInHistory } from '@/components/home/TodayInHistory'
 import { PhotoOfTheDay } from '@/components/home/PhotoOfTheDay'
-import Link from 'next/link'
-import { localizeHref } from '@/lib/i18n/locales'
+import { MostReadRail } from '@/components/home/MostReadRail'
 
 export async function generateMetadata({
   params,
@@ -75,11 +75,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const briefStories = latest.filter((s) => !secondaryIds.has(s.id)).slice(0, 5)
   const briefPool = briefStories.length >= 3 ? briefStories : latest.slice(0, 5)
 
+  const mostRead = latest.filter((s) => !secondaryIds.has(s.id)).slice(0, 6)
+
   const sectionLayouts = ['desk', 'stack', 'mosaic'] as const
 
   const today = new Date()
   const monthDay = `${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
-  const historyStories = catalog
+  const anniversaryStories = catalog
     .filter((story) => {
       const published = new Date(story.publishedAt)
       if (Number.isNaN(published.getTime())) return false
@@ -87,21 +89,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       const md = `${String(published.getUTCMonth() + 1).padStart(2, '0')}-${String(published.getUTCDate()).padStart(2, '0')}`
       return md === monthDay
     })
-    .slice(0, 4)
+    .slice(0, 5)
+  const archiveFallback = [...catalog]
+    .sort((a, b) => Date.parse(a.publishedAt) - Date.parse(b.publishedAt))
+    .slice(0, 5)
+  const historyStories = anniversaryStories.length >= 2 ? anniversaryStories : archiveFallback
+  const historyMode = anniversaryStories.length >= 2 ? 'anniversary' : 'archive'
+
   const photoOfDay =
     catalog.find(
       (story) =>
         Boolean(story.hasGallery) ||
         (Boolean(story.heroImage?.url) &&
-          !story.heroImage!.url.startsWith('data:') &&
-          (story.tags?.some((t) => t.slug === 'photo-story') ||
-            story.category.slug === 'photos')),
+          (story.tags?.some((t) => t.slug === 'photo-story') || story.category.slug === 'photos')),
     ) ||
-    catalog.find(
-      (story) =>
-        Boolean(story.heroImage?.url) && !story.heroImage!.url.startsWith('data:'),
-    ) ||
-    null
+    catalog.find((story) => Boolean(story.heroImage?.url)) ||
+    edition.lead
 
   const topSections = edition.sections.slice(0, 3)
   const moreSections = edition.sections.slice(3)
@@ -112,6 +115,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
       <div className="mx-auto max-w-page px-3 pt-3 sm:px-4 sm:pt-4">
+        <AdSlot
+          locale={locale}
+          placementKey="home-top"
+          variant="inline"
+          className="mb-4"
+        />
+
         {/* Front page: lead + also-today */}
         <section
           className="grid gap-5 border-b border-rule pb-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(17rem,0.75fr)] xl:items-start xl:gap-6 xl:pb-6"
@@ -176,9 +186,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             ))}
           </div>
           <aside className="hidden min-w-0 xl:block">
-            <TodayInBrief stories={briefPool} locale={locale} className="sticky top-28" />
+            <div className="sticky top-28 space-y-6">
+              <TodayInBrief stories={briefPool} locale={locale} />
+              <MostReadRail stories={mostRead} locale={locale} />
+              {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
+            </div>
           </aside>
         </div>
+
+        <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="mt-6" />
 
         <ProvinceHub locale={locale} className="mt-6 sm:mt-7" />
 
@@ -197,20 +213,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         <div className="mt-6 grid gap-6 border-t border-rule pt-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-8 xl:hidden">
           <TodayInBrief stories={briefPool} locale={locale} />
-          {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
-        </div>
-
-        {activePoll ? (
-          <div className="mt-6 hidden border-t border-rule pt-6 xl:block">
-            <div className="mx-auto max-w-xl">
-              <PollOfDay locale={locale} poll={activePoll} />
-            </div>
+          <div className="space-y-6">
+            <MostReadRail stories={mostRead} locale={locale} />
+            {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
           </div>
-        ) : null}
-      </div>
-
-      <div className="mt-6">
-        <UtilityStrip locale={locale} />
+        </div>
       </div>
 
       <div className="mx-auto max-w-page px-3 pb-10 sm:px-4 lg:pb-12">
@@ -221,7 +228,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           className="mt-6"
         />
 
-        <section className="mt-6 border border-rule bg-surface-raised px-4 py-4 sm:px-5 sm:py-5" aria-labelledby="home-newsletter">
+        <section
+          className="mt-6 border border-rule bg-surface-raised px-4 py-4 sm:px-5 sm:py-5"
+          aria-labelledby="home-newsletter"
+        >
           <div className="mx-auto max-w-xl">
             <h2 id="home-newsletter" className="sr-only" lang={english ? 'en' : 'ne'}>
               {english ? 'Newsletter' : 'न्युजलेटर'}
@@ -230,14 +240,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </section>
 
-        <RecommendedForYou locale={locale} catalog={catalog} className="mt-6" />
+        <Suspense fallback={null}>
+          <RecommendedForYou locale={locale} catalog={catalog} className="mt-6" />
+        </Suspense>
 
         <div className="mt-6 grid gap-6 border-t border-rule pt-6 lg:grid-cols-2 lg:gap-8">
-          <TodayInHistory locale={locale} stories={historyStories} />
+          <TodayInHistory locale={locale} stories={historyStories} mode={historyMode} />
           <PhotoOfTheDay locale={locale} story={photoOfDay} />
         </div>
-
-        <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="mt-6" />
       </div>
     </div>
   )

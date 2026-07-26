@@ -101,6 +101,6 @@ function resolveShell(pathWithoutEnPrefix: string): 'public' | 'auth' | 'journal
 
 export const config = {
   matcher: [
-    '/((?!api|feeds/|_next/static|_next/image|favicon.ico|favicon.png|icon.png|icon.svg|apple-icon.png|robots.txt|sitemap.xml|news-sitemap.xml|rss.xml|atom.xml|ads.txt|sellers.json|llms.txt|llms-full.txt|manifest.webmanifest|sw.js|opengraph-image.png).*)',
+    '/((?!api|feeds/|_next/static|_next/image|media/|favicon.ico|favicon.png|icon.png|icon.svg|apple-icon.png|robots.txt|sitemap.xml|news-sitemap.xml|rss.xml|atom.xml|ads.txt|sellers.json|llms.txt|llms-full.txt|manifest.webmanifest|sw.js|opengraph-image.png).*)',
   ],
 }

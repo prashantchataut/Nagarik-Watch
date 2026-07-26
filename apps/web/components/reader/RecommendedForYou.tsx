@@ -160,34 +160,71 @@ export function RecommendedForYou({ locale, catalog, className }: { locale: Loca
     <section className={`recommendation-desk ${className ?? ''}`} aria-label={locale === 'en' ? 'Recommended for you' : 'तपाईंका लागि सिफारिस'}>
       <header className="recommendation-desk__header">
         <div>
-          <p className="text-meta font-semibold text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
+          <h2 className="font-display text-h3 font-extrabold text-ink" lang={lang}>
             {locale === 'en' ? 'For you' : 'तपाईंका लागि'}
+          </h2>
+          <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
+          <p className="mt-2 max-w-[65ch] text-meta leading-relaxed text-ink-soft" lang={lang}>
+            {enabled
+              ? locale === 'en'
+                ? synced
+                  ? 'Ranked from follows, saves, completion and freshness.'
+                  : 'Using this device until account sync returns.'
+                : synced
+                  ? 'पछ्याइएका विषय, सुरक्षित समाचार र ताजापनका आधारमा।'
+                  : 'सिङ्क नहुँदासम्म यो उपकरणको डेटा।'
+              : locale === 'en'
+                ? 'Editorial freshness until you enable personalization.'
+                : 'व्यक्तिगत सिफारिस नखोलेसम्म सम्पादकीय ताजा क्रम।'}
           </p>
-          <h2 lang={lang}>{locale === 'en' ? 'A more useful next read' : 'अब पढ्न उपयोगी समाचार'}</h2>
-          <p lang={lang}>{enabled
-            ? locale === 'en' ? `Ranked from explicit follows, saved stories, reading completion and freshness. ${synced ? 'Account signals are synced.' : 'Using this device until sync returns.'}` : `तपाईंले पछ्याएका विषय, सुरक्षित समाचार, पढाइ पूरा भएको अवस्था र ताजापनका आधारमा। ${synced ? 'खाताको डेटा सिङ्क छ।' : 'सिङ्क नहुँदासम्म यो उपकरणको डेटा प्रयोग हुँदैछ।'}`
-            : locale === 'en' ? 'Using transparent editorial freshness until you choose personalization.' : 'तपाईंले व्यक्तिगत सिफारिस नखोलेसम्म पारदर्शी सम्पादकीय ताजा क्रम प्रयोग हुन्छ।'}</p>
         </div>
         <div className="recommendation-desk__controls">
-          {!enabled ? <button type="button" onClick={enable} className="text-action" lang={lang}>{locale === 'en' ? 'Enable personal recommendations' : 'व्यक्तिगत सिफारिस खोल्नुहोस्'}</button> : null}
-          <Link href={`${locale === 'en' ? '/en' : ''}/how-recommendations-work`} className="text-action" lang={lang}>{locale === 'en' ? 'How this works' : 'यो कसरी काम गर्छ'}</Link>
+          {!enabled ? (
+            <button type="button" onClick={enable} className="text-action" lang={lang}>
+              {locale === 'en' ? 'Personalize' : 'व्यक्तिगत बनाउनुहोस्'}
+            </button>
+          ) : null}
+          <Link
+            href={`${locale === 'en' ? '/en' : ''}/how-recommendations-work`}
+            className="text-action"
+            lang={lang}
+          >
+            {locale === 'en' ? 'How this works' : 'यो कसरी काम गर्छ'}
+          </Link>
         </div>
       </header>
 
-      {unfinished ? <a href={`${locale === 'en' ? '/en' : ''}/${unfinished.category.slug}/${unfinished.slug}`} className="recommendation-desk__continue" lang={lang}><span>{locale === 'en' ? 'Continue reading' : 'पढाइ जारी'}</span><strong>{locale === 'en' && unfinished.titleEn ? unfinished.titleEn : unfinished.titleNe}</strong></a> : null}
+      {unfinished ? (
+        <a
+          href={`${locale === 'en' ? '/en' : ''}/${unfinished.category.slug}/${unfinished.slug}`}
+          className="recommendation-desk__continue"
+          lang={lang}
+        >
+          <span>{locale === 'en' ? 'Continue reading' : 'पढाइ जारी'}</span>
+          <strong>
+            {locale === 'en' && unfinished.titleEn ? unfinished.titleEn : unfinished.titleNe}
+          </strong>
+        </a>
+      ) : null}
 
       <div className="recommendation-desk__grid">
         {recommendations.map((story, index) => (
           <article key={story.id} className="recommendation-desk__item" data-featured={index === 0}>
             <span className="recommendation-desk__reason">{reasonLabel(story.recStrategy, locale)}</span>
-            <StoryCard story={story} locale={locale} variant={index === 0 ? 'featured' : 'text-led'} />
+            <StoryCard
+              story={story}
+              locale={locale}
+              variant={index === 0 ? 'featured' : 'horizontal'}
+            />
           </article>
         ))}
       </div>
 
       {digest.length ? (
         <div className="recommendation-desk__digest" aria-label={locale === 'en' ? 'Daily digest picks' : 'दैनिक सार छनोट'}>
-          <p className="editorial-kicker" lang="en">Daily digest</p>
+          <p className="text-meta font-bold text-brand-strong" lang={lang}>
+            {locale === 'en' ? 'Daily digest' : 'दैनिक सार'}
+          </p>
           <ol>
             {digest.map((story) => (
               <li key={story.id}>

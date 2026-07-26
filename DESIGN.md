@@ -355,7 +355,7 @@ both themes. This stops light mode reading as an inverted portal., -
 
 - Do opinion/columns use a serif for editorial distinction, or stay in the system sans?
 - Final masthead wordmark treatment (Devanagari-primary lockup vs bilingual stacked).
-- Live reference: keep a single compact strip, or fold weather into the masthead?
+- ~~Live reference: keep a single compact strip, or fold weather into the masthead?~~ **Resolved 2026-07-26:** one compact Markets strip under masthead/topics (UtilityStrip), not mid-page.
 
 ## Decision log
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="interview women entrepreneur">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1A0A0A"/>
+      <stop offset="55%" stop-color="#8B1E1E"/>
+      <stop offset="100%" stop-color="#1A0A0A"/>
+    </linearGradient>
+    <linearGradient id="mist" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#F4EDE4" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#F4EDE4" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#g)"/>
+  <circle cx="340" cy="100" r="140" fill="#F4EDE4" fill-opacity="0.08"/>
+  <circle cx="1240" cy="240" r="230" fill="#F4EDE4" fill-opacity="0.1"/>
+  <rect x="0" y="620" width="1600" height="280" fill="url(#mist)"/>
+  <rect x="72" y="72" width="14" height="120" fill="#F4EDE4"/>
+  <text x="110" y="120" fill="#F4EDE4" font-family="Georgia, serif" font-size="42" font-weight="700">नागरिक वाच</text>
+  <text x="110" y="168" fill="#F4EDE4" fill-opacity="0.75" font-family="system-ui, sans-serif" font-size="22" letter-spacing="4">NAGARIK WATCH</text>
+  <text x="72" y="760" fill="#F4EDE4" font-family="Georgia, serif" font-size="48" font-weight="700">interview women entrepreneur</text>
+  <text x="72" y="820" fill="#F4EDE4" fill-opacity="0.7" font-family="system-ui, sans-serif" font-size="24">Original edition · २०८३</text>
+</svg>

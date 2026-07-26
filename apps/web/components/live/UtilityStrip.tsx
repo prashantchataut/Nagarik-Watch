@@ -27,13 +27,13 @@ export async function UtilityStrip({ locale }: { locale: Locale }) {
 
   return (
     <div
-      className="border-y border-rule bg-surface-raised"
+      className="border-b border-rule bg-surface-raised"
       role="complementary"
       aria-label={locale === 'en' ? 'Daily reference line' : 'दैनिक सन्दर्भ लाइन'}
     >
-      <div className="mx-auto flex max-w-page items-center gap-4 overflow-x-auto px-3 py-2 text-caption text-ink-soft sm:gap-5 sm:px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="mx-auto flex max-w-page items-center gap-3 overflow-x-auto px-3 py-1.5 text-caption text-ink-soft sm:gap-4 sm:px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <span className="shrink-0 font-bold text-brand-strong" lang={lang}>
-          {locale === 'en' ? 'Reference' : 'सन्दर्भ'}
+          {locale === 'en' ? 'Markets' : 'बजार'}
         </span>
         <ReaderPlaceLive locale={locale} variant="strip" />
         {items.map((item) => {

@@ -61,7 +61,7 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
 
   return (
     <div>
-      <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={lang}>
+      <p className="text-meta font-semibold text-ink-soft" lang={lang}>
         {labels.heading}
       </p>
       <form onSubmit={submit} className="mt-3 flex flex-col gap-2" noValidate>
