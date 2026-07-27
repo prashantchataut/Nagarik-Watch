@@ -14,7 +14,7 @@ import { JournalistArticleDraftForm } from '@/components/journalist/JournalistAr
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
 
 export const metadata: Metadata = { title: 'New journalist article', robots: { index: false, follow: false } }
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 const TEMPLATES: Record<string, string> = {
   spot: '## के भयो\n\n[घटनाको मुख्य तथ्य — को, के, कहिले, कहाँ]\n\n## किन महत्त्वपूर्ण\n\n[पाठकलाई किन चासो]\n\n## के भन्छन् सम्बन्धित पक्ष\n\n> [उद्धरण]\n\n## अगाडि के हुन्छ\n\n[अर्को कदम / अनुसन्धान बाँकी]',

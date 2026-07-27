@@ -150,7 +150,7 @@ export default async function ArticlePage({
   )
 
   return (
-    <article className="pb-12 print:pb-0">
+    <article className="pb-10 print:pb-0">
       <SpeculationRules prerenderUrls={relatedHrefs.slice(0, 2)} prefetchUrls={relatedHrefs} />
       <ArticleJsonLd
         article={article}
@@ -163,183 +163,223 @@ export default async function ArticlePage({
         url={canonical}
         cssSelectors={['article h1', 'article .article-deck']}
       />
-      <header
-        className="mx-auto max-w-[43rem] px-4 pb-7 pt-10 sm:pt-14"
-        lang={readingEnglish ? 'en' : 'ne'}
-      >
-        {englishMissing ? (
-          <p
-            className="mb-4 border border-rule bg-surface-raised px-3 py-2 text-meta text-ink-soft print:hidden"
-            lang="en"
-            role="status"
+
+      <div className="mx-auto max-w-page px-4 pt-8 sm:pt-10">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:items-start lg:gap-x-10">
+          <div className="min-w-0">
+            <header className="max-w-body border-b border-rule pb-6" lang={readingEnglish ? 'en' : 'ne'}>
+              {englishMissing ? (
+                <p
+                  className="mb-4 border border-rule bg-surface-raised px-3 py-2 text-meta text-ink-soft print:hidden"
+                  lang="en"
+                  role="status"
+                >
+                  An English translation is not available for this story yet. Showing the Nepali edition.{' '}
+                  <Link
+                    href={`/${category}/${slug}`}
+                    className="font-bold text-brand-strong underline-offset-2 hover:underline"
+                  >
+                    Open Nepali URL
+                  </Link>
+                </p>
+              ) : null}
+              <div className="flex flex-wrap items-center gap-2">
+                <CategoryLabel category={article.category} locale={readingLocale} />
+                {membershipPublic && article.premium ? (
+                  <span className="rounded-md border border-brand bg-brand-tint px-2 py-0.5 text-caption font-bold text-brand-strong">
+                    {readingEnglish ? 'Member' : 'सदस्य'}
+                  </span>
+                ) : null}
+                <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
+              </div>
+              <h1 className="mt-4 font-display text-h1 leading-tight tracking-[-0.02em] text-ink sm:text-display">
+                {title}
+              </h1>
+              {deck ? (
+                <p className="article-deck mt-4 text-body-lg leading-relaxed text-ink-soft">
+                  {deck}
+                </p>
+              ) : null}
+              <div className="article-trust-ledger mt-5">
+                <Byline
+                  authors={article.authors}
+                  locale={readingLocale}
+                  publishedAt={article.publishedAt}
+                  source={article.source}
+                />
+                <dl className="article-trust-ledger__facts mt-4">
+                  <div>
+                    <dt className="sr-only">{readingEnglish ? 'Reading time' : 'पढाइ समय'}</dt>
+                    <dd>
+                      {readingEnglish
+                        ? `${article.readingMinutes} min read`
+                        : `${article.readingMinutes} मिनेट पढाइ`}
+                    </dd>
+                  </div>
+                  {article.updatedAt ? (
+                    <div>
+                      <dt className="sr-only">{readingEnglish ? 'Updated' : 'अद्यावधिक'}</dt>
+                      <dd>
+                        {readingEnglish ? 'Updated' : 'अद्यावधिक'}:{' '}
+                        {formatDate(article.updatedAt, readingLocale)}
+                      </dd>
+                    </div>
+                  ) : null}
+                  {article.factCheckStatus === 'verified' ? (
+                    <div>
+                      <dt className="sr-only">{readingEnglish ? 'Fact check' : 'तथ्य जाँच'}</dt>
+                      <dd className="text-up">
+                        {readingEnglish ? 'Facts verified' : 'तथ्य प्रमाणित'}
+                      </dd>
+                    </div>
+                  ) : null}
+                  <div>
+                    <dt className="sr-only">{readingEnglish ? 'Source' : 'स्रोत'}</dt>
+                    <dd>
+                      {article.source
+                        ? readingEnglish
+                          ? 'Source-linked report'
+                          : 'स्रोत लिंक गरिएको समाचार'
+                        : readingEnglish
+                          ? 'Nagarik Watch newsroom'
+                          : 'नागरिक वाच न्युजरुम'}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </header>
+
+            {article.heroImage ? (
+              <figure className="mt-6 max-w-body">
+                <div className="relative aspect-[16/9] overflow-hidden border border-rule bg-surface-raised">
+                  <Image
+                    src={article.heroImage.url}
+                    alt={article.heroImage.alt}
+                    fill
+                    priority
+                    unoptimized={article.heroImage.url.startsWith('data:')}
+                    sizes="(min-width: 1024px) 680px, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+                {article.heroCaptionNe || article.heroCredit ? (
+                  <figcaption className="mt-2 text-caption leading-relaxed text-ink-soft">
+                    {article.heroCaptionNe}
+                    {article.heroCaptionNe && article.heroCredit ? ', ' : ''}
+                    {article.heroCredit}
+                  </figcaption>
+                ) : null}
+              </figure>
+            ) : null}
+
+            <div id="article-reading-column" className="mt-6 max-w-body min-w-0">
+              <div className="sticky top-[4.25rem] z-30 -mx-1 mb-5 border-b border-rule bg-surface/95 px-1 py-2 backdrop-blur-sm print:hidden sm:top-[5rem]">
+                <ReaderArticleControls
+                  story={article}
+                  locale={readingLocale}
+                  title={title}
+                  href={href}
+                  shareUrl={canonical}
+                  articleSlug={slug}
+                  articleCategory={category}
+                  readingMinutes={article.readingMinutes}
+                  premiumReader={premiumReader}
+                  membershipPublic={membershipPublic}
+                />
+              </div>
+              <ReadingProgress locale={readingLocale} targetId="article-reading-column" />
+              <ArticleBody
+                blocks={openingBody}
+                locale={readingLocale}
+                source={article.source}
+                className="mt-2"
+              />
+              <AdSlot
+                locale={readingLocale}
+                placementKey="article-top-billboard"
+                variant="billboard"
+                className="print:hidden"
+              />
+              {remainingBody.length ? (
+                <ArticleBody blocks={remainingBody} locale={readingLocale} className="mt-8" />
+              ) : null}
+              <ReactionBar
+                locale={readingLocale}
+                articleSlug={slug}
+                articleCategory={category}
+              />
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-5 print:hidden">
+                <ShareBar
+                  url={canonical}
+                  title={title}
+                  locale={readingLocale}
+                  articleSlug={slug}
+                  articleCategory={category}
+                  variant="compact"
+                />
+              </div>
+              <AdSlot
+                locale={readingLocale}
+                placementKey="article-native-related"
+                variant="native"
+                className="print:hidden"
+              />
+              {membershipPublic && !canReadFull ? <PaywallNotice locale={readingLocale} /> : null}
+              {article.corrections?.length ? (
+                <CorrectionNotice
+                  corrections={article.corrections}
+                  locale={readingLocale}
+                  className="mt-8"
+                />
+              ) : null}
+              <p
+                className="mt-6 flex flex-wrap gap-x-4 gap-y-1 text-meta text-ink-soft print:hidden"
+                lang={readingEnglish ? 'en' : 'ne'}
+              >
+                <span>{readingEnglish ? 'See an error?' : 'त्रुटि देख्नुभयो?'}</span>
+                <Link
+                  href={localizeHref(readingLocale, '/contact')}
+                  className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+                >
+                  {readingEnglish ? 'Request a correction' : 'सच्याइ अनुरोध गर्नुहोस्'}
+                </Link>
+                <Link
+                  href={localizeHref(readingLocale, '/corrections-policy')}
+                  className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+                >
+                  {readingEnglish ? 'Corrections policy' : 'सच्याइ नीति'}
+                </Link>
+              </p>
+              <TagRow
+                tags={article.tags}
+                locale={readingLocale}
+                className="mt-8 border-t border-rule pt-6"
+              />
+              <div className="print:hidden">
+                <CommentSection
+                  articleSlug={article.slug}
+                  articleCategory={article.category.slug}
+                  locale={readingLocale}
+                  commentsEnabled={article.commentsEnabled !== false}
+                />
+              </div>
+            </div>
+          </div>
+
+          <aside
+            className="hidden space-y-6 print:hidden lg:block"
+            aria-label={readingEnglish ? 'Advertisement' : 'विज्ञापन'}
           >
-            An English translation is not available for this story yet. Showing the Nepali edition.{' '}
-            <Link href={`/${category}/${slug}`} className="font-bold text-brand-strong underline-offset-2 hover:underline">
-              Open Nepali URL
-            </Link>
-          </p>
-        ) : null}
-        <div className="flex flex-wrap items-center gap-2">
-          <CategoryLabel category={article.category} locale={readingLocale} />
-          {membershipPublic && article.premium ? (
-            <span className="rounded-md border border-brand bg-brand-tint px-2 py-0.5 text-caption font-bold text-brand-strong">
-              {readingEnglish ? 'Member' : 'सदस्य'}
-            </span>
-          ) : null}
-          <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
+            <AdSlot locale={readingLocale} placementKey="article-sidebar-top" variant="rail" />
+            <div className="sticky top-24 space-y-6">
+              <AdSlot locale={readingLocale} placementKey="article-sidebar-sticky" variant="rail" />
+            </div>
+          </aside>
         </div>
-        <h1 className="mt-5 max-w-[22ch] font-display text-h1 leading-tight tracking-[-0.02em] text-ink sm:text-display">
-          {title}
-        </h1>
-        {deck ? (
-          <p className="article-deck mt-5 max-w-[48rem] text-body-lg leading-relaxed text-ink-soft">
-            {deck}
-          </p>
-        ) : null}
-        <div className="article-trust-ledger mt-6">
-          <Byline
-            authors={article.authors}
-            locale={readingLocale}
-            publishedAt={article.publishedAt}
-            source={article.source}
-          />
-          <ShareBar
-            url={canonical}
-            title={title}
-            locale={readingLocale}
-            articleSlug={slug}
-            articleCategory={category}
-            className="mt-4 print:hidden"
-          />
-          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-meta text-ink-soft print:hidden">
-            <span>
-              {readingEnglish
-                ? `${article.readingMinutes} min read`
-                : `${article.readingMinutes} मिनेट पढाइ`}
-            </span>
-            {article.updatedAt ? (
-              <span>
-                {readingEnglish ? 'Updated' : 'अद्यावधिक'}:{' '}
-                {formatDate(article.updatedAt, readingLocale)}
-              </span>
-            ) : null}
-            {article.factCheckStatus === 'verified' ? (
-              <span className="text-up">{readingEnglish ? 'Facts verified' : 'तथ्य प्रमाणित'}</span>
-            ) : null}
-            {article.source ? (
-              <span>{readingEnglish ? 'Source-linked report' : 'स्रोत लिंक गरिएको समाचार'}</span>
-            ) : (
-              <span>{readingEnglish ? 'Nagarik Watch newsroom' : 'नागरिक वाच न्युजरुम'}</span>
-            )}
-          </div>
-        </div>
-      </header>
 
-      {article.heroImage ? (
-        <figure className="mx-auto max-w-[76rem] px-0 sm:px-4">
-          <div className="relative aspect-[16/9] overflow-hidden bg-surface-raised">
-            <Image
-              src={article.heroImage.url}
-              alt={article.heroImage.alt}
-              fill
-              priority
-              unoptimized={article.heroImage.url.startsWith('data:')}
-              sizes="(min-width: 1280px) 1216px, 100vw"
-              className="object-cover"
-            />
-          </div>
-          {article.heroCaptionNe || article.heroCredit ? (
-            <figcaption className="px-4 pt-2 text-caption leading-relaxed text-ink-soft sm:px-0">
-              {article.heroCaptionNe}
-              {article.heroCaptionNe && article.heroCredit ? ', ' : ''}
-              {article.heroCredit}
-            </figcaption>
-          ) : null}
-        </figure>
-      ) : null}
-
-      <div className="mx-auto mt-8 grid max-w-[76rem] gap-10 px-4 lg:grid-cols-[minmax(0,43rem)_18rem] lg:justify-center">
-        <div id="article-reading-column" className="min-w-0">
-          <div className="sticky top-[4.5rem] z-30 -mx-1 mb-6 bg-surface/95 px-1 py-2 backdrop-blur-sm print:hidden sm:top-[5.25rem]">
-            <ReaderArticleControls
-              story={article}
-              locale={readingLocale}
-              title={title}
-              href={href}
-              shareUrl={canonical}
-              articleSlug={slug}
-              articleCategory={category}
-              readingMinutes={article.readingMinutes}
-              premiumReader={premiumReader}
-              membershipPublic={membershipPublic}
-            />
-          </div>
-          <ReadingProgress locale={readingLocale} targetId="article-reading-column" />
-          <ArticleBody
-            blocks={openingBody}
-            locale={readingLocale}
-            source={article.source}
-            className="mt-6"
-          />
-          <AdSlot locale={readingLocale} placementKey="article-top-billboard" variant="billboard" className="print:hidden" />
-          {remainingBody.length ? (
-            <ArticleBody blocks={remainingBody} locale={readingLocale} className="mt-8" />
-          ) : null}
-          <ReactionBar
-            locale={readingLocale}
-            articleSlug={slug}
-            articleCategory={category}
-          />
-          <ShareBar
-            url={canonical}
-            title={title}
-            locale={readingLocale}
-            articleSlug={slug}
-            articleCategory={category}
-            className="mt-6 print:hidden"
-          />
-          <AdSlot locale={readingLocale} placementKey="article-native-related" variant="native" className="print:hidden" />
-          {membershipPublic && !canReadFull ? <PaywallNotice locale={readingLocale} /> : null}
-          {article.corrections?.length ? (
-            <CorrectionNotice corrections={article.corrections} locale={readingLocale} className="mt-8" />
-          ) : null}
-          <p className="mt-6 flex flex-wrap gap-x-4 gap-y-1 text-meta text-ink-soft print:hidden" lang={readingEnglish ? 'en' : 'ne'}>
-            <span>{readingEnglish ? 'See an error?' : 'त्रुटि देख्नुभयो?'}</span>
-            <Link
-              href={localizeHref(readingLocale, '/contact')}
-              className="font-semibold text-brand-strong underline-offset-2 hover:underline"
-            >
-              {readingEnglish ? 'Request a correction' : 'सच्याइ अनुरोध गर्नुहोस्'}
-            </Link>
-            <Link
-              href={localizeHref(readingLocale, '/corrections-policy')}
-              className="font-semibold text-brand-strong underline-offset-2 hover:underline"
-            >
-              {readingEnglish ? 'Corrections policy' : 'सच्याइ नीति'}
-            </Link>
-          </p>
-          <TagRow tags={article.tags} locale={readingLocale} className="mt-8 border-t border-rule pt-6" />
-          <div className="print:hidden">
-            <CommentSection
-              articleSlug={article.slug}
-              articleCategory={article.category.slug}
-              locale={readingLocale}
-              commentsEnabled={article.commentsEnabled !== false}
-            />
-          </div>
+        <div className="mt-12 border-t border-rule pt-10 print:hidden">
+          <RelatedStories stories={related} locale={readingLocale} />
         </div>
-        <aside
-          className="hidden space-y-8 print:hidden lg:block"
-          aria-label={readingEnglish ? 'Advertisement' : 'विज्ञापन'}
-        >
-          <AdSlot locale={readingLocale} placementKey="article-sidebar-top" variant="rail" />
-          <div className="sticky top-24">
-            <AdSlot locale={readingLocale} placementKey="article-sidebar-sticky" variant="rail" />
-          </div>
-        </aside>
-      </div>
-      <div className="mx-auto mt-14 max-w-page px-4 print:hidden">
-        <RelatedStories stories={related} locale={readingLocale} />
       </div>
     </article>
   )

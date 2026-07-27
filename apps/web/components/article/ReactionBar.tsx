@@ -94,8 +94,8 @@ export function ReactionBar({
       aria-label={en ? 'Article reactions' : 'समाचार प्रतिक्रिया'}
       lang={en ? 'en' : 'ne'}
     >
-      <p className="text-caption font-bold uppercase tracking-wide text-mute">
-        {en ? 'React' : 'प्रतिक्रिया'}
+      <p className="text-meta font-bold text-ink-soft">
+        {en ? 'Your reaction' : 'तपाईंको प्रतिक्रिया'}
       </p>
       <ul className="mt-3 flex flex-wrap gap-2">
         {REACTION_EMOJIS.map((emoji) => (

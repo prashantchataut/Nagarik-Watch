@@ -5,7 +5,7 @@ import { AdminPageHeader, AdminCard, OpsCheckBadge } from '@/components/admin/pr
 import { sampleSyndicationReadiness } from '@/lib/syndication/readiness'
 
 export const metadata: Metadata = { title: 'एसइओ', robots: { index: false, follow: false } }
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 export default async function SeoPage() {
   await requireNewsroomSession()

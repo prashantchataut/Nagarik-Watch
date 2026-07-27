@@ -14,7 +14,7 @@ import {
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
 
 export const metadata: Metadata = { title: 'Journalist tools', robots: { index: false, follow: false } }
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 const TEMPLATES = [
   {

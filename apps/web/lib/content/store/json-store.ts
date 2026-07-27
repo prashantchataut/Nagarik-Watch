@@ -187,6 +187,45 @@ function missingSeedArticles(existing: StoredArticle[]): StoredArticle[] {
   )
 }
 
+const EDITION_MIN_BODY_WORDS = 300
+
+function editionBodyWords(blocks: StoredArticle['bodyNe']): number {
+  return blocks
+    .map((b) => {
+      if ('text' in b && typeof b.text === 'string') return b.text
+      if (b.type === 'pullQuote') return b.quoteNe
+      if (b.type === 'list') return b.items.join(' ')
+      return ''
+    })
+    .join(' ')
+    .split(/\s+/)
+    .filter(Boolean).length
+}
+
+/** Replace stale short art-ed-* rows with the current long-form edition modules. */
+async function refreshEditionArticles(
+  pool: Queryable,
+  articles: StoredArticle[],
+): Promise<StoredArticle[]> {
+  const canonical = new Map(
+    buildOriginalStarterArticles()
+      .filter((article) => article.id.startsWith('art-ed-'))
+      .map((article) => [article.id, article] as const),
+  )
+  let changed = false
+  const next = articles.map((article) => {
+    if (!article.id.startsWith('art-ed-')) return article
+    const fresh = canonical.get(article.id)
+    if (!fresh) return article
+    if (editionBodyWords(article.bodyNe) >= EDITION_MIN_BODY_WORDS) return article
+    changed = true
+    return fresh
+  })
+  if (!changed) return next
+  await insertSeedArticles(pool, [...canonical.values()])
+  return next
+}
+
 async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
   await purgeLegacyStarterRows(pool)
   const result = await pool.query<{ document: unknown }>(`SELECT document FROM nw_articles`)
@@ -201,13 +240,14 @@ async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
   }
 
   const articles = await repairStaleEditionHeroes(pool, rawArticles)
-  const missing = missingSeedArticles(articles)
+  const refreshed = await refreshEditionArticles(pool, articles)
+  const missing = missingSeedArticles(refreshed)
   if (missing.length > 0) {
     const normalizedMissing = normalizeArticles(missing)
     await insertSeedArticles(pool, normalizedMissing)
-    return { articles: [...articles, ...normalizedMissing], version: 1 }
+    return { articles: [...refreshed, ...normalizedMissing], version: 1 }
   }
-  return { articles, version: 1 }
+  return { articles: refreshed, version: 1 }
 }
 
 async function writeToPostgres(pool: Queryable, store: StoreShape): Promise<void> {

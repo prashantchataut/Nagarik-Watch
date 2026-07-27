@@ -12,15 +12,10 @@ type ShareBarProps = {
   className?: string
   articleSlug?: string
   articleCategory?: string
+  /** Compact icon-first row for article footers. */
+  variant?: 'default' | 'compact'
 }
 
-/**
- * Inline share affordance (no modal — the brief bans modal-as-first-thought). Three
- * controls: copy-link (clipboard API + a transient "Copied" state announced via
- * aria-live), Facebook share, and X/Twitter share. The social targets open in a small
- * window with noopener/noreferrer. Copy degrades silently when the clipboard API is
- * unavailable (older Safari / insecure context) so the bar never throws.
- */
 export function ShareBar({
   url,
   title,
@@ -28,10 +23,12 @@ export function ShareBar({
   className,
   articleSlug,
   articleCategory,
+  variant = 'default',
 }: ShareBarProps) {
   const dict = getDictionary(locale)
   const [copied, setCopied] = useState(false)
   const abs = resolveAbsolute(url)
+  const compact = variant === 'compact'
 
   function trackShare() {
     if (!articleSlug) return
@@ -60,33 +57,38 @@ export function ShareBar({
 
   return (
     <div
-      className={cn('flex flex-wrap items-center gap-2', className)}
+      className={cn(
+        compact ? 'flex flex-wrap items-center gap-2' : 'flex flex-wrap items-center gap-2',
+        className,
+      )}
       role="group"
       aria-label={dict.shareLabel}
     >
-      <span
-        className="mr-1 text-meta font-semibold text-ink-soft"
-        lang={locale === 'en' ? 'en' : 'ne'}
-      >
-        {dict.shareLabel}
-      </span>
+      {!compact ? (
+        <span
+          className="mr-1 text-meta font-semibold text-ink-soft"
+          lang={locale === 'en' ? 'en' : 'ne'}
+        >
+          {dict.shareLabel}
+        </span>
+      ) : null}
       <a
         href={fb}
         target="_blank"
         rel="noopener noreferrer"
-        className="article-action-link"
+        className={compact ? 'article-share-pill' : 'article-action-link'}
         aria-label={dict.shareFacebook}
         onClick={trackShare}
         lang={locale === 'en' ? 'en' : 'ne'}
       >
         <FacebookIcon />
-        {dict.shareFacebook}
+        {compact ? null : dict.shareFacebook}
       </a>
       <a
         href={x}
         target="_blank"
         rel="noopener noreferrer"
-        className="article-icon-action"
+        className={compact ? 'article-share-pill' : 'article-icon-action'}
         aria-label={dict.shareTwitter}
         onClick={trackShare}
       >
@@ -95,11 +97,11 @@ export function ShareBar({
       <button
         type="button"
         onClick={onCopy}
-        className="article-action-link"
+        className={compact ? 'article-share-pill' : 'article-action-link'}
         lang={locale === 'en' ? 'en' : 'ne'}
       >
         <LinkIcon />
-        {copied ? dict.shareCopied : dict.shareCopyLink}
+        {compact ? (copied ? dict.shareCopied : dict.shareCopyLink) : copied ? dict.shareCopied : dict.shareCopyLink}
       </button>
       <span aria-live="polite" className="sr-only">
         {copied ? dict.shareCopied : ''}
@@ -129,7 +131,7 @@ function legacyCopy(text: string) {
   try {
     document.execCommand('copy')
   } catch {
-    // Silent: clipboard unavailable; the button simply won't confirm.
+    /* clipboard unavailable */
   }
   document.body.removeChild(ta)
 }

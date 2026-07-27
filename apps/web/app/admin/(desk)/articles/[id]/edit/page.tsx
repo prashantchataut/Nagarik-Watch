@@ -11,7 +11,7 @@ import type { ArticleBlock } from '@nagarikwatch/db'
 import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 import { listMediaItems } from '@/lib/media-library'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 export function generateStaticParams() {
   return staticArticleIdParams()

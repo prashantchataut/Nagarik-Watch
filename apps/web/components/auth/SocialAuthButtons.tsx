@@ -26,12 +26,13 @@ export function SocialAuthButtons({
       const response = await fetch('/api/auth/sign-in/social', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           provider: 'google',
-          callbackURL: locale === 'en' ? '/en' : '/',
+          callbackURL: locale === 'en' ? '/en/auth/profile' : '/auth/profile',
         }),
       })
-      const result = await response.json() as { url?: string }
+      const result = (await response.json()) as { url?: string }
       if (!response.ok || !result.url) throw new Error('Google sign-in could not start.')
       window.location.assign(result.url)
     } catch {
@@ -39,8 +40,6 @@ export function SocialAuthButtons({
       setPending(false)
     }
   }
-
-  if (!googleEnabled) return null
 
   return (
     <div className="auth-social">
@@ -50,8 +49,8 @@ export function SocialAuthButtons({
       <button
         type="button"
         className="auth-social__google"
-        disabled={pending}
-        aria-disabled={pending}
+        disabled={!googleEnabled || pending}
+        aria-disabled={!googleEnabled || pending}
         onClick={() => void signInWithGoogle()}
       >
         <GoogleGlyph />
@@ -60,14 +59,24 @@ export function SocialAuthButtons({
             ? ne
               ? 'गुगल खोल्दै…'
               : 'Opening Google…'
-            : ne
-              ? 'गुगलसँग जारी राख्नुहोस्'
-              : 'Continue with Google'}
+            : googleEnabled
+              ? ne
+                ? 'गुगलसँग जारी राख्नुहोस्'
+                : 'Continue with Google'
+              : ne
+                ? 'गुगल साइन-इन (चाँडै)'
+                : 'Google sign-in (coming soon)'}
         </span>
       </button>
       {error ? (
         <p className="auth-social__hint" role="alert" lang={ne ? 'ne' : 'en'}>
           {ne ? 'गुगल साइन-इन सुरु गर्न सकिएन।' : 'Google sign-in could not be started.'}
+        </p>
+      ) : !googleEnabled ? (
+        <p className="auth-social__hint" lang={ne ? 'ne' : 'en'}>
+          {ne
+            ? 'गुगल लगइन सक्रिय भएपछि यहाँबाट साइन इन गर्न सकिनेछ।'
+            : 'Google sign-in will appear here once the provider is enabled.'}
         </p>
       ) : null}
     </div>

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 function pct(value: number): string {
   return `${Math.round(value * 100)}%`

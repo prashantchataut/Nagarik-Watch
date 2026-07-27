@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 const STAGE_LABELS: Record<StoredArticle['workflowStage'], string> = {
   idea: 'विचार',

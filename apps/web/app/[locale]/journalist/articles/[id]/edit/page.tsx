@@ -17,7 +17,7 @@ export function generateStaticParams() {
   return staticLocaleArticleIdParams()
 }
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 export const metadata: Metadata = { title: 'Edit journalist draft', robots: { index: false, follow: false } }
 
 export default async function JournalistEditPage({ params }: { params: Promise<{ locale: string; id: string }> }) {

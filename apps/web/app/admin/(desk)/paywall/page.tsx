@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 function subscriptionStatusTone(status: string): 'success' | 'attention' | 'neutral' | 'danger' {
   if (status === 'active' || status === 'trialing' || status === 'comped') return 'success'

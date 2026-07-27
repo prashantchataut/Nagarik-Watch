@@ -9,7 +9,7 @@ import { listJournalistDraftMeta } from '@/lib/journalist-workspace'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
 
 export const metadata: Metadata = { title: 'Journalist dashboard', robots: { index: false, follow: false } }
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 export default async function JournalistDashboard({ params }: { params: Promise<{ locale: string }> }) {
   const locale: Locale = asLocale((await params).locale)

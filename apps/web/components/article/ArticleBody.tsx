@@ -92,8 +92,7 @@ export function CorrectionNotice({
               <time dateTime={correction.at} className="font-semibold text-ink">
                 {label}: {formatCorrectionDate(correction.at, locale)}
               </time>
-              <span className="mx-2 text-mute">·</span>
-              <span>{summary}</span>
+              <span className="text-ink-soft">, {summary}</span>
             </li>
           )
         })}
@@ -120,7 +119,7 @@ export function TagRow({
       aria-label={label}
       lang={lang}
     >
-      <span className="mr-1 text-meta font-semibold uppercase tracking-wide text-ink-soft">
+      <span className="mr-2 text-meta font-semibold text-ink-soft">
         {label}
       </span>
       {tags.map((tag) => {

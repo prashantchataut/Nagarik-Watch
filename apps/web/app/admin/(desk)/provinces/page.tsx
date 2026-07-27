@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 /**
  * Provinces. Nepal's seven provinces (lib/site.ts). The article-count

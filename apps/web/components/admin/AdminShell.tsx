@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { AdminWorkflowStrip } from '@/components/admin/AdminWorkflowStrip'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import type { NewsroomSession } from '@/lib/auth/session'
@@ -375,7 +376,10 @@ export function AdminShell({
           </p>
         ) : null}
 
-        <main className="admin-main">{children}</main>
+        <main className="admin-main">
+          <AdminWorkflowStrip role={role} />
+          {children}
+        </main>
       </div>
     </div>
   )

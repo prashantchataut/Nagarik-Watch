@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { Logo } from '@/components/Logo'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
 
 export const metadata: Metadata = {
   title: 'न्युजरुम · नागरिक वाच',
@@ -8,12 +10,17 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
+export const dynamic = 'force-dynamic'
+
 /**
- * Staff landing used when the dynamic admin desk is unavailable (static export)
- * or as the honest entry before login. Full ops UI lives under /admin/login when
- * auth APIs are deployed (OpenNext/Workers), or on Payload via NEXT_PUBLIC_CMS_ADMIN_URL.
+ * Staff landing. On the live app host, send editors straight to login.
+ * Static Pages export keeps the honest gateway copy.
  */
 export default function AdminIndexPage() {
+  if (hasLivePublicApi()) {
+    redirect('/admin/login')
+  }
+
   const cms =
     process.env.NEXT_PUBLIC_CMS_ADMIN_URL?.trim() ||
     process.env.PAYLOAD_ADMIN_URL?.trim() ||

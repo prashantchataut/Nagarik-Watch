@@ -8,7 +8,7 @@ import { AdminPageHeader, AdminEmptyState, AdminFilterLink, AdminCard, AdminTabl
 import { CommentModerationActions } from '@/components/admin/CommentModerationActions'
 
 export const metadata: Metadata = { title: 'टिप्पणी', robots: { index: false, follow: false } }
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 const allowed = new Set<CommentStatus | 'all'>(['pending', 'approved', 'rejected', 'flagged', 'all'])
 

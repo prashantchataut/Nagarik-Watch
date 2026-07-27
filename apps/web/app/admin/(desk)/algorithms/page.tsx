@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 const STATUS_TONE: Record<AlgorithmStatus, 'success' | 'attention' | 'neutral' | 'danger'> = {
   live: 'success',

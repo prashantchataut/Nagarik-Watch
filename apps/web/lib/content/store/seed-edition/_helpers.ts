@@ -1,6 +1,7 @@
 import type { ArticleBlock } from '@nagarikwatch/db'
 import type { StoredArticle } from '../json-store'
 import { placeholder } from '../../seed/media'
+import { expandEditionBody, expandEditionEnglish } from './_longform'
 
 export const EDITION_MEDIA_DIR = '/media/edition-2026-07'
 
@@ -90,9 +91,24 @@ type BasePartial = Pick<
   Partial<StoredArticle>
 
 export function base(partial: BasePartial, createdBy = 'newsroom-edition-2026-07'): StoredArticle {
-  const bodyNe = partial.bodyNe
-  const words = wordCount(bodyNe)
   const slug = partial.slug
+  const bodyNe = expandEditionBody(partial.bodyNe, {
+    slug,
+    titleNe: partial.titleNe,
+    deckNe: partial.deckNe,
+    categorySlug: partial.categorySlug,
+    reportingLocation: partial.reportingLocation,
+  })
+  const bodyEn = expandEditionEnglish(partial.bodyEn, {
+    slug,
+    titleNe: partial.titleNe,
+    titleEn: partial.titleEn,
+    deckNe: partial.deckNe,
+    deckEn: partial.deckEn,
+    categorySlug: partial.categorySlug,
+    reportingLocation: partial.reportingLocation,
+  })
+  const words = wordCount(bodyNe)
   const generatedHero = heroUrl(slug, partial.categorySlug, partial.titleNe)
   const heroImageUrl =
     partial.heroImageUrl?.startsWith('data:') || partial.heroImageUrl?.startsWith('http')
@@ -114,6 +130,8 @@ export function base(partial: BasePartial, createdBy = 'newsroom-edition-2026-07
     heroCaptionNe: partial.heroCaptionNe ?? partial.deckNe,
     heroCredit: 'नागरिक वाच',
     ...partial,
+    bodyNe,
+    bodyEn,
     heroImageUrl,
     hasEnglish: Boolean(partial.titleEn && partial.bodyEn?.length),
     readingMinutes: Math.max(2, Math.round(words / 200)),

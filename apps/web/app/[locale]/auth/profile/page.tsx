@@ -3,7 +3,7 @@ import type { Locale } from '@nagarikwatch/db'
 import { asLocale } from '@/lib/i18n/locales'
 import { ReaderProfileClient } from '@/components/reader/ReaderProfileClient'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Account',

@@ -338,26 +338,32 @@ export function ReaderArticleControls({
         onToggleNarrator={toggleNarrator}
       />
       <div className="article-utility-bar__status" aria-live="polite">
-        <span>
+        <span className="article-utility-bar__time">
           <strong>{remaining}</strong> {locale === 'en' ? 'min left' : 'मिनेट बाँकी'}
         </span>
         {meter ? (
-          <span>
+          <span className="hidden sm:inline">
             {locale === 'en'
-              ? `Free reads this session: ${meter.count}/${meter.limit}`
-              : `यो सत्रका निःशुल्क पढाइ: ${meter.count}/${meter.limit}`}
+              ? `Free reads: ${meter.count}/${meter.limit}`
+              : `निःशुल्क पढाइ: ${meter.count}/${meter.limit}`}
           </span>
         ) : null}
         {historySyncFailed ? (
           <span data-warning="true">
-            {locale === 'en' ? 'Device-only history' : 'इतिहास उपकरणमा मात्र'}
+            {locale === 'en' ? 'Device-only history' : 'इतिहास उपकरणमा'}
           </span>
         ) : null}
-        {!personalized ? <span>{locale === 'en' ? 'History off' : 'इतिहास बन्द'}</span> : null}
+        {!personalized ? (
+          <span className="hidden md:inline">{locale === 'en' ? 'History off' : 'इतिहास बन्द'}</span>
+        ) : null}
       </div>
       {showFeedback ? (
-        <div className="article-feedback" role="group" aria-label={locale === 'en' ? 'Article feedback' : 'समाचार प्रतिक्रिया'}>
-          <span>{locale === 'en' ? 'Was this report useful?' : 'यो समाचार उपयोगी भयो?'}</span>
+        <div
+          className="article-feedback"
+          role="group"
+          aria-label={locale === 'en' ? 'Article feedback' : 'समाचार प्रतिक्रिया'}
+        >
+          <span>{locale === 'en' ? 'Was this useful?' : 'यो समाचार उपयोगी भयो?'}</span>
           <button
             type="button"
             onClick={() => {
