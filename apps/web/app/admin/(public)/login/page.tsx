@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: 'Staff-only sign in to the Nagarik Watch newsroom.',
   robots: { index: false, follow: false },
 }
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 
 export default async function AdminLoginPage({
   searchParams,

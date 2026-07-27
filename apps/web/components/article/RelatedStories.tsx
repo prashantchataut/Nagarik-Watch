@@ -8,6 +8,7 @@ type RelatedStoriesProps = {
   className?: string
 }
 
+/** Editorial "read next" rail at the foot of articles. */
 export function RelatedStories({ stories, locale, className }: RelatedStoriesProps) {
   if (stories.length === 0) return null
   const dict = getDictionary(locale)
@@ -17,33 +18,22 @@ export function RelatedStories({ stories, locale, className }: RelatedStoriesPro
   return (
     <section className={className} aria-label={dict.relatedStories}>
       <div className="border-b border-rule pb-3">
-        <p
-          className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
-          lang="en"
-        >
-          Recommendation desk
-        </p>
-        <h2 className="mt-1 font-display text-h1 font-extrabold text-ink" lang={lang}>
+        <h2 className="font-display text-h3 font-extrabold text-ink sm:text-h2" lang={lang}>
           {locale === 'en' ? 'Read next' : 'अब के पढ्ने'}
         </h2>
-        <p className="mt-1 max-w-body text-meta text-ink-soft" lang={lang}>
+        <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
+        <p className="mt-2 max-w-[42rem] text-meta leading-relaxed text-ink-soft" lang={lang}>
           {locale === 'en'
-            ? 'Picked by category match, title similarity and freshness. Sponsored items are penalised.'
-            : 'विभाग, शीर्षक समानता र ताजापनका आधारमा छानिएको। प्रायोजित सामग्रीलाई तल राखिन्छ।'}
+            ? 'Matched by section, headline overlap, and freshness.'
+            : 'विभाग, शीर्षक मिलान र ताजापनका आधारमा छानिएको।'}
         </p>
       </div>
-      <div className="mt-6 grid gap-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.95fr)]">
+      <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.95fr)] lg:gap-8">
         {lead ? <StoryCard story={lead} locale={locale} variant="featured" /> : null}
         <ol className="divide-y divide-rule border-y border-rule">
-          {rest.map((story, index) => (
-            <li
-              key={story.slug}
-              className="grid grid-cols-[2.25rem_1fr] gap-3 py-3 first:pt-0 last:pb-0"
-            >
-              <span className="pt-1 font-mono text-caption font-bold text-mute">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <StoryCard story={story} locale={locale} variant="text-led" />
+          {rest.map((story) => (
+            <li key={story.slug} className="py-3 first:pt-0 last:pb-0">
+              <StoryCard story={story} locale={locale} variant="horizontal" />
             </li>
           ))}
         </ol>

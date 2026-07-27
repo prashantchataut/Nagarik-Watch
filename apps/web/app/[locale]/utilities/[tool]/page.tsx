@@ -2,11 +2,17 @@ import { staticUtilityToolParams } from '@/lib/static-export-params'
 import { notFound } from 'next/navigation'
 import { asLocale } from '@/lib/i18n/locales'
 import { UtilityPageShell } from '@/components/utilities/UtilityPageShell'
-import { AgeCalculatorTool, CurrencyConverterTool, DateConverterTool, PreetiUnicodeTool, UnitConverterTool } from '@/components/utilities/UtilityTools'
+import {
+  AgeCalculatorTool,
+  CurrencyConverterTool,
+  DateConverterTool,
+  PreetiUnicodeTool,
+  UnitConverterTool,
+} from '@/components/utilities/UtilityTools'
 import { NepaliCalendar } from '@/components/utilities/NepaliCalendar'
+import { getRealForex } from '@/lib/live/real'
 
 export const dynamic = 'force-static'
-
 export function generateStaticParams() {
   return staticUtilityToolParams()
 }
@@ -27,11 +33,29 @@ export default async function UtilityToolPage({ params }: { params: Promise<{ lo
   if (!item) notFound()
   const en = locale === 'en'
   let content
-  if (tool === 'calendar') content = <NepaliCalendar locale={locale}/>
-  else if (tool === 'date-converter') content = <DateConverterTool locale={locale}/>
-  else if (tool === 'preeti-unicode') content = <PreetiUnicodeTool locale={locale}/>
-  else if (tool === 'currency') content = <CurrencyConverterTool locale={locale}/>
-  else if (tool === 'age-calculator') content = <AgeCalculatorTool locale={locale}/>
-  else content = <UnitConverterTool locale={locale}/>
-  return <UtilityPageShell locale={locale} eyebrow={en ? 'Nagarik utility' : 'नागरिक उपयोगिता'} title={en ? item[0] : item[1]} description={en ? item[2] : item[3]} currentPath={`/utilities/${tool}`}>{content}</UtilityPageShell>
+  if (tool === 'calendar') content = <NepaliCalendar locale={locale} />
+  else if (tool === 'date-converter') content = <DateConverterTool locale={locale} />
+  else if (tool === 'preeti-unicode') content = <PreetiUnicodeTool locale={locale} />
+  else if (tool === 'currency') {
+    const forex = await getRealForex(locale)
+    content = (
+      <CurrencyConverterTool
+        locale={locale}
+        rates={forex.data ?? []}
+        source={forex.source}
+      />
+    )
+  } else if (tool === 'age-calculator') content = <AgeCalculatorTool locale={locale} />
+  else content = <UnitConverterTool locale={locale} />
+
+  return (
+    <UtilityPageShell
+      locale={locale}
+      title={en ? item[0] : item[1]}
+      description={en ? item[2] : item[3]}
+      currentPath={`/utilities/${tool}`}
+    >
+      {content}
+    </UtilityPageShell>
+  )
 }

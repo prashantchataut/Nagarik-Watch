@@ -144,27 +144,21 @@ export async function PublicHubPage({
 
       {compactStories.length > 0 ? (
         <section className="mt-10">
-          <div className="mb-5 flex items-center gap-4 border-b border-rule pb-3">
-            <h2 className="font-display text-h2 text-ink" lang={lang}>
+          <div className="border-b border-rule pb-3">
+            <h2 className="font-display text-h3 font-extrabold text-ink sm:text-h2" lang={lang}>
               {locale === 'en' ? 'More in this section' : 'यस खण्डका थप सामग्री'}
             </h2>
-            <span className="h-px flex-1 bg-rule" aria-hidden="true" />
+            <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
           </div>
-          <div className="grid gap-x-7 gap-y-9 md:grid-cols-2 xl:grid-cols-3">
-            {compactStories.map((story, index) => (
-              <InstrumentedStory
-                key={story.slug}
-                articleSlug={story.slug}
-                articleCategory={story.category.slug}
-              >
-                <StoryCard
-                  story={story}
-                  locale={locale}
-                  variant={index % 3 === 0 ? 'text-led' : 'compact'}
-                />
-              </InstrumentedStory>
+          <ul className="mt-5 divide-y divide-rule border-y border-rule sm:grid sm:grid-cols-2 sm:divide-y-0 xl:grid-cols-3">
+            {compactStories.map((story) => (
+              <li key={story.slug} className="py-3 sm:border-b sm:border-rule sm:px-2">
+                <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
+                  <StoryCard story={story} locale={locale} variant="horizontal" />
+                </InstrumentedStory>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       ) : null}
     </div>
@@ -180,19 +174,17 @@ function ReaderSubmissionWorkflow({ locale }: { locale: Locale }) {
 
   return (
     <section className="mt-8 border-y border-rule bg-surface-raised py-6" lang={lang}>
-      <h2 className="font-display text-h2 text-ink">
+      <h2 className="font-display text-h3 font-extrabold text-ink sm:text-h2">
         {locale === 'en' ? 'Reader submission workflow' : 'पाठक सबमिसन कार्यप्रवाह'}
       </h2>
+      <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
       <ol className="mt-4 grid border border-rule text-body text-ink-soft md:grid-cols-4">
-        {steps.map((step, index) => (
+        {steps.map((step) => (
           <li
             key={step}
-            className="border-b border-rule p-4 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
+            className="border-b border-rule p-4 font-semibold text-ink last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
           >
-            <span className="block text-caption font-semibold text-brand-strong">
-              {locale === 'en' ? `Step ${index + 1}` : `चरण ${index + 1}`}
-            </span>
-            <span>{step}</span>
+            {step}
           </li>
         ))}
       </ol>

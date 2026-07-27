@@ -161,6 +161,15 @@ const nextConfig = {
       },
     ]
   },
+  async rewrites() {
+    return [
+      // Edition heroes were compressed PNG → JPEG; stale Postgres/HTML may still request .png.
+      {
+        source: '/media/edition-2026-07/:slug.png',
+        destination: '/media/edition-2026-07/:slug.jpg',
+      },
+    ]
+  },
 }
 
 export default nextConfig

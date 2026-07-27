@@ -10,6 +10,7 @@ import path from 'node:path'
 import type { ArticleBlock, Locale, WorkflowStage } from '@nagarikwatch/db'
 import { ensureOperationalSchema, isProductionRuntime, runSchemaStatements, type Queryable } from '@/lib/ops-db'
 import { buildOriginalStarterArticles } from './seed-original'
+import { normalizeEditionHeroUrl } from './seed-edition/_helpers'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import {
   assertWorkflowTransition,
@@ -151,6 +152,31 @@ function withoutLegacyStarters(articles: StoredArticle[]): StoredArticle[] {
   return articles.filter((article) => !String(article.id).startsWith('art-nw-'))
 }
 
+function normalizeStoredArticle(article: StoredArticle): StoredArticle {
+  const heroImageUrl = normalizeEditionHeroUrl(article.heroImageUrl, article.slug)
+  if (heroImageUrl === article.heroImageUrl) return article
+  return { ...article, heroImageUrl }
+}
+
+function normalizeArticles(articles: StoredArticle[]): StoredArticle[] {
+  return articles.map(normalizeStoredArticle)
+}
+
+/** Refresh art-ed-* rows when Postgres still has pre-JPEG hero paths. */
+async function repairStaleEditionHeroes(
+  pool: Queryable,
+  articles: StoredArticle[],
+): Promise<StoredArticle[]> {
+  const normalized = normalizeArticles(articles)
+  const stale = normalized.filter(
+    (article, index) => article.heroImageUrl !== articles[index]?.heroImageUrl,
+  )
+  if (stale.length > 0) {
+    await insertSeedArticles(pool, stale)
+  }
+  return normalized
+}
+
 /** Insert any edition articles missing by id (never overwrite non-seed editor rows). */
 function missingSeedArticles(existing: StoredArticle[]): StoredArticle[] {
   const haveIds = new Set(existing.map((article) => article.id))
@@ -164,20 +190,22 @@ function missingSeedArticles(existing: StoredArticle[]): StoredArticle[] {
 async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
   await purgeLegacyStarterRows(pool)
   const result = await pool.query<{ document: unknown }>(`SELECT document FROM nw_articles`)
-  const articles = withoutLegacyStarters(
+  const rawArticles = withoutLegacyStarters(
     result.rows.map((row) => parseDocument(row.document)).filter((a): a is StoredArticle => Boolean(a)),
   )
 
-  if (articles.length === 0) {
-    const seeded = buildOriginalStarterArticles()
+  if (rawArticles.length === 0) {
+    const seeded = normalizeArticles(buildOriginalStarterArticles())
     await insertSeedArticles(pool, seeded)
     return { articles: seeded, version: 1 }
   }
 
+  const articles = await repairStaleEditionHeroes(pool, rawArticles)
   const missing = missingSeedArticles(articles)
   if (missing.length > 0) {
-    await insertSeedArticles(pool, missing)
-    return { articles: [...articles, ...missing], version: 1 }
+    const normalizedMissing = normalizeArticles(missing)
+    await insertSeedArticles(pool, normalizedMissing)
+    return { articles: [...articles, ...normalizedMissing], version: 1 }
   }
   return { articles, version: 1 }
 }
@@ -218,15 +246,15 @@ async function readFromFile(): Promise<StoreShape> {
   try {
     const raw = await fs.readFile(STORE_FILE, 'utf-8')
     const parsed = JSON.parse(raw) as StoreShape
-    const existing = withoutLegacyStarters(parsed.articles ?? [])
+    const existing = normalizeArticles(withoutLegacyStarters(parsed.articles ?? []))
     if (!existing.length) {
-      const seeded = buildOriginalStarterArticles()
+      const seeded = normalizeArticles(buildOriginalStarterArticles())
       const store = { articles: seeded, version: 1 }
       await fs.mkdir(DATA_DIR, { recursive: true })
       await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
       return store
     }
-    const missing = missingSeedArticles(existing)
+    const missing = normalizeArticles(missingSeedArticles(existing))
     const articles = missing.length ? [...existing, ...missing] : existing
     const store = { articles, version: parsed.version ?? 1 }
     if (missing.length || articles.length !== (parsed.articles?.length ?? 0)) {
@@ -238,7 +266,7 @@ async function readFromFile(): Promise<StoreShape> {
     }
     return store
   } catch {
-    const seeded = buildOriginalStarterArticles()
+    const seeded = normalizeArticles(buildOriginalStarterArticles())
     const store = { articles: seeded, version: 1 }
     try {
       await fs.mkdir(DATA_DIR, { recursive: true })

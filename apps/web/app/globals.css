@@ -917,21 +917,25 @@
     color: var(--brand-strong);
   }
   .utility-sidebar { align-self: start; border-block: 1px solid var(--rule); }
-  .utility-sidebar h2 { padding: .9rem 0 .65rem; font-size: .72rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
+  .utility-sidebar h2 {
+    padding: .9rem .75rem .65rem;
+    font-size: .82rem;
+    font-weight: 800;
+    color: var(--ink-soft);
+  }
   .utility-sidebar li + li { border-top: 1px solid var(--rule); }
   .utility-sidebar a {
     display: grid;
     gap: .2rem;
-    padding: .8rem 0;
+    padding: .65rem .75rem;
     color: var(--ink);
-    border-left: 2px solid transparent;
-    padding-left: .65rem;
-    margin-left: -.65rem;
-    transition: border-color 140ms cubic-bezier(.16,1,.3,1), color 140ms cubic-bezier(.16,1,.3,1);
+    border-radius: .35rem;
+    transition: background 140ms cubic-bezier(.16,1,.3,1), color 140ms cubic-bezier(.16,1,.3,1);
   }
-  .utility-sidebar a:hover { color: var(--brand-strong); }
-  .utility-sidebar a.is-active {
-    border-left-color: var(--brand);
+  .utility-sidebar a:hover { color: var(--brand-strong); background: color-mix(in oklch, var(--brand-tint) 35%, var(--surface)); }
+  .utility-sidebar a.is-active,
+  .utility-sidebar a[aria-current='page'] {
+    background: color-mix(in oklch, var(--brand-tint) 55%, var(--surface));
     color: var(--brand-strong);
   }
   .utility-sidebar a strong { font-size: .92rem; font-weight: 780; }
@@ -996,13 +1000,12 @@
     display: grid;
     align-content: center;
     gap: .3rem;
-    border-left: 1px solid var(--brand);
-    border-block: 1px solid var(--rule);
-    border-right: 1px solid var(--rule);
-    background: color-mix(in oklch, var(--brand-tint) 55%, var(--surface));
+    border: 1px solid var(--rule);
+    background: color-mix(in oklch, var(--brand-tint) 45%, var(--surface));
     padding: 1rem;
+    border-radius: .35rem;
   }
-  .utility-result span { color: var(--ink-soft); font-size: .74rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+  .utility-result span { color: var(--ink-soft); font-size: .74rem; font-weight: 800; }
   .utility-result strong { color: var(--brand-strong); font-size: clamp(1.15rem, 3.5vw, 1.75rem); overflow-wrap: anywhere; line-height: 1.2; }
   .utility-split-editor { display: grid; gap: 1rem; }
   .utility-action {
@@ -1018,8 +1021,8 @@
   .utility-action:hover { background: var(--brand-strong); }
   .utility-source-line { color: var(--mute); font-size: .78rem; }
 
-  .calendar-workspace { border-top: 3px solid var(--brand); background: var(--surface-raised); }
-  .calendar-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--rule); padding: 1.1rem 1.15rem; }
+  .calendar-workspace { border: 1px solid var(--rule); background: var(--surface-raised); }
+  .calendar-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--rule); padding: 1rem 1.15rem; }
   .calendar-kicker {
     margin: 0 0 .2rem;
     color: var(--mute);
@@ -1117,8 +1120,21 @@
     font-weight: 800;
   }
   .calendar-selection__date span { margin-left: .45rem; color: var(--mute); font-size: .85rem; font-weight: 650; }
+  .calendar-selection__ad {
+    display: block;
+    margin-top: .2rem;
+    color: var(--mute);
+    font-size: .85rem;
+    font-weight: 650;
+  }
   .calendar-selection ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .4rem; }
   .calendar-selection li { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem .75rem; }
+  .calendar-badge {
+    color: var(--brand-strong);
+    font-size: .72rem;
+    font-style: normal;
+    font-weight: 800;
+  }
   .calendar-selection em {
     color: var(--brand-strong);
     font-size: .7rem;
@@ -1149,7 +1165,7 @@
   .calendar-agenda__day:hover time,
   .calendar-agenda__day:focus-visible time { text-decoration: underline; }
   .calendar-agenda time { font-weight: 850; color: var(--brand-strong); }
-  .calendar-agenda em { color: var(--brand-strong); font-size: .7rem; font-style: normal; font-weight: 800; }
+  .calendar-agenda em { color: var(--brand-strong); font-size: .72rem; font-style: normal; font-weight: 800; }
 
   .live-desk, .alert-desk { border-top: 3px solid var(--brand); background: var(--surface-raised); }
   .live-desk-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; border-bottom: 1px solid var(--rule); padding: 1rem 1.2rem; }
@@ -1854,10 +1870,9 @@
   .article-utility-bar {
     display: grid;
     gap: .65rem;
-    border: 1px solid var(--rule);
-    border-radius: var(--radius-2);
-    background: var(--surface);
-    padding: .75rem .85rem;
+    border-top: 1px solid var(--rule);
+    background: var(--surface-raised);
+    padding: .75rem 0;
   }
   .article-utility-bar__status {
     display: flex;

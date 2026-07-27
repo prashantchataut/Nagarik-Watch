@@ -1,278 +1,174 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
-import { LIVE_PLACE_EVENT, LIVE_PLACES, type LivePlace } from '@/lib/live/places'
+import type { LivePlace } from '@/lib/live/places'
 import {
-  detectPlaceFromGeolocation,
   readLocalPlace,
-  writeLocalPlace,
+  tryAutoDetectPlace,
 } from '@/lib/reader/place'
-import { localizeNumber } from '@/lib/live/format'
+import { fetchPlaceWeatherInBrowser } from '@/lib/live/fetch-place-weather-browser'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
+import { PlaceCityPicker } from '@/components/live/PlaceCityPicker'
 
-type WeatherState = {
-  tempC: number
-  place: LivePlace
-  source: string
-  status: 'loading' | 'ok' | 'error'
-}
-
-type AqiState = {
-  aqi: number
-  status: 'loading' | 'ok' | 'error'
-}
-
-async function fetchOpenMeteo(place: LivePlace): Promise<{ tempC: number; aqi?: number }> {
-  const weatherUrl =
-    `https://api.open-meteo.com/v1/forecast` +
-    `?latitude=${place.lat}&longitude=${place.lon}` +
-    `&current=temperature_2m&timezone=auto`
-  const aqiUrl =
-    `https://air-quality-api.open-meteo.com/v1/air-quality` +
-    `?latitude=${place.lat}&longitude=${place.lon}` +
-    `&current=us_aqi`
-  const [weatherRes, aqiRes] = await Promise.all([fetch(weatherUrl), fetch(aqiUrl)])
-  if (!weatherRes.ok) throw new Error(`weather ${weatherRes.status}`)
-  const weatherJson = (await weatherRes.json()) as {
-    current?: { temperature_2m?: number }
-  }
-  const tempC = weatherJson.current?.temperature_2m
-  if (typeof tempC !== 'number') throw new Error('weather shape')
-  let aqi: number | undefined
-  if (aqiRes.ok) {
-    const aqiJson = (await aqiRes.json()) as { current?: { us_aqi?: number } }
-    if (typeof aqiJson.current?.us_aqi === 'number') aqi = Math.round(aqiJson.current.us_aqi)
-  }
-  return { tempC: Math.round(tempC), aqi }
-}
-
-export function ReaderPlaceLive({
-  locale,
-  variant = 'strip',
-}: {
+type ReaderPlaceLiveProps = {
   locale: Locale
   variant?: 'strip' | 'board'
-}) {
-  const en = locale === 'en'
-  const [place, setPlace] = useState<LivePlace>(() =>
-    typeof window === 'undefined' ? LIVE_PLACES[0]! : readLocalPlace(),
-  )
-  const [chosen, setChosen] = useState(false)
-  const [weather, setWeather] = useState<WeatherState>({
-    tempC: 0,
-    place: LIVE_PLACES[0]!,
-    source: 'Open-Meteo',
-    status: 'loading',
-  })
-  const [aqi, setAqi] = useState<AqiState>({ aqi: 0, status: 'loading' })
-  const [geoBusy, setGeoBusy] = useState(false)
-  const [geoError, setGeoError] = useState<string | null>(null)
+}
 
-  useEffect(() => {
-    const current = readLocalPlace()
-    setPlace(current)
+type WeatherPayload = {
+  ok: boolean
+  tempC?: number
+  aqi?: number
+  error?: string
+}
+
+async function loadWeather(slug: string): Promise<{ tempC: number; aqi?: number } | null> {
+  if (hasLivePublicApi()) {
     try {
-      setChosen(Boolean(localStorage.getItem('nagarik-watch:place:v1')))
+      const res = await fetch(`/api/live/weather?slug=${encodeURIComponent(slug)}`, {
+        cache: 'no-store',
+      })
+      const json = (await res.json()) as WeatherPayload
+      if (json.ok && typeof json.tempC === 'number') {
+        return { tempC: json.tempC, aqi: json.aqi }
+      }
     } catch {
-      setChosen(false)
+      /* fall through to browser fetch */
     }
-    function onChange() {
-      setPlace(readLocalPlace())
-      setChosen(true)
+  }
+
+  try {
+    return await fetchPlaceWeatherInBrowser(slug)
+  } catch {
+    return null
+  }
+}
+
+export function ReaderPlaceLive({ locale, variant = 'board' }: ReaderPlaceLiveProps) {
+  const en = locale === 'en'
+  const [place, setPlace] = useState<LivePlace>(() => readLocalPlace())
+  const [chosen, setChosen] = useState(false)
+  const [tempC, setTempC] = useState<number | null>(null)
+  const [aqi, setAqi] = useState<number | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const refreshWeather = useCallback(async (slug: string) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const reading = await loadWeather(slug)
+      if (!reading) {
+        setError(en ? 'Weather unavailable' : 'मौसम उपलब्ध छैन')
+        setTempC(null)
+        setAqi(null)
+        return
+      }
+      setTempC(reading.tempC)
+      setAqi(typeof reading.aqi === 'number' ? reading.aqi : null)
+    } catch {
+      setError(en ? 'Weather unavailable' : 'मौसम उपलब्ध छैन')
+      setTempC(null)
+      setAqi(null)
+    } finally {
+      setLoading(false)
     }
-    window.addEventListener(LIVE_PLACE_EVENT, onChange)
-    return () => window.removeEventListener(LIVE_PLACE_EVENT, onChange)
-  }, [])
+  }, [en])
 
   useEffect(() => {
     let cancelled = false
-    setWeather((prev) => ({ ...prev, status: 'loading', place }))
-    setAqi((prev) => ({ ...prev, status: 'loading' }))
-    fetchOpenMeteo(place)
-      .then((data) => {
-        if (cancelled) return
-        setWeather({
-          tempC: data.tempC,
-          place,
-          source: 'Open-Meteo',
-          status: 'ok',
-        })
-        if (typeof data.aqi === 'number') setAqi({ aqi: data.aqi, status: 'ok' })
-        else setAqi({ aqi: 0, status: 'error' })
-      })
-      .catch(() => {
-        if (cancelled) return
-        setWeather((prev) => ({ ...prev, status: 'error', place }))
-        setAqi({ aqi: 0, status: 'error' })
-      })
+    void (async () => {
+      const detected = await tryAutoDetectPlace()
+      if (cancelled) return
+      if (detected) {
+        setPlace(detected)
+        setChosen(true)
+        await refreshWeather(detected.slug)
+        return
+      }
+      const local = readLocalPlace()
+      setPlace(local)
+      await refreshWeather(local.slug)
+    })()
     return () => {
       cancelled = true
     }
-  }, [place])
+  }, [refreshWeather])
 
-  function onSelect(slug: string) {
-    writeLocalPlace(slug)
-    setPlace(readLocalPlace())
-    setChosen(true)
-    setGeoError(null)
-  }
-
-  async function useMyLocation() {
-    setGeoBusy(true)
-    setGeoError(null)
-    try {
-      const detected = await detectPlaceFromGeolocation()
-      writeLocalPlace(detected.slug)
-      setPlace(detected)
-      setChosen(true)
-    } catch {
-      setGeoError(en ? 'Location permission denied or unavailable.' : 'स्थान अनुमति मिलेन वा उपलब्ध छैन।')
-    } finally {
-      setGeoBusy(false)
-    }
+  const onPlaceChange = (next: LivePlace, explicit: boolean) => {
+    setPlace(next)
+    setChosen(explicit)
+    void refreshWeather(next.slug)
   }
 
   const placeLabel = en ? place.placeEn : place.placeNe
-  const referenceNote = chosen
-    ? null
-    : en
-      ? 'Capital reference until you choose your city'
-      : 'सहर छान्नुअघि राजधानी सन्दर्भ'
+  const showReference = !chosen && variant === 'board'
 
-  if (variant === 'board') {
+  if (variant === 'strip') {
     return (
-      <div className="col-span-2 space-y-3 sm:col-span-3 lg:col-span-2">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="border border-rule bg-surface-raised px-3 py-3">
-            <p className="text-caption font-semibold text-ink-soft" lang={en ? 'en' : 'ne'}>
-              {en ? 'Weather' : 'मौसम'}
-            </p>
-            {weather.status === 'ok' ? (
-              <p className="mt-1 font-display text-h2 font-bold text-ink">
-                {localizeNumber(weather.tempC, locale)}°C{' '}
-                <span className="text-meta font-semibold text-ink-soft" lang={en ? 'en' : 'ne'}>
-                  {placeLabel}
+      <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+        <span className="inline-flex items-center gap-1.5 text-caption text-ink">
+          {loading ? (
+            <span className="text-ink-soft">{en ? 'Weather…' : 'मौसम…'}</span>
+          ) : error ? (
+            <span className="text-ink-soft">{error}</span>
+          ) : (
+            <>
+              <span className="font-bold tabular-nums text-ink">{tempC}°C</span>
+              <span className="text-ink-soft">{placeLabel}</span>
+              {typeof aqi === 'number' ? (
+                <span className="text-ink-soft">
+                  {en ? 'AQI' : 'वायु'} {aqi}
                 </span>
-              </p>
-            ) : (
-              <p className="mt-1 text-meta text-mute" lang={en ? 'en' : 'ne'}>
-                {weather.status === 'loading' ? (en ? 'Loading…' : 'लोड हुँदै…') : en ? 'Unavailable' : 'उपलब्ध छैन'}
-              </p>
-            )}
-          </div>
-          <div className="border border-rule bg-surface-raised px-3 py-3">
-            <p className="text-caption font-semibold text-ink-soft">AQI</p>
-            {aqi.status === 'ok' ? (
-              <p className="mt-1 font-display text-h2 font-bold text-ink">
-                {localizeNumber(aqi.aqi, locale)}
-              </p>
-            ) : (
-              <p className="mt-1 text-meta text-mute" lang={en ? 'en' : 'ne'}>
-                {aqi.status === 'loading' ? (en ? 'Loading…' : 'लोड हुँदै…') : en ? 'Unavailable' : 'उपलब्ध छैन'}
-              </p>
-            )}
-          </div>
-        </div>
-        <PlaceControls
+              ) : null}
+            </>
+          )}
+        </span>
+        <PlaceCityPicker
           locale={locale}
           place={place}
-          chosen={chosen}
-          referenceNote={referenceNote}
-          geoBusy={geoBusy}
-          geoError={geoError}
-          onSelect={onSelect}
-          onDetect={useMyLocation}
+          onPlaceChange={onPlaceChange}
+          compact
         />
       </div>
     )
   }
 
   return (
-    <div className="inline-flex shrink-0 items-center gap-3">
-      <span className="inline-flex items-center gap-2">
-        <span className="font-semibold text-ink" lang={en ? 'en' : 'ne'}>
-          {weather.status === 'ok'
-            ? `${localizeNumber(weather.tempC, locale)}°C ${placeLabel}`
-            : placeLabel}
-        </span>
-        {aqi.status === 'ok' ? (
-          <span className="text-mute">AQI {localizeNumber(aqi.aqi, locale)}</span>
-        ) : null}
-      </span>
-      <PlaceControls
-        locale={locale}
-        place={place}
-        chosen={chosen}
-        referenceNote={referenceNote}
-        geoBusy={geoBusy}
-        geoError={geoError}
-        onSelect={onSelect}
-        onDetect={useMyLocation}
-        compact
-      />
-    </div>
-  )
-}
-
-function PlaceControls({
-  locale,
-  place,
-  chosen,
-  referenceNote,
-  geoBusy,
-  geoError,
-  onSelect,
-  onDetect,
-  compact = false,
-}: {
-  locale: Locale
-  place: LivePlace
-  chosen: boolean
-  referenceNote: string | null
-  geoBusy: boolean
-  geoError: string | null
-  onSelect: (slug: string) => void
-  onDetect: () => void
-  compact?: boolean
-}) {
-  const en = locale === 'en'
-  return (
-    <div className={compact ? 'inline-flex items-center gap-2' : 'space-y-2'}>
-      <label className={compact ? 'inline-flex items-center gap-1.5' : 'flex flex-wrap items-center gap-2'}>
-        <span className="sr-only">{en ? 'Your city for weather and local news' : 'मौसम र स्थानीय समाचारका लागि सहर'}</span>
-        <select
-          value={place.slug}
-          onChange={(event) => onSelect(event.currentTarget.value)}
-          className="min-h-9 border border-rule bg-surface px-2 text-caption font-semibold text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-          lang={en ? 'en' : 'ne'}
-          aria-label={en ? 'Choose your city' : 'सहर छान्नुहोस्'}
-        >
-          {LIVE_PLACES.map((item) => (
-            <option key={item.slug} value={item.slug}>
-              {en ? item.placeEn : item.placeNe}
-            </option>
-          ))}
-        </select>
-        <button
-          type="button"
-          onClick={onDetect}
-          disabled={geoBusy}
-          className="min-h-9 border border-rule px-2 text-caption font-semibold text-brand-strong hover:border-brand disabled:opacity-60"
-          lang={en ? 'en' : 'ne'}
-        >
-          {geoBusy ? (en ? 'Detecting…' : 'पत्ता लगाउँदै…') : en ? 'Use my location' : 'मेरो स्थान'}
-        </button>
-      </label>
-      {referenceNote && !chosen ? (
-        <p className="text-caption text-mute" lang={en ? 'en' : 'ne'}>
-          {referenceNote}
-        </p>
-      ) : null}
-      {geoError ? (
-        <p className="text-caption text-brand-strong" lang={en ? 'en' : 'ne'} role="status">
-          {geoError}
-        </p>
-      ) : null}
-    </div>
+    <section className="border border-rule bg-surface-raised p-4 sm:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-caption font-bold text-brand-strong">
+            {en ? 'Local weather' : 'स्थानीय मौसम'}
+          </p>
+          {loading ? (
+            <p className="mt-2 text-body-sm text-ink-soft">
+              {en ? 'Loading weather…' : 'मौसम लोड हुँदै…'}
+            </p>
+          ) : error ? (
+            <p className="mt-2 text-body-sm text-ink-soft">{error}</p>
+          ) : (
+            <p className="mt-2 font-display text-display-sm font-extrabold tabular-nums text-ink">
+              {tempC}°C
+              <span className="ml-2 text-body-lg font-bold text-ink-soft">{placeLabel}</span>
+            </p>
+          )}
+          {typeof aqi === 'number' ? (
+            <p className="mt-1 text-caption text-ink-soft">
+              {en ? `Air quality index ${aqi}` : `वायु गुणस्तर सूचक ${aqi}`}
+            </p>
+          ) : null}
+          {showReference ? (
+            <p className="mt-2 text-caption text-ink-soft">
+              {en
+                ? 'Showing capital reference until you pick or detect your city.'
+                : 'सहर छान्नु वा स्थान पत्ता लगाउनु अघि राजधानी सन्दर्भ देखाइएको छ।'}
+            </p>
+          ) : null}
+        </div>
+        <PlaceCityPicker locale={locale} place={place} onPlaceChange={onPlaceChange} />
+      </div>
+    </section>
   )
 }

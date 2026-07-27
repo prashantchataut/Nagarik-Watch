@@ -18,30 +18,29 @@ type ForexRate = {
   unit: string
 }
 
-function ToolPanel({
+const fieldInputClass =
+  'min-h-11 w-full rounded-md border border-rule bg-surface px-3 py-2 text-body text-ink transition-colors duration-fast ease-out-quint focus:outline-2 focus:outline-offset-1 focus:outline-brand'
+
+function ToolWorkspace({
   locale,
-  title,
   summary,
   children,
-  compact = true,
 }: {
   locale: Locale
-  title: string
-  summary: string
+  summary?: string
   children: ReactNode
-  /** Slim header under the page masthead (default on tool routes). */
-  compact?: boolean
 }) {
   return (
     <section
-      className={compact ? 'utility-tool utility-tool--compact' : 'utility-tool'}
+      className="border border-rule bg-surface-raised"
       lang={locale === 'en' ? 'en' : 'ne'}
     >
-      <header>
-        <h2>{title}</h2>
-        <p>{summary}</p>
-      </header>
-      <div className="utility-tool-body">{children}</div>
+      {summary ? (
+        <p className="border-b border-rule px-4 py-3 text-meta leading-relaxed text-ink-soft sm:px-5">
+          {summary}
+        </p>
+      ) : null}
+      <div className="grid gap-5 p-4 sm:gap-6 sm:p-5">{children}</div>
     </section>
   )
 }
@@ -56,20 +55,57 @@ function Field({
   hint?: string
 }) {
   return (
-    <label className="utility-field">
-      <span>{label}</span>
+    <label className="grid gap-1.5">
+      <span className="text-meta font-bold text-ink-soft">{label}</span>
       {children}
-      {hint ? <small>{hint}</small> : null}
+      {hint ? <small className="text-caption leading-snug text-mute">{hint}</small> : null}
     </label>
   )
 }
 
 function Result({ label, value }: { label: string; value: string }) {
   return (
-    <output className="utility-result" aria-live="polite">
-      <span>{label}</span>
-      <strong>{value}</strong>
+    <output
+      className="grid content-center gap-1 rounded-md border border-rule bg-brand-tint/45 px-4 py-3 sm:px-5 sm:py-4"
+      aria-live="polite"
+    >
+      <span className="text-caption font-bold text-ink-soft">{label}</span>
+      <strong className="font-display text-h3 font-extrabold leading-tight text-brand-strong tabular-nums">
+        {value}
+      </strong>
     </output>
+  )
+}
+
+function FormRow({ children }: { children: ReactNode }) {
+  return (
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,0.9fr)] lg:items-stretch lg:gap-6">
+      {children}
+    </div>
+  )
+}
+
+function SectionRule() {
+  return <div className="border-t border-rule" role="separator" />
+}
+
+function PrimaryButton({
+  children,
+  onClick,
+  type = 'button',
+}: {
+  children: ReactNode
+  onClick?: () => void
+  type?: 'button' | 'submit'
+}) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      className="inline-flex min-h-11 items-center justify-center rounded-md border border-brand bg-brand px-4 text-meta font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong active:scale-[0.98]"
+    >
+      {children}
+    </button>
   )
 }
 
@@ -109,33 +145,35 @@ export function DateConverterTool({ locale }: { locale: Locale }) {
   }, [year, month, day, en])
 
   return (
-    <ToolPanel
+    <ToolWorkspace
       locale={locale}
-      title={en ? 'Convert dates in both directions' : 'दुवै दिशामा मिति रूपान्तरण'}
       summary={
         en
-          ? 'Uses the verified Bikram Sambat date table for years 2000–2099 BS.'
+          ? 'Uses the verified Bikram Sambat date table for years 2000-2099 BS.'
           : 'बि.सं. २००० देखि २०९९ सम्मको प्रमाणित मिति तालिका प्रयोग हुन्छ।'
       }
     >
-      <div className="utility-form-grid">
+      <FormRow>
         <Field label={en ? 'Gregorian date (AD)' : 'इस्वी संवत् मिति (AD)'}>
-          <input type="date" value={ad} onChange={(event) => setAd(event.target.value)} />
+          <input type="date" className={fieldInputClass} value={ad} onChange={(event) => setAd(event.target.value)} />
         </Field>
         <Result
           label={en ? 'Bikram Sambat' : 'विक्रम संवत्'}
           value={bs || (en ? 'Choose a supported date' : 'समर्थित मिति छान्नुहोस्')}
         />
-      </div>
+      </FormRow>
 
-      <hr />
+      <SectionRule />
 
-      <div className="utility-form-grid">
-        <fieldset>
-          <legend>{en ? 'Bikram Sambat date' : 'विक्रम संवत् मिति'}</legend>
-          <div className="utility-three-fields">
+      <FormRow>
+        <fieldset className="min-w-0">
+          <legend className="mb-3 text-body font-bold text-ink">
+            {en ? 'Bikram Sambat date' : 'विक्रम संवत् मिति'}
+          </legend>
+          <div className="grid gap-3 sm:grid-cols-3">
             <Field label={en ? 'Year' : 'वर्ष'}>
               <input
+                className={fieldInputClass}
                 inputMode="numeric"
                 value={year}
                 onChange={(event) => setYear(event.target.value.replace(/\D/g, ''))}
@@ -143,6 +181,7 @@ export function DateConverterTool({ locale }: { locale: Locale }) {
             </Field>
             <Field label={en ? 'Month' : 'महिना'}>
               <input
+                className={fieldInputClass}
                 inputMode="numeric"
                 value={month}
                 onChange={(event) => setMonth(event.target.value.replace(/\D/g, ''))}
@@ -150,6 +189,7 @@ export function DateConverterTool({ locale }: { locale: Locale }) {
             </Field>
             <Field label={en ? 'Day' : 'दिन'}>
               <input
+                className={fieldInputClass}
                 inputMode="numeric"
                 value={day}
                 onChange={(event) => setDay(event.target.value.replace(/\D/g, ''))}
@@ -161,8 +201,8 @@ export function DateConverterTool({ locale }: { locale: Locale }) {
           label={en ? 'Gregorian date' : 'इस्वी संवत्'}
           value={gregorian || (en ? 'Check the BS date' : 'बि.सं. मिति जाँच्नुहोस्')}
         />
-      </div>
-    </ToolPanel>
+      </FormRow>
+    </ToolWorkspace>
   )
 }
 
@@ -197,18 +237,18 @@ export function PreetiUnicodeTool({ locale }: { locale: Locale }) {
           : 'युनिकोड प्रति लिनुहोस्'
 
   return (
-    <ToolPanel
+    <ToolWorkspace
       locale={locale}
-      title={en ? 'Convert legacy Preeti text to Unicode' : 'प्रिती पाठलाई युनिकोडमा बदल्नुहोस्'}
       summary={
         en
-          ? 'The conversion happens in your browser. Text is not uploaded or stored.'
+          ? 'Conversion runs in your browser. Text is not uploaded or stored.'
           : 'रूपान्तरण तपाईंको ब्राउजरमै हुन्छ। पाठ अपलोड वा भण्डारण हुँदैन।'
       }
     >
-      <div className="utility-split-editor">
+      <div className="grid gap-4 lg:grid-cols-2">
         <Field label="Preeti">
           <textarea
+            className={`${fieldInputClass} min-h-[13rem] resize-y leading-relaxed`}
             value={preeti}
             onChange={(event) => {
               const next = event.target.value
@@ -220,6 +260,7 @@ export function PreetiUnicodeTool({ locale }: { locale: Locale }) {
         </Field>
         <Field label={en ? 'Unicode Nepali' : 'युनिकोड नेपाली'}>
           <textarea
+            className={`${fieldInputClass} min-h-[13rem] resize-y leading-relaxed`}
             value={unicode}
             onChange={(event) => {
               const next = event.target.value
@@ -230,10 +271,8 @@ export function PreetiUnicodeTool({ locale }: { locale: Locale }) {
           />
         </Field>
       </div>
-      <button type="button" className="utility-action" onClick={copy}>
-        {copyLabel}
-      </button>
-    </ToolPanel>
+      <PrimaryButton onClick={copy}>{copyLabel}</PrimaryButton>
+    </ToolWorkspace>
   )
 }
 
@@ -269,39 +308,38 @@ export function CurrencyConverterTool({
     )
   }, [rate, amount, direction])
 
+  const summary = source
+    ? `${en ? 'Source' : 'स्रोत'}: ${source}. ${
+        en
+          ? 'Indicative only; banks may apply different spreads.'
+          : 'संकेतात्मक मात्र; बैंकको खरिद-बिक्री अन्तर फरक हुन सक्छ।'
+      }`
+    : en
+      ? 'A verified exchange-rate feed is not available right now.'
+      : 'प्रमाणित विनिमय दर अहिले उपलब्ध छैन।'
+
   return (
-    <ToolPanel
-      locale={locale}
-      title={en ? 'Convert with the latest verified NPR rate' : 'पछिल्लो प्रमाणित NPR दरमा रूपान्तरण'}
-      summary={
-        source
-          ? `${en ? 'Source' : 'स्रोत'}: ${source}. ${
-              en
-                ? 'Indicative only; banks may apply different spreads.'
-                : 'संकेतात्मक मात्र; बैंकको खरिद–बिक्री अन्तर फरक हुन सक्छ।'
-            }`
-          : en
-            ? 'A verified exchange-rate feed is not available right now.'
-            : 'प्रमाणित विनिमय दर अहिले उपलब्ध छैन।'
-      }
-    >
+    <ToolWorkspace locale={locale} summary={summary}>
       {rate ? (
         <>
-          <div className="utility-form-grid">
-            <fieldset>
-              <legend>{en ? 'Conversion' : 'रूपान्तरण'}</legend>
-              <div className="utility-three-fields">
+          <FormRow>
+            <fieldset className="min-w-0">
+              <legend className="mb-3 text-body font-bold text-ink">
+                {en ? 'Conversion' : 'रूपान्तरण'}
+              </legend>
+              <div className="grid gap-3 sm:grid-cols-3">
                 <Field label={en ? 'Currency' : 'मुद्रा'}>
-                  <select value={iso} onChange={(event) => setIso(event.target.value)}>
+                  <select className={fieldInputClass} value={iso} onChange={(event) => setIso(event.target.value)}>
                     {rates.map((item) => (
                       <option key={item.iso3} value={item.iso3}>
-                        {item.iso3} · {item.name}
+                        {item.iso3} ({item.name})
                       </option>
                     ))}
                   </select>
                 </Field>
                 <Field label={en ? 'Direction' : 'दिशा'}>
                   <select
+                    className={fieldInputClass}
                     value={direction}
                     onChange={(event) => setDirection(event.target.value as typeof direction)}
                   >
@@ -311,6 +349,7 @@ export function CurrencyConverterTool({
                 </Field>
                 <Field label={en ? 'Amount' : 'रकम'}>
                   <input
+                    className={fieldInputClass}
                     inputMode="decimal"
                     value={amount}
                     onChange={(event) => setAmount(event.target.value.replace(/[^0-9.]/g, ''))}
@@ -319,20 +358,20 @@ export function CurrencyConverterTool({
               </div>
             </fieldset>
             <Result label={direction === 'foreign-to-npr' ? 'NPR' : iso} value={value || '0'} />
-          </div>
-          <p className="utility-source-line">
-            {en ? 'Buy' : 'खरिद'} {rate.buy.toFixed(2)} · {en ? 'Sell' : 'बिक्री'}{' '}
+          </FormRow>
+          <p className="text-caption text-mute">
+            {en ? 'Buy' : 'खरिद'} {rate.buy.toFixed(2)}, {en ? 'sell' : 'बिक्री'}{' '}
             {rate.sell.toFixed(2)}
           </p>
         </>
       ) : (
-        <p className="editorial-empty">
+        <p className="border border-rule bg-surface px-3 py-3 text-meta leading-relaxed text-ink-soft">
           {en
-            ? 'The converter activates automatically when the Nepal Rastra Bank feed is reachable.'
-            : 'नेपाल राष्ट्र बैंकको फिड उपलब्ध भएपछि रूपान्तरण स्वतः सक्रिय हुन्छ।'}
+            ? 'The converter activates when the Nepal Rastra Bank feed is reachable.'
+            : 'नेपाल राष्ट्र बैंकको फिड उपलब्ध भएपछि रूपान्तरण सक्रिय हुन्छ।'}
         </p>
       )}
-    </ToolPanel>
+    </ToolWorkspace>
   )
 }
 
@@ -364,24 +403,33 @@ export function AgeCalculatorTool({ locale }: { locale: Locale }) {
   }, [birth, today])
 
   return (
-    <ToolPanel
+    <ToolWorkspace
       locale={locale}
-      title={en ? 'Calculate completed age precisely' : 'पूरा उमेर स्पष्ट रूपमा निकाल्नुहोस्'}
       summary={
         en
-          ? 'See completed years, months and days for any valid date range.'
-          : 'मान्य मिति अवधिका पूरा वर्ष, महिना र दिन हेर्नुहोस्।'
+          ? 'Completed years, months and days for any valid date range.'
+          : 'मान्य मिति अवधिका पूरा वर्ष, महिना र दिन।'
       }
     >
-      <div className="utility-form-grid">
-        <fieldset>
-          <legend>{en ? 'Dates' : 'मिति'}</legend>
-          <div className="utility-two-fields">
+      <FormRow>
+        <fieldset className="min-w-0">
+          <legend className="mb-3 text-body font-bold text-ink">{en ? 'Dates' : 'मिति'}</legend>
+          <div className="grid gap-3 sm:grid-cols-2">
             <Field label={en ? 'Date of birth' : 'जन्म मिति'}>
-              <input type="date" value={birth} onChange={(event) => setBirth(event.target.value)} />
+              <input
+                type="date"
+                className={fieldInputClass}
+                value={birth}
+                onChange={(event) => setBirth(event.target.value)}
+              />
             </Field>
             <Field label={en ? 'Calculate on' : 'गणना मिति'}>
-              <input type="date" value={today} onChange={(event) => setToday(event.target.value)} />
+              <input
+                type="date"
+                className={fieldInputClass}
+                value={today}
+                onChange={(event) => setToday(event.target.value)}
+              />
             </Field>
           </div>
         </fieldset>
@@ -397,8 +445,8 @@ export function AgeCalculatorTool({ locale }: { locale: Locale }) {
                 : 'मान्य जन्म मिति राख्नुहोस्'
           }
         />
-      </div>
-    </ToolPanel>
+      </FormRow>
+    </ToolWorkspace>
   )
 }
 
@@ -454,21 +502,26 @@ export function UnitConverterTool({ locale }: { locale: Locale }) {
   }, [amount, from, to, group])
 
   return (
-    <ToolPanel
+    <ToolWorkspace
       locale={locale}
-      title={en ? 'Convert everyday measurements' : 'दैनिक मापन रूपान्तरण'}
       summary={
         en
           ? 'Length, weight and temperature conversions run locally in your browser.'
           : 'लम्बाइ, तौल र तापक्रमको रूपान्तरण तपाईंको ब्राउजरमै हुन्छ।'
       }
     >
-      <div className="utility-form-grid">
-        <fieldset>
-          <legend>{en ? 'Measurement' : 'मापन'}</legend>
-          <div className="utility-three-fields">
+      <FormRow>
+        <fieldset className="min-w-0">
+          <legend className="mb-3 text-body font-bold text-ink">
+            {en ? 'Measurement' : 'मापन'}
+          </legend>
+          <div className="grid gap-3 sm:grid-cols-3">
             <Field label={en ? 'Type' : 'प्रकार'}>
-              <select value={group} onChange={(event) => setGroup(event.target.value as UnitGroup)}>
+              <select
+                className={fieldInputClass}
+                value={group}
+                onChange={(event) => setGroup(event.target.value as UnitGroup)}
+              >
                 {Object.entries(unitGroups).map(([key, value]) => (
                   <option key={key} value={key}>
                     {en ? value.en : value.ne}
@@ -477,31 +530,34 @@ export function UnitConverterTool({ locale }: { locale: Locale }) {
               </select>
             </Field>
             <Field label={en ? 'From' : 'बाट'}>
-              <select value={from} onChange={(event) => setFrom(event.target.value)}>
+              <select className={fieldInputClass} value={from} onChange={(event) => setFrom(event.target.value)}>
                 {keys.map((key) => (
                   <option key={key}>{key}</option>
                 ))}
               </select>
             </Field>
             <Field label={en ? 'To' : 'मा'}>
-              <select value={to} onChange={(event) => setTo(event.target.value)}>
+              <select className={fieldInputClass} value={to} onChange={(event) => setTo(event.target.value)}>
                 {keys.map((key) => (
                   <option key={key}>{key}</option>
                 ))}
               </select>
             </Field>
           </div>
-          <Field label={en ? 'Amount' : 'परिमाण'}>
-            <input
-              inputMode="decimal"
-              value={amount}
-              onChange={(event) => setAmount(event.target.value.replace(/[^0-9.-]/g, ''))}
-            />
-          </Field>
+          <div className="mt-3">
+            <Field label={en ? 'Amount' : 'परिमाण'}>
+              <input
+                className={fieldInputClass}
+                inputMode="decimal"
+                value={amount}
+                onChange={(event) => setAmount(event.target.value.replace(/[^0-9.-]/g, ''))}
+              />
+            </Field>
+          </div>
         </fieldset>
-        <Result label={to} value={result || ' - '} />
-      </div>
-    </ToolPanel>
+        <Result label={to} value={result || '-'} />
+      </FormRow>
+    </ToolWorkspace>
   )
 }
 
@@ -515,7 +571,7 @@ export function UtilityTools({
   forexSource?: string
 }) {
   return (
-    <div className="space-y-8">
+    <div className="grid gap-6">
       <DateConverterTool locale={locale} />
       <PreetiUnicodeTool locale={locale} />
       <CurrencyConverterTool locale={locale} rates={forexRates} source={forexSource} />

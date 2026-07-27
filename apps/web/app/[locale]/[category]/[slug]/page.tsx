@@ -182,8 +182,8 @@ export default async function ArticlePage({
         <div className="flex flex-wrap items-center gap-2">
           <CategoryLabel category={article.category} locale={readingLocale} />
           {membershipPublic && article.premium ? (
-            <span className="rounded-md border border-ink bg-ink px-2 py-0.5 text-caption font-bold uppercase tracking-wide text-paper">
-              {readingEnglish ? 'Premium' : 'सदस्य'}
+            <span className="rounded-md border border-brand bg-brand-tint px-2 py-0.5 text-caption font-bold text-brand-strong">
+              {readingEnglish ? 'Member' : 'सदस्य'}
             </span>
           ) : null}
           <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
@@ -251,7 +251,7 @@ export default async function ArticlePage({
           {article.heroCaptionNe || article.heroCredit ? (
             <figcaption className="px-4 pt-2 text-caption leading-relaxed text-ink-soft sm:px-0">
               {article.heroCaptionNe}
-              {article.heroCaptionNe && article.heroCredit ? ' · ' : ''}
+              {article.heroCaptionNe && article.heroCredit ? ', ' : ''}
               {article.heroCredit}
             </figcaption>
           ) : null}
@@ -303,15 +303,14 @@ export default async function ArticlePage({
           {article.corrections?.length ? (
             <CorrectionNotice corrections={article.corrections} locale={readingLocale} className="mt-8" />
           ) : null}
-          <p className="mt-6 text-meta text-ink-soft print:hidden" lang={readingEnglish ? 'en' : 'ne'}>
-            {readingEnglish ? 'See an error?' : 'त्रुटि देख्नुभयो?'}{' '}
+          <p className="mt-6 flex flex-wrap gap-x-4 gap-y-1 text-meta text-ink-soft print:hidden" lang={readingEnglish ? 'en' : 'ne'}>
+            <span>{readingEnglish ? 'See an error?' : 'त्रुटि देख्नुभयो?'}</span>
             <Link
               href={localizeHref(readingLocale, '/contact')}
               className="font-semibold text-brand-strong underline-offset-2 hover:underline"
             >
               {readingEnglish ? 'Request a correction' : 'सच्याइ अनुरोध गर्नुहोस्'}
             </Link>
-            {' · '}
             <Link
               href={localizeHref(readingLocale, '/corrections-policy')}
               className="font-semibold text-brand-strong underline-offset-2 hover:underline"

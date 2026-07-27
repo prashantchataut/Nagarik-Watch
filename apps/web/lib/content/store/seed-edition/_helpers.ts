@@ -33,6 +33,16 @@ export function heroUrl(slug: string, categorySlug: string, titleNe: string): st
   }).url
 }
 
+/** Older seeds stored raster heroes as .png before JPEG compression. */
+export function normalizeEditionHeroUrl(url: string | undefined, slug: string): string | undefined {
+  if (!url || !url.includes(`${EDITION_MEDIA_DIR}/`)) return url
+  if (!url.endsWith('.png')) return url
+  if (RASTER_HERO_SLUGS.has(slug)) {
+    return `${EDITION_MEDIA_DIR}/${slug}.jpg`
+  }
+  return url
+}
+
 export function p(text: string): ArticleBlock {
   return { type: 'paragraph', text }
 }

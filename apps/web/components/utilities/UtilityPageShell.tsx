@@ -121,19 +121,34 @@ export function UtilityPageShell({
 export function UtilityDirectory({ locale }: { locale: Locale }) {
   const en = locale === 'en'
   return (
-    <div className="utility-directory">
-      {UTILITY_LINKS.map((item, index) => (
-        <Link key={item.path} href={localizeHref(locale, item.path)}>
-          <p className="utility-index">{String(index + 1).padStart(2, '0')}</p>
-          <div>
-            <h2>{en ? item.en : item.ne}</h2>
-            <p>{en ? item.noteEn : item.noteNe}</p>
-          </div>
-          <span className="utility-directory__arrow" aria-hidden="true">
-            →
-          </span>
-        </Link>
-      ))}
+    <div className="mt-8">
+      <p className="border border-rule bg-surface-raised px-4 py-3 text-meta leading-relaxed text-ink-soft">
+        {en
+          ? 'Tools run in your browser. Currency rates fetch live NRB reference when you open that tool.'
+          : 'उपकरणहरू ब्राउजरमै चल्छन्। मुद्रा दर खोल्दा नराे सन्दर्भ लाइभ लिइन्छ।'}
+      </p>
+
+      <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {UTILITY_LINKS.map((item) => (
+          <li key={item.path}>
+            <Link
+              href={localizeHref(locale, item.path)}
+              className="group flex h-full flex-col border border-rule bg-surface-raised px-4 py-4 transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint/25"
+            >
+              <h2 className="font-display text-body-lg font-extrabold text-ink group-hover:text-brand-strong sm:text-h3">
+                {en ? item.en : item.ne}
+              </h2>
+              <span className="mt-2 block h-0.5 w-8 bg-brand" aria-hidden />
+              <p className="mt-2 text-meta leading-relaxed text-ink-soft">
+                {en ? item.noteEn : item.noteNe}
+              </p>
+              <span className="mt-3 text-caption font-bold text-brand-strong">
+                {en ? 'Open tool' : 'खोल्नुहोस्'}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

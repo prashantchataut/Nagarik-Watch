@@ -76,7 +76,31 @@ export function detectPlaceFromGeolocation(): Promise<LivePlace> {
         resolve(nearestLivePlace(position.coords.latitude, position.coords.longitude))
       },
       (error) => reject(error),
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 600_000 },
+      { enableHighAccuracy: false, timeout: 12000, maximumAge: 300_000 },
     )
   })
+}
+
+/** True when the reader has explicitly saved or detected a city (not default-only). */
+export function hasStoredPlaceChoice(): boolean {
+  if (typeof window === 'undefined') return false
+  try {
+    if (localStorage.getItem(LIVE_PLACE_STORAGE_KEY)) return true
+  } catch {
+    /* ignore */
+  }
+  const match = document.cookie.match(new RegExp(`(?:^|; )${LIVE_PLACE_COOKIE}=([^;]*)`))
+  return Boolean(match?.[1])
+}
+
+/** On first visit, try geolocation once; fall back to capital reference without blocking UI. */
+export function tryAutoDetectPlace(): Promise<LivePlace | null> {
+  if (typeof window === 'undefined') return Promise.resolve(null)
+  if (hasStoredPlaceChoice()) return Promise.resolve(null)
+  return detectPlaceFromGeolocation()
+    .then((place) => {
+      writeLocalPlace(place.slug)
+      return place
+    })
+    .catch(() => null)
 }

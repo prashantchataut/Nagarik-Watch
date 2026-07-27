@@ -24,12 +24,14 @@ import { tags, tagBySlug } from '../seed/tags'
 import * as store from './json-store'
 import type { StoredArticle } from './json-store'
 import { placeholder } from '../seed/media'
+import { normalizeEditionHeroUrl } from './seed-edition/_helpers'
 
 const PER_PAGE = 12
 
 function resolveHero(a: StoredArticle) {
   if (a.heroImageUrl) {
-    return { url: a.heroImageUrl, alt: a.heroImageAlt ?? a.titleNe }
+    const url = normalizeEditionHeroUrl(a.heroImageUrl, a.slug) ?? a.heroImageUrl
+    return { url, alt: a.heroImageAlt ?? a.titleNe }
   }
   const label =
     (categoryBySlug.get(a.categorySlug)?.nameNe ?? a.categorySlug).slice(0, 28)
