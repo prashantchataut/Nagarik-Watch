@@ -19,21 +19,19 @@ export default async function AdminLoginPage({
 }: {
   searchParams: Promise<{ reset?: string }>
 }) {
-  // Create auth before the form is usable. Boot password sync can take seconds on a
-  // cold Postgres link — race it so the form still appears quickly.
+  // Staff login must finish boot repair before the form is usable. Racing a short
+  // timeout previously let sign-in run against a stale password hash.
   let authReady = false
+  let bootFailed = false
   try {
     const auth = await getAuth()
     authReady = true
-    await Promise.race([
-      ensureNewsroomBootAccounts(
-        auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
-      ),
-      new Promise<void>((resolve) => {
-        setTimeout(resolve, 2500)
-      }),
-    ])
+    await ensureNewsroomBootAccounts(
+      auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
+      { forcePassword: true },
+    )
   } catch (error) {
+    bootFailed = true
     console.error('[admin/login] auth/boot failed', error)
   }
 
@@ -73,32 +71,43 @@ export default async function AdminLoginPage({
             <p>स्टाफ खाता मात्र।</p>
           </header>
 
-          {!authReady ? (
+          {!authReady || bootFailed ? (
             <aside className="newsroom-login-form__error" role="status">
               <strong>लगइन सेवा अफलाइन।</strong>
               <span style={{ display: 'block', marginTop: '0.35rem' }}>
-                DATABASE_URL जाँच्नुहोस्।
+                DATABASE_URL र NEWSROOM_* env जाँच्नुहोस्, त्यसपछि पृष्ठ रिफ्रेस गर्नुहोस्।
               </span>
             </aside>
           ) : null}
 
-          {authReady && boot.lastError ? (
+          {authReady && !bootFailed && boot.lastError ? (
             <aside className="newsroom-login-form__error" role="status" style={{ opacity: 0.9 }}>
               <strong>खाता मर्मत अधुरो।</strong>
               <span style={{ display: 'block', marginTop: '0.35rem' }}>
-                NEWSROOM_* इमेल/पासवर्ड प्रयोग गर्नुहोस्।
+                Vercel मा NEWSROOM_SUPERADMIN_EMAIL / PASSWORD जाँच्नुहोस्।
               </span>
             </aside>
           ) : null}
 
-          {authReady && boot.configured && boot.maskedEmails.length > 0 ? (
-            <p className="newsroom-login-form__ok" lang="en">
-              Boot account: {boot.maskedEmails.join(', ')}
-            </p>
+          {authReady && boot.configured && boot.emails.length > 0 ? (
+            <aside className="newsroom-login-form__ok" lang="en">
+              <strong style={{ display: 'block' }}>Use one of these emails</strong>
+              <span style={{ display: 'block', marginTop: '0.35rem', wordBreak: 'break-all' }}>
+                {boot.emails.join(' · ')}
+              </span>
+              <span style={{ display: 'block', marginTop: '0.35rem', opacity: 0.85 }}>
+                Password must match the matching NEWSROOM_*_PASSWORD in Vercel. This page
+                re-syncs that password on every load.
+              </span>
+            </aside>
           ) : null}
 
-          {authReady ? (
-            <AdminLoginForm resetComplete={query.reset === 'success'} databaseOnline={authReady} />
+          {authReady && !bootFailed ? (
+            <AdminLoginForm
+              resetComplete={query.reset === 'success'}
+              databaseOnline={authReady}
+              expectedEmails={boot.emails}
+            />
           ) : null}
 
           <footer>

@@ -43,6 +43,7 @@ export default async function JournalistLoginPage({
     const auth = await getAuth()
     const boot = await ensureNewsroomBootAccounts(
       auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
+      { forcePassword: true },
     )
     authReady = boot.configured > 0 && boot.failed.length === 0
     bootFailed = boot.failed.length > 0

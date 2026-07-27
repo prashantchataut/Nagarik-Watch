@@ -59,9 +59,16 @@ export type BootProvisionResult = {
 
 export type BootLoginHint = {
   configured: boolean
+  /** Exact env emails for the staff login screen (not for public surfaces). */
+  emails: string[]
   maskedEmails: string[]
   provisionedCount: number
   lastError: string | null
+}
+
+export type BootProvisionOptions = {
+  /** Re-hash and write env passwords even if this instance already synced them. */
+  forcePassword?: boolean
 }
 
 let lastProvisionError: string | null = null
@@ -312,6 +319,7 @@ async function syncCredentialPassword(
 async function seedOne(
   auth: AuthApi,
   spec: ConfiguredBootAccountSpec,
+  options?: BootProvisionOptions,
 ): Promise<'created' | 'synced'> {
   let userId = await findUserId(spec.email)
   let created = false
@@ -352,8 +360,10 @@ async function seedOne(
   await normalizeUserEmail(userId, spec.email)
 
   // Password sync is expensive (bcrypt). Do it for new users, once per warm
-  // instance (so env password repairs work), or when AUTH_BOOT_SYNC_PASSWORD=true.
-  const forceSync = process.env.AUTH_BOOT_SYNC_PASSWORD === 'true'
+  // instance (so env password repairs work), when AUTH_BOOT_SYNC_PASSWORD=true,
+  // or when a staff login page explicitly requests a repair.
+  const forceSync =
+    options?.forcePassword === true || process.env.AUTH_BOOT_SYNC_PASSWORD === 'true'
   const alreadySynced = passwordSyncedThisProcess.has(spec.email)
   if (created || forceSync || !alreadySynced) {
     const passwordOk = await syncCredentialPassword(userId, spec.email, spec.password)
@@ -374,8 +384,16 @@ async function seedOne(
  * Provision / repair newsroom boot accounts from env.
  * Soft-fails: logs errors but never blocks Better Auth from serving sign-in.
  * Successful provision is cached for the warm instance; failures retry next call.
+ * Pass `{ forcePassword: true }` from staff login so env passwords always win.
  */
-export async function ensureNewsroomBootAccounts(auth: AuthApi): Promise<BootProvisionResult> {
+export async function ensureNewsroomBootAccounts(
+  auth: AuthApi,
+  options?: BootProvisionOptions,
+): Promise<BootProvisionResult> {
+  if (options?.forcePassword) {
+    provisionPromise = null
+    passwordSyncedThisProcess.clear()
+  }
   if (provisionPromise) return provisionPromise
 
   const run = (async (): Promise<BootProvisionResult> => {
@@ -396,7 +414,7 @@ export async function ensureNewsroomBootAccounts(auth: AuthApi): Promise<BootPro
 
     for (const spec of specs) {
       try {
-        const status = await seedOne(auth, spec)
+        const status = await seedOne(auth, spec, options)
         if (status === 'created') result.created.push(maskEmail(spec.email))
         else result.synced.push(maskEmail(spec.email))
       } catch (error) {
@@ -430,6 +448,7 @@ export async function getBootLoginHint(): Promise<BootLoginHint> {
   const specs = configuredSpecs()
   return {
     configured: specs.length > 0,
+    emails: specs.map((spec) => spec.email),
     maskedEmails: specs.map((spec) => maskEmail(spec.email)),
     provisionedCount: specs.length,
     lastError: lastProvisionError,

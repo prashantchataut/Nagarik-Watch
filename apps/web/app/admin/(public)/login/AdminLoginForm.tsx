@@ -12,6 +12,7 @@ import { AdminButton } from '@/components/admin/primitives'
 export function AdminLoginForm({
   resetComplete = false,
   databaseOnline = true,
+  expectedEmails = [],
 }: {
   resetComplete?: boolean
   databaseOnline?: boolean
@@ -105,8 +106,12 @@ export function AdminLoginForm({
             return
           }
           if (res.status === 401 || /not found|invalid password|INVALID/i.test(message + code)) {
+            const emailHint =
+              expectedEmails.length > 0
+                ? ` Exact emails: ${expectedEmails.join(', ')}.`
+                : ''
             setError(
-              'Wrong email or password. Email is matched lowercase. If Vercel env passwords changed, set AUTH_BOOT_SYNC_PASSWORD=true once, redeploy, then sign in with the new password.',
+              `Wrong email or password.${emailHint} Password must match the Vercel NEWSROOM_*_PASSWORD for that email. Refresh this page once to re-sync, then try again.`,
             )
             return
           }
