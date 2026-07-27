@@ -62,7 +62,7 @@ export default async function CategoryPage({
   const description = english ? category.descriptionEn : category.descriptionNe
 
   return (
-    <div className="mx-auto max-w-[75rem] px-4 py-5 sm:py-7">
+    <div className="mx-auto max-w-page px-4 py-5 sm:py-7">
       <HubIndexHeader
         title={name}
         lead={
@@ -78,7 +78,7 @@ export default async function CategoryPage({
           <div className="mt-4 border-b border-rule pb-4">
             <AdSlot locale={locale} placementKey="category-top" />
           </div>
-          <div className="mt-8">
+          <div className="mt-6">
             <StoryGrid stories={result.items} locale={locale} />
           </div>
           <AdSlot locale={locale} placementKey="category-inline" variant="inline" />

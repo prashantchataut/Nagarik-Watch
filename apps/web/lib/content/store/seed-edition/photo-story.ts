@@ -16,6 +16,7 @@ export function editionPhotoStory(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["climate"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाच फोटो डेस्कले मनसुन बजारलाई दैनिक अर्थतन्त्रको चित्रका रूपमा देखायो।'),
         p('छविहरूमा पानीको चमक र थकान दुवै छ।'),
@@ -45,6 +46,7 @@ export function editionPhotoStory(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: ["climate"],
       reportingLocation: 'धादिङ',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाचले मर्मत टोलीसँग समय बितायो।'),
         p('छविले पसिना र धुलो देखाउँछ।'),
@@ -75,6 +77,7 @@ export function editionPhotoStory(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: [],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('बिहानको प्रकाश शहरको अर्को अनुहार हो। नागरिक वाच फोटो कथा शान्त तर व्यस्त लय देखाउँछ।'),
         p('प्रदूषण र सुन्दरता सँगै छन्।'),
@@ -104,6 +107,7 @@ export function editionPhotoStory(): StoredArticle[] {
       updatedAt: isoDaysAgo(3, 10),
       tagSlugs: ["labour-migration"],
       reportingLocation: 'इलाम',
+      province: 'koshi',
       bodyNe: [
         p('नागरिक वाच डेस्कले बगान श्रमलाई नजिकबाट कैद गर्‍यो।'),
         p('महिला कामदारको केन्द्रीयता देखिन्छ।'),
@@ -133,6 +137,7 @@ export function editionPhotoStory(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["climate"],
       reportingLocation: 'बारा',
+      province: 'madhesh',
       bodyNe: [
         p('नदी कटान धीमा विपद् हो। नागरिक वाच फोटोले समयको असर देखाउँछ।'),
         p('मानिस अझै आशा राखेर बसेका छन्।'),

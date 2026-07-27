@@ -16,6 +16,7 @@ export function editionSports(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["nepal-cricket"],
       reportingLocation: 'कीर्तिपुर',
+      province: 'bagmati',
       bodyNe: [
         p('राष्ट्रिय क्रिकेट शिविरले आशा जगाउँछ। नागरिक वाच खेलकुद डेस्कले पारदर्शिता र खेलाडी स्वास्थ्यलाई केन्द्रमा राखेको छ।'),
         p('चोट लुकाएर खेलाउने दबाब दीर्घकालीन हानिकारक हुन्छ।'),
@@ -45,6 +46,7 @@ export function editionSports(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: ["fifa-world-cup"],
       reportingLocation: 'ललितपुर',
+      province: 'bagmati',
       bodyNe: [
         p('महिला फुटबलमा उत्साह बढे पनि संरचना कमजोर छ। नागरिक वाच डेस्कले खेलाडी र प्रशिक्षकको अनुभव संकलन गरेको छ।'),
         p('खेल मैदान र यातायात खर्च सानो देखिए पनि ठूलो अवरोध हो।'),
@@ -74,6 +76,7 @@ export function editionSports(): StoredArticle[] {
       updatedAt: isoDaysAgo(2, 9),
       tagSlugs: ["editor-pick"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('रोड रेसले नयाँ धावक तान्छ। नागरिक वाच डेस्कले आयोजना गुणस्तरलाई पाठक सुरक्षाका आधारमा हेर्छ।'),
         p('मनसुन अघि/पछिको मौसम योजना छुट्टै चाहिन्छ।'),
@@ -104,6 +107,7 @@ export function editionSports(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["budget-2083"],
       reportingLocation: 'भक्तपुर',
+      province: 'bagmati',
       bodyNe: [
         p('विद्यालय खेलकुद भनेको प्रतियोगिता मात्र होइन। नागरिक वाच डेस्कले यसलाई स्वास्थ्य र अनुशासनसँग जोड्छ।'),
         p('बजेट रेखामा खेल सामग्री प्राथमिकता नपर्दा मैदान खाली रहन्छ।'),
@@ -133,6 +137,7 @@ export function editionSports(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["nepal-cricket"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('मनसुनले मैदानी खेल प्रभावित पार्छ। नागरिक वाच डेस्कले पारदर्शी पात्रो अद्यावधिक माग्छ।'),
         p('अन्तिम समय रद्दले यात्रा खर्च बढाउँछ।'),

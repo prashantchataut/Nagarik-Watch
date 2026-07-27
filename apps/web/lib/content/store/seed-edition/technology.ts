@@ -16,6 +16,7 @@ export function editionTechnology(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["data-story"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('डिजिटल सेवा विस्तार सकारात्मक छ। नागरिक वाच प्रविधि डेस्कले पहुँच र गोपनीयता सँगै हेर्छ।'),
         p('ग्रामीण इन्टरनेट अभावले असमानता बढाउँछ।'),
@@ -45,6 +46,7 @@ export function editionTechnology(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: ["budget-2083"],
       reportingLocation: 'धनकुटा',
+      province: 'koshi',
       bodyNe: [
         p('डिजिटल भुक्तानीले बजार चलायमान बनाउँछ। नागरिक वाच डेस्क दुरुपयोग जोखिम पनि देखाउँछ।'),
         p('महिला प्रयोगकर्ता तालिम प्रभावकारी हुन्छ।'),
@@ -75,6 +77,7 @@ export function editionTechnology(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["exclusive-report"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('साइबर ठगी बढ्दो चिन्ता हो। नागरिक वाच डेस्कले जटिल शब्द बिना गाइड दिन्छ।'),
         p('परिवारका वृद्ध सदस्यलाई छुट्टै सघाउ चाहिन्छ।'),
@@ -104,6 +107,7 @@ export function editionTechnology(): StoredArticle[] {
       updatedAt: isoDaysAgo(3, 10),
       tagSlugs: ["editor-pick"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('एआई बहस न्यूजरुमभित्र पनि छ। नागरिक वाच डेस्क मानव सम्पादनलाई केन्द्र मान्छ।'),
         p('अन्धो निर्भरताले त्रुटि फैलाउँछ।'),
@@ -133,6 +137,7 @@ export function editionTechnology(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["climate"],
       reportingLocation: 'सोल्खुम्बु',
+      province: 'koshi',
       bodyNe: [
         p('पहाडी कनेक्टिभिटी असमान छ। नागरिक वाच डेस्कले यसलाई विकास सूचक मान्छ।'),
         p('केबल र वायरलेस मिश्रित समाधान चाहिन्छ।'),

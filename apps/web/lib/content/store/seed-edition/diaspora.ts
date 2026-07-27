@@ -16,6 +16,7 @@ export function editionDiaspora(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["labour-migration"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाच प्रवास डेस्कले कामदार परिवारका लागि आधारभूत अधिकार सार तयार पारेको छ।'),
         p('दलाल प्रलोभनबाट बच्ने उपाय समेटिएको छ।'),
@@ -45,6 +46,7 @@ export function editionDiaspora(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: ["labour-migration"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाच डेस्कले तालिम मार्गबारे भ्रम तोड्ने प्रयास गरेको छ।'),
         p('शुल्क पारदर्शिता अनिवार्य छ।'),
@@ -75,6 +77,7 @@ export function editionDiaspora(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["data-story"],
       reportingLocation: 'मोरङ',
+      province: 'koshi',
       bodyNe: [
         p('विप्रेषणले घर चल्छ तर योजनाबिना सकिन्छ। नागरिक वाच डेस्क व्यवहारिक बजेट कुराकानी गर्छ।'),
         p('देखाउने खर्चले दबाब बढाउँछ।'),
@@ -104,6 +107,7 @@ export function editionDiaspora(): StoredArticle[] {
       updatedAt: isoDaysAgo(3, 10),
       tagSlugs: ["labour-migration"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('विदेश अध्ययन सपना हो। नागरिक वाच डेस्क ठगी जोखिमबारे सतर्क गराउँछ।'),
         p('भाषा तयारीले सफलता बढाउँछ।'),
@@ -133,6 +137,7 @@ export function editionDiaspora(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["editor-pick"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('साँस्कृतिक संघ प्रवासको घरजस्तो हुन्छ। नागरिक वाच डेस्कले सुशासन अभ्यास साझा गर्छ।'),
         p('राजनीतिक विभाजनले सहयोग कमजोर पार्न सक्छ।'),

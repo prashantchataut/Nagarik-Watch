@@ -16,6 +16,7 @@ export function editionVideo(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["exclusive-report"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाच भिडियो डेस्कले आफ्नो कार्यशैली पाठकसामु खुलाएको छ।'),
         p('हतारमा गलत दृश्य नआओस् भनेर दोहोरो जाँच हुन्छ।'),
@@ -45,6 +46,7 @@ export function editionVideo(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: [],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाच डेस्क ढाँचा छनोटलाई पाठक हितमा जोड्छ।'),
         p('मनसुन अलर्टमा छोटो भिडियो उपयोगी हुन्छ।'),
@@ -75,6 +77,7 @@ export function editionVideo(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["climate"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाचले मौसम सतर्कता भिडियोलाई सेवा मान्छ।'),
         p('डर फैलाउने संगीत प्रयोग हुँदैन।'),
@@ -104,6 +107,7 @@ export function editionVideo(): StoredArticle[] {
       updatedAt: isoDaysAgo(3, 10),
       tagSlugs: ["editor-pick"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('छोटो ढाँचाले ध्यान तान्छ। नागरिक वाच डेस्क सन्दर्भ जोगाउने वचनबद्ध छ।'),
         p('सच्याइ नोट पिन गरिन्छ।'),
@@ -132,6 +136,7 @@ export function editionVideo(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["data-story"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाचले आफ्नो भिडियो स्मृति व्यवस्थित गर्दैछ।'),
         p('यसले तथ्य जाँचमा पनि सहयोग गर्छ।'),

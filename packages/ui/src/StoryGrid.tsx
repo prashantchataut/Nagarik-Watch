@@ -1,4 +1,5 @@
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
+import { Hero } from './Hero'
 import { StoryCard } from './StoryCard'
 import { cn } from './cn'
 
@@ -12,26 +13,32 @@ type StoryGridProps = {
 
 /**
  * Varied story layout — never an identical equal-card grid.
- * Lead + secondary row + compact text rail for the rest.
+ * Lead uses Hero (text then photo) so headline and image share one left edge;
+ * secondary rail packs beside it; compact rows fill the rest.
  */
 export function StoryGrid({ stories, locale, className, priorityLead = true }: StoryGridProps) {
   if (!stories.length) return null
 
   const [lead, ...rest] = stories
   if (!lead) return null
-  const secondary = rest.slice(0, 2)
-  const compact = rest.slice(2)
+  const secondary = rest.slice(0, 4)
+  const compact = rest.slice(4)
+  void priorityLead
 
   return (
-    <div className={cn('grid gap-4 sm:gap-5', className)}>
-      <div className="grid gap-4 border-b border-rule pb-4 sm:gap-5 sm:pb-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,0.85fr)] lg:gap-6">
-        <StoryCard story={lead} locale={locale} variant="lead" priority={priorityLead} className="lg:pr-4" />
+    <div className={cn('grid gap-5 sm:gap-6', className)}>
+      <div className="grid gap-5 border-b border-rule pb-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(17rem,0.8fr)] xl:items-start xl:gap-6">
+        <Hero story={lead} locale={locale} />
         {secondary.length ? (
-          <div className="grid content-start gap-3 border-t border-rule pt-4 lg:border-t-0 lg:border-l lg:border-rule lg:pt-0 lg:pl-5">
-            {secondary.map((story) => (
-              <StoryCard key={story.id} story={story} locale={locale} variant="horizontal" />
-            ))}
-          </div>
+          <aside className="min-w-0 border-t border-rule pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
+            <ul className="divide-y divide-rule border-y border-rule">
+              {secondary.map((story) => (
+                <li key={story.id} className="py-3">
+                  <StoryCard story={story} locale={locale} variant="horizontal" />
+                </li>
+              ))}
+            </ul>
+          </aside>
         ) : null}
       </div>
       {compact.length ? (

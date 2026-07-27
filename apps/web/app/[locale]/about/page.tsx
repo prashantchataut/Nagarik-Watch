@@ -18,10 +18,10 @@ export default async function AboutPage({ params }: { params: Promise<Params> })
   const lang = locale === 'en' ? 'en' : 'ne'
 
   return (
-    <div className="mx-auto max-w-page px-4 py-10">
+    <div className="mx-auto max-w-page px-4 py-8 sm:py-10">
       <InfoPageHeader kicker={dict.aboutKicker} title={dict.footerAbout} lead={dict.aboutLead} lang={lang} />
 
-      <div className="mt-10 space-y-10">
+      <div className="mt-8 space-y-0">
         <InfoSection heading={dict.aboutMissionHeading} lang={lang}>
           {dict.aboutMission}
         </InfoSection>

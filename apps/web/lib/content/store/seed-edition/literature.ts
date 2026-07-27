@@ -16,6 +16,7 @@ export function editionLiterature(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["editor-pick"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाच साहित्य डेस्कले नयाँ संग्रहलाई पाठक र लेखकबीचको पुलका रूपमा हेर्छ।'),
         p('कविता महोत्सवले संवाद बढाउँछ।'),
@@ -45,6 +46,7 @@ export function editionLiterature(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: [],
       reportingLocation: 'ललितपुर',
+      province: 'bagmati',
       bodyNe: [
         p('अनुवाद श्रमसँग जोडिएको काम हो। नागरिक वाच डेस्क गुणस्तरमा जोड दिन्छ।'),
         p('पाठ्यक्रममा क्लासिक समावेश बहस खुला हुनुपर्छ।'),
@@ -75,6 +77,7 @@ export function editionLiterature(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["editor-pick"],
       reportingLocation: 'पोखरा',
+      province: 'gandaki',
       bodyNe: [
         p('साहित्य महोत्सव उत्सव मात्र होइन। नागरिक वाच डेस्क संवाद गुणस्तर हेर्छ।'),
         p('टिकट महँगो हुँदा युवा टाढिन्छन्।'),
@@ -104,6 +107,7 @@ export function editionLiterature(): StoredArticle[] {
       updatedAt: isoDaysAgo(3, 10),
       tagSlugs: ["budget-2083"],
       reportingLocation: 'कास्की',
+      province: 'gandaki',
       bodyNe: [
         p('परीक्षा केन्द्रित पठनले रुचि मार्छ। नागरिक वाच डेस्क स्वतन्त्र पठन प्रोत्साहन गर्छ।'),
         p('पुस्तकालय बजेट सानो तर प्रभावशाली हुन सक्छ।'),
@@ -133,6 +137,7 @@ export function editionLiterature(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["labour-migration"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('प्रवासी लेखन सेतु हो। नागरिक वाच साहित्य डेस्क यसलाई मूलधार बहसमा ल्याउँछ।'),
         p('प्रकाशन पहुँच असमान छ।'),

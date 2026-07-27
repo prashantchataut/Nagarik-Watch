@@ -16,6 +16,7 @@ export function editionEntertainment(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["editor-pick"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('चलचित्र महोत्सव सांस्कृतिक क्यालेन्डरको महत्त्वपूर्ण हिस्सा हो। नागरिक वाच डेस्कले पहुँच र विविधतालाई मापदण्ड मान्छ।'),
         p('केवल प्रचार होइन, सिर्जनाकार संवाद चाहिन्छ।'),
@@ -45,6 +46,7 @@ export function editionEntertainment(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: [],
       reportingLocation: 'पोखरा',
+      province: 'gandaki',
       bodyNe: [
         p('लोक संगीत पहिचानको अंश हो। नागरिक वाच डेस्कले पुस्ता हस्तान्तरण कमजोर हुँदा चिन्ता व्यक्त गर्छ।'),
         p('पर्यटन प्रदर्शन मात्र पर्याप्त होइन।'),
@@ -74,6 +76,7 @@ export function editionEntertainment(): StoredArticle[] {
       updatedAt: isoDaysAgo(2, 9),
       tagSlugs: ["editor-pick"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('रङ्गमञ्च समुदाय संवादको शक्तिशाली माध्यम हो। नागरिक वाच डेस्कले साना उत्पादनलाई स्थान दिन आग्रह गर्छ।'),
         p('हल भाडा मुख्य खर्च हो।'),
@@ -104,6 +107,7 @@ export function editionEntertainment(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: [],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('स्ट्रिमिङले पहुँच बढायो तर हल अर्थतन्त्रमा चाप पर्‍यो। नागरिक वाच डेस्क दुवै माध्यमको सहअस्तित्व खोज्छ।'),
         p('नेपाली सामग्रीको खोज योग्यता महत्त्वपूर्ण छ।'),
@@ -133,6 +137,7 @@ export function editionEntertainment(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["climate"],
       reportingLocation: 'भक्तपुर',
+      province: 'bagmati',
       bodyNe: [
         p('साँस्कृतिक कार्यक्रम शहरको पहिचान हो। नागरिक वाच डेस्कले सुरक्षा र पहुँचलाई जोड दिन्छ।'),
         p('मनसुन याममा वैकल्पिक स्थल योजना चाहिन्छ।'),

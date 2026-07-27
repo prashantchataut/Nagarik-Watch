@@ -16,6 +16,7 @@ export function editionWorld(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["geopolitics"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('वैश्विक ऊर्जा तनाव टाढाको समाचार होइन। नागरिक वाच विश्व डेस्कले यसलाई घरेलु लागतसँग जोडेर हेर्छ।'),
         p('अफवाहले बजार बिगार्छ। आधिकारिक तथ्यांक नियमित आउनुपर्छ।'),
@@ -45,6 +46,7 @@ export function editionWorld(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: ["climate"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('मनसुन क्षेत्रीय घटना हो। नागरिक वाच डेस्कले नदी र बाढी जोखिमलाई साझा चुनौती मान्छ।'),
         p('डाटा आदानप्रदान ढिला हुँदा तयारी कमजोर हुन्छ।'),
@@ -74,6 +76,7 @@ export function editionWorld(): StoredArticle[] {
       updatedAt: isoDaysAgo(2, 9),
       tagSlugs: ["labour-migration"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('श्रम प्रवास विश्व श्रम बजारसँग जोडिएको छ। नागरिक वाच डेस्कले करिडोर जोखिम पाठकलाई बुझाउँछ।'),
         p('अनौपचारिक दलाली महँगो र जोखिमपूर्ण हुन्छ।'),
@@ -104,6 +107,7 @@ export function editionWorld(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["climate"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('जलवायु कूटनीति जटिल लाग्न सक्छ। नागरिक वाच डेस्कले यसलाई स्थानीय प्रभावमा अनुवाद गर्छ।'),
         p('अनुकूलन आयोजना ढिलाइले क्षति बढाउँछ।'),
@@ -133,6 +137,7 @@ export function editionWorld(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["geopolitics"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('विस्थापनको समाचार संख्यामा मात्र सीमित हुनुहुँदैन। नागरिक वाच डेस्क मानवीय मापदण्डमा जोड दिन्छ।'),
         p('महिला र बालबालिका जोखिममा बढी पर्छन्।'),

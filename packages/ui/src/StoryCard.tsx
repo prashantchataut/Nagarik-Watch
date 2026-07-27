@@ -166,15 +166,15 @@ export function StoryCard({
 
   if (layout === 'horizontal') {
     return (
-      <article className={cn('group relative flex gap-3', className)}>
-        <div className="relative block w-24 shrink-0 overflow-hidden aspect-[4/3] bg-brand-tint sm:w-28">
+      <article className={cn('group relative flex flex-nowrap items-start gap-3', className)}>
+        <div className="relative block w-[4.75rem] shrink-0 overflow-hidden aspect-[4/3] bg-brand-tint sm:w-24">
           {story.heroImage ? (
             <Image
               src={story.heroImage.url}
               alt=""
               fill
               unoptimized={unoptimized}
-              sizes="112px"
+              sizes="96px"
               className="object-cover"
               aria-hidden="true"
             />
@@ -182,7 +182,7 @@ export function StoryCard({
             <span className="absolute inset-y-0 left-0 w-1 bg-brand" aria-hidden="true" />
           )}
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 overflow-hidden">
           <div className="mb-0.5 flex flex-wrap items-center gap-2">
             <CategoryLabel category={story.category} locale={locale} as="span" />
             <MembershipMarker story={story} locale={locale} />

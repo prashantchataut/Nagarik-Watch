@@ -16,6 +16,7 @@ export function editionOpinion(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["editor-pick"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('संघीयताको सफलता नागरिकको दैनिक अनुभवमा देखिनुपर्छ। नागरिक वाच विचार डेस्कले सेवा नतिजालाई केन्द्रमा राख्छ।'),
         p('दोहोरो जिम्मेवारीले नागरिक अन्योलमा पर्छन्।'),
@@ -45,6 +46,7 @@ export function editionOpinion(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: ["climate"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('सहरी बाढी प्राकृतिक मात्र होइन। नागरिक वाच डेस्क योजना कमजोरीतिर औंल्याउँछ।'),
         p('नक्सा र वास्तविक नाली फरक हुनुहुँदैन।'),
@@ -75,6 +77,7 @@ export function editionOpinion(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["exclusive-report"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाच विचारमा प्रेस स्वतन्त्रता जिम्मेवारीसहित आउँछ।'),
         p('हतारको हेडलाइनले क्षति पुर्‍याउन सक्छ।'),
@@ -104,6 +107,7 @@ export function editionOpinion(): StoredArticle[] {
       updatedAt: isoDaysAgo(3, 10),
       tagSlugs: ["labour-migration"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('रोजगारी अभावले निराशा बढाउँछ। नागरिक वाच डेस्क बाटो मापनयोग्य होस् भन्छ।'),
         p('वैदेशिक रोजगारी मात्र उत्तर होइन।'),
@@ -133,6 +137,7 @@ export function editionOpinion(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["budget-2083"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('निजी सवारी मात्रले शहर धान्दैन। नागरिक वाच डेस्क सार्वजनिक विकल्प बलियो बनाउन तर्क गर्छ।'),
         p('अनुदान पारदर्शी हुनुपर्छ।'),

@@ -16,6 +16,7 @@ export function editionInterview(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["exclusive-report"],
       reportingLocation: 'हेटौंडा',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाच डेस्कले प्रदेश योजना अधिकृतसँग सेवा प्राथमिकताबारे कुराकानी गरेको छ। नाम र विवरण गोपनीयताका लागि सामान्यीकृत छ।'),
         p('उनीहरूका अनुसार वडास्तर डाटा बिना योजना हावामा बन्छ।'),
@@ -45,6 +46,7 @@ export function editionInterview(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: ["labour-migration"],
       reportingLocation: 'बुटवल',
+      province: 'lumbini',
       bodyNe: [
         p('नागरिक वाचले साना खाद्य प्रशोधन उद्यम चलाउने महिलासँग अन्तर्वार्ता लिएको छ।'),
         p('परिवार जिम्मेवारी र व्यवसाय समय व्यवस्थापन चुनौती हो।'),
@@ -75,6 +77,7 @@ export function editionInterview(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["nepal-cricket"],
       reportingLocation: 'कीर्तिपुर',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाच खेलकुद डेस्कले युवा प्रशिक्षकसँग संवाद गरेको छ।'),
         p('धेरै अभिभावक नतिजा हतार गर्छन्।'),
@@ -104,6 +107,7 @@ export function editionInterview(): StoredArticle[] {
       updatedAt: isoDaysAgo(3, 10),
       tagSlugs: ["climate"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाचले जलवायु अनुसन्धानकर्मीसँग हिमाली जोखिमबारे कुराकानी गर्‍यो।'),
         p('ग्लेसियर ताल निगरानी निरन्तर चाहिन्छ।'),
@@ -133,6 +137,7 @@ export function editionInterview(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["labour-migration"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('नागरिक वाच प्रवास डेस्कले स्वयंसेवी संगठकसँग अन्तर्वार्ता गर्‍यो।'),
         p('नयाँ आएका कामदार अभिमुखीकरण अभाव भोग्छन्।'),

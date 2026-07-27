@@ -16,6 +16,7 @@ export function editionEducation(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["editor-pick"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('परीक्षा नतिजा संवेदनशील समय हो। नागरिक वाच शिक्षा डेस्कले बालबालिकाको गरिमा जोगाउन आग्रह गर्छ।'),
         p('असफलता अन्त्य होइन।'),
@@ -45,6 +46,7 @@ export function editionEducation(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: ["labour-migration"],
       reportingLocation: 'बागलुङ',
+      province: 'gandaki',
       bodyNe: [
         p('शिक्षक अभाव संख्या मात्र होइन गुणस्तर संकट हो। नागरिक वाच डेस्कले कक्षा अनुभव रेकर्ड गर्छ।'),
         p('महिला शिक्षक सुरक्षा र आवास निर्णायक हुन्छ।'),
@@ -75,6 +77,7 @@ export function editionEducation(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["data-story"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('डिजिटल शिक्षा सम्भावनाशील छ। नागरिक वाच डेस्क असमान पहुँच चिन्ता गर्छ।'),
         p('ग्रामीण विद्यालय छायामा पर्नु हुँदैन।'),
@@ -104,6 +107,7 @@ export function editionEducation(): StoredArticle[] {
       updatedAt: isoDaysAgo(3, 10),
       tagSlugs: ["budget-2083"],
       reportingLocation: 'धनुषा',
+      province: 'madhesh',
       bodyNe: [
         p('छात्रवृत्ति समानताको औजार हो। नागरिक वाच डेस्क जटिल प्रक्रियाले बाहिर पार्ने जोखिम देखाउँछ।'),
         p('दलित, महिला र अपाङ्गता कोटा कार्यान्वयन मापनयोग्य होस्।'),
@@ -133,6 +137,7 @@ export function editionEducation(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["climate"],
       reportingLocation: 'सिन्धुली',
+      province: 'bagmati',
       bodyNe: [
         p('वर्षाले विद्यालय प्रभावित पार्छ। नागरिक वाच डेस्क सुरक्षा पहिला राख्छ।'),
         p('हठात बन्द अफवाह रोक्न आधिकारिक सूचना चाहिन्छ।'),

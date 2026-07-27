@@ -16,6 +16,7 @@ export function editionBusiness(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["budget-2083"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('थोक मूल्यको चापले खुद्रा बजार प्रभावित हुन सक्छ। नागरिक वाच आर्थिक डेस्कले इन्धन र ढुवानी श्रृंखला हेरेको छ।'),
         p('आयात निर्भर अर्थतन्त्र बाह्य झट्कामा छिट्टै प्रभावित हुन्छ।'),
@@ -46,6 +47,7 @@ export function editionBusiness(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: ["data-story"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('छोटो उछालले नयाँ लगानीकर्ता तान्छ। नागरिक वाच डेस्क दीर्घकालीन अनुशासनमा जोड दिन्छ।'),
         p('कारोबार मात्रा र संस्थागत सहभागिता बजार स्वास्थ्य झल्काउँछ।'),
@@ -75,6 +77,7 @@ export function editionBusiness(): StoredArticle[] {
       updatedAt: isoDaysAgo(2, 9),
       tagSlugs: ["labour-migration"],
       reportingLocation: 'झापा',
+      province: 'koshi',
       bodyNe: [
         p('विप्रेषण अर्थतन्त्रको मेरुदण्ड हो। नागरिक वाच डेस्कले साना पसलमा तरलता प्रवाह अवलोकन गरेको छ।'),
         p('नगद निर्भरताले जोखिम बढाउँछ।'),
@@ -105,6 +108,7 @@ export function editionBusiness(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["climate"],
       reportingLocation: 'पोखरा',
+      province: 'gandaki',
       bodyNe: [
         p('मनसुनलाई शून्य याम मात्र ठान्ने सोच पुरानो भयो। नागरिक वाच डेस्कले घरेलु माग हेरेको छ।'),
         p('जोखिम खुला बताए विश्वास बढ्छ।'),
@@ -134,6 +138,7 @@ export function editionBusiness(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: ["budget-2083"],
       reportingLocation: 'विराटनगर',
+      province: 'koshi',
       bodyNe: [
         p('साना उद्योग रोजगारीको ठूलो स्रोत हुन्। नागरिक वाच डेस्कले कर्जा ढिलाइ रेकर्ड गरेको छ।'),
         p('अनौपचारिक ऋण महँगो तर छिटो देखिन्छ।'),

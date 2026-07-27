@@ -40,15 +40,19 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
     { href: localizeHref(locale, '/market'), label: locale === 'en' ? 'Market' : 'बजार' },
     {
       href: localizeHref(locale, '/utilities'),
-      label: locale === 'en' ? 'Utilities' : 'उपयोगी सेवा',
+      label: locale === 'en' ? 'Utilities' : 'उपयोगी',
     },
     {
       href: localizeHref(locale, '/photos'),
       label: locale === 'en' ? 'Photos' : 'फोटो',
     },
+    {
+      href: localizeHref(locale, '/province'),
+      label: locale === 'en' ? 'Provinces' : 'प्रदेश',
+    },
   ]
 
-  const aboutLinks = [
+  const aboutLinks: { href: string; label: string }[] = [
     { href: localizeHref(locale, '/about'), label: dict.footerAbout },
     { href: localizeHref(locale, '/ethics'), label: dict.footerEthics },
     { href: localizeHref(locale, '/privacy'), label: dict.footerPrivacy },
@@ -59,49 +63,46 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
     { href: localizeHref(locale, '/terms'), label: locale === 'en' ? 'Terms' : 'सर्त' },
     { href: localizeHref(locale, '/advertise'), label: locale === 'en' ? 'Advertise' : 'विज्ञापन' },
     { href: localizeHref(locale, '/contact'), label: dict.footerContact },
+    { href: localizeHref(locale, '/team'), label: locale === 'en' ? 'Team' : 'टोली' },
     { href: '/rss.xml', label: 'RSS' },
   ]
 
-  const staffLinks = hasLivePublicApi()
-    ? [
-        {
-          href: localizeHref(locale, '/auth/profile'),
-          label: locale === 'en' ? 'Your account' : 'खाता',
-        },
-        {
-          href: localizeHref(locale, '/submit-story'),
-          label: locale === 'en' ? 'Submit a tip' : 'समाचार पठाउनुहोस्',
-        },
-        {
-          href: localizeHref(locale, '/journalist/login'),
-          label: locale === 'en' ? 'Reporter desk' : 'पत्रकार डेस्क',
-        },
-        {
-          href: '/admin/login',
-          label: locale === 'en' ? 'Newsroom login' : 'न्युजरुम लगइन',
-        },
-      ]
-    : []
+  if (hasLivePublicApi()) {
+    aboutLinks.push(
+      {
+        href: localizeHref(locale, '/submit-story'),
+        label: locale === 'en' ? 'Submit a tip' : 'टिप पठाउनुहोस्',
+      },
+      {
+        href: localizeHref(locale, '/journalist/login'),
+        label: locale === 'en' ? 'Reporter desk' : 'पत्रकार डेस्क',
+      },
+      {
+        href: '/admin/login',
+        label: locale === 'en' ? 'Newsroom' : 'न्युजरुम',
+      },
+    )
+  }
 
-  const categoryLinks = navCategories.slice(0, 12).map((c) => ({
+  const categoryLinks = navCategories.slice(0, 14).map((c) => ({
     href: localizeHref(locale, `/${c.slug}`),
     label: locale === 'en' && c.nameEn ? c.nameEn : c.nameNe,
     lang: locale === 'en' && c.nameEn ? 'en' : 'ne',
   }))
 
   const linkClass =
-    'text-body text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong'
+    'text-meta text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong sm:text-body'
 
   return (
-    <footer className="mt-12 border-t border-rule bg-chrome text-on-chrome pb-20 lg:pb-8">
-      <div className="mx-auto max-w-page px-4 py-8 sm:py-10">
-        <div className="flex flex-col gap-6 border-b border-chrome-rule pb-8 lg:flex-row lg:items-start lg:justify-between">
+    <footer className="mt-10 border-t border-rule bg-chrome text-on-chrome pb-[4.5rem] lg:pb-6">
+      <div className="mx-auto max-w-page px-4 py-7 sm:py-8">
+        <div className="flex flex-col gap-4 border-b border-chrome-rule pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-md">
             <span className="flex items-center gap-3">
               <LogoMark
                 title={`${dict.siteName} / Nagarik Watch`}
                 tone="chrome"
-                className="h-12 w-12 shrink-0"
+                className="h-11 w-11 shrink-0"
               />
               <span className="flex flex-col leading-none">
                 <span className="font-display text-h3 font-extrabold text-on-chrome" lang="ne">
@@ -112,23 +113,22 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
                 </span>
               </span>
             </span>
-            <span className="mt-3 block h-0.5 w-10 bg-brand" aria-hidden />
-            <p className="mt-3 text-meta leading-relaxed text-on-chrome-soft" lang={lang}>
+            <span className="mt-2.5 block h-0.5 w-10 bg-brand" aria-hidden />
+            <p className="mt-2.5 text-meta leading-relaxed text-on-chrome-soft" lang={lang}>
               {dict.tagline}
             </p>
           </div>
-
           <div className="flex flex-wrap gap-2">
             <a
               href={`mailto:${PUBLICATION.email}`}
-              className="inline-flex min-h-10 items-center rounded border border-chrome-rule px-3 text-caption font-bold text-on-chrome-soft transition-colors hover:border-brand hover:text-on-chrome"
+              className="inline-flex min-h-9 items-center rounded border border-chrome-rule px-3 text-caption font-bold text-on-chrome-soft transition-colors hover:border-brand hover:text-on-chrome"
               lang={lang}
             >
               {PUBLICATION.email}
             </a>
             <Link
               href={localizeHref(locale, '/newsletter/archive')}
-              className="inline-flex min-h-10 items-center rounded border border-chrome-rule px-3 text-caption font-bold text-on-chrome-soft transition-colors hover:border-brand hover:text-on-chrome"
+              className="inline-flex min-h-9 items-center rounded border border-chrome-rule px-3 text-caption font-bold text-on-chrome-soft transition-colors hover:border-brand hover:text-on-chrome"
               lang={lang}
             >
               {locale === 'en' ? 'Newsletter' : 'न्युजलेटर'}
@@ -136,29 +136,23 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
           </div>
         </div>
 
-        <div
-          className={`grid gap-8 py-8 sm:grid-cols-2 ${staffLinks.length > 0 ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}
-        >
+        <div className="grid gap-6 py-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
           <nav aria-label={locale === 'en' ? 'News sections' : 'समाचार विभाग'}>
             <p className="font-display text-body font-extrabold text-on-chrome" lang={lang}>
               {locale === 'en' ? 'Sections' : 'विभाग'}
             </p>
-            <ul className="mt-3 grid gap-y-1.5">
-              {categoryLinks.length > 0
-                ? categoryLinks.map((s) => (
-                    <li key={s.href}>
-                      <Link href={s.href} className={linkClass} lang={s.lang}>
-                        {s.label}
-                      </Link>
-                    </li>
-                  ))
-                : deskLinks.slice(0, 6).map((s) => (
-                    <li key={s.href}>
-                      <Link href={s.href} className={linkClass} lang={lang}>
-                        {s.label}
-                      </Link>
-                    </li>
-                  ))}
+            <ul className="mt-2.5 columns-1 gap-x-4 sm:columns-2">
+              {(categoryLinks.length > 0 ? categoryLinks : deskLinks.slice(0, 8)).map((s) => (
+                <li key={s.href} className="mb-1.5 break-inside-avoid">
+                  <Link
+                    href={s.href}
+                    className={linkClass}
+                    lang={'lang' in s ? s.lang : lang}
+                  >
+                    {s.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
 
@@ -166,9 +160,9 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
             <p className="font-display text-body font-extrabold text-on-chrome" lang={lang}>
               {locale === 'en' ? 'Desks' : 'डेस्क'}
             </p>
-            <ul className="mt-3 grid gap-y-1.5">
+            <ul className="mt-2.5 columns-1 gap-x-4 sm:columns-2">
               {deskLinks.map((s) => (
-                <li key={s.href}>
+                <li key={s.href} className="mb-1.5 break-inside-avoid">
                   <Link href={s.href} className={linkClass} lang={lang}>
                     {s.label}
                   </Link>
@@ -177,30 +171,13 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
             </ul>
           </nav>
 
-          {staffLinks.length > 0 ? (
-            <nav aria-label={locale === 'en' ? 'Account & staff' : 'खाता र स्टाफ'}>
-              <p className="font-display text-body font-extrabold text-on-chrome" lang={lang}>
-                {locale === 'en' ? 'Account & staff' : 'खाता र स्टाफ'}
-              </p>
-              <ul className="mt-3 grid gap-y-1.5">
-                {staffLinks.map((s) => (
-                  <li key={s.href}>
-                    <Link href={s.href} className={linkClass} lang={lang}>
-                      {s.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ) : null}
-
-          <nav aria-label={dict.footerSections}>
+          <nav aria-label={dict.footerSections} className="sm:col-span-2 lg:col-span-1">
             <p className="font-display text-body font-extrabold text-on-chrome" lang={lang}>
               {locale === 'en' ? 'About & policy' : 'बारेमा र नीति'}
             </p>
-            <ul className="mt-3 grid gap-y-1.5">
+            <ul className="mt-2.5 columns-1 gap-x-4 sm:columns-2 lg:columns-1">
               {aboutLinks.map((s) => (
-                <li key={s.href}>
+                <li key={s.href} className="mb-1.5 break-inside-avoid">
                   <Link href={s.href} className={linkClass} lang={lang}>
                     {s.label}
                   </Link>
@@ -213,7 +190,7 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
             <p className="font-display text-body font-extrabold text-on-chrome" lang={lang}>
               {locale === 'en' ? 'Contact' : 'सम्पर्क'}
             </p>
-            <address className="mt-3 not-italic text-meta leading-relaxed text-on-chrome-soft" lang={lang}>
+            <address className="mt-2.5 not-italic text-meta leading-relaxed text-on-chrome-soft" lang={lang}>
               <p className="font-semibold text-on-chrome">{PUBLICATION.publisherName}</p>
               {isPublicPublicationValue(PUBLICATION.address) ? (
                 <p className="mt-1">{PUBLICATION.address}</p>
@@ -240,17 +217,19 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
           </div>
         </div>
 
-        <div className="border-t border-chrome-rule pt-6">
-          <p className="text-caption text-mute" lang={lang}>
-            {dict.footerCopyright(year)}
-          </p>
-          <p className="mt-2 max-w-3xl text-caption leading-relaxed text-mute" lang={lang}>
-            {PUBLICATION.ownership}
-          </p>
-          <p className="mt-2 max-w-3xl text-caption leading-relaxed text-mute" lang={lang}>
-            {dict.footerDisclaimer}
-          </p>
-          <div className="mt-4">
+        <div className="flex flex-col gap-3 border-t border-chrome-rule pt-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-caption text-mute" lang={lang}>
+              {dict.footerCopyright(year)}
+            </p>
+            <p className="mt-1.5 text-caption leading-relaxed text-mute" lang={lang}>
+              {PUBLICATION.ownership}
+            </p>
+            <p className="mt-1.5 text-caption leading-relaxed text-mute" lang={lang}>
+              {dict.footerDisclaimer}
+            </p>
+          </div>
+          <div className="shrink-0">
             <ManageCookiesButton locale={locale} />
           </div>
         </div>

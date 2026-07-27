@@ -16,6 +16,7 @@ export function editionHealth(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["climate"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('मनसुनमा संक्रमण जोखिम बढ्छ। नागरिक वाच स्वास्थ्य डेस्कले डर होइन तयारीको सन्देश दिन्छ।'),
         p('अस्पताल भीड व्यवस्थापन चाहिन्छ।'),
@@ -45,6 +46,7 @@ export function editionHealth(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: [],
       reportingLocation: 'अछाम',
+      province: 'sudurpashchim',
       bodyNe: [
         p('मातृ मृत्यु घटाउने लक्ष्य सेवा गुणस्तरमा निर्भर छ। नागरिक वाच डेस्कले बाधा रेकर्ड गर्छ।'),
         p('घर प्रसूति बाध्यता बन्नु हुँदैन।'),
@@ -75,6 +77,7 @@ export function editionHealth(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["editor-pick"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('मानसिक स्वास्थ्य बहस बढे पनि कलंक बाँकी छ। नागरिक वाच डेस्क संवेदनशील भाषामा जोड दिन्छ।'),
         p('आत्महत्या समाचारमा सावधानी अपरिहार्य छ।'),
@@ -104,6 +107,7 @@ export function editionHealth(): StoredArticle[] {
       updatedAt: isoDaysAgo(3, 10),
       tagSlugs: ["data-story"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('लामो लहरले विश्वास घटाउँछ। नागरिक वाच डेस्क मापन र प्रकाशन माग्छ।'),
         p('कर्मचारी अभाव लुकाएर समाधान हुँदैन।'),
@@ -133,6 +137,7 @@ export function editionHealth(): StoredArticle[] {
       updatedAt: isoDaysAgo(4, 6),
       tagSlugs: [],
       reportingLocation: 'महोत्तरी',
+      province: 'madhesh',
       bodyNe: [
         p('खोप कार्यक्रम जनस्वास्थ्यको आधार हो। नागरिक वाच डेस्क अफवाहको जवाफ तथ्यले दिन्छ।'),
         p('विद्यालय अभियान प्रभावकारी हुन्छ।'),

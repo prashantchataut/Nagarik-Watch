@@ -67,6 +67,17 @@ export function ProvinceMegaMenu({ locale }: { locale: Locale }) {
           role="menu"
           className="absolute left-0 top-full z-50 mt-1 w-56 rounded-md border border-rule bg-surface-raised p-2 shadow-overlay"
         >
+          <li role="none">
+            <Link
+              role="menuitem"
+              href={localizeHref(locale, '/province')}
+              lang={lang}
+              onClick={() => setOpen(false)}
+              className="block rounded-sm px-3 py-2 text-body font-bold text-brand-strong transition-colors duration-fast ease-out-quint hover:bg-brand-tint"
+            >
+              {locale === 'en' ? 'All provinces' : 'सबै प्रदेश'}
+            </Link>
+          </li>
           {PROVINCES.map((p) => {
             const href = localizeHref(locale, `/province/${p.slug}`)
             return (

@@ -16,6 +16,7 @@ export function editionSociety(): StoredArticle[] {
       isFeatured: 'lead',
       tagSlugs: ["climate"],
       reportingLocation: 'सिन्धुपाल्चोक',
+      province: 'bagmati',
       bodyNe: [
         p('मनसुन सक्रिय रहँदा पहाडी सडकखण्डमा पहिरो र नदी कटान दोहोरिएका छन्। नागरिक वाच डेस्कले यात्रु, चालक र स्थानीय व्यापारीसँगको संवादमा आपूर्ति श्रृंखला प्रभावित भएको पाएको छ।'),
         p('रातको यातायात प्रतिबन्ध र आकस्मिक बन्दले विद्यार्थी र बिरामी परिवारलाई बढी मर्का परेको छ। वैकल्पिक मार्गबारे स्पष्ट सूचना नहुँदा अन्योल बढ्छ।'),
@@ -46,6 +47,7 @@ export function editionSociety(): StoredArticle[] {
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: ["climate"],
       reportingLocation: 'काठमाडौं',
+      province: 'bagmati',
       bodyNe: [
         p('मनसुनमा शहरी फोहोर व्यवस्थापन थप चुनौतीपूर्ण हुन्छ। नागरिक वाच डेस्कले महानगरका केही वडामा संकलन ढिलाइ र नाली थुप्रिएको अवस्था रेकर्ड गरेको छ।'),
         p('फोहोर खुला ठाउँमा जम्मा हुँदा पानीजन्य रोगको जोखिम बढ्छ। यो सार्वजनिक स्वास्थ्यको विषय हो।'),
@@ -75,6 +77,7 @@ export function editionSociety(): StoredArticle[] {
       updatedAt: isoDaysAgo(2, 9),
       tagSlugs: ["editor-pick"],
       reportingLocation: 'ललितपुर',
+      province: 'bagmati',
       bodyNe: [
         p('सार्वजनिक यातायातमा महिला सुरक्षा दीर्घकालीन बहस हो। नागरिक वाच डेस्कले यात्रु अनुभवलाई नीति सुधारसँग जोडेर हेर्छ।'),
         p('उजुरीपछिको प्रक्रिया अस्पष्ट हुँदा धेरै मौन बस्छन्।'),
@@ -104,6 +107,7 @@ export function editionSociety(): StoredArticle[] {
       updatedAt: isoDaysAgo(3, 10),
       tagSlugs: ["labour-migration"],
       reportingLocation: 'रुकुम',
+      province: 'karnali',
       bodyNe: [
         p('दुर्गम स्वास्थ्य चौकीमा जनशक्ति अभाव पुरानो समस्या हो। नागरिक वाच डेस्कले सेवाग्राही कथा रेकर्ड गरेको छ।'),
         p('एकल कर्मीमा निर्भर इकाईमा बिदाले सेवा रोकिन सक्छ।'),
@@ -134,6 +138,7 @@ export function editionSociety(): StoredArticle[] {
       isFeatured: 'secondary',
       tagSlugs: ["climate"],
       reportingLocation: 'कास्की',
+      province: 'gandaki',
       bodyNe: [
         p('विपद्पछि मात्र प्रतिक्रिया जनाउने शैली महँगो हुन्छ। नागरिक वाच डेस्कले अभ्यासलाई जीवनरक्षा लगानी मान्छ।'),
         p('विद्यालय र वडा मिलेर अभ्यास गर्दा बालबालिका तयार हुन्छन्।'),

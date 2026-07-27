@@ -1,8 +1,9 @@
 import { staticProvinceParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import { PublicHubPage } from '@/components/PublicHubPage'
+import { notFound } from 'next/navigation'
+import { ProvinceDesk } from '@/components/province/ProvinceDesk'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import { getStories } from '@/lib/content'
 import { PROVINCES } from '@/lib/site'
 
 export const dynamic = 'force-static'
@@ -23,46 +24,20 @@ export default async function Page({
   const { locale: raw, slug } = await params
   const locale = asLocale(raw)
   const province = resolveProvince(slug)
-  const titleNe = province?.nameNe ?? slug.replace(/-/g, ' ')
-  const titleEn = province?.nameEn ?? slug.replace(/-/g, ' ')
+  if (!province) notFound()
+
+  const [{ items: stories }, { items: national }] = await Promise.all([
+    getStories({ locale, province: slug, perPage: 24 }),
+    getStories({ locale, perPage: 12 }),
+  ])
+
   return (
-    <div>
-      <PublicHubPage
-        locale={locale}
-        province={slug}
-        hub={{
-          key: 'archive',
-          path: `/province/${slug}`,
-          titleNe,
-          titleEn,
-          leadNe: `${titleNe} प्रदेशका प्रकाशित सामग्री र स्थानीय अपडेट।`,
-          leadEn: `Published stories and local updates from ${titleEn} Province.`,
-          mode: 'editorial',
-        }}
-      />
-      <nav
-        className="mx-auto max-w-page px-4 pb-12"
-        aria-label={locale === 'en' ? 'All provinces' : 'सबै प्रदेश'}
-      >
-        <ul className="flex flex-wrap gap-2 border-t border-rule pt-6">
-          {PROVINCES.map((p) => (
-            <li key={p.slug}>
-              <Link
-                href={localizeHref(locale, `/province/${p.slug}`)}
-                className={
-                  p.slug === slug
-                    ? 'inline-flex min-h-9 items-center border border-brand bg-brand px-3 text-meta font-bold text-surface'
-                    : 'inline-flex min-h-9 items-center border border-rule px-3 text-meta font-semibold text-ink-soft hover:border-brand hover:text-brand-strong'
-                }
-                lang={locale === 'en' ? 'en' : 'ne'}
-              >
-                {locale === 'en' ? p.nameEn : p.nameNe}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
+    <ProvinceDesk
+      locale={locale}
+      province={province}
+      stories={stories}
+      nationalFallback={stories.length === 0 ? national : []}
+    />
   )
 }
 
