@@ -24,7 +24,14 @@ export default async function JournalistFeedbackPage({ params }: { params: Promi
     <JournalistWorkspaceShell locale={locale} name={session.displayName || session.email} roleLabel={roleLabel} active="feedback">
       <main className="newsroom-page">
         <header className="newsroom-page__header">
-          <h1>{ne ? 'सम्पादकीय प्रतिक्रिया' : 'Editor feedback'}</h1>
+          <div>
+            <h1>{ne ? 'सम्पादकीय प्रतिक्रिया' : 'Editor feedback'}</h1>
+            <p>
+              {ne
+                ? 'संशोधन माग, सम्पादक टिप्पणी र फर्काउनुपर्ने ड्राफ्टको एकै लेजर।'
+                : 'A single ledger for revision requests, editor notes and stories that need another pass.'}
+            </p>
+          </div>
         </header>
 
         <div className="feedback-ledger">

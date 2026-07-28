@@ -22,14 +22,21 @@ export default async function JournalistProfilePage({ params }: { params: Promis
     <JournalistWorkspaceShell locale={locale} name={session.displayName || session.email} roleLabel={roleLabel} active="profile">
       <main className="newsroom-page">
         <header className="newsroom-page__header">
-          <h1>{ne ? 'प्रोफाइल' : 'Profile'}</h1>
+          <div>
+            <h1>{ne ? 'प्रोफाइल' : 'Profile'}</h1>
+            <p>
+              {ne
+                ? 'न्युजरुम पहिचान, भाषा र सार्वजनिक लेखक जानकारी कुन ठाउँबाट व्यवस्थापन हुन्छ भन्ने सार।'
+                : 'A quick summary of your newsroom identity, language and public byline setup.'}
+            </p>
+          </div>
         </header>
 
         <section className="journalist-profile-sheet">
           <dl>
             <div>
               <dt>{ne ? 'नाम' : 'Name'}</dt>
-              <dd>{session.displayName || '—'}</dd>
+              <dd>{session.displayName || (ne ? 'सेट गरिएको छैन' : 'Not set')}</dd>
             </div>
             <div>
               <dt>{ne ? 'न्युजरुम इमेल' : 'Newsroom email'}</dt>

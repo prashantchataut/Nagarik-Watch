@@ -14,6 +14,13 @@ export type MediaItem = {
 
 type Row = { id: string; url: string; alt: string; caption: string | null; credit: string | null; status: 'active' | 'archived'; created_at: Date | string; updated_at: Date | string }
 const memory = new Map<string, MediaItem>()
+const MEDIA_LIST_TTL_MS = 15_000
+let mediaListCache:
+  | {
+      expiresAt: number
+      items: MediaItem[]
+    }
+  | null = null
 
 async function ensureSchema(): Promise<Queryable | null> {
   return requireOperationalPool(await ensureOperationalSchema('media-library', async (pool) => {
@@ -35,13 +42,21 @@ async function ensureSchema(): Promise<Queryable | null> {
 function id(): string { return `media_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}` }
 function rowToItem(row: Row): MediaItem { return { id: row.id, url: row.url, alt: row.alt, caption: row.caption ?? undefined, credit: row.credit ?? undefined, status: row.status, createdAt: toIso(row.created_at), updatedAt: toIso(row.updated_at) } }
 
-export async function listMediaItems(): Promise<MediaItem[]> {
+export async function listMediaItems(opts: { limit?: number } = {}): Promise<MediaItem[]> {
+  const limit = Math.max(1, Math.min(300, opts.limit ?? 300))
+  if (mediaListCache && mediaListCache.expiresAt > Date.now()) {
+    return mediaListCache.items.slice(0, limit)
+  }
   const pool = await ensureSchema()
   if (pool) {
     const result = await pool.query<Row>(`SELECT * FROM nw_media_items ORDER BY created_at DESC LIMIT 300`)
-    return result.rows.map(rowToItem)
+    const items = result.rows.map(rowToItem)
+    mediaListCache = { items, expiresAt: Date.now() + MEDIA_LIST_TTL_MS }
+    return items.slice(0, limit)
   }
-  return Array.from(memory.values()).sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
+  const items = Array.from(memory.values()).sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
+  mediaListCache = { items, expiresAt: Date.now() + MEDIA_LIST_TTL_MS }
+  return items.slice(0, limit)
 }
 
 export async function createMediaItem(input: { url: unknown; alt: unknown; caption?: unknown; credit?: unknown }): Promise<MediaItem | null> {
@@ -53,8 +68,10 @@ export async function createMediaItem(input: { url: unknown; alt: unknown; capti
   const pool = await ensureSchema()
   if (pool) {
     const result = await pool.query<Row>(`INSERT INTO nw_media_items (id, url, alt, caption, credit) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [item.id, item.url, item.alt, item.caption ?? null, item.credit ?? null])
+    mediaListCache = null
     return rowToItem(result.rows[0]!)
   }
   memory.set(item.id, item)
+  mediaListCache = null
   return item
 }

@@ -241,7 +241,9 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                     <span>
                       {account
                         ? account.kind === 'reader'
-                          ? `${account.displayName} · ${account.kindLabel}`
+                          ? locale === 'en'
+                            ? 'My account'
+                            : 'मेरो खाता'
                           : locale === 'en'
                             ? 'Account'
                             : 'खाता'
@@ -346,7 +348,7 @@ function DrawerSection({
   return (
     <div className="mb-2">
       <p
-        className="px-3 pb-1 pt-3 text-meta font-semibold uppercase tracking-wide text-mute"
+        className="px-3 pb-1 pt-3 text-meta font-semibold text-mute"
         lang={lang}
       >
         {label}

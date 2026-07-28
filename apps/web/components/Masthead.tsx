@@ -51,7 +51,9 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
   const accountHref = account?.profileHref ?? localizeHref(locale, '/auth/login')
   const accountLabel = account
     ? account.kind === 'reader'
-      ? account.displayName
+      ? locale === 'en'
+        ? 'My account'
+        : 'मेरो खाता'
       : locale === 'en'
         ? 'Account'
         : 'खाता'

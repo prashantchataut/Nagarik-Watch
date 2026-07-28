@@ -37,7 +37,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   const [categories, tags, mediaLibrary] = await Promise.all([
     getNavCategories(),
     Promise.resolve(seedTags),
-    listMediaItems().catch(() => []),
+    listMediaItems({ limit: 60 }).catch(() => []),
   ])
   const article = await findArticleForAdmin(id)
 

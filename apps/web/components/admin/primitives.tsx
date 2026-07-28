@@ -15,7 +15,7 @@ export function AdminPageHeader({ subtitle, eyebrow, action }: { subtitle?: stri
         {eyebrow ? <p className="admin-eyebrow" lang="ne">{eyebrow}</p> : null}
         {subtitle ? <p className="admin-page-subtitle" lang="ne">{subtitle}</p> : null}
       </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
+      {action ? <div className="shrink-0 admin-page-header__action">{action}</div> : null}
     </header>
   )
 }
@@ -102,7 +102,7 @@ export function OpsCheckBadge({ status }: { status: 'pass' | 'warn' | 'fail' | s
 
 export function AdminEmptyState({ title, body, action }: { title: string; body: string; action?: React.ReactNode }) {
   return <section className="admin-empty" aria-live="polite">
-    <div className="admin-empty-mark" aria-hidden="true">NW</div>
+    <div className="admin-empty-mark" aria-hidden="true">नव</div>
     <h2 className="font-display text-h2 text-ink" lang="ne">{title}</h2>
     <p className="mx-auto mt-2 max-w-xl text-body text-ink-soft" lang="ne">{body}</p>
     {action ? <div className="mt-6">{action}</div> : null}

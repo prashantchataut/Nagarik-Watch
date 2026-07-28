@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { getStories, getNavCategories } from '@/lib/content'
+import { getNavCategories } from '@/lib/content'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import type { Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
@@ -13,6 +13,7 @@ import {
   resolveAdminDeskVariant,
 } from '@/lib/admin-roles'
 import { listPendingJournalistReviews } from '@/lib/journalist-workspace'
+import { getAdminDashboardSnapshot } from '@/lib/content/store/json-store'
 import { AdminButton, AdminCard, AdminMetric } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
@@ -25,19 +26,11 @@ export const dynamic = 'force-dynamic'
 export default async function DashboardPage() {
   const newsroom = await requireNewsroomSession()
 
-  const [allStories, categories, pendingReviews] = await Promise.all([
-    getStories({ locale: 'ne', perPage: 500 }),
+  const [snapshot, categories, pendingReviews] = await Promise.all([
+    getAdminDashboardSnapshot(),
     getNavCategories(),
     listPendingJournalistReviews().catch(() => []),
   ])
-
-  const publishedTotal = allStories.total
-  const published = allStories.items
-  const scheduledCount = published.filter(
-    (story) =>
-      Number.isFinite(Date.parse(story.publishedAt)) && Date.parse(story.publishedAt) > Date.now(),
-  ).length
-  const breakingCount = published.filter((s) => s.isBreaking).length
 
   const locale: Locale = 'ne'
   const role = newsroom.newsroomRole
@@ -50,7 +43,7 @@ export default async function DashboardPage() {
       ? [
           {
             label: 'प्रकाशित',
-            value: publishedTotal,
+            value: snapshot.publishedTotal,
             href: '/admin/articles',
             tone: 'brand' as const,
           },
@@ -60,14 +53,14 @@ export default async function DashboardPage() {
             href: '/admin/journalists',
             tone: 'default' as const,
           },
-          { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'danger' as const },
+          { label: 'ब्रेकिङ', value: snapshot.breakingCount, href: '/admin/articles', tone: 'danger' as const },
           { label: 'विभाग', value: categories.length, href: '/admin/categories', tone: 'brand' as const },
         ]
       : desk === 'editor'
         ? [
             {
               label: 'प्रकाशित',
-              value: publishedTotal,
+              value: snapshot.publishedTotal,
               href: '/admin/articles',
               tone: 'brand' as const,
             },
@@ -79,24 +72,24 @@ export default async function DashboardPage() {
             },
             {
               label: 'तालिका',
-              value: scheduledCount,
+              value: snapshot.scheduledCount,
               href: '/admin/articles?status=scheduled',
               tone: 'default' as const,
             },
-            { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'danger' as const },
+            { label: 'ब्रेकिङ', value: snapshot.breakingCount, href: '/admin/articles', tone: 'danger' as const },
           ]
         : [
             {
               label: 'प्रकाशित',
-              value: publishedTotal,
+              value: snapshot.publishedTotal,
               href: '/admin/articles',
               tone: 'brand' as const,
             },
-            { label: 'ब्रेकिङ', value: breakingCount, href: '/admin/articles', tone: 'danger' as const },
+            { label: 'ब्रेकिङ', value: snapshot.breakingCount, href: '/admin/articles', tone: 'danger' as const },
             { label: 'विभाग', value: categories.length, href: '/admin/categories', tone: 'brand' as const },
             {
               label: 'तालिका',
-              value: scheduledCount,
+              value: snapshot.scheduledCount,
               href: '/admin/articles?status=scheduled',
               tone: 'default' as const,
             },
@@ -104,12 +97,12 @@ export default async function DashboardPage() {
 
   const blurb =
     desk === 'super'
-      ? 'सुपर एडमिन कन्सोल — प्रयोगकर्ता, भूमिका, अडिट र लन्च चेक। सामग्री सम्पादन समाचार सूचीबाट।'
+      ? 'सुपर एडमिन कन्सोल। प्रयोगकर्ता, भूमिका, अडिट र लन्च चेक यहीँबाट हेर्नुहोस्। सामग्री सम्पादन समाचार सूचीबाट गर्नुहोस्।'
       : desk === 'admin'
-        ? 'एडमिन कन्सोल — प्रयोगकर्ता व्यवस्थापन, सञ्चालन सेटिङ र न्यूजरुम स्वास्थ्य। दैनिक लेखन सम्पादकीय उपकरणबाट।'
+        ? 'एडमिन कन्सोल। प्रयोगकर्ता व्यवस्थापन, सञ्चालन सेटिङ र न्यूजरुम स्वास्थ्यका मुख्य संकेत यहीँ छन्। दैनिक लेखन सम्पादकीय उपकरणबाट हुन्छ।'
         : desk === 'editor'
-          ? 'सम्पादकीय डेस्क — ड्राफ्ट समीक्षा, पत्रकार इनबक्स, प्रकाशन तयारी। प्रणाली सेटिङ यहाँ छैन।'
-          : 'सञ्चालन डेस्क — लाइभ, विज्ञापन, विश्लेषण वा समुदाय उपकरण। लेखन अधिकार सीमित हुन सक्छ।'
+          ? 'सम्पादकीय डेस्क। ड्राफ्ट समीक्षा, पत्रकार इनबक्स र प्रकाशन तयारीका मुख्य काम यहीँबाट सुरु हुन्छन्। प्रणाली सेटिङ अलग राखिएको छ।'
+          : 'सञ्चालन डेस्क। लाइभ, विज्ञापन, विश्लेषण वा समुदाय उपकरणका कार्यप्रवाह यहाँ छन्। लेखन अधिकार सीमित हुन सक्छ।'
 
   return (
     <div className="space-y-5" data-desk={desk}>
@@ -207,7 +200,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
         <ul className="admin-list mt-1">
-          {published.slice(0, 8).map((s) => (
+          {snapshot.recentPublished.map((s) => (
             <li key={s.id ?? s.slug}>
               <Link
                 href={`/admin/articles/${s.id ?? s.slug}/edit`}
@@ -217,14 +210,14 @@ export default async function DashboardPage() {
                 {s.titleNe}
               </Link>
               <span className="hidden shrink-0 text-caption text-mute sm:inline" lang="ne">
-                {s.category.nameNe}
+                {s.categorySlug}
               </span>
               <time className="shrink-0 text-caption text-mute" lang="ne">
                 {formatDate(s.publishedAt, locale)}
               </time>
             </li>
           ))}
-          {published.length === 0 ? (
+          {snapshot.recentPublished.length === 0 ? (
             <li className="!block py-5 text-center text-body text-mute" lang="ne">
               कुनै समाचार प्रकाशित छैन। पहिलो समाचार बनाउनुहोस्।
             </li>

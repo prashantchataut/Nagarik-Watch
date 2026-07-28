@@ -21,7 +21,7 @@ const TEMPLATES = [
     id: 'spot',
     titleNe: 'स्थलगत समाचार',
     titleEn: 'Spot report',
-    body: '## के भयो\n\n[घटनाको मुख्य तथ्य — को, के, कहिले, कहाँ]\n\n## किन महत्त्वपूर्ण\n\n[पाठकलाई किन चासो]\n\n## के भन्छन् सम्बन्धित पक्ष\n\n> [उद्धरण]\n\n## अगाडि के हुन्छ\n\n[अर्को कदम / अनुसन्धान बाँकी]',
+    body: '## के भयो\n\n[घटनाको मुख्य तथ्य: को, के, कहिले, कहाँ]\n\n## किन महत्त्वपूर्ण\n\n[पाठकलाई किन चासो]\n\n## के भन्छन् सम्बन्धित पक्ष\n\n> [उद्धरण]\n\n## अगाडि के हुन्छ\n\n[अर्को कदम / अनुसन्धान बाँकी]',
   },
   {
     id: 'explain',
@@ -33,7 +33,7 @@ const TEMPLATES = [
     id: 'interview',
     titleNe: 'अन्तर्वार्ता ढाँचा',
     titleEn: 'Interview frame',
-    body: '## परिचय\n\n[अतिथि को हुन्, किन अहिले]\n\n## प्रश्न १\n\n> उत्तर…\n\n## प्रश्न २\n\n> उत्तर…\n\n## अन्तिम टिप्पणी\n\n[सम्पादकीय नोट — वैकल्पिक]',
+    body: '## परिचय\n\n[अतिथि को हुन्, किन अहिले]\n\n## प्रश्न १\n\n> उत्तर…\n\n## प्रश्न २\n\n> उत्तर…\n\n## अन्तिम टिप्पणी\n\n[सम्पादकीय नोट: वैकल्पिक]',
   },
 ] as const
 
@@ -59,7 +59,14 @@ export default async function JournalistToolsPage({ params }: { params: Promise<
     >
       <main className="newsroom-page">
         <header className="newsroom-page__header">
-          <h1>{ne ? 'लेखन उपकरण' : 'Writing tools'}</h1>
+          <div>
+            <h1>{ne ? 'लेखन उपकरण' : 'Writing tools'}</h1>
+            <p>
+              {ne
+                ? 'शीर्षक, संरचना र समीक्षा तयारीका लागि डेस्कमा बारम्बार चाहिने नोट र ढाँचा।'
+                : 'Reusable desk notes and frames for headlines, structure and review readiness.'}
+            </p>
+          </div>
         </header>
 
         <section className="newsroom-tools-grid">
@@ -84,7 +91,7 @@ export default async function JournalistToolsPage({ params }: { params: Promise<
           </article>
 
           <article className="newsroom-tool-card newsroom-tool-card--wide">
-            <h2>{ne ? 'ढाँचा — नयाँ ड्राफ्टमा टाँस्नुहोस्' : 'Frames — paste into a new draft'}</h2>
+            <h2>{ne ? 'ढाँचा: नयाँ ड्राफ्टमा टाँस्नुहोस्' : 'Frames: paste into a new draft'}</h2>
             <div className="newsroom-template-list">
               {TEMPLATES.map((template) => (
                 <details key={template.id}>

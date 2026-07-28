@@ -414,6 +414,28 @@ export async function listArticlesForAdmin(
   return { items, total }
 }
 
+export async function getAdminDashboardSnapshot(): Promise<{
+  publishedTotal: number
+  scheduledCount: number
+  breakingCount: number
+  recentPublished: StoredArticle[]
+}> {
+  const store = await read()
+  const published = store.articles
+    .filter((article) => PUBLIC_WORKFLOW_STAGES.includes(article.workflowStage))
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+
+  return {
+    publishedTotal: published.length,
+    scheduledCount: published.filter(
+      (story) =>
+        Number.isFinite(Date.parse(story.publishedAt)) && Date.parse(story.publishedAt) > Date.now(),
+    ).length,
+    breakingCount: published.filter((story) => story.isBreaking).length,
+    recentPublished: published.slice(0, 8),
+  }
+}
+
 export async function getArticleBySlug(
   category: string,
   slug: string,

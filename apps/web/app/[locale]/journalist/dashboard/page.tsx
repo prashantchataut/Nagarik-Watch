@@ -104,12 +104,12 @@ export default async function JournalistDashboard({ params }: { params: Promise<
           </section>
 
           <aside className="newsroom-brief">
-            <h2>{ne ? 'छिटो लिंक' : 'Quick links'}</h2>
+            <h2>{ne ? 'यस सिफ्टका काम' : 'This shift'}</h2>
             <ol>
-              <li><span>01</span><Link href={localizeHref(locale, '/journalist/tools')}>{ne ? 'ढाँचा र चेकलिस्ट' : 'Frames and checklist'}</Link></li>
-              <li><span>02</span><Link href={localizeHref(locale, '/journalist/articles/new?template=spot')}>{ne ? 'स्थलगत ढाँचा' : 'Spot frame'}</Link></li>
-              <li><span>03</span><Link href={localizeHref(locale, '/journalist/articles/new?template=explain')}>{ne ? 'व्याख्यात्मक ढाँचा' : 'Explainer frame'}</Link></li>
-              <li><span>04</span><Link href={localizeHref(locale, '/journalist/feedback')}>{ne ? 'सम्पादक प्रतिक्रिया' : 'Editor feedback'}</Link></li>
+              <li><span>{ne ? 'उपकरण' : 'Tools'}</span><Link href={localizeHref(locale, '/journalist/tools')}>{ne ? 'ढाँचा, शैली नोट र चेकलिस्ट' : 'Templates, style notes and checklists'}</Link></li>
+              <li><span>{ne ? 'स्थलगत' : 'Spot'}</span><Link href={localizeHref(locale, '/journalist/articles/new?template=spot')}>{ne ? 'छिटो फाइलिङका लागि स्थलगत ड्राफ्ट' : 'Start a fast field filing draft'}</Link></li>
+              <li><span>{ne ? 'व्याख्या' : 'Explainer'}</span><Link href={localizeHref(locale, '/journalist/articles/new?template=explain')}>{ne ? 'प्रसंगसहित व्याख्यात्मक ड्राफ्ट' : 'Open an explainer with context blocks'}</Link></li>
+              <li><span>{ne ? 'प्रतिक्रिया' : 'Feedback'}</span><Link href={localizeHref(locale, '/journalist/feedback')}>{ne ? 'सम्पादक प्रतिक्रिया र संशोधन हेर्नुहोस्' : 'Review editor feedback and revisions'}</Link></li>
             </ol>
           </aside>
         </div>

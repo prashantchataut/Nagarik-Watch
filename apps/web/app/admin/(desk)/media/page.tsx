@@ -27,7 +27,7 @@ export default async function MediaPage() {
   const session = await requireNewsroomSession()
   assertNewsroomRole(session.newsroomRole, MEDIA_MANAGER_ROLES)
   if (isPayloadCanonical()) redirect(payloadCollectionAdminUrl('media'))
-  const items = await listMediaItems()
+  const items = await listMediaItems({ limit: 72 })
   const persistentStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.S3_BUCKET || process.env.STORAGE_BUCKET)
   return (
     <div>

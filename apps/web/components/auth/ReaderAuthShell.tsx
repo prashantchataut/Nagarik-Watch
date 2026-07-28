@@ -109,6 +109,18 @@ export function ReaderAuthShell({
           <p className="auth-form-wrap__lede" lang={ne ? 'ne' : 'en'}>
             {ne ? content.formBodyNe : content.formBodyEn}
           </p>
+          <div className="auth-form-wrap__summary" lang={ne ? 'ne' : 'en'}>
+            <p>
+              {ne
+                ? 'नागरिक वाचमा पढ्न खाता चाहिँदैन।'
+                : 'You never need an account just to read Nagarik Watch.'}
+            </p>
+            <p>
+              {ne
+                ? 'खाता संग्रह, पढाइ इतिहास र उपकरणबीच सिङ्कका लागि मात्र हो।'
+                : 'Accounts are only for saves, reading history and cross-device sync.'}
+            </p>
+          </div>
           <div className="auth-form-surface">{children}</div>
           <p className="auth-form-wrap__foot" lang={ne ? 'ne' : 'en'}>
             {ne ? (

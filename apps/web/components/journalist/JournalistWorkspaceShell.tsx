@@ -46,16 +46,15 @@ export function JournalistWorkspaceShell({
           className="newsroom-sidebar__brand"
         >
           <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
-          <span>{ne ? 'रिपोर्टर डेस्क' : 'Reporter desk'}</span>
+          <span>{ne ? 'पत्रकार डेस्क' : 'Reporter desk'}</span>
         </Link>
         <nav aria-label={ne ? 'पत्रकार नेभिगेसन' : 'Journalist navigation'}>
-          {items.map(([key, href, label], index) => (
+          {items.map(([key, href, label]) => (
             <Link
               key={key}
               href={localizeHref(locale, href)}
               aria-current={active === key ? 'page' : undefined}
             >
-              <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
               {label}
             </Link>
           ))}
@@ -63,7 +62,6 @@ export function JournalistWorkspaceShell({
             href={localizeHref(locale, '/journalist/feedback')}
             aria-current={active === 'feedback' ? 'page' : undefined}
           >
-            <span aria-hidden="true">06</span>
             {ne ? 'प्रतिक्रिया' : 'Feedback'}
           </Link>
         </nav>

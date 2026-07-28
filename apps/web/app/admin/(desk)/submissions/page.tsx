@@ -48,7 +48,7 @@ export default async function SubmissionsPage({
   const selected = asSubmissionStatus(sp.status)
   const submissions = await listSubmissions({
     status: selected === 'all' ? undefined : selected,
-    limit: 200,
+    limit: 100,
   })
 
   return (

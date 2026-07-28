@@ -26,7 +26,7 @@ export default async function NewArticlePage() {
   const [categories, tags, mediaLibrary] = await Promise.all([
     getNavCategories(),
     Promise.resolve(seedTags),
-    listMediaItems().catch(() => []),
+    listMediaItems({ limit: 60 }).catch(() => []),
   ])
 
   return (

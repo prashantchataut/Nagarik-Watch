@@ -58,6 +58,8 @@ type SubmissionRow = {
 
 const memory = new Map<string, ReaderSubmission>()
 let schemaReady: Promise<void> | null = null
+const SUBMISSIONS_LIST_TTL_MS = 10_000
+const submissionsListCache = new Map<string, { expiresAt: number; items: ReaderSubmission[] }>()
 
 export function submissionsStorageMode(): 'postgres' | 'memory' {
   return resolveDatabaseUrl() ? 'postgres' : 'memory'
@@ -225,10 +227,12 @@ export async function createSubmission(input: {
         submission.userId ?? null,
       ],
     )
+    submissionsListCache.clear()
     return rowToSubmission(result.rows[0]!)
   }
 
   memory.set(submission.id, submission)
+  submissionsListCache.clear()
   return submission
 }
 
@@ -236,8 +240,12 @@ export async function listSubmissions(opts: {
   status?: SubmissionStatus
   limit?: number
 } = {}): Promise<ReaderSubmission[]> {
-  const pool = await ensureSchema()
   const limit = Math.max(1, Math.min(500, opts.limit ?? 100))
+  const cacheKey = `${opts.status ?? 'all'}:${limit}`
+  const cached = submissionsListCache.get(cacheKey)
+  if (cached && cached.expiresAt > Date.now()) return cached.items
+
+  const pool = await ensureSchema()
   if (pool) {
     const result = opts.status
       ? await pool.query<SubmissionRow>(
@@ -248,13 +256,23 @@ export async function listSubmissions(opts: {
           `SELECT * FROM nw_submissions ORDER BY created_at DESC LIMIT $1`,
           [limit],
         )
-    return result.rows.map(rowToSubmission)
+    const items = result.rows.map(rowToSubmission)
+    submissionsListCache.set(cacheKey, {
+      items,
+      expiresAt: Date.now() + SUBMISSIONS_LIST_TTL_MS,
+    })
+    return items
   }
 
   let all = Array.from(memory.values())
   if (opts.status) all = all.filter((item) => item.status === opts.status)
   all.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
-  return all.slice(0, limit)
+  const items = all.slice(0, limit)
+  submissionsListCache.set(cacheKey, {
+    items,
+    expiresAt: Date.now() + SUBMISSIONS_LIST_TTL_MS,
+  })
+  return items
 }
 
 export async function updateSubmissionStatus(input: {
@@ -271,6 +289,7 @@ export async function updateSubmissionStatus(input: {
        WHERE id = $1`,
       [input.id, input.status, input.editorNote ?? null, input.handledBy ?? null],
     )
+    submissionsListCache.clear()
     return Number(result.rowCount ?? 0) > 0
   }
 
@@ -283,5 +302,6 @@ export async function updateSubmissionStatus(input: {
     handledBy: input.handledBy ?? existing.handledBy,
     updatedAt: new Date().toISOString(),
   })
+  submissionsListCache.clear()
   return true
 }

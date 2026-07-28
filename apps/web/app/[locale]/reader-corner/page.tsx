@@ -60,6 +60,7 @@ export default async function ReaderCornerPage({
                 : 'यो उपकरणको पढाइ इतिहास र सुरक्षित सूची। सिङ्कका लागि लगइन गर्नुहोस्।'
           }
           lang={english ? 'en' : 'ne'}
+          kicker={english ? 'Reader account' : 'पाठक खाता'}
         />
         <nav className="mt-4 flex flex-wrap gap-4" aria-label={english ? 'Desk links' : 'डेस्क लिंक'}>
           <Link
@@ -77,21 +78,51 @@ export default async function ReaderCornerPage({
         </nav>
       </div>
 
+      <section className="mt-6 border-y border-rule bg-surface-raised px-4 py-5">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div>
+            <p className="text-caption font-semibold text-mute">{english ? 'Desk mode' : 'डेस्क मोड'}</p>
+            <p className="mt-1 font-display text-h3 text-ink">
+              {session ? (english ? 'Signed-in reader' : 'लगइन पाठक') : english ? 'Guest device' : 'अतिथि उपकरण'}
+            </p>
+          </div>
+          <div>
+            <p className="text-caption font-semibold text-mute">{english ? 'What stays here' : 'यहाँ के रहन्छ'}</p>
+            <p className="mt-1 text-body text-ink-soft">
+              {english
+                ? 'Recommendations, recent reads, notifications and preference controls.'
+                : 'सिफारिस, हालै पढिएका सामग्री, सूचना र रुचि नियन्त्रण।'}
+            </p>
+          </div>
+          <div>
+            <p className="text-caption font-semibold text-mute">{english ? 'Account home' : 'खाता गृह'}</p>
+            <Link
+              href={localizeHref(locale, session ? '/auth/profile' : '/auth/login')}
+              className="mt-1 inline-flex text-body font-semibold text-brand hover:text-brand-strong"
+            >
+              {session ? (english ? 'Open account settings' : 'खाता सेटिङ खोल्नुहोस्') : english ? 'Sign in for sync' : 'सिङ्कका लागि लगइन'}
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <div className="mt-8 space-y-10">
-        <ReaderTopicOnboarding locale={locale} categories={categories} catalog={storyPage.items} />
-        <RecommendedForYou
-          locale={locale}
-          catalog={storyPage.items}
-          className="reader-corner-recommendations"
-        />
-        <ReaderActivityPanel locale={locale} catalog={storyPage.items} />
-        <NotificationCenter locale={locale} />
-        <ReaderPreferencePanel
-          locale={locale}
-          categories={categories}
-          tags={tags}
-          authors={authors}
-        />
+        <RecommendedForYou locale={locale} catalog={storyPage.items} className="reader-corner-recommendations" />
+        <div className="grid gap-10 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,.8fr)]">
+          <div className="space-y-10">
+            <ReaderActivityPanel locale={locale} catalog={storyPage.items} />
+            <ReaderTopicOnboarding locale={locale} categories={categories} catalog={storyPage.items} />
+          </div>
+          <div className="space-y-10">
+            <NotificationCenter locale={locale} />
+            <ReaderPreferencePanel
+              locale={locale}
+              categories={categories}
+              tags={tags}
+              authors={authors}
+            />
+          </div>
+        </div>
       </div>
     </div>
   )
