@@ -8,6 +8,7 @@ import { getArticleBySlug } from '@/lib/content'
 import { imageGalleryJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/site'
 import { formatDate } from '@nagarikwatch/db'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 
 export const dynamic = 'force-static'
 
@@ -70,15 +71,27 @@ export default async function PhotoGalleryPage({
   return (
     <article className="mx-auto max-w-page px-4 pb-16 pt-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <p className="text-caption font-bold uppercase tracking-wide text-brand-strong">
-        {en ? 'Photo gallery' : 'फोटो ग्यालेरी'}
-      </p>
-      <h1 className="mt-3 max-w-[20ch] font-display text-[clamp(2rem,5vw,3.5rem)] font-black text-ink">
-        {title}
-      </h1>
-      {deck ? <p className="mt-4 max-w-[42rem] text-body-lg text-ink-soft">{deck}</p> : null}
-      <p className="mt-3 text-meta text-mute">{formatDate(article.publishedAt, locale)}</p>
-      <ol className="mt-10 grid gap-8 sm:grid-cols-2">
+      <HubIndexHeader
+        title={title}
+        lead={
+          deck ||
+          (en
+            ? 'A photo gallery selected from the reporting page.'
+            : 'समाचार पृष्ठबाट छानिएको फोटो ग्यालेरी।')
+        }
+        lang={en ? 'en' : 'ne'}
+        kicker={en ? 'Photo gallery' : 'फोटो ग्यालेरी'}
+      />
+      <div className="mt-4 flex flex-wrap items-center gap-3 text-meta text-ink-soft">
+        <p>{formatDate(article.publishedAt, locale)}</p>
+        <Link
+          href={localizeHref(locale, `/${article.category.slug}/${article.slug}`)}
+          className="border-b border-rule pb-1 font-semibold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
+        >
+          {en ? 'Open article page' : 'समाचार पृष्ठ खोल्नुहोस्'}
+        </Link>
+      </div>
+      <ol className="mt-8 grid gap-6 sm:grid-cols-2">
         {images.map((image, index) => (
           <li key={`${image.url}-${index}`} className="border-b border-rule pb-6">
             <figure>
@@ -93,20 +106,14 @@ export default async function PhotoGalleryPage({
                 />
               </div>
               {image.caption ? (
-                <figcaption className="mt-2 text-caption text-ink-soft">{image.caption}</figcaption>
+                <figcaption className="mt-2 max-w-body text-caption leading-relaxed text-ink-soft">
+                  {image.caption}
+                </figcaption>
               ) : null}
             </figure>
           </li>
         ))}
       </ol>
-      <p className="mt-10">
-        <Link
-          href={localizeHref(locale, `/${article.category.slug}/${article.slug}`)}
-          className="font-bold text-brand-strong underline-offset-2 hover:underline"
-        >
-          {en ? 'Open article page' : 'समाचार पृष्ठ खोल्नुहोस्'}
-        </Link>
-      </p>
     </article>
   )
 }

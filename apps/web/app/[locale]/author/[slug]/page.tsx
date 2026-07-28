@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import type { CategoryRef, Locale } from '@nagarikwatch/db'
 import { notFound } from 'next/navigation'
 import { SectionHeader, StoryGrid } from '@nagarikwatch/ui'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { getAuthor } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
@@ -39,7 +40,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
 
   return (
     <div className="mx-auto max-w-page px-4 py-8">
-      <header className="flex flex-col gap-6 border-b border-rule pb-8 sm:flex-row sm:items-start">
+      <div className="flex flex-col gap-6 pb-8 sm:flex-row sm:items-start">
         {author.photo && (
           <div className="relative h-28 w-28 shrink-0 overflow-hidden border-b-4 border-brand">
             <Image
@@ -52,20 +53,17 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p
-            className="text-meta font-semibold uppercase tracking-wide text-brand-strong"
+          <HubIndexHeader
+            title={author.name}
+            lead={
+              bio ||
+              (locale === 'en'
+                ? 'Reporting, analysis and commentary from this desk.'
+                : 'यस डेस्कबाट प्रकाशित समाचार, विश्लेषण र टिप्पणी।')
+            }
             lang={lang}
-          >
-            {roleLabel}
-          </p>
-          <h1 className="mt-1 font-display text-display text-ink" lang={lang}>
-            {author.name}
-          </h1>
-          {bio && (
-            <p className="mt-3 max-w-body text-body-lg text-ink-soft" lang={lang}>
-              {bio}
-            </p>
-          )}
+            kicker={roleLabel}
+          />
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <span
               className="inline-flex items-center rounded-sm bg-brand-tint px-2.5 py-1 text-meta font-bold text-brand-strong"
@@ -80,7 +78,7 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 border-b border-rule pb-1 text-meta font-semibold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
               >
-                <XIcon /> X
+                X
               </a>
             )}
             {author.social?.facebook && (
@@ -90,16 +88,13 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 border-b border-rule pb-1 text-meta font-semibold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
               >
-                <FacebookIcon /> Facebook
+                Facebook
               </a>
             )}
           </div>
           {categories.length > 0 && (
             <nav aria-label={dict.authorCategories} className="mt-5">
-              <p
-                className="text-meta font-semibold uppercase tracking-wide text-ink-soft"
-                lang={lang}
-              >
+              <p className="text-meta font-semibold text-ink-soft" lang={lang}>
                 {dict.authorCategories}
               </p>
               <ul className="mt-2 flex flex-wrap gap-2">
@@ -122,14 +117,19 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
             </nav>
           )}
         </div>
-      </header>
+      </div>
 
       {stories.items.length === 0 ? (
-        <p className="mt-12 text-body-lg text-ink-soft" lang={lang}>
-          {locale === 'en'
-            ? 'No published stories by this author yet.'
-            : 'यस लेखकका अझै प्रकाशित समाचार छैनन्।'}
-        </p>
+        <div className="mt-8 border-y border-rule bg-brand-tint/35 px-4 py-8" lang={lang}>
+          <p className="font-display text-h2 text-ink">
+            {locale === 'en' ? 'No stories yet' : 'अझै समाचार छैन'}
+          </p>
+          <p className="mt-2 max-w-body text-body text-ink-soft">
+            {locale === 'en'
+              ? 'Published reporting from this author will appear here once it is reviewed.'
+              : 'सम्पादकीय समीक्षा पूरा भएपछि यस लेखकका प्रकाशित सामग्री यहाँ देखिनेछन्।'}
+          </p>
+        </div>
       ) : (
         <section className="mt-8" aria-label={dict.authorStories}>
           <SectionHeader title={dict.authorStories} locale={locale} />
@@ -151,36 +151,6 @@ function dedupeCategories(cats: CategoryRef[]): CategoryRef[] {
     out.push(c)
   }
   return out
-}
-
-function XIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-  )
-}
-
-function FacebookIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
-    </svg>
-  )
 }
 
 const ROLE_LABELS = {

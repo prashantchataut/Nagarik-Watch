@@ -1,6 +1,6 @@
 import type { Locale } from '@nagarikwatch/db'
 import { InfoPageHeader, InfoSection } from '@/components/InfoPage'
-import { PUBLICATION } from '@/lib/site'
+import { PUBLICATION, isPublicPublicationValue } from '@/lib/site'
 
 type TrustPolicyPageProps = {
   locale: Locale
@@ -150,10 +150,18 @@ export function TrustPolicyPage({
   const title = locale === 'en' ? titleEn : titleNe
   const lead = locale === 'en' ? leadEn : leadNe
   const sections = policySections[path] ?? defaultSections
+  const transparencyItems = [
+    { label: 'Publisher', value: PUBLICATION.publisherName },
+    { label: 'Legal name', value: PUBLICATION.legalName },
+    { label: 'Editor', value: PUBLICATION.editorInChief },
+    { label: 'Registration', value: PUBLICATION.registrationNumber },
+    { label: 'Address', value: PUBLICATION.address },
+    { label: 'Contact', value: PUBLICATION.email },
+  ].filter((item) => isPublicPublicationValue(item.value))
 
   return (
     <div className="mx-auto max-w-page px-4 py-10">
-      <InfoPageHeader kicker={title} title={title} lead={lead} lang={lang} />
+      <InfoPageHeader title={title} lead={lead} lang={lang} />
       <div className="mt-10 grid gap-8">
         {sections.map((section) => (
           <InfoSection
@@ -170,36 +178,9 @@ export function TrustPolicyPage({
           {locale === 'en' ? 'Publication transparency' : 'प्रकाशन पारदर्शिता'}
         </h2>
         <dl className="mt-4 grid gap-4 text-body text-ink-soft md:grid-cols-2">
-          <TransparencyItem label="Publisher" value={PUBLICATION.publisherName} />
-          <TransparencyItem
-            label="Legal name"
-            value={
-              PUBLICATION.legalName ||
-              (locale === 'en'
-                ? 'Not configured for public launch'
-                : 'सार्वजनिक लन्चका लागि राखिएको छैन')
-            }
-          />
-          <TransparencyItem
-            label="Editor"
-            value={
-              PUBLICATION.editorInChief ||
-              (locale === 'en'
-                ? 'Not configured for public launch'
-                : 'सार्वजनिक लन्चका लागि राखिएको छैन')
-            }
-          />
-          <TransparencyItem
-            label="Registration"
-            value={
-              PUBLICATION.registrationNumber ||
-              (locale === 'en'
-                ? 'Not configured for public launch'
-                : 'सार्वजनिक लन्चका लागि राखिएको छैन')
-            }
-          />
-          <TransparencyItem label="Address" value={PUBLICATION.address} />
-          <TransparencyItem label="Contact" value={PUBLICATION.email} />
+          {transparencyItems.map((item) => (
+            <TransparencyItem key={item.label} label={item.label} value={item.value} />
+          ))}
         </dl>
       </section>
     </div>

@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import { StoryCard } from '@nagarikwatch/ui'
 import { detectTrending } from '@nagarikwatch/db'
 import { asLocale } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
 import { getTrendingSamples } from '@/lib/engagement/store'
 import { AdSlot } from '@/components/AdSlot'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
+import { RankedStoryList } from '@/components/public/RankedStoryList'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
 export async function generateMetadata({
@@ -52,31 +52,17 @@ export default async function TrendingPage({
         lead={
           hasLiveSignal
             ? english
-              ? 'Ranked from recent reading and discussion, with freshness controls.'
+              ? 'Recent reader attention, ordered with freshness in mind.'
               : 'हालैको पढाइ र छलफललाई ताजापनसहित क्रमबद्ध।'
             : english
-              ? 'Not enough recent activity for a trend signal. Showing newest reporting.'
+              ? 'Recent activity is still thin, so the newest reporting is shown instead.'
               : 'ट्रेन्ड संकेत पर्याप्त छैन। नयाँ सामग्री देखाइएको छ।'
         }
         lang={english ? 'en' : 'ne'}
       />
 
       {ranked.length > 0 ? (
-        <ol className="mt-8 divide-y divide-rule border-y border-rule">
-          {ranked.map((story, index) => (
-            <li key={story.slug} className="grid gap-4 py-6 sm:grid-cols-[3rem_minmax(0,1fr)]">
-              <span className="font-display text-h2 font-extrabold tabular-nums text-brand-strong" aria-hidden="true">
-                {english
-                  ? String(index + 1)
-                  : String(index + 1)
-                      .split('')
-                      .map((d) => '०१२३४५६७८९'[Number(d)] ?? d)
-                      .join('')}
-              </span>
-              <StoryCard story={story} locale={locale} variant="horizontal" />
-            </li>
-          ))}
-        </ol>
+        <RankedStoryList stories={ranked} locale={locale} mode="trending" />
       ) : (
         <p className="mt-8 border-y border-rule py-10 text-body-lg text-ink-soft" lang={english ? 'en' : 'ne'}>
           {english ? 'No published stories are available.' : 'प्रकाशित सामग्री उपलब्ध छैन।'}

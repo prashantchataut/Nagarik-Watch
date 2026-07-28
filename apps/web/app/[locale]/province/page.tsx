@@ -24,7 +24,7 @@ export default async function ProvincesPage({
     counts[province.slug] = perProvince[i]?.items.length ?? 0
   }
 
-  const recent = allTagged.items.filter((story) => Boolean(story.province)).slice(0, 9)
+  const recent = allTagged.filter((story) => Boolean(story.province)).slice(0, 9)
 
   return <ProvinceIndex locale={locale} counts={counts} recent={recent} />
 }

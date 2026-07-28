@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localePrefix, localizeHref } from '@/lib/i18n/locales'
 import { CookiePreferencesPanel } from '@/components/CookiePreferencesPanel'
+import { InfoPageHeader } from '@/components/InfoPage'
 import { ManageCookiesButton } from '@/components/ManageCookiesButton'
 
 type Params = { locale: string }
@@ -13,9 +14,9 @@ const SECTIONS = [
     titleNe: 'हामी के प्रयोग गर्छौं',
     titleEn: 'What we use',
     bodyNe:
-      'कुकी र स्थानीय भण्डारणले भाषा, थिम, लगइन सेसन र - अनुमति दिएपछि मात्र - पढाइ रुचि, एनालिटिक्स र घरको विज्ञापन मापन सम्झन्छ। हामी डाटा बेच्दैनौं वा तेस्रो-पक्ष विज्ञापन ट्र्याकर लोड गर्दैनौं।',
+      'कुकी र स्थानीय भण्डारणले भाषा, थिम, लगइन सेसन र अनुमति दिएपछि मात्र पढाइ रुचि, एनालिटिक्स र घरको विज्ञापन मापन सम्झन्छ। हामी डाटा बेच्दैनौं वा तेस्रो-पक्ष विज्ञापन ट्र्याकर लोड गर्दैनौं।',
     bodyEn:
-      'Cookies and local storage remember language, theme, login session and - only with permission - reading interests, analytics and first-party house-ad measurement. We do not sell data or load third-party advertising trackers.',
+      'Cookies and local storage remember language, theme, login session and, only with permission, reading interests, analytics and first-party house-ad measurement. We do not sell data or load third-party advertising trackers.',
   },
   {
     id: 'essential',
@@ -40,7 +41,7 @@ const SECTIONS = [
     titleNe: 'एनालिटिक्स (वैकल्पिक)',
     titleEn: 'Analytics (optional)',
     bodyNe:
-      'अनुमतिपछि मात्र Plausible लोड हुन्छ - विज्ञापन प्रोफाइलबिना भिजिट गणना। सोही सहमतिले र्‍याङ्किङका लागि गोप्य कथा इम्प्रेसन घटना अनुमति दिन सक्छ।',
+      'अनुमतिपछि मात्र Plausible लोड हुन्छ, र यसले विज्ञापन प्रोफाइलबिना भिजिट गणना गर्छ। सोही सहमतिले र्‍याङ्किङका लागि गोप्य कथा इम्प्रेसन घटना अनुमति दिन सक्छ।',
     bodyEn:
       'With permission we load Plausible, a privacy-friendly analytics script that counts visits without advertising profiles. The same consent can allow anonymous story impression events used for ranking.',
   },
@@ -71,27 +72,30 @@ export default async function CookiesPage({ params }: { params: Promise<Params> 
 
   return (
     <div className="mx-auto max-w-page px-4 py-10 sm:py-12">
-      <header className="max-w-3xl border-b-2 border-ink pb-8">
-        <p className="text-caption font-extrabold uppercase tracking-[0.1em] text-brand-strong" lang={lang}>
-          {english ? 'Privacy' : 'गोपनीयता'}
-        </p>
-        <h1 className="mt-2 border-l-4 border-brand pl-3 font-display text-[clamp(1.75rem,4vw,2.5rem)] font-extrabold leading-tight text-ink sm:pl-4" lang={lang}>
-          {english ? 'Cookie policy' : 'कुकी नीति'}
-        </h1>
-        <p className="mt-3 max-w-2xl pl-3 text-body leading-relaxed text-ink-soft sm:pl-4 sm:text-body-lg" lang={lang}>
-          {english
-            ? 'How Nagarik Watch uses cookies and browser storage, and how you control them.'
-            : 'नागरिक वाचले कुकी र ब्राउजर भण्डारण कसरी प्रयोग गर्छ, र तपाईंले कसरी नियन्त्रण गर्नुहोस्।'}
-        </p>
-        <div className="mt-5 pl-3 sm:pl-4">
+      <div className="max-w-3xl">
+        <InfoPageHeader
+          title={english ? 'Cookie policy' : 'कुकी नीति'}
+          lead={
+            english
+              ? 'How Nagarik Watch uses cookies and browser storage, and how you control them.'
+              : 'नागरिक वाचले कुकी र ब्राउजर भण्डारण कसरी प्रयोग गर्छ, र तपाईंले त्यसलाई कसरी नियन्त्रण गर्नुहुन्छ।'
+          }
+          lang={lang}
+          kicker={english ? 'Privacy' : 'गोपनीयता'}
+        />
+        <div className="mt-5">
           <ManageCookiesButton locale={locale} />
         </div>
-      </header>
+      </div>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:items-start lg:gap-12">
         <div className="space-y-8">
           {SECTIONS.map((section) => (
-            <section key={section.id} id={section.id} className="scroll-mt-28 max-w-2xl">
+            <section
+              key={section.id}
+              id={section.id}
+              className="scroll-mt-28 max-w-2xl border-b border-rule pb-8 last:border-b-0"
+            >
               <h2 className="font-display text-h2 font-bold text-ink" lang={lang}>
                 {english ? section.titleEn : section.titleNe}
               </h2>
@@ -113,8 +117,8 @@ export default async function CookiesPage({ params }: { params: Promise<Params> 
           </p>
         </div>
 
-        <aside className="rounded-lg border border-rule bg-surface-raised p-4 lg:sticky lg:top-28">
-          <p className="text-caption font-extrabold uppercase tracking-[0.08em] text-brand-strong" lang={lang}>
+        <aside className="border border-rule bg-surface-raised p-4 lg:sticky lg:top-28">
+          <p className="text-meta font-semibold text-brand-strong" lang={lang}>
             {english ? 'On this page' : 'यस पृष्ठमा'}
           </p>
           <nav className="mt-3 grid gap-2" aria-label={english ? 'Cookie sections' : 'कुकी खण्ड'}>

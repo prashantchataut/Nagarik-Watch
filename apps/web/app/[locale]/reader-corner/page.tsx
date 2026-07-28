@@ -9,6 +9,7 @@ import { ReaderPreferencePanel } from '@/components/reader/ReaderPreferencePanel
 import { NotificationCenter } from '@/components/reader/NotificationCenter'
 import { RecommendedForYou } from '@/components/reader/RecommendedForYou'
 import { ReaderTopicOnboarding } from '@/components/reader/ReaderTopicOnboarding'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 
 export const dynamic = 'force-static'
 
@@ -46,34 +47,35 @@ export default async function ReaderCornerPage({
 
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-12" lang={english ? 'en' : 'ne'}>
-      <header className="border-b border-rule pb-6">
-        <h1 className="font-display text-display font-extrabold text-ink">
-          {english ? 'Reading desk' : 'पढाइ डेस्क'}
-        </h1>
-        <p className="mt-2 max-w-body text-body text-ink-soft">
-          {session
-            ? english
-              ? 'History, interests, and alerts for this account.'
-              : 'यो खाताको इतिहास, रुचि र सूचना।'
-            : english
-              ? 'Works on this device. Sign in to sync across phones.'
-              : 'यो उपकरणमा चल्छ। सिङ्कका लागि लगइन गर्नुहोस्।'}
-        </p>
+      <div>
+        <HubIndexHeader
+          title={english ? 'Reading desk' : 'पढाइ डेस्क'}
+          lead={
+            session
+              ? english
+                ? 'Reading history, interests, recommendations and alerts for this account.'
+                : 'यो खाताका लागि पढाइ इतिहास, रुचि, सिफारिस र सूचना।'
+              : english
+                ? 'Reading history and saves on this device. Sign in to sync them across phones.'
+                : 'यो उपकरणको पढाइ इतिहास र सुरक्षित सूची। सिङ्कका लागि लगइन गर्नुहोस्।'
+          }
+          lang={english ? 'en' : 'ne'}
+        />
         <nav className="mt-4 flex flex-wrap gap-4" aria-label={english ? 'Desk links' : 'डेस्क लिंक'}>
           <Link
             href={localizeHref(locale, '/saved')}
-            className="text-meta font-bold text-brand-strong"
+            className="inline-flex items-center border-b border-rule pb-1 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
           >
             {english ? 'Saved' : 'सुरक्षित'}
           </Link>
           <Link
             href={localizeHref(locale, session ? '/auth/profile' : '/auth/login')}
-            className="text-meta font-bold text-brand-strong"
+            className="inline-flex items-center border-b border-rule pb-1 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
           >
             {session ? (english ? 'Account' : 'खाता') : english ? 'Sign in' : 'लगइन'}
           </Link>
         </nav>
-      </header>
+      </div>
 
       <div className="mt-8 space-y-10">
         <ReaderTopicOnboarding locale={locale} categories={categories} catalog={storyPage.items} />

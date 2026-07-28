@@ -74,7 +74,7 @@ export default async function ArchivePage({
       <form
         method="get"
         action={basePath}
-        className="mt-8 grid gap-4 border-y border-rule py-6 sm:grid-cols-2 lg:grid-cols-3"
+        className="mt-8 grid gap-4 border-y border-rule bg-surface-raised py-6 sm:grid-cols-2 lg:grid-cols-3"
         lang={lang}
       >
         <label className="block text-meta font-semibold text-ink-soft">
@@ -168,7 +168,7 @@ export default async function ArchivePage({
       </p>
 
       {result.items.length > 0 ? (
-        <ul className="mt-6 grid gap-8 md:grid-cols-2">
+        <ul className="mt-6 grid gap-5 md:grid-cols-2">
           {result.items.map((story) => (
             <li key={story.id}>
               <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
@@ -178,34 +178,50 @@ export default async function ArchivePage({
           ))}
         </ul>
       ) : (
-        <p className="mt-8 border-y border-rule py-10 text-body-lg text-ink-soft" lang={lang}>
-          {locale === 'en'
-            ? 'No stories match these filters yet.'
-            : 'यी फिल्टरमा अहिले कुनै समाचार मिल्दैन।'}
-        </p>
+        <div className="mt-8 border-y border-rule bg-brand-tint/35 px-4 py-10 text-body-lg text-ink-soft" lang={lang}>
+          <p className="font-display text-h2 text-ink">
+            {locale === 'en' ? 'No matching stories' : 'मिल्ने समाचार छैन'}
+          </p>
+          <p className="mt-2 max-w-body text-body text-ink-soft">
+            {locale === 'en'
+              ? 'Try a broader date range, fewer filters, or a shorter search term.'
+              : 'अझ फराकिलो मिति, कम फिल्टर वा छोटो खोज शब्द प्रयोग गर्नुहोस्।'}
+          </p>
+        </div>
       )}
 
       {result.totalPages > 1 ? (
-        <nav className="mt-10 flex gap-4" aria-label={locale === 'en' ? 'Pagination' : 'पृष्ठहरू'}>
-          {page > 1 ? (
-            <Link
-              href={buildHref({ page: String(page - 1) })}
-              className="text-meta font-semibold text-brand-strong"
-            >
-              {locale === 'en' ? 'Previous' : 'अघिल्लो'}
-            </Link>
-          ) : null}
+        <nav
+          className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-rule pt-5"
+          aria-label={locale === 'en' ? 'Pagination' : 'पृष्ठहरू'}
+        >
+          <div>
+            {page > 1 ? (
+              <Link
+                href={buildHref({ page: String(page - 1) })}
+                className="inline-flex min-h-11 items-center border-y border-rule px-4 text-meta font-bold text-ink transition-colors hover:border-brand hover:text-brand-strong"
+              >
+                {locale === 'en' ? 'Previous' : 'अघिल्लो'}
+              </Link>
+            ) : (
+              <span aria-hidden="true" />
+            )}
+          </div>
           <span className="text-meta text-ink-soft">
             {page} / {result.totalPages}
           </span>
-          {page < result.totalPages ? (
-            <Link
-              href={buildHref({ page: String(page + 1) })}
-              className="text-meta font-semibold text-brand-strong"
-            >
-              {locale === 'en' ? 'Next' : 'अर्को'}
-            </Link>
-          ) : null}
+          <div className="text-right">
+            {page < result.totalPages ? (
+              <Link
+                href={buildHref({ page: String(page + 1) })}
+                className="inline-flex min-h-11 items-center border-y border-rule px-4 text-meta font-bold text-ink transition-colors hover:border-brand hover:text-brand-strong"
+              >
+                {locale === 'en' ? 'Next' : 'अर्को'}
+              </Link>
+            ) : (
+              <span aria-hidden="true" />
+            )}
+          </div>
         </nav>
       ) : null}
     </div>

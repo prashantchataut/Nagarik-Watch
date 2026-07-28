@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { CategoryRef, Locale } from '@nagarikwatch/db'
 import { notFound } from 'next/navigation'
 import { StoryGrid } from '@nagarikwatch/ui'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { getStories, getTag } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref, localePrefix } from '@/lib/i18n/locales'
@@ -55,21 +56,18 @@ export default async function TopicPage({
 
   return (
     <div className="mx-auto max-w-page px-4 py-8">
-      <header className="border-b border-rule pb-6">
-        <p
-          className="text-meta font-semibold uppercase tracking-wide text-brand-strong"
-          lang={lang}
-        >
-          {dict.topicStories}
-        </p>
-        <h1 className="mt-1 font-display text-display text-ink" lang={nameLang}>
-          {name}
-        </h1>
-        {description && (
-          <p className="mt-3 max-w-body text-body-lg text-ink-soft" lang={nameLang}>
-            {description}
-          </p>
-        )}
+      <div>
+        <HubIndexHeader
+          title={name}
+          lead={
+            description ||
+            (locale === 'en'
+              ? 'Reporting and analysis gathered around this topic.'
+              : 'यस विषयमा प्रकाशित समाचार र विश्लेषण।')
+          }
+          lang={nameLang}
+          kicker={dict.topicStories}
+        />
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <span
             className="inline-flex items-center rounded-sm bg-brand-tint px-2.5 py-1 text-meta font-bold text-brand-strong"
@@ -87,14 +85,19 @@ export default async function TopicPage({
             </Link>
           )}
         </div>
-      </header>
+      </div>
 
       {result.items.length === 0 ? (
-        <p className="mt-12 text-body-lg text-ink-soft" lang={lang}>
-          {locale === 'en'
-            ? 'No published stories on this topic yet.'
-            : 'यस विषयमा अझै प्रकाशित समाचार छैन।'}
-        </p>
+        <div className="mt-8 border-y border-rule bg-brand-tint/35 px-4 py-8" lang={lang}>
+          <p className="font-display text-h2 text-ink">
+            {locale === 'en' ? 'No stories yet' : 'अझै समाचार छैन'}
+          </p>
+          <p className="mt-2 max-w-body text-body text-ink-soft">
+            {locale === 'en'
+              ? 'Published reporting on this topic will appear here once it is reviewed.'
+              : 'सम्पादकीय समीक्षा पूरा भएका सामग्री प्रकाशित भएपछि यस विषयका समाचार यहाँ देखिनेछन्।'}
+          </p>
+        </div>
       ) : (
         <div className="mt-8">
           <StoryGrid stories={result.items} locale={locale} />

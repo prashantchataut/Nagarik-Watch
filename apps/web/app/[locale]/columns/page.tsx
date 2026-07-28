@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { StoryCard } from '@nagarikwatch/ui'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getAuthors, getStories } from '@/lib/content'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { SITE_URL } from '@/lib/site'
 
 export const dynamic = 'force-static'
@@ -44,25 +45,24 @@ export default async function ColumnsPage({
 
   return (
     <div className="mx-auto max-w-page px-4 pb-16 pt-10">
-      <header className="border-b border-rule pb-6">
-        <h1 className="font-display text-[clamp(2rem,5vw,3.4rem)] font-black text-ink">
-          {en ? 'Columnists and analysis' : 'स्तम्भकार र विश्लेषण'}
-        </h1>
-        <p className="mt-3 max-w-body text-body-lg text-ink-soft">
-          {en
-            ? 'Opinion with a distinct voice. Bylines first, then the latest columns.'
-            : 'छुट्टै स्वरका विचार। पहिले स्तम्भकार, त्यसपछि नयाँ स्तम्भ।'}
-        </p>
-      </header>
+      <HubIndexHeader
+        title={en ? 'Columnists and analysis' : 'स्तम्भकार र विश्लेषण'}
+        lead={
+          en
+            ? 'Opinion, argument and analysis from writers with a distinct point of view.'
+            : 'छुट्टै दृष्टिकोण भएका लेखकका विचार, तर्क र विश्लेषण।'
+        }
+        lang={en ? 'en' : 'ne'}
+      />
 
       {columnists.length ? (
         <section className="mt-8" aria-labelledby="columnists-title">
           <h2 id="columnists-title" className="font-display text-h2 text-ink">
             {en ? 'Writers' : 'लेखक'}
           </h2>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {columnists.map((author) => (
-              <li key={author.slug} className="border-b border-rule py-4">
+              <li key={author.slug} className="border-b border-rule pb-4">
                 <Link
                   href={localizeHref(locale, `/author/${author.slug}`)}
                   className="font-display text-body-lg font-bold text-ink hover:text-brand-strong"
@@ -70,6 +70,11 @@ export default async function ColumnsPage({
                   {author.name}
                 </Link>
                 <p className="mt-1 text-meta text-ink-soft">{en ? 'Columnist' : 'स्तम्भकार'}</p>
+                {author.bioNe || author.bioEn ? (
+                  <p className="mt-2 line-clamp-2 text-body text-ink-soft">
+                    {en && author.bioEn ? author.bioEn : author.bioNe}
+                  </p>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -77,9 +82,16 @@ export default async function ColumnsPage({
       ) : null}
 
       {items.length === 0 ? (
-        <p className="mt-10 border-y border-rule py-8 text-ink-soft">
-          {en ? 'No column pieces are published yet.' : 'अहिले प्रकाशित स्तम्भ सामग्री छैन।'}
-        </p>
+        <div className="mt-10 border-y border-rule bg-brand-tint/35 px-4 py-8 text-ink-soft">
+          <p className="font-display text-h2 text-ink">
+            {en ? 'No columns yet' : 'अहिले स्तम्भ सामग्री छैन'}
+          </p>
+          <p className="mt-2 max-w-body text-body text-ink-soft">
+            {en
+              ? 'Published opinion and analysis will appear here once this desk is active.'
+              : 'यो डेस्क सक्रिय भएपछि प्रकाशित विचार र विश्लेषण यहाँ देखिनेछन्।'}
+          </p>
+        </div>
       ) : (
         <ul className="mt-10 grid gap-8 md:grid-cols-2">
           {items.map((story) => (

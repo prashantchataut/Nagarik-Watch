@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
-import { StoryCard } from '@nagarikwatch/ui'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
 import { Pagination } from '@/components/Pagination'
 import { AdSlot } from '@/components/AdSlot'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
+import { RankedStoryList } from '@/components/public/RankedStoryList'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
 export async function generateMetadata({
@@ -60,32 +60,12 @@ export default async function LatestPage({
 
       {result.items.length > 0 ? (
         <>
-          <ol className="mt-8 divide-y divide-rule border-y border-rule">
-            {result.items.map((story, index) => (
-              <li
-                key={story.id}
-                className="grid gap-4 py-6 sm:grid-cols-[3rem_minmax(0,1fr)]"
-              >
-                <span
-                  className="font-display text-h2 font-extrabold tabular-nums text-brand-strong"
-                  aria-hidden="true"
-                >
-                  {locale === 'en'
-                    ? String((result.page - 1) * PER_PAGE + index + 1)
-                    : String((result.page - 1) * PER_PAGE + index + 1)
-                        .split('')
-                        .map((d) => '०१२३४५६७८९'[Number(d)] ?? d)
-                        .join('')}
-                </span>
-                <StoryCard
-                  story={story}
-                  locale={locale}
-                  variant="horizontal"
-                  priority={result.page === 1 && index === 0}
-                />
-              </li>
-            ))}
-          </ol>
+          <RankedStoryList
+            stories={result.items}
+            locale={locale}
+            mode="latest"
+            startRank={(result.page - 1) * PER_PAGE + 1}
+          />
           <AdSlot locale={locale} placementKey="latest-inline" variant="inline" />
           <Pagination
             page={result.page}

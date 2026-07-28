@@ -147,7 +147,7 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
                   <Link
                     href={s.href}
                     className={linkClass}
-                    lang={'lang' in s ? s.lang : lang}
+                    lang={'lang' in s ? (s.lang as string | undefined) : lang}
                   >
                     {s.label}
                   </Link>

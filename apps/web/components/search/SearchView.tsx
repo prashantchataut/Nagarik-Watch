@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -209,7 +210,11 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
       )}
 
       {suggestions.length > 0 && (
-        <ul className="mt-4 divide-y divide-rule border-y border-rule" aria-label={locale === 'en' ? 'Suggestions' : 'सुझावहरू'}>
+        <section className="mt-6" aria-label={locale === 'en' ? 'Suggestions' : 'सुझावहरू'}>
+          <h2 className="text-meta font-semibold text-ink-soft" lang={lang}>
+            {locale === 'en' ? 'Suggestions' : 'सुझाव'}
+          </h2>
+          <ul className="mt-2 divide-y divide-rule border-y border-rule">
           {suggestions.map((suggestion) => (
             <li key={suggestion}>
               <button
@@ -221,46 +226,77 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
               </button>
             </li>
           ))}
-        </ul>
+          </ul>
+        </section>
       )}
 
       {/* Results */}
       {hasQuery && results.length > 0 && (
-        <ul ref={listRef} className="mt-4 space-y-1" role="listbox" aria-label={dict.searchHeading}>
+        <ul
+          ref={listRef}
+          className="mt-4 divide-y divide-rule border-y border-rule"
+          role="listbox"
+          aria-label={dict.searchHeading}
+        >
           {results.map((r, i) => {
             const title = titleFor(r)
             const segs = highlightSegments(title, debounced)
             const isActive = i === active
+            const deck = locale === 'en' && r.deckEn ? r.deckEn : r.deckNe
+            const thumbIsDataUrl = r.heroImage?.url.startsWith('data:') ?? false
             return (
               <li key={`${r.id}-${r.slug}`} role="option" aria-selected={isActive}>
                 <Link
                   href={hrefFor(r)}
-                  className={`flex flex-col gap-1 rounded-md px-3 py-3 transition-colors duration-fast ease-out-quint ${
-                    isActive ? 'bg-brand-tint' : 'hover:bg-brand-tint/60'
+                  className={`flex gap-3 px-0 py-4 transition-colors duration-fast ease-out-quint ${
+                    isActive ? 'bg-brand-tint/55' : 'hover:bg-brand-tint/35'
                   }`}
                 >
-                  <span
-                    className="font-display text-h3 text-ink"
-                    lang={locale === 'en' && r.titleEn ? 'en' : 'ne'}
-                  >
-                    {segs.map((s, idx) =>
-                      s.match ? (
-                        <mark key={idx} className="bg-transparent font-bold text-brand-strong">
-                          {s.text}
-                        </mark>
-                      ) : (
-                        <span key={idx}>{s.text}</span>
-                      ),
+                  <div className="relative mt-0.5 hidden aspect-[4/3] w-24 shrink-0 overflow-hidden bg-brand-tint sm:block">
+                    {r.heroImage ? (
+                      <Image
+                        src={r.heroImage.url}
+                        alt=""
+                        fill
+                        unoptimized={thumbIsDataUrl}
+                        sizes="96px"
+                        className="object-cover"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <span className="absolute inset-y-0 left-0 w-1 bg-brand" aria-hidden="true" />
                     )}
-                  </span>
-                  <span className="text-caption font-semibold text-mute">
-                    {r.categoryLabel}
-                  </span>
-                  {r.authors.length > 0 && (
-                    <span className="text-meta text-ink-soft">
-                      {r.authors.map((a) => a.name).join(' · ')}
+                  </div>
+                  <div className="min-w-0 flex-1 px-3 sm:px-0">
+                    <span className="text-caption font-semibold text-mute">{r.categoryLabel}</span>
+                    <span
+                      className="mt-1 block font-display text-h3 text-ink"
+                      lang={locale === 'en' && r.titleEn ? 'en' : 'ne'}
+                    >
+                      {segs.map((s, idx) =>
+                        s.match ? (
+                          <mark key={idx} className="bg-transparent font-bold text-brand-strong">
+                            {s.text}
+                          </mark>
+                        ) : (
+                          <span key={idx}>{s.text}</span>
+                        ),
+                      )}
                     </span>
-                  )}
+                    {deck ? (
+                      <span
+                        className="mt-1 block line-clamp-2 text-body text-ink-soft"
+                        lang={locale === 'en' && r.deckEn ? 'en' : 'ne'}
+                      >
+                        {deck}
+                      </span>
+                    ) : null}
+                    {r.authors.length > 0 ? (
+                      <span className="mt-1.5 block text-meta text-ink-soft">
+                        {r.authors.map((a) => a.name).join(' · ')}
+                      </span>
+                    ) : null}
+                  </div>
                 </Link>
               </li>
             )
@@ -270,7 +306,7 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
 
       {/* Empty: query but no results */}
       {hasQuery && results.length === 0 && (
-        <div className="mt-10 border-y border-rule py-10" lang={lang}>
+        <div className="mt-10 border-y border-rule bg-brand-tint/35 px-4 py-10" lang={lang}>
           <p className="font-display text-h2 text-ink">{dict.searchNoResults}</p>
           <p className="mt-2 max-w-body text-body text-ink-soft">{dict.searchNoResultsHint}</p>
         </div>
@@ -298,7 +334,7 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
       )}
 
       {!hasQuery && recents.length === 0 && (
-        <div className="mt-10 border-y border-rule py-10" lang={lang}>
+        <div className="mt-10 border-y border-rule bg-brand-tint/35 px-4 py-10" lang={lang}>
           <p className="font-display text-h2 text-ink">{dict.searchEmptyQuery}</p>
           <p className="mt-2 max-w-body text-body text-ink-soft">{dict.searchEmptyHint}</p>
         </div>

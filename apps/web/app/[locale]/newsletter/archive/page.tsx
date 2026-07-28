@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { listNewsletterIssues } from '@/lib/newsletter-admin'
 import { SITE_URL } from '@/lib/site'
 
@@ -32,24 +33,27 @@ export default async function NewsletterArchivePage({
 
   return (
     <div className="mx-auto max-w-page px-4 pb-16 pt-10">
-      <header className="border-b border-rule pb-6">
-        <p className="text-caption font-bold uppercase tracking-wide text-brand-strong">
-          {en ? 'Newsletter' : 'न्यूजलेटर'}
-        </p>
-        <h1 className="mt-2 font-display text-[clamp(2rem,5vw,3.2rem)] font-black text-ink">
-          {en ? 'Archive' : 'संग्रह'}
-        </h1>
-        <p className="mt-3 max-w-[40rem] text-body text-ink-soft">
-          {en
-            ? 'Previously sent digests. Empty until the newsroom queues and sends an edition.'
-            : 'पहिले पठाइएका डाइजेस्ट। न्यूजरुमले संस्करण पठाएसम्म खाली रहन्छ।'}
-        </p>
-      </header>
+      <HubIndexHeader
+        title={en ? 'Newsletter archive' : 'न्यूजलेटर संग्रह'}
+        lead={
+          en
+            ? 'Previously sent digests and briefings from the newsroom.'
+            : 'न्यूजरुमले पहिले पठाएका डाइजेस्ट र संक्षिप्त ब्रिफिङ।'
+        }
+        lang={en ? 'en' : 'ne'}
+      />
 
       {issues.length === 0 ? (
-        <p className="mt-10 border-y border-rule py-8 text-ink-soft">
-          {en ? 'No sent editions yet.' : 'अहिलेसम्म पठाइएको संस्करण छैन।'}
-        </p>
+        <div className="mt-10 border-y border-rule bg-brand-tint/35 px-4 py-8 text-ink-soft">
+          <p className="font-display text-h2 text-ink">
+            {en ? 'No sent editions yet' : 'अहिलेसम्म पठाइएको संस्करण छैन'}
+          </p>
+          <p className="mt-2 max-w-body text-body text-ink-soft">
+            {en
+              ? 'This archive will fill after the newsroom sends a newsletter edition.'
+              : 'न्यूजरुमले न्यूजलेटर संस्करण पठाएपछि यो संग्रह भरिन थाल्छ।'}
+          </p>
+        </div>
       ) : (
         <ul className="mt-8 divide-y divide-rule border-y border-rule">
           {issues.map((issue) => (

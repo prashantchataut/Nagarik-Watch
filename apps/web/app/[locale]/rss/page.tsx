@@ -2,32 +2,59 @@ import type { Metadata } from 'next'
 import type { Locale } from '@nagarikwatch/db'
 import Link from 'next/link'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import { HubIndexHeader } from '@/components/HubIndexHeader'
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const locale: Locale = asLocale((await params).locale)
   const lang = locale === 'en' ? 'en' : 'ne'
+  const feeds = [
+    {
+      href: '/rss.xml',
+      titleEn: 'Main RSS feed',
+      titleNe: 'मुख्य RSS फिड',
+      leadEn: 'Newest published stories across the site.',
+      leadNe: 'साइटभरिका नयाँ प्रकाशित समाचार।',
+    },
+    {
+      href: '/news-sitemap.xml',
+      titleEn: 'News sitemap',
+      titleNe: 'समाचार साइटम्याप',
+      leadEn: 'Structured feed for search and newsroom monitoring.',
+      leadNe: 'खोज इन्जिन र न्यूजरुम अनुगमनका लागि संरचित फिड।',
+    },
+  ]
   return (
-    <div className="mx-auto max-w-body px-4 py-8" lang={lang}>
-      <h1 className="font-display text-display text-ink">
-        {locale === 'en' ? 'RSS Feeds' : 'RSS फिड'}
-      </h1>
-      <p className="mt-4 text-body-lg text-ink-soft">
-        {locale === 'en'
-          ? 'Use the feeds below for readers, aggregators and newsroom monitoring. Category feeds will be added when CMS taxonomy APIs are live.'
-          : 'रीडर, एग्रिगेटर र न्यूजरुम मोनिटरिङका लागि तलका फिड प्रयोग गर्नुहोस्। CMS taxonomy API लाइभ भएपछि विभागगत फिड थपिनेछ।'}
-      </p>
-      <ul className="mt-6 space-y-3 text-body">
-        <li>
-          <Link href="/rss.xml" className="font-semibold text-brand">
-            /rss.xml
-          </Link>
-        </li>
-        <li>
-          <Link href="/news-sitemap.xml" className="font-semibold text-brand">
-            /news-sitemap.xml
-          </Link>
-        </li>
+    <div className="mx-auto max-w-page px-4 py-8" lang={lang}>
+      <HubIndexHeader
+        title={locale === 'en' ? 'RSS feeds' : 'RSS फिड'}
+        lead={
+          locale === 'en'
+            ? 'Feed links for readers, aggregators and newsroom monitoring.'
+            : 'रीडर, एग्रिगेटर र न्यूजरुम अनुगमनका लागि फिड लिङ्क।'
+        }
+        lang={lang}
+      />
+      <ul className="mt-6 divide-y divide-rule border-y border-rule text-body">
+        {feeds.map((feed) => (
+          <li key={feed.href} className="py-4">
+            <Link
+              href={feed.href}
+              className="font-display text-h3 text-ink transition-colors hover:text-brand-strong"
+            >
+              {locale === 'en' ? feed.titleEn : feed.titleNe}
+            </Link>
+            <p className="mt-1 text-body text-ink-soft">
+              {locale === 'en' ? feed.leadEn : feed.leadNe}
+            </p>
+            <p className="mt-1 text-caption font-semibold text-brand-strong">{feed.href}</p>
+          </li>
+        ))}
       </ul>
+      <p className="mt-5 max-w-body text-body text-ink-soft">
+        {locale === 'en'
+          ? 'Category-specific feeds can be added later when taxonomy feed endpoints are ready.'
+          : 'विभाग-विशेष फिड taxonomy feed endpoint तयार भएपछि थप्न सकिन्छ।'}
+      </p>
     </div>
   )
 }

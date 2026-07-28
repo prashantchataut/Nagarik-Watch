@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
-import { StoryCard } from '@nagarikwatch/ui'
 import { asLocale } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
 import { getMostReadStats } from '@/lib/engagement/store'
 import { AdSlot } from '@/components/AdSlot'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
+import { RankedStoryList } from '@/components/public/RankedStoryList'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
 export const dynamic = 'force-static'
@@ -49,31 +49,17 @@ export default async function MostReadPage({
         lead={
           eligible.length
             ? english
-              ? 'Ordered from privacy-preserving first-party reading activity. Stories need at least three distinct readers before they enter this list.'
+              ? 'Most-read reporting from the past week, based on verified reader activity.'
               : 'पहिचान नखुल्ने आफ्नै पढाइ तथ्याङ्कका आधारमा क्रमबद्ध। कम्तीमा तीन फरक पाठक पुगेपछि मात्र समाचार यो सूचीमा आउँछ।'
             : english
-              ? 'There is not enough verified reading activity yet, so the newest published stories are shown without popularity claims.'
+              ? 'Verified reading activity is still limited, so the newest reporting is shown without popularity claims.'
               : 'विश्वसनीय पढाइ तथ्याङ्क अझै पर्याप्त छैन। त्यसैले लोकप्रियताको दाबी नगरी नयाँ प्रकाशित समाचार देखाइएको छ।'
         }
         lang={english ? 'en' : 'ne'}
       />
 
       {ranked.length ? (
-        <ol className="mt-8 divide-y divide-rule border-y border-rule">
-          {ranked.map((story, index) => (
-            <li key={story.slug} className="grid gap-4 py-6 sm:grid-cols-[3rem_minmax(0,1fr)]">
-              <span className="font-display text-h2 font-extrabold tabular-nums text-brand-strong" aria-hidden="true">
-                {english
-                  ? String(index + 1)
-                  : String(index + 1)
-                      .split('')
-                      .map((d) => '०१२३४५६७८९'[Number(d)] ?? d)
-                      .join('')}
-              </span>
-              <StoryCard story={story} locale={locale} variant="horizontal" />
-            </li>
-          ))}
-        </ol>
+        <RankedStoryList stories={ranked} locale={locale} mode="most-read" />
       ) : (
         <p className="mt-8 border-y border-rule py-10 text-body-lg text-ink-soft">
           {english ? 'No published stories are available.' : 'प्रकाशित सामग्री उपलब्ध छैन।'}
