@@ -8,6 +8,8 @@ type LatestRailProps = {
   stories: StoryCardData[]
   locale: Locale
   className?: string
+  /** Sidebar: single-column, tighter packing for persistent desktop rail. */
+  compact?: boolean
 }
 
 function deckFor(story: StoryCardData, locale: Locale): string | undefined {
@@ -18,12 +20,16 @@ function isDataUrl(url: string): boolean {
   return url.startsWith('data:')
 }
 
+function isRealPhoto(url: string | undefined): boolean {
+  return Boolean(url && !isDataUrl(url))
+}
+
 /**
  * Dense “ताजा” feed: thumbnail + headline + short deck + meta.
  * Headline-only numbered lists read as unfinished on a news portal.
  */
-export function LatestRail({ stories, locale, className }: LatestRailProps) {
-  const items = stories.slice(0, 8)
+export function LatestRail({ stories, locale, className, compact = false }: LatestRailProps) {
+  const items = stories.slice(0, compact ? 5 : 8)
   if (items.length === 0) return null
   const english = locale === 'en'
 
@@ -49,7 +55,7 @@ export function LatestRail({ stories, locale, className }: LatestRailProps) {
         </Link>
       </div>
 
-      <ol className="mt-1 grid gap-0 sm:grid-cols-2 sm:gap-x-6">
+      <ol className={`mt-1 grid gap-0 ${compact ? '' : 'sm:grid-cols-2 sm:gap-x-5'}`}>
         {items.map((story) => {
           const title = english && story.titleEn ? story.titleEn : story.titleNe
           const titleLang = english && story.titleEn ? 'en' : 'ne'
@@ -57,29 +63,30 @@ export function LatestRail({ stories, locale, className }: LatestRailProps) {
           const href = localizeHref(locale, `/${story.category.slug}/${story.slug}`)
           const image = story.heroImage
           const unoptimized = image ? isDataUrl(image.url) : false
+          const showThumb = isRealPhoto(image?.url)
 
           return (
-            <li key={story.id} className="border-b border-rule py-3">
-              <article className="group grid grid-cols-[5.25rem_minmax(0,1fr)] gap-3 sm:grid-cols-[6.25rem_minmax(0,1fr)]">
-                <Link
-                  href={href}
-                  className="relative aspect-[4/3] shrink-0 overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-                  tabIndex={-1}
-                  aria-hidden="true"
-                >
-                  {image ? (
+            <li key={story.id} className="border-b border-rule py-2.5 last:border-b-0">
+              <article
+                className={`group ${showThumb ? 'grid grid-cols-[4.5rem_minmax(0,1fr)] gap-2.5 sm:grid-cols-[5rem_minmax(0,1fr)]' : ''}`}
+              >
+                {showThumb ? (
+                  <Link
+                    href={href}
+                    className="relative aspect-[4/3] shrink-0 overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                  >
                     <Image
-                      src={image.url}
+                      src={image!.url}
                       alt=""
                       fill
                       unoptimized={unoptimized}
-                      sizes="100px"
+                      sizes="80px"
                       className="object-cover transition-transform duration-slow ease-out-quint group-hover:scale-[1.03]"
                     />
-                  ) : (
-                    <span className="absolute inset-0 bg-brand-tint" />
-                  )}
-                </Link>
+                  </Link>
+                ) : null}
 
                 <div className="min-w-0">
                   <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-caption">
@@ -88,13 +95,17 @@ export function LatestRail({ stories, locale, className }: LatestRailProps) {
                         ? story.category.nameEn
                         : story.category.nameNe}
                     </span>
-                    <span className="text-mute" aria-hidden="true">
-                      ·
-                    </span>
-                    <Dateline iso={story.publishedAt} locale={locale} />
+                    {!compact ? (
+                      <>
+                        <span className="text-mute" aria-hidden="true">
+                          ·
+                        </span>
+                        <Dateline iso={story.publishedAt} locale={locale} />
+                      </>
+                    ) : null}
                   </div>
 
-                  <h3 className="mt-1 font-display text-body font-bold leading-snug text-ink sm:text-body-lg">
+                  <h3 className={`mt-0.5 font-display font-bold leading-snug text-ink ${compact ? 'text-meta sm:text-body' : 'text-body sm:text-body-lg'}`}>
                     <Link
                       href={href}
                       className="cursor-pointer transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
@@ -104,7 +115,7 @@ export function LatestRail({ stories, locale, className }: LatestRailProps) {
                     </Link>
                   </h3>
 
-                  {deck ? (
+                  {deck && !compact ? (
                     <p
                       className="mt-1 line-clamp-2 text-caption leading-relaxed text-ink-soft sm:text-meta"
                       lang={titleLang}

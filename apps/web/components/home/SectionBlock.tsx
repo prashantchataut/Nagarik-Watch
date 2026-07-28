@@ -48,7 +48,7 @@ function hasPhoto(story: StoryCardData): boolean {
 }
 
 /**
- * Homepage category desk. Dense portal packing (OnlineKhabar-class):
+ * Homepage category desk. Dense portal packing:
  * every band is image+copy, never sparse text-only columns with empty cells,
  * never giant SVG placeholder mosaics that read as unfinished.
  */

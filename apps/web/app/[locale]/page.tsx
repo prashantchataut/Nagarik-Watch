@@ -77,8 +77,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   const mostRead = latest.filter((s) => !secondaryIds.has(s.id)).slice(0, 6)
 
-  const sectionLayouts = ['desk', 'stack', 'mosaic'] as const
-
   const today = new Date()
   const monthDay = `${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
   const anniversaryStories = catalog
@@ -106,9 +104,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     catalog.find((story) => Boolean(story.heroImage?.url)) ||
     edition.lead
 
-  const topSections = edition.sections.slice(0, 3)
-  const moreSections = edition.sections.slice(3)
-
   return (
     <div className="home-edition">
       <ExperimentExposure experimentId={HOME_LAYOUT_EXPERIMENT_ID} />
@@ -124,7 +119,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         {/* Front page: lead + also-today */}
         <section
-          className="grid gap-5 border-b border-rule pb-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(17rem,0.75fr)] xl:items-start xl:gap-6 xl:pb-6"
+          className="grid gap-4 border-b border-rule pb-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(16rem,0.72fr)] xl:items-start xl:gap-5 xl:pb-5"
           aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
         >
           <InstrumentedStory
@@ -172,21 +167,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </aside>
         </section>
 
-        <LatestRail stories={latest} locale={locale} className="mt-5 border-b border-rule pb-5" />
-
-        <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(17rem,0.42fr)] xl:items-start xl:gap-6">
-          <div className="min-w-0 space-y-6 sm:space-y-7">
-            {topSections.map((section, index) => (
-              <SectionBlock
-                key={section.category.slug}
-                section={section}
-                locale={locale}
-                layout={sectionLayouts[index % sectionLayouts.length]}
-              />
+        <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,0.38fr)] xl:items-start xl:gap-5">
+          <div className="min-w-0 space-y-5">
+            {edition.sections.map((section) => (
+              <SectionBlock key={section.category.slug} section={section} locale={locale} />
             ))}
+
+            <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="pt-1" />
+
+            <ProvinceHub locale={locale} />
           </div>
+
           <aside className="hidden min-w-0 xl:block">
-            <div className="sticky top-28 space-y-6">
+            <div className="sticky top-28 space-y-5">
+              <LatestRail stories={latest} locale={locale} compact />
               <TodayInBrief stories={briefPool} locale={locale} />
               <MostReadRail stories={mostRead} locale={locale} />
               {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
@@ -194,24 +188,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </aside>
         </div>
 
-        <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="mt-6" />
+        <LatestRail
+          stories={latest}
+          locale={locale}
+          className="mt-5 border-y border-rule py-4 xl:hidden"
+        />
 
-        <ProvinceHub locale={locale} className="mt-6 sm:mt-7" />
-
-        {moreSections.length ? (
-          <div className="mt-6 space-y-6 sm:mt-7 sm:space-y-7">
-            {moreSections.map((section, index) => (
-              <SectionBlock
-                key={section.category.slug}
-                section={section}
-                locale={locale}
-                layout={sectionLayouts[(index + 1) % sectionLayouts.length]}
-              />
-            ))}
-          </div>
-        ) : null}
-
-        <div className="mt-6 grid gap-6 border-t border-rule pt-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-8 xl:hidden">
+        <div className="mt-5 grid gap-5 border-t border-rule pt-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-6 xl:hidden">
           <TodayInBrief stories={briefPool} locale={locale} />
           <div className="space-y-6">
             <MostReadRail stories={mostRead} locale={locale} />

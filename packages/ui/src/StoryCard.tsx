@@ -165,12 +165,13 @@ export function StoryCard({
   }
 
   if (layout === 'horizontal') {
+    const showThumb = story.heroImage && !unoptimized
     return (
       <article className={cn('group relative flex flex-nowrap items-start gap-3', className)}>
-        <div className="relative block w-[4.75rem] shrink-0 overflow-hidden aspect-[4/3] bg-brand-tint sm:w-24">
-          {story.heroImage ? (
+        {showThumb ? (
+          <div className="relative block w-[4.75rem] shrink-0 overflow-hidden aspect-[4/3] bg-brand-tint sm:w-24">
             <Image
-              src={story.heroImage.url}
+              src={story.heroImage!.url}
               alt=""
               fill
               unoptimized={unoptimized}
@@ -178,10 +179,10 @@ export function StoryCard({
               className="object-cover"
               aria-hidden="true"
             />
-          ) : (
-            <span className="absolute inset-y-0 left-0 w-1 bg-brand" aria-hidden="true" />
-          )}
-        </div>
+          </div>
+        ) : (
+          <span className="mt-1 h-10 w-1 shrink-0 bg-brand" aria-hidden="true" />
+        )}
         <div className="min-w-0 flex-1 overflow-hidden">
           <div className="mb-0.5 flex flex-wrap items-center gap-2">
             <CategoryLabel category={story.category} locale={locale} as="span" />
@@ -210,22 +211,44 @@ export function StoryCard({
   const HeadingTag = isFeatured ? 'h2' : 'h3'
   const imgSizes = isFeatured ? '(min-width: 1024px) 60vw, 100vw' : '(min-width: 768px) 33vw, 100vw'
   const placeholderMedia = story.heroImage ? isDataUrl(story.heroImage.url) : false
+  const showFeaturedPhoto = story.heroImage && !placeholderMedia
+
+  if (isFeatured && placeholderMedia) {
+    return (
+      <article className={cn('group relative flex flex-col border-t-2 border-brand pt-3', className)}>
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <CategoryLabel category={story.category} locale={locale} as="span" />
+          <MembershipMarker story={story} locale={locale} />
+        </div>
+        <HeadingTag
+          className="font-display text-h1 leading-tight text-ink group-hover:text-brand-strong transition-colors duration-fast ease-out-quint"
+          lang={titleLang}
+        >
+          <Link href={href}>{title}</Link>
+        </HeadingTag>
+        {deck ? (
+          <p className="mt-2 line-clamp-3 text-body-lg leading-relaxed text-ink-soft" lang={titleLang}>
+            {deck}
+          </p>
+        ) : null}
+        <div className="mt-3">
+          <Byline authors={story.authors} locale={locale} publishedAt={story.publishedAt} />
+        </div>
+      </article>
+    )
+  }
 
   return (
     <article className={cn('group relative flex flex-col', className)}>
-      {story.heroImage && (
+      {showFeaturedPhoto || (!isFeatured && story.heroImage && !placeholderMedia) ? (
         <div
           className={cn(
-            'relative block overflow-hidden rounded-sm mb-3 bg-brand-tint',
-            isFeatured
-              ? placeholderMedia
-                ? 'aspect-[16/9] sm:aspect-[2/1]'
-                : 'aspect-[16/9]'
-              : 'aspect-[4/3]',
+            'relative mb-3 block overflow-hidden rounded-sm bg-brand-tint',
+            isFeatured ? 'aspect-[16/9]' : 'aspect-[4/3]',
           )}
         >
           <Image
-            src={story.heroImage.url}
+            src={story.heroImage!.url}
             alt=""
             fill
             priority={priority}
@@ -235,7 +258,9 @@ export function StoryCard({
             aria-hidden="true"
           />
         </div>
-      )}
+      ) : isFeatured ? (
+        <div className="mb-3 border-t-2 border-brand pt-3" aria-hidden="true" />
+      ) : null}
       <div className="mb-2 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" /><MembershipMarker story={story} locale={locale} /></div>
       <HeadingTag
         className={cn(
