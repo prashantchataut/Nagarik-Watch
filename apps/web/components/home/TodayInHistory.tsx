@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import type { Locale, StoryCardData } from '@nagarikwatch/db'
+import { adToBs, type Locale, type StoryCardData } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
+import { localizeNumber } from '@/lib/live/format'
 
 type TodayInHistoryProps = {
   locale: Locale
@@ -9,7 +10,7 @@ type TodayInHistoryProps = {
   mode?: 'anniversary' | 'archive'
 }
 
-/** Anniversary list, or archive fallback when the corpus has no same-day matches. */
+/** Compact anniversary / archive list for the homepage. */
 export function TodayInHistory({
   locale,
   stories,
@@ -37,19 +38,24 @@ export function TodayInHistory({
       </div>
       <ol className="divide-y divide-rule border-y border-rule">
         {stories.slice(0, 5).map((story, index) => {
-          const year = new Date(story.publishedAt).getUTCFullYear()
+          const published = new Date(story.publishedAt)
+          const yearLabel = Number.isNaN(published.getTime())
+            ? String(index + 1).padStart(2, '0')
+            : en
+              ? String(published.getUTCFullYear())
+              : localizeNumber(adToBs(published).year, locale)
           const label = en && story.titleEn ? story.titleEn : story.titleNe
           return (
             <li key={story.id}>
               <Link
                 href={localizeHref(locale, `/${story.category.slug}/${story.slug}`)}
-                className="group flex min-h-12 items-start gap-3 py-3"
+                className="group flex min-h-11 items-start gap-3 py-2.5"
               >
                 <span
-                  className="mt-0.5 shrink-0 font-display text-meta font-bold tabular-nums text-brand"
+                  className="mt-0.5 w-10 shrink-0 font-display text-meta font-bold tabular-nums text-brand"
                   aria-hidden="true"
                 >
-                  {Number.isFinite(year) ? year : String(index + 1).padStart(2, '0')}
+                  {yearLabel}
                 </span>
                 <span className="min-w-0 font-display text-body font-bold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong">
                   <span className="line-clamp-2">{label}</span>

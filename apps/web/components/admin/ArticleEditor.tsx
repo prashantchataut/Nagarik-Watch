@@ -203,8 +203,9 @@ export function ArticleEditor({
             body: JSON.stringify(body),
           })
           if (!res.ok) {
-            const err = await res.json().catch(() => ({}))
-            throw new Error(err?.error ?? err?.message ?? 'सुरक्षित गर्न सकिएन')
+            const err = await res.json().catch(() => ({})) as { error?: string; message?: string; cmsUrl?: string }
+            const base = err.error ?? err.message ?? 'सुरक्षित गर्न सकिएन'
+            throw new Error(err.cmsUrl ? `${base} ${err.cmsUrl}` : base)
           }
           const saved = await res.json().catch(() => ({}))
           setStatus({ kind: 'saved', msg: 'सुरक्षित भयो' })

@@ -4,12 +4,13 @@ import { useCallback, useEffect, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import type { LivePlace } from '@/lib/live/places'
 import {
+  hasStoredPlaceChoice,
   readLocalPlace,
-  tryAutoDetectPlace,
 } from '@/lib/reader/place'
 import { fetchPlaceWeatherInBrowser } from '@/lib/live/fetch-place-weather-browser'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
 import { PlaceCityPicker } from '@/components/live/PlaceCityPicker'
+import { DEFAULT_LIVE_PLACE_SLUG, resolveLivePlace } from '@/lib/live/places'
 
 type ReaderPlaceLiveProps = {
   locale: Locale
@@ -47,7 +48,8 @@ async function loadWeather(slug: string): Promise<{ tempC: number; aqi?: number 
 
 export function ReaderPlaceLive({ locale, variant = 'board' }: ReaderPlaceLiveProps) {
   const en = locale === 'en'
-  const [place, setPlace] = useState<LivePlace>(() => readLocalPlace())
+  // SSR + first client paint must match: default capital until mount reads storage.
+  const [place, setPlace] = useState<LivePlace>(() => resolveLivePlace(DEFAULT_LIVE_PLACE_SLUG))
   const [chosen, setChosen] = useState(false)
   const [tempC, setTempC] = useState<number | null>(null)
   const [aqi, setAqi] = useState<number | null>(null)
@@ -79,16 +81,12 @@ export function ReaderPlaceLive({ locale, variant = 'board' }: ReaderPlaceLivePr
   useEffect(() => {
     let cancelled = false
     void (async () => {
-      const detected = await tryAutoDetectPlace()
-      if (cancelled) return
-      if (detected) {
-        setPlace(detected)
-        setChosen(true)
-        await refreshWeather(detected.slug)
-        return
-      }
+      // Never auto-call geolocation: Permissions-Policy blocks it, and silent
+      // prompts are hostile on a public news site. City detect is opt-in via picker.
       const local = readLocalPlace()
+      if (cancelled) return
       setPlace(local)
+      setChosen(hasStoredPlaceChoice())
       await refreshWeather(local.slug)
     })()
     return () => {
@@ -162,8 +160,8 @@ export function ReaderPlaceLive({ locale, variant = 'board' }: ReaderPlaceLivePr
           {showReference ? (
             <p className="mt-2 text-caption text-ink-soft">
               {en
-                ? 'Showing capital reference until you pick or detect your city.'
-                : 'सहर छान्नु वा स्थान पत्ता लगाउनु अघि राजधानी सन्दर्भ देखाइएको छ।'}
+                ? 'Capital reference. Pick your city for local weather.'
+                : 'राजधानी सन्दर्भ। स्थानीय मौसमका लागि सहर छान्नुहोस्।'}
             </p>
           ) : null}
         </div>

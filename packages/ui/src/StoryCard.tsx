@@ -195,7 +195,7 @@ export function StoryCard({
             <Link href={href}>{title}</Link>
           </h3>
           {deck ? (
-            <p className="mt-1 line-clamp-2 text-caption leading-relaxed text-ink-soft" lang={titleLang}>
+            <p className="mt-1 line-clamp-1 text-caption leading-relaxed text-ink-soft" lang={titleLang}>
               {deck}
             </p>
           ) : null}

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import Link from 'next/link'
+import type { StoryCardData } from '@nagarikwatch/db'
 import { Hero, StoryCard } from '@nagarikwatch/ui'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getHomepage, getNavCategories } from '@/lib/content'
@@ -94,15 +95,25 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const historyStories = anniversaryStories.length >= 2 ? anniversaryStories : archiveFallback
   const historyMode = anniversaryStories.length >= 2 ? 'anniversary' : 'archive'
 
+  const usedAbove = new Set<string>([
+    edition.lead.id,
+    ...edition.secondary.map((s) => s.id),
+    ...edition.breaking.map((s) => s.id),
+  ])
+
+  const hasRealPhoto = (story: StoryCardData) =>
+    Boolean(story.heroImage?.url) && !story.heroImage!.url.startsWith('data:')
+
   const photoOfDay =
     catalog.find(
       (story) =>
-        Boolean(story.hasGallery) ||
-        (Boolean(story.heroImage?.url) &&
-          (story.tags?.some((t) => t.slug === 'photo-story') || story.category.slug === 'photos')),
+        !usedAbove.has(story.id) &&
+        (Boolean(story.hasGallery) ||
+          (hasRealPhoto(story) &&
+            (story.tags?.some((t) => t.slug === 'photo-story') || story.category.slug === 'photos'))),
     ) ||
-    catalog.find((story) => Boolean(story.heroImage?.url)) ||
-    edition.lead
+    catalog.find((story) => !usedAbove.has(story.id) && hasRealPhoto(story)) ||
+    null
 
   return (
     <div className="home-edition">
@@ -117,9 +128,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           className="mb-4"
         />
 
-        {/* Front page: lead + also-today */}
+        {/* Front page: lead + also-today — match main grid ratios so the rail does not tower over a short lead. */}
         <section
-          className="grid gap-4 border-b border-rule pb-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(16rem,0.72fr)] xl:items-start xl:gap-5 xl:pb-5"
+          className="grid gap-4 border-b border-rule pb-4 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,0.38fr)] xl:items-start xl:gap-5 xl:pb-5"
           aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
         >
           <InstrumentedStory
@@ -140,7 +151,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
             </div>
             <div className="divide-y divide-rule border-y border-rule">
-              {edition.secondary.slice(0, 6).map((story, index) => (
+              {edition.secondary.slice(0, 5).map((story, index) => (
                 <InstrumentedStory
                   key={story.id}
                   articleSlug={story.slug}
@@ -150,15 +161,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     story={story}
                     locale={locale}
                     variant="horizontal"
-                    className={`py-3 ${index >= 5 ? 'hidden xl:block' : ''}`}
+                    className={`py-3 xl:py-2.5 ${index >= 4 ? 'xl:hidden' : ''}`}
                   />
                 </InstrumentedStory>
               ))}
             </div>
-            <p className="pt-3">
+            <p className="pt-2 xl:pt-1.5">
               <Link
                 href={localizeHref(locale, '/latest')}
-                className="inline-flex min-h-10 items-center rounded-md text-meta font-bold text-brand-strong underline-offset-4 hover:underline"
+                className="inline-flex min-h-9 items-center rounded-md text-meta font-bold text-brand-strong underline-offset-4 hover:underline xl:text-caption"
                 lang={english ? 'en' : 'ne'}
               >
                 {english ? 'Latest updates' : 'ताजा अपडेट'}
@@ -224,12 +235,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </section>
 
         <Suspense fallback={null}>
-          <RecommendedForYou locale={locale} catalog={catalog} className="mt-6" />
+          <RecommendedForYou
+            locale={locale}
+            catalog={catalog}
+            className="mt-6"
+            excludeIds={usedAbove}
+          />
         </Suspense>
 
-        <div className="mt-6 grid gap-6 border-t border-rule pt-6 lg:grid-cols-2 lg:gap-8">
+        <div
+          className={`mt-6 grid gap-5 border-t border-rule pt-5 ${photoOfDay ? 'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-6' : ''}`}
+        >
           <TodayInHistory locale={locale} stories={historyStories} mode={historyMode} />
-          <PhotoOfTheDay locale={locale} story={photoOfDay} />
+          {photoOfDay ? <PhotoOfTheDay locale={locale} story={photoOfDay} /> : null}
         </div>
       </div>
     </div>

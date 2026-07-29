@@ -95,7 +95,13 @@ export async function POST(request: NextRequest) {
         addRandomSuffix: true,
       })
       blobUrl = blob.url
-    } else if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    } else if (
+      process.env.VERCEL ||
+      process.env.AWS_LAMBDA_FUNCTION_NAME ||
+      process.env.CF_WORKERS === '1' ||
+      process.env.CF_PAGES === '1' ||
+      process.env.CF_PAGES_STATIC === '1'
+    ) {
       return NextResponse.json(
         {
           error:

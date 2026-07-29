@@ -388,9 +388,19 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
                     const body = new FormData()
                     body.set('file', file)
                     const res = await fetch('/api/admin/media/upload', { method: 'POST', credentials: 'include', body })
-                    const data = await res.json().catch(() => ({})) as { error?: string; url?: string }
+                    const data = await res.json().catch(() => ({})) as {
+                      error?: string
+                      url?: string
+                      cmsUrl?: string
+                    }
                     if (!res.ok || !data.url) {
-                      setStatus({ type: 'error', message: String(data.error ?? (ne ? 'अपलोड असफल।' : 'Upload failed.')) })
+                      const detail =
+                        data.cmsUrl && res.status === 409
+                          ? ne
+                            ? `${data.error ?? 'मिडिया Payload CMS मा व्यवस्थापन हुन्छ।'} ${data.cmsUrl}`
+                            : `${data.error ?? 'Media is managed in Payload CMS.'} ${data.cmsUrl}`
+                          : String(data.error ?? (ne ? 'अपलोड असफल।' : 'Upload failed.'))
+                      setStatus({ type: 'error', message: detail })
                       return
                     }
                     patch('heroImageUrl', data.url)

@@ -71,6 +71,16 @@ export function detectPlaceFromGeolocation(): Promise<LivePlace> {
       reject(new Error('geolocation unavailable'))
       return
     }
+    // Permissions-Policy may set geolocation=(); calling getCurrentPosition then logs a violation.
+    const policy = (
+      document as Document & {
+        featurePolicy?: { allowsFeature?: (feature: string) => boolean }
+      }
+    ).featurePolicy
+    if (policy?.allowsFeature && !policy.allowsFeature('geolocation')) {
+      reject(new Error('geolocation blocked by permissions policy'))
+      return
+    }
     navigator.geolocation.getCurrentPosition(
       (position) => {
         resolve(nearestLivePlace(position.coords.latitude, position.coords.longitude))
