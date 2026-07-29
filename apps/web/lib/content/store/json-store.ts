@@ -47,7 +47,7 @@ export type StoredArticle = {
   publishedAt: string
   updatedAt: string
   isBreaking: boolean
-  isFeatured: 'lead' | 'secondary' | 'none'
+  isFeatured: 'lead' | 'featured' | 'secondary' | 'none'
   workflowStage: WorkflowStage
   sourceType: 'original' | 'aggregated' | 'wire'
   sourceName?: string
@@ -460,6 +460,7 @@ export async function findArticleForAdmin(identifier: string): Promise<StoredArt
 
 export async function getHomepageData(): Promise<{
   lead: StoredArticle | null
+  featured: StoredArticle[]
   secondary: StoredArticle[]
   breaking: StoredArticle[]
   sections: { categorySlug: string; articles: StoredArticle[] }[]
@@ -471,11 +472,45 @@ export async function getHomepageData(): Promise<{
 
   const breaking = published.filter((a) => a.isBreaking).slice(0, 5)
   const lead = published.find((a) => a.isFeatured === 'lead') ?? published[0] ?? null
-  const secondary = published.filter((a) => a.id !== lead?.id).slice(0, 8)
+  const leadId = lead?.id
+
+  let featured = published
+    .filter((a) => a.isFeatured === 'featured' && a.id !== leadId)
+    .slice(0, 6)
+  let secondary = published
+    .filter((a) => a.isFeatured === 'secondary' && a.id !== leadId)
+    .slice(0, 8)
+
+  const reserved = new Set(
+    [leadId, ...featured.map((a) => a.id), ...secondary.map((a) => a.id)].filter(Boolean) as string[],
+  )
+
+  if (featured.length < 4) {
+    const fill = published
+      .filter(
+        (a) =>
+          a.id !== leadId &&
+          !reserved.has(a.id) &&
+          (a.editorPick || a.exclusive || Boolean(a.heroImageUrl)),
+      )
+      .slice(0, 6 - featured.length)
+    for (const article of fill) {
+      reserved.add(article.id)
+      featured.push(article)
+    }
+  }
+
+  if (secondary.length < 5) {
+    const fill = published.filter((a) => a.id !== leadId && !reserved.has(a.id)).slice(0, 8 - secondary.length)
+    for (const article of fill) {
+      reserved.add(article.id)
+      secondary.push(article)
+    }
+  }
 
   const byCategory = new Map<string, StoredArticle[]>()
   for (const a of published) {
-    if (a.id === lead?.id) continue
+    if (a.id === leadId) continue
     const list = byCategory.get(a.categorySlug) ?? []
     list.push(a)
     byCategory.set(a.categorySlug, list)
@@ -484,7 +519,7 @@ export async function getHomepageData(): Promise<{
     .map(([categorySlug, articles]) => ({ categorySlug, articles: articles.slice(0, 4) }))
     .slice(0, 6)
 
-  return { lead, secondary, breaking, sections }
+  return { lead, featured, secondary, breaking, sections }
 }
 
 export async function createArticle(input: {
@@ -509,7 +544,7 @@ export async function createArticle(input: {
   authorIds: string[]
   tagSlugs: string[]
   isBreaking?: boolean
-  isFeatured?: 'lead' | 'secondary' | 'none'
+  isFeatured?: 'lead' | 'featured' | 'secondary' | 'none'
   workflowStage?: StoredArticle['workflowStage']
   sourceType?: 'original' | 'aggregated' | 'wire'
   sourceName?: string

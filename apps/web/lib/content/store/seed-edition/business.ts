@@ -45,6 +45,7 @@ export function editionBusiness(): StoredArticle[] {
       deckEn: 'Watch liquidity, turnover and fundamentals rather than rumours.',
       publishedAt: isoDaysAgo(1, 8),
       updatedAt: isoDaysAgo(1, 8),
+      isFeatured: 'featured',
       tagSlugs: ["data-story"],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',

@@ -146,6 +146,7 @@ export function createStoreContentSource(): ContentSource {
       })
       return {
         lead,
+        featured: data.featured.map((a) => toCard(a, 'ne')),
         secondary: data.secondary.map((a) => toCard(a, 'ne')),
         breaking: data.breaking.map((a) => toCard(a, 'ne')),
         sections,

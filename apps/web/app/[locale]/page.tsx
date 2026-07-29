@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import Link from 'next/link'
 import type { StoryCardData } from '@nagarikwatch/db'
-import { Hero, StoryCard } from '@nagarikwatch/ui'
+import { Hero } from '@nagarikwatch/ui'
+import { DenseStoryItem } from '@/components/home/DenseStoryItem'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getHomepage, getNavCategories } from '@/lib/content'
 import { dedupeHomepage } from '@/lib/content/homepage-dedup'
@@ -26,6 +27,9 @@ import { NewsletterInline } from '@/components/NewsletterInline'
 import { TodayInHistory } from '@/components/home/TodayInHistory'
 import { PhotoOfTheDay } from '@/components/home/PhotoOfTheDay'
 import { MostReadRail } from '@/components/home/MostReadRail'
+import { FeaturedSpotlight } from '@/components/home/FeaturedSpotlight'
+import { FeaturedBand } from '@/components/home/FeaturedBand'
+import { buildHomepageStream } from '@/lib/content/homepage-stream'
 
 export async function generateMetadata({
   params,
@@ -59,6 +63,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     new Map(
       [
         edition.lead,
+        ...edition.featured,
         ...edition.secondary,
         ...edition.breaking,
         ...edition.sections.flatMap((section) => [section.lead, ...section.items]),
@@ -67,6 +72,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         .map((story) => [story.id, story]),
     ).values(),
   )
+
+  const spotlightFeatured = edition.featured.slice(0, 4)
+  const bandFeatured = edition.featured.slice(4)
+  const homepageStream = buildHomepageStream(edition.sections, bandFeatured)
 
   const latest = [...catalog]
     .filter((story) => story.id !== edition.lead.id)
@@ -97,6 +106,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   const usedAbove = new Set<string>([
     edition.lead.id,
+    ...edition.featured.map((s) => s.id),
     ...edition.secondary.map((s) => s.id),
     ...edition.breaking.map((s) => s.id),
   ])
@@ -157,10 +167,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   articleSlug={story.slug}
                   articleCategory={story.category.slug}
                 >
-                  <StoryCard
+                  <DenseStoryItem
                     story={story}
                     locale={locale}
-                    variant="horizontal"
+                    showDeck={false}
                     className={`py-3 xl:py-2.5 ${index >= 4 ? 'xl:hidden' : ''}`}
                   />
                 </InstrumentedStory>
@@ -178,11 +188,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </aside>
         </section>
 
+        <FeaturedSpotlight stories={spotlightFeatured} locale={locale} className="mt-4" />
+
         <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,0.38fr)] xl:items-start xl:gap-5">
           <div className="min-w-0 space-y-5">
-            {edition.sections.map((section) => (
-              <SectionBlock key={section.category.slug} section={section} locale={locale} />
-            ))}
+            {homepageStream.map((item) =>
+              item.kind === 'section' ? (
+                <SectionBlock key={item.section.category.slug} section={item.section} locale={locale} />
+              ) : (
+                <FeaturedBand
+                  key={`featured-${item.stories.map((s) => s.id).join('-')}`}
+                  stories={item.stories}
+                  locale={locale}
+                  variant={item.variant}
+                />
+              ),
+            )}
 
             <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="pt-1" />
 

@@ -24,6 +24,7 @@ describe('dedupeHomepage', () => {
     const lead = story('lead')
     const homepage: HomepageData = {
       lead,
+      featured: [lead, story('feat-1')],
       secondary: [lead, story('sec-1')],
       breaking: [lead, story('brk-1')],
       sections: [
@@ -37,6 +38,7 @@ describe('dedupeHomepage', () => {
 
     const result = dedupeHomepage(homepage)
 
+    expect(result.featured.map((s) => s.id)).toEqual(['feat-1'])
     expect(result.secondary.map((s) => s.id)).toEqual(['sec-1'])
     expect(result.breaking.map((s) => s.id)).toEqual(['brk-1'])
     expect(result.sections[0]?.lead).toBeUndefined()

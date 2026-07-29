@@ -18,6 +18,7 @@ export function dedupeHomepage(homepage: HomepageData): HomepageData {
   }
 
   const secondary = takeUnique(homepage.secondary)
+  const featured = takeUnique(homepage.featured ?? [])
   const breaking = takeUnique(homepage.breaking)
 
   const sections: HomepageSection[] = homepage.sections.map((section) => {
@@ -35,6 +36,7 @@ export function dedupeHomepage(homepage: HomepageData): HomepageData {
 
   return {
     ...homepage,
+    featured,
     secondary,
     breaking,
     sections,

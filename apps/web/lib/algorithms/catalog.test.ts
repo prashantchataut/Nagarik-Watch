@@ -88,10 +88,10 @@ describe('algorithm catalog', () => {
 
   it('renders every catalog entry on the admin algorithms page', () => {
     const pageSource = readFileSync(
-      new URL('../../app/admin/algorithms/page.tsx', import.meta.url),
+      new URL('../../app/admin/(desk)/algorithms/page.tsx', import.meta.url),
       'utf8',
     )
-    expect(pageSource).toContain('entries.map')
+    expect(pageSource).toContain('top.map')
     expect(pageSource).toContain('Product-functional capabilities')
     expect(pageSource).toContain('runAllAlgorithms')
     expect(pageSource).toContain('data-algorithm-id={algorithm.id}')

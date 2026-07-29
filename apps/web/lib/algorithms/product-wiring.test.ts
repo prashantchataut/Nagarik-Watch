@@ -36,7 +36,7 @@ describe('product wiring + honesty gates', () => {
       ['../../app/api/cron/digest-compose/route.ts', 'lib/reader/digest'],
       ['../../app/api/cron/interactions-rebuild/route.ts', 'lib/engagement/interaction-matrix'],
       ['../../app/api/cron/ops-probe/route.ts', 'lib/ops/health-snapshot'],
-      ['../../app/admin/algorithms/page.tsx', 'runAllAlgorithms'],
+      ['../../app/admin/(desk)/algorithms/page.tsx', 'runAllAlgorithms'],
     ]
 
     for (const [file, needle] of surfaces) {

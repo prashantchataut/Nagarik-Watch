@@ -339,7 +339,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
 
     async getHomepage(): Promise<HomepageData | null> {
       const publishedWhere = publicArticleWhere()
-      const [{ docs }, { docs: leadDocs }, { docs: secondaryDocs }, { docs: catDocs }] =
+      const [{ docs }, { docs: leadDocs }, { docs: featuredDocs }, { docs: secondaryDocs }, { docs: catDocs }] =
         await Promise.all([
           payloadFind<PayloadDoc>('articles', {
             where: publishedWhere,
@@ -354,9 +354,15 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
             depth: 1,
           }),
           payloadFind<PayloadDoc>('articles', {
+            where: { ...publishedWhere, featuredState: { equals: 'featured' } },
+            sort: '-publishAt',
+            limit: 6,
+            depth: 1,
+          }),
+          payloadFind<PayloadDoc>('articles', {
             where: { ...publishedWhere, featuredState: { equals: 'secondary' } },
             sort: '-publishAt',
-            limit: 4,
+            limit: 6,
             depth: 1,
           }),
           payloadFind<PayloadDoc>('categories', {
@@ -373,11 +379,21 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
 
       const editorialLead = (leadDocs as unknown as PayloadDoc[]).map(asCard)[0]
       const lead = editorialLead ?? cards[0]!
+      const editorialFeatured = (featuredDocs as unknown as PayloadDoc[]).map(asCard)
       const editorialSecondary = (secondaryDocs as unknown as PayloadDoc[]).map(asCard)
-      const fallbackSecondary = cards.filter((card) => card.id !== lead.id)
+      const fallbackPool = cards.filter((card) => card.id !== lead.id)
+      const featured = Array.from(
+        new Map(
+          [
+            ...editorialFeatured,
+            ...fallbackPool.filter((c) => c.editorPick || c.exclusive),
+            ...fallbackPool,
+          ].map((card) => [card.id, card]),
+        ).values(),
+      ).slice(0, 6)
       const secondary = Array.from(
-        new Map([...editorialSecondary, ...fallbackSecondary].map((card) => [card.id, card])).values(),
-      ).slice(0, 4)
+        new Map([...editorialSecondary, ...fallbackPool].map((card) => [card.id, card])).values(),
+      ).slice(0, 6)
       const breaking = cards.filter((card) => card.isBreaking).slice(0, 6)
       const sections = (catDocs as unknown as PayloadDoc[])
         .map((categoryDoc) => {
@@ -391,7 +407,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
           }
         })
         .filter((section) => section.items.length > 0 || section.lead)
-      return { lead, secondary, sections, breaking }
+      return { lead, featured, secondary, sections, breaking }
     },
 
     async getCategory(slug) {

@@ -77,6 +77,7 @@ export function editionPolitics(): StoredArticle[] {
       deckEn: 'Timely campaign spending disclosure is foundational to voter trust in local government.',
       publishedAt: isoDaysAgo(2, 8),
       updatedAt: isoDaysAgo(2, 8),
+      isFeatured: 'featured',
       tagSlugs: ['local-election'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',

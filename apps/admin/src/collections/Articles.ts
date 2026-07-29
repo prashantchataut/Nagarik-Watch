@@ -521,6 +521,7 @@ export const Articles: CollectionConfig = {
       defaultValue: 'none',
       options: [
         { label: 'Lead', value: 'lead' },
+        { label: 'Featured', value: 'featured' },
         { label: 'Secondary', value: 'secondary' },
         { label: 'None', value: 'none' },
       ],

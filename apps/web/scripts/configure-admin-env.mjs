@@ -27,7 +27,7 @@ const lines = [
   `REVALIDATE_SECRET=${revalidateSecret}`,
   '# Paste your Neon / Supabase connection string:',
   '# DATABASE_URL=postgresql://...',
-  'CONTENT_SOURCE=json',
+  'CONTENT_SOURCE=payload',
   'NEXT_PUBLIC_LAUNCH_STATUS=preview',
   'ENABLE_WEB_ADMIN_SCAFFOLD=true',
   '# After first deploy, set to your app origin:',

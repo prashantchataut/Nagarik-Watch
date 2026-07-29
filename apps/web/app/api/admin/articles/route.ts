@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       authorIds: Array.isArray(body.authorIds) ? body.authorIds.map(String) : [],
       tagSlugs: Array.isArray(body.tagSlugs) ? body.tagSlugs.map(String) : [],
       isBreaking: Boolean(body.isBreaking),
-      isFeatured: (body.isFeatured as 'lead' | 'secondary' | 'none') ?? 'none',
+      isFeatured: (body.isFeatured as 'lead' | 'featured' | 'secondary' | 'none') ?? 'none',
       workflowStage: requestedStage,
       sourceType: (body.sourceType as 'original' | 'aggregated' | 'wire') ?? 'original',
       sourceName: body.sourceName ? String(body.sourceName) : undefined,

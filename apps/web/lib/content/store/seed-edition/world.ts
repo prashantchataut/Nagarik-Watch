@@ -74,6 +74,7 @@ export function editionWorld(): StoredArticle[] {
       deckEn: 'Destination policy shifts affect Nepali household income; information access matters.',
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
+      isFeatured: 'featured',
       tagSlugs: ["labour-migration"],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',

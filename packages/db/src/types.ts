@@ -586,6 +586,8 @@ export interface HomepageSection {
 /** The assembled homepage payload. */
 export interface HomepageData {
   lead: StoryCardData
+  /** Editorial spotlight pool (mid-scroll bands + top grid). Max ~6 in layout. */
+  featured: StoryCardData[]
   secondary: StoryCardData[]
   sections: HomepageSection[]
   breaking: StoryCardData[]

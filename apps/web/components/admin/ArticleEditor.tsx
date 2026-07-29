@@ -183,7 +183,11 @@ export function ArticleEditor({
             sourceName: read('sourceName', draft.sourceName) || undefined,
             sourceUrl: read('sourceUrl', draft.sourceUrl) || undefined,
             isBreaking: draft.isBreaking,
-            isFeatured: read('featuredState', draft.featuredState) as 'lead' | 'secondary' | 'none',
+            isFeatured: read('featuredState', draft.featuredState) as
+              | 'lead'
+              | 'featured'
+              | 'secondary'
+              | 'none',
             seoTitleNe: read('seoTitle', draft.seoTitle) || undefined,
             seoDescriptionNe: read('seoDescription', draft.seoDescription) || undefined,
             noIndex: workflowStage === 'published' ? false : draft.noIndex,
@@ -460,6 +464,7 @@ export function ArticleEditor({
             options={[
               { value: 'none', label: 'सामान्य' },
               { value: 'lead', label: 'मुख्य समाचार' },
+              { value: 'featured', label: 'विशेष (ग्रिड)' },
               { value: 'secondary', label: 'दोस्रो पंक्ति' },
             ]}
           />

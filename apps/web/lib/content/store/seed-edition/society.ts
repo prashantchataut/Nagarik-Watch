@@ -75,6 +75,7 @@ export function editionSociety(): StoredArticle[] {
       deckEn: 'Complaint channels, lighting and crew training must move together.',
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
+      isFeatured: 'featured',
       tagSlugs: ["editor-pick"],
       reportingLocation: 'ललितपुर',
       province: 'bagmati',
