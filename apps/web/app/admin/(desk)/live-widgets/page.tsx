@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getProviderHealth } from '@/lib/live/health'
 import { listManualLiveRecords, setManualLiveRecord } from '@/lib/live/manual'
 import { formatDate } from '@nagarikwatch/db'
-import { AdminPageHeader, AdminCard, AdminButton, AdminInput, AdminTextarea, AdminTable } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard, AdminButton, AdminInput, AdminTextarea, AdminTable, AdminCallout } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'लाइभ विजेट',
@@ -52,14 +53,18 @@ async function saveManualLive(formData: FormData) {
   'use server'
   await requireNewsroomSession()
   const key = String(formData.get('key') ?? '')
-  if (!MANUAL_KEYS.some((item) => item.key === key)) return
+  if (!MANUAL_KEYS.some((item) => item.key === key)) {
+    redirect('/admin/live-widgets?error=invalid-key')
+  }
   const raw = String(formData.get('data') ?? '').trim()
-  if (!raw) return
+  if (!raw) {
+    redirect(`/admin/live-widgets?error=empty&key=${encodeURIComponent(key)}`)
+  }
   let data: unknown
   try {
     data = JSON.parse(raw)
   } catch {
-    return
+    redirect(`/admin/live-widgets?error=json&key=${encodeURIComponent(key)}`)
   }
   await setManualLiveRecord({
     key,
@@ -67,10 +72,16 @@ async function saveManualLive(formData: FormData) {
     data,
   })
   revalidatePath('/admin/live-widgets')
+  redirect(`/admin/live-widgets?saved=${encodeURIComponent(key)}`)
 }
 
-export default async function LiveWidgetsPage() {
+export default async function LiveWidgetsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; key?: string; saved?: string }>
+}) {
   await requireNewsroomSession()
+  const params = await searchParams
 
   const providers = await getProviderHealth().catch(() => [])
   const manualRecords = await listManualLiveRecords().catch(() => [])
@@ -83,11 +94,33 @@ export default async function LiveWidgetsPage() {
     error: 'त्रुटि',
   }
 
+  const errorMessage =
+    params.error === 'json'
+      ? `${params.key ?? 'Widget'} को JSON अवैध छ। ठीक गरेर फेरि सुरक्षित गर्नुहोस्।`
+      : params.error === 'empty'
+        ? 'JSON खाली छ। उदाहरण संरचना राखेर सुरक्षित गर्नुहोस्।'
+        : params.error === 'invalid-key'
+          ? 'अमान्य widget key।'
+          : null
+
   return (
     <div>
       <AdminPageHeader
         subtitle={`${providers.length} वटा बाह्य डाटा प्रदायक + manual override`}
       />
+
+      {errorMessage ? (
+        <AdminCallout tone="danger" className="mb-4">
+          <p role="alert" lang="ne">{errorMessage}</p>
+        </AdminCallout>
+      ) : null}
+      {params.saved ? (
+        <AdminCallout tone="neutral" className="mb-4">
+          <p role="status" lang="ne">
+            {params.saved} manual override सुरक्षित भयो।
+          </p>
+        </AdminCallout>
+      ) : null}
 
       <AdminCard className="mb-5">
         <p className="text-body text-ink" lang="ne">
@@ -120,12 +153,14 @@ export default async function LiveWidgetsPage() {
                   ) : null}
                 </div>
                 <AdminInput
+                  id={`live-source-${item.key}`}
                   label="Source label"
                   name="source"
                   defaultValue={current?.source ?? 'Newsroom manual update'}
                   lang="en"
                 />
                 <AdminTextarea
+                  id={`live-data-${item.key}`}
                   label="JSON data"
                   name="data"
                   defaultValue={current ? JSON.stringify(current.data, null, 2) : item.example}

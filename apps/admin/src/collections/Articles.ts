@@ -529,7 +529,28 @@ export const Articles: CollectionConfig = {
         create: canPublishField,
         update: canPublishField,
       },
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        description:
+          'Lead = hero. Featured = spotlight grid + mid-scroll bands. Secondary = Also today rail.',
+      },
+    },
+    {
+      name: 'featuredExpiresAt',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+        date: { pickerAppearance: 'dayAndTime' },
+        description: 'Optional. After this time, homepage placement clears (story stays published).',
+        condition: (_, siblingData) =>
+          siblingData?.featuredState === 'lead' ||
+          siblingData?.featuredState === 'featured' ||
+          siblingData?.featuredState === 'secondary',
+      },
+      access: {
+        create: canPublishField,
+        update: canPublishField,
+      },
     },
     {
       name: 'locale',

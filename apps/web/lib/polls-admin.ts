@@ -200,3 +200,39 @@ export async function createPoll(input: {
   await writeLocal(next)
   return poll
 }
+
+export async function updatePollStatus(
+  pollId: string,
+  nextStatus: unknown,
+): Promise<Poll | null> {
+  const cleanId = cleanText(pollId, 120)
+  const next = status(nextStatus)
+  if (!cleanId) return null
+  const now = new Date().toISOString()
+  const pool = await ensureSchema()
+  if (pool) {
+    if (next === 'active') {
+      await pool.query(
+        `UPDATE nw_polls SET status = 'closed', updated_at = now() WHERE status = 'active' AND id <> $1`,
+        [cleanId],
+      )
+    }
+    const result = await pool.query<Row>(
+      `UPDATE nw_polls SET status = $2, updated_at = now() WHERE id = $1 RETURNING *`,
+      [cleanId, next],
+    )
+    return result.rows[0] ? rowToPoll(result.rows[0]) : null
+  }
+  const current = await readLocal()
+  const existing = current.find((poll) => poll.id === cleanId)
+  if (!existing) return null
+  const updated = current.map((poll) => {
+    if (poll.id === cleanId) return { ...poll, status: next, updatedAt: now }
+    if (next === 'active' && poll.status === 'active') {
+      return { ...poll, status: 'closed' as const, updatedAt: now }
+    }
+    return poll
+  })
+  await writeLocal(updated)
+  return updated.find((poll) => poll.id === cleanId) ?? null
+}

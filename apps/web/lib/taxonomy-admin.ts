@@ -1,5 +1,8 @@
 import 'server-only'
+import type { Author, Category, Tag } from '@nagarikwatch/db'
 import { categories } from '@/lib/content/seed/categories'
+import { authors as seedAuthors } from '@/lib/content/seed/authors'
+import { tags as seedTags } from '@/lib/content/seed/tags'
 import { asSlug, cleanMultiline, cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
 
 export type TaxonomyKind = 'category' | 'tag' | 'author'
@@ -57,20 +60,16 @@ function seedMemory() {
     }
     memory.set(`${term.kind}:${term.slug}`, term)
   }
-  const tags = [
-    ['breaking', 'ब्रेकिङ', 'Breaking'],
-    ['explainer', 'व्याख्या', 'Explainer'],
-    ['investigation', 'छानबिन', 'Investigation'],
-    ['public-interest', 'सार्वजनिक हित', 'Public Interest'],
-  ] as const
-  for (const [slug, nameNe, nameEn] of tags) {
+  for (const tag of seedTags) {
     const now = new Date().toISOString()
-    memory.set(`tag:${slug}`, {
-      id: `tag-${slug}`,
+    memory.set(`tag:${tag.slug}`, {
+      id: tag.id,
       kind: 'tag',
-      slug,
-      nameNe,
-      nameEn,
+      slug: tag.slug,
+      nameNe: tag.nameNe,
+      nameEn: tag.nameEn ?? tag.nameNe,
+      descriptionNe: tag.descriptionNe,
+      descriptionEn: tag.descriptionEn,
       status: 'active',
       sortOrder: 100,
       metadata: {},
@@ -78,6 +77,81 @@ function seedMemory() {
       updatedAt: now,
     })
   }
+  for (const author of seedAuthors) {
+    const now = new Date().toISOString()
+    memory.set(`author:${author.slug}`, {
+      id: author.id,
+      kind: 'author',
+      slug: author.slug,
+      nameNe: author.name,
+      nameEn: author.name,
+      descriptionNe: author.bioNe,
+      descriptionEn: author.bioEn,
+      status: author.isActive === false ? 'hidden' : 'active',
+      sortOrder: 100,
+      metadata: {
+        email: author.email ?? '',
+        role: author.role ?? 'staff',
+        verified: author.verified === true,
+      },
+      createdAt: now,
+      updatedAt: now,
+    })
+  }
+}
+
+/** Active categories for nav + article editor (admin taxonomy is the SoT when present). */
+export async function listContentCategories(): Promise<Category[]> {
+  const terms = (await listTaxonomyTerms('category')).filter((term) => term.status === 'active')
+  if (!terms.length) {
+    return categories
+      .filter((c) => c.showInNav !== false)
+      .sort((a, b) => (a.navOrder ?? 0) - (b.navOrder ?? 0))
+  }
+  return terms.map((term) => ({
+    id: term.id,
+    slug: term.slug,
+    nameNe: term.nameNe,
+    nameEn: term.nameEn,
+    descriptionNe: term.descriptionNe,
+    descriptionEn: term.descriptionEn,
+    navOrder: term.sortOrder,
+    showInNav: term.metadata.showInNav !== false,
+  }))
+}
+
+export async function listContentTags(): Promise<Tag[]> {
+  const terms = (await listTaxonomyTerms('tag')).filter((term) => term.status === 'active')
+  if (!terms.length) return seedTags
+  return terms.map((term) => ({
+    id: term.id,
+    slug: term.slug,
+    nameNe: term.nameNe,
+    nameEn: term.nameEn,
+    descriptionNe: term.descriptionNe,
+    descriptionEn: term.descriptionEn,
+  }))
+}
+
+export async function listContentAuthors(): Promise<Author[]> {
+  const terms = (await listTaxonomyTerms('author')).filter((term) => term.status === 'active')
+  if (!terms.length) return seedAuthors.filter((author) => author.isActive !== false)
+  return terms.map((term) => {
+    const rawRole = String(term.metadata.role ?? 'staff')
+    const role: Author['role'] =
+      rawRole === 'columnist' || rawRole === 'contributor' || rawRole === 'wire' ? rawRole : 'staff'
+    return {
+      id: term.id,
+      slug: term.slug,
+      name: term.nameNe,
+      role,
+      bioNe: term.descriptionNe,
+      bioEn: term.descriptionEn,
+      email: term.metadata.email ? String(term.metadata.email) : undefined,
+      verified: term.metadata.verified === true,
+      isActive: true,
+    }
+  })
 }
 
 async function ensureSchema(): Promise<Queryable | null> {

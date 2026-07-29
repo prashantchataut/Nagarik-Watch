@@ -54,39 +54,170 @@ export function AdminCallout({ tone = 'neutral', className, children }: {
 
 const fieldClass = 'admin-field-control'
 
-export function AdminInput({ label, name, defaultValue, value, onChange, placeholder, type = 'text', required, disabled, lang, hint }: {
-  label: string; name: string; defaultValue?: string | number; value?: string | number; onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string; type?: string; required?: boolean; disabled?: boolean; lang?: string; hint?: string
+export function AdminInput({
+  label,
+  name,
+  id: idProp,
+  defaultValue,
+  value,
+  onChange,
+  placeholder,
+  type = 'text',
+  required,
+  disabled,
+  lang,
+  hint,
+}: {
+  label: string
+  name: string
+  id?: string
+  defaultValue?: string | number
+  value?: string | number
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+  placeholder?: string
+  type?: string
+  required?: boolean
+  disabled?: boolean
+  lang?: string
+  hint?: string
 }) {
-  const id = `field-${name}`
-  return <label className="admin-field" htmlFor={id}>
-    <span className="admin-field-label" lang={lang ?? 'ne'}>{label}{required ? <span aria-hidden="true"> *</span> : null}</span>
-    <input id={id} name={name} type={type} defaultValue={value === undefined ? defaultValue : undefined} value={value} onChange={onChange} placeholder={placeholder} required={required} disabled={disabled} lang={lang} className={fieldClass} aria-describedby={hint ? `${id}-hint` : undefined} />
-    {hint ? <span id={`${id}-hint`} className="admin-field-hint" lang={lang ?? 'ne'}>{hint}</span> : null}
-  </label>
+  const id = idProp ?? `field-${name}`
+  return (
+    <label className="admin-field" htmlFor={id}>
+      <span className="admin-field-label" lang={lang ?? 'ne'}>
+        {label}
+        {required ? <span aria-hidden="true"> *</span> : null}
+      </span>
+      <input
+        id={id}
+        name={name}
+        type={type}
+        defaultValue={value === undefined ? defaultValue : undefined}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        disabled={disabled}
+        lang={lang}
+        className={fieldClass}
+        aria-describedby={hint ? `${id}-hint` : undefined}
+      />
+      {hint ? (
+        <span id={`${id}-hint`} className="admin-field-hint" lang={lang ?? 'ne'}>
+          {hint}
+        </span>
+      ) : null}
+    </label>
+  )
 }
 
-export function AdminTextarea({ label, name, defaultValue, value, onChange, placeholder, required, rows = 5, lang, hint }: {
-  label: string; name: string; defaultValue?: string; value?: string; onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void; placeholder?: string; required?: boolean; rows?: number; lang?: string; hint?: string
+export function AdminTextarea({
+  label,
+  name,
+  id: idProp,
+  defaultValue,
+  value,
+  onChange,
+  placeholder,
+  required,
+  rows = 5,
+  lang,
+  hint,
+}: {
+  label: string
+  name: string
+  id?: string
+  defaultValue?: string
+  value?: string
+  onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void
+  placeholder?: string
+  required?: boolean
+  rows?: number
+  lang?: string
+  hint?: string
 }) {
-  const id = `field-${name}`
-  return <label className="admin-field" htmlFor={id}>
-    <span className="admin-field-label" lang={lang ?? 'ne'}>{label}{required ? <span aria-hidden="true"> *</span> : null}</span>
-    <textarea id={id} name={name} defaultValue={value === undefined ? defaultValue : undefined} value={value} onChange={onChange} placeholder={placeholder} required={required} rows={rows} lang={lang} className={cn(fieldClass, 'min-h-28 resize-y')} aria-describedby={hint ? `${id}-hint` : undefined} />
-    {hint ? <span id={`${id}-hint`} className="admin-field-hint" lang={lang ?? 'ne'}>{hint}</span> : null}
-  </label>
+  const id = idProp ?? `field-${name}`
+  return (
+    <label className="admin-field" htmlFor={id}>
+      <span className="admin-field-label" lang={lang ?? 'ne'}>
+        {label}
+        {required ? <span aria-hidden="true"> *</span> : null}
+      </span>
+      <textarea
+        id={id}
+        name={name}
+        defaultValue={value === undefined ? defaultValue : undefined}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        rows={rows}
+        lang={lang}
+        className={cn(fieldClass, 'min-h-28 resize-y')}
+        aria-describedby={hint ? `${id}-hint` : undefined}
+      />
+      {hint ? (
+        <span id={`${id}-hint`} className="admin-field-hint" lang={lang ?? 'ne'}>
+          {hint}
+        </span>
+      ) : null}
+    </label>
+  )
 }
 
-export function AdminSelect({ label, name, defaultValue, value, onChange, options, required, lang, hint }: {
-  label: string; name: string; defaultValue?: string; value?: string; onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void; options: { value: string; label: string }[]; required?: boolean; lang?: string; hint?: string
+export function AdminSelect({
+  label,
+  name,
+  id: idProp,
+  defaultValue,
+  value,
+  onChange,
+  options,
+  required,
+  lang,
+  hint,
+}: {
+  label: string
+  name: string
+  id?: string
+  defaultValue?: string
+  value?: string
+  onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void
+  options: { value: string; label: string }[]
+  required?: boolean
+  lang?: string
+  hint?: string
 }) {
-  const id = `field-${name}`
-  return <label className="admin-field" htmlFor={id}>
-    <span className="admin-field-label" lang={lang ?? 'ne'}>{label}{required ? <span aria-hidden="true"> *</span> : null}</span>
-    <select id={id} name={name} defaultValue={value === undefined ? defaultValue : undefined} value={value} onChange={onChange} required={required} className={fieldClass} aria-describedby={hint ? `${id}-hint` : undefined}>
-      {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-    </select>
-    {hint ? <span id={`${id}-hint`} className="admin-field-hint" lang={lang ?? 'ne'}>{hint}</span> : null}
-  </label>
+  const id = idProp ?? `field-${name}`
+  return (
+    <label className="admin-field" htmlFor={id}>
+      <span className="admin-field-label" lang={lang ?? 'ne'}>
+        {label}
+        {required ? <span aria-hidden="true"> *</span> : null}
+      </span>
+      <select
+        id={id}
+        name={name}
+        defaultValue={value === undefined ? defaultValue : undefined}
+        value={value}
+        onChange={onChange}
+        required={required}
+        className={fieldClass}
+        aria-describedby={hint ? `${id}-hint` : undefined}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {hint ? (
+        <span id={`${id}-hint`} className="admin-field-hint" lang={lang ?? 'ne'}>
+          {hint}
+        </span>
+      ) : null}
+    </label>
+  )
 }
 
 export function StatusBadge({ status }: { status: string }) {
@@ -143,10 +274,19 @@ export function AdminMetric({
   return <div className="admin-metric">{body}</div>
 }
 
-export function AdminTable({ children, minWidth }: { children: React.ReactNode; minWidth?: string }) {
+export function AdminTable({
+  children,
+  minWidth,
+  caption,
+}: {
+  children: React.ReactNode
+  minWidth?: string
+  caption?: string
+}) {
   return (
     <div className="admin-table-wrap">
       <table className="admin-table" style={minWidth ? { minWidth } : undefined}>
+        {caption ? <caption className="sr-only">{caption}</caption> : null}
         {children}
       </table>
     </div>

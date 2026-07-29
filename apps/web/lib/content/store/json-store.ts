@@ -48,6 +48,8 @@ export type StoredArticle = {
   updatedAt: string
   isBreaking: boolean
   isFeatured: 'lead' | 'featured' | 'secondary' | 'none'
+  /** ISO timestamp; when past, homepage placement falls back to none. */
+  featuredExpiresAt?: string
   workflowStage: WorkflowStage
   sourceType: 'original' | 'aggregated' | 'wire'
   sourceName?: string
@@ -471,14 +473,22 @@ export async function getHomepageData(): Promise<{
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
 
   const breaking = published.filter((a) => a.isBreaking).slice(0, 5)
-  const lead = published.find((a) => a.isFeatured === 'lead') ?? published[0] ?? null
+  const now = Date.now()
+  const placementActive = (a: StoredArticle) => {
+    if (!a.featuredExpiresAt) return true
+    const expires = Date.parse(a.featuredExpiresAt)
+    return Number.isNaN(expires) || expires > now
+  }
+
+  const lead =
+    published.find((a) => a.isFeatured === 'lead' && placementActive(a)) ?? published[0] ?? null
   const leadId = lead?.id
 
   let featured = published
-    .filter((a) => a.isFeatured === 'featured' && a.id !== leadId)
+    .filter((a) => a.isFeatured === 'featured' && a.id !== leadId && placementActive(a))
     .slice(0, 6)
   let secondary = published
-    .filter((a) => a.isFeatured === 'secondary' && a.id !== leadId)
+    .filter((a) => a.isFeatured === 'secondary' && a.id !== leadId && placementActive(a))
     .slice(0, 8)
 
   const reserved = new Set(
@@ -545,6 +555,7 @@ export async function createArticle(input: {
   tagSlugs: string[]
   isBreaking?: boolean
   isFeatured?: 'lead' | 'featured' | 'secondary' | 'none'
+  featuredExpiresAt?: string
   workflowStage?: StoredArticle['workflowStage']
   sourceType?: 'original' | 'aggregated' | 'wire'
   sourceName?: string
@@ -598,6 +609,7 @@ export async function createArticle(input: {
     updatedAt: now_iso,
     isBreaking: input.isBreaking ?? false,
     isFeatured: input.isFeatured ?? 'none',
+    featuredExpiresAt: input.featuredExpiresAt,
     workflowStage: input.workflowStage ?? 'draft',
     sourceType: input.sourceType ?? 'original',
     sourceName: input.sourceName,

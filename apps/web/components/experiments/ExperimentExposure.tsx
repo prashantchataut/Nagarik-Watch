@@ -89,5 +89,6 @@ export function trackExperimentConversion(experimentId: string): void {
   void postExperimentEvent(experimentId, 'conversion')
 }
 
-export const HOME_LAYOUT_EXPERIMENT_ID = 'home-layout-v1'
 export const ARTICLE_COMPLETION_EXPERIMENT_ID = 'article-completion-v1'
+
+export { HOME_LAYOUT_EXPERIMENT_ID } from '@/lib/experiments/home-layout'

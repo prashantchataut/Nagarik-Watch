@@ -25,6 +25,11 @@ import * as store from './json-store'
 import type { StoredArticle } from './json-store'
 import { placeholder } from '../seed/media'
 import { normalizeEditionHeroUrl } from './seed-edition/_helpers'
+import {
+  listContentAuthors,
+  listContentCategories,
+  listContentTags,
+} from '@/lib/taxonomy-admin'
 
 const PER_PAGE = 12
 
@@ -42,18 +47,26 @@ function resolveHero(a: StoredArticle) {
   return { url: media.url, alt: media.alt }
 }
 
-function toCard(a: StoredArticle, locale: Locale): StoryCardData {
-  const cat = categoryBySlug.get(a.categorySlug) ?? {
-    id: a.categorySlug,
-    slug: a.categorySlug,
-    nameNe: a.categorySlug,
-    nameEn: a.categorySlug,
-  }
+type TaxonomyCatalog = { authors: Author[]; tags: Tag[]; categories: Category[] }
+
+function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): StoryCardData {
+  const cat =
+    catalog?.categories.find((c) => c.slug === a.categorySlug) ??
+    categoryBySlug.get(a.categorySlug) ?? {
+      id: a.categorySlug,
+      slug: a.categorySlug,
+      nameNe: a.categorySlug,
+      nameEn: a.categorySlug,
+    }
+  const authorPool = catalog?.authors ?? authors
   const cardAuthors = a.authorIds
-    .map((id) => authors.find((au) => au.id === id))
+    .map((id) => authorPool.find((au) => au.id === id || au.slug === id))
     .filter((au): au is Author => Boolean(au))
   const heroImage = resolveHero(a)
-  const cardTags = a.tagSlugs.map((slug) => tagBySlug.get(slug)).filter((t): t is Tag => Boolean(t))
+  const tagPool = catalog?.tags ?? tags
+  const cardTags = a.tagSlugs
+    .map((slug) => tagPool.find((t) => t.slug === slug) ?? tagBySlug.get(slug))
+    .filter((t): t is Tag => Boolean(t))
   return {
     id: a.id,
     slug: a.slug,
@@ -83,8 +96,12 @@ function toCard(a: StoredArticle, locale: Locale): StoryCardData {
   } as StoryCardData
 }
 
-function toFullArticle(a: StoredArticle, locale: Locale): Article {
-  const cardTags = a.tagSlugs.map((slug) => tagBySlug.get(slug)).filter((t): t is Tag => Boolean(t))
+function toFullArticle(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): Article {
+  const card = toCard(a, locale, catalog)
+  const tagPool = catalog?.tags ?? tags
+  const cardTags = a.tagSlugs
+    .map((slug) => tagPool.find((t) => t.slug === slug) ?? tagBySlug.get(slug))
+    .filter((t): t is Tag => Boolean(t))
   const source =
     a.sourceType !== 'original' && a.sourceName && a.sourceUrl
       ? {
@@ -95,7 +112,7 @@ function toFullArticle(a: StoredArticle, locale: Locale): Article {
         }
       : undefined
   return {
-    ...toCard(a, locale),
+    ...card,
     deckNe: a.deckNe,
     deckEn: a.deckEn,
     bodyNe: a.bodyNe,
@@ -118,6 +135,15 @@ function toFullArticle(a: StoredArticle, locale: Locale): Article {
   } as Article
 }
 
+async function loadCatalog(): Promise<TaxonomyCatalog> {
+  const [categoryList, tagList, authorList] = await Promise.all([
+    listContentCategories(),
+    listContentTags(),
+    listContentAuthors(),
+  ])
+  return { categories: categoryList, tags: tagList, authors: authorList }
+}
+
 export function createStoreContentSource(): ContentSource {
   return {
     async getArticleBySlug(
@@ -126,41 +152,47 @@ export function createStoreContentSource(): ContentSource {
       locale: Locale,
     ): Promise<Article | null> {
       const a = await store.getArticleBySlug(category, slug, locale)
-      return a ? toFullArticle(a, locale) : null
+      if (!a) return null
+      return toFullArticle(a, locale, await loadCatalog())
     },
     async getHomepage(): Promise<HomepageData | null> {
-      const data = await store.getHomepageData()
-      const lead = data.lead ? toCard(data.lead, 'ne') : null
+      const [data, catalog] = await Promise.all([store.getHomepageData(), loadCatalog()])
+      const lead = data.lead ? toCard(data.lead, 'ne', catalog) : null
       if (!lead) return null
       const sections: HomepageSection[] = data.sections.map((s) => {
-        const cat = categoryBySlug.get(s.categorySlug) ?? {
-          id: s.categorySlug,
-          slug: s.categorySlug,
-          nameNe: s.categorySlug,
-          nameEn: s.categorySlug,
-        }
+        const cat =
+          catalog.categories.find((c) => c.slug === s.categorySlug) ??
+          categoryBySlug.get(s.categorySlug) ?? {
+            id: s.categorySlug,
+            slug: s.categorySlug,
+            nameNe: s.categorySlug,
+            nameEn: s.categorySlug,
+          }
         return {
           category: cat,
-          items: s.articles.map((a) => toCard(a, 'ne')),
+          items: s.articles.map((a) => toCard(a, 'ne', catalog)),
         }
       })
       return {
         lead,
-        featured: data.featured.map((a) => toCard(a, 'ne')),
-        secondary: data.secondary.map((a) => toCard(a, 'ne')),
-        breaking: data.breaking.map((a) => toCard(a, 'ne')),
+        featured: data.featured.map((a) => toCard(a, 'ne', catalog)),
+        secondary: data.secondary.map((a) => toCard(a, 'ne', catalog)),
+        breaking: data.breaking.map((a) => toCard(a, 'ne', catalog)),
         sections,
       }
     },
     async getCategory(slug: string): Promise<Category | null> {
-      return categoryBySlug.get(slug) ?? null
+      const catalog = await listContentCategories()
+      return catalog.find((c) => c.slug === slug) ?? categoryBySlug.get(slug) ?? null
     },
     async getCategoryPage(
       slug: string,
       page: number,
       locale: Locale,
     ): Promise<PaginatedStories | null> {
-      const cat = categoryBySlug.get(slug)
+      const catalog = await loadCatalog()
+      const cat =
+        catalog.categories.find((c) => c.slug === slug) ?? categoryBySlug.get(slug)
       if (!cat) return null
       const { items, total } = await store.listArticles({
         category: slug,
@@ -169,7 +201,7 @@ export function createStoreContentSource(): ContentSource {
         offset: (page - 1) * PER_PAGE,
       })
       return {
-        items: items.map((a) => toCard(a, locale)),
+        items: items.map((a) => toCard(a, locale, catalog)),
         total,
         page,
         totalPages: Math.ceil(total / PER_PAGE) || 1,
@@ -179,14 +211,18 @@ export function createStoreContentSource(): ContentSource {
       slug: string,
       locale: Locale,
     ): Promise<{ author: Author; stories: PaginatedStories } | null> {
-      const author = authorBySlug.get(slug)
+      const catalog = await loadCatalog()
+      const author =
+        catalog.authors.find((a) => a.slug === slug) ?? authorBySlug.get(slug)
       if (!author) return null
       const all = await store.listArticles({ locale, limit: 1000 })
-      const authorArticles = all.items.filter((a) => a.authorIds.includes(author.id))
+      const authorArticles = all.items.filter((a) =>
+        a.authorIds.some((id) => id === author.id || id === author.slug),
+      )
       return {
         author,
         stories: {
-          items: authorArticles.map((a) => toCard(a, locale)),
+          items: authorArticles.map((a) => toCard(a, locale, catalog)),
           total: authorArticles.length,
           page: 1,
           totalPages: Math.ceil(authorArticles.length / PER_PAGE) || 1,
@@ -197,14 +233,15 @@ export function createStoreContentSource(): ContentSource {
       slug: string,
       locale: Locale,
     ): Promise<{ tag: Tag; stories: PaginatedStories } | null> {
-      const tag = tagBySlug.get(slug)
+      const catalog = await loadCatalog()
+      const tag = catalog.tags.find((t) => t.slug === slug) ?? tagBySlug.get(slug)
       if (!tag) return null
       const all = await store.listArticles({ locale, limit: 1000 })
       const tagArticles = all.items.filter((a) => a.tagSlugs.includes(slug))
       return {
         tag,
         stories: {
-          items: tagArticles.map((a) => toCard(a, locale)),
+          items: tagArticles.map((a) => toCard(a, locale, catalog)),
           total: tagArticles.length,
           page: 1,
           totalPages: Math.ceil(tagArticles.length / PER_PAGE) || 1,
@@ -215,7 +252,7 @@ export function createStoreContentSource(): ContentSource {
       const locale = opts.locale ?? 'ne'
       const perPage = opts.perPage ?? PER_PAGE
       const page = opts.page ?? 1
-      // Pull a wide window then filter desk fields client-side (JSON store).
+      const catalog = await loadCatalog()
       const { items: raw } = await store.listArticles({
         category: opts.category,
         locale: opts.locale,
@@ -225,7 +262,10 @@ export function createStoreContentSource(): ContentSource {
       let filtered = raw
       if (opts.author) {
         filtered = filtered.filter((a) =>
-          a.authorIds.some((id) => authors.find((au) => au.id === id)?.slug === opts.author),
+          a.authorIds.some((id) => {
+            const match = catalog.authors.find((au) => au.id === id || au.slug === id)
+            return match?.slug === opts.author
+          }),
         )
       }
       if (opts.tag) {
@@ -235,7 +275,7 @@ export function createStoreContentSource(): ContentSource {
         filtered = filtered.filter((a) => !opts.exclude!.includes(a.slug))
       }
       const cards = filtered
-        .map((a) => toCard(a, locale))
+        .map((a) => toCard(a, locale, catalog))
         .filter((card) => matchesStoryListFilters(card, opts))
       const total = cards.length
       const start = (page - 1) * perPage
@@ -249,21 +289,22 @@ export function createStoreContentSource(): ContentSource {
       }
     },
     async getNavCategories(): Promise<Category[]> {
-      return categories
-        .filter((c) => c.navOrder !== undefined)
+      const terms = await listContentCategories()
+      return terms
+        .filter((c) => c.showInNav !== false)
         .sort((a, b) => (a.navOrder ?? 0) - (b.navOrder ?? 0))
     },
     async getAuthors(): Promise<Author[]> {
-      return authors.filter((author) => author.isActive)
+      return listContentAuthors()
     },
     async getTags(): Promise<Tag[]> {
-      return tags
+      return listContentTags()
     },
     async getFeatured(): Promise<{ lead?: StoryCardData; secondary: StoryCardData[] }> {
-      const data = await store.getHomepageData()
+      const [data, catalog] = await Promise.all([store.getHomepageData(), loadCatalog()])
       return {
-        lead: data.lead ? toCard(data.lead, 'ne') : undefined,
-        secondary: data.secondary.map((a) => toCard(a, 'ne')),
+        lead: data.lead ? toCard(data.lead, 'ne', catalog) : undefined,
+        secondary: data.secondary.map((a) => toCard(a, 'ne', catalog)),
       }
     },
   }

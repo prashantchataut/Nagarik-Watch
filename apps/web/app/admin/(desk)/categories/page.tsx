@@ -43,7 +43,7 @@ async function saveTerm(formData: FormData) {
     descriptionEn: formData.get('descriptionEn'),
     status: formData.get('status'),
     sortOrder: formData.get('sortOrder'),
-    metadata: { email: String(formData.get('email') ?? ''), role: String(formData.get('role') ?? '') },
+    metadata: { showInNav: formData.get('status') !== 'hidden' },
   })
   await recordAuditEvent({ session, action: 'update', targetType: 'category', targetId: term.slug, summary: `विभाग अद्यावधिक: ${term.nameNe}` })
   revalidatePath('/admin/categories')
@@ -102,7 +102,7 @@ export default async function Page() {
             <p className="text-caption text-mute" lang="en">{active.length} active · {terms.length} total</p>
           </div>
           <div className="mt-4">
-            <AdminTable>
+            <AdminTable caption="Category taxonomy">
               <thead>
                 <tr><th>Name</th><th>Slug</th><th>Status</th><th>Action</th></tr>
               </thead>

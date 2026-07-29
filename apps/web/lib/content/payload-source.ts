@@ -147,6 +147,13 @@ function countArticleWords(blocks: unknown): number {
   return text ? text.split(/\s+/).length : 0
 }
 
+function placementActive(doc: PayloadDoc, now = Date.now()): boolean {
+  const raw = doc.featuredExpiresAt
+  if (!raw) return true
+  const expires = Date.parse(String(raw))
+  return Number.isNaN(expires) || expires > now
+}
+
 function asCard(doc: PayloadDoc): StoryCardData {
   const category = asCategoryRef(doc.category as CategoryField)
   const media = asMedia(doc.heroImage as MediaField)
@@ -377,10 +384,16 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
       const cards = rows.map(asCard)
       if (!cards.length) return null
 
-      const editorialLead = (leadDocs as unknown as PayloadDoc[]).map(asCard)[0]
+      const editorialLead = (leadDocs as unknown as PayloadDoc[])
+        .filter((doc) => placementActive(doc))
+        .map(asCard)[0]
       const lead = editorialLead ?? cards[0]!
-      const editorialFeatured = (featuredDocs as unknown as PayloadDoc[]).map(asCard)
-      const editorialSecondary = (secondaryDocs as unknown as PayloadDoc[]).map(asCard)
+      const editorialFeatured = (featuredDocs as unknown as PayloadDoc[])
+        .filter((doc) => placementActive(doc))
+        .map(asCard)
+      const editorialSecondary = (secondaryDocs as unknown as PayloadDoc[])
+        .filter((doc) => placementActive(doc))
+        .map(asCard)
       const fallbackPool = cards.filter((card) => card.id !== lead.id)
       const featured = Array.from(
         new Map(

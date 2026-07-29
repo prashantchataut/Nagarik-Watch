@@ -18,9 +18,8 @@ import { RecommendedForYou } from '@/components/reader/RecommendedForYou'
 import { PollOfDay } from '@/components/home/PollOfDay'
 import { getActivePoll } from '@/lib/polls-admin'
 import {
-  ExperimentExposure,
-  HOME_LAYOUT_EXPERIMENT_ID,
-} from '@/components/experiments/ExperimentExposure'
+  HomeLayoutExperiment,
+} from '@/components/experiments/HomeLayoutExperiment'
 import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 import { NewsletterInline } from '@/components/NewsletterInline'
@@ -29,7 +28,11 @@ import { PhotoOfTheDay } from '@/components/home/PhotoOfTheDay'
 import { MostReadRail } from '@/components/home/MostReadRail'
 import { FeaturedSpotlight } from '@/components/home/FeaturedSpotlight'
 import { FeaturedBand } from '@/components/home/FeaturedBand'
-import { buildHomepageStream } from '@/lib/content/homepage-stream'
+import {
+  buildFeaturedBandPool,
+  buildHomepageStream,
+} from '@/lib/content/homepage-stream'
+import { resolveHomeLayoutBandEvery } from '@/lib/experiments/home-layout'
 
 export async function generateMetadata({
   params,
@@ -50,7 +53,11 @@ export async function generateMetadata({
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const english = locale === 'en'
-  const [homepage, activePoll] = await Promise.all([getHomepage(), getActivePoll()])
+  const [homepage, activePoll, layout] = await Promise.all([
+    getHomepage(),
+    getActivePoll(),
+    resolveHomeLayoutBandEvery(),
+  ])
 
   if (!homepage) {
     const categories = await getNavCategories()
@@ -73,9 +80,30 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ).values(),
   )
 
+  const usedAbove = new Set<string>([
+    edition.lead.id,
+    ...edition.featured.map((s) => s.id),
+    ...edition.secondary.map((s) => s.id),
+    ...edition.breaking.map((s) => s.id),
+  ])
+
   const spotlightFeatured = edition.featured.slice(0, 4)
-  const bandFeatured = edition.featured.slice(4)
-  const homepageStream = buildHomepageStream(edition.sections, bandFeatured)
+  const bandFeatured = buildFeaturedBandPool({
+    featured: edition.featured,
+    catalog,
+    excludeIds: new Set([
+      edition.lead.id,
+      ...edition.secondary.map((s) => s.id),
+      ...edition.breaking.map((s) => s.id),
+    ]),
+  })
+  const homepageStream = buildHomepageStream(edition.sections, bandFeatured, {
+    bandEvery: layout.bandEvery,
+    bandSize: 3,
+    categoryAware: true,
+  })
+
+  for (const story of bandFeatured) usedAbove.add(story.id)
 
   const latest = [...catalog]
     .filter((story) => story.id !== edition.lead.id)
@@ -104,13 +132,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const historyStories = anniversaryStories.length >= 2 ? anniversaryStories : archiveFallback
   const historyMode = anniversaryStories.length >= 2 ? 'anniversary' : 'archive'
 
-  const usedAbove = new Set<string>([
-    edition.lead.id,
-    ...edition.featured.map((s) => s.id),
-    ...edition.secondary.map((s) => s.id),
-    ...edition.breaking.map((s) => s.id),
-  ])
-
   const hasRealPhoto = (story: StoryCardData) =>
     Boolean(story.heroImage?.url) && !story.heroImage!.url.startsWith('data:')
 
@@ -127,7 +148,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <div className="home-edition">
-      <ExperimentExposure experimentId={HOME_LAYOUT_EXPERIMENT_ID} />
+      <HomeLayoutExperiment />
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
       <div className="mx-auto max-w-page px-3 pt-3 sm:px-4 sm:pt-4">

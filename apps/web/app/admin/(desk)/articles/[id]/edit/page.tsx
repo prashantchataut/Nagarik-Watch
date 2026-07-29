@@ -1,9 +1,8 @@
 import { staticArticleIdParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { getNavCategories } from '@/lib/content'
+import { getNavCategories, getAuthors, getTags } from '@/lib/content'
 import { findArticleForAdmin } from '@/lib/content/store/json-store'
-import { seedTags } from '@/lib/content/seed-source'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditor } from '@/components/admin/ArticleEditor'
@@ -34,9 +33,10 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   const { id } = await params
   if (isPayloadCanonical()) redirect(payloadCollectionAdminUrl('articles', id))
 
-  const [categories, tags, mediaLibrary] = await Promise.all([
+  const [categories, tags, authors, mediaLibrary] = await Promise.all([
     getNavCategories(),
-    Promise.resolve(seedTags),
+    getTags(),
+    getAuthors(),
     listMediaItems({ limit: 60 }).catch(() => []),
   ])
   const article = await findArticleForAdmin(id)
@@ -50,6 +50,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
         <ArticleEditor
           categories={categories}
           tags={tags}
+          authors={authors}
           role={session.newsroomRole}
           isNew
           mediaLibrary={mediaLibrary}
@@ -75,16 +76,22 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
           bodyEn: blocksToShorthand(article.bodyEn ?? []),
           category: article.categorySlug,
           tagSlugs: article.tagSlugs,
+          authorIds: article.authorIds,
+          province: article.province ?? '',
           workflowStage: article.workflowStage,
           sourceType: article.sourceType ?? 'original',
           sourceName: article.sourceName ?? '',
           sourceUrl: article.sourceUrl ?? '',
           isBreaking: article.isBreaking,
           featuredState: article.isFeatured,
+          featuredExpiresAt: article.featuredExpiresAt
+            ? article.featuredExpiresAt.slice(0, 16)
+            : '',
           seoTitle: article.seoTitleNe ?? '',
           seoDescription: article.seoDescriptionNe ?? '',
           noIndex: article.noIndex ?? false,
           includeInNewsSitemap: article.includeInNewsSitemap ?? false,
+          aiSummary: article.aiSummary ?? '',
           premium: article.premium,
           commentsEnabled: article.commentsEnabled,
           heroImageUrl: article.heroImageUrl ?? '',
@@ -94,6 +101,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
         }}
         categories={categories}
         tags={tags}
+        authors={authors}
         role={session.newsroomRole}
         isNew={false}
         mediaLibrary={mediaLibrary}

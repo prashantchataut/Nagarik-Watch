@@ -37,11 +37,16 @@ export function SubmissionModerationActions({ id }: { id: string }) {
 
   return (
     <div className="grid min-w-[15rem] gap-2">
+      <label htmlFor={`submission-note-${id}`} className="sr-only" lang="ne">
+        सम्पादकीय नोट
+      </label>
       <textarea
+        id={`submission-note-${id}`}
         value={note}
         onChange={(event) => setNote(event.target.value)}
         placeholder="सम्पादकीय नोट"
         className="min-h-16 rounded-md border border-rule bg-surface px-2.5 py-2 text-caption text-ink"
+        aria-busy={pending}
       />
       <div className="flex flex-wrap gap-1.5">
         {ACTIONS.map((action) => (
@@ -57,7 +62,11 @@ export function SubmissionModerationActions({ id }: { id: string }) {
           </AdminButton>
         ))}
       </div>
-      {error ? <p className="text-caption text-breaking">{error}</p> : null}
+      {error ? (
+        <p className="text-caption text-breaking" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }

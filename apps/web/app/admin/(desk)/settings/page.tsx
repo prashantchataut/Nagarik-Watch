@@ -39,14 +39,22 @@ export default async function SettingsPage() {
   return (
     <div>
       <AdminPageHeader subtitle="Publication identity, contact details, social links and operational text" />
+      <AdminCard className="mb-5">
+        <p className="text-body text-ink" lang="ne">
+          सार्वजनिक फुटरका कानूनी विवरण (DoIB, सम्पादक) env बाट आउँछन्। यहाँको
+          <code className="mx-1 text-ink">moderation.bannedWords</code>
+          मात्र टिप्पणी मोडरेशनमा तुरुन्त लागू हुन्छ। बाँकी identity/contact/social
+          सेटिङहरू आन्तरिक सन्दर्भका लागि हुन्, सार्वजनिक पृष्ठमा स्वतः देखिँदैनन्।
+        </p>
+      </AdminCard>
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.4fr]">
         <AdminCard>
           <h2 className="font-display text-h2 text-ink" lang="ne">सेटिङ थप्नुहोस्</h2>
           <form action={saveSetting} className="mt-4 grid gap-3">
-            <AdminInput label="Key" name="key" required placeholder="publication.taglineNe" lang="en" />
-            <AdminInput label="Label" name="label" required lang="en" />
-            <AdminInput label="Group" name="group" defaultValue="identity" lang="en" />
-            <AdminTextarea label="Value" name="value" rows={5} />
+            <AdminInput id="setting-new-key" label="Key" name="key" required placeholder="publication.taglineNe" lang="en" />
+            <AdminInput id="setting-new-label" label="Label" name="label" required lang="en" />
+            <AdminInput id="setting-new-group" label="Group" name="group" defaultValue="identity" lang="en" />
+            <AdminTextarea id="setting-new-value" label="Value" name="value" rows={5} />
             <AdminButton type="submit">Save setting</AdminButton>
           </form>
         </AdminCard>
@@ -61,10 +69,17 @@ export default async function SettingsPage() {
                     <input type="hidden" name="label" value={setting.label} />
                     <input type="hidden" name="group" value={setting.group} />
                     <AdminTextarea
+                      id={`setting-value-${setting.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`}
                       label={setting.label}
                       name="value"
                       defaultValue={setting.value}
                       rows={setting.value.length > 120 ? 4 : 2}
+                      hint={
+                        setting.key === 'moderation.bannedWords'
+                          ? 'Live: used by comment moderation.'
+                          : 'Internal reference only (not public chrome).'
+                      }
+                      lang="en"
                     />
                     <div className="mt-3 flex items-center justify-between gap-3">
                       <code className="text-caption text-mute" lang="en">{setting.key}</code>

@@ -1,6 +1,14 @@
 import Link from 'next/link'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
+import { DenseStoryItem } from '@/components/home/DenseStoryItem'
+
+const NE = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९']
+
+function toNeDigits(n: number, locale: Locale): string {
+  if (locale !== 'ne') return String(n)
+  return String(n).replace(/[0-9]/g, (d) => NE[Number(d)] ?? d)
+}
 
 /** Compact numbered most-read list for the homepage rail. */
 export function MostReadRail({
@@ -25,27 +33,19 @@ export function MostReadRail({
         <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
       </div>
       <ol className="divide-y divide-rule border-y border-rule">
-        {stories.slice(0, 6).map((story, index) => {
-          const title = en && story.titleEn ? story.titleEn : story.titleNe
-          return (
-            <li key={story.id}>
-              <Link
-                href={localizeHref(locale, `/${story.category.slug}/${story.slug}`)}
-                className="group flex min-h-11 items-start gap-3 py-2.5"
-              >
-                <span
-                  className="mt-0.5 w-5 shrink-0 text-right font-display text-meta font-bold tabular-nums text-brand"
-                  aria-hidden="true"
-                >
-                  {index + 1}
-                </span>
-                <span className="min-w-0 font-display text-body font-bold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong">
-                  <span className="line-clamp-2">{title}</span>
-                </span>
-              </Link>
-            </li>
-          )
-        })}
+        {stories.slice(0, 6).map((story, index) => (
+          <li key={story.id} className="py-2.5">
+            <DenseStoryItem
+              story={story}
+              locale={locale}
+              rank={toNeDigits(index + 1, locale)}
+              showMeta={false}
+              showDeck={false}
+              showThumb={false}
+              compact
+            />
+          </li>
+        ))}
       </ol>
       <p className="pt-3">
         <Link

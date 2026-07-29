@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@nagarikwatch/ui'
-import type { Category, Tag } from '@nagarikwatch/db'
+import type { Author, Category, Tag } from '@nagarikwatch/db'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import { canPublish, canEdit } from '@/lib/admin-roles'
 import { AdminInput, AdminTextarea, AdminSelect, AdminButton } from '@/components/admin/primitives'
@@ -11,6 +11,7 @@ import {
   HeroMediaField,
   type HeroMediaLibraryItem,
 } from '@/components/admin/HeroMediaField'
+import { PROVINCES } from '@/lib/site'
 
 type ArticleDraft = {
   slug: string
@@ -28,6 +29,7 @@ type ArticleDraft = {
   sourceUrl: string
   isBreaking: boolean
   featuredState: string
+  featuredExpiresAt: string
   seoTitle: string
   seoDescription: string
   noIndex: boolean
@@ -39,6 +41,8 @@ type ArticleDraft = {
   heroImageAlt: string
   heroCaption: string
   heroCredit: string
+  authorIds: string[]
+  province: string
 }
 
 const EMPTY: ArticleDraft = {
@@ -57,6 +61,7 @@ const EMPTY: ArticleDraft = {
   sourceUrl: '',
   isBreaking: false,
   featuredState: 'none',
+  featuredExpiresAt: '',
   seoTitle: '',
   seoDescription: '',
   noIndex: false,
@@ -68,6 +73,8 @@ const EMPTY: ArticleDraft = {
   heroImageAlt: '',
   heroCaption: '',
   heroCredit: '',
+  authorIds: [],
+  province: '',
 }
 
 const WORKFLOW_STAGES = [
@@ -110,6 +117,7 @@ export function ArticleEditor({
   initial,
   categories,
   tags,
+  authors = [],
   role,
   isNew,
   mediaLibrary = [],
@@ -117,6 +125,7 @@ export function ArticleEditor({
   initial?: Partial<ArticleDraft> & { id?: string }
   categories: Category[]
   tags: Tag[]
+  authors?: Author[]
   role: NewsroomRole
   isNew: boolean
   mediaLibrary?: HeroMediaLibraryItem[]
@@ -125,6 +134,7 @@ export function ArticleEditor({
   const formRef = useRef<HTMLFormElement | null>(null)
   const [draft, setDraft] = useState<ArticleDraft>({ ...EMPTY, ...initial })
   const [selectedTags, setSelectedTags] = useState<string[]>(initial?.tagSlugs ?? [])
+  const [selectedAuthors, setSelectedAuthors] = useState<string[]>(initial?.authorIds ?? [])
   const [status, setStatus] = useState<{
     kind: 'idle' | 'saving' | 'saved' | 'error'
     msg?: string
@@ -158,6 +168,12 @@ export function ArticleEditor({
     setSelectedTags((t) => (t.includes(slug) ? t.filter((s) => s !== slug) : [...t, slug]))
   }
 
+  function toggleAuthor(id: string) {
+    setSelectedAuthors((ids) =>
+      ids.includes(id) ? ids.filter((value) => value !== id) : [...ids, id],
+    )
+  }
+
   function save(targetStage?: string) {
     setStatus({ kind: 'saving' })
     startTransition(() => {
@@ -177,8 +193,9 @@ export function ArticleEditor({
             workflowStage,
             bodyNe: draft.bodyNe,
             bodyEn: draft.bodyEn || undefined,
-            authorIds: [],
+            authorIds: selectedAuthors,
             tagSlugs: selectedTags,
+            province: read('province', draft.province) || undefined,
             sourceType: read('sourceType', draft.sourceType) as 'original' | 'aggregated' | 'wire',
             sourceName: read('sourceName', draft.sourceName) || undefined,
             sourceUrl: read('sourceUrl', draft.sourceUrl) || undefined,
@@ -188,6 +205,7 @@ export function ArticleEditor({
               | 'featured'
               | 'secondary'
               | 'none',
+            featuredExpiresAt: read('featuredExpiresAt', draft.featuredExpiresAt) || undefined,
             seoTitleNe: read('seoTitle', draft.seoTitle) || undefined,
             seoDescriptionNe: read('seoDescription', draft.seoDescription) || undefined,
             noIndex: workflowStage === 'published' ? false : draft.noIndex,
@@ -293,7 +311,7 @@ export function ArticleEditor({
 
         <div className="rounded-lg border border-rule bg-surface-raised p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <label className="text-meta font-semibold text-ink" lang="ne">
+            <label htmlFor="article-body-ne" className="text-meta font-semibold text-ink" lang="ne">
               समाचारको मूल भाग (नेपाली) <span className="text-brand">*</span>
             </label>
             <span className="text-caption text-mute" lang="ne">
@@ -301,10 +319,14 @@ export function ArticleEditor({
             </span>
           </div>
           <textarea
+            id="article-body-ne"
+            name="bodyNe"
             value={draft.bodyNe}
             onChange={(e) => update('bodyNe', e.target.value)}
             rows={20}
             lang="ne"
+            required
+            aria-required="true"
             placeholder={`पहिलो अनुच्छेद यहाँ लेख्नुहोस्।
 
 ## सह-शीर्षक (वैकल्पिक)
@@ -352,30 +374,63 @@ export function ArticleEditor({
         </div>
 
         <div className="rounded-lg border border-rule bg-surface-raised p-5 space-y-4">
-          <p className="text-meta font-semibold text-ink" lang="ne">
-            ट्याग
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {tags.map((t) => (
-              <button
-                key={t.slug}
-                type="button"
-                onClick={() => toggleTag(t.slug)}
-                className={cn(
-                  'admin-filter-link',
-                  selectedTags.includes(t.slug) && 'admin-filter-link--active',
-                )}
-                lang="ne"
-              >
-                {t.nameNe}
-              </button>
-            ))}
-            {tags.length === 0 && (
-              <span className="text-caption text-mute" lang="ne">
-                कुनै ट्याग छैन। पहिले ट्याग व्यवस्थापनमा बनाउनुहोस्।
-              </span>
-            )}
-          </div>
+          <fieldset>
+            <legend className="text-meta font-semibold text-ink" lang="ne">
+              ट्याग
+            </legend>
+            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="ट्याग छान्नुहोस्">
+              {tags.map((t) => (
+                <button
+                  key={t.slug}
+                  type="button"
+                  onClick={() => toggleTag(t.slug)}
+                  aria-pressed={selectedTags.includes(t.slug)}
+                  className={cn(
+                    'admin-filter-link',
+                    selectedTags.includes(t.slug) && 'admin-filter-link--active',
+                  )}
+                  lang="ne"
+                >
+                  {t.nameNe}
+                </button>
+              ))}
+              {tags.length === 0 && (
+                <span className="text-caption text-mute" lang="ne">
+                  कुनै ट्याग छैन। पहिले ट्याग व्यवस्थापनमा बनाउनुहोस्।
+                </span>
+              )}
+            </div>
+          </fieldset>
+        </div>
+
+        <div className="rounded-lg border border-rule bg-surface-raised p-5 space-y-4">
+          <fieldset>
+            <legend className="text-meta font-semibold text-ink" lang="ne">
+              लेखक
+            </legend>
+            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="लेखक छान्नुहोस्">
+              {authors.map((author) => (
+                <button
+                  key={author.id}
+                  type="button"
+                  onClick={() => toggleAuthor(author.id)}
+                  aria-pressed={selectedAuthors.includes(author.id)}
+                  className={cn(
+                    'admin-filter-link',
+                    selectedAuthors.includes(author.id) && 'admin-filter-link--active',
+                  )}
+                  lang="ne"
+                >
+                  {author.name}
+                </button>
+              ))}
+              {authors.length === 0 && (
+                <span className="text-caption text-mute" lang="ne">
+                  कुनै लेखक छैन। पहिले लेखक व्यवस्थापनमा बनाउनुहोस्।
+                </span>
+              )}
+            </div>
+          </fieldset>
         </div>
       </div>
 
@@ -436,9 +491,19 @@ export function ArticleEditor({
             value={draft.slug}
             onChange={(e) => update('slug', e.target.value)}
             required
-            placeholder="url-मा-देखिने-नाम"
+            placeholder="url-ma-dekhine-naam"
             lang="en"
             hint="URL मा देखिने नाम। अंग्रेजी अक्षर र ड्यास मात्र।"
+          />
+          <AdminSelect
+            label="प्रदेश"
+            name="province"
+            value={draft.province}
+            onChange={(e) => update('province', e.target.value)}
+            options={[
+              { value: '', label: '— छैन / राष्ट्रिय —' },
+              ...PROVINCES.map((p) => ({ value: p.slug, label: p.nameNe })),
+            ]}
           />
         </div>
 
@@ -463,11 +528,25 @@ export function ArticleEditor({
             onChange={(e) => update('featuredState', e.target.value)}
             options={[
               { value: 'none', label: 'सामान्य' },
-              { value: 'lead', label: 'मुख्य समाचार' },
-              { value: 'featured', label: 'विशेष (ग्रिड)' },
-              { value: 'secondary', label: 'दोस्रो पंक्ति' },
+              { value: 'lead', label: 'मुख्य समाचार (हीरो)' },
+              { value: 'featured', label: 'विशेष ग्रिड / स्क्रोल ब्यान्ड' },
+              { value: 'secondary', label: 'दोस्रो पंक्ति (आजका अन्य)' },
             ]}
           />
+          <p className="text-caption leading-relaxed text-ink-soft" lang="ne">
+            मुख्य = एउटा हीरो। विशेष = माथिको ग्रिड र स्क्रोल ब्यान्ड (४–६)। दोस्रो = दायाँ/साइडबार
+            रेल।
+          </p>
+          {draft.featuredState !== 'none' ? (
+            <AdminInput
+              label="प्रमुखता समाप्ति"
+              name="featuredExpiresAt"
+              type="datetime-local"
+              value={draft.featuredExpiresAt}
+              onChange={(e) => update('featuredExpiresAt', e.target.value)}
+              hint="खाली छोड्दा म्यानुअल हटाएसम्म रहन्छ। समयपछि होमपेजबाट झर्छ, लेख प्रकाशित नै रहन्छ।"
+            />
+          ) : null}
           <label className="flex items-center gap-2 text-meta text-ink">
             <input
               type="checkbox"

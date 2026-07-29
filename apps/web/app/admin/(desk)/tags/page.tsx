@@ -102,7 +102,7 @@ export default async function Page() {
             <p className="text-caption text-mute" lang="en">{active.length} active · {terms.length} total</p>
           </div>
           <div className="mt-4">
-            <AdminTable>
+            <AdminTable caption="Tag taxonomy">
               <thead>
                 <tr><th>Name</th><th>Slug</th><th>Status</th><th>Action</th></tr>
               </thead>

@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import { getNavCategories } from '@/lib/content'
-import { seedTags } from '@/lib/content/seed-source'
+import { getNavCategories, getAuthors, getTags } from '@/lib/content'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canCreate } from '@/lib/admin-roles'
 import { redirect } from 'next/navigation'
@@ -23,9 +22,10 @@ export default async function NewArticlePage() {
   }
   if (isPayloadCanonical()) redirect(`${payloadCollectionAdminUrl('articles')}/create`)
 
-  const [categories, tags, mediaLibrary] = await Promise.all([
+  const [categories, tags, authors, mediaLibrary] = await Promise.all([
     getNavCategories(),
-    Promise.resolve(seedTags),
+    getTags(),
+    getAuthors(),
     listMediaItems({ limit: 60 }).catch(() => []),
   ])
 
@@ -37,6 +37,7 @@ export default async function NewArticlePage() {
       <ArticleEditor
         categories={categories}
         tags={tags}
+        authors={authors}
         role={session.newsroomRole}
         isNew
         mediaLibrary={mediaLibrary}

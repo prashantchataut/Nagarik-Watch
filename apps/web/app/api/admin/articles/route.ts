@@ -100,6 +100,9 @@ export async function POST(request: NextRequest) {
       tagSlugs: Array.isArray(body.tagSlugs) ? body.tagSlugs.map(String) : [],
       isBreaking: Boolean(body.isBreaking),
       isFeatured: (body.isFeatured as 'lead' | 'featured' | 'secondary' | 'none') ?? 'none',
+      featuredExpiresAt: body.featuredExpiresAt
+        ? new Date(String(body.featuredExpiresAt)).toISOString()
+        : undefined,
       workflowStage: requestedStage,
       sourceType: (body.sourceType as 'original' | 'aggregated' | 'wire') ?? 'original',
       sourceName: body.sourceName ? String(body.sourceName) : undefined,
@@ -116,6 +119,7 @@ export async function POST(request: NextRequest) {
       commentsEnabled: body.commentsEnabled !== false,
       locale: body.locale === 'en' ? 'en' : 'ne',
       createdBy: session.userId,
+      province: body.province ? String(body.province) : undefined,
     })
     if (requestedStage === 'published') {
       revalidatePublishedArticle({

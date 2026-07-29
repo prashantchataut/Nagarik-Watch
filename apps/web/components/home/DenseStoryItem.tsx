@@ -11,6 +11,14 @@ export type DenseStoryItemProps = {
   showDeck?: boolean
   /** Show category + dateline meta row. */
   showMeta?: boolean
+  /** When false, hide dateline but keep category. */
+  showDateline?: boolean
+  /** Optional rank numeral (most-read, brief). */
+  rank?: number | string
+  /** Tighter type for sticky sidebar rails. */
+  compact?: boolean
+  /** Force thumbnail off (text-led lists). */
+  showThumb?: boolean
   /** Thumb column width preset. */
   thumb?: 'sm' | 'md' | 'lg'
   className?: string
@@ -39,6 +47,10 @@ export function DenseStoryItem({
   locale,
   showDeck = true,
   showMeta = true,
+  showDateline = true,
+  rank,
+  compact = false,
+  showThumb: showThumbProp,
   thumb = 'sm',
   className = '',
 }: DenseStoryItemProps) {
@@ -48,12 +60,11 @@ export function DenseStoryItem({
   const deck = deckFor(story, locale)
   const href = localizeHref(locale, `/${story.category.slug}/${story.slug}`)
   const image = story.heroImage
-  const showThumb = isRealPhoto(image?.url)
+  const showThumb = showThumbProp !== false && isRealPhoto(image?.url)
+  const rankLabel = rank !== undefined ? String(rank) : null
 
-  return (
-    <article
-      className={`group ${showThumb ? `grid ${thumbCols[thumb]} gap-2.5` : ''} ${className}`.trim()}
-    >
+  const body = (
+    <>
       {showThumb ? (
         <Link
           href={href}
@@ -78,14 +89,22 @@ export function DenseStoryItem({
             <span className="font-bold text-brand-strong" lang={english ? 'en' : 'ne'}>
               {english && story.category.nameEn ? story.category.nameEn : story.category.nameNe}
             </span>
-            <span className="text-mute" aria-hidden="true">
-              ·
-            </span>
-            <Dateline iso={story.publishedAt} locale={locale} />
+            {showDateline ? (
+              <>
+                <span className="text-mute" aria-hidden="true">
+                  ·
+                </span>
+                <Dateline iso={story.publishedAt} locale={locale} />
+              </>
+            ) : null}
           </div>
         ) : null}
 
-        <h3 className="mt-0.5 font-display text-body font-bold leading-snug text-ink sm:text-body-lg">
+        <h3
+          className={`mt-0.5 font-display font-bold leading-snug text-ink ${
+            compact ? 'text-meta sm:text-body' : 'text-body sm:text-body-lg'
+          }`}
+        >
           <Link
             href={href}
             className="cursor-pointer transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
@@ -104,6 +123,30 @@ export function DenseStoryItem({
           </p>
         ) : null}
       </div>
+    </>
+  )
+
+  if (rankLabel) {
+    return (
+      <article className={`group flex items-start gap-2.5 ${className}`.trim()}>
+        <span
+          className="mt-0.5 w-5 shrink-0 text-right font-display text-meta font-bold tabular-nums text-brand"
+          aria-hidden="true"
+        >
+          {rankLabel}
+        </span>
+        <div className={`min-w-0 flex-1 ${showThumb ? `grid ${thumbCols[thumb]} gap-2.5` : ''}`}>
+          {body}
+        </div>
+      </article>
+    )
+  }
+
+  return (
+    <article
+      className={`group ${showThumb ? `grid ${thumbCols[thumb]} gap-2.5` : ''} ${className}`.trim()}
+    >
+      {body}
     </article>
   )
 }
