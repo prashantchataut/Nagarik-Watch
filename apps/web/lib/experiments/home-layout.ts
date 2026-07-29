@@ -1,16 +1,21 @@
+import 'server-only'
 import { cookies } from 'next/headers'
-import { assignVariant, type ExperimentVariant } from '@/lib/experiments/core'
+import { assignVariant } from '@/lib/experiments/core'
 import { getExperimentDefinition } from '@/lib/experiments/definitions'
 import { bandEveryForVariant } from '@/lib/content/homepage-stream'
+import {
+  HOME_LAYOUT_COOKIE,
+  HOME_LAYOUT_DEFAULT_VARIANTS,
+  HOME_LAYOUT_EXPERIMENT_ID,
+  HOME_LAYOUT_VISITOR_COOKIE,
+} from '@/lib/experiments/home-layout-shared'
 
-export const HOME_LAYOUT_EXPERIMENT_ID = 'home-layout-v1'
-export const HOME_LAYOUT_COOKIE = 'nw_home_layout_v1'
-export const HOME_LAYOUT_VISITOR_COOKIE = 'nw_experiment_visitor'
-
-export const HOME_LAYOUT_DEFAULT_VARIANTS: ExperimentVariant[] = [
-  { id: 'band-every-2', label: 'Featured every 2 sections', weight: 1 },
-  { id: 'band-every-3', label: 'Featured every 3 sections', weight: 1 },
-]
+export {
+  HOME_LAYOUT_COOKIE,
+  HOME_LAYOUT_DEFAULT_VARIANTS,
+  HOME_LAYOUT_EXPERIMENT_ID,
+  HOME_LAYOUT_VISITOR_COOKIE,
+} from '@/lib/experiments/home-layout-shared'
 
 /**
  * Stable SSR assignment for homepage featured-band spacing.

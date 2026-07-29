@@ -6,7 +6,7 @@ import {
   HOME_LAYOUT_COOKIE,
   HOME_LAYOUT_EXPERIMENT_ID,
   HOME_LAYOUT_VISITOR_COOKIE,
-} from '@/lib/experiments/home-layout'
+} from '@/lib/experiments/home-layout-shared'
 
 function writeCookie(name: string, value: string, days = 30) {
   try {

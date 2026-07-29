@@ -91,4 +91,4 @@ export function trackExperimentConversion(experimentId: string): void {
 
 export const ARTICLE_COMPLETION_EXPERIMENT_ID = 'article-completion-v1'
 
-export { HOME_LAYOUT_EXPERIMENT_ID } from '@/lib/experiments/home-layout'
+export { HOME_LAYOUT_EXPERIMENT_ID } from '@/lib/experiments/home-layout-shared'
