@@ -58,10 +58,10 @@ export default async function LaunchPage() {
       <AdminCard className="mb-5">
         <p className="text-meta text-ink-soft" lang="en">
           {cutover.currentlyCanonical
-            ? 'CONTENT_SOURCE=payload is live — web shadow article writes return 409.'
+            ? 'CONTENT_SOURCE=payload is live. Public reads Payload; the web desk still writes the local store — publish in Payload or set CONTENT_SOURCE=json until cutover is complete.'
             : cutover.ready
-              ? 'Gates look ready. Set CONTENT_SOURCE=payload on web + redeploy when the desk is trained.'
-              : 'Complete the checks below before flipping CONTENT_SOURCE=payload.'}
+              ? 'Gates look ready. Set CONTENT_SOURCE=payload only after the desk is trained on Payload and PAYLOAD_PUBLIC_SERVER_URL is set.'
+              : 'Web desk + Postgres (CONTENT_SOURCE=json) is the live news path. Complete checks before flipping to Payload.'}
         </p>
         <ul className="mt-3 divide-y divide-rule">
           {cutover.checks.map((check) => (

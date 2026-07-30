@@ -7,7 +7,7 @@ import { canCreate, canPublish } from '@/lib/admin-roles'
 import { blocksFromShorthand } from '@/lib/content/blocks'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { revalidatePublishedArticle } from '@/lib/content/revalidate-published'
+import { revalidatePublishedArticle, publicArticlePath, isPubliclyVisibleStage } from '@/lib/content/revalidate-published'
 
 export const dynamic = 'force-dynamic'
 
@@ -142,7 +142,20 @@ export async function POST(request: NextRequest) {
         console.error('[admin/articles] audit after create-publish failed', auditError)
       }
     }
-    return NextResponse.json(article, { status: 201 })
+    const publicPath = publicArticlePath(article.categorySlug, article.slug)
+    const visibility = isPubliclyVisibleStage(article.workflowStage) ? 'public' : 'draft'
+    return NextResponse.json(
+      {
+        ...article,
+        publicPath,
+        visibility,
+        visibilityHint:
+          visibility === 'public'
+            ? 'सार्वजनिक साइटमा देखिनुपर्छ (ताजा / विभाग / लेख URL)।'
+            : 'ड्राफ्ट मात्र सुरक्षित भयो। सार्वजनिक गर्न "प्रकाशित गर्नुहोस्" थिच्नुहोस्।',
+      },
+      { status: 201 },
+    )
   } catch (err) {
     console.error('[admin/articles] create failed', err)
     const msg = err instanceof Error ? err.message : 'सुरक्षित गर्न सकिएन।'

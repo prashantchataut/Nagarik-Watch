@@ -8,7 +8,7 @@ import type { ArticleBlock } from '@nagarikwatch/db'
 import { blocksFromShorthand } from '@/lib/content/blocks'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { revalidatePublishedArticle } from '@/lib/content/revalidate-published'
+import { revalidatePublishedArticle, publicArticlePath, isPubliclyVisibleStage } from '@/lib/content/revalidate-published'
 
 export const dynamic = 'force-dynamic'
 
@@ -130,8 +130,25 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       } catch (auditError) {
         console.error('[admin/articles] audit after publish failed', auditError)
       }
+    } else {
+      // Stage may have left public visibility; still bust caches for the URL.
+      revalidatePublishedArticle({
+        categorySlug: updated.categorySlug,
+        slug: updated.slug,
+        tagSlugs: updated.tagSlugs,
+      })
     }
-    return NextResponse.json(updated)
+    const publicPath = publicArticlePath(updated.categorySlug, updated.slug)
+    const visibility = isPubliclyVisibleStage(updated.workflowStage) ? 'public' : 'draft'
+    return NextResponse.json({
+      ...updated,
+      publicPath,
+      visibility,
+      visibilityHint:
+        visibility === 'public'
+          ? 'सार्वजनिक साइटमा देखिनुपर्छ (ताजा / विभाग / लेख URL)।'
+          : 'ड्राफ्ट मात्र सुरक्षित भयो। सार्वजनिक गर्न "प्रकाशित गर्नुहोस्" थिच्नुहोस्।',
+    })
   } catch (err) {
     console.error('[admin/articles] update failed', err)
     const msg = err instanceof Error ? err.message : 'सुरक्षित गर्न सकिएन।'

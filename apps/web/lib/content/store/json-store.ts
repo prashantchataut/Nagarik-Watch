@@ -88,7 +88,24 @@ type StoreShape = {
 }
 
 let cache: StoreShape | null = null
+let cacheAt = 0
 let writeLock: Promise<void> = Promise.resolve()
+
+/** Short TTL so serverless instances pick up desk publishes without a redeploy. */
+function cacheTtlMs(): number {
+  return isProductionRuntime() ? 3_000 : 30_000
+}
+
+export function invalidateArticleStoreCache(): void {
+  cache = null
+  cacheAt = 0
+}
+
+function rememberCache(store: StoreShape): StoreShape {
+  cache = store
+  cacheAt = Date.now()
+  return store
+}
 
 function parseDocument(doc: unknown): StoredArticle | null {
   if (!doc) return null
@@ -323,12 +340,11 @@ async function readFromFile(): Promise<StoreShape> {
 }
 
 async function read(): Promise<StoreShape> {
-  if (cache) return cache
+  if (cache && Date.now() - cacheAt < cacheTtlMs()) return cache
   const pool = await getArticlesPool()
   if (pool) {
     try {
-      cache = await readFromPostgres(pool)
-      return cache
+      return rememberCache(await readFromPostgres(pool))
     } catch (error) {
       // Transient Postgres failures must not crash admin RSC pages.
       console.error(
@@ -336,13 +352,11 @@ async function read(): Promise<StoreShape> {
         error instanceof Error ? error.message : error,
       )
       if (isProductionRuntime()) {
-        cache = { articles: [], version: 1 }
-        return cache
+        return rememberCache({ articles: [], version: 1 })
       }
     }
   }
-  cache = await readFromFile()
-  return cache
+  return rememberCache(await readFromFile())
 }
 
 async function write(store: StoreShape): Promise<void> {
@@ -350,7 +364,7 @@ async function write(store: StoreShape): Promise<void> {
     const pool = await getArticlesPool()
     if (pool) {
       await writeToPostgres(pool, store)
-      cache = store
+      rememberCache(store)
       return
     }
     if (isProductionRuntime()) {
@@ -360,7 +374,7 @@ async function write(store: StoreShape): Promise<void> {
     }
     await fs.mkdir(DATA_DIR, { recursive: true })
     await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
-    cache = store
+    rememberCache(store)
   })
   await writeLock
 }

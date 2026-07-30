@@ -247,8 +247,21 @@ export function ArticleEditor({
             }
             throw new Error(mapSaveError(res.status, err))
           }
-          const saved = await res.json().catch(() => ({}))
-          setStatus({ kind: 'saved', msg: 'सुरक्षित भयो' })
+          const saved = (await res.json().catch(() => ({}))) as {
+            id?: string
+            publicPath?: string
+            visibility?: 'public' | 'draft'
+            visibilityHint?: string
+          }
+          const hint =
+            saved.visibilityHint ??
+            (targetStage === 'published' || targetStage === 'updated'
+              ? 'प्रकाशित भयो। ताजा समाचार र लेख URL मा जाँच गर्नुहोस्।'
+              : 'ड्राफ्ट सुरक्षित भयो। सार्वजनिक साइटमा देखिन "प्रकाशित गर्नुहोस्" थिच्नुहोस्।')
+          setStatus({
+            kind: 'saved',
+            msg: saved.publicPath ? `${hint} → ${saved.publicPath}` : hint,
+          })
           if (isNew && saved?.id) {
             router.push(`/admin/articles/${saved.id}/edit`)
           } else {
@@ -267,25 +280,36 @@ export function ArticleEditor({
     WORKFLOW_STAGES.find((row) => row.value === draft.workflowStage)?.label ?? draft.workflowStage
 
   const actionBar = (
-    <div className="flex flex-wrap items-center gap-2">
-      <AdminButton onClick={() => save('draft')} variant="secondary" disabled={pending}>
-        ड्राफ्ट सुरक्षित
-      </AdminButton>
-      {canEditArticle ? (
-        <AdminButton onClick={() => save('submitted')} variant="secondary" disabled={pending}>
-          पेश गर्नुहोस्
+    <div>
+      <div className="flex flex-wrap items-center gap-2">
+        <AdminButton onClick={() => save('draft')} variant="secondary" disabled={pending}>
+          ड्राफ्ट सुरक्षित
         </AdminButton>
-      ) : null}
+        {canEditArticle ? (
+          <AdminButton onClick={() => save('submitted')} variant="secondary" disabled={pending}>
+            पेश गर्नुहोस्
+          </AdminButton>
+        ) : null}
+        {canPublishArticle ? (
+          <AdminButton onClick={() => save('published')} disabled={pending}>
+            प्रकाशित गर्नुहोस्
+          </AdminButton>
+        ) : (
+          <span className="text-caption text-mute" lang="ne">
+            प्रकाशन अनुमति छैन — सम्पादक/प्रकाशक आवश्यक
+          </span>
+        )}
+        <span className="text-caption text-mute" lang="ne">
+          {pending || status.kind === 'saving'
+            ? 'सुरक्षित हुँदै…'
+            : `${wordCount} शब्द · ~${readingMinutes} मिनेट · ${stageLabel}`}
+        </span>
+      </div>
       {canPublishArticle ? (
-        <AdminButton onClick={() => save('published')} disabled={pending}>
-          प्रकाशित गर्नुहोस्
-        </AdminButton>
+        <p className="mt-1 text-caption text-ink-soft" lang="ne">
+          ड्राफ्ट सुरक्षित = अझै गोप्य। सार्वजनिक होम/ताजा मा देखिन प्रकाशित गर्नुहोस्।
+        </p>
       ) : null}
-      <span className="text-caption text-mute" lang="ne">
-        {pending || status.kind === 'saving'
-          ? 'सुरक्षित हुँदै…'
-          : `${wordCount} शब्द · ~${readingMinutes} मिनेट · ${stageLabel}`}
-      </span>
     </div>
   )
 

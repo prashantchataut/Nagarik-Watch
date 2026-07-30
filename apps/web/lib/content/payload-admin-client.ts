@@ -11,6 +11,13 @@ export function isPayloadCanonical(): boolean {
   )
 }
 
+/** True when env asks for Payload but the public CMS URL is missing (misconfig). */
+export function isPayloadSourceMisconfigured(): boolean {
+  const source = process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim()
+  if (source !== 'payload') return false
+  return !isPayloadCanonical()
+}
+
 export function payloadServerUrl(): string {
   const configured = process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim()
   if (configured) return configured.replace(/\/$/, '')

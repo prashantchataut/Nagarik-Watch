@@ -72,16 +72,17 @@ export async function POST(request: NextRequest) {
 
   const category = cleanSegment(message.categorySlug)
   const slug = cleanSegment(message.slug)
-  const paths = new Set(['/', '/latest', '/rss.xml', '/news-sitemap.xml', '/sitemap.xml'])
+  const locales = ['ne', 'en'] as const
+  const paths = new Set<string>(['/', '/rss.xml', '/news-sitemap.xml', '/sitemap.xml'])
 
-  if (category) {
-    paths.add(`/${category}`)
-    paths.add(`/en/${category}`)
+  for (const locale of locales) {
+    paths.add(`/${locale}`)
+    paths.add(`/${locale}/latest`)
+    if (category) paths.add(`/${locale}/${category}`)
+    if (category && slug) paths.add(`/${locale}/${category}/${slug}`)
   }
-  if (category && slug) {
-    paths.add(`/${category}/${slug}`)
-    paths.add(`/en/${category}/${slug}`)
-  }
+  if (category) paths.add(`/${category}`)
+  if (category && slug) paths.add(`/${category}/${slug}`)
 
   for (const path of paths) revalidatePath(path)
 

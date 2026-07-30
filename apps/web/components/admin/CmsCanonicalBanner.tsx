@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { AdminCallout, AdminButton } from '@/components/admin/primitives'
 import {
   isPayloadCanonical,
+  isPayloadSourceMisconfigured,
   payloadCollectionAdminUrl,
 } from '@/lib/content/payload-admin-client'
 
@@ -11,6 +12,16 @@ export function CmsCanonicalBanner({
 }: {
   collection?: string
 }) {
+  if (isPayloadSourceMisconfigured()) {
+    return (
+      <AdminCallout tone="danger" className="mb-4">
+        <p className="text-meta font-semibold text-ink" lang="ne">
+          CONTENT_SOURCE=payload छ तर PAYLOAD_PUBLIC_SERVER_URL सेट छैन। सार्वजनिक साइट स्थानीय
+          स्टोर पढ्छ; CMS URL थप्नुहोस् वा CONTENT_SOURCE=json राख्नुहोस्।
+        </p>
+      </AdminCallout>
+    )
+  }
   if (!isPayloadCanonical()) return null
   const cmsUrl = payloadCollectionAdminUrl(collection)
   return (
@@ -21,7 +32,7 @@ export function CmsCanonicalBanner({
       </p>
       <p className="mt-1 text-caption text-ink-soft" lang="ne">
         CMS मा सिधै काम गर्न तलको लिंक खोल्नुहोस्। कटओभर पूरा नभएसम्म स्थानीय सूची र नयाँ समाचार
-        प्रयोग गर्न सकिन्छ।
+        प्रयोग गर्न सकिन्छ — तर प्रकाशित लेख सार्वजनिकमा नदेखिन सक्छ।
       </p>
       <div className="mt-3">
         <AdminButton href={cmsUrl} variant="secondary" target="_blank" rel="noopener noreferrer">

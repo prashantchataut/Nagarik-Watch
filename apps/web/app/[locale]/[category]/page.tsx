@@ -10,7 +10,10 @@ import { HubIndexHeader } from '@/components/HubIndexHeader'
 
 import { isStaticPagesExport } from '@/lib/build-mode'
 import { staticCategoryParams } from '@/lib/static-export-params'
-export const dynamic = 'force-static'
+
+// Must be a string literal for Next segment config.
+export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export function generateStaticParams() {
   return staticCategoryParams()
@@ -62,7 +65,7 @@ export default async function CategoryPage({
   const description = english ? category.descriptionEn : category.descriptionNe
 
   return (
-    <div className="mx-auto max-w-page px-4 py-5 sm:py-7">
+    <div className="mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5">
       <HubIndexHeader
         title={name}
         lead={
@@ -75,24 +78,24 @@ export default async function CategoryPage({
       />
       {result.items.length ? (
         <>
-          <div className="mt-4 border-b border-rule pb-4">
+          <div className="mt-3 border-b border-rule pb-3">
             <AdSlot locale={locale} placementKey="category-top" />
           </div>
-          <div className="mt-6">
+          <div className="mt-4">
             <StoryGrid stories={result.items} locale={locale} />
           </div>
-          <AdSlot locale={locale} placementKey="category-inline" variant="inline" />
+          <AdSlot locale={locale} placementKey="category-inline" variant="inline" className="mt-4" />
           <Pagination
             page={result.page}
             totalPages={result.totalPages}
             basePath={localizeHref(locale, `/${slug}`)}
             locale={locale}
-            className="mt-10"
+            className="mt-6"
           />
         </>
       ) : (
         <p
-          className="mt-10 max-w-body border-t border-rule pt-6 text-body-lg text-ink-soft"
+          className="mt-6 max-w-body border-t border-rule pt-4 text-body text-ink-soft"
           lang={english ? 'en' : 'ne'}
         >
           {english
