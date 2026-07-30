@@ -29,10 +29,9 @@ import { publicShareImageUrl } from '@/lib/seo/share-image'
 
 
 import { staticArticleParams } from '@/lib/static-export-params'
-export const dynamic =
-  process.env.NEXT_PUBLIC_STATIC_EXPORT === '1' || process.env.CF_PAGES_STATIC === '1'
-    ? 'force-static'
-    : 'force-dynamic'
+
+// Must be a string literal — Next rejects ConditionalExpression segment config.
+export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 export function generateStaticParams() {
