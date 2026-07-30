@@ -27,7 +27,12 @@ export async function POST(request: NextRequest) {
   const limited = await enforceRateLimit(request, 'admin-media-upload', 20, 60_000)
   if (limited) return limited
 
-  const session = await requireNewsroomSession()
+  let session
+  try {
+    session = await requireNewsroomSession()
+  } catch {
+    return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
+  }
   const role = session.newsroomRole
   const mayUpload =
     canEdit(role) ||
@@ -121,29 +126,45 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('[media] upload failed', error)
-    return NextResponse.json({ error: 'Upload failed.' }, { status: 502 })
-  }
-
-  const item = await createMediaItem({
-    url: blobUrl,
-    alt,
-    caption,
-    credit,
-  })
-  if (!item) {
     return NextResponse.json(
-      { error: 'Uploaded, but media library row failed.', url: blobUrl, alt },
-      { status: 500 },
+      { error: error instanceof Error ? error.message : 'Upload failed.' },
+      { status: 502 },
     )
   }
 
-  await recordAuditEvent({
-    session,
-    action: 'create',
-    targetType: 'media',
-    targetId: item.id,
-    summary: `Media uploaded: ${item.alt}`,
-  })
+  try {
+    const item = await createMediaItem({
+      url: blobUrl,
+      alt,
+      caption,
+      credit,
+    })
+    if (!item) {
+      return NextResponse.json(
+        { error: 'Uploaded, but media library row failed.', url: blobUrl, alt },
+        { status: 500 },
+      )
+    }
 
-  return NextResponse.json(item, { status: 201 })
+    await recordAuditEvent({
+      session,
+      action: 'create',
+      targetType: 'media',
+      targetId: item.id,
+      summary: `Media uploaded: ${item.alt}`,
+    })
+
+    return NextResponse.json(item, { status: 201 })
+  } catch (error) {
+    console.error('[media] library persist failed', error)
+    return NextResponse.json(
+      {
+        error: 'Uploaded, but media library row failed.',
+        url: blobUrl,
+        alt,
+        detail: error instanceof Error ? error.message : undefined,
+      },
+      { status: 500 },
+    )
+  }
 }

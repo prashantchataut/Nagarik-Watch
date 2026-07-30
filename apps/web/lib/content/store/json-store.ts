@@ -47,6 +47,8 @@ export type StoredArticle = {
   publishedAt: string
   updatedAt: string
   isBreaking: boolean
+  /** Set when machine auto-boosted breaking; cleared when kill switch turns off. */
+  autoBreakingAt?: string
   isFeatured: 'lead' | 'featured' | 'secondary' | 'none'
   /** ISO timestamp; when past, homepage placement falls back to none. */
   featuredExpiresAt?: string
@@ -429,10 +431,7 @@ export async function getAdminDashboardSnapshot(): Promise<{
 
   return {
     publishedTotal: published.length,
-    scheduledCount: published.filter(
-      (story) =>
-        Number.isFinite(Date.parse(story.publishedAt)) && Date.parse(story.publishedAt) > Date.now(),
-    ).length,
+    scheduledCount: store.articles.filter((story) => story.workflowStage === 'scheduled').length,
     breakingCount: published.filter((story) => story.isBreaking).length,
     recentPublished: published.slice(0, 8),
   }
@@ -557,6 +556,7 @@ export async function createArticle(input: {
   isFeatured?: 'lead' | 'featured' | 'secondary' | 'none'
   featuredExpiresAt?: string
   workflowStage?: StoredArticle['workflowStage']
+  publishedAt?: string
   sourceType?: 'original' | 'aggregated' | 'wire'
   sourceName?: string
   sourceUrl?: string
@@ -583,6 +583,11 @@ export async function createArticle(input: {
   if (dup) throw new Error('स्लग पहिले नै अवस्थित छ। अर्को स्लग राख्नुहोस्।')
 
   const now_iso = now()
+  const stage = input.workflowStage ?? 'draft'
+  const publishAt =
+    stage === 'scheduled' && input.publishedAt && Number.isFinite(Date.parse(input.publishedAt))
+      ? new Date(input.publishedAt).toISOString()
+      : now_iso
   const article: StoredArticle = {
     id: genId(),
     slug: input.slug,
@@ -605,20 +610,20 @@ export async function createArticle(input: {
     heroCredit: input.heroCredit,
     authorIds: input.authorIds,
     tagSlugs: input.tagSlugs,
-    publishedAt: now_iso,
+    publishedAt: publishAt,
     updatedAt: now_iso,
     isBreaking: input.isBreaking ?? false,
     isFeatured: input.isFeatured ?? 'none',
     featuredExpiresAt: input.featuredExpiresAt,
-    workflowStage: input.workflowStage ?? 'draft',
+    workflowStage: stage,
     sourceType: input.sourceType ?? 'original',
     sourceName: input.sourceName,
     sourceUrl: input.sourceUrl,
     seoTitleNe: input.seoTitleNe,
     seoDescriptionNe: input.seoDescriptionNe,
-    noIndex: input.noIndex ?? !PUBLIC_WORKFLOW_STAGES.includes(input.workflowStage ?? 'draft'),
+    noIndex: input.noIndex ?? !PUBLIC_WORKFLOW_STAGES.includes(stage),
     includeInNewsSitemap:
-      input.includeInNewsSitemap ?? PUBLIC_WORKFLOW_STAGES.includes(input.workflowStage ?? 'draft'),
+      input.includeInNewsSitemap ?? PUBLIC_WORKFLOW_STAGES.includes(stage),
     aiSummary: input.aiSummary,
     premium: input.premium ?? false,
     commentsEnabled: input.commentsEnabled ?? true,

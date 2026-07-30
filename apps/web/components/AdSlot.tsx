@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { cookies, headers } from 'next/headers'
 import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
@@ -11,8 +12,10 @@ import {
   type AdSize,
 } from '@/lib/ads'
 import { AdTracker } from '@/components/ads/AdTracker'
+import { HouseAdLink } from '@/components/ads/HouseAdLink'
 import { NetworkAdUnit } from '@/components/ads/NetworkAdUnit'
-import { getHouseAd } from '@/lib/house-ads'
+import { getHouseAd, houseAdExperimentId, type HouseAdCreative } from '@/lib/house-ads'
+import { assignAndRecordExperiment } from '@/lib/experiments/store'
 
 const SIZE_CLASS: Record<AdSize, string> = {
   leaderboard: 'min-h-[90px] w-full max-w-[728px]',
@@ -46,6 +49,37 @@ export async function AdSlot({
   const houseAd = mode === 'house' ? await getHouseAd(placement.key as AdPlacementKey) : null
   const mediaKitHref = localizeHref(locale, '/advertise')
   const resolvedVariant = variant ?? resolveVariant(placement.size)
+
+  let creative: HouseAdCreative | null =
+    houseAd?.active
+      ? {
+          title: houseAd.title,
+          body: houseAd.body,
+          cta: houseAd.cta,
+          href: houseAd.href,
+          imageUrl: houseAd.imageUrl,
+        }
+      : null
+  let experimentId: string | undefined
+
+  if (houseAd?.active && houseAd.abEnabled && houseAd.challenger) {
+    experimentId = houseAdExperimentId(placement.key)
+    const cookieStore = await cookies()
+    const headerStore = await headers()
+    const visitorKey =
+      cookieStore.get('nw_reader')?.value?.trim() ||
+      headerStore.get('cf-connecting-ip')?.trim() ||
+      headerStore.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      'anon'
+    const assignment = await assignAndRecordExperiment({
+      experimentId,
+      visitorKey,
+      eventType: 'exposure',
+    }).catch(() => null)
+    if (assignment?.variantId === 'challenger') {
+      creative = houseAd.challenger
+    }
+  }
 
   if (mode === 'off' && collapseWhenOff) return null
 
@@ -81,22 +115,35 @@ export async function AdSlot({
             {adLabel}
           </span>
         </div>
-        {mode === 'house' && houseAd?.active ? (
-          <a
-            href={houseAd.href}
+        {mode === 'house' && creative ? (
+          <HouseAdLink
+            href={creative.href}
             className={resolvedVariant === 'native' ? 'max-w-[28rem] text-left' : 'max-w-[24rem]'}
-            data-ad-click-target={placement.key}
+            experimentId={experimentId}
+            placementKey={placement.key}
           >
+            {creative.imageUrl && !creative.imageUrl.startsWith('data:') ? (
+              // eslint-disable-next-line @next/next/no-img-element -- remote house-ad creative URL
+              <img
+                src={creative.imageUrl}
+                alt=""
+                className={
+                  resolvedVariant === 'native'
+                    ? 'mb-2 max-h-28 w-full rounded-md object-cover'
+                    : 'mb-2 max-h-36 w-full rounded-md object-cover'
+                }
+              />
+            ) : null}
             <span className="block font-display text-body-lg font-bold text-ink">
-              {houseAd.title}
+              {creative.title}
             </span>
             <span className="mt-1 block text-caption leading-relaxed text-ink-soft">
-              {houseAd.body}
+              {creative.body}
             </span>
             <span className="mt-3 inline-flex rounded-full border border-rule bg-surface px-3 py-1.5 text-caption font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong">
-              {houseAd.cta}
+              {creative.cta}
             </span>
-          </a>
+          </HouseAdLink>
         ) : mode === 'network' ? (
           isNetworkAdsReady() ? (
             <NetworkAdUnit

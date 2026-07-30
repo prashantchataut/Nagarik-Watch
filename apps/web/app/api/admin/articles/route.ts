@@ -50,7 +50,12 @@ export async function POST(request: NextRequest) {
   const limited = await enforceRateLimit(request, 'admin-article-create', 20, 60_000)
   if (limited) return limited
 
-  const session = await requireNewsroomSession()
+  let session
+  try {
+    session = await requireNewsroomSession()
+  } catch {
+    return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
+  }
   if (!canCreate(session.newsroomRole)) {
     return NextResponse.json({ error: 'अनुमति छैन।' }, { status: 403 })
   }
@@ -104,6 +109,10 @@ export async function POST(request: NextRequest) {
         ? new Date(String(body.featuredExpiresAt)).toISOString()
         : undefined,
       workflowStage: requestedStage,
+      publishedAt:
+        requestedStage === 'scheduled' && body.publishedAt
+          ? new Date(String(body.publishedAt)).toISOString()
+          : undefined,
       sourceType: (body.sourceType as 'original' | 'aggregated' | 'wire') ?? 'original',
       sourceName: body.sourceName ? String(body.sourceName) : undefined,
       sourceUrl: body.sourceUrl ? String(body.sourceUrl) : undefined,
@@ -138,7 +147,20 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json(article, { status: 201 })
   } catch (err) {
+    console.error('[admin/articles] create failed', err)
     const msg = err instanceof Error ? err.message : 'सुरक्षित गर्न सकिएन।'
-    return NextResponse.json({ error: msg }, { status: 400 })
+    if (msg.includes('स्लग पहिले नै अवस्थित')) {
+      return NextResponse.json({ error: msg }, { status: 409 })
+    }
+    if (/DATABASE_URL|Postgres|production/i.test(msg)) {
+      return NextResponse.json({ error: msg }, { status: 503 })
+    }
+    if (/unique|duplicate key/i.test(msg)) {
+      return NextResponse.json(
+        { error: 'स्लग पहिले नै अवस्थित छ। अर्को स्लग राख्नुहोस्।' },
+        { status: 409 },
+      )
+    }
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

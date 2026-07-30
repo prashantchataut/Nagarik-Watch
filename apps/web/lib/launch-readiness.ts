@@ -76,6 +76,11 @@ function buildLaunchChecks(options?: {
     ([name, current]) => /^(STORAGE_|S3_|BLOB_)/.test(name) && Boolean(current?.trim()),
   )
   const storageAdapterWired = isPayloadStorageWired()
+  const blobUploadReady = Boolean(value('BLOB_READ_WRITE_TOKEN'))
+  const objectStoragePublicBase = Boolean(
+    value('STORAGE_PUBLIC_BASE_URL') || value('R2_PUBLIC_BASE_URL'),
+  )
+  const webMediaUploadReady = blobUploadReady || (storageCredentialsPresent && objectStoragePublicBase)
   const pushConfigured = Boolean(
     value('NEXT_PUBLIC_WEB_PUSH_VAPID_KEY') &&
     value('WEB_PUSH_VAPID_PRIVATE_KEY') &&
@@ -196,15 +201,28 @@ function buildLaunchChecks(options?: {
     {
       key: 'storage',
       label: 'Media storage',
-      status: contentSource !== 'payload' || storageAdapterWired ? 'pass' : 'warn',
+      status:
+        contentSource === 'payload'
+          ? storageAdapterWired
+            ? 'pass'
+            : 'warn'
+          : webMediaUploadReady
+            ? 'pass'
+            : launchLive || dbMode === 'postgres'
+              ? 'fail'
+              : 'warn',
       detail:
-        contentSource !== 'payload'
-          ? 'Media can be referenced by URL in the newsroom article editor'
-          : storageAdapterWired
+        contentSource === 'payload'
+          ? storageAdapterWired
             ? 'Payload media uploads use durable object storage'
             : storageCredentialsPresent
               ? 'Storage credentials exist, but Payload still uses local ephemeral uploads; wire a supported storage adapter'
-              : 'Payload still uses local ephemeral uploads; wire a supported storage adapter and credentials',
+              : 'Payload still uses local ephemeral uploads; wire a supported storage adapter and credentials'
+          : blobUploadReady
+            ? 'Vercel Blob configured for newsroom photo uploads'
+            : webMediaUploadReady
+              ? 'Object storage configured for newsroom photo uploads'
+              : 'Set BLOB_READ_WRITE_TOKEN (Vercel Blob) or R2 + STORAGE_PUBLIC_BASE_URL so editors can upload photos',
     },
     {
       key: 'analytics',

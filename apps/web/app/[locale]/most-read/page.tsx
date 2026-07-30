@@ -4,10 +4,12 @@ import { getStories } from '@/lib/content'
 import { getMostReadStats } from '@/lib/engagement/store'
 import { AdSlot } from '@/components/AdSlot'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
+import { HubRelatedNav } from '@/components/public/HubRelatedNav'
 import { RankedStoryList } from '@/components/public/RankedStoryList'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export async function generateMetadata({
   params,
@@ -43,7 +45,7 @@ export default async function MostReadPage({
     : catalog.items.slice(0, 18)
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
+    <div className="mx-auto max-w-page px-3 py-6 sm:px-4 sm:py-8 lg:py-10">
       <HubIndexHeader
         title={english ? 'Most read' : 'धेरै पढिएका'}
         lead={
@@ -57,15 +59,16 @@ export default async function MostReadPage({
         }
         lang={english ? 'en' : 'ne'}
       />
+      <HubRelatedNav locale={locale} active="most-read" />
 
       {ranked.length ? (
         <RankedStoryList stories={ranked} locale={locale} mode="most-read" />
       ) : (
-        <p className="mt-8 border-y border-rule py-10 text-body-lg text-ink-soft">
+        <p className="mt-6 border-y border-rule py-8 text-body text-ink-soft">
           {english ? 'No published stories are available.' : 'प्रकाशित सामग्री उपलब्ध छैन।'}
         </p>
       )}
-      <AdSlot locale={locale} placementKey="hub-inline" variant="native" />
+      <AdSlot locale={locale} placementKey="hub-inline" variant="native" className="mt-6" />
     </div>
   )
 }

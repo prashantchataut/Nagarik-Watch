@@ -87,6 +87,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
           featuredExpiresAt: article.featuredExpiresAt
             ? article.featuredExpiresAt.slice(0, 16)
             : '',
+          publishedAt: article.publishedAt ? article.publishedAt.slice(0, 16) : '',
           seoTitle: article.seoTitleNe ?? '',
           seoDescription: article.seoDescriptionNe ?? '',
           noIndex: article.noIndex ?? false,

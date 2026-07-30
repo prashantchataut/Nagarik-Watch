@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
+import { Logo } from '@/components/Logo'
 import { localizeHref } from '@/lib/i18n/locales'
 
 type AuthMode = 'login' | 'signup' | 'recover' | 'reset' | 'change' | 'invite'
@@ -17,14 +18,14 @@ type AuthCopy = {
 
 const copy: Record<AuthMode, AuthCopy> = {
   login: {
-    formTitleNe: 'लगइन',
-    formTitleEn: 'Sign in',
+    formTitleNe: 'पाठक लगइन',
+    formTitleEn: 'Reader sign-in',
     formBodyNe: 'संग्रह र पढाइ इतिहासका लागि इमेल प्रयोग गर्नुहोस्।',
     formBodyEn: 'Use your email for saved stories and reading history.',
-    panelTitleNe: 'पाठक खाता',
-    panelTitleEn: 'Reader account',
-    panelBodyNe: 'समाचार पढ्न खाता आवश्यक छैन।',
-    panelBodyEn: 'You never need an account just to read.',
+    panelTitleNe: 'पढाइ सधैं खुला',
+    panelTitleEn: 'Reading stays free',
+    panelBodyNe: 'खाता वैकल्पिक हो। समाचार पढ्न साइन इन चाहिँदैन।',
+    panelBodyEn: 'Accounts are optional. You never need to sign in just to read.',
   },
   signup: {
     formTitleNe: 'खाता बनाउनुहोस्',
@@ -33,8 +34,8 @@ const copy: Record<AuthMode, AuthCopy> = {
     formBodyEn: 'Free. Only for saving and recommendations.',
     panelTitleNe: 'नयाँ खाता',
     panelTitleEn: 'New account',
-    panelBodyNe: 'पढाइ सधैं खुला रहन्छ।',
-    panelBodyEn: 'Reading stays free either way.',
+    panelBodyNe: 'पढाइ सधैं खुला रहन्छ। सदस्यता पेवाल होइन।',
+    panelBodyEn: 'Reading stays free. This is not a paywall.',
   },
   recover: {
     formTitleNe: 'पासवर्ड रिसेट',
@@ -103,35 +104,28 @@ export function ReaderAuthShell({
       </aside>
       <section className="auth-form-column">
         <div className="auth-form-wrap">
+          <Link
+            href={localizeHref(locale, '/')}
+            className="auth-form-wrap__brand"
+            aria-label={ne ? 'गृहपृष्ठ' : 'Home'}
+          >
+            <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
+          </Link>
           <h1 className="auth-form-wrap__title" lang={ne ? 'ne' : 'en'}>
             {ne ? content.formTitleNe : content.formTitleEn}
           </h1>
           <p className="auth-form-wrap__lede" lang={ne ? 'ne' : 'en'}>
             {ne ? content.formBodyNe : content.formBodyEn}
           </p>
-          <div className="auth-form-wrap__summary" lang={ne ? 'ne' : 'en'}>
-            <p>
-              {ne
-                ? 'नागरिक वाचमा पढ्न खाता चाहिँदैन।'
-                : 'You never need an account just to read Nagarik Watch.'}
-            </p>
-            <p>
-              {ne
-                ? 'खाता संग्रह, पढाइ इतिहास र उपकरणबीच सिङ्कका लागि मात्र हो।'
-                : 'Accounts are only for saves, reading history and cross-device sync.'}
-            </p>
-          </div>
           <div className="auth-form-surface">{children}</div>
           <p className="auth-form-wrap__foot" lang={ne ? 'ne' : 'en'}>
             {ne ? (
               <>
-                समाचार पढ्न खाता चाहिँदैन।{' '}
-                <Link href={localizeHref(locale, '/')}>गृहपृष्ठ</Link>
+                समाचार पढ्न खाता चाहिँदैन। <Link href={localizeHref(locale, '/')}>गृहपृष्ठ</Link>
               </>
             ) : (
               <>
-                No account needed to read.{' '}
-                <Link href={localizeHref(locale, '/')}>Home</Link>
+                No account needed to read. <Link href={localizeHref(locale, '/')}>Home</Link>
               </>
             )}
           </p>

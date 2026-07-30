@@ -155,6 +155,58 @@ export async function getRankingEventStats(windowMinutes = 120): Promise<Ranking
 
 /** Raw, anonymous share timestamps used only for short-window trend sampling. */
 export async function getRankingShareSamples(windowMinutes = 120): Promise<RankingShareSample[]> {
+  return getRankingEventSamples(windowMinutes, 'share')
+}
+
+/** Impression / click samples feed trending velocity when reading history is thin. */
+export async function getRankingAttentionSamples(
+  windowMinutes = 120,
+): Promise<Array<RankingShareSample & { type: 'impression' | 'click' }>> {
+  const cutoff = new Date(Date.now() - Math.max(15, windowMinutes) * 60_000)
+  const pool = await getPool()
+  if (pool) {
+    try {
+      const result = await pool.query<{
+        article_slug: string
+        article_category: string
+        event_type: string
+        created_at: string | Date
+      }>(
+        `SELECT article_slug, article_category, event_type, created_at
+         FROM nw_ranking_events
+         WHERE event_type IN ('impression', 'click') AND created_at >= $1`,
+        [cutoff.toISOString()],
+      )
+      return result.rows
+        .filter((row) => row.event_type === 'impression' || row.event_type === 'click')
+        .map((row) => ({
+          articleSlug: row.article_slug,
+          articleCategory: row.article_category,
+          at: new Date(row.created_at).toISOString(),
+          type: row.event_type as 'impression' | 'click',
+        }))
+    } catch {
+      return []
+    }
+  }
+  return (await readLocal())
+    .filter(
+      (event) =>
+        (event.type === 'impression' || event.type === 'click') &&
+        Date.parse(event.at) >= cutoff.getTime(),
+    )
+    .map((event) => ({
+      articleSlug: event.articleSlug,
+      articleCategory: event.articleCategory,
+      at: event.at,
+      type: event.type as 'impression' | 'click',
+    }))
+}
+
+async function getRankingEventSamples(
+  windowMinutes: number,
+  type: RankingEventType,
+): Promise<RankingShareSample[]> {
   const cutoff = new Date(Date.now() - Math.max(15, windowMinutes) * 60_000)
   const pool = await getPool()
   if (pool) {
@@ -166,8 +218,8 @@ export async function getRankingShareSamples(windowMinutes = 120): Promise<Ranki
       }>(
         `SELECT article_slug, article_category, created_at
          FROM nw_ranking_events
-         WHERE event_type = 'share' AND created_at >= $1`,
-        [cutoff.toISOString()],
+         WHERE event_type = $2 AND created_at >= $1`,
+        [cutoff.toISOString(), type],
       )
       return result.rows.map((row) => ({
         articleSlug: row.article_slug,
@@ -179,7 +231,7 @@ export async function getRankingShareSamples(windowMinutes = 120): Promise<Ranki
     }
   }
   return (await readLocal())
-    .filter((event) => event.type === 'share' && Date.parse(event.at) >= cutoff.getTime())
+    .filter((event) => event.type === type && Date.parse(event.at) >= cutoff.getTime())
     .map((event) => ({
       articleSlug: event.articleSlug,
       articleCategory: event.articleCategory,

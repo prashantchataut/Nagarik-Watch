@@ -2,17 +2,28 @@ import type { NextRequest } from 'next/server'
 
 type ConsentCookie = {
   analytics?: unknown
+  advertising?: unknown
   version?: unknown
 }
 
-export function hasServerAnalyticsConsent(request: NextRequest): boolean {
+function readConsentCookie(request: NextRequest): ConsentCookie | null {
   const value = request.cookies.get('nw_consent')?.value
-  if (!value) return false
-
+  if (!value) return null
   try {
-    const parsed = JSON.parse(decodeURIComponent(value)) as ConsentCookie
-    return parsed.analytics === true && typeof parsed.version === 'number'
+    return JSON.parse(decodeURIComponent(value)) as ConsentCookie
   } catch {
-    return false
+    return null
   }
+}
+
+export function hasServerAnalyticsConsent(request: NextRequest): boolean {
+  const parsed = readConsentCookie(request)
+  if (!parsed) return false
+  return parsed.analytics === true && typeof parsed.version === 'number'
+}
+
+export function hasServerAdvertisingConsent(request: NextRequest): boolean {
+  const parsed = readConsentCookie(request)
+  if (!parsed) return false
+  return parsed.advertising === true && typeof parsed.version === 'number'
 }

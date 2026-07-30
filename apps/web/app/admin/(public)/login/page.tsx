@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { getAuth } from '@/lib/auth'
 import { getNewsroomSession } from '@/lib/auth/session'
 import { ensureNewsroomBootAccounts, getBootLoginHint } from '@/lib/auth/boot-accounts'
-import { Logo } from '@/components/Logo'
+import { StaffAuthShell } from '@/components/auth/StaffAuthShell'
 import { AdminLoginForm } from './AdminLoginForm'
 
 export const metadata: Metadata = {
@@ -19,8 +19,6 @@ export default async function AdminLoginPage({
 }: {
   searchParams: Promise<{ reset?: string }>
 }) {
-  // Staff login must finish boot repair before the form is usable. Racing a short
-  // timeout previously let sign-in run against a stale password hash.
   let authReady = false
   let bootFailed = false
   try {
@@ -42,81 +40,61 @@ export default async function AdminLoginPage({
   ])
   if (session) redirect('/admin/dashboard')
 
+  const showBootHint =
+    process.env.NODE_ENV !== 'production' &&
+    authReady &&
+    boot.configured &&
+    boot.emails.length > 0
+
   return (
-    <main className="newsroom-login newsroom-login--admin" lang="ne">
-      <div className="newsroom-login__mast">
-        <Link href="/" aria-label="नागरिक वाच गृहपृष्ठ">
-          <Logo siteName="नागरिक वाच" />
-        </Link>
-        <span>न्युजरुम</span>
-      </div>
+    <StaffAuthShell
+      kind="admin"
+      locale="ne"
+      title="सम्पादकीय लगइन"
+      lede="सम्पादक, प्रकाशक र एडमिन यहाँबाट प्रकाशन, भूमिका र लाइभ डेस्क चलाउँछन्। रिपोर्टिङ ड्राफ्ट पत्रकार डेस्कमा हुन्छ।"
+      formTitle="साइन इन"
+      formLede="स्टाफ खाता मात्र। सार्वजनिक साइनअपबाट एडमिन भूमिका मिल्दैन।"
+      points={['प्रकाशन कतार र CMS', 'भूमिका, निमन्त्रणा, अडिट', 'लाइभ ब्लग र विजेट']}
+      footer={
+        <>
+          <Link href="/">गृहपृष्ठ</Link>
+          <Link href="/journalist/login">पत्रकार डेस्क</Link>
+          <Link href="/auth/forgot-password?next=%2Fadmin%2Flogin">पासवर्ड बिर्सनुभयो?</Link>
+        </>
+      }
+    >
+      {!authReady || bootFailed ? (
+        <aside className="newsroom-login-form__error" role="status">
+          <strong>लगइन सेवा अफलाइन।</strong>
+          <span className="mt-1.5 block">
+            DATABASE_URL र NEWSROOM_* env जाँच्नुहोस्, त्यसपछि पृष्ठ रिफ्रेस गर्नुहोस्।
+          </span>
+        </aside>
+      ) : null}
 
-      <div className="newsroom-login__grid">
-        <section className="newsroom-login__brief">
-          <h1>सम्पादकीय लगइन</h1>
-          <p>
-            सम्पादक, प्रकाशक र एडमिन यहाँबाट प्रकाशन, भूमिका र लाइभ डेस्क चलाउँछन्।
-            रिपोर्टिङ ड्राफ्ट पत्रकार डेस्कमा हुन्छ।
-          </p>
-          <ul className="mt-6 space-y-2 text-meta text-ink-soft">
-            <li>प्रकाशन कतार र CMS</li>
-            <li>भूमिका, निमन्त्रणा, अडिट</li>
-            <li>लाइभ ब्लग र विजेट</li>
-          </ul>
-        </section>
+      {authReady && !bootFailed && boot.lastError ? (
+        <aside className="newsroom-login-form__error" role="status">
+          <strong>खाता मर्मत अधुरो।</strong>
+          <span className="mt-1.5 block">
+            NEWSROOM_SUPERADMIN_EMAIL / PASSWORD जाँच्नुहोस्।
+          </span>
+        </aside>
+      ) : null}
 
-        <section className="newsroom-login__form">
-          <header>
-            <h2>साइन इन</h2>
-            <p>स्टाफ खाता मात्र।</p>
-          </header>
+      {showBootHint ? (
+        <aside className="newsroom-login-form__ok" lang="ne">
+          <strong className="block">विकास वातावरण: यी इमेल प्रयोग गर्नुहोस्</strong>
+          <span className="mt-1.5 block break-all">{boot.emails.join(' · ')}</span>
+        </aside>
+      ) : null}
 
-          {!authReady || bootFailed ? (
-            <aside className="newsroom-login-form__error" role="status">
-              <strong>लगइन सेवा अफलाइन।</strong>
-              <span style={{ display: 'block', marginTop: '0.35rem' }}>
-                DATABASE_URL र NEWSROOM_* env जाँच्नुहोस्, त्यसपछि पृष्ठ रिफ्रेस गर्नुहोस्।
-              </span>
-            </aside>
-          ) : null}
-
-          {authReady && !bootFailed && boot.lastError ? (
-            <aside className="newsroom-login-form__error" role="status" style={{ opacity: 0.9 }}>
-              <strong>खाता मर्मत अधुरो।</strong>
-              <span style={{ display: 'block', marginTop: '0.35rem' }}>
-                Vercel मा NEWSROOM_SUPERADMIN_EMAIL / PASSWORD जाँच्नुहोस्।
-              </span>
-            </aside>
-          ) : null}
-
-          {authReady && boot.configured && boot.emails.length > 0 ? (
-            <aside className="newsroom-login-form__ok" lang="en">
-              <strong style={{ display: 'block' }}>Use one of these emails</strong>
-              <span style={{ display: 'block', marginTop: '0.35rem', wordBreak: 'break-all' }}>
-                {boot.emails.join(' · ')}
-              </span>
-              <span style={{ display: 'block', marginTop: '0.35rem', opacity: 0.85 }}>
-                Password must match the matching NEWSROOM_*_PASSWORD in Vercel. This page
-                re-syncs that password on every load.
-              </span>
-            </aside>
-          ) : null}
-
-          {authReady && !bootFailed ? (
-            <AdminLoginForm
-              resetComplete={query.reset === 'success'}
-              databaseOnline={authReady}
-              expectedEmails={boot.emails}
-            />
-          ) : null}
-
-          <footer>
-            <Link href="/">← गृहपृष्ठ</Link>
-            <Link href="/journalist/login">पत्रकार डेस्क</Link>
-            <Link href="/auth/forgot-password?next=%2Fadmin%2Flogin">पासवर्ड बिर्सनुभयो?</Link>
-          </footer>
-        </section>
-      </div>
-    </main>
+      {authReady && !bootFailed ? (
+        <AdminLoginForm
+          resetComplete={query.reset === 'success'}
+          databaseOnline={authReady}
+          expectedEmails={boot.emails}
+        />
+      ) : null}
+    </StaffAuthShell>
   )
 }

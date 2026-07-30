@@ -17,6 +17,8 @@ export const EXPECTED_CRON_JOBS: CronJobExpectation[] = [
   { job: 'interactions-rebuild', label: 'CF interaction matrix rebuild', intervalMinutes: 6 * 60 },
   { job: 'digest-compose', label: 'Digest composition', intervalMinutes: 24 * 60 },
   { job: 'ops-probe', label: 'Ops anomaly probe', intervalMinutes: 30 },
+  { job: 'scheduled-publish', label: 'Scheduled article publish', intervalMinutes: 10 },
+  { job: 'breaking-auto-boost', label: 'Breaking auto-boost', intervalMinutes: 30 },
 ]
 
 export type PoolSnapshot = {

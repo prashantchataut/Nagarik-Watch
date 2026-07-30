@@ -3,6 +3,7 @@ import { AD_PLACEMENTS, type AdMode } from '@/lib/ads'
 import { recordAdEvent } from '@/lib/ad-events'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
+import { hasServerAdvertisingConsent } from '@/lib/reader/server-consent'
 
 const events = new Set(['impression', 'click'])
 const modes = new Set<AdMode>(['off', 'house', 'network'])
@@ -10,6 +11,9 @@ const modes = new Set<AdMode>(['off', 'house', 'network'])
 export async function POST(request: NextRequest) {
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+  if (!hasServerAdvertisingConsent(request)) {
+    return new NextResponse(null, { status: 204 })
   }
 
   let body: unknown
@@ -29,7 +33,12 @@ export async function POST(request: NextRequest) {
   )
   if (limited) return limited
 
-  await recordAdEvent(body)
+  try {
+    await recordAdEvent(body)
+  } catch (error) {
+    console.error('[ads/event] persist failed', error instanceof Error ? error.message : error)
+    return NextResponse.json({ ok: false }, { status: 503 })
+  }
   return NextResponse.json({ ok: true })
 }
 

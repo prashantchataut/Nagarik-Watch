@@ -9,7 +9,12 @@ import {
   type ReadingHistoryRecord,
 } from '@/lib/reader/state'
 import { remainingReadingMinutes } from '@/lib/reader/reading'
-import { CONSENT_EVENT, getOrCreateReaderId, hasPersonalizationConsent } from '@/lib/reader/consent'
+import {
+  CONSENT_EVENT,
+  getEngagementSyncId,
+  hasEngagementConsent,
+  hasPersonalizationConsent,
+} from '@/lib/reader/consent'
 import {
   ARTICLE_COMPLETION_EXPERIMENT_ID,
   ExperimentExposure,
@@ -158,41 +163,49 @@ export function ReaderArticleControls({
     function persist() {
       recordThrottled.flush()
       record()
-      if (!hasPersonalizationConsent()) return
-      const previous = safeParseArray<ReadingHistoryRecord>(
-        localStorage.getItem(READER_HISTORY_KEY),
-      )
       const readPercent = Math.round(maxDepth)
       const completed = maxDepth >= 92
-      const next = upsertHistory(previous, {
-        articleId: story.id,
-        slug: story.slug,
-        categorySlug: story.category.slug,
-        tagSlugs: story.tags?.map((tag) => tag.slug) ?? [],
-        authorSlugs: story.authors.map((author) => author.slug),
-        title,
-        href,
-        readAt: new Date().toISOString(),
-        scrollDepth: readPercent,
-        completed,
-        readingMinutes,
-        dwellSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
-        sessionId: readingSessionId,
-      })
-      localStorage.setItem(READER_HISTORY_KEY, JSON.stringify(next))
-      window.dispatchEvent(new Event('nw-reader-state-change'))
-      if (completed) trackExperimentConversion(ARTICLE_COMPLETION_EXPERIMENT_ID)
-      if (!hasLivePublicApi()) return
+      const dwellSeconds = Math.max(1, Math.round((Date.now() - startedAt) / 1000))
+
+      // Device history stays behind personalization consent.
+      if (hasPersonalizationConsent()) {
+        const previous = safeParseArray<ReadingHistoryRecord>(
+          localStorage.getItem(READER_HISTORY_KEY),
+        )
+        const next = upsertHistory(previous, {
+          articleId: story.id,
+          slug: story.slug,
+          categorySlug: story.category.slug,
+          tagSlugs: story.tags?.map((tag) => tag.slug) ?? [],
+          authorSlugs: story.authors.map((author) => author.slug),
+          title,
+          href,
+          readAt: new Date().toISOString(),
+          scrollDepth: readPercent,
+          completed,
+          readingMinutes,
+          dwellSeconds,
+          sessionId: readingSessionId,
+        })
+        localStorage.setItem(READER_HISTORY_KEY, JSON.stringify(next))
+        window.dispatchEvent(new Event('nw-reader-state-change'))
+        if (completed) trackExperimentConversion(ARTICLE_COMPLETION_EXPERIMENT_ID)
+      }
+
+      // Aggregate watch-time for trending / most-read needs analytics or personalization.
+      if (!hasEngagementConsent() || !hasLivePublicApi()) return
+      const fingerprint = getEngagementSyncId()
+      if (!fingerprint) return
       void fetch('/api/reading', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          fingerprint: getOrCreateReaderId(),
+          fingerprint,
           articleSlug: story.slug,
           articleCategory: story.category.slug,
           articleTitleNe: story.titleNe,
           readPercent,
-          dwellSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+          dwellSeconds,
           completed,
           sessionId: readingSessionId,
         }),

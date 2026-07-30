@@ -10,7 +10,7 @@ import {
   type EngagementSample,
 } from '@nagarikwatch/db'
 import { getSharedPool } from '@/lib/pg-pool'
-import { getRankingShareSamples } from '@/lib/engagement/ranking-events'
+import { getRankingShareSamples, getRankingAttentionSamples } from '@/lib/engagement/ranking-events'
 
 type BookmarkInput = {
   anonymousId: string
@@ -1093,53 +1093,142 @@ export async function getBookmarkVelocityStats(
 /** Recent reader activity shaped for the shared trending detector. No identity leaves the store. */
 export async function getTrendingSamples(windowMinutes = 120): Promise<EngagementSample[]> {
   const cutoff = new Date(Date.now() - Math.max(15, windowMinutes) * 60_000)
+  const cutoffIso = cutoff.toISOString()
   const database = await getPool()
   if (database) {
     await ensureSchema()
-    const result = await database
-      .query(
-        `select article_slug as "articleId", article_category as "categorySlug",
-              read_at as "at", 1::int as views, 0::int as shares, 0::int as comments, 0::int as bookmarks
-       from nw_reading where read_at >= $1
-       union all
-       select article_slug as "articleId", article_category as "categorySlug",
-              created_at as "at", 0::int as views, 0::int as shares, 1::int as comments, 0::int as bookmarks
-       from nw_comments where status='approved' and created_at >= $1
-       union all
-       select article_slug as "articleId", article_category as "categorySlug",
-              created_at as "at", 0::int as views, 1::int as shares, 0::int as comments, 0::int as bookmarks
-       from nw_ranking_events where event_type='share' and created_at >= $1
-       union all
-       select article_slug as "articleId", article_category as "categorySlug",
-              created_at as "at", 0::int as views, 0::int as shares, 0::int as comments, 1::int as bookmarks
+    const samples: EngagementSample[] = []
+
+    const pushRows = async (
+      sql: string,
+      map: (row: Record<string, unknown>) => EngagementSample | null,
+    ) => {
+      try {
+        const result = await database.query(sql, [cutoffIso])
+        for (const row of result.rows) {
+          const sample = map(row)
+          if (sample) samples.push(sample)
+        }
+      } catch (error) {
+        console.error('[trending] sample query failed', error instanceof Error ? error.message : error)
+      }
+    }
+
+    await pushRows(
+      `select article_slug as "articleId", article_category as "categorySlug",
+              read_at as "at", dwell_seconds as "dwellSeconds", read_percent as "readPercent"
+       from nw_reading where read_at >= $1`,
+      (row) => {
+        const dwell = Number(row.dwellSeconds ?? 0)
+        const readPercent = Number(row.readPercent ?? 0)
+        // Sustained dwell and deep scroll count more than a bounce open.
+        const views = (dwell >= 45 ? 2 : 1) + (readPercent >= 50 ? 1 : 0)
+        return {
+          articleId: String(row.articleId ?? ''),
+          categorySlug: row.categorySlug ? String(row.categorySlug) : undefined,
+          at: new Date(row.at as string | Date).toISOString(),
+          views: Math.max(1, views),
+          shares: 0,
+          comments: 0,
+          bookmarks: 0,
+        }
+      },
+    )
+
+    await pushRows(
+      `select article_slug as "articleId", article_category as "categorySlug", created_at as "at"
+       from nw_comments where status='approved' and created_at >= $1`,
+      (row) => ({
+        articleId: String(row.articleId ?? ''),
+        categorySlug: row.categorySlug ? String(row.categorySlug) : undefined,
+        at: new Date(row.at as string | Date).toISOString(),
+        views: 0,
+        shares: 0,
+        comments: 1,
+        bookmarks: 0,
+      }),
+    )
+
+    await pushRows(
+      `select article_slug as "articleId", article_category as "categorySlug", created_at as "at"
        from nw_bookmarks where created_at >= $1`,
-        [cutoff.toISOString()],
-      )
-      .catch(() => null)
-    if (!result) return []
-    return result.rows.map((row) => ({
-      articleId: String(row.articleId),
-      categorySlug: row.categorySlug ? String(row.categorySlug) : undefined,
-      at: new Date(row.at as string | Date).toISOString(),
-      views: Number(row.views ?? 0),
-      shares: Number(row.shares ?? 0),
-      comments: Number(row.comments ?? 0),
-      bookmarks: Number(row.bookmarks ?? 0),
-    }))
+      (row) => ({
+        articleId: String(row.articleId ?? ''),
+        categorySlug: row.categorySlug ? String(row.categorySlug) : undefined,
+        at: new Date(row.at as string | Date).toISOString(),
+        views: 0,
+        shares: 0,
+        comments: 0,
+        bookmarks: 1,
+      }),
+    )
+
+    await pushRows(
+      `select article_slug as "articleId", article_category as "categorySlug",
+              created_at as "at", event_type as "eventType"
+       from nw_ranking_events where created_at >= $1`,
+      (row) => {
+        const type = String(row.eventType ?? '')
+        if (type === 'share') {
+          return {
+            articleId: String(row.articleId ?? ''),
+            categorySlug: row.categorySlug ? String(row.categorySlug) : undefined,
+            at: new Date(row.at as string | Date).toISOString(),
+            views: 0,
+            shares: 1,
+            comments: 0,
+            bookmarks: 0,
+          }
+        }
+        if (type === 'impression' || type === 'click') {
+          return {
+            articleId: String(row.articleId ?? ''),
+            categorySlug: row.categorySlug ? String(row.categorySlug) : undefined,
+            at: new Date(row.at as string | Date).toISOString(),
+            views: type === 'click' ? 2 : 1,
+            shares: 0,
+            comments: 0,
+            bookmarks: 0,
+          }
+        }
+        return null
+      },
+    )
+
+    await pushRows(
+      `select article_slug as "articleId", article_category as "categorySlug", created_at as "at"
+       from nw_reactions where created_at >= $1`,
+      (row) => ({
+        articleId: String(row.articleId ?? ''),
+        categorySlug: row.categorySlug ? String(row.categorySlug) : undefined,
+        at: new Date(row.at as string | Date).toISOString(),
+        // Reactions count as lightweight engagement (same weight family as comments).
+        views: 0,
+        shares: 0,
+        comments: 1,
+        bookmarks: 0,
+      }),
+    )
+
+    return samples.filter((sample) => Boolean(sample.articleId))
   }
 
   const store = await readLocal()
   const readings: EngagementSample[] = Object.values(store.readings)
     .filter((item) => Date.parse(item.readAt) >= cutoff.getTime())
-    .map((item) => ({
-      articleId: item.articleSlug,
-      categorySlug: item.articleCategory,
-      at: item.readAt,
-      views: 1,
-      shares: 0,
-      comments: 0,
-      bookmarks: 0,
-    }))
+    .map((item) => {
+      const dwell = item.dwellSeconds ?? 0
+      const views = (dwell >= 45 ? 2 : 1) + (item.readPercent >= 50 ? 1 : 0)
+      return {
+        articleId: item.articleSlug,
+        categorySlug: item.articleCategory,
+        at: item.readAt,
+        views: Math.max(1, views),
+        shares: 0,
+        comments: 0,
+        bookmarks: 0,
+      }
+    })
   const comments: EngagementSample[] = store.comments
     .filter((item) => item.status === 'approved' && Date.parse(item.createdAt) >= cutoff.getTime())
     .map((item) => ({
@@ -1173,5 +1262,16 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
     comments: 0,
     bookmarks: 0,
   }))
-  return [...readings, ...comments, ...shares, ...bookmarks]
+  const attention: EngagementSample[] = (
+    await getRankingAttentionSamples(windowMinutes).catch(() => [])
+  ).map((item) => ({
+    articleId: item.articleSlug,
+    categorySlug: item.articleCategory,
+    at: item.at,
+    views: item.type === 'click' ? 2 : 1,
+    shares: 0,
+    comments: 0,
+    bookmarks: 0,
+  }))
+  return [...readings, ...comments, ...bookmarks, ...shares, ...attention]
 }

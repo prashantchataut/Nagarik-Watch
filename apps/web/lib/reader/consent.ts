@@ -148,6 +148,38 @@ export function hasAdvertisingConsent(): boolean {
   return readConsent()?.advertising === true
 }
 
+/** Analytics or personalization — enough to sync aggregate watch-time / ranking. */
+export function hasEngagementConsent(): boolean {
+  return hasAnalyticsConsent() || hasPersonalizationConsent()
+}
+
+const AGG_READER_KEY = 'nw_agg_reader'
+
+/**
+ * Stable id for first-party engagement sync.
+ * Personalization: durable localStorage reader id.
+ * Analytics-only: session-scoped agg-* id (no cross-session profile).
+ */
+export function getEngagementSyncId(): string {
+  if (typeof window === 'undefined') return ''
+  if (hasPersonalizationConsent()) return getOrCreateReaderId()
+  if (!hasAnalyticsConsent()) return ''
+  try {
+    let id = window.sessionStorage.getItem(AGG_READER_KEY)
+    if (!id) {
+      const random =
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+      id = `agg-${random}`
+      window.sessionStorage.setItem(AGG_READER_KEY, id)
+    }
+    return id
+  } catch {
+    return `agg-${Date.now()}`
+  }
+}
+
 export function getOrCreateReaderId(): string {
   if (typeof window === 'undefined') return ''
   if (!hasPersonalizationConsent()) return ''

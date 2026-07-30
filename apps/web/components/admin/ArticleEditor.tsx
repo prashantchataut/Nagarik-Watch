@@ -30,6 +30,7 @@ type ArticleDraft = {
   isBreaking: boolean
   featuredState: string
   featuredExpiresAt: string
+  publishedAt: string
   seoTitle: string
   seoDescription: string
   noIndex: boolean
@@ -62,6 +63,7 @@ const EMPTY: ArticleDraft = {
   isBreaking: false,
   featuredState: 'none',
   featuredExpiresAt: '',
+  publishedAt: '',
   seoTitle: '',
   seoDescription: '',
   noIndex: false,
@@ -206,6 +208,15 @@ export function ArticleEditor({
               | 'secondary'
               | 'none',
             featuredExpiresAt: read('featuredExpiresAt', draft.featuredExpiresAt) || undefined,
+            publishedAt:
+              workflowStage === 'scheduled'
+                ? (() => {
+                    const raw = read('publishedAt', draft.publishedAt)
+                    if (!raw) return undefined
+                    const parsed = Date.parse(raw)
+                    return Number.isFinite(parsed) ? new Date(parsed).toISOString() : undefined
+                  })()
+                : undefined,
             seoTitleNe: read('seoTitle', draft.seoTitle) || undefined,
             seoDescriptionNe: read('seoDescription', draft.seoDescription) || undefined,
             noIndex: workflowStage === 'published' ? false : draft.noIndex,
@@ -448,6 +459,17 @@ export function ArticleEditor({
             options={WORKFLOW_STAGES}
             required
           />
+          {draft.workflowStage === 'scheduled' ? (
+            <AdminInput
+              label="प्रकाशन समय (तालिका)"
+              name="publishedAt"
+              type="datetime-local"
+              value={draft.publishedAt}
+              onChange={(e) => update('publishedAt', e.target.value)}
+              hint="Cron हरेक ५ मिनेटमा यो समय पुगेपछि प्रकाशित गर्छ।"
+              required
+            />
+          ) : null}
           <div className="flex flex-wrap gap-2 pt-1">
             <AdminButton onClick={() => save('draft')} variant="secondary" disabled={pending}>
               ड्राफ्ट सुरक्षित

@@ -27,14 +27,14 @@ export function AdminLoginForm({
     e.preventDefault()
     setError(null)
     if (!databaseOnline) {
-      setError('Database is offline. Try again after DATABASE_URL is healthy.')
+      setError('डाटाबेस अफलाइन छ। DATABASE_URL ठीक भएपछि फेरि प्रयास गर्नुहोस्।')
       return
     }
     const form = new FormData(e.currentTarget)
     if (requiresTotp) {
       const code = String(form.get('code') ?? '').replace(/\s/g, '')
       if (!/^\d{6}$/.test(code)) {
-        setError('Enter the 6-digit code from your authenticator app.')
+        setError('Authenticator बाट ६-अङ्कको कोड राख्नुहोस्।')
         return
       }
       startTransition(async () => {
@@ -45,7 +45,7 @@ export function AdminLoginForm({
           body: JSON.stringify({ code, trustDevice: true }),
         })
         if (!response.ok) {
-          setError('Invalid or expired authenticator code.')
+          setError('कोड मिलेन वा म्याद सकियो।')
           return
         }
         router.replace('/admin/dashboard')
@@ -60,7 +60,7 @@ export function AdminLoginForm({
     const password = String(form.get('password') ?? '')
 
     if (!email || !password) {
-      setError('Enter both email and password.')
+      setError('इमेल र पासवर्ड दुवै भर्नुहोस्।')
       return
     }
 
@@ -80,15 +80,15 @@ export function AdminLoginForm({
             ''
           const message = String(body?.message ?? body?.error?.message ?? '')
           if (res.status === 503 || code === 'AUTH_UNAVAILABLE') {
-            setError('Sign-in unavailable. The account database could not be reached.')
+            setError('लगइन उपलब्ध छैन। खाता डाटाबेस पुग्न सकेन।')
             return
           }
           if (res.status === 429 || /TOO_MANY|RATE/i.test(message + code)) {
-            setError('Too many sign-in attempts. Wait about a minute, then try again.')
+            setError('धेरै प्रयास भयो। करिब एक मिनेटपछि फेरि प्रयास गर्नुहोस्।')
             return
           }
           if (code === 'ACCOUNT_DISABLED') {
-            setError('This account has been disabled by the newsroom.')
+            setError('यो खाता न्युजरुमले निष्क्रिय गरेको छ।')
             return
           }
           if (
@@ -97,25 +97,23 @@ export function AdminLoginForm({
             /ORIGIN|CSRF/i.test(message + code)
           ) {
             setError(
-              'Request blocked by origin checks. Use https://www.nagarikwatch.com/admin/login (not a cached or extension-injected page), then hard-refresh.',
+              'Origin जाँचले अनुरोध रोकेको छ। www.nagarikwatch.com/admin/login बाट खोल्नुहोस्, त्यसपछि हार्ड-रिफ्रेस गर्नुहोस्।',
             )
             return
           }
           if (res.status === 403) {
-            setError(message || 'Sign-in was forbidden. Try again from www.nagarikwatch.com.')
+            setError(message || 'लगइन अस्वीकृत भयो। www.nagarikwatch.com बाट फेरि प्रयास गर्नुहोस्।')
             return
           }
           if (res.status === 401 || /not found|invalid password|INVALID/i.test(message + code)) {
             const emailHint =
-              expectedEmails.length > 0
-                ? ` Exact emails: ${expectedEmails.join(', ')}.`
+              expectedEmails.length > 0 && process.env.NODE_ENV !== 'production'
+                ? ` अपेक्षित इमेल: ${expectedEmails.join(', ')}।`
                 : ''
-            setError(
-              `Wrong email or password.${emailHint} Password must match the Vercel NEWSROOM_*_PASSWORD for that email. Refresh this page once to re-sync, then try again.`,
-            )
+            setError(`इमेल वा पासवर्ड मिलेन।${emailHint} पृष्ठ रिफ्रेस गरेर फेरि प्रयास गर्नुहोस्।`)
             return
           }
-          setError(message || 'Sign-in failed. Try again.')
+          setError(message || 'लगइन असफल। फेरि प्रयास गर्नुहोस्।')
           return
         }
         if (body?.twoFactorRedirect === true) {
@@ -124,16 +122,16 @@ export function AdminLoginForm({
         }
         router.replace('/admin/dashboard')
       } catch {
-        setError('Network error. Please try again.')
+        setError('नेटवर्क त्रुटि। फेरि प्रयास गर्नुहोस्।')
       }
     })
   }
 
   return (
-    <form onSubmit={onSubmit} className="newsroom-login-form" noValidate autoComplete="on">
+    <form onSubmit={onSubmit} className="newsroom-login-form" noValidate autoComplete="on" lang="ne">
       {resetComplete ? (
         <div role="status" className="newsroom-login-form__ok">
-          Password updated. Sign in with your new password.
+          पासवर्ड अद्यावधिक भयो। नयाँ पासवर्डले साइन इन गर्नुहोस्।
         </div>
       ) : null}
       {error ? (
@@ -144,7 +142,7 @@ export function AdminLoginForm({
 
       {!requiresTotp ? (
         <label className="newsroom-login-form__field">
-          <span>Email</span>
+          <span>इमेल</span>
           <input
             name="email"
             type="email"
@@ -163,18 +161,18 @@ export function AdminLoginForm({
       {!requiresTotp ? (
         <PasswordField
           name="password"
-          label="Password"
+          label="पासवर्ड"
           autoComplete="current-password"
           required
           disabled={pending || !databaseOnline}
           variant="newsroom"
-          helpText="Use your newsroom password."
-          showLabel="Show"
-          hideLabel="Hide"
+          helpText="न्युजरुम पासवर्ड प्रयोग गर्नुहोस्।"
+          showLabel="देखाउनुहोस्"
+          hideLabel="लुकाउनुहोस्"
         />
       ) : (
         <label className="newsroom-login-form__field">
-          <span>Authenticator code</span>
+          <span>Authenticator कोड</span>
           <input
             name="code"
             inputMode="numeric"
@@ -194,7 +192,7 @@ export function AdminLoginForm({
         disabled={pending || !databaseOnline}
         className="w-full"
       >
-        {pending ? 'Verifying…' : requiresTotp ? 'Verify code' : 'Sign in'}
+        {pending ? 'जाँच हुँदै…' : requiresTotp ? 'कोड पुष्टि' : 'साइन इन'}
       </AdminButton>
     </form>
   )

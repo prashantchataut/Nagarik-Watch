@@ -33,6 +33,10 @@ import {
   buildHomepageStream,
 } from '@/lib/content/homepage-stream'
 import { resolveHomeLayoutBandEvery } from '@/lib/experiments/home-layout'
+import { resolveMostReadStories } from '@/lib/content/most-read-stories'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export async function generateMetadata({
   params,
@@ -113,7 +117,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const briefStories = latest.filter((s) => !secondaryIds.has(s.id)).slice(0, 5)
   const briefPool = briefStories.length >= 3 ? briefStories : latest.slice(0, 5)
 
-  const mostRead = latest.filter((s) => !secondaryIds.has(s.id)).slice(0, 6)
+  const { stories: mostRead } = await resolveMostReadStories({
+    catalog,
+    excludeIds: secondaryIds,
+    limit: 6,
+    windowDays: 7,
+    minLive: 2,
+  })
 
   const today = new Date()
   const monthDay = `${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`

@@ -88,7 +88,7 @@ export default async function AlgorithmsPage() {
   return (
     <div>
       <AdminPageHeader
-        subtitle="Each of 232 catalog capabilities has a dedicated handler with honest pass/fail. Traffic zeros mean no observed events — never invented."
+        subtitle={`Catalog self-tests: ${okCount} ok / ${failCount} fail (fixture runners). Live traffic: ${engagement.sampleCount} samples across ${engagement.storyCount} stories in 2h — zeros mean no consented events, not invented ranks.`}
         action={
           <AdminButton href="/admin/live" variant="secondary">
             लाइभ प्यानल →

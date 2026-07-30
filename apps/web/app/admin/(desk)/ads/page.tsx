@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { AD_PLACEMENTS, getAdMode, isAdPlacementKey, isNetworkAdsReady } from '@/lib/ads'
@@ -16,24 +17,48 @@ export const dynamic = 'force-dynamic'
 
 async function saveHouseAd(formData: FormData) {
   'use server'
-  const session = await requireNewsroomSession()
-  if (!['ad_manager', 'publisher', 'admin', 'super_admin'].includes(session.newsroomRole)) return
-  const placementKey = String(formData.get('placementKey') ?? '')
-  if (!isAdPlacementKey(placementKey)) return
-  await upsertHouseAd({
-    placementKey,
-    active: formData.get('active') === 'on',
-    title: String(formData.get('title') ?? '').trim() || 'Nagarik Watch partnership',
-    body: String(formData.get('body') ?? '').trim() || 'Clearly labelled house campaign.',
-    cta: String(formData.get('cta') ?? '').trim() || 'Learn more',
-    href: String(formData.get('href') ?? '').trim() || '/advertise',
-    imageUrl: String(formData.get('imageUrl') ?? '').trim() || undefined,
-  })
-  revalidatePath('/admin/ads')
+  try {
+    const session = await requireNewsroomSession()
+    if (!['ad_manager', 'publisher', 'admin', 'super_admin'].includes(session.newsroomRole)) {
+      redirect('/admin/ads?error=permission')
+    }
+    const placementKey = String(formData.get('placementKey') ?? '')
+    if (!isAdPlacementKey(placementKey)) {
+      redirect('/admin/ads?error=placement')
+    }
+    await upsertHouseAd({
+      placementKey,
+      active: formData.get('active') === 'on',
+      title: String(formData.get('title') ?? '').trim() || 'Nagarik Watch partnership',
+      body: String(formData.get('body') ?? '').trim() || 'Clearly labelled house campaign.',
+      cta: String(formData.get('cta') ?? '').trim() || 'Learn more',
+      href: String(formData.get('href') ?? '').trim() || '/advertise',
+      imageUrl: String(formData.get('imageUrl') ?? '').trim() || undefined,
+      abEnabled: formData.get('abEnabled') === 'on',
+      challenger: {
+        title: String(formData.get('challengerTitle') ?? '').trim(),
+        body: String(formData.get('challengerBody') ?? '').trim(),
+        cta: String(formData.get('challengerCta') ?? '').trim(),
+        href: String(formData.get('challengerHref') ?? '').trim(),
+        imageUrl: String(formData.get('challengerImageUrl') ?? '').trim() || undefined,
+      },
+    })
+    revalidatePath('/admin/ads')
+    redirect('/admin/ads?saved=1')
+  } catch (error) {
+    if (error && typeof error === 'object' && 'digest' in error) throw error
+    console.error('[admin/ads] save failed', error instanceof Error ? error.message : error)
+    redirect('/admin/ads?error=save')
+  }
 }
 
-export default async function AdsPage() {
+export default async function AdsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string; error?: string }>
+}) {
   await requireNewsroomSession()
+  const params = await searchParams
 
   const adMode = getAdMode()
   const networkReady = isNetworkAdsReady()
@@ -58,6 +83,28 @@ export default async function AdsPage() {
         subtitle="house ads, placement inventory, 30-day impression/click reporting"
       />
 
+      {params.saved === '1' ? (
+        <p
+          role="status"
+          className="mb-4 rounded-md border border-up/30 bg-brand-tint/50 px-4 py-3 text-meta font-semibold text-brand-strong"
+          lang="ne"
+        >
+          House ad सुरक्षित भयो। Active छ भने सार्वजनिक पृष्ठमा देखिन्छ।
+        </p>
+      ) : null}
+      {params.error ? (
+        <p
+          role="alert"
+          className="mb-4 rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+          lang="ne"
+        >
+          {params.error === 'permission'
+            ? 'यो भूमिकाबाट विज्ञापन सुरक्षित गर्न मिल्दैन।'
+            : params.error === 'placement'
+              ? 'Placement चयन गलत छ।'
+              : 'House ad सुरक्षित गर्न सकिएन। DATABASE_URL र ops schema जाँच गर्नुहोस्।'}
+        </p>
+      ) : null}
       <div className="mb-5 grid gap-4 lg:grid-cols-[1fr_0.7fr]">
         <AdminCard>
           <p className="text-body text-ink" lang="ne">
@@ -119,23 +166,121 @@ export default async function AdsPage() {
               label="Placement"
               name="placementKey"
               lang="en"
+              defaultValue={houseAds[0]?.placementKey ?? placements[0]?.key}
               options={placements.map((placement) => ({ value: placement.key, label: placement.key }))}
             />
           </div>
           <div className="lg:col-span-2">
-            <AdminInput label="Title" name="title" lang="en" />
+            <AdminInput
+              label="Title"
+              name="title"
+              lang="en"
+              defaultValue={houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.title}
+            />
           </div>
-          <AdminInput label="CTA" name="cta" lang="en" />
+          <AdminInput
+            label="CTA"
+            name="cta"
+            lang="en"
+            defaultValue={houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.cta}
+          />
           <label className="flex items-center gap-2 pt-6 text-meta font-semibold text-ink-soft">
-            <input name="active" type="checkbox" className="size-4 accent-brand" /> Active
+            <input
+              name="active"
+              type="checkbox"
+              className="size-4 accent-brand"
+              defaultChecked={
+                houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.active ?? false
+              }
+            />{' '}
+            Active
           </label>
           <div className="lg:col-span-3">
-            <AdminInput label="Body" name="body" lang="en" />
+            <AdminInput
+              label="Body"
+              name="body"
+              lang="en"
+              defaultValue={houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.body}
+            />
           </div>
           <div className="lg:col-span-2">
-            <AdminInput label="Link" name="href" placeholder="/advertise" lang="en" />
+            <AdminInput
+              label="Link"
+              name="href"
+              placeholder="/advertise"
+              lang="en"
+              defaultValue={houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.href}
+            />
           </div>
-          <AdminInput label="Image URL" name="imageUrl" lang="en" />
+          <AdminInput
+            label="Image URL"
+            name="imageUrl"
+            lang="en"
+            defaultValue={houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.imageUrl}
+          />
+          <div className="lg:col-span-6 rounded-md border border-rule bg-surface px-3 py-3">
+            <label className="flex items-center gap-2 text-meta font-semibold text-ink">
+              <input
+                name="abEnabled"
+                type="checkbox"
+                className="size-4 accent-brand"
+                defaultChecked={
+                  houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
+                    ?.abEnabled ?? false
+                }
+              />
+              Enable A/B (control vs challenger) — CTR via experiments store
+            </label>
+            <div className="mt-3 grid gap-3 lg:grid-cols-4">
+              <AdminInput
+                label="Challenger title"
+                name="challengerTitle"
+                lang="en"
+                defaultValue={
+                  houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
+                    ?.challenger?.title
+                }
+              />
+              <AdminInput
+                label="Challenger CTA"
+                name="challengerCta"
+                lang="en"
+                defaultValue={
+                  houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
+                    ?.challenger?.cta
+                }
+              />
+              <AdminInput
+                label="Challenger link"
+                name="challengerHref"
+                lang="en"
+                defaultValue={
+                  houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
+                    ?.challenger?.href
+                }
+              />
+              <AdminInput
+                label="Challenger image"
+                name="challengerImageUrl"
+                lang="en"
+                defaultValue={
+                  houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
+                    ?.challenger?.imageUrl
+                }
+              />
+              <div className="lg:col-span-4">
+                <AdminInput
+                  label="Challenger body"
+                  name="challengerBody"
+                  lang="en"
+                  defaultValue={
+                    houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
+                      ?.challenger?.body
+                  }
+                />
+              </div>
+            </div>
+          </div>
           <div className="lg:col-span-6">
             <AdminButton type="submit">Save house ad</AdminButton>
           </div>

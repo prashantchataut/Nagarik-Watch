@@ -30,6 +30,13 @@ const defaults: AdminSetting[] = [
     group: 'moderation',
     updatedAt: new Date().toISOString(),
   },
+  {
+    key: 'editorial.breakingAutoBoost',
+    value: 'off',
+    label: 'Breaking auto-boost (on/off) — velocity + dwell kill switch',
+    group: 'editorial',
+    updatedAt: new Date().toISOString(),
+  },
 ]
 
 export async function getModerationBannedWords(): Promise<string[]> {

@@ -40,7 +40,11 @@ function isWorkflowStage(value: unknown): value is StoredArticle['workflowStage'
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const limited = await enforceRateLimit(request, 'admin-article-read', 120, 60_000)
   if (limited) return limited
-  await requireNewsroomSession()
+  try {
+    await requireNewsroomSession()
+  } catch {
+    return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
+  }
   const { id } = await params
   if (isPayloadCanonical()) {
     return NextResponse.json(
@@ -48,9 +52,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       { status: 409 },
     )
   }
-  const article = await getArticleById(id)
-  if (!article) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
-  return NextResponse.json(article)
+  try {
+    const article = await getArticleById(id)
+    if (!article) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
+    return NextResponse.json(article)
+  } catch (err) {
+    console.error('[admin/articles] get failed', err)
+    return NextResponse.json({ error: 'Article lookup failed.' }, { status: 503 })
+  }
 }
 
 /** PUT /api/admin/articles/[id] — update an article. Editors+ can update. */
@@ -61,7 +70,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   const limited = await enforceRateLimit(request, 'admin-article-update', 40, 60_000)
   if (limited) return limited
 
-  const session = await requireNewsroomSession()
+  let session
+  try {
+    session = await requireNewsroomSession()
+  } catch {
+    return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
+  }
   if (!canEdit(session.newsroomRole)) {
     return NextResponse.json({ error: 'सम्पादन अनुमति छैन।' }, { status: 403 })
   }
@@ -87,45 +101,57 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'प्रकाशन अनुमति छैन।' }, { status: 403 })
   }
 
-  const patch: Record<string, unknown> = { ...body }
-  if (requestedStage === 'published') {
-    if (body.noIndex === undefined) patch.noIndex = false
-    if (body.includeInNewsSitemap === undefined) patch.includeInNewsSitemap = true
-  } else if (requestedStage) {
-    if (body.noIndex === undefined) patch.noIndex = true
-    if (body.includeInNewsSitemap === undefined) patch.includeInNewsSitemap = false
-  }
-  if (body.bodyNe !== undefined) {
-    patch.bodyNe = blocksFromShorthand(body.bodyNe, String(body.titleNe ?? '')) as ArticleBlock[]
-  }
-  if (body.bodyEn !== undefined) {
-    const bodyEn = blocksFromShorthand(body.bodyEn)
-    patch.bodyEn = bodyEn.length > 0 ? bodyEn : undefined
-  }
+  try {
+    const patch: Record<string, unknown> = { ...body }
+    if (requestedStage === 'published') {
+      if (body.noIndex === undefined) patch.noIndex = false
+      if (body.includeInNewsSitemap === undefined) patch.includeInNewsSitemap = true
+    } else if (requestedStage) {
+      if (body.noIndex === undefined) patch.noIndex = true
+      if (body.includeInNewsSitemap === undefined) patch.includeInNewsSitemap = false
+    }
+    if (body.bodyNe !== undefined) {
+      patch.bodyNe = blocksFromShorthand(body.bodyNe, String(body.titleNe ?? '')) as ArticleBlock[]
+    }
+    if (body.bodyEn !== undefined) {
+      const bodyEn = blocksFromShorthand(body.bodyEn)
+      patch.bodyEn = bodyEn.length > 0 ? bodyEn : undefined
+    }
 
-  const updated = await updateArticle(
-    id,
-    patch as Parameters<typeof updateArticle>[1],
-    session.userId,
-    session.newsroomRole,
-  )
-  if (!updated) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
-  if (requestedStage === 'published' || requestedStage === 'updated') {
-    revalidatePublishedArticle({
-      categorySlug: updated.categorySlug,
-      slug: updated.slug,
-      tagSlugs: updated.tagSlugs,
-    })
-    await recordAuditEvent({
-      session,
-      action: 'publish',
-      targetType: 'article',
-      targetId: updated.id,
-      summary: `Article published: ${updated.titleNe}`,
-      meta: { slug: updated.slug, workflowStage: requestedStage },
-    })
+    const updated = await updateArticle(
+      id,
+      patch as Parameters<typeof updateArticle>[1],
+      session.userId,
+      session.newsroomRole,
+    )
+    if (!updated) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
+    if (requestedStage === 'published' || requestedStage === 'updated') {
+      revalidatePublishedArticle({
+        categorySlug: updated.categorySlug,
+        slug: updated.slug,
+        tagSlugs: updated.tagSlugs,
+      })
+      await recordAuditEvent({
+        session,
+        action: 'publish',
+        targetType: 'article',
+        targetId: updated.id,
+        summary: `Article published: ${updated.titleNe}`,
+        meta: { slug: updated.slug, workflowStage: requestedStage },
+      })
+    }
+    return NextResponse.json(updated)
+  } catch (err) {
+    console.error('[admin/articles] update failed', err)
+    const msg = err instanceof Error ? err.message : 'सुरक्षित गर्न सकिएन।'
+    if (msg.includes('स्लग पहिले नै अवस्थित') || /unique|duplicate key/i.test(msg)) {
+      return NextResponse.json({ error: msg.includes('स्लग') ? msg : 'स्लग पहिले नै अवस्थित छ।' }, { status: 409 })
+    }
+    if (/DATABASE_URL|Postgres|production/i.test(msg)) {
+      return NextResponse.json({ error: msg }, { status: 503 })
+    }
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
-  return NextResponse.json(updated)
 }
 
 /** DELETE /api/admin/articles/[id] — delete an article. Super admin only. */

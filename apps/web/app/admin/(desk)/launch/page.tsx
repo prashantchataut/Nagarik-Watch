@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getLaunchChecksAsync, launchScore } from '@/lib/launch-readiness'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
+import { getPayloadCutoverChecklist } from '@/lib/content/payload-cutover'
 import { AdminPageHeader, AdminCard, OpsCheckBadge } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ function pct(value: number): string {
 export default async function LaunchPage() {
   await requireNewsroomSession()
   const [checks, ops] = await Promise.all([getLaunchChecksAsync(), getOpsHealthSnapshot()])
+  const cutover = getPayloadCutoverChecklist()
   const score = launchScore(checks)
   return (
     <div>
@@ -51,19 +53,46 @@ export default async function LaunchPage() {
           </AdminCard>
         ))}
       </div>
+
+      <h2 className="admin-section-title mb-3 mt-8">Payload CMS cutover</h2>
+      <AdminCard className="mb-5">
+        <p className="text-meta text-ink-soft" lang="en">
+          {cutover.currentlyCanonical
+            ? 'CONTENT_SOURCE=payload is live — web shadow article writes return 409.'
+            : cutover.ready
+              ? 'Gates look ready. Set CONTENT_SOURCE=payload on web + redeploy when the desk is trained.'
+              : 'Complete the checks below before flipping CONTENT_SOURCE=payload.'}
+        </p>
+        <ul className="mt-3 divide-y divide-rule">
+          {cutover.checks.map((check) => (
+            <li key={check.key} className="flex items-start justify-between gap-3 py-2 text-meta">
+              <span>
+                <span className={check.ok ? 'font-bold text-brand-strong' : 'font-bold text-breaking'}>
+                  {check.ok ? 'OK' : 'TODO'}
+                </span>{' '}
+                {check.label}
+                <span className="mt-0.5 block text-caption text-mute">{check.detail}</span>
+              </span>
+              <code className="shrink-0 text-caption text-mute">{check.key}</code>
+            </li>
+          ))}
+        </ul>
+      </AdminCard>
+
       <h2 className="admin-section-title mb-3 mt-8">Ops health snapshot</h2>
       <div className="grid gap-3 lg:grid-cols-2">
         <AdminCard>
           <p className="admin-section-title !text-[0.95rem]">Database pool</p>
           {ops.pool.configured ? (
-            <>
-              <p className="mt-1 text-meta text-ink-soft">
-                Saturation {pct(ops.pool.saturation)} · {ops.pool.totalCount}/{ops.pool.max} connections in use
-                {ops.pool.waitingCount > 0 ? ` · ${ops.pool.waitingCount} waiting` : ''}
-              </p>
-            </>
+            <p className="mt-1 text-meta text-ink-soft">
+              Saturation {pct(ops.pool.saturation)} · {ops.pool.totalCount}/{ops.pool.max} connections in
+              use
+              {ops.pool.waitingCount > 0 ? ` · ${ops.pool.waitingCount} waiting` : ''}
+            </p>
           ) : (
-            <p className="mt-1 text-meta text-ink-soft">No shared pool has been created in this process yet.</p>
+            <p className="mt-1 text-meta text-ink-soft">
+              No shared pool has been created in this process yet.
+            </p>
           )}
         </AdminCard>
         <AdminCard>
@@ -74,7 +103,10 @@ export default async function LaunchPage() {
                 <span className={job.missed ? 'font-bold text-breaking' : 'font-bold text-brand-strong'}>
                   {job.missed ? 'MISSED' : 'OK'}
                 </span>{' '}
-                {job.label} — {job.lastRunAt ? `last ran ${job.ageMinutes !== null ? Math.round(job.ageMinutes) : '?'} min ago` : 'never recorded'}
+                {job.label} —{' '}
+                {job.lastRunAt
+                  ? `last ran ${job.ageMinutes !== null ? Math.round(job.ageMinutes) : '?'} min ago`
+                  : 'never recorded'}
               </p>
             ))}
           </div>

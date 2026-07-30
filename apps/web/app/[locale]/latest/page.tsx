@@ -4,6 +4,7 @@ import { getStories } from '@/lib/content'
 import { Pagination } from '@/components/Pagination'
 import { AdSlot } from '@/components/AdSlot'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
+import { HubRelatedNav } from '@/components/public/HubRelatedNav'
 import { RankedStoryList } from '@/components/public/RankedStoryList'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
@@ -46,7 +47,7 @@ export default async function LatestPage({
   const result = await getStories({ locale, page, perPage: PER_PAGE })
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
+    <div className="mx-auto max-w-page px-3 py-6 sm:px-4 sm:py-8 lg:py-10">
       <AdSlot locale={locale} placementKey="latest-top" />
       <HubIndexHeader
         title={english ? 'Latest news' : 'ताजा समाचार'}
@@ -57,6 +58,7 @@ export default async function LatestPage({
         }
         lang={english ? 'en' : 'ne'}
       />
+      <HubRelatedNav locale={locale} active="latest" />
 
       {result.items.length > 0 ? (
         <>
@@ -66,18 +68,18 @@ export default async function LatestPage({
             mode="latest"
             startRank={(result.page - 1) * PER_PAGE + 1}
           />
-          <AdSlot locale={locale} placementKey="latest-inline" variant="inline" />
+          <AdSlot locale={locale} placementKey="latest-inline" variant="inline" className="mt-6" />
           <Pagination
             page={result.page}
             totalPages={result.totalPages}
             basePath={localizeHref(locale, '/latest')}
             locale={locale}
-            className="mt-10"
+            className="mt-8"
           />
         </>
       ) : (
         <p
-          className="mt-8 border-y border-rule py-10 text-body-lg text-ink-soft"
+          className="mt-6 border-y border-rule py-8 text-body text-ink-soft"
           lang={english ? 'en' : 'ne'}
         >
           {english

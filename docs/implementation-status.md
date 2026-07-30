@@ -11,10 +11,14 @@ Track user-visible capabilities only. `VERIFIED` requires the acceptance test na
 | Reporter submit for review | IN PROGRESS | workflow transition `draft→submitted` | Block edits while `submitted` — implemented |
 | Editor request changes | IN PROGRESS | `/api/admin/journalist-feedback`, `/admin/journalists` | Playwright gate |
 | Publisher publish + public propagation | IN PROGRESS | `updateArticle` publish timestamps, `revalidatePublishedArticle` | Playwright gate |
-| Editorial state machine (server) | IN PROGRESS | `lib/editorial/workflow-transitions.ts` | Schedule worker, slug redirect |
+| Editorial state machine (server) | IN PROGRESS | `lib/editorial/workflow-transitions.ts` | Slug redirect on rename |
 | Integration tests (Payload REST contract) | IN PROGRESS | `pnpm test:integration`, `payload-source.contract.test.ts` | Live Payload/Postgres job in CI |
 | Newsroom Playwright E2E | IN PROGRESS | `playwright.newsroom.config.ts`, `e2e/newsroom-lifecycle.spec.ts` | Requires Docker Postgres locally |
-| Scheduled publish worker | NOT STARTED | — | Cron/worker + idempotency |
+| Scheduled publish worker | IN PROGRESS | `/api/cron/scheduled-publish`, `lib/editorial/scheduled-publish.ts`, vercel cron `*/5` | Deploy + heartbeat verify |
+| Morning brief → newsletter draft | IN PROGRESS | `/api/cron/digest-compose` (draft by default; `DIGEST_SEND_NOW` to send) | Desk review UI polish |
+| Breaking auto-boost + kill switch | IN PROGRESS | `/api/cron/breaking-auto-boost`, setting `editorial.breakingAutoBoost` | Tune thresholds with live traffic |
+| House-ad A/B (CTR) | IN PROGRESS | `house-ads` challenger + experiments store | Winner auto-promote optional |
+| Payload canonical cutover checklist | IN PROGRESS | `lib/content/payload-cutover.ts`, `/admin/launch` | Flip `CONTENT_SOURCE` when CMS ready |
 | Revision compare UI | NOT STARTED | revision list on journalist edit | Admin diff view |
 
 ## Commands
