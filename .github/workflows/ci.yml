@@ -135,33 +135,51 @@ jobs:
 
   payload-smoke:
     name: payload content source smoke
-    if: ${{ secrets.PAYLOAD_PUBLIC_SERVER_URL != '' }}
     runs-on: ubuntu-latest
+    # secrets.* cannot be used in job-level `if` (GitHub Actions parser).
+    # Gate via job env + step conditions instead.
+    env:
+      PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}
     steps:
+      - name: Gate on Payload URL secret
+        id: gate
+        run: |
+          if [ -n "${PAYLOAD_PUBLIC_SERVER_URL}" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "PAYLOAD_PUBLIC_SERVER_URL secret unset — skipping Payload smoke."
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
 
       - name: Setup pnpm
+        if: steps.gate.outputs.run == 'true'
         uses: pnpm/action-setup@v4
         with:
           version: 10.17.1
 
       - name: Setup Node
+        if: steps.gate.outputs.run == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'pnpm'
 
       - name: Install
+        if: steps.gate.outputs.run == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Payload canonical env smoke
+        if: steps.gate.outputs.run == 'true'
         run: pnpm --filter @nagarikwatch/web test lib/content/content-source.test.ts
         env:
           CONTENT_SOURCE: payload
-          PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}
+          PAYLOAD_PUBLIC_SERVER_URL: ${{ env.PAYLOAD_PUBLIC_SERVER_URL }}
 
       - name: Upload Playwright report
-        if: always()
+        if: always() && steps.gate.outputs.run == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
