@@ -86,17 +86,26 @@ export function getPayloadCutoverChecklist(): {
         : 'Configure BLOB_READ_WRITE_TOKEN or R2 + STORAGE_PUBLIC_BASE_URL',
     },
     {
+      key: 'web-desk',
+      label: 'Local web news desk',
+      ok: true,
+      detail:
+        contentSource === 'payload'
+          ? 'Web /admin/articles still writes the local store; Payload is linked via banner until cutover is intentional'
+          : 'CONTENT_SOURCE is not payload — web desk is the primary CMS',
+    },
+    {
       key: 'source-flip',
       label: 'CONTENT_SOURCE flip',
       ok: contentSource === 'payload' && Boolean(payloadUrl),
       detail:
         contentSource === 'payload' && payloadUrl
-          ? 'CONTENT_SOURCE=payload is live'
+          ? 'CONTENT_SOURCE=payload is live (public may read CMS; desk uses local store)'
           : 'After checks pass: set CONTENT_SOURCE=payload and redeploy web',
     },
   ]
 
-  const gateChecks = checks.filter((check) => check.key !== 'source-flip')
+  const gateChecks = checks.filter((check) => check.key !== 'source-flip' && check.key !== 'web-desk')
   const ready = gateChecks.every((check) => check.ok)
 
   return {

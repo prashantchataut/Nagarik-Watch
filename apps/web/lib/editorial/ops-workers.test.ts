@@ -14,7 +14,7 @@ describe('scheduled publish transitions', () => {
 describe('payload cutover checklist', () => {
   it('returns structured checks without inventing readiness', () => {
     const cutover = getPayloadCutoverChecklist()
-    expect(cutover.checks.length).toBeGreaterThanOrEqual(6)
+    expect(cutover.checks.length).toBeGreaterThanOrEqual(7)
     expect(cutover.checks.every((check) => check.key && check.label && check.detail)).toBe(true)
   })
 })

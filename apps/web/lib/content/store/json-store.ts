@@ -326,8 +326,20 @@ async function read(): Promise<StoreShape> {
   if (cache) return cache
   const pool = await getArticlesPool()
   if (pool) {
-    cache = await readFromPostgres(pool)
-    return cache
+    try {
+      cache = await readFromPostgres(pool)
+      return cache
+    } catch (error) {
+      // Transient Postgres failures must not crash admin RSC pages.
+      console.error(
+        '[json-store] readFromPostgres failed; falling back to file/empty',
+        error instanceof Error ? error.message : error,
+      )
+      if (isProductionRuntime()) {
+        cache = { articles: [], version: 1 }
+        return cache
+      }
+    }
   }
   cache = await readFromFile()
   return cache

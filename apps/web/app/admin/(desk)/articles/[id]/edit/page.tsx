@@ -1,13 +1,15 @@
 import { staticArticleIdParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { getNavCategories, getAuthors, getTags } from '@/lib/content'
 import { findArticleForAdmin } from '@/lib/content/store/json-store'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import { AdminPageHeader } from '@/components/admin/primitives'
+import { categories as seedCategories } from '@/lib/content/seed/categories'
+import { firstAdminLoadError, safeAdminLoad } from '@/lib/admin/safe-load'
+import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/CmsCanonicalBanner'
+import { AdminButton, AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditor } from '@/components/admin/ArticleEditor'
 import type { ArticleBlock } from '@nagarikwatch/db'
-import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 import { listMediaItems } from '@/lib/media-library'
 
 export const dynamic = 'force-dynamic'
@@ -17,44 +19,52 @@ export function generateStaticParams() {
 }
 
 export const metadata: Metadata = {
-  title: 'Edit Article',
+  title: 'समाचार सम्पादन',
   robots: { index: false, follow: false },
 }
 
-
-/**
- * Article edit page. Resolves draft or published stories through the admin
- * store lookup, maps block bodies back to the markdown-shorthand the editor
- * expects, and hands off to ArticleEditor. Drafts must remain editable even
- * before they are visible on the public site.
- */
 export default async function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireNewsroomSession()
   const { id } = await params
-  if (isPayloadCanonical()) redirect(payloadCollectionAdminUrl('articles', id))
 
-  const [categories, tags, authors, mediaLibrary] = await Promise.all([
-    getNavCategories(),
-    getTags(),
-    getAuthors(),
+  const [categoriesResult, tagsResult, authorsResult, mediaLibrary, articleResult] = await Promise.all([
+    safeAdminLoad('edit-categories', () => getNavCategories(), seedCategories.filter((c) => c.showInNav)),
+    safeAdminLoad('edit-tags', () => getTags(), []),
+    safeAdminLoad('edit-authors', () => getAuthors(), []),
     listMediaItems({ limit: 60 }).catch(() => []),
+    safeAdminLoad('edit-article', () => findArticleForAdmin(id), null),
   ])
-  const article = await findArticleForAdmin(id)
+  const loadError = firstAdminLoadError(categoriesResult, tagsResult, authorsResult, articleResult)
+  const article = articleResult.value
 
   if (!article) {
     return (
       <div>
-        <AdminPageHeader
-          subtitle={`"${id}" स्लगको समाचार फेला परेन। नयाँ समाचारको रूपमा बनाउनुहोस्।`}
-        />
-        <ArticleEditor
-          categories={categories}
-          tags={tags}
-          authors={authors}
-          role={session.newsroomRole}
-          isNew
-          mediaLibrary={mediaLibrary}
-        />
+        <AdminPageHeader subtitle="समाचार फेला परेन" />
+        <CmsCanonicalBanner />
+        <AdminLoadErrorBanner message={loadError} />
+        <div className="admin-panel py-10 text-center">
+          <p className="admin-section-title" lang="ne">
+            यो पहिचानसँग कुनै समाचार छैन
+          </p>
+          <p className="mt-2 text-body text-ink-soft" lang="ne">
+            <code className="font-mono text-caption" lang="en">
+              {id}
+            </code>{' '}
+            सूचीमा फर्केर फेरि खोल्नुहोस्, वा नयाँ ड्राफ्ट बनाउनुहोस्।
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            <AdminButton href="/admin/articles">सूचीमा फर्कनुहोस्</AdminButton>
+            <AdminButton href="/admin/articles/new" variant="secondary">
+              नयाँ समाचार
+            </AdminButton>
+          </div>
+          <p className="mt-4 text-caption text-mute">
+            <Link href="/admin/launch" className="text-brand-strong underline-offset-2 hover:underline">
+              Launch जाँच
+            </Link>
+          </p>
+        </div>
       </div>
     )
   }
@@ -63,7 +73,11 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
 
   return (
     <div>
-      <AdminPageHeader subtitle={article.titleNe} />
+      <AdminPageHeader
+        subtitle={`${article.titleNe} · ${article.workflowStage} · अपडेट ${new Date(article.updatedAt).toLocaleString('ne-NP')}`}
+      />
+      <CmsCanonicalBanner />
+      <AdminLoadErrorBanner message={loadError} />
       <ArticleEditor
         initial={{
           id: article.id,
@@ -100,9 +114,9 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
           heroCaption: article.heroCaptionNe ?? '',
           heroCredit: article.heroCredit ?? '',
         }}
-        categories={categories}
-        tags={tags}
-        authors={authors}
+        categories={categoriesResult.value}
+        tags={tagsResult.value}
+        authors={authorsResult.value}
         role={session.newsroomRole}
         isNew={false}
         mediaLibrary={mediaLibrary}

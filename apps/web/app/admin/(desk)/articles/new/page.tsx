@@ -3,13 +3,15 @@ import { getNavCategories, getAuthors, getTags } from '@/lib/content'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canCreate } from '@/lib/admin-roles'
 import { redirect } from 'next/navigation'
+import { categories as seedCategories } from '@/lib/content/seed/categories'
+import { safeAdminLoad, firstAdminLoadError } from '@/lib/admin/safe-load'
+import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/CmsCanonicalBanner'
 import { AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditor } from '@/components/admin/ArticleEditor'
-import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 import { listMediaItems } from '@/lib/media-library'
 
 export const metadata: Metadata = {
-  title: 'New Article',
+  title: 'नयाँ समाचार',
   robots: { index: false, follow: false },
 }
 
@@ -20,24 +22,24 @@ export default async function NewArticlePage() {
   if (!canCreate(session.newsroomRole)) {
     redirect('/admin/articles')
   }
-  if (isPayloadCanonical()) redirect(`${payloadCollectionAdminUrl('articles')}/create`)
 
-  const [categories, tags, authors, mediaLibrary] = await Promise.all([
-    getNavCategories(),
-    getTags(),
-    getAuthors(),
+  const [categoriesResult, tagsResult, authorsResult, mediaLibrary] = await Promise.all([
+    safeAdminLoad('new-categories', () => getNavCategories(), seedCategories.filter((c) => c.showInNav)),
+    safeAdminLoad('new-tags', () => getTags(), []),
+    safeAdminLoad('new-authors', () => getAuthors(), []),
     listMediaItems({ limit: 60 }).catch(() => []),
   ])
+  const loadError = firstAdminLoadError(categoriesResult, tagsResult, authorsResult)
 
   return (
     <div>
-      <AdminPageHeader
-        subtitle="नयाँ समाचार लेख्न सुरु गर्नुहोस्। ड्राफ्ट बचत गर्न सक्नुहुन्छ।"
-      />
+      <AdminPageHeader subtitle="शीर्षक र मूल भाग लेख्नुहोस्। साइडबारबाट विभाग, फोटो र प्रकाशन चरण मिलाउनुहोस्।" />
+      <CmsCanonicalBanner />
+      <AdminLoadErrorBanner message={loadError} />
       <ArticleEditor
-        categories={categories}
-        tags={tags}
-        authors={authors}
+        categories={categoriesResult.value}
+        tags={tagsResult.value}
+        authors={authorsResult.value}
         role={session.newsroomRole}
         isNew
         mediaLibrary={mediaLibrary}

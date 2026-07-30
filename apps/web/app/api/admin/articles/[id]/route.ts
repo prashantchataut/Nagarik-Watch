@@ -6,7 +6,6 @@ import type { StoredArticle } from '@/lib/content/store/json-store'
 import { canEdit, canDelete, canPublish } from '@/lib/admin-roles'
 import type { ArticleBlock } from '@nagarikwatch/db'
 import { blocksFromShorthand } from '@/lib/content/blocks'
-import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { revalidatePublishedArticle } from '@/lib/content/revalidate-published'
@@ -46,12 +45,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
   }
   const { id } = await params
-  if (isPayloadCanonical()) {
-    return NextResponse.json(
-      { error: 'Production content is managed in Payload CMS.', cmsUrl: payloadCollectionAdminUrl('articles', id) },
-      { status: 409 },
-    )
-  }
   try {
     const article = await getArticleById(id)
     if (!article) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
@@ -80,12 +73,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'सम्पादन अनुमति छैन।' }, { status: 403 })
   }
   const { id } = await params
-  if (isPayloadCanonical()) {
-    return NextResponse.json(
-      { error: 'Production content is managed in Payload CMS.', cmsUrl: payloadCollectionAdminUrl('articles', id) },
-      { status: 409 },
-    )
-  }
   let body: Record<string, unknown>
   try {
     body = await request.json()
@@ -131,14 +118,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         slug: updated.slug,
         tagSlugs: updated.tagSlugs,
       })
-      await recordAuditEvent({
-        session,
-        action: 'publish',
-        targetType: 'article',
-        targetId: updated.id,
-        summary: `Article published: ${updated.titleNe}`,
-        meta: { slug: updated.slug, workflowStage: requestedStage },
-      })
+      try {
+        await recordAuditEvent({
+          session,
+          action: 'publish',
+          targetType: 'article',
+          targetId: updated.id,
+          summary: `Article published: ${updated.titleNe}`,
+          meta: { slug: updated.slug, workflowStage: requestedStage },
+        })
+      } catch (auditError) {
+        console.error('[admin/articles] audit after publish failed', auditError)
+      }
     }
     return NextResponse.json(updated)
   } catch (err) {
@@ -165,19 +156,23 @@ export async function DELETE(
   const limited = await enforceRateLimit(request, 'admin-article-delete', 10, 60_000)
   if (limited) return limited
 
-  const session = await requireNewsroomSession()
+  let session
+  try {
+    session = await requireNewsroomSession()
+  } catch {
+    return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
+  }
   if (!canDelete(session.newsroomRole)) {
     return NextResponse.json({ error: 'मेटाउन अनुमति छैन। केवल मुख्य एडमिन।' }, { status: 403 })
   }
   const { id } = await params
-  if (isPayloadCanonical()) {
-    return NextResponse.json(
-      { error: 'Production content is managed in Payload CMS.', cmsUrl: payloadCollectionAdminUrl('articles', id) },
-      { status: 409 },
-    )
+  try {
+    const existing = await getArticleById(id)
+    if (!existing) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
+    const ok = await deleteArticle(id)
+    return NextResponse.json({ ok, deletedId: id, deletedBy: session.userId })
+  } catch (err) {
+    console.error('[admin/articles] delete failed', err)
+    return NextResponse.json({ error: 'मेटाउन सकिएन।' }, { status: 503 })
   }
-  const existing = await getArticleById(id)
-  if (!existing) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
-  const ok = await deleteArticle(id)
-  return NextResponse.json({ ok, deletedId: id, deletedBy: session.userId })
 }

@@ -102,18 +102,20 @@ const SOURCE_TYPES = [
   { value: 'wire', label: 'वायर' },
 ]
 
+function mapSaveError(status: number, err: { error?: string; message?: string; cmsUrl?: string }): string {
+  const base = err.error ?? err.message ?? 'सुरक्षित गर्न सकिएन'
+  if (status === 503 && /BLOB|R2|storage|DATABASE_URL|Postgres/i.test(base)) {
+    return `${base} — /admin/launch मा भण्डारण र DATABASE_URL जाँच गर्नुहोस्।`
+  }
+  if (status === 409 && err.cmsUrl) return `${base} ${err.cmsUrl}`
+  if (status === 401) return 'सत्र सकियो। फेरि लगइन गर्नुहोस्।'
+  if (status === 403) return base || 'यो कार्यका लागि अनुमति छैन।'
+  return err.cmsUrl ? `${base} ${err.cmsUrl}` : base
+}
+
 /**
- * Article editor form. Handles both create and edit (the parent passes an
- * optional initial draft). The form is a controlled component — every field
- * updates local state, and the submit handler POSTs to /api/admin/articles.
- *
- * The body field accepts a markdown-ish shorthand that the API converts to
- * ArticleBlock[] (paragraphs separated by blank lines; lines starting with
- * ## become heading2; > become pullQuote; - become list items). This keeps
- * the editor fast and accessible without shipping a full WYSIWYG.
- *
- * Role gating: only publishers can move to the "published" stage; journalists
- * can save drafts and submit; editors can move through review stages.
+ * Writing-first newsroom editor: title / deck / body dominate; metadata lives
+ * in a sticky sidebar with a persistent action bar.
  */
 export function ArticleEditor({
   initial,
@@ -140,12 +142,9 @@ export function ArticleEditor({
   const [status, setStatus] = useState<{
     kind: 'idle' | 'saving' | 'saved' | 'error'
     msg?: string
-  }>({
-    kind: 'idle',
-  })
+  }>({ kind: 'idle' })
   const [pending, startTransition] = useTransition()
 
-  // Auto-generate slug from Nepali title when creating.
   useEffect(() => {
     if (isNew && draft.titleNe && !draft.slug) {
       const slug = draft.titleNe
@@ -160,7 +159,8 @@ export function ArticleEditor({
 
   const canPublishArticle = canPublish(role)
   const canEditArticle = canEdit(role)
-  const canManageHomepage = canPublish(role) || role === 'admin' || role === 'super_admin' || role === 'seo_manager'
+  const canManageHomepage =
+    canPublish(role) || role === 'admin' || role === 'super_admin' || role === 'seo_manager'
 
   function update<K extends keyof ArticleDraft>(key: K, value: ArticleDraft[K]) {
     setDraft((d) => ({ ...d, [key]: value }))
@@ -229,16 +229,23 @@ export function ArticleEditor({
             heroCaptionNe: read('heroCaption', draft.heroCaption) || undefined,
             heroCredit: read('heroCredit', draft.heroCredit) || undefined,
           }
+          if (!body.titleNe || !body.categorySlug || !body.bodyNe.trim() || !body.slug) {
+            throw new Error('शीर्षक, विभाग, स्लग र मूल भाग अनिवार्य छन्।')
+          }
           const url = initial?.id ? `/api/admin/articles/${initial.id}` : '/api/admin/articles'
           const res = await fetch(url, {
             method: initial?.id ? 'PUT' : 'POST',
+            credentials: 'include',
             headers: { 'content-type': 'application/json' },
             body: JSON.stringify(body),
           })
           if (!res.ok) {
-            const err = await res.json().catch(() => ({})) as { error?: string; message?: string; cmsUrl?: string }
-            const base = err.error ?? err.message ?? 'सुरक्षित गर्न सकिएन'
-            throw new Error(err.cmsUrl ? `${base} ${err.cmsUrl}` : base)
+            const err = (await res.json().catch(() => ({}))) as {
+              error?: string
+              message?: string
+              cmsUrl?: string
+            }
+            throw new Error(mapSaveError(res.status, err))
           }
           const saved = await res.json().catch(() => ({}))
           setStatus({ kind: 'saved', msg: 'सुरक्षित भयो' })
@@ -256,33 +263,60 @@ export function ArticleEditor({
 
   const wordCount = draft.bodyNe.trim() ? draft.bodyNe.trim().split(/\s+/).length : 0
   const readingMinutes = Math.max(1, Math.round(wordCount / 200))
+  const stageLabel =
+    WORKFLOW_STAGES.find((row) => row.value === draft.workflowStage)?.label ?? draft.workflowStage
+
+  const actionBar = (
+    <div className="flex flex-wrap items-center gap-2">
+      <AdminButton onClick={() => save('draft')} variant="secondary" disabled={pending}>
+        ड्राफ्ट सुरक्षित
+      </AdminButton>
+      {canEditArticle ? (
+        <AdminButton onClick={() => save('submitted')} variant="secondary" disabled={pending}>
+          पेश गर्नुहोस्
+        </AdminButton>
+      ) : null}
+      {canPublishArticle ? (
+        <AdminButton onClick={() => save('published')} disabled={pending}>
+          प्रकाशित गर्नुहोस्
+        </AdminButton>
+      ) : null}
+      <span className="text-caption text-mute" lang="ne">
+        {pending || status.kind === 'saving'
+          ? 'सुरक्षित हुँदै…'
+          : `${wordCount} शब्द · ~${readingMinutes} मिनेट · ${stageLabel}`}
+      </span>
+    </div>
+  )
 
   return (
     <form
       ref={formRef}
-      className="grid gap-6 lg:grid-cols-[1fr_320px]"
+      className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_17.5rem]"
       onSubmit={(event) => event.preventDefault()}
     >
-      {/* MAIN COLUMN — content */}
-      <div className="space-y-5">
-        {status.kind === 'error' && (
-          <div
-            role="alert"
-            className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
-          >
-            {status.msg}
-          </div>
-        )}
-        {status.kind === 'saved' && (
-          <div
-            role="status"
-            className="rounded-md border border-up/30 bg-brand-tint/50 px-4 py-3 text-meta font-semibold text-brand-strong"
-          >
-            ✓ {status.msg}
-          </div>
-        )}
+      <div className="space-y-4">
+        <div className="sticky top-0 z-20 -mx-1 border-b border-rule bg-surface/95 px-1 py-3 backdrop-blur-sm">
+          {actionBar}
+          {status.kind === 'error' ? (
+            <div
+              role="alert"
+              className="mt-2 rounded-md border border-breaking/30 bg-brand-tint px-3 py-2 text-meta font-semibold text-brand-strong"
+            >
+              {status.msg}
+            </div>
+          ) : null}
+          {status.kind === 'saved' ? (
+            <div
+              role="status"
+              className="mt-2 rounded-md border border-up/30 bg-brand-tint/50 px-3 py-2 text-meta font-semibold text-brand-strong"
+            >
+              {status.msg}
+            </div>
+          ) : null}
+        </div>
 
-        <div className="rounded-lg border border-rule bg-surface-raised p-5 space-y-4">
+        <div className="space-y-3 rounded-lg border border-rule bg-surface-raised p-4 sm:p-5">
           <AdminInput
             label="शीर्षक (नेपाली)"
             name="titleNe"
@@ -291,15 +325,6 @@ export function ArticleEditor({
             required
             placeholder="समाचारको शीर्षक"
             lang="ne"
-            hint="अधिकतम १२० अक्षर। खोज इन्जिन र पाठक दुवैले देख्ने मुख्य शीर्षक।"
-          />
-          <AdminInput
-            label="शीर्षक (अंग्रेजी) — वैकल्पिक"
-            name="titleEn"
-            value={draft.titleEn}
-            onChange={(e) => update('titleEn', e.target.value)}
-            placeholder="English headline (author-reviewed translation)"
-            lang="en"
           />
           <AdminTextarea
             label="डेक (नेपाली)"
@@ -307,89 +332,88 @@ export function ArticleEditor({
             value={draft.deckNe}
             onChange={(e) => update('deckNe', e.target.value)}
             rows={2}
-            placeholder="एक–दुई वाक्यको सारांश, शीर्षक अन्तर्गत देखिने।"
+            placeholder="एक–दुई वाक्यको सारांश"
             lang="ne"
           />
-          <AdminTextarea
-            label="डेक (अंग्रेजी) — वैकल्पिक"
-            name="deckEn"
-            value={draft.deckEn}
-            onChange={(e) => update('deckEn', e.target.value)}
-            rows={2}
-            lang="en"
-          />
-        </div>
-
-        <div className="rounded-lg border border-rule bg-surface-raised p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <label htmlFor="article-body-ne" className="text-meta font-semibold text-ink" lang="ne">
-              समाचारको मूल भाग (नेपाली) <span className="text-brand">*</span>
-            </label>
-            <span className="text-caption text-mute" lang="ne">
-              {wordCount} शब्द · ~{readingMinutes} मिनेट
+          <label className="grid gap-1.5">
+            <span className="flex items-center justify-between text-meta font-semibold text-ink" lang="ne">
+              <span>
+                मूल भाग <span className="text-brand">*</span>
+              </span>
+              <span className="font-normal text-mute">
+                {wordCount} शब्द · ~{readingMinutes} मिनेट
+              </span>
             </span>
-          </div>
-          <textarea
-            id="article-body-ne"
-            name="bodyNe"
-            value={draft.bodyNe}
-            onChange={(e) => update('bodyNe', e.target.value)}
-            rows={20}
-            lang="ne"
-            required
-            aria-required="true"
-            placeholder={`पहिलो अनुच्छेद यहाँ लेख्नुहोस्।
+            <textarea
+              id="article-body-ne"
+              name="bodyNe"
+              value={draft.bodyNe}
+              onChange={(e) => update('bodyNe', e.target.value)}
+              rows={22}
+              lang="ne"
+              required
+              aria-required="true"
+              placeholder={`पहिलो अनुच्छेद…
 
-## सह-शीर्षक (वैकल्पिक)
+## सह-शीर्षक
 दोस्रो अनुच्छेद…
 
-> उद्धरण बक्सका लागि यो लाइन यसरी लेख्नुहोस्।
+> उद्धरण
 
-- सूची वस्तु १
-- सूची वस्तु २`}
-            className="w-full rounded-md border border-rule bg-surface px-3.5 py-3 font-devanagari text-body-lg leading-relaxed text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
-          />
+- सूची`}
+              className="w-full rounded-md border border-rule bg-surface px-3.5 py-3 font-devanagari text-body-lg leading-relaxed text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
+            />
+          </label>
           <details className="text-caption text-ink-soft">
             <summary className="cursor-pointer font-semibold" lang="ne">
-              शर्टकट (मार्कडाउन शैली)
+              अंग्रेजी अनुवाद र लेखन सर्टकट
             </summary>
-            <ul className="mt-2 space-y-1 pl-4" lang="ne">
-              <li>रिक्त लाइनले अनुच्छेद छुट्याउँछ</li>
-              <li>
-                <code>##</code> ले सह-शीर्षक
-              </li>
-              <li>
-                <code>&gt;</code> ले उद्धरण बक्स
-              </li>
-              <li>
-                <code>-</code> ले सूची वस्तु
-              </li>
-            </ul>
+            <div className="mt-3 space-y-3">
+              <AdminInput
+                label="शीर्षक (अंग्रेजी)"
+                name="titleEn"
+                value={draft.titleEn}
+                onChange={(e) => update('titleEn', e.target.value)}
+                lang="en"
+              />
+              <AdminTextarea
+                label="डेक (अंग्रेजी)"
+                name="deckEn"
+                value={draft.deckEn}
+                onChange={(e) => update('deckEn', e.target.value)}
+                rows={2}
+                lang="en"
+              />
+              <textarea
+                value={draft.bodyEn}
+                onChange={(e) => update('bodyEn', e.target.value)}
+                rows={10}
+                lang="en"
+                placeholder="Author-reviewed English translation"
+                className="w-full rounded-md border border-rule bg-surface px-3.5 py-3 text-body leading-relaxed text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
+              />
+              <ul className="space-y-1 pl-4" lang="ne">
+                <li>रिक्त लाइन = अनुच्छेद</li>
+                <li>
+                  <code>##</code> = सह-शीर्षक
+                </li>
+                <li>
+                  <code>&gt;</code> = उद्धरण
+                </li>
+                <li>
+                  <code>-</code> = सूची
+                </li>
+              </ul>
+            </div>
           </details>
         </div>
 
-        <div className="rounded-lg border border-rule bg-surface-raised p-5 space-y-4">
-          <label className="grid gap-1.5">
-            <span className="text-meta font-semibold text-ink" lang="ne">
-              समाचारको मूल भाग (अंग्रेजी) — वैकल्पिक
-            </span>
-            <textarea
-              value={draft.bodyEn}
-              onChange={(e) => update('bodyEn', e.target.value)}
-              rows={12}
-              lang="en"
-              placeholder="Author-reviewed English translation. Leave empty if not yet translated."
-              className="w-full rounded-md border border-rule bg-surface px-3.5 py-3 text-body-lg leading-relaxed text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
-            />
-          </label>
-        </div>
-
-        <div className="rounded-lg border border-rule bg-surface-raised p-5 space-y-4">
+        <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
           <fieldset>
             <legend className="text-meta font-semibold text-ink" lang="ne">
-              ट्याग
+              ट्याग र लेखक
             </legend>
-            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="ट्याग छान्नुहोस्">
+            <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="ट्याग">
               {tags.map((t) => (
                 <button
                   key={t.slug}
@@ -405,21 +429,13 @@ export function ArticleEditor({
                   {t.nameNe}
                 </button>
               ))}
-              {tags.length === 0 && (
+              {tags.length === 0 ? (
                 <span className="text-caption text-mute" lang="ne">
-                  कुनै ट्याग छैन। पहिले ट्याग व्यवस्थापनमा बनाउनुहोस्।
+                  ट्याग छैन
                 </span>
-              )}
+              ) : null}
             </div>
-          </fieldset>
-        </div>
-
-        <div className="rounded-lg border border-rule bg-surface-raised p-5 space-y-4">
-          <fieldset>
-            <legend className="text-meta font-semibold text-ink" lang="ne">
-              लेखक
-            </legend>
-            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="लेखक छान्नुहोस्">
+            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="लेखक">
               {authors.map((author) => (
                 <button
                   key={author.id}
@@ -435,19 +451,20 @@ export function ArticleEditor({
                   {author.name}
                 </button>
               ))}
-              {authors.length === 0 && (
+              {authors.length === 0 ? (
                 <span className="text-caption text-mute" lang="ne">
-                  कुनै लेखक छैन। पहिले लेखक व्यवस्थापनमा बनाउनुहोस्।
+                  लेखक छैन
                 </span>
-              )}
+              ) : null}
             </div>
           </fieldset>
         </div>
+
+        <div className="border-t border-rule pt-3 lg:hidden">{actionBar}</div>
       </div>
 
-      {/* SIDEBAR — metadata */}
-      <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
-        <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
+      <aside className="space-y-3 lg:sticky lg:top-16 lg:self-start">
+        <div className="rounded-lg border border-rule bg-surface-raised p-3 space-y-3">
           <p className="text-meta font-semibold text-ink" lang="ne">
             प्रकाशन
           </p>
@@ -461,41 +478,18 @@ export function ArticleEditor({
           />
           {draft.workflowStage === 'scheduled' ? (
             <AdminInput
-              label="प्रकाशन समय (तालिका)"
+              label="प्रकाशन समय"
               name="publishedAt"
               type="datetime-local"
               value={draft.publishedAt}
               onChange={(e) => update('publishedAt', e.target.value)}
-              hint="Cron हरेक ५ मिनेटमा यो समय पुगेपछि प्रकाशित गर्छ।"
               required
             />
           ) : null}
-          <div className="flex flex-wrap gap-2 pt-1">
-            <AdminButton onClick={() => save('draft')} variant="secondary" disabled={pending}>
-              ड्राफ्ट सुरक्षित
-            </AdminButton>
-            {canEditArticle && (
-              <AdminButton onClick={() => save('submitted')} variant="secondary" disabled={pending}>
-                पेश गर्नुहोस्
-              </AdminButton>
-            )}
-            {canPublishArticle && (
-              <AdminButton onClick={() => save('published')} disabled={pending}>
-                प्रकाशित गर्नुहोस्
-              </AdminButton>
-            )}
-          </div>
-          {status.kind === 'saving' && (
-            <p className="text-caption text-ink-soft" lang="ne">
-              सुरक्षित हुँदै…
-            </p>
-          )}
+          <div className="hidden lg:block">{actionBar}</div>
         </div>
 
-        <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
-          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
-            वर्गीकरण
-          </p>
+        <div className="rounded-lg border border-rule bg-surface-raised p-3 space-y-3">
           <AdminSelect
             label="विभाग"
             name="category"
@@ -513,9 +507,7 @@ export function ArticleEditor({
             value={draft.slug}
             onChange={(e) => update('slug', e.target.value)}
             required
-            placeholder="url-ma-dekhine-naam"
             lang="en"
-            hint="URL मा देखिने नाम। अंग्रेजी अक्षर र ड्यास मात्र।"
           />
           <AdminSelect
             label="प्रदेश"
@@ -528,170 +520,6 @@ export function ArticleEditor({
             ]}
           />
         </div>
-
-        {canManageHomepage ? (
-        <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
-          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
-            विशेषता
-          </p>
-          <label className="flex items-center gap-2 text-meta text-ink">
-            <input
-              type="checkbox"
-              checked={draft.isBreaking}
-              onChange={(e) => update('isBreaking', e.target.checked)}
-              className="h-4 w-4 rounded border-rule accent-brand"
-            />
-            <span lang="ne">ब्रेकिङ समाचार</span>
-          </label>
-          <AdminSelect
-            label="प्रमुखता"
-            name="featuredState"
-            value={draft.featuredState}
-            onChange={(e) => update('featuredState', e.target.value)}
-            options={[
-              { value: 'none', label: 'सामान्य' },
-              { value: 'lead', label: 'मुख्य समाचार (हीरो)' },
-              { value: 'featured', label: 'विशेष ग्रिड / स्क्रोल ब्यान्ड' },
-              { value: 'secondary', label: 'दोस्रो पंक्ति (आजका अन्य)' },
-            ]}
-          />
-          <p className="text-caption leading-relaxed text-ink-soft" lang="ne">
-            मुख्य = एउटा हीरो। विशेष = माथिको ग्रिड र स्क्रोल ब्यान्ड (४–६)। दोस्रो = दायाँ/साइडबार
-            रेल।
-          </p>
-          {draft.featuredState !== 'none' ? (
-            <AdminInput
-              label="प्रमुखता समाप्ति"
-              name="featuredExpiresAt"
-              type="datetime-local"
-              value={draft.featuredExpiresAt}
-              onChange={(e) => update('featuredExpiresAt', e.target.value)}
-              hint="खाली छोड्दा म्यानुअल हटाएसम्म रहन्छ। समयपछि होमपेजबाट झर्छ, लेख प्रकाशित नै रहन्छ।"
-            />
-          ) : null}
-          <label className="flex items-center gap-2 text-meta text-ink">
-            <input
-              type="checkbox"
-              checked={draft.premium}
-              onChange={(e) => update('premium', e.target.checked)}
-              className="h-4 w-4 rounded border-rule accent-brand"
-            />
-            <span lang="ne">प्रिमियम सामग्री</span>
-          </label>
-          <label className="flex items-center gap-2 text-meta text-ink">
-            <input
-              type="checkbox"
-              checked={draft.commentsEnabled}
-              onChange={(e) => update('commentsEnabled', e.target.checked)}
-              className="h-4 w-4 rounded border-rule accent-brand"
-            />
-            <span lang="ne">टिप्पणी खुला</span>
-          </label>
-        </div>
-        ) : (
-        <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-2">
-          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
-            विशेषता
-          </p>
-          <p className="text-caption text-mute" lang="ne">
-            ब्रेकिङ, प्रमुखता र प्रिमियम प्रकाशक/एडमिनले मात्र सेट गर्छन्।
-          </p>
-          <label className="flex items-center gap-2 text-meta text-ink">
-            <input
-              type="checkbox"
-              checked={draft.commentsEnabled}
-              onChange={(e) => update('commentsEnabled', e.target.checked)}
-              className="h-4 w-4 rounded border-rule accent-brand"
-            />
-            <span lang="ne">टिप्पणी खुला</span>
-          </label>
-        </div>
-        )}
-
-        <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
-          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
-            स्रोत
-          </p>
-          <AdminSelect
-            label="स्रोत प्रकार"
-            name="sourceType"
-            value={draft.sourceType}
-            onChange={(e) => update('sourceType', e.target.value)}
-            options={SOURCE_TYPES}
-            required
-          />
-          {draft.sourceType !== 'original' && (
-            <>
-              <AdminInput
-                label="स्रोतको नाम"
-                name="sourceName"
-                value={draft.sourceName}
-                onChange={(e) => update('sourceName', e.target.value)}
-                lang="ne"
-              />
-              <AdminInput
-                label="स्रोत URL"
-                name="sourceUrl"
-                type="url"
-                value={draft.sourceUrl}
-                onChange={(e) => update('sourceUrl', e.target.value)}
-                lang="en"
-              />
-            </>
-          )}
-        </div>
-
-        {canManageHomepage ? (
-        <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
-          <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="ne">
-            एसइओ
-          </p>
-          <AdminInput
-            label="मेटा शीर्षक"
-            name="seoTitle"
-            value={draft.seoTitle}
-            onChange={(e) => update('seoTitle', e.target.value)}
-            lang="ne"
-            hint="रिक्त भए शीर्षक प्रयोग हुन्छ। ६० अक्षरसम्म।"
-          />
-          <AdminTextarea
-            label="मेटा विवरण"
-            name="seoDescription"
-            value={draft.seoDescription}
-            onChange={(e) => update('seoDescription', e.target.value)}
-            rows={2}
-            lang="ne"
-            hint="१६० अक्षरसम्म। खोज परिणाममा देखिने।"
-          />
-          <AdminTextarea
-            label="AI सारांश (LLMO)"
-            name="aiSummary"
-            value={draft.aiSummary}
-            onChange={(e) => update('aiSummary', e.target.value)}
-            rows={3}
-            lang="ne"
-            hint="AI उत्तर इन्जिनले उद्धृत गर्न सक्ने संक्षिप्त सारांश।"
-          />
-          <label className="flex items-center gap-2 text-meta text-ink">
-            <input
-              type="checkbox"
-              checked={draft.noIndex}
-              onChange={(e) => update('noIndex', e.target.checked)}
-              className="h-4 w-4 rounded border-rule accent-brand"
-            />
-            <span lang="ne">खोजबाट लुकाउने (noindex)</span>
-          </label>
-          <label className="flex items-center gap-2 text-meta text-ink">
-            <input
-              type="checkbox"
-              checked={draft.includeInNewsSitemap}
-              onChange={(e) => update('includeInNewsSitemap', e.target.checked)}
-              className="h-4 w-4 rounded border-rule accent-brand"
-            />
-            <span lang="ne">समाचार साइटम्यापमा समावेश</span>
-          </label>
-        </div>
-        ) : null}
 
         <HeroMediaField
           url={draft.heroImageUrl}
@@ -710,11 +538,154 @@ export function ArticleEditor({
           }
         />
 
-        <div className="flex justify-between gap-2">
-          <AdminButton href="/admin/articles" variant="ghost">
-            <span lang="ne">← सूचीमा फर्कनुहोस्</span>
-          </AdminButton>
-        </div>
+        {canManageHomepage ? (
+          <div className="rounded-lg border border-rule bg-surface-raised p-3 space-y-3">
+            <label className="flex items-center gap-2 text-meta text-ink">
+              <input
+                type="checkbox"
+                checked={draft.isBreaking}
+                onChange={(e) => update('isBreaking', e.target.checked)}
+                className="h-4 w-4 rounded border-rule accent-brand"
+              />
+              <span lang="ne">ब्रेकिङ</span>
+            </label>
+            <AdminSelect
+              label="प्रमुखता"
+              name="featuredState"
+              value={draft.featuredState}
+              onChange={(e) => update('featuredState', e.target.value)}
+              options={[
+                { value: 'none', label: 'सामान्य' },
+                { value: 'lead', label: 'मुख्य (हीरो)' },
+                { value: 'featured', label: 'विशेष' },
+                { value: 'secondary', label: 'दोस्रो पंक्ति' },
+              ]}
+            />
+            {draft.featuredState !== 'none' ? (
+              <AdminInput
+                label="प्रमुखता समाप्ति"
+                name="featuredExpiresAt"
+                type="datetime-local"
+                value={draft.featuredExpiresAt}
+                onChange={(e) => update('featuredExpiresAt', e.target.value)}
+              />
+            ) : null}
+            <label className="flex items-center gap-2 text-meta text-ink">
+              <input
+                type="checkbox"
+                checked={draft.commentsEnabled}
+                onChange={(e) => update('commentsEnabled', e.target.checked)}
+                className="h-4 w-4 rounded border-rule accent-brand"
+              />
+              <span lang="ne">टिप्पणी खुला</span>
+            </label>
+          </div>
+        ) : (
+          <div className="rounded-lg border border-rule bg-surface-raised p-3">
+            <label className="flex items-center gap-2 text-meta text-ink">
+              <input
+                type="checkbox"
+                checked={draft.commentsEnabled}
+                onChange={(e) => update('commentsEnabled', e.target.checked)}
+                className="h-4 w-4 rounded border-rule accent-brand"
+              />
+              <span lang="ne">टिप्पणी खुला</span>
+            </label>
+          </div>
+        )}
+
+        <details className="rounded-lg border border-rule bg-surface-raised p-3">
+          <summary className="cursor-pointer text-meta font-semibold text-ink" lang="ne">
+            स्रोत र एसइओ
+          </summary>
+          <div className="mt-3 space-y-3">
+            <AdminSelect
+              label="स्रोत प्रकार"
+              name="sourceType"
+              value={draft.sourceType}
+              onChange={(e) => update('sourceType', e.target.value)}
+              options={SOURCE_TYPES}
+              required
+            />
+            {draft.sourceType !== 'original' ? (
+              <>
+                <AdminInput
+                  label="स्रोतको नाम"
+                  name="sourceName"
+                  value={draft.sourceName}
+                  onChange={(e) => update('sourceName', e.target.value)}
+                  lang="ne"
+                />
+                <AdminInput
+                  label="स्रोत URL"
+                  name="sourceUrl"
+                  type="url"
+                  value={draft.sourceUrl}
+                  onChange={(e) => update('sourceUrl', e.target.value)}
+                  lang="en"
+                />
+              </>
+            ) : null}
+            {canManageHomepage ? (
+              <>
+                <AdminInput
+                  label="मेटा शीर्षक"
+                  name="seoTitle"
+                  value={draft.seoTitle}
+                  onChange={(e) => update('seoTitle', e.target.value)}
+                  lang="ne"
+                />
+                <AdminTextarea
+                  label="मेटा विवरण"
+                  name="seoDescription"
+                  value={draft.seoDescription}
+                  onChange={(e) => update('seoDescription', e.target.value)}
+                  rows={2}
+                  lang="ne"
+                />
+                <AdminTextarea
+                  label="AI सारांश"
+                  name="aiSummary"
+                  value={draft.aiSummary}
+                  onChange={(e) => update('aiSummary', e.target.value)}
+                  rows={2}
+                  lang="ne"
+                />
+                <label className="flex items-center gap-2 text-meta text-ink">
+                  <input
+                    type="checkbox"
+                    checked={draft.noIndex}
+                    onChange={(e) => update('noIndex', e.target.checked)}
+                    className="h-4 w-4 rounded border-rule accent-brand"
+                  />
+                  <span lang="ne">noindex</span>
+                </label>
+                <label className="flex items-center gap-2 text-meta text-ink">
+                  <input
+                    type="checkbox"
+                    checked={draft.includeInNewsSitemap}
+                    onChange={(e) => update('includeInNewsSitemap', e.target.checked)}
+                    className="h-4 w-4 rounded border-rule accent-brand"
+                  />
+                  <span lang="ne">समाचार साइटम्याप</span>
+                </label>
+                <label className="flex items-center gap-2 text-meta text-ink">
+                  <input
+                    type="checkbox"
+                    checked={draft.premium}
+                    onChange={(e) => update('premium', e.target.checked)}
+                    className="h-4 w-4 rounded border-rule accent-brand"
+                  />
+                  <span lang="ne">प्रिमियम</span>
+                </label>
+              </>
+            ) : null}
+          </div>
+        </details>
+
+        <AdminButton href="/admin/articles" variant="ghost">
+          <span lang="ne">← सूचीमा फर्कनुहोस्</span>
+        </AdminButton>
       </aside>
     </form>
   )

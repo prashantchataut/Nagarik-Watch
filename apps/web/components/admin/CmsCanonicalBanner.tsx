@@ -1,0 +1,59 @@
+import Link from 'next/link'
+import { AdminCallout, AdminButton } from '@/components/admin/primitives'
+import {
+  isPayloadCanonical,
+  payloadCollectionAdminUrl,
+} from '@/lib/content/payload-admin-client'
+
+/** Honest banner when CONTENT_SOURCE=payload — local desk still works. */
+export function CmsCanonicalBanner({
+  collection = 'articles',
+}: {
+  collection?: string
+}) {
+  if (!isPayloadCanonical()) return null
+  const cmsUrl = payloadCollectionAdminUrl(collection)
+  return (
+    <AdminCallout tone="attention" className="mb-4">
+      <p className="text-meta font-semibold text-ink" lang="ne">
+        CONTENT_SOURCE=payload सेट छ। सार्वजनिक साइट CMS बाट पढ्न सक्छ; यो डेस्क भने स्थानीय
+        समाचार स्टोरमा लेख्छ।
+      </p>
+      <p className="mt-1 text-caption text-ink-soft" lang="ne">
+        CMS मा सिधै काम गर्न तलको लिंक खोल्नुहोस्। कटओभर पूरा नभएसम्म स्थानीय सूची र नयाँ समाचार
+        प्रयोग गर्न सकिन्छ।
+      </p>
+      <div className="mt-3">
+        <AdminButton href={cmsUrl} variant="secondary" target="_blank" rel="noopener noreferrer">
+          Payload CMS खोल्नुहोस्
+        </AdminButton>
+      </div>
+    </AdminCallout>
+  )
+}
+
+export function AdminLoadErrorBanner({
+  message,
+  href = '/admin/launch',
+}: {
+  message: string | null
+  href?: string
+}) {
+  if (!message) return null
+  return (
+    <AdminCallout tone="danger" className="mb-4">
+      <p className="text-meta font-semibold text-ink" lang="ne">
+        सामग्री लोड गर्न सकिएन। खाली सूची देखाइएको छ; सुरक्षित/प्रकाशन फेरि प्रयास गर्नुहोस्।
+      </p>
+      <p className="mt-1 break-all font-mono text-caption text-mute" lang="en">
+        {message.slice(0, 280)}
+      </p>
+      <p className="mt-2 text-caption text-ink-soft" lang="ne">
+        <Link href={href} className="font-semibold text-brand-strong underline-offset-2 hover:underline">
+          Launch जाँच
+        </Link>{' '}
+        मा DATABASE_URL र CONTENT_SOURCE हेर्नुहोस्।
+      </p>
+    </AdminCallout>
+  )
+}

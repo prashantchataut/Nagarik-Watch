@@ -17,6 +17,8 @@ import { getAdminDashboardSnapshot } from '@/lib/content/store/json-store'
 import { getMostReadStats, getTrendingSamples } from '@/lib/engagement/store'
 import { getAdEventSummary } from '@/lib/ad-events'
 import { buildStoryEngagementIndex } from '@/lib/ranking-signals'
+import { firstAdminLoadError, safeAdminLoad } from '@/lib/admin/safe-load'
+import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/CmsCanonicalBanner'
 import { AdminButton, AdminCard, AdminMetric } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
@@ -29,16 +31,29 @@ export const dynamic = 'force-dynamic'
 export default async function DashboardPage() {
   const newsroom = await requireNewsroomSession()
 
-  const [snapshot, categories, pendingReviews, mostRead, trendingSamples, adSummaries, engagement] =
+  const [snapshotResult, categoriesResult, pendingReviews, mostRead, trendingSamples, adSummaries, engagement] =
     await Promise.all([
-      getAdminDashboardSnapshot(),
-      getNavCategories(),
+      safeAdminLoad(
+        'dashboard-snapshot',
+        () => getAdminDashboardSnapshot(),
+        {
+          publishedTotal: 0,
+          scheduledCount: 0,
+          breakingCount: 0,
+          recentPublished: [],
+        },
+      ),
+      safeAdminLoad('dashboard-categories', () => getNavCategories(), []),
       listPendingJournalistReviews().catch(() => []),
       getMostReadStats(7, 8).catch(() => []),
       getTrendingSamples(120).catch(() => []),
       getAdEventSummary().catch(() => []),
       buildStoryEngagementIndex(120).catch(() => null),
     ])
+
+  const snapshot = snapshotResult.value
+  const categories = categoriesResult.value
+  const loadError = firstAdminLoadError(snapshotResult, categoriesResult)
 
   const locale: Locale = 'ne'
   const role = newsroom.newsroomRole
@@ -122,6 +137,8 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-5" data-desk={desk}>
+      <CmsCanonicalBanner />
+      <AdminLoadErrorBanner message={loadError} />
       <AdminCard>
         <p className="text-caption text-mute" lang="ne">
           {formatDate(new Date().toISOString(), locale)} · {deskLabel} · {roleLabel}
