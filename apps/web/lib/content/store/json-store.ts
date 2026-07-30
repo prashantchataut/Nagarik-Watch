@@ -710,6 +710,22 @@ export async function updateArticle(
   const articles = [...store.articles]
   articles[idx] = updated
   await write({ ...store, articles })
+
+  const slugChanged =
+    (patch.slug !== undefined && patch.slug !== existing.slug) ||
+    (patch.categorySlug !== undefined && patch.categorySlug !== existing.categorySlug)
+  if (slugChanged) {
+    const { recordSlugRedirect } = await import('@/lib/content/slug-redirects')
+    await recordSlugRedirect({
+      fromCategory: existing.categorySlug,
+      fromSlug: existing.slug,
+      toCategory: updated.categorySlug,
+      toSlug: updated.slug,
+    }).catch((error) => {
+      console.error('[slug-redirect]', error instanceof Error ? error.message : error)
+    })
+  }
+
   return updated
 }
 

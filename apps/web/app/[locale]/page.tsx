@@ -34,6 +34,7 @@ import {
 } from '@/lib/content/homepage-stream'
 import { resolveHomeLayoutBandEvery } from '@/lib/experiments/home-layout'
 import { resolveMostReadStories } from '@/lib/content/most-read-stories'
+import { resolveProvinceHeat } from '@/lib/content/province-heat'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 60
@@ -124,6 +125,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     windowDays: 7,
     minLive: 2,
   })
+  const provinceHeat = await resolveProvinceHeat({ catalog }).catch(() => [])
 
   const today = new Date()
   const monthDay = `${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
@@ -162,14 +164,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
       <div className="mx-auto max-w-page px-3 pt-3 sm:px-4 sm:pt-4">
-        <AdSlot
-          locale={locale}
-          placementKey="home-top"
-          variant="inline"
-          className="mb-4"
-        />
-
-        {/* Front page: lead + also-today — match main grid ratios so the rail does not tower over a short lead. */}
+        {/* Front page first: lead + also-today before commerce. */}
         <section
           className="grid gap-4 border-b border-rule pb-4 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,0.38fr)] xl:items-start xl:gap-5 xl:pb-5"
           aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
@@ -219,7 +214,21 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </aside>
         </section>
 
+        <AdSlot
+          locale={locale}
+          placementKey="home-top"
+          variant="inline"
+          className="mt-4"
+        />
+
         <FeaturedSpotlight stories={spotlightFeatured} locale={locale} className="mt-4" />
+
+        {/* Mobile: ताजा early so readers choose before the category stream. */}
+        <LatestRail
+          stories={latest}
+          locale={locale}
+          className="mt-4 border-y border-rule py-4 xl:hidden"
+        />
 
         <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,0.38fr)] xl:items-start xl:gap-5">
           <div className="min-w-0 space-y-5">
@@ -232,13 +241,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   stories={item.stories}
                   locale={locale}
                   variant={item.variant}
+                  categorySlug={item.categorySlug}
                 />
               ),
             )}
 
             <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="pt-1" />
 
-            <ProvinceHub locale={locale} />
+            <ProvinceHub locale={locale} heat={provinceHeat} />
           </div>
 
           <aside className="hidden min-w-0 xl:block">
@@ -250,12 +260,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
           </aside>
         </div>
-
-        <LatestRail
-          stories={latest}
-          locale={locale}
-          className="mt-5 border-y border-rule py-4 xl:hidden"
-        />
 
         <div className="mt-5 grid gap-5 border-t border-rule pt-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-6 xl:hidden">
           <TodayInBrief stories={briefPool} locale={locale} />

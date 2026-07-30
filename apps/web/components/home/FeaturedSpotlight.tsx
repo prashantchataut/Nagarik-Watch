@@ -23,7 +23,7 @@ export function FeaturedSpotlight({ stories, locale, className = '' }: FeaturedS
       aria-labelledby="featured-spotlight-title"
     >
       <SectionHeader
-        title={english ? 'Featured' : 'विशेष'}
+        title={english ? "Editor's picks" : 'सम्पादकीय चयन'}
         locale={locale}
         titleLang={english ? 'en' : 'ne'}
       />

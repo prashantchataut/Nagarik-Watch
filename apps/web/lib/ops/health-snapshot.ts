@@ -19,6 +19,7 @@ export const EXPECTED_CRON_JOBS: CronJobExpectation[] = [
   { job: 'ops-probe', label: 'Ops anomaly probe', intervalMinutes: 30 },
   { job: 'scheduled-publish', label: 'Scheduled article publish', intervalMinutes: 10 },
   { job: 'breaking-auto-boost', label: 'Breaking auto-boost', intervalMinutes: 30 },
+  { job: 'house-ad-promote', label: 'House-ad A/B winner promote', intervalMinutes: 6 * 60 },
 ]
 
 export type PoolSnapshot = {

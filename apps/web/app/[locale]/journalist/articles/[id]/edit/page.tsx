@@ -7,6 +7,7 @@ import { getNewsroomSession } from '@/lib/auth/session'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { CONTRIBUTOR_ROLES, NEWSROOM_ROLE_LABELS_EN, NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
 import { getJournalistDraftMeta, listJournalistDraftRevisions } from '@/lib/journalist-workspace'
+import { revisionSimilarity } from '@/lib/journalist/desk-scoring'
 import { findArticleForAdmin } from '@/lib/content/store/json-store'
 import { getPayloadJournalistDraft, isPayloadCanonical } from '@/lib/content/payload-admin-client'
 import { shorthandFromBlocks } from '@/lib/content/blocks'
@@ -49,15 +50,24 @@ export default async function JournalistEditPage({ params }: { params: Promise<{
         tags={tags}
         mode="edit"
         articleId={meta.articleId || meta.articleSlug}
-        revisions={revisions.map((revision) => ({
-          id: revision.id,
-          actorRole: revision.actorRole,
-          action: revision.action,
-          stage: revision.stage,
-          createdAt: revision.createdAt,
-          contentHash: revision.contentHash,
-          titleNe: revision.snapshot.titleNe,
-        }))}
+        revisions={revisions.map((revision, index) => {
+          const previous = revisions[index + 1]
+          const similarity = previous
+            ? revisionSimilarity(previous.snapshot.bodyNe, revision.snapshot.bodyNe)
+            : undefined
+          return {
+            id: revision.id,
+            actorRole: revision.actorRole,
+            action: revision.action,
+            stage: revision.stage,
+            createdAt: revision.createdAt,
+            contentHash: revision.contentHash,
+            titleNe: revision.snapshot.titleNe,
+            deckNe: revision.snapshot.deckNe,
+            bodyNe: revision.snapshot.bodyNe,
+            similarityToPrevious: similarity,
+          }
+        })}
         initial={{
           titleNe: article.titleNe,
           titleEn: article.titleEn || '',

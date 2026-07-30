@@ -43,6 +43,9 @@ type Props = {
     createdAt: string
     contentHash: string
     titleNe: string
+    bodyNe?: string
+    deckNe?: string
+    similarityToPrevious?: number
   }>
 }
 
@@ -437,18 +440,41 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
           <section className="newsroom-distribution-brief"><h3>{ne ? 'यो समाचार कसरी पुग्छ' : 'How this story can travel'}</h3><dl><div><dt>{ne ? 'विभाग' : 'Desk'}</dt><dd>{categories.find((item) => item.slug === draft.categorySlug)?.[ne ? 'nameNe' : 'nameEn'] || draft.categorySlug || '—'}</dd></div><div><dt>{ne ? 'समाचार ट्याग' : 'Story tags'}</dt><dd>{selectedTags.length ? selectedTags.map((tag) => ne ? tag.nameNe : tag.nameEn || tag.nameNe).join(' · ') : (ne ? 'छानिएको छैन' : 'None selected')}</dd></div><div><dt>{ne ? 'सूचना प्रस्ताव' : 'Alert proposal'}</dt><dd>{draft.notificationMode === 'breaking' ? (ne ? 'ब्रेकिङ समीक्षा' : 'Breaking review') : draft.notificationMode === 'followers' ? (ne ? 'सम्बन्धित पाठक' : 'Matching followers') : (ne ? 'सूचना छैन' : 'No alert')}</dd></div>{draft.notificationMode !== 'none' ? <div><dt>{ne ? 'लक्षित विषय' : 'Audience topics'}</dt><dd>{alertAudienceTags.length ? alertAudienceTags.map((tag) => ne ? tag.nameNe : tag.nameEn || tag.nameNe).join(' · ') : (ne ? 'समाचार ट्यागबाट स्वतः' : 'Inherited from story tags')}</dd></div> : null}</dl><p>{ne ? 'यो रिपोर्टरको सिफारिस मात्र हो। प्रकाशन, ब्रेकिङ स्थिति र वास्तविक सूचना पठाउने निर्णय सम्पादकीय gate पछि मात्र हुन्छ।' : 'This is a reporter recommendation. Publication, breaking status and actual delivery remain behind the editorial gate.'}</p></section>
           {initial?.workflowStage ? <section><h3>{ne ? 'कार्यप्रवाह' : 'Workflow'}</h3><strong className="newsroom-studio__stage">{initial.workflowStage}</strong>{initial.workflowStage === 'submitted' ? <p>{ne ? 'सम्पादकले समीक्षा गरिरहेका छन्। संशोधन चाहिँदा प्रतिक्रिया डेस्कमा देखिन्छ।' : 'An editor is reviewing this story. Revision requests appear in the feedback desk.'}</p> : null}</section> : null}
           {mode === 'edit' ? <section className="newsroom-revisions">
-            <h3>{ne ? 'संशोधन इतिहास' : 'Revision history'}</h3>
-            {revisions.length ? <ol>{revisions.map((revision) => {
+            <h3>{ne ? 'संशोधन तुलना' : 'Revision compare'}</h3>
+            {revisions.length ? <ol>{revisions.map((revision, index) => {
               const action = revision.action === 'submitted'
                 ? (ne ? 'समीक्षामा पठाइयो' : 'Submitted for review')
                 : revision.action === 'returned'
                   ? (ne ? 'सम्पादकले फिर्ता पठाए' : 'Returned by editor')
                   : (ne ? 'ड्राफ्ट सुरक्षित' : 'Draft saved')
+              const previous = revisions[index + 1]
+              const overlap =
+                typeof revision.similarityToPrevious === 'number'
+                  ? Math.round(revision.similarityToPrevious * 100)
+                  : null
+              const wordDelta =
+                previous?.bodyNe && revision.bodyNe
+                  ? revision.bodyNe.trim().split(/\s+/).filter(Boolean).length -
+                    previous.bodyNe.trim().split(/\s+/).filter(Boolean).length
+                  : null
               return <li key={revision.id}>
                 <strong>{action}</strong>
                 <span>{new Date(revision.createdAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}</span>
                 <small>{revision.actorRole} · {revision.stage} · {revision.contentHash.slice(0, 10)}</small>
                 <p>{revision.titleNe}</p>
+                {revision.deckNe ? <p className="newsroom-revisions__deck">{revision.deckNe}</p> : null}
+                {overlap !== null ? (
+                  <p>
+                    {ne ? 'अघिल्लो संस्करणसँग सामग्री समानता' : 'Overlap with previous version'}: {overlap}%
+                    {wordDelta !== null ? ` · ${wordDelta >= 0 ? '+' : ''}${wordDelta} ${ne ? 'शब्द' : 'words'}` : ''}
+                  </p>
+                ) : null}
+                {revision.bodyNe ? (
+                  <details>
+                    <summary>{ne ? 'पाठ हेर्नुहोस्' : 'View text'}</summary>
+                    <pre className="newsroom-revisions__body">{revision.bodyNe.slice(0, 4000)}</pre>
+                  </details>
+                ) : null}
               </li>
             })}</ol> : <p>{ne ? 'अर्को सुरक्षित वा पेश गरिएको संस्करण यहाँ देखिनेछ।' : 'The next saved or submitted version will appear here.'}</p>}
           </section> : null}

@@ -49,7 +49,7 @@ export function LatestRail({ stories, locale, className, compact = false }: Late
               story={story}
               locale={locale}
               compact={compact}
-              showDeck={!compact}
+              showDeck
               showDateline={!compact}
               thumb="sm"
             />

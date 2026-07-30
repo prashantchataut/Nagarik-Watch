@@ -5,6 +5,7 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { AD_PLACEMENTS, getAdMode, isAdPlacementKey, isNetworkAdsReady } from '@/lib/ads'
 import { getAdEventSummary } from '@/lib/ad-events'
 import { listHouseAds, upsertHouseAd } from '@/lib/house-ads'
+import { promoteHouseAdWinners } from '@/lib/ads/house-ad-promote'
 import { deliveryCoverage, fillRateAnomaly } from '@/lib/ads/yield-local'
 import { AdminPageHeader, AdminCard, AdminButton, AdminInput, AdminSelect, AdminMetric, AdminTable } from '@/components/admin/primitives'
 
@@ -52,10 +53,32 @@ async function saveHouseAd(formData: FormData) {
   }
 }
 
+async function promoteHouseAdWinnersAction() {
+  'use server'
+  try {
+    const session = await requireNewsroomSession()
+    if (!['ad_manager', 'publisher', 'admin', 'super_admin'].includes(session.newsroomRole)) {
+      redirect('/admin/ads?error=permission')
+    }
+    const result = await promoteHouseAdWinners()
+    revalidatePath('/admin/ads')
+    revalidatePath('/admin/experiments')
+    redirect(
+      result.promoted.length > 0
+        ? `/admin/ads?promoted=${result.promoted.length}`
+        : '/admin/ads?promoted=0',
+    )
+  } catch (error) {
+    if (error && typeof error === 'object' && 'digest' in error) throw error
+    console.error('[admin/ads] promote failed', error instanceof Error ? error.message : error)
+    redirect('/admin/ads?error=promote')
+  }
+}
+
 export default async function AdsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string; error?: string }>
+  searchParams: Promise<{ saved?: string; error?: string; promoted?: string }>
 }) {
   await requireNewsroomSession()
   const params = await searchParams
@@ -92,6 +115,17 @@ export default async function AdsPage({
           House ad सुरक्षित भयो। Active छ भने सार्वजनिक पृष्ठमा देखिन्छ।
         </p>
       ) : null}
+      {params.promoted !== undefined ? (
+        <p
+          role="status"
+          className="mb-4 rounded-md border border-up/30 bg-brand-tint/50 px-4 py-3 text-meta font-semibold text-brand-strong"
+          lang="ne"
+        >
+          {Number(params.promoted) > 0
+            ? `${params.promoted} placement मा A/B विजेता प्रवर्द्धन भयो।`
+            : 'अहिले प्रवर्द्धन गर्ने विजेता छैन (नमूना अपर्याप्त वा A/B बन्द)।'}
+        </p>
+      ) : null}
       {params.error ? (
         <p
           role="alert"
@@ -102,7 +136,9 @@ export default async function AdsPage({
             ? 'यो भूमिकाबाट विज्ञापन सुरक्षित गर्न मिल्दैन।'
             : params.error === 'placement'
               ? 'Placement चयन गलत छ।'
-              : 'House ad सुरक्षित गर्न सकिएन। DATABASE_URL र ops schema जाँच गर्नुहोस्।'}
+              : params.error === 'promote'
+                ? 'A/B विजेता प्रवर्द्धन गर्न सकिएन।'
+                : 'House ad सुरक्षित गर्न सकिएन। DATABASE_URL र ops schema जाँच गर्नुहोस्।'}
         </p>
       ) : null}
       <div className="mb-5 grid gap-4 lg:grid-cols-[1fr_0.7fr]">
@@ -281,9 +317,18 @@ export default async function AdsPage({
               </div>
             </div>
           </div>
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-6 flex flex-wrap items-center gap-3">
             <AdminButton type="submit">Save house ad</AdminButton>
           </div>
+        </form>
+        <form action={promoteHouseAdWinnersAction} className="mt-3">
+          <AdminButton type="submit" variant="secondary">
+            Promote A/B winners now
+          </AdminButton>
+          <p className="mt-2 text-caption text-mute" lang="en">
+            Collapses placements with a Bayesian winner to the winning creative and turns A/B off.
+            Also runs every 6 hours via cron.
+          </p>
         </form>
       </AdminCard>
 

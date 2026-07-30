@@ -116,7 +116,9 @@ export function DenseStoryItem({
 
         {showDeck && deck ? (
           <p
-            className="mt-1 line-clamp-2 text-caption leading-relaxed text-ink-soft sm:text-meta"
+            className={`mt-1 text-caption leading-relaxed text-ink-soft sm:text-meta ${
+              compact ? 'line-clamp-1' : 'line-clamp-2'
+            }`}
             lang={titleLang}
           >
             {deck}

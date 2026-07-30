@@ -17,9 +17,11 @@ Track user-visible capabilities only. `VERIFIED` requires the acceptance test na
 | Scheduled publish worker | IN PROGRESS | `/api/cron/scheduled-publish`, `lib/editorial/scheduled-publish.ts`, vercel cron `*/5` | Deploy + heartbeat verify |
 | Morning brief → newsletter draft | IN PROGRESS | `/api/cron/digest-compose` (draft by default; `DIGEST_SEND_NOW` to send) | Desk review UI polish |
 | Breaking auto-boost + kill switch | IN PROGRESS | `/api/cron/breaking-auto-boost`, setting `editorial.breakingAutoBoost` | Tune thresholds with live traffic |
-| House-ad A/B (CTR) | IN PROGRESS | `house-ads` challenger + experiments store | Winner auto-promote optional |
+| House-ad A/B + winner promote | IN PROGRESS | `house-ads` challenger, `/api/cron/house-ad-promote`, admin Promote button | Live CTR volume for Bayesian winners |
+| Slug redirect on rename | IN PROGRESS | `lib/content/slug-redirects.ts`, article page `permanentRedirect` | Payload-mode rename path |
+| Province heat strip | IN PROGRESS | `lib/content/province-heat.ts`, homepage `ProvinceHub` | Needs tagged province + live readers |
 | Payload canonical cutover checklist | IN PROGRESS | `lib/content/payload-cutover.ts`, `/admin/launch` | Flip `CONTENT_SOURCE` when CMS ready |
-| Revision compare UI | NOT STARTED | revision list on journalist edit | Admin diff view |
+| Revision compare UI | IN PROGRESS | journalist edit overlap % + body preview | Side-by-side admin diff optional |
 
 ## Commands
 

@@ -1702,6 +1702,28 @@
   .newsroom-revisions li span { margin-top: .1rem; color: var(--ink-soft); font-size: .7rem; }
   .newsroom-revisions li small { margin-top: .2rem; color: var(--mute); font-family: ui-monospace, monospace; font-size: .6rem; }
   .newsroom-revisions li p { margin-top: .3rem; color: var(--ink); font-size: .78rem; }
+  .newsroom-revisions__deck { color: var(--ink-soft) !important; font-size: .72rem !important; }
+  .newsroom-revisions__body {
+    margin-top: .4rem;
+    max-height: 12rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    padding: .55rem .65rem;
+    font-family: inherit;
+    font-size: .7rem;
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+  .newsroom-revisions details { margin-top: .35rem; }
+  .newsroom-revisions summary {
+    cursor: pointer;
+    color: var(--brand-strong);
+    font-size: .7rem;
+    font-weight: 600;
+  }
   .newsroom-grid { display: grid; gap: .85rem; }
   .newsroom-field { display: grid; gap: .35rem; margin-bottom: 1rem; }
   .newsroom-field > span, .newsroom-tag-picker legend, .newsroom-radio legend { color: var(--ink); font-size: .72rem; font-weight: 850; }

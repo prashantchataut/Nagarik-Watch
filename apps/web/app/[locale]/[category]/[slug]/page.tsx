@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { Byline, CategoryLabel } from '@nagarikwatch/ui'
 import { formatDate, type ArticleBlock } from '@nagarikwatch/db'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getArticleBySlug, getStories } from '@/lib/content'
+import { resolveSlugRedirect } from '@/lib/content/slug-redirects'
 import { relatedByContent } from '@/lib/ranking'
 import { ArticleBody, CorrectionNotice, TagRow } from '@/components/article/ArticleBody'
 import { ArticleJsonLd } from '@/components/article/ArticleJsonLd'
@@ -28,7 +29,11 @@ import { publicShareImageUrl } from '@/lib/seo/share-image'
 
 
 import { staticArticleParams } from '@/lib/static-export-params'
-export const dynamic = 'force-static'
+export const dynamic =
+  process.env.NEXT_PUBLIC_STATIC_EXPORT === '1' || process.env.CF_PAGES_STATIC === '1'
+    ? 'force-static'
+    : 'force-dynamic'
+export const revalidate = 60
 
 export function generateStaticParams() {
   return staticArticleParams()
@@ -118,7 +123,13 @@ export default async function ArticlePage({
   const locale = asLocale(raw)
   const english = locale === 'en'
   const article = await getArticleBySlug(category, slug, locale)
-  if (!article) notFound()
+  if (!article) {
+    const dest = await resolveSlugRedirect(category, slug).catch(() => null)
+    if (dest) {
+      permanentRedirect(localizeHref(locale, `/${dest.category}/${dest.slug}`))
+    }
+    notFound()
+  }
   // English locale without a reviewed translation: serve Nepali with an honest notice
   // and a one-click switch back to the Nepali URL, instead of a hard dead-end 404.
   const englishMissing = english && !article.hasEnglish
