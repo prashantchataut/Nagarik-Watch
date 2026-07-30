@@ -1,11 +1,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import type { ArticleBlock, Correction, Locale, SourceAttribution, Tag } from '@nagarikwatch/db'
-import { cn } from '@nagarikwatch/ui'
+import type { ArticleBlock, Locale, SourceAttribution, Tag } from '@nagarikwatch/db'
+import { cn, CorrectionNotice as UiCorrectionNotice } from '@nagarikwatch/ui'
 import { AttributionLine } from './AttributionLine'
 import { AdSlot } from '@/components/AdSlot'
 import { isAdPlacementKey } from '@/lib/ads'
 import { localizeHref } from '@/lib/i18n/locales'
+
+export { UiCorrectionNotice as CorrectionNotice }
 
 type ArticleBodyProps = {
   blocks: ArticleBlock[]
@@ -58,49 +60,6 @@ export function ArticleBody({ blocks, locale, source, className }: ArticleBodyPr
   )
 }
 
-export function CorrectionNotice({
-  corrections,
-  locale,
-  className,
-}: {
-  corrections: Correction[]
-  locale: Locale
-  className?: string
-}) {
-  if (!corrections.length) return null
-  const lang = locale === 'en' ? 'en' : 'ne'
-  const heading = locale === 'en' ? 'Corrections and updates' : 'सच्याइएका विवरण'
-  const label = locale === 'en' ? 'Updated' : 'अद्यावधिक'
-  return (
-    <aside
-      className={cn(
-        'border border-rule bg-brand-tint px-4 py-3 text-sm text-ink',
-        className,
-      )}
-      aria-labelledby="corrections-heading"
-      lang={lang}
-    >
-      <h2 id="corrections-heading" className="font-display text-base font-semibold text-ink">
-        {heading}
-      </h2>
-      <ul className="mt-2 space-y-2">
-        {corrections.map((correction, idx) => {
-          const summary =
-            locale === 'en' && correction.summaryEn ? correction.summaryEn : correction.summaryNe
-          return (
-            <li key={`${correction.at}-${idx}`} className="leading-relaxed text-ink-soft">
-              <time dateTime={correction.at} className="font-semibold text-ink">
-                {label}: {formatCorrectionDate(correction.at, locale)}
-              </time>
-              <span className="text-ink-soft">, {summary}</span>
-            </li>
-          )
-        })}
-      </ul>
-    </aside>
-  )
-}
-
 export function TagRow({
   tags,
   locale,
@@ -136,15 +95,6 @@ export function TagRow({
       })}
     </nav>
   )
-}
-
-function formatCorrectionDate(value: string, locale: Locale) {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'ne-NP', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date)
 }
 
 function BlockRenderer({
@@ -204,10 +154,15 @@ function BlockRenderer({
       const quote = locale === 'en' && block.quoteEn ? block.quoteEn : block.quoteNe
       const quoteLang = locale === 'en' && block.quoteEn ? 'en' : 'ne'
       return (
-        <blockquote className="my-4 bg-brand-tint px-5 py-6" lang={quoteLang}>
-          <p className="font-display text-h2 leading-tight text-ink">{quote}</p>
+        <blockquote
+          className="my-5 border border-rule bg-brand-tint px-4 py-4 sm:px-5 sm:py-5"
+          lang={quoteLang}
+        >
+          <p className="font-display text-body-lg font-bold leading-snug text-ink sm:text-h3">
+            {quote}
+          </p>
           {block.attribution && (
-            <footer className="mt-3 text-meta font-semibold text-brand-strong">
+            <footer className="mt-2.5 text-meta font-semibold text-brand-strong">
               <cite className="not-italic">{block.attribution}</cite>
             </footer>
           )}

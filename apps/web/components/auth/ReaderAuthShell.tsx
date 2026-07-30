@@ -79,7 +79,10 @@ const copy: Record<AuthMode, AuthCopy> = {
   },
 }
 
-/** Calm reader auth layout: light form first; editorial panel only on large screens. */
+/**
+ * Reader auth Operate shell: form-first on mobile, civic brief on large screens.
+ * Role switch keeps reader / reporter / admin entrances honest and findable.
+ */
 export function ReaderAuthShell({
   locale,
   mode,
@@ -91,13 +94,18 @@ export function ReaderAuthShell({
 }) {
   const ne = locale === 'ne'
   const content = copy[mode]
+  const showRoleSwitch = mode === 'login' || mode === 'signup'
 
   return (
     <div className="auth-shell">
       <aside className="auth-editorial" aria-hidden="true">
+        <p className="auth-editorial__kicker" lang={ne ? 'ne' : 'en'}>
+          {ne ? 'नागरिक वाच' : 'Nagarik Watch'}
+        </p>
         <p className="auth-editorial__eyebrow" lang={ne ? 'ne' : 'en'}>
           {ne ? content.panelTitleNe : content.panelTitleEn}
         </p>
+        <span className="auth-editorial__rule" aria-hidden="true" />
         <p className="auth-editorial__lede" lang={ne ? 'ne' : 'en'}>
           {ne ? content.panelBodyNe : content.panelBodyEn}
         </p>
@@ -111,9 +119,23 @@ export function ReaderAuthShell({
           >
             <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
           </Link>
+
+          {showRoleSwitch ? (
+            <nav className="auth-role-switch" aria-label={ne ? 'लगइन प्रकार' : 'Sign-in type'}>
+              <Link href={localizeHref(locale, '/auth/login')} aria-current="page" className="is-active">
+                {ne ? 'पाठक' : 'Reader'}
+              </Link>
+              <Link href={localizeHref(locale, '/journalist/login')}>
+                {ne ? 'पत्रकार' : 'Reporter'}
+              </Link>
+              <Link href="/admin/login">{ne ? 'एडमिन' : 'Admin'}</Link>
+            </nav>
+          ) : null}
+
           <h1 className="auth-form-wrap__title" lang={ne ? 'ne' : 'en'}>
             {ne ? content.formTitleNe : content.formTitleEn}
           </h1>
+          <span className="auth-form-wrap__underline" aria-hidden="true" />
           <p className="auth-form-wrap__lede" lang={ne ? 'ne' : 'en'}>
             {ne ? content.formBodyNe : content.formBodyEn}
           </p>

@@ -45,8 +45,8 @@ export function TopicsStrip({
                   aria-current={active ? 'page' : undefined}
                   className={
                     active
-                      ? 'inline-flex min-h-9 items-center gap-1.5 rounded-sm bg-brand-tint px-2 text-caption font-bold text-brand-strong'
-                      : 'inline-flex min-h-9 items-center gap-1.5 rounded-sm px-2 text-caption font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint/60 hover:text-ink'
+                      ? 'inline-flex min-h-9 items-center gap-1.5 border-b-2 border-brand px-1.5 text-caption font-bold text-brand-strong'
+                      : 'inline-flex min-h-9 items-center gap-1.5 border-b-2 border-transparent px-1.5 text-caption font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:text-ink'
                   }
                 >
                   {topic.imageUrl ? (

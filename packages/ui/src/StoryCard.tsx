@@ -61,9 +61,16 @@ function isPublicMembershipEnabled(): boolean {
 }
 
 function PremiumBadge({ locale }: { locale: Locale }) {
+  const english = locale === 'en'
   return (
-    <span className="inline-flex rounded-sm bg-ink px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-surface">
-      {locale === 'en' ? 'Premium' : 'सदस्य'}
+    <span
+      className={cn(
+        'inline-flex rounded-sm bg-ink px-2 py-0.5 text-[0.65rem] font-bold text-surface',
+        english ? 'uppercase tracking-[0.06em]' : 'tracking-normal',
+      )}
+      lang={english ? 'en' : 'ne'}
+    >
+      {english ? 'Premium' : 'सदस्य'}
     </span>
   )
 }

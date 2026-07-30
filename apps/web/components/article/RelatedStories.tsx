@@ -1,6 +1,6 @@
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
-import { StoryCard } from '@nagarikwatch/ui'
 import { getDictionary } from '@/lib/i18n/dictionaries'
+import { DenseStoryItem } from '@/components/home/DenseStoryItem'
 
 type RelatedStoriesProps = {
   stories: StoryCardData[]
@@ -17,18 +17,18 @@ export function RelatedStories({ stories, locale, className }: RelatedStoriesPro
 
   return (
     <section className={className} aria-label={dict.relatedStories}>
-      <div className="border-b border-rule pb-3">
-        <h2 className="font-display text-h3 font-extrabold text-ink sm:text-h2" lang={lang}>
+      <div className="border-b border-rule pb-2">
+        <h2 className="font-display text-h3 font-extrabold text-ink" lang={lang}>
           {locale === 'en' ? 'Read next' : 'अब के पढ्ने'}
         </h2>
         <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
       </div>
-      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] lg:gap-8">
-        {lead ? <StoryCard story={lead} locale={locale} variant="featured" /> : null}
+      <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(16rem,0.9fr)] lg:gap-5">
+        {lead ? <DenseStoryItem story={lead} locale={locale} thumb="lg" showDeck /> : null}
         <ol className="divide-y divide-rule border-y border-rule">
           {rest.map((story) => (
-            <li key={story.slug} className="py-3 first:pt-0 last:pb-0">
-              <StoryCard story={story} locale={locale} variant="horizontal" />
+            <li key={story.slug} className="py-2.5 first:pt-0 last:pb-0">
+              <DenseStoryItem story={story} locale={locale} thumb="sm" showDeck={false} />
             </li>
           ))}
         </ol>

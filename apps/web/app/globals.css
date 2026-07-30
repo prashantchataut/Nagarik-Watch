@@ -934,7 +934,21 @@
 @layer components {
   .skip-link { position: fixed; left: 1rem; top: 1rem; z-index: 100; transform: translateY(-180%); border: 1px solid var(--brand); background: var(--surface); padding: .65rem 1rem; font-weight: 800; color: var(--brand-strong); }
   .skip-link:focus { transform: translateY(0); }
-  .section-kicker { color: var(--brand-strong); font-size: .74rem; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
+  /* Latin-only costume tracking; Devanagari stays sentence case (AGENTS.md). */
+  .section-kicker {
+    color: var(--brand-strong);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .section-kicker:lang(ne),
+  .section-kicker[lang='ne'] {
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 700;
+    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+  }
   .editorial-link { font-weight: 750; color: var(--brand-strong); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .22em; }
   .editorial-empty { border-block: 1px solid var(--rule); padding: 2rem 0; color: var(--ink-soft); line-height: 1.7; }
   .section-masthead { display: grid; gap: .75rem; border-block: 1px solid var(--rule); padding: 1.4rem 0; }

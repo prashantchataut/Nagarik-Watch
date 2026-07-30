@@ -86,7 +86,7 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
     >
       {/* Band 1 — Brand bar (paper in light, black in dark) */}
       <div className="nw-masthead__chrome border-b border-chrome-rule bg-chrome text-on-chrome">
-        <div className="mx-auto flex max-w-page items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3">
+        <div className="mx-auto flex max-w-page items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4 sm:py-3.5">
           <div className="flex shrink-0 items-center gap-1 md:hidden">
             <MobileNav locale={locale} navCategories={navCategories} account={account} />
           </div>
@@ -96,7 +96,7 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
             className="nw-masthead__logo min-w-0 shrink rounded-md transition-opacity duration-fast ease-out-quint hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             aria-label={dict.siteName}
           >
-            <Logo siteName={dict.siteName} tone="chrome" className="max-w-[11rem] sm:max-w-[15rem]" />
+            <Logo siteName={dict.siteName} tone="chrome" className="max-w-[13rem] sm:max-w-[17rem]" />
           </Link>
 
           <div className="ml-auto flex min-w-0 items-center justify-end gap-0.5 sm:gap-1">

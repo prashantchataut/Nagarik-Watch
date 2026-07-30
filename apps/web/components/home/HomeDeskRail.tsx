@@ -1,3 +1,7 @@
+/**
+ * DEPRECATED — DO NOT MOUNT ON HOMEPAGE.
+ * Category scan lives in masthead primary nav, TopicsStrip, and BottomNav.
+ */
 import Link from 'next/link'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'

@@ -27,9 +27,9 @@ export function RankedStoryList({ stories, locale, startRank = 1 }: RankedStoryL
   if (!stories.length) return null
 
   return (
-    <ol className="mt-5 divide-y divide-rule border-y border-rule sm:mt-6">
+    <ol className="mt-3 divide-y divide-rule border-y border-rule sm:mt-4">
       {stories.map((story, index) => (
-        <li key={story.id} className="py-3 sm:py-3.5">
+        <li key={story.id} className="py-2.5 sm:py-3">
           <DenseStoryItem
             story={story}
             locale={locale}

@@ -9,27 +9,28 @@ export default async function NotFound() {
   const categories = await getNavCategories().catch(() => [])
 
   return (
-    <main className="mx-auto min-h-[70vh] max-w-page px-4 py-10 sm:py-14">
-      <header className="border-b border-rule pb-6">
+    <main className="mx-auto min-h-[70vh] max-w-page px-4 py-8 sm:py-10">
+      <header className="border-b border-rule pb-4">
         <Link href="/" className="inline-flex items-center gap-3 text-ink hover:text-brand-strong" lang="ne">
           <Logo className="h-8 w-auto" />
           <span className="sr-only">नागरिक वाच</span>
         </Link>
       </header>
 
-      <div className="max-w-body py-10">
-        <p className="text-meta font-semibold text-brand-strong" lang="ne">
+      <div className="max-w-body py-6">
+        <p className="text-meta font-extrabold text-brand-strong" lang="ne">
           पृष्ठ फेला परेन
         </p>
-        <h1 className="mt-3 font-display text-h1 font-bold tracking-[-0.02em] text-ink text-wrap-balance" lang="ne">
+        <h1 className="mt-1.5 font-display text-[clamp(1.5rem,3.5vw,2.1rem)] font-extrabold tracking-tight text-ink text-wrap-balance" lang="ne">
           {ne.notFoundHeading}
         </h1>
-        <p className="mt-4 text-body-lg leading-relaxed text-ink-soft" lang="ne">
+        <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
+        <p className="mt-3 text-body leading-relaxed text-ink-soft" lang="ne">
           {ne.notFoundBody}
         </p>
       </div>
 
-      <section className="grid gap-10 border-t border-rule py-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
+      <section className="grid gap-8 border-t border-rule py-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div>
           <h2 className="font-display text-h2 font-bold text-ink" lang="ne">
             समाचार खोज्नुहोस्

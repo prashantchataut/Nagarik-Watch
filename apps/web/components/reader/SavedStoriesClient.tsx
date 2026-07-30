@@ -175,7 +175,7 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
   }
 
   return (
-    <div className="mx-auto max-w-page px-3 py-6 sm:px-4 sm:py-8">
+    <div className="mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5">
       <HubIndexHeader
         title={ne ? 'सुरक्षित समाचार' : 'Saved stories'}
         lead={

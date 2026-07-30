@@ -79,7 +79,7 @@ export function Logo({
       <span className={cn('flex flex-col leading-none', stacked && 'items-center text-center')}>
         <span
           className={cn(
-            'font-display text-[1.35rem] font-black tracking-[-0.035em] sm:text-[1.75rem]',
+            'font-display text-[1.5rem] font-black leading-[1.05] tracking-[-0.03em] sm:text-[1.9rem]',
             titleClass,
           )}
           lang={siteNameLang}
@@ -88,7 +88,7 @@ export function Logo({
         </span>
         <span
           className={cn(
-            'mt-1 border-t-2 border-brand pt-1 text-[0.55rem] font-black uppercase tracking-[0.22em] sm:text-[0.6rem]',
+            'mt-1 border-t-2 border-brand pt-1 font-sans text-[0.58rem] font-semibold tracking-[0.04em] sm:text-[0.62rem]',
             subClass,
           )}
           lang="en"

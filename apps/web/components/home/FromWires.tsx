@@ -1,3 +1,7 @@
+/**
+ * DEPRECATED — DO NOT MOUNT ON HOMEPAGE.
+ * Latest rail + category desks own this job.
+ */
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import { getStories } from '@/lib/content'
 import { localizeHref } from '@/lib/i18n/locales'
@@ -17,7 +21,7 @@ export async function FromWires({ locale, className }: { locale: Locale; classNa
       <div className="flex items-end justify-between gap-4 border-b border-rule pb-3">
         <div>
           <p
-            className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
+            className="text-caption font-bold uppercase tracking-[0.06em] text-brand-strong"
             lang="en"
           >
             News Desk

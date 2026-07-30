@@ -14,6 +14,7 @@ import {
 import { AdTracker } from '@/components/ads/AdTracker'
 import { HouseAdLink } from '@/components/ads/HouseAdLink'
 import { NetworkAdUnit } from '@/components/ads/NetworkAdUnit'
+import { SponsoredBadge } from '@nagarikwatch/ui'
 import { getHouseAd, houseAdExperimentId, type HouseAdCreative } from '@/lib/house-ads'
 import { assignAndRecordExperiment } from '@/lib/experiments/store'
 
@@ -111,9 +112,20 @@ export async function AdSlot({
         }
       >
         <div>
-          <span className="text-caption font-bold uppercase tracking-[0.16em] text-ink-soft">
-            {adLabel}
-          </span>
+          {resolvedVariant === 'native' ? (
+            <SponsoredBadge locale={locale} className="mb-1" />
+          ) : (
+            <span
+              className={
+                locale === 'en'
+                  ? 'text-caption font-bold uppercase tracking-[0.06em] text-ink-soft'
+                  : 'text-caption font-bold text-ink-soft'
+              }
+              lang={lang}
+            >
+              {adLabel}
+            </span>
+          )}
         </div>
         {mode === 'house' && creative ? (
           <HouseAdLink

@@ -94,27 +94,27 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
     'text-meta text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong sm:text-body'
 
   return (
-    <footer className="mt-10 border-t border-rule bg-chrome text-on-chrome pb-[4.5rem] lg:pb-6">
-      <div className="mx-auto max-w-page px-4 py-7 sm:py-8">
-        <div className="flex flex-col gap-4 border-b border-chrome-rule pb-6 sm:flex-row sm:items-end sm:justify-between">
+    <footer className="mt-8 border-t border-rule bg-chrome text-on-chrome pb-[4.5rem] lg:pb-5">
+      <div className="mx-auto max-w-page px-3 py-6 sm:px-4 sm:py-7">
+        <div className="flex flex-col gap-3 border-b border-chrome-rule pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-md">
             <span className="flex items-center gap-3">
               <LogoMark
                 title={`${dict.siteName} / Nagarik Watch`}
                 tone="chrome"
-                className="h-11 w-11 shrink-0"
+                className="h-10 w-10 shrink-0"
               />
               <span className="flex flex-col leading-none">
-                <span className="font-display text-h3 font-extrabold text-on-chrome" lang="ne">
+                <span className="font-display text-[1.35rem] font-extrabold text-on-chrome sm:text-h3" lang="ne">
                   {dict.siteName}
                 </span>
-                <span className="mt-1 text-caption font-bold text-brand" lang="en">
+                <span className="mt-1 text-caption font-semibold text-brand" lang="en">
                   Nagarik Watch
                 </span>
               </span>
             </span>
-            <span className="mt-2.5 block h-0.5 w-10 bg-brand" aria-hidden />
-            <p className="mt-2.5 text-meta leading-relaxed text-on-chrome-soft" lang={lang}>
+            <span className="mt-2 block h-0.5 w-10 bg-brand" aria-hidden />
+            <p className="mt-2 text-meta leading-relaxed text-on-chrome-soft" lang={lang}>
               {dict.tagline}
             </p>
           </div>

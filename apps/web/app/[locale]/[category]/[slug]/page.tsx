@@ -202,15 +202,15 @@ export default async function ArticlePage({
                 ) : null}
                 <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
               </div>
-              <h1 className="mt-4 font-display text-h1 leading-tight tracking-[-0.02em] text-ink sm:text-display">
+              <h1 className="mt-3 font-display text-[clamp(1.65rem,3.6vw,2.35rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-ink">
                 {title}
               </h1>
               {deck ? (
-                <p className="article-deck mt-4 text-body-lg leading-relaxed text-ink-soft">
+                <p className="article-deck mt-2.5 text-body leading-relaxed text-ink-soft sm:text-body-lg">
                   {deck}
                 </p>
               ) : null}
-              <div className="article-trust-ledger mt-5">
+              <div className="article-trust-ledger mt-4">
                 <Byline
                   authors={article.authors}
                   locale={readingLocale}
@@ -260,7 +260,7 @@ export default async function ArticlePage({
             </header>
 
             {article.heroImage ? (
-              <figure className="mt-6 max-w-body">
+              <figure className="mt-4 max-w-body">
                 <div className="relative aspect-[16/9] overflow-hidden border border-rule bg-surface-raised">
                   <Image
                     src={article.heroImage.url}
@@ -273,7 +273,7 @@ export default async function ArticlePage({
                   />
                 </div>
                 {article.heroCaptionNe || article.heroCredit ? (
-                  <figcaption className="mt-2 text-caption leading-relaxed text-ink-soft">
+                  <figcaption className="mt-1.5 text-caption leading-relaxed text-ink-soft">
                     {article.heroCaptionNe}
                     {article.heroCaptionNe && article.heroCredit ? ', ' : ''}
                     {article.heroCredit}
@@ -282,8 +282,8 @@ export default async function ArticlePage({
               </figure>
             ) : null}
 
-            <div id="article-reading-column" className="mt-6 max-w-body min-w-0">
-              <div className="sticky top-[4.25rem] z-30 -mx-1 mb-5 border-b border-rule bg-surface/95 px-1 py-2 backdrop-blur-sm print:hidden sm:top-[5rem]">
+            <div id="article-reading-column" className="mt-4 max-w-body min-w-0">
+              <div className="sticky top-[4.25rem] z-30 -mx-1 mb-4 border-b border-rule bg-surface/95 px-1 py-1.5 backdrop-blur-sm print:hidden sm:top-[5rem]">
                 <ReaderArticleControls
                   story={article}
                   locale={readingLocale}
@@ -387,7 +387,7 @@ export default async function ArticlePage({
           </aside>
         </div>
 
-        <div className="mt-12 border-t border-rule pt-10 print:hidden">
+        <div className="mt-8 border-t border-rule pt-6 print:hidden">
           <RelatedStories stories={related} locale={readingLocale} />
         </div>
       </div>

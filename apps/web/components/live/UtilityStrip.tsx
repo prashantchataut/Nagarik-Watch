@@ -14,11 +14,11 @@ export async function UtilityStrip({ locale }: UtilityStripProps) {
   const data = nepse.data
 
   return (
-    <div className="border-b border-rule bg-surface-raised overflow-visible">
+    <div className="border-b border-rule bg-surface">
       <div className="mx-auto max-w-page px-3 sm:px-4">
-        <div className="flex flex-col gap-2 py-2 sm:flex-row sm:items-center sm:gap-4">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="shrink-0 text-caption font-bold text-brand-strong">
+        <div className="flex flex-col gap-1.5 py-1.5 sm:flex-row sm:items-center sm:gap-3 sm:py-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5">
+            <span className="shrink-0 text-caption font-extrabold text-brand-strong" lang={en ? 'en' : 'ne'}>
               {en ? 'Markets' : 'बजार'}
             </span>
             {data ? (

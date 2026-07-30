@@ -14,23 +14,23 @@
   --brand-bar: oklch(0.42 0.18 25);
   --brand-bar-active: oklch(0.32 0.16 25);
 
-  /* Masthead / footer chrome — light is paper, dark is black */
-  --chrome: oklch(0.995 0 0);
-  --on-chrome: oklch(0.2 0 0);
-  --on-chrome-soft: oklch(0.42 0 0);
-  --chrome-rule: oklch(0.88 0 0);
-  --paper: oklch(0.985 0 0);
-  --scrim: oklch(0.2 0 0 / 0.45);
+  /* Masthead / footer chrome — light is warm paper, dark is black */
+  --chrome: oklch(0.992 0.004 25);
+  --on-chrome: oklch(0.22 0.012 25);
+  --on-chrome-soft: oklch(0.42 0.014 25);
+  --chrome-rule: oklch(0.88 0.01 25);
+  --paper: oklch(0.985 0.006 25);
+  --scrim: oklch(0.22 0.012 25 / 0.45);
 
-  /* Page surfaces — light is clean paper white */
-  --surface: oklch(0.99 0 0);
-  --surface-raised: oklch(0.965 0 0);
+  /* Page surfaces — warm-tinted paper (chroma toward Civic Crimson) */
+  --surface: oklch(0.988 0.005 25);
+  --surface-raised: oklch(0.968 0.008 25);
 
-  --ink: oklch(0.2 0 0);
-  --ink-soft: oklch(0.4 0 0);
-  --mute: oklch(0.52 0 0);
+  --ink: oklch(0.22 0.012 25);
+  --ink-soft: oklch(0.4 0.014 25);
+  --mute: oklch(0.52 0.012 25);
 
-  --rule: oklch(0.88 0 0);
+  --rule: oklch(0.88 0.01 25);
 
   --breaking: oklch(0.5 0.22 27);
   --link: var(--brand);
@@ -153,18 +153,18 @@
   --brand-tint: oklch(0.96 0.015 25);
   --brand-bar: oklch(0.42 0.18 25);
   --brand-bar-active: oklch(0.32 0.16 25);
-  --chrome: oklch(0.995 0 0);
-  --on-chrome: oklch(0.2 0 0);
-  --on-chrome-soft: oklch(0.42 0 0);
-  --chrome-rule: oklch(0.88 0 0);
-  --paper: oklch(0.985 0 0);
-  --scrim: oklch(0.2 0 0 / 0.45);
-  --surface: oklch(0.99 0 0);
-  --surface-raised: oklch(0.965 0 0);
-  --ink: oklch(0.2 0 0);
-  --ink-soft: oklch(0.4 0 0);
-  --mute: oklch(0.52 0 0);
-  --rule: oklch(0.88 0 0);
+  --chrome: oklch(0.992 0.004 25);
+  --on-chrome: oklch(0.22 0.012 25);
+  --on-chrome-soft: oklch(0.42 0.014 25);
+  --chrome-rule: oklch(0.88 0.01 25);
+  --paper: oklch(0.985 0.006 25);
+  --scrim: oklch(0.22 0.012 25 / 0.45);
+  --surface: oklch(0.988 0.005 25);
+  --surface-raised: oklch(0.968 0.008 25);
+  --ink: oklch(0.22 0.012 25);
+  --ink-soft: oklch(0.4 0.014 25);
+  --mute: oklch(0.52 0.012 25);
+  --rule: oklch(0.88 0.01 25);
   --breaking: oklch(0.5 0.22 27);
   --focus-ring: oklch(0.55 0.18 25);
   --link: var(--brand);

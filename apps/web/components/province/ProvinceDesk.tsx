@@ -1,10 +1,11 @@
 import Link from 'next/link'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
-import { Hero, StoryCard } from '@nagarikwatch/ui'
+import { Hero } from '@nagarikwatch/ui'
 import { PROVINCES } from '@/lib/site'
 import { localizeHref } from '@/lib/i18n/locales'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
+import { DenseStoryItem } from '@/components/home/DenseStoryItem'
 
 type ProvinceMeta = (typeof PROVINCES)[number]
 
@@ -34,14 +35,14 @@ export function ProvinceDesk({
   const moreStories = stories.slice(5)
 
   return (
-    <div className="mx-auto max-w-page px-4 py-6 sm:py-8">
+    <div className="mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5">
       <HubIndexHeader title={title} lead={lead} lang={lang} />
 
       <ProvinceSwitcher locale={locale} activeSlug={province.slug} />
 
       {leadStory ? (
         <section
-          className="mt-6 grid gap-5 border-b border-rule pb-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(17rem,0.8fr)] xl:items-start xl:gap-6"
+          className="mt-4 grid gap-4 border-b border-rule pb-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(16rem,0.75fr)] xl:items-start xl:gap-5"
           aria-label={en ? 'Province lead' : 'प्रदेश मुख्य'}
         >
           <InstrumentedStory
@@ -56,14 +57,14 @@ export function ProvinceDesk({
                 {en ? 'Also from this province' : 'यस प्रदेशका अन्य'}
               </p>
               <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden />
-              <ul className="mt-3 divide-y divide-rule border-y border-rule">
+              <ul className="mt-2 divide-y divide-rule border-y border-rule">
                 {sideStories.map((story) => (
-                  <li key={story.slug} className="py-3">
+                  <li key={story.slug} className="py-2.5">
                     <InstrumentedStory
                       articleSlug={story.slug}
                       articleCategory={story.category.slug}
                     >
-                      <StoryCard story={story} locale={locale} variant="horizontal" />
+                      <DenseStoryItem story={story} locale={locale} showDeck={false} thumb="sm" />
                     </InstrumentedStory>
                   </li>
                 ))}
@@ -80,21 +81,21 @@ export function ProvinceDesk({
       )}
 
       {moreStories.length > 0 ? (
-        <section className="mt-8">
-          <div className="border-b border-rule pb-3">
+        <section className="mt-5">
+          <div className="border-b border-rule pb-2">
             <h2 className="font-display text-h3 font-extrabold text-ink" lang={lang}>
               {en ? 'More coverage' : 'थप सामग्री'}
             </h2>
             <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden />
           </div>
-          <ul className="mt-4 grid gap-0 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="mt-2 divide-y divide-rule">
             {moreStories.map((story) => (
-              <li key={story.slug} className="border-b border-rule py-3 sm:px-2">
+              <li key={story.slug} className="py-2.5">
                 <InstrumentedStory
                   articleSlug={story.slug}
                   articleCategory={story.category.slug}
                 >
-                  <StoryCard story={story} locale={locale} variant="horizontal" />
+                  <DenseStoryItem story={story} locale={locale} thumb="md" />
                 </InstrumentedStory>
               </li>
             ))}
@@ -195,7 +196,7 @@ function ProvinceEmpty({
                   articleSlug={story.slug}
                   articleCategory={story.category.slug}
                 >
-                  <StoryCard story={story} locale={locale} variant="horizontal" />
+                  <DenseStoryItem story={story} locale={locale} thumb="sm" showDeck={false} />
                 </InstrumentedStory>
               </li>
             ))}
@@ -278,14 +279,14 @@ export function ProvinceIndex({
             </h2>
             <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden />
           </div>
-          <ul className="mt-4 grid gap-0 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-2 divide-y divide-rule">
             {recent.slice(0, 9).map((story) => (
-              <li key={story.slug} className="border-b border-rule py-3 sm:px-2">
+              <li key={story.slug} className="py-2.5">
                 <InstrumentedStory
                   articleSlug={story.slug}
                   articleCategory={story.category.slug}
                 >
-                  <StoryCard story={story} locale={locale} variant="horizontal" />
+                  <DenseStoryItem story={story} locale={locale} thumb="sm" showDeck={false} />
                 </InstrumentedStory>
               </li>
             ))}

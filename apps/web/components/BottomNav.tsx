@@ -74,8 +74,10 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
       <ul className="mx-auto flex max-w-page items-stretch justify-around">
         {items.map((item) => {
           const active = item.match(pathname)
-          const className = `flex h-14 w-full cursor-pointer flex-col items-center justify-center gap-0.5 text-[0.6875rem] font-medium transition-colors duration-fast ease-out-quint ${
-            active ? 'text-brand-strong' : 'text-ink-soft hover:text-brand-strong'
+          const className = `flex h-14 w-full cursor-pointer flex-col items-center justify-center gap-0.5 text-[0.6875rem] transition-colors duration-fast ease-out-quint ${
+            active
+              ? 'font-bold text-brand-strong'
+              : 'font-medium text-ink-soft hover:text-brand-strong'
           }`
 
           return (
