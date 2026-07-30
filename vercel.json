@@ -24,18 +24,6 @@
     {
       "path": "/api/cron/ops-probe",
       "schedule": "30 3 * * *"
-    },
-    {
-      "path": "/api/cron/scheduled-publish",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/cron/breaking-auto-boost",
-      "schedule": "*/15 * * * *"
-    },
-    {
-      "path": "/api/cron/house-ad-promote",
-      "schedule": "0 */6 * * *"
     }
   ]
 }

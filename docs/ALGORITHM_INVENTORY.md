@@ -34,7 +34,9 @@ remain useful and honest when adapters are disabled.
 | Ops schema | `DATABASE_URL` + `pnpm migrate:ops` | `/admin/launch` ops-migrations = pass |
 | E-paper | `EPAPER_ENABLED=true` + replica config | `/[locale]/epaper` lists local pages |
 
-## Cron jobs (root `vercel.json`)
+## Cron jobs
+
+### Vercel Hobby (`vercel.json`) — once per day only
 
 | Path | Job heartbeat | Purpose |
 |---|---|---|
@@ -42,6 +44,18 @@ remain useful and honest when adapters are disabled.
 | `/api/cron/interactions-rebuild` | `interactions-rebuild` | Materialize consented CF matrix stats (no invented traffic) |
 | `/api/cron/digest-compose` | `digest-compose` | Rank live digest candidates |
 | `/api/cron/ops-probe` | `ops-probe` | Pool saturation + cron-miss anomalies |
+
+### GitHub Actions (`.github/workflows/ops-crons.yml`) — sub-daily
+
+Hobby Vercel rejects `*/5`, `*/15`, and hourly schedules. These hit production with `Authorization: Bearer $CRON_SECRET`:
+
+| Path | Schedule | Purpose |
+|---|---|---|
+| `/api/cron/scheduled-publish` | every 5 min | Publish scheduled articles |
+| `/api/cron/breaking-auto-boost` | every 15 min | Optional breaking boost |
+| `/api/cron/house-ad-promote` | every 6 h | Promote house-ad A/B winners |
+
+Repo secrets: `CRON_SECRET` (≥24 chars), optional `CRON_BASE_URL` (default `https://www.nagarikwatch.com`).
 
 All require `Authorization: Bearer $CRON_SECRET` (≥24 chars).
 

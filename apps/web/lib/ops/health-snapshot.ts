@@ -11,12 +11,12 @@ import { getCronHeartbeats, minutesSince, type CronHeartbeat } from '@/lib/ops/c
 
 export type CronJobExpectation = { job: string; label: string; intervalMinutes: number }
 
-/** Matches the schedules declared in vercel.json's `crons`. */
+/** Matches the schedules declared in vercel.json's `crons` plus GitHub Actions ops-crons. */
 export const EXPECTED_CRON_JOBS: CronJobExpectation[] = [
   { job: 'notifications-deliver', label: 'Notification delivery', intervalMinutes: 24 * 60 },
   { job: 'interactions-rebuild', label: 'CF interaction matrix rebuild', intervalMinutes: 6 * 60 },
   { job: 'digest-compose', label: 'Digest composition', intervalMinutes: 24 * 60 },
-  { job: 'ops-probe', label: 'Ops anomaly probe', intervalMinutes: 30 },
+  { job: 'ops-probe', label: 'Ops anomaly probe', intervalMinutes: 24 * 60 },
   { job: 'scheduled-publish', label: 'Scheduled article publish', intervalMinutes: 10 },
   { job: 'breaking-auto-boost', label: 'Breaking auto-boost', intervalMinutes: 30 },
   { job: 'house-ad-promote', label: 'House-ad A/B winner promote', intervalMinutes: 6 * 60 },

@@ -1,0 +1,79 @@
+# Sub-daily ops crons. Vercel Hobby only allows once-per-day schedules in
+# vercel.json; frequent jobs are triggered here against production.
+name: Ops crons
+
+on:
+  schedule:
+    # GitHub may delay schedules; still better than Hobby blocking deploys.
+    - cron: '*/5 * * * *'
+    - cron: '*/15 * * * *'
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      job:
+        description: Which cron path to invoke
+        required: true
+        type: choice
+        options:
+          - scheduled-publish
+          - breaking-auto-boost
+          - house-ad-promote
+          - all
+
+concurrency:
+  group: ops-crons-${{ github.event.schedule || github.event.inputs.job || 'manual' }}
+  cancel-in-progress: false
+
+jobs:
+  invoke:
+    name: invoke production cron
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve job list
+        id: pick
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          MANUAL_JOB: ${{ github.event.inputs.job }}
+        run: |
+          case "${SCHEDULE}" in
+            '*/5 * * * *') jobs='scheduled-publish' ;;
+            '*/15 * * * *') jobs='breaking-auto-boost' ;;
+            '0 */6 * * *') jobs='house-ad-promote' ;;
+            *)
+              jobs="${MANUAL_JOB:-all}"
+              if [ "$jobs" = 'all' ]; then
+                jobs='scheduled-publish breaking-auto-boost house-ad-promote'
+              fi
+              ;;
+          esac
+          echo "jobs=$jobs" >> "$GITHUB_OUTPUT"
+
+      - name: Call cron endpoints
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          CRON_BASE_URL: ${{ secrets.CRON_BASE_URL }}
+          JOBS: ${{ steps.pick.outputs.jobs }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET:-}" ] || [ "${#CRON_SECRET}" -lt 24 ]; then
+            echo "CRON_SECRET repo secret missing or shorter than 24 chars."
+            exit 1
+          fi
+          base="${CRON_BASE_URL:-https://www.nagarikwatch.com}"
+          base="${base%/}"
+          for job in $JOBS; do
+            path="/api/cron/${job}"
+            echo "POST ${base}${path}"
+            code=$(curl -sS -o /tmp/cron-body.txt -w '%{http_code}' \
+              -X POST \
+              -H "Authorization: Bearer ${CRON_SECRET}" \
+              -H 'Content-Type: application/json' \
+              "${base}${path}")
+            echo "status=${code}"
+            head -c 2000 /tmp/cron-body.txt || true
+            echo
+            case "$code" in
+              200|204) ;;
+              *) echo "Cron ${job} failed with HTTP ${code}"; exit 1 ;;
+            esac
+          done
