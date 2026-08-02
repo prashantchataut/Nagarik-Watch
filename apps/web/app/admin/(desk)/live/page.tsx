@@ -111,7 +111,7 @@ export default async function LiveAdminPage() {
         <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {ACTIVE_ALGORITHM_REGISTRY.map((algorithm) => (
             <div key={algorithm.id} className="rounded-md border border-rule bg-surface p-4">
-              <p className="text-caption font-bold uppercase tracking-wide text-brand-strong">{algorithm.id}</p>
+              <p className="text-caption font-bold text-brand-strong">{algorithm.id}</p>
               <p className="mt-1 font-display text-body-lg font-semibold text-ink">{algorithm.label}</p>
               <p className="mt-1 text-caption text-mute">{algorithm.surface}</p>
             </div>
@@ -125,7 +125,7 @@ export default async function LiveAdminPage() {
 function Signal({ label, value }: { label: string; value: string }) {
   return (
     <span className="rounded-md bg-surface-raised px-2 py-1">
-      <span className="block text-[0.62rem] uppercase tracking-wide text-mute">{label}</span>
+      <span className="block text-[0.68rem] font-bold text-mute">{label}</span>
       <strong className="text-ink">{value}</strong>
     </span>
   )

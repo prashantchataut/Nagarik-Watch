@@ -19,21 +19,29 @@ export default async function SeoPage() {
   const samples = await sampleSyndicationReadiness(3).catch(() => [])
   return (
     <div>
-      <AdminPageHeader subtitle="Google News, canonical and discovery readiness" />
+      <AdminPageHeader subtitle="क्यानोनिकल, साइटम्याप र सिन्डिकेसन तयारी" />
       <AdminCard>
         <div className="grid gap-3">
           {checks.map(([label, value]) => (
-            <div key={label} className="rounded-lg border border-rule bg-surface p-4">
-              <p className="text-caption font-bold uppercase tracking-wide text-mute">{label}</p>
+            <div key={label} className="rounded-md border border-rule bg-surface p-4">
+              <p className="text-caption font-bold text-mute" lang="en">
+                {label}
+              </p>
               <p className="mt-1 break-all font-mono text-meta text-ink">{value}</p>
             </div>
           ))}
         </div>
       </AdminCard>
 
-      <h2 className="mb-3 mt-8 font-display text-h2 text-ink">Syndication readiness (live sample)</h2>
+      <h2 className="mb-3 mt-8 font-display text-h2 text-ink" lang="ne">
+        सिन्डिकेसन नमुना
+      </h2>
       {samples.length === 0 ? (
-        <AdminCard><p className="text-meta text-ink-soft">No published articles available to sample yet.</p></AdminCard>
+        <AdminCard>
+          <p className="text-meta text-ink-soft" lang="ne">
+            नमुनाका लागि प्रकाशित समाचार अझै छैन।
+          </p>
+        </AdminCard>
       ) : (
         <div className="grid gap-3">
           {samples.map((sample) => (

@@ -53,7 +53,7 @@ export default async function RolesPage() {
       <div className="mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {ROLE_ASSIGNMENT_GROUPS.map((group) => (
           <AdminCard key={group.id}>
-            <p className="text-caption font-bold uppercase tracking-wide text-brand-strong" lang="ne">
+            <p className="text-caption font-bold text-brand-strong" lang="ne">
               {group.labelNe}
             </p>
             <p className="mt-1 text-meta text-ink-soft" lang="ne">

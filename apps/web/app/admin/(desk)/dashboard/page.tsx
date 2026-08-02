@@ -193,11 +193,11 @@ export default async function DashboardPage() {
             पाठक संकेत (७ दिन / २ घण्टा)
           </h3>
           <div className="flex flex-wrap gap-3">
-            <Link href="/admin/session-quality" className="text-meta font-semibold text-brand" lang="en">
-              Session quality
+            <Link href="/admin/session-quality" className="text-meta font-semibold text-brand" lang="ne">
+              सत्र गुणस्तर
             </Link>
-            <Link href="/admin/algorithms" className="text-meta font-semibold text-brand" lang="en">
-              Algorithms
+            <Link href="/admin/algorithms" className="text-meta font-semibold text-brand" lang="ne">
+              अल्गोरिदम
             </Link>
             <Link href="/admin/ads" className="text-meta font-semibold text-brand" lang="en">
               Ads

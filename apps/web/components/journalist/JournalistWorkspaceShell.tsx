@@ -45,8 +45,10 @@ export function JournalistWorkspaceShell({
           href={localizeHref(locale, '/journalist/dashboard')}
           className="newsroom-sidebar__brand"
         >
-          <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
-          <span>{ne ? 'पत्रकार डेस्क' : 'Reporter desk'}</span>
+          <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} className="max-w-[10rem]" />
+          <span className="newsroom-sidebar__desk-label">
+            {ne ? 'पत्रकार डेस्क' : 'Reporter desk'}
+          </span>
         </Link>
         <nav aria-label={ne ? 'पत्रकार नेभिगेसन' : 'Journalist navigation'}>
           {items.map(([key, href, label]) => (
@@ -54,6 +56,7 @@ export function JournalistWorkspaceShell({
               key={key}
               href={localizeHref(locale, href)}
               aria-current={active === key ? 'page' : undefined}
+              className={active === key ? 'is-active' : undefined}
             >
               {label}
             </Link>
@@ -61,6 +64,7 @@ export function JournalistWorkspaceShell({
           <Link
             href={localizeHref(locale, '/journalist/feedback')}
             aria-current={active === 'feedback' ? 'page' : undefined}
+            className={active === 'feedback' ? 'is-active' : undefined}
           >
             {ne ? 'प्रतिक्रिया' : 'Feedback'}
           </Link>
@@ -69,7 +73,7 @@ export function JournalistWorkspaceShell({
           <strong>{name}</strong>
           <span>{roleLabel}</span>
           <Link href={localizeHref(locale, '/')}>
-            {ne ? 'सार्वजनिक साइट हेर्नुहोस्' : 'View public site'}
+            {ne ? 'सार्वजनिक साइट' : 'Public site'}
           </Link>
           <JournalistSignOutButton locale={locale} />
         </div>
@@ -84,6 +88,7 @@ export function JournalistWorkspaceShell({
               key={key}
               href={localizeHref(locale, href)}
               aria-current={active === key ? 'page' : undefined}
+              className={active === key ? 'is-active' : undefined}
             >
               {label}
             </Link>

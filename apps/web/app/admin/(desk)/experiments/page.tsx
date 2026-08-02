@@ -31,7 +31,7 @@ export default async function ExperimentsPage() {
             <AdminCard key={definition.id}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-caption font-bold uppercase tracking-wide text-brand-strong">
+                  <p className="text-caption font-bold text-brand-strong">
                     {definition.id} · {definition.status}
                   </p>
                   <h2 className="mt-1 font-display text-h2 text-ink">{definition.label}</h2>

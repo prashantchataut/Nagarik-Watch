@@ -20,11 +20,19 @@ export function AuthChrome({ locale, children }: { locale: Locale; children: Rea
           className="auth-chrome__logo"
           aria-label={dict.siteName}
         >
-          <Logo siteName={dict.siteName} tone="chrome" className="max-w-[9.5rem]" />
+          <Logo siteName={dict.siteName} tone="chrome" className="max-w-[11rem] sm:max-w-[13rem]" />
         </Link>
-        <Link href={localizeHref(locale, '/')} className="auth-chrome__back">
-          {english ? 'Back to news' : 'समाचारमा'}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={localizeHref(locale, '/auth/login')}
+            className="auth-chrome__back hidden sm:inline-flex"
+          >
+            {english ? 'Sign in' : 'लगइन'}
+          </Link>
+          <Link href={localizeHref(locale, '/')} className="auth-chrome__back">
+            {english ? 'Back to news' : 'समाचारमा'}
+          </Link>
+        </div>
       </header>
       <div id="main" className="auth-chrome__main">
         {children}

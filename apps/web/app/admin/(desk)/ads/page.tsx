@@ -174,8 +174,8 @@ export default async function AdsPage({
       </div>
 
       <AdminCard className={`mb-5 ${coverageAnomaly.anomalous ? 'admin-callout admin-callout--danger' : ''}`}>
-        <p className="text-meta font-bold uppercase tracking-wide text-brand-strong" lang="en">
-          Delivery coverage
+        <p className="text-meta font-bold text-brand-strong" lang="ne">
+          वितरण कभरेज
         </p>
         <p className="mt-1 text-body text-ink" lang="en">
           {deliveringPlacements}/{placements.length} slots have an active house ad or ready network delivery ({(coverage * 100).toFixed(0)}%).

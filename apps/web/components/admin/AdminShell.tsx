@@ -435,7 +435,7 @@ function AdminSidebar({
             <span className="block truncate text-meta font-bold text-ink" lang="ne">
               न्यूजरुम
             </span>
-            <span className="admin-desk-badge block truncate text-[0.62rem] uppercase">
+            <span className="admin-desk-badge block truncate text-[0.65rem] font-bold">
               {deskLabel}
             </span>
           </div>
@@ -485,7 +485,7 @@ function AdminSidebar({
             className="group/nav mt-2.5"
             open={group.defaultOpen || group.items.some((i) => isActivePath(clientPath, i.href))}
           >
-            <summary className="cursor-pointer list-none px-2 py-1 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-mute [&::-webkit-details-marker]:hidden">
+            <summary className="cursor-pointer list-none px-2 py-1 text-[0.7rem] font-bold text-mute [&::-webkit-details-marker]:hidden">
               <span className="inline-flex items-center gap-1" lang="ne">
                 {group.heading}
                 <span className="text-mute transition-transform group-open/nav:rotate-90">›</span>
@@ -523,7 +523,7 @@ function AdminSidebar({
 
       <div className="border-t border-rule p-2.5">
         <div className="flex items-start gap-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-brand text-caption font-bold text-paper">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-brand text-caption font-bold text-paper">
             {initials || 'N'}
           </span>
           <div className="min-w-0 flex-1">

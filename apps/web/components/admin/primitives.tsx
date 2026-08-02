@@ -227,17 +227,37 @@ export function StatusBadge({ status }: { status: string }) {
 }
 
 export function OpsCheckBadge({ status }: { status: 'pass' | 'warn' | 'fail' | string }) {
-  const tone = status === 'pass' ? 'success' : status === 'warn' ? 'attention' : status === 'fail' ? 'danger' : 'neutral'
-  return <span className={`admin-status admin-status--${tone}`} lang="en">{String(status).toUpperCase()}</span>
+  const tone =
+    status === 'pass' ? 'success' : status === 'warn' ? 'attention' : status === 'fail' ? 'danger' : 'neutral'
+  const labels: Record<string, string> = {
+    pass: 'ठीक',
+    warn: 'सावधान',
+    fail: 'असफल',
+  }
+  const label = labels[status] ?? String(status)
+  return (
+    <span className={`admin-status admin-status--${tone}`} lang="ne">
+      {label}
+    </span>
+  )
 }
 
 export function AdminEmptyState({ title, body, action }: { title: string; body: string; action?: React.ReactNode }) {
-  return <section className="admin-empty" aria-live="polite">
-    <div className="admin-empty-mark" aria-hidden="true">नव</div>
-    <h2 className="font-display text-h2 text-ink" lang="ne">{title}</h2>
-    <p className="mx-auto mt-2 max-w-xl text-body text-ink-soft" lang="ne">{body}</p>
-    {action ? <div className="mt-6">{action}</div> : null}
-  </section>
+  return (
+    <section className="admin-empty" aria-live="polite">
+      <div className="admin-empty-mark" aria-hidden="true">
+        ·
+      </div>
+      <h2 className="font-display text-h3 font-extrabold text-ink" lang="ne">
+        {title}
+      </h2>
+      <span className="mx-auto mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden="true" />
+      <p className="mx-auto mt-2.5 max-w-xl text-meta leading-relaxed text-ink-soft sm:text-body" lang="ne">
+        {body}
+      </p>
+      {action ? <div className="mt-5">{action}</div> : null}
+    </section>
+  )
 }
 
 export function AdminMetric({

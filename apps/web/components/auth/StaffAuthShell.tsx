@@ -69,6 +69,7 @@ export function StaffAuthShell({
       <div className="newsroom-login__grid">
         <section className="newsroom-login__brief">
           <h1>{title}</h1>
+          <span className="newsroom-login__brief-rule" aria-hidden="true" />
           <p>{lede}</p>
           {points.length > 0 ? (
             <ul className="newsroom-login__points">
