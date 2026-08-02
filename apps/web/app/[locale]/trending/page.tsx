@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
-import { detectTrending } from '@nagarikwatch/db'
 import { asLocale } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
-import { getTrendingSamples } from '@/lib/engagement/store'
+import { resolveTrendingStories } from '@/lib/content/trending-stories'
 import { AdSlot } from '@/components/AdSlot'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { HubRelatedNav } from '@/components/public/HubRelatedNav'
 import { RankedStoryList } from '@/components/public/RankedStoryList'
 import { canonicalAlternates } from '@/lib/seo/canonical'
+
+export const revalidate = 60
 
 export async function generateMetadata({
   params,
@@ -15,17 +16,24 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const locale = asLocale((await params).locale)
+  const catalog = await getStories({ locale, perPage: 100 })
+  const { live } = await resolveTrendingStories({
+    catalog: catalog.items,
+    limit: 18,
+    minLive: 2,
+  })
   return {
-    title: locale === 'en' ? 'Trending' : 'अहिले चर्चामा',
-    description:
-      locale === 'en'
+    title: locale === 'en' ? (live ? 'Trending' : 'Recent stories') : live ? 'अहिले चर्चामा' : 'हालसालैका समाचार',
+    description: live
+      ? locale === 'en'
         ? 'Stories receiving sustained reader attention on Nagarik Watch.'
-        : 'नागरिक वाचमा पाठकको निरन्तर ध्यान पाइरहेका समाचार।',
+        : 'नागरिक वाचमा पाठकको निरन्तर ध्यान पाइरहेका समाचार।'
+      : locale === 'en'
+        ? 'Newest Nagarik Watch reporting. Trend ranking starts once live attention accumulates.'
+        : 'नयाँ प्रकाशित नागरिक वाच समाचार। लाइभ ध्यान पर्याप्त भएपछि मात्र चर्चा क्रम लागू हुन्छ।',
     alternates: canonicalAlternates(locale, '/trending'),
   }
 }
-
-export const revalidate = 60
 
 export default async function TrendingPage({
   params,
@@ -34,22 +42,26 @@ export default async function TrendingPage({
 }) {
   const locale = asLocale((await params).locale)
   const english = locale === 'en'
-  const [catalog, samples] = await Promise.all([
-    getStories({ locale, perPage: 100 }),
-    getTrendingSamples(120).catch(() => []),
-  ])
-
-  const ranked = detectTrending(
-    catalog.items.map((story) => ({ ...story, id: story.slug })),
-    samples,
-  ).slice(0, 18)
-  const hasLiveSignal = samples.length > 0 && ranked.some((story) => story.trendingScore > 0)
+  const catalog = await getStories({ locale, perPage: 100 })
+  const { stories: ranked, live: hasLiveSignal } = await resolveTrendingStories({
+    catalog: catalog.items,
+    limit: 18,
+    minLive: 2,
+  })
 
   return (
     <div className="mx-auto max-w-page px-3 py-6 sm:px-4 sm:py-8 lg:py-10">
       <AdSlot locale={locale} placementKey="trending-top" />
       <HubIndexHeader
-        title={english ? 'Trending now' : 'अहिले चर्चामा'}
+        title={
+          english
+            ? hasLiveSignal
+              ? 'Trending now'
+              : 'Recent stories'
+            : hasLiveSignal
+              ? 'अहिले चर्चामा'
+              : 'हालसालैका समाचार'
+        }
         lead={
           hasLiveSignal
             ? english

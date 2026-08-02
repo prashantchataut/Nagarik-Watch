@@ -11,6 +11,8 @@ export async function resolveMostReadStories(options: {
   limit?: number
   windowDays?: number
   minLive?: number
+  /** Minimum distinct readers before a story counts as live most-read. */
+  minUniqueReaders?: number
 }): Promise<{ stories: StoryCardData[]; live: boolean }> {
   const limit = options.limit ?? 6
   const minLive = options.minLive ?? 3
@@ -20,8 +22,10 @@ export async function resolveMostReadStories(options: {
   const stats = await getMostReadStats(options.windowDays ?? 7, Math.max(limit * 3, 24)).catch(
     () => [],
   )
+  const minUniqueReaders = options.minUniqueReaders ?? 3
   const liveStories: StoryCardData[] = []
   for (const row of stats) {
+    if (row.uniqueReaders < minUniqueReaders) continue
     const story = bySlug.get(row.articleSlug)
     if (!story || exclude.has(story.id)) continue
     liveStories.push(story)

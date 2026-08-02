@@ -16,6 +16,8 @@ describe('launch phases', () => {
     const phases = getLaunchPhases()
     expect(phases.map((phase) => phase.id)).toEqual(['soft', 'hard'])
     expect(phases[0]?.items.length).toBeGreaterThanOrEqual(5)
+    expect(phases[0]?.items.some((item) => item.id === 'desk-publish')).toBe(true)
+    expect(phases[1]?.items.some((item) => item.id === 'payload-cutover')).toBe(true)
     expect(phases[1]?.items.some((item) => item.id === 'gate')).toBe(true)
     expect(phases[0]?.items.every((item) => item.checkKeys.length >= 0)).toBe(true)
   })

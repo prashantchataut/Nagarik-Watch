@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { asLocale } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
-import { getMostReadStats } from '@/lib/engagement/store'
+import { resolveMostReadStories } from '@/lib/content/most-read-stories'
 import { AdSlot } from '@/components/AdSlot'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { HubRelatedNav } from '@/components/public/HubRelatedNav'
@@ -16,12 +16,21 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const locale = asLocale((await params).locale)
+  const catalog = await getStories({ locale, perPage: 100 })
+  const { live } = await resolveMostReadStories({
+    catalog: catalog.items,
+    limit: 18,
+    minLive: 3,
+  })
   return {
-    title: locale === 'en' ? 'Most read' : 'धेरै पढिएका',
-    description:
-      locale === 'en'
+    title: locale === 'en' ? (live ? 'Most read' : 'Recent stories') : live ? 'धेरै पढिएका' : 'हालसालैका समाचार',
+    description: live
+      ? locale === 'en'
         ? 'The most-read Nagarik Watch reporting from the last seven days.'
-        : 'पछिल्लो सात दिनमा सबैभन्दा धेरै पढिएका नागरिक वाच समाचार।',
+        : 'पछिल्लो सात दिनमा सबैभन्दा धेरै पढिएका नागरिक वाच समाचार।'
+      : locale === 'en'
+        ? 'Newest Nagarik Watch reporting. Popularity ranking starts once enough verified readers accumulate.'
+        : 'नयाँ प्रकाशित नागरिक वाच समाचार। पर्याप्त पाठक पुगेपछि मात्र लोकप्रियता क्रम लागू हुन्छ।',
     alternates: canonicalAlternates(locale, '/most-read'),
   }
 }
@@ -33,22 +42,19 @@ export default async function MostReadPage({
 }) {
   const locale = asLocale((await params).locale)
   const english = locale === 'en'
-  const [catalog, stats] = await Promise.all([
-    getStories({ locale, perPage: 100 }),
-    getMostReadStats(7, 100).catch(() => []),
-  ])
-  const bySlug = new Map(catalog.items.map((story) => [story.slug, story]))
-  const eligible = stats.filter((stat) => stat.uniqueReaders >= 3 && bySlug.has(stat.articleSlug))
-  const ranked = eligible.length
-    ? eligible.map((stat) => bySlug.get(stat.articleSlug)!).slice(0, 18)
-    : catalog.items.slice(0, 18)
+  const catalog = await getStories({ locale, perPage: 100 })
+  const { stories: ranked, live } = await resolveMostReadStories({
+    catalog: catalog.items,
+    limit: 18,
+    minLive: 3,
+  })
 
   return (
     <div className="mx-auto max-w-page px-3 py-6 sm:px-4 sm:py-8 lg:py-10">
       <HubIndexHeader
-        title={english ? 'Most read' : 'धेरै पढिएका'}
+        title={english ? (live ? 'Most read' : 'Recent stories') : live ? 'धेरै पढिएका' : 'हालसालैका समाचार'}
         lead={
-          eligible.length
+          live
             ? english
               ? 'Most-read reporting from the past week, based on verified reader activity.'
               : 'पहिचान नखुल्ने आफ्नै पढाइ तथ्याङ्कका आधारमा क्रमबद्ध। कम्तीमा तीन फरक पाठक पुगेपछि मात्र समाचार यो सूचीमा आउँछ।'

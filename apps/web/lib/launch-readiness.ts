@@ -138,18 +138,18 @@ function buildLaunchChecks(options?: {
           : contentSource === 'payload'
             ? 'pass'
             : contentSource === 'json' || !contentSource
-              ? launchLive
-                ? 'fail'
+              ? dbMode === 'postgres'
+                ? 'pass'
                 : 'warn'
               : 'fail',
       detail:
         contentSource === 'payload'
           ? 'Payload CMS is canonical'
           : launchLive
-            ? 'Live mode requires CONTENT_SOURCE=payload (ADR-014)'
+            ? 'Live mode requires CONTENT_SOURCE=payload (ADR-014 hard cutover)'
             : dbMode === 'postgres'
-              ? 'Preview may use Postgres nw_articles / JSON — flip to payload before live'
-              : 'Local JSON article store (dev) — set DATABASE_URL and plan Payload cutover',
+              ? 'Soft path: Postgres nw_articles / JSON desk is canonical until Payload cutover'
+              : 'Local file JSON store (dev) — set DATABASE_URL for soft-launch preview',
     },
     {
       key: 'starter-seed',
@@ -242,7 +242,7 @@ function buildLaunchChecks(options?: {
             : 'warn'
           : webMediaUploadReady
             ? 'pass'
-            : launchLive || dbMode === 'postgres'
+            : launchLive
               ? 'fail'
               : 'warn',
       detail:
@@ -256,7 +256,7 @@ function buildLaunchChecks(options?: {
             ? 'Vercel Blob configured for newsroom photo uploads'
             : webMediaUploadReady
               ? 'Object storage configured for newsroom photo uploads'
-              : 'Set BLOB_READ_WRITE_TOKEN (Vercel Blob) or R2 + STORAGE_PUBLIC_BASE_URL so editors can upload photos',
+              : 'Set BLOB_READ_WRITE_TOKEN (Vercel Blob) or R2 + STORAGE_PUBLIC_BASE_URL before heavy photo desk work',
     },
     {
       key: 'analytics',
@@ -291,10 +291,10 @@ function buildLaunchChecks(options?: {
     {
       key: 'house-ads-soft',
       label: 'Soft-launch ads path',
-      status: adsMode === 'off' && !launchLive ? 'warn' : 'pass',
+      status: 'pass',
       detail:
         adsMode === 'off'
-          ? 'Option A is free-to-read; set NEXT_PUBLIC_ADS_MODE=house when house creatives are ready'
+          ? 'Option A free-to-read with ads off is allowed for soft launch; set house mode when creatives are ready'
           : `Ads mode is ${adsMode}`,
     },
     {
@@ -306,7 +306,7 @@ function buildLaunchChecks(options?: {
     {
       key: 'semantic-search',
       label: 'Semantic search provider',
-      status: 'pass',
+      status: semantic.ready ? 'pass' : 'warn',
       detail: semantic.detail,
     },
     {

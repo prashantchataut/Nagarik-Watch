@@ -19,7 +19,9 @@ export default async function SearchPage({ params }: { params: Promise<Params> }
 
   // No locale filter here so a Nepali query still surfaces English-headlined stories and vice
   // versa; the SearchView renders whichever title matches.
-  const { items } = await getStories({ perPage: 500, limit: 500 })
+  // Cap keeps the client BM25 payload small until a hosted index ships.
+  const SEARCH_CORPUS_CAP = 120
+  const { items } = await getStories({ perPage: SEARCH_CORPUS_CAP, limit: SEARCH_CORPUS_CAP })
 
   const corpus: SearchableStory[] = items.map((s) => ({
     id: s.id,
@@ -38,7 +40,7 @@ export default async function SearchPage({ params }: { params: Promise<Params> }
     heroImage: s.heroImage ? { url: s.heroImage.url, alt: s.heroImage.alt } : null,
   }))
 
-  return <SearchView locale={locale} corpus={corpus} corpusCap={500} />
+  return <SearchView locale={locale} corpus={corpus} corpusCap={SEARCH_CORPUS_CAP} />
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {

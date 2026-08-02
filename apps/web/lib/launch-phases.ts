@@ -81,7 +81,7 @@ export function getLaunchPhases(): LaunchPhase[] {
       id: 'soft',
       title: 'Soft launch (preview)',
       summary:
-        'Real product loops on Vercel Node with Payload content. Keep NEXT_PUBLIC_LAUNCH_STATUS=preview.',
+        'Real product loops on Vercel Node. Soft path may use Postgres nw_articles / JSON desk; keep NEXT_PUBLIC_LAUNCH_STATUS=preview.',
       items: [
         {
           id: 'dns-vercel',
@@ -90,10 +90,11 @@ export function getLaunchPhases(): LaunchPhase[] {
           checkKeys: ['origin-topology'],
         },
         {
-          id: 'payload-publish',
-          label: 'Payload publish → public ≤60s',
-          detail: 'CONTENT_SOURCE=payload + REVALIDATE_SECRET proven once.',
-          checkKeys: ['content-source', 'revalidation-secret', 'payload-url', 'payload-token'],
+          id: 'desk-publish',
+          label: 'Desk publish path live',
+          detail:
+            'CONTENT_SOURCE=json + DATABASE_URL (nw_articles) for soft launch, or Payload when already cut over.',
+          checkKeys: ['content-source', 'database', 'starter-seed'],
         },
         {
           id: 'corpus',
@@ -116,7 +117,7 @@ export function getLaunchPhases(): LaunchPhase[] {
         {
           id: 'house-ads',
           label: 'House ads labeled (or ads off)',
-          detail: 'NEXT_PUBLIC_ADS_MODE=house with creatives, or explicit off.',
+          detail: 'NEXT_PUBLIC_ADS_MODE=house with creatives, or explicit off for Option A soft launch.',
           checkKeys: ['house-ads-soft', 'network-ads'],
         },
       ],
@@ -126,6 +127,12 @@ export function getLaunchPhases(): LaunchPhase[] {
       title: 'Hard launch (live)',
       summary: 'Flip live only when pnpm launch:gate passes with NEXT_PUBLIC_LAUNCH_STATUS=live.',
       items: [
+        {
+          id: 'payload-cutover',
+          label: 'Payload CMS cutover',
+          detail: 'CONTENT_SOURCE=payload + URL + token + REVALIDATE_SECRET proven before live.',
+          checkKeys: ['content-source', 'revalidation-secret', 'payload-url', 'payload-token'],
+        },
         {
           id: 'legal',
           label: 'Verified DoIB / editor / contact in footer',
@@ -259,11 +266,11 @@ export function getLaunchStatusSummary(
     stage = 'topology'
     stageLabel = 'Phase 0 — topology'
     nextAction = 'Point apex at Vercel Node (not CF Pages static). See docs/CLOUDFLARE-DOMAIN.md.'
-  } else if (content?.status === 'fail' || content?.status === 'warn') {
+  } else if (content?.status === 'fail') {
     stage = 'payload'
-    stageLabel = 'Phase 1 — Payload cutover'
+    stageLabel = 'Phase 1 — Payload cutover required'
     nextAction =
-      'Finish Payload env + set CONTENT_SOURCE=payload on Vercel after desk training (docs/launch-runbook.md).'
+      'Live mode needs CONTENT_SOURCE=payload + CMS URL/token. Soft preview may stay on Postgres nw_articles.'
   } else if (!soft.ready && soft.failCount > 0) {
     stage = 'soft'
     stageLabel = 'Phase 2 — soft launch blockers'
@@ -271,7 +278,7 @@ export function getLaunchStatusSummary(
   } else if (!soft.ready) {
     stage = 'soft'
     stageLabel = 'Phase 2 — soft launch (preview)'
-    nextAction = `Resolve soft warns (${soft.warnCount}): corpus, cron heartbeat, house ads, email.`
+    nextAction = `Resolve soft warns (${soft.warnCount}): corpus, cron heartbeat, email, or media storage.`
   } else if (launchStatus === 'live' && hard.ready) {
     stage = 'live'
     stageLabel = 'Live'

@@ -35,7 +35,9 @@ description: >-
 - **Launch origin (ADR-004):** Vercel Node for reader+API; Cloudflare for DNS/CDN only.
   Cloudflare Pages static `out` is preview-only (APIs stripped). See `docs/launch-runbook.md`.
 - Production needs a reachable `DATABASE_URL` (Postgres) for auth; ENOTFOUND → 503.
-- Prefer `CONTENT_SOURCE=payload` when CMS is live; JSON store may boot preview without it, but empty CMS inventory is not a launch.
+- Prefer `CONTENT_SOURCE=payload` for **hard / live** launch (ADR-014). Soft preview may
+  use Postgres `nw_articles` / JSON desk (`CONTENT_SOURCE` unset or `json`) with
+  `NEXT_PUBLIC_LAUNCH_STATUS=preview`; empty CMS inventory is still not a launch.
 - Manifest `id` must be path-relative (`/`) so preview hosts stay same-origin.
 
 ## Monetization (Option A — 2026-07-19)

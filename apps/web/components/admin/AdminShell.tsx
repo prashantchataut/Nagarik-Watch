@@ -180,6 +180,26 @@ const NAV_GROUPS: {
   },
 ]
 
+/** Ops extras hidden in soft-preview nav unless live or explicitly expanded. */
+const PREVIEW_HIDDEN_HREFS = new Set([
+  '/admin/algorithms',
+  '/admin/experiments',
+  '/admin/session-quality',
+  '/admin/search-analytics',
+  '/admin/live-widgets',
+])
+
+const ADMIN_FULL_NAV =
+  (process.env.NEXT_PUBLIC_ADMIN_FULL_NAV || '').toLowerCase() === '1' ||
+  (process.env.NEXT_PUBLIC_ADMIN_FULL_NAV || '').toLowerCase() === 'true'
+const LAUNCH_LIVE =
+  (process.env.NEXT_PUBLIC_LAUNCH_STATUS || 'preview').toLowerCase() === 'live'
+
+function showAdminNavHref(href: string) {
+  if (ADMIN_FULL_NAV || LAUNCH_LIVE) return true
+  return !PREVIEW_HIDDEN_HREFS.has(href)
+}
+
 function isActivePath(pathname: string, href: string) {
   if (pathname === href) return true
   if (href === '/admin/dashboard') return false
@@ -225,7 +245,10 @@ export function AdminShell({
     .map((g) => ({
       ...g,
       items: g.items.filter(
-        (item) => (!item.roles || item.roles.has(role)) && !primaryHrefs.has(item.href),
+        (item) =>
+          (!item.roles || item.roles.has(role)) &&
+          !primaryHrefs.has(item.href) &&
+          showAdminNavHref(item.href),
       ),
     }))
     .filter((g) => g.items.length > 0)

@@ -12,19 +12,22 @@ and `pnpm launch:gate`.
 |-------|--------|
 | In-repo (code, gates, ADR-004, honesty, CI smoke) | **Complete** |
 | Operator Phase 0 (DNS → Vercel, Postgres, email, Blob) | Remaining |
-| Operator Phase 1 (`CONTENT_SOURCE=payload`, ≥30 stories) | Remaining |
-| Operator Phase 2 (soft traffic while `preview`) | Remaining |
-| Operator Phase 3 (`live` + `launch:gate`) | Remaining |
+| Operator Phase Soft (`CONTENT_SOURCE=json` + Postgres desk, ≥30 stories, cron) | Remaining |
+| Operator Phase Hard (`CONTENT_SOURCE=payload` cutover + `live`) | Remaining |
 
 `/admin/launch` shows an env **readiness %**, soft/hard phase badges wired to probes, and a
 **current stage** + next action. A high score on localhost does not mean production is live.
+
+Soft launch may ship on **Postgres `nw_articles` / JSON desk** while
+`NEXT_PUBLIC_LAUNCH_STATUS=preview`. Payload cutover is a **hard-launch** requirement
+(`CONTENT_SOURCE=payload`), not a soft-launch gate.
 
 ## Topology (locked)
 
 ```
 Reader → Cloudflare (DNS/CDN) → Vercel (apps/web Node)
-                                      ├─ Postgres (auth, engagement, ops)
-                                      └─ Payload REST (CONTENT_SOURCE=payload)
+                                      ├─ Postgres (auth, engagement, ops, soft desk nw_articles)
+                                      └─ Payload REST (hard cutover: CONTENT_SOURCE=payload)
 Payload (apps/admin) → same Postgres + object storage (Blob/R2)
 ```
 
@@ -39,15 +42,17 @@ APIs (`scripts/build-pages-static.mjs`).
 | Status | `NEXT_PUBLIC_LAUNCH_STATUS=preview` until hard launch |
 | DB | `DATABASE_URL` (Postgres); `pnpm migrate:ops`; `AUTH_AUTO_MIGRATE=false` in prod |
 | Auth | `AUTH_SECRET` ≥32; staff MFA via `STAFF_MFA_ENABLED=true` before live |
-| CMS | `CONTENT_SOURCE=payload`, `PAYLOAD_*`, `REVALIDATE_SECRET`, `PAYLOAD_DB_PUSH=false` |
+| Soft CMS | Unset/`json` CONTENT_SOURCE + Postgres desk (`nw_articles`) until cutover |
+| Hard CMS | `CONTENT_SOURCE=payload`, `PAYLOAD_*`, `REVALIDATE_SECRET`, `PAYLOAD_DB_PUSH=false` |
 | Email | `RESEND_API_KEY` (or newsletter API), `AUTH_EMAIL_FROM`, `NEWSLETTER_FROM` |
 | Media | `BLOB_READ_WRITE_TOKEN` and/or `R2_*` + `STORAGE_PUBLIC_BASE_URL` |
-| Ads (soft) | `NEXT_PUBLIC_ADS_MODE=house` + house creatives; sales email before network |
+| Ads (soft) | Ads off OK for Option A; or `NEXT_PUBLIC_ADS_MODE=house` + creatives |
 | Cron | `CRON_SECRET`; GitHub `ops-crons.yml` or Vercel cron hitting `/api/cron/*` |
 | Abuse | `CAPTCHA_PROVIDER=turnstile` + site/secret keys when live |
 | Observability | `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` (or GA4), Sentry DSN |
 | Legal | `NEXT_PUBLIC_PUBLICATION_LEGAL_NAME`, `EDITOR_IN_CHIEF`, `DOIB_NUMBER`, address, phone, email |
 | Seed | Leave `ALLOW_STARTER_SEED` unset/false in production |
+| Admin nav | Soft preview hides algorithms/experiments extras; set `NEXT_PUBLIC_ADMIN_FULL_NAV=1` to show all |
 
 ## Phase 0 — Topology
 
@@ -56,13 +61,19 @@ APIs (`scripts/build-pages-static.mjs`).
 3. Run `pnpm migrate:ops` against production Postgres.
 4. Confirm `/admin/launch` loads on the Vercel origin (not Pages).
 
-## Phase 1 — Payload cutover
+## Phase 1 — Soft desk (before Payload)
+
+1. Keep `CONTENT_SOURCE` unset or `json` with `DATABASE_URL` so desk publish writes `nw_articles`.
+2. Publish ≥30 real Nepali stories from web desk; confirm no starter seed on homepage.
+3. Confirm `/admin/launch` soft phase: desk-publish, corpus, auth/email, cron (not Payload).
+
+## Phase 1b — Payload cutover (hard gate)
 
 1. Deploy `apps/admin`; apply Payload migrations; set `PAYLOAD_DB_PUSH=false`.
 2. Complete cutover checklist on `/admin/launch` (URL, token, secret, revalidate, media).
 3. Staging: set `CONTENT_SOURCE=payload`; publish one article → public URL ≤60s via revalidate.
 4. Train desk: article CRUD in Payload; web `/admin` for ops (comments, ads, launch).
-5. Publish ≥30 real Nepali stories; confirm no starter seed on homepage.
+5. Confirm hard-phase **Payload cutover** item is green before flipping live.
 
 ## Phase 2 — Soft launch (still `preview`)
 
