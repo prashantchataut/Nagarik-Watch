@@ -76,7 +76,13 @@ export default async function JournalistEditPage({ params }: { params: Promise<{
           deckNe: article.deckNe || '',
           bodyNe,
           tagSlugs: articleTags,
-          heroImageUrl: ('mediaReferenceUrl' in article ? article.mediaReferenceUrl : undefined) || meta.mediaReferenceUrl || '',
+          heroImageUrl:
+            ('heroImageUrl' in article && article.heroImageUrl
+              ? article.heroImageUrl
+              : undefined) ||
+            ('mediaReferenceUrl' in article ? article.mediaReferenceUrl : undefined) ||
+            meta.mediaReferenceUrl ||
+            '',
           reportingLocation: ('reportingLocation' in article ? article.reportingLocation : undefined) || meta.reportingLocation || '',
           sourceNote: ('sourceNote' in article ? article.sourceNote : undefined) || meta.sourceNote || '',
           editorPitch: ('editorPitch' in article ? article.editorPitch : undefined) || meta.editorPitch || '',

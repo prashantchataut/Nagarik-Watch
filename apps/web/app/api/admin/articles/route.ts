@@ -94,9 +94,21 @@ export async function POST(request: NextRequest) {
   }
 
   const requestedStage = asWorkflowStage(body.workflowStage)
-  const isPublishing = requestedStage === 'published'
-  if (requestedStage === 'published' && !canPublish(session.newsroomRole)) {
+  const isPublishing = requestedStage === 'published' || requestedStage === 'updated'
+  if (isPublishing && !canPublish(session.newsroomRole)) {
     return NextResponse.json({ error: 'प्रकाशन अनुमति छैन।' }, { status: 403 })
+  }
+  if (requestedStage === 'scheduled' && !canPublish(session.newsroomRole)) {
+    return NextResponse.json({ error: 'तालिका अनुमति छैन।' }, { status: 403 })
+  }
+  const authorIds = Array.isArray(body.authorIds) ? body.authorIds.map(String) : []
+  if (isPublishing && authorIds.length === 0) {
+    return NextResponse.json({ error: 'प्रकाशन अघि कम्तीमा एक लेखक छान्नुहोस्।' }, { status: 400 })
+  }
+  const heroImageUrl = body.heroImageUrl ? String(body.heroImageUrl) : undefined
+  const heroImageAlt = body.heroImageAlt ? String(body.heroImageAlt) : undefined
+  if (isPublishing && heroImageUrl && !heroImageAlt) {
+    return NextResponse.json({ error: 'हीरो तस्बिरको alt पाठ अनिवार्य छ।' }, { status: 400 })
   }
 
   try {
@@ -109,11 +121,11 @@ export async function POST(request: NextRequest) {
       deckEn: body.deckEn ? String(body.deckEn) : undefined,
       bodyNe: blocksFromShorthand(body.bodyNe, titleNe),
       bodyEn: body.bodyEn ? blocksFromShorthand(body.bodyEn) : undefined,
-      heroImageUrl: body.heroImageUrl ? String(body.heroImageUrl) : undefined,
-      heroImageAlt: body.heroImageAlt ? String(body.heroImageAlt) : undefined,
+      heroImageUrl,
+      heroImageAlt,
       heroCaptionNe: body.heroCaptionNe ? String(body.heroCaptionNe) : undefined,
       heroCredit: body.heroCredit ? String(body.heroCredit) : undefined,
-      authorIds: Array.isArray(body.authorIds) ? body.authorIds.map(String) : [],
+      authorIds,
       tagSlugs: Array.isArray(body.tagSlugs) ? body.tagSlugs.map(String) : [],
       isBreaking: Boolean(body.isBreaking),
       isFeatured: (body.isFeatured as 'lead' | 'featured' | 'secondary' | 'none') ?? 'none',

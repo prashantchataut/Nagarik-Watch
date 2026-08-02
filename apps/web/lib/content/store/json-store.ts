@@ -241,17 +241,19 @@ async function refreshEditionArticles(
       .filter((article) => article.id.startsWith('art-ed-'))
       .map((article) => [article.id, article] as const),
   )
-  let changed = false
+  const toRefresh: StoredArticle[] = []
   const next = articles.map((article) => {
     if (!article.id.startsWith('art-ed-')) return article
     const fresh = canonical.get(article.id)
     if (!fresh) return article
     if (editionBodyWords(article.bodyNe) >= EDITION_MIN_BODY_WORDS) return article
-    changed = true
+    // Skip rows that newsroom already touched (updatedBy differs from seed creator).
+    if (article.updatedBy && article.updatedBy !== article.createdBy) return article
+    toRefresh.push(fresh)
     return fresh
   })
-  if (!changed) return next
-  await insertSeedArticles(pool, [...canonical.values()])
+  if (toRefresh.length === 0) return next
+  await insertSeedArticles(pool, toRefresh)
   return next
 }
 
@@ -272,10 +274,12 @@ async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
   }
 
   const articles = await repairStaleEditionHeroes(pool, rawArticles)
-  const refreshed = await refreshEditionArticles(pool, articles)
+  // Never rewrite short art-ed-* bodies in production (or when seed is off);
+  // that wiped desk edits whenever word count fell under the seed threshold.
   if (!allowStarterSeed()) {
-    return { articles: refreshed, version: 1 }
+    return { articles, version: 1 }
   }
+  const refreshed = await refreshEditionArticles(pool, articles)
   const missing = missingSeedArticles(refreshed)
   if (missing.length > 0) {
     const normalizedMissing = normalizeArticles(missing)
@@ -383,24 +387,40 @@ async function read(): Promise<StoreShape> {
   return rememberCache(await readFromFile())
 }
 
-async function write(store: StoreShape): Promise<void> {
-  writeLock = writeLock.then(async () => {
-    const pool = await getArticlesPool()
-    if (pool) {
-      await writeToPostgres(pool, store)
-      rememberCache(store)
-      return
-    }
-    if (isProductionRuntime()) {
-      throw new Error(
-        'Article store needs DATABASE_URL (Postgres) in production. Local file writes are disabled on Vercel.',
-      )
-    }
-    await fs.mkdir(DATA_DIR, { recursive: true })
-    await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
+async function writeUnlocked(store: StoreShape): Promise<void> {
+  const pool = await getArticlesPool()
+  if (pool) {
+    await writeToPostgres(pool, store)
     rememberCache(store)
+    return
+  }
+  if (isProductionRuntime()) {
+    throw new Error(
+      'Article store needs DATABASE_URL (Postgres) in production. Local file writes are disabled on Vercel.',
+    )
+  }
+  await fs.mkdir(DATA_DIR, { recursive: true })
+  await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
+  rememberCache(store)
+}
+
+/** Serialize read→mutate→write so concurrent desk saves cannot drop each other. */
+async function withArticleMutation<T>(fn: () => Promise<T>): Promise<T> {
+  let result!: T
+  let error: unknown
+  writeLock = writeLock.then(async () => {
+    try {
+      // Bypass short TTL so we mutate the latest inventory.
+      cache = null
+      cacheAt = 0
+      result = await fn()
+    } catch (err) {
+      error = err
+    }
   })
   await writeLock
+  if (error) throw error
+  return result
 }
 
 function genId(): string {
@@ -454,11 +474,24 @@ export async function listArticles(
 }
 
 export async function listArticlesForAdmin(
-  opts: { limit?: number; offset?: number; status?: StoredArticle['workflowStage'] } = {},
+  opts: {
+    limit?: number
+    offset?: number
+    status?: StoredArticle['workflowStage']
+    q?: string
+  } = {},
 ): Promise<{ items: StoredArticle[]; total: number }> {
   const store = await read()
   let items = store.articles
   if (opts.status) items = items.filter((a) => a.workflowStage === opts.status)
+  const q = opts.q?.trim().toLowerCase()
+  if (q) {
+    items = items.filter((article) => {
+      const hay =
+        `${article.titleNe} ${article.titleEn ?? ''} ${article.slug} ${article.categorySlug} ${article.deckNe ?? ''}`.toLowerCase()
+      return hay.includes(q)
+    })
+  }
   items = items.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
   const total = items.length
   if (opts.limit !== undefined) {
@@ -626,6 +659,7 @@ export async function createArticle(input: {
   dataStory?: boolean
   factCheckStatus?: StoredArticle['factCheckStatus']
 }): Promise<StoredArticle> {
+  return withArticleMutation(async () => {
   const store = await read()
   const dup = store.articles.find(
     (a) => a.categorySlug === input.categorySlug && a.slug === input.slug,
@@ -634,10 +668,22 @@ export async function createArticle(input: {
 
   const now_iso = now()
   const stage = input.workflowStage ?? 'draft'
+  if (stage === 'scheduled') {
+    if (!input.publishedAt || !Number.isFinite(Date.parse(input.publishedAt))) {
+      throw new Error('तालिकाबद्ध प्रकाशनका लागि मान्य भविष्यको मिति आवश्यक छ।')
+    }
+    if (Date.parse(input.publishedAt) <= Date.now()) {
+      throw new Error('तालिका मिति भविष्यमा हुनुपर्छ।')
+    }
+  }
   const publishAt =
-    stage === 'scheduled' && input.publishedAt && Number.isFinite(Date.parse(input.publishedAt))
-      ? new Date(input.publishedAt).toISOString()
-      : now_iso
+    stage === 'scheduled'
+      ? new Date(input.publishedAt!).toISOString()
+      : stage === 'published' || stage === 'updated'
+        ? now_iso
+        : input.publishedAt && Number.isFinite(Date.parse(input.publishedAt))
+          ? new Date(input.publishedAt).toISOString()
+          : now_iso
   const article: StoredArticle = {
     id: genId(),
     slug: input.slug,
@@ -689,8 +735,9 @@ export async function createArticle(input: {
     dataStory: input.dataStory,
     factCheckStatus: input.factCheckStatus,
   }
-  await write({ ...store, articles: [...store.articles, article] })
+  await writeUnlocked({ ...store, articles: [...store.articles, article] })
   return article
+  })
 }
 
 export async function updateArticle(
@@ -699,11 +746,24 @@ export async function updateArticle(
   updatedBy: string,
   actorRole?: NewsroomRole,
 ): Promise<StoredArticle | null> {
+  return withArticleMutation(async () => {
   const store = await read()
   const idx = store.articles.findIndex((a) => a.id === id)
   if (idx === -1) return null
   const existing = store.articles[idx]!
   const nextStage = patch.workflowStage ?? existing.workflowStage
+  const nextSlug = patch.slug ?? existing.slug
+  const nextCategory = patch.categorySlug ?? existing.categorySlug
+
+  if (
+    (patch.slug !== undefined && patch.slug !== existing.slug) ||
+    (patch.categorySlug !== undefined && patch.categorySlug !== existing.categorySlug)
+  ) {
+    const dup = store.articles.find(
+      (a) => a.id !== id && a.categorySlug === nextCategory && a.slug === nextSlug,
+    )
+    if (dup) throw new Error('स्लग पहिले नै अवस्थित छ। अर्को स्लग राख्नुहोस्।')
+  }
 
   if (actorRole && patch.workflowStage && patch.workflowStage !== existing.workflowStage) {
     assertWorkflowTransition({
@@ -711,6 +771,17 @@ export async function updateArticle(
       from: existing.workflowStage,
       to: patch.workflowStage,
     })
+  }
+
+  if (nextStage === 'scheduled') {
+    const at = patch.publishedAt ?? existing.publishedAt
+    if (!at || !Number.isFinite(Date.parse(at))) {
+      throw new Error('तालिकाबद्ध प्रकाशनका लागि मान्य भविष्यको मिति आवश्यक छ।')
+    }
+    // Allow existing future schedules; only reject when newly setting a past time.
+    if (patch.publishedAt && Date.parse(patch.publishedAt) <= Date.now()) {
+      throw new Error('तालिका मिति भविष्यमा हुनुपर्छ।')
+    }
   }
 
   const now_iso = now()
@@ -759,7 +830,7 @@ export async function updateArticle(
   }
   const articles = [...store.articles]
   articles[idx] = updated
-  await write({ ...store, articles })
+  await writeUnlocked({ ...store, articles })
 
   const slugChanged =
     (patch.slug !== undefined && patch.slug !== existing.slug) ||
@@ -777,14 +848,17 @@ export async function updateArticle(
   }
 
   return updated
+  })
 }
 
 export async function deleteArticle(id: string): Promise<boolean> {
-  const store = await read()
-  const idx = store.articles.findIndex((a) => a.id === id)
-  if (idx === -1) return false
-  await write({ ...store, articles: store.articles.filter((article) => article.id !== id) })
-  return true
+  return withArticleMutation(async () => {
+    const store = await read()
+    const idx = store.articles.findIndex((a) => a.id === id)
+    if (idx === -1) return false
+    await writeUnlocked({ ...store, articles: store.articles.filter((article) => article.id !== id) })
+    return true
+  })
 }
 
 export async function getArticleCounts(): Promise<{

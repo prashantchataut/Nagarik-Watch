@@ -106,6 +106,20 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   if (requestedStage === 'published' && !canPublish(session.newsroomRole)) {
     return NextResponse.json({ error: 'प्रकाशन अनुमति छैन।' }, { status: 403 })
   }
+  if (requestedStage === 'scheduled' && !canPublish(session.newsroomRole)) {
+    return NextResponse.json({ error: 'तालिका अनुमति छैन।' }, { status: 403 })
+  }
+  if (requestedStage === 'published' || requestedStage === 'updated') {
+    const authorIds = Array.isArray(body.authorIds) ? body.authorIds.map(String) : null
+    if (authorIds && authorIds.length === 0) {
+      return NextResponse.json({ error: 'प्रकाशन अघि कम्तीमा एक लेखक छान्नुहोस्।' }, { status: 400 })
+    }
+    const heroUrl = body.heroImageUrl !== undefined ? String(body.heroImageUrl ?? '').trim() : null
+    const heroAlt = body.heroImageAlt !== undefined ? String(body.heroImageAlt ?? '').trim() : null
+    if (heroUrl && !heroAlt) {
+      return NextResponse.json({ error: 'हीरो तस्बिरको alt पाठ अनिवार्य छ।' }, { status: 400 })
+    }
+  }
 
   try {
     const patch: Record<string, unknown> = { ...body }
@@ -207,6 +221,13 @@ export async function DELETE(
     const existing = await getArticleById(id)
     if (!existing) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
     const ok = await deleteArticle(id)
+    if (ok && isPubliclyVisibleStage(existing.workflowStage)) {
+      revalidatePublishedArticle({
+        categorySlug: existing.categorySlug,
+        slug: existing.slug,
+        tagSlugs: existing.tagSlugs,
+      })
+    }
     return NextResponse.json({ ok, deletedId: id, deletedBy: session.userId })
   } catch (err) {
     console.error('[admin/articles] delete failed', err)

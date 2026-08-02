@@ -281,3 +281,19 @@ export async function updatePayloadJournalistDraft(
   )
   return draftFromPayload(doc)
 }
+
+/** Patch only workflowStage on a Payload article (desk feedback / revision return). */
+export async function updatePayloadArticleWorkflowStage(
+  id: string,
+  workflowStage: string,
+): Promise<void> {
+  await payloadJson(`/api/articles/${encodeURIComponent(id)}?draft=true`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      workflowStage,
+      ...(workflowStage === 'draft' || workflowStage === 'submitted'
+        ? { _status: 'draft', noIndex: true, includeInNewsSitemap: false }
+        : {}),
+    }),
+  })
+}

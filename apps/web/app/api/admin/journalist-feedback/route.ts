@@ -3,7 +3,7 @@ import { EDITOR_ROLES } from '@/lib/admin-roles'
 import { getNewsroomSession } from '@/lib/auth/session'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { shorthandFromBlocks } from '@/lib/content/blocks'
-import { getPayloadJournalistDraft, isPayloadCanonical } from '@/lib/content/payload-admin-client'
+import { getPayloadJournalistDraft, isPayloadCanonical, updatePayloadArticleWorkflowStage } from '@/lib/content/payload-admin-client'
 import { findArticleForAdmin, updateArticle } from '@/lib/content/store/json-store'
 import {
   appendJournalistDraftRevision,
@@ -42,6 +42,34 @@ export async function POST(request: NextRequest) {
   if (action === 'revision' && !article) {
     return NextResponse.json({ error: 'Draft content could not be loaded for the revision record.' }, { status: 409 })
   }
+
+  if (action === 'revision' && article && current.articleId) {
+    if (isPayloadCanonical()) {
+      try {
+        await updatePayloadArticleWorkflowStage(current.articleId, 'draft')
+      } catch (error) {
+        console.error(
+          '[journalist-feedback] payload stage flip failed',
+          error instanceof Error ? error.message : error,
+        )
+        return NextResponse.json(
+          {
+            error:
+              'Payload मा ड्राफ्ट चरण फर्काउन सकिएन। फिडब्याक सुरक्षित गरिएन; CMS जडान जाँच गर्नुहोस्।',
+          },
+          { status: 502 },
+        )
+      }
+    } else {
+      await updateArticle(
+        current.articleId,
+        { workflowStage: 'draft' },
+        session.userId,
+        session.newsroomRole,
+      )
+    }
+  }
+
   const next = await setJournalistFeedback(
     current.articleId || current.articleSlug,
     current.reporterId,
@@ -54,14 +82,6 @@ export async function POST(request: NextRequest) {
     responseMeta = await saveJournalistDraftMeta({ ...next, workflowStage: 'draft' })
   }
   if (action === 'revision' && article) {
-    if (!isPayloadCanonical() && current.articleId) {
-      await updateArticle(
-        current.articleId,
-        { workflowStage: 'draft' },
-        session.userId,
-        session.newsroomRole,
-      )
-    }
     const tagSlugs = 'tagSlugs' in article && Array.isArray(article.tagSlugs) ? article.tagSlugs : []
     await appendJournalistDraftRevision({
       articleId: responseMeta.articleId,

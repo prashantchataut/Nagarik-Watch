@@ -326,7 +326,7 @@ export function getLaunchChecks(): LaunchCheck[] {
   return buildLaunchChecks()
 }
 
-/** Preferred for /admin/launch — includes live ops migration status. */
+/** Preferred for /admin/launch — includes live ops migration status + real article count. */
 export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
   const opsMigrations = await getOpsMigrationStatus().catch(() => ({
     applied: [] as string[],
@@ -334,7 +334,32 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
     storage: 'unavailable' as const,
   }))
   const securityHeaders = await configuredSecurityHeaderLint().catch(() => undefined)
-  return buildLaunchChecks({ opsMigrations, securityHeaders })
+  const checks = buildLaunchChecks({ opsMigrations, securityHeaders })
+
+  let livePublished = 0
+  try {
+    const { getAdminDashboardSnapshot } = await import('@/lib/content/store/json-store')
+    const snap = await getAdminDashboardSnapshot()
+    livePublished = snap.publishedTotal
+  } catch {
+    livePublished = -1
+  }
+  const launchMinimum = Number(value('LAUNCH_MIN_PUBLISHED_ARTICLES') || 30)
+  const declared = Number(value('PUBLISHED_ARTICLE_COUNT') || 0)
+  const volumeIdx = checks.findIndex((check) => check.key === 'content-volume')
+  if (volumeIdx >= 0) {
+    const count = livePublished >= 0 ? livePublished : declared
+    const source =
+      livePublished >= 0 ? 'from article store' : 'declared via PUBLISHED_ARTICLE_COUNT only (store unread)'
+    checks[volumeIdx] = {
+      key: 'content-volume',
+      label: 'Published content threshold',
+      status: count >= launchMinimum ? 'pass' : livePublished === 0 ? 'fail' : 'warn',
+      detail: `${count}/${launchMinimum} published articles (${source})`,
+    }
+  }
+
+  return checks
 }
 
 export function launchScore(checks: LaunchCheck[]): number {

@@ -18,6 +18,18 @@ describe('workflow transitions', () => {
     expect(canActorTransition('editor', 'submitted', 'draft')).toBe(true)
   })
 
+  it('allows publisher draft → published (desk one-click publish)', () => {
+    expect(canActorTransition('publisher', 'draft', 'published')).toBe(true)
+  })
+
+  it('blocks editor draft → published', () => {
+    expect(canActorTransition('editor', 'draft', 'published')).toBe(false)
+  })
+
+  it('allows publisher submitted → published', () => {
+    expect(canActorTransition('publisher', 'submitted', 'published')).toBe(true)
+  })
+
   it('allows publisher ready → published', () => {
     expect(canActorTransition('publisher', 'ready', 'published')).toBe(true)
   })

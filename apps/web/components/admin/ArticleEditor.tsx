@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@nagarikwatch/ui'
 import type { Author, Category, Tag } from '@nagarikwatch/db'
 import type { NewsroomRole } from '@/lib/admin-roles'
-import { canPublish, canEdit } from '@/lib/admin-roles'
+import { canPublish, canEdit, canDelete } from '@/lib/admin-roles'
 import { AdminInput, AdminTextarea, AdminSelect, AdminButton } from '@/components/admin/primitives'
 import {
   HeroMediaField,
@@ -44,6 +44,7 @@ type ArticleDraft = {
   heroCredit: string
   authorIds: string[]
   province: string
+  expectedUpdatedAt?: string
 }
 
 const EMPTY: ArticleDraft = {
@@ -70,13 +71,14 @@ const EMPTY: ArticleDraft = {
   includeInNewsSitemap: false,
   aiSummary: '',
   premium: false,
-  commentsEnabled: false,
+  commentsEnabled: true,
   heroImageUrl: '',
   heroImageAlt: '',
   heroCaption: '',
   heroCredit: '',
   authorIds: [],
   province: '',
+  expectedUpdatedAt: '',
 }
 
 const WORKFLOW_STAGES = [
@@ -159,6 +161,7 @@ export function ArticleEditor({
 
   const canPublishArticle = canPublish(role)
   const canEditArticle = canEdit(role)
+  const canDeleteArticle = canDelete(role) && Boolean(initial?.id) && !isNew
   const canManageHomepage =
     canPublish(role) || role === 'admin' || role === 'super_admin' || role === 'seo_manager'
 
@@ -185,6 +188,34 @@ export function ArticleEditor({
           const read = (name: string, fallback = '') =>
             String(formData?.get(name) ?? fallback).trim()
           const workflowStage = targetStage ?? read('workflowStage', draft.workflowStage)
+          const heroImageUrl = read('heroImageUrl', draft.heroImageUrl) || undefined
+          const heroImageAlt = read('heroImageAlt', draft.heroImageAlt) || undefined
+          const publishedAtRaw = read('publishedAt', draft.publishedAt)
+
+          if (!read('titleNe', draft.titleNe) || !read('category', draft.category) || !draft.bodyNe.trim() || !read('slug', draft.slug)) {
+            throw new Error('शीर्षक, विभाग, स्लग र मूल भाग अनिवार्य छन्।')
+          }
+          if (workflowStage === 'published' || workflowStage === 'updated') {
+            if (selectedAuthors.length === 0) {
+              throw new Error('प्रकाशन अघि कम्तीमा एक लेखक छान्नुहोस्।')
+            }
+            if (heroImageUrl && !heroImageAlt) {
+              throw new Error('हीरो तस्बिरको alt पाठ अनिवार्य छ।')
+            }
+          }
+          if (workflowStage === 'scheduled') {
+            if (!publishedAtRaw) {
+              throw new Error('तालिकाबद्ध प्रकाशनका लागि मिति/समय राख्नुहोस्।')
+            }
+            const parsed = Date.parse(publishedAtRaw)
+            if (!Number.isFinite(parsed)) {
+              throw new Error('तालिका मिति मान्य छैन।')
+            }
+            if (parsed <= Date.now()) {
+              throw new Error('तालिका मिति भविष्यमा हुनुपर्छ।')
+            }
+          }
+
           const body = {
             slug: read('slug', draft.slug),
             categorySlug: read('category', draft.category),
@@ -207,30 +238,28 @@ export function ArticleEditor({
               | 'featured'
               | 'secondary'
               | 'none',
-            featuredExpiresAt: read('featuredExpiresAt', draft.featuredExpiresAt) || undefined,
+            featuredExpiresAt: (() => {
+              const raw = read('featuredExpiresAt', draft.featuredExpiresAt)
+              if (!raw) return undefined
+              const parsed = Date.parse(raw)
+              return Number.isFinite(parsed) ? new Date(parsed).toISOString() : undefined
+            })(),
             publishedAt:
               workflowStage === 'scheduled'
-                ? (() => {
-                    const raw = read('publishedAt', draft.publishedAt)
-                    if (!raw) return undefined
-                    const parsed = Date.parse(raw)
-                    return Number.isFinite(parsed) ? new Date(parsed).toISOString() : undefined
-                  })()
+                ? new Date(publishedAtRaw).toISOString()
                 : undefined,
             seoTitleNe: read('seoTitle', draft.seoTitle) || undefined,
             seoDescriptionNe: read('seoDescription', draft.seoDescription) || undefined,
-            noIndex: workflowStage === 'published' ? false : draft.noIndex,
-            includeInNewsSitemap: workflowStage === 'published',
+            noIndex: workflowStage === 'published' || workflowStage === 'updated' ? false : draft.noIndex,
+            includeInNewsSitemap: workflowStage === 'published' || workflowStage === 'updated',
             aiSummary: read('aiSummary', draft.aiSummary) || undefined,
             premium: draft.premium,
             commentsEnabled: draft.commentsEnabled,
-            heroImageUrl: read('heroImageUrl', draft.heroImageUrl) || undefined,
-            heroImageAlt: read('heroImageAlt', draft.heroImageAlt) || undefined,
+            heroImageUrl,
+            heroImageAlt,
             heroCaptionNe: read('heroCaption', draft.heroCaption) || undefined,
             heroCredit: read('heroCredit', draft.heroCredit) || undefined,
-          }
-          if (!body.titleNe || !body.categorySlug || !body.bodyNe.trim() || !body.slug) {
-            throw new Error('शीर्षक, विभाग, स्लग र मूल भाग अनिवार्य छन्।')
+            expectedUpdatedAt: draft.expectedUpdatedAt || undefined,
           }
           const url = initial?.id ? `/api/admin/articles/${initial.id}` : '/api/admin/articles'
           const res = await fetch(url, {
@@ -252,12 +281,26 @@ export function ArticleEditor({
             publicPath?: string
             visibility?: 'public' | 'draft'
             visibilityHint?: string
+            workflowStage?: string
+            updatedAt?: string
+          }
+          if (saved.workflowStage) {
+            update('workflowStage', saved.workflowStage)
+          } else {
+            update('workflowStage', workflowStage)
+          }
+          if (saved.updatedAt) {
+            update('expectedUpdatedAt', saved.updatedAt)
           }
           const hint =
             saved.visibilityHint ??
-            (targetStage === 'published' || targetStage === 'updated'
+            (workflowStage === 'published' || workflowStage === 'updated'
               ? 'प्रकाशित भयो। ताजा समाचार र लेख URL मा जाँच गर्नुहोस्।'
-              : 'ड्राफ्ट सुरक्षित भयो। सार्वजनिक साइटमा देखिन "प्रकाशित गर्नुहोस्" थिच्नुहोस्।')
+              : workflowStage === 'scheduled'
+                ? 'तालिकामा राखियो। cron चलेपछि सार्वजनिक हुन्छ।'
+                : workflowStage === 'ready'
+                  ? 'तयार अवस्थामा सुरक्षित भयो। प्रकाशकले प्रकाशित गर्न सक्छन्।'
+                  : 'सुरक्षित भयो। सार्वजनिक साइटमा देखिन प्रकाशित गर्नुहोस्।')
           setStatus({
             kind: 'saved',
             msg: saved.publicPath ? `${hint} → ${saved.publicPath}` : hint,
@@ -274,6 +317,30 @@ export function ArticleEditor({
     })
   }
 
+  function removeArticle() {
+    if (!initial?.id || !canDeleteArticle) return
+    if (!window.confirm('यो समाचार स्थायी रूपमा मेटिनेछ। निश्चित हुनुहुन्छ?')) return
+    setStatus({ kind: 'saving' })
+    startTransition(() => {
+      void (async () => {
+        try {
+          const res = await fetch(`/api/admin/articles/${initial.id}`, {
+            method: 'DELETE',
+            credentials: 'include',
+          })
+          if (!res.ok) {
+            const err = (await res.json().catch(() => ({}))) as { error?: string }
+            throw new Error(err.error ?? 'मेटाउन सकिएन।')
+          }
+          router.push('/admin/articles')
+          router.refresh()
+        } catch (e) {
+          setStatus({ kind: 'error', msg: e instanceof Error ? e.message : 'त्रुटि' })
+        }
+      })()
+    })
+  }
+
   const wordCount = draft.bodyNe.trim() ? draft.bodyNe.trim().split(/\s+/).length : 0
   const readingMinutes = Math.max(1, Math.round(wordCount / 200))
   const stageLabel =
@@ -282,18 +349,31 @@ export function ArticleEditor({
   const actionBar = (
     <div>
       <div className="flex flex-wrap items-center gap-2">
-        <AdminButton onClick={() => save('draft')} variant="secondary" disabled={pending}>
-          ड्राफ्ट सुरक्षित
+        <AdminButton onClick={() => save()} variant="secondary" disabled={pending}>
+          सुरक्षित गर्नुहोस्
         </AdminButton>
         {canEditArticle ? (
           <AdminButton onClick={() => save('submitted')} variant="secondary" disabled={pending}>
             पेश गर्नुहोस्
           </AdminButton>
         ) : null}
-        {canPublishArticle ? (
-          <AdminButton onClick={() => save('published')} disabled={pending}>
-            प्रकाशित गर्नुहोस्
+        {canEditArticle && !canPublishArticle ? (
+          <AdminButton onClick={() => save('ready')} variant="secondary" disabled={pending}>
+            तयार
           </AdminButton>
+        ) : null}
+        {canPublishArticle ? (
+          <>
+            <AdminButton onClick={() => save('ready')} variant="secondary" disabled={pending}>
+              तयार
+            </AdminButton>
+            <AdminButton onClick={() => save('scheduled')} variant="secondary" disabled={pending}>
+              तालिका
+            </AdminButton>
+            <AdminButton onClick={() => save('published')} disabled={pending}>
+              प्रकाशित गर्नुहोस्
+            </AdminButton>
+          </>
         ) : (
           <span className="text-caption text-mute" lang="ne">
             प्रकाशन अनुमति छैन — सम्पादक/प्रकाशक आवश्यक
@@ -304,10 +384,20 @@ export function ArticleEditor({
             ? 'सुरक्षित हुँदै…'
             : `${wordCount} शब्द · ~${readingMinutes} मिनेट · ${stageLabel}`}
         </span>
+        {canDeleteArticle ? (
+          <AdminButton
+            onClick={removeArticle}
+            variant="ghost"
+            disabled={pending}
+            className="!text-breaking ml-auto"
+          >
+            मेटाउनुहोस्
+          </AdminButton>
+        ) : null}
       </div>
       {canPublishArticle ? (
         <p className="mt-1 text-caption text-ink-soft" lang="ne">
-          ड्राफ्ट सुरक्षित = अझै गोप्य। सार्वजनिक होम/ताजा मा देखिन प्रकाशित गर्नुहोस्।
+          सुरक्षित = हालको अवस्था। प्रकाशित = सार्वजनिक। तालिका = भविष्यको मिति (दायाँ प्यानल)।
         </p>
       ) : null}
     </div>
@@ -500,14 +590,14 @@ export function ArticleEditor({
             options={WORKFLOW_STAGES}
             required
           />
-          {draft.workflowStage === 'scheduled' ? (
+          {canPublishArticle || draft.workflowStage === 'scheduled' ? (
             <AdminInput
-              label="प्रकाशन समय"
+              label="तालिका प्रकाशन समय"
               name="publishedAt"
               type="datetime-local"
               value={draft.publishedAt}
               onChange={(e) => update('publishedAt', e.target.value)}
-              required
+              hint="तालिका बटन प्रयोग गर्दा अनिवार्य; ब्राउजरको स्थानीय समय"
             />
           ) : null}
           <div className="hidden lg:block">{actionBar}</div>

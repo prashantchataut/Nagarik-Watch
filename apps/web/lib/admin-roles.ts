@@ -189,8 +189,9 @@ export function assertNewsroomRole(
 export function canCreate(role: NewsroomRole): boolean {
   return CONTRIBUTOR_ROLES.has(role)
 }
+/** Anyone who can create on the desk must also be able to update after first save. */
 export function canEdit(role: NewsroomRole): boolean {
-  return EDITOR_ROLES.has(role)
+  return EDITOR_ROLES.has(role) || canCreate(role)
 }
 export function canPublish(role: NewsroomRole): boolean {
   return PUBLISHER_ROLES.has(role)

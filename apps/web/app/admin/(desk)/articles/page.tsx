@@ -4,6 +4,7 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { canCreate, canEdit, canPublish } from '@/lib/admin-roles'
 import { listArticlesForAdmin, type StoredArticle } from '@/lib/content/store/json-store'
 import { categoryBySlug } from '@/lib/content/seed/categories'
+import { publicArticlePath } from '@/lib/content/article-visibility'
 import { firstAdminLoadError, safeAdminLoad } from '@/lib/admin/safe-load'
 import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/CmsCanonicalBanner'
 import {
@@ -16,6 +17,7 @@ import {
   StatusBadge,
 } from '@/components/admin/primitives'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
+import { isPayloadCanonical } from '@/lib/content/payload-admin-client'
 
 export const metadata: Metadata = {
   title: 'समाचार',
@@ -23,6 +25,8 @@ export const metadata: Metadata = {
 }
 
 export const dynamic = 'force-dynamic'
+
+const PAGE_SIZE = 40
 
 const STAGE_LABELS: Record<StoredArticle['workflowStage'], string> = {
   idea: 'विचार',
@@ -42,47 +46,74 @@ const STAGE_LABELS: Record<StoredArticle['workflowStage'], string> = {
 }
 
 const FILTER_STAGES = [
+  'idea',
+  'assigned',
   'draft',
   'submitted',
+  'fact_check',
+  'copy_edit',
+  'seo_review',
+  'legal_review',
   'ready',
   'scheduled',
   'published',
   'updated',
   'archived',
+  'retracted',
 ] as const
 
 export default async function ArticlesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; q?: string }>
+  searchParams: Promise<{ status?: string; q?: string; page?: string }>
 }) {
   const session = await requireNewsroomSession()
   const sp = await searchParams
   const status = normalizeStatus(sp.status)
-  const query = (sp.q ?? '').trim().toLowerCase()
+  const query = (sp.q ?? '').trim()
+  const page = Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1)
+  const offset = (page - 1) * PAGE_SIZE
 
   const listResult = await safeAdminLoad(
     'articles-list',
-    () => listArticlesForAdmin({ status, limit: 120 }),
+    () =>
+      listArticlesForAdmin({
+        status,
+        q: query || undefined,
+        limit: PAGE_SIZE,
+        offset,
+      }),
     { items: [], total: 0 },
   )
   const loadError = firstAdminLoadError(listResult)
-  let items = listResult.value.items
+  const items = listResult.value.items
   const total = listResult.value.total
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
 
   const ops = await getOpsHealthSnapshot().catch(() => null)
   const scheduledCron = ops?.cron.find((job) => job.job === 'scheduled-publish')
   const cronSecretMissing =
     !process.env.CRON_SECRET?.trim() || (process.env.CRON_SECRET?.trim().length ?? 0) < 32
+  const payloadMode = isPayloadCanonical()
   const showScheduledCronWarning =
+    !payloadMode &&
     (status === 'scheduled' || items.some((article) => article.workflowStage === 'scheduled')) &&
     Boolean(scheduledCron?.missed || cronSecretMissing)
+  const showPayloadScheduleNote =
+    payloadMode &&
+    (status === 'scheduled' || items.some((article) => article.workflowStage === 'scheduled'))
 
-  if (query) {
-    items = items.filter((article) => {
-      const hay = `${article.titleNe} ${article.slug} ${article.categorySlug} ${article.deckNe ?? ''}`.toLowerCase()
-      return hay.includes(query)
-    })
+  const listHref = (opts: { status?: string; q?: string; page?: number }) => {
+    const params = new URLSearchParams()
+    const nextStatus = opts.status ?? status
+    const nextQ = opts.q ?? query
+    const nextPage = opts.page ?? 1
+    if (nextStatus) params.set('status', nextStatus)
+    if (nextQ) params.set('q', nextQ)
+    if (nextPage > 1) params.set('page', String(nextPage))
+    const qs = params.toString()
+    return qs ? `/admin/articles?${qs}` : '/admin/articles'
   }
 
   return (
@@ -92,7 +123,7 @@ export default async function ArticlesPage({
           loadError
             ? 'समाचार सूची लोड समस्या'
             : query
-              ? `"${query}" — ${items.length} परिणाम`
+              ? `"${query}" — ${total} परिणाम`
               : `समाचार कक्षको सामग्री सूची — कुल ${total}`
         }
         action={
@@ -104,6 +135,17 @@ export default async function ArticlesPage({
 
       <CmsCanonicalBanner />
       <AdminLoadErrorBanner message={loadError} />
+      {showPayloadScheduleNote ? (
+        <AdminCallout tone="attention" className="mb-4">
+          <p className="text-meta font-semibold text-ink" lang="ne">
+            Payload मोड: डेस्क cron ले चरण फ्लिप गर्दैन।
+          </p>
+          <p className="mt-1 text-caption text-ink-soft" lang="ne">
+            सार्वजनिक साइट <span lang="en">publishAt ≤ now</span> गेटले तालिकाबद्ध सामग्री देखाउँछ।
+            चरण <span lang="en">published</span> मा सार्न Payload CMS बाट गर्नुहोस्।
+          </p>
+        </AdminCallout>
+      ) : null}
       {showScheduledCronWarning ? (
         <AdminCallout tone="attention" className="mb-4">
           <p className="text-meta font-semibold text-ink" lang="ne">
@@ -137,26 +179,25 @@ export default async function ArticlesPage({
           खोज
         </AdminButton>
         {query ? (
-          <AdminButton href={status ? `/admin/articles?status=${status}` : '/admin/articles'} variant="ghost">
+          <AdminButton href={listHref({ q: '', page: 1 })} variant="ghost">
             खाली
           </AdminButton>
         ) : null}
       </form>
 
       <div className="mb-4 flex flex-wrap gap-2">
-        <AdminFilterLink href={query ? `/admin/articles?q=${encodeURIComponent(query)}` : '/admin/articles'} active={!status}>
+        <AdminFilterLink href={listHref({ status: '', page: 1 })} active={!status}>
           सबै
         </AdminFilterLink>
-        {FILTER_STAGES.map((key) => {
-          const href = query
-            ? `/admin/articles?status=${key}&q=${encodeURIComponent(query)}`
-            : `/admin/articles?status=${key}`
-          return (
-            <AdminFilterLink key={key} href={href} active={status === key}>
-              {STAGE_LABELS[key]}
-            </AdminFilterLink>
-          )
-        })}
+        {FILTER_STAGES.map((key) => (
+          <AdminFilterLink
+            key={key}
+            href={listHref({ status: key, page: 1 })}
+            active={status === key}
+          >
+            {STAGE_LABELS[key]}
+          </AdminFilterLink>
+        ))}
       </div>
 
       <AdminCard className={items.length > 0 ? 'overflow-hidden !p-0' : undefined}>
@@ -200,7 +241,7 @@ export default async function ArticlesPage({
               <tbody>
                 {items.map((article) => {
                   const category = categoryBySlug.get(article.categorySlug)
-                  const publicHref = `/${article.categorySlug}/${article.slug}`
+                  const publicHref = publicArticlePath(article.categorySlug, article.slug, 'ne')
                   return (
                     <tr key={article.id}>
                       <td className="max-w-xl">
@@ -267,6 +308,33 @@ export default async function ArticlesPage({
                 })}
               </tbody>
             </AdminTable>
+            {totalPages > 1 ? (
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-rule px-1 py-3">
+                <p className="text-caption text-mute" lang="ne">
+                  पृष्ठ {safePage} / {totalPages} · {total} समाचार
+                </p>
+                <div className="flex gap-2">
+                  {safePage > 1 ? (
+                    <AdminButton
+                      href={listHref({ page: safePage - 1 })}
+                      variant="secondary"
+                      className="!min-h-8 !px-2.5 !py-1 !text-caption"
+                    >
+                      अघिल्लो
+                    </AdminButton>
+                  ) : null}
+                  {safePage < totalPages ? (
+                    <AdminButton
+                      href={listHref({ page: safePage + 1 })}
+                      variant="secondary"
+                      className="!min-h-8 !px-2.5 !py-1 !text-caption"
+                    >
+                      अर्को
+                    </AdminButton>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
           </div>
         )}
       </AdminCard>

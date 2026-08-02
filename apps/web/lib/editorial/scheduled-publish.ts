@@ -24,9 +24,13 @@ export type ScheduledPublishResult = {
 export async function runScheduledPublish(now = new Date()): Promise<ScheduledPublishResult> {
   if (isPayloadCanonical()) {
     // Payload already soft-gates public reads with publishAt <= now in payload-source.
-    // Stage flip to `published` belongs in a Payload job or CMS hook once API token
-    // has publish rights; do not double-write from the json-store worker.
-    return { published: [], skipped: 'payload-canonical', inspected: 0 }
+    // Stage flip to `published` belongs in Payload CMS (or a Payload job with API token).
+    // Returning a distinct skip reason so ops/cron responses are not mistaken for success.
+    return {
+      published: [],
+      skipped: 'payload-canonical-soft-gate',
+      inspected: 0,
+    }
   }
 
   let articles

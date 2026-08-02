@@ -19,8 +19,8 @@ export default async function RashifalPage({ params }: { params: Promise<{ local
         title={en ? "Today's rashifal" : 'आजको राशिफल'}
         lead={
           en
-            ? `Editorial horoscope for ${today}. Entertainment content, not news reporting.`
-            : `${today} को सम्पादकीय राशिफल। मनोरञ्जन सामग्री, समाचार रिपोर्टिङ होइन।`
+            ? `Standing editorial forecasts for ${today}. Entertainment only, not news reporting. Desk CMS for daily updates is not live yet.`
+            : `${today} को सम्पादकीय राशिफल (स्थायी पाठ)। मनोरञ्जन मात्र, समाचार रिपोर्टिङ होइन। दैनिक अपडेट डेस्क अहिले उपलब्ध छैन।`
         }
         lang={en ? 'en' : 'ne'}
       />

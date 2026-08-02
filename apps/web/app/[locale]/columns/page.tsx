@@ -6,7 +6,8 @@ import { getAuthors, getStories } from '@/lib/content'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { SITE_URL } from '@/lib/site'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export async function generateMetadata({
   params,

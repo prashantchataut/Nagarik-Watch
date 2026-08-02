@@ -10,7 +10,8 @@ import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
 
 const hub = STATIC_HUBS.find((item) => item.key === 'archive')!
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 type Search = {
   q?: string

@@ -75,9 +75,10 @@ export default async function LiveAdminPage() {
                     <p className="font-display text-body-lg font-semibold text-ink" lang="ne">{story.titleNe}</p>
                     <p className="mt-1 text-caption text-mute">{story.category.nameNe} · score {story.rankScore.toFixed(1)}</p>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-center text-caption">
+                  <div className="grid grid-cols-4 gap-2 text-center text-caption">
                     <Signal label="views/h" value={String(Math.round(activity?.viewsPerHour ?? 0))} />
                     <Signal label="10 min" value={String(Math.round(activity?.viewsLast10Min ?? 0))} />
+                    <Signal label="dwell" value={`${Math.round(activity?.dwellTimeSeconds ?? 0)}s`} />
                     <Signal label="imps" value={String(activity?.impressions ?? 0)} />
                   </div>
                 </article>

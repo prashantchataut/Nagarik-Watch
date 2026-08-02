@@ -4,13 +4,14 @@ import Link from 'next/link'
 import { getNavCategories, getAuthors, getTags } from '@/lib/content'
 import { findArticleForAdmin } from '@/lib/content/store/json-store'
 import { requireNewsroomSession } from '@/lib/auth/session'
+import { canEdit } from '@/lib/admin-roles'
 import { categories as seedCategories } from '@/lib/content/seed/categories'
 import { firstAdminLoadError, safeAdminLoad } from '@/lib/admin/safe-load'
 import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/CmsCanonicalBanner'
 import { AdminButton, AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditor } from '@/components/admin/ArticleEditor'
-import type { ArticleBlock } from '@nagarikwatch/db'
 import { listMediaItems } from '@/lib/media-library'
+import { shorthandFromBlocks } from '@/lib/content/blocks'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,6 +26,13 @@ export const metadata: Metadata = {
 
 export default async function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireNewsroomSession()
+  if (!canEdit(session.newsroomRole)) {
+    return (
+      <div className="rounded-lg border border-breaking/30 bg-brand-tint p-4 text-meta font-semibold text-brand-strong" lang="ne">
+        यो लेख सम्पादन गर्ने अनुमति छैन।
+      </div>
+    )
+  }
   const { id } = await params
 
   const [categoriesResult, tagsResult, authorsResult, mediaLibrary, articleResult] = await Promise.all([
@@ -69,7 +77,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
     )
   }
 
-  const bodyText = blocksToShorthand(article.bodyNe)
+  const bodyText = shorthandFromBlocks(article.bodyNe)
 
   return (
     <div>
@@ -87,7 +95,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
           deckNe: article.deckNe ?? '',
           deckEn: article.deckEn ?? '',
           bodyNe: bodyText,
-          bodyEn: blocksToShorthand(article.bodyEn ?? []),
+          bodyEn: shorthandFromBlocks(article.bodyEn ?? []),
           category: article.categorySlug,
           tagSlugs: article.tagSlugs,
           authorIds: article.authorIds,
@@ -99,9 +107,9 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
           isBreaking: article.isBreaking,
           featuredState: article.isFeatured,
           featuredExpiresAt: article.featuredExpiresAt
-            ? article.featuredExpiresAt.slice(0, 16)
+            ? toDatetimeLocalValue(article.featuredExpiresAt)
             : '',
-          publishedAt: article.publishedAt ? article.publishedAt.slice(0, 16) : '',
+          publishedAt: article.publishedAt ? toDatetimeLocalValue(article.publishedAt) : '',
           seoTitle: article.seoTitleNe ?? '',
           seoDescription: article.seoDescriptionNe ?? '',
           noIndex: article.noIndex ?? false,
@@ -113,6 +121,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
           heroImageAlt: article.heroImageAlt ?? '',
           heroCaption: article.heroCaptionNe ?? '',
           heroCredit: article.heroCredit ?? '',
+          expectedUpdatedAt: article.updatedAt,
         }}
         categories={categoriesResult.value}
         tags={tagsResult.value}
@@ -125,29 +134,9 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   )
 }
 
-function blocksToShorthand(blocks: ArticleBlock[]): string {
-  return blocks
-    .map((b) => {
-      switch (b.type) {
-        case 'heading2':
-          return `## ${b.text}`
-        case 'heading3':
-          return `### ${b.text}`
-        case 'pullQuote':
-          return `> ${b.quoteNe}`
-        case 'list':
-          return b.items.map((i) => `- ${i}`).join('\n')
-        case 'image':
-          return `![${b.image.alt ?? ''}](${b.image.url})`
-        case 'embed':
-          return `[embed:${b.provider}](${b.url})`
-        case 'adSlot':
-          return `[ad:${b.placementKey}]`
-        case 'paragraph':
-        default:
-          return b.text
-      }
-    })
-    .filter(Boolean)
-    .join('\n\n')
+function toDatetimeLocalValue(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
 }

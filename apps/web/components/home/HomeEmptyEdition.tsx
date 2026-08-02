@@ -24,7 +24,7 @@ export function HomeEmptyEdition({ locale, categories }: HomeEmptyEditionProps) 
         aria-labelledby="empty-edition-title"
       >
         <p
-          className="text-caption font-bold uppercase tracking-[0.18em] text-brand-strong"
+          className="text-caption font-bold text-brand-strong"
           lang="en"
           translate="no"
         >
@@ -38,8 +38,8 @@ export function HomeEmptyEdition({ locale, categories }: HomeEmptyEditionProps) 
         </h1>
         <p className="mt-4 max-w-[38rem] text-body-lg leading-relaxed text-ink-soft">
           {english
-            ? 'Original reporting and public-service information. Check Latest while the newsroom prepares today’s edition.'
-            : 'मौलिक रिपोर्टिङ र सार्वजनिक सेवा सूचना। आजको संस्करण तयार हुँदै गर्दा ताजा समाचार हेर्नुहोस्।'}
+            ? 'No lead story is published yet. Browse Latest for anything already live, or send a tip to the newsroom.'
+            : 'अहिले मुख्य समाचार प्रकाशित छैन। पहिले नै सार्वजनिक भएका कथा ताजामा हेर्नुहोस्, वा न्यूजरुमलाई टिप पठाउनुहोस्।'}
         </p>
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
