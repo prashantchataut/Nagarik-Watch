@@ -4,7 +4,6 @@ import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { isPublicMembershipEnabled, membershipMode } from '@/lib/membership'
 
-export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 type Params = { locale: string }

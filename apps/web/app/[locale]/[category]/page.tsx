@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { StoryGrid } from '@nagarikwatch/ui'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
@@ -12,7 +12,6 @@ import { isStaticPagesExport } from '@/lib/build-mode'
 import { staticCategoryParams } from '@/lib/static-export-params'
 
 // Must be a string literal for Next segment config.
-export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 export function generateStaticParams() {
@@ -72,7 +71,7 @@ export default async function CategoryPage({
           description ||
           (english
             ? 'Reviewed stories from this section.'
-            : 'यस विभागका सम्पादकीय समीक्षा पूरा भएका समाचार।')
+            : '?? ??????? ????????? ??????? ???? ???? ???????')
         }
         lang={english ? 'en' : 'ne'}
       />
@@ -100,7 +99,7 @@ export default async function CategoryPage({
         >
           {english
             ? 'No reviewed stories are published in this section yet.'
-            : 'यस विभागमा सम्पादकीय समीक्षा पूरा भएको समाचार अझै प्रकाशित छैन।'}
+            : '?? ??????? ????????? ??????? ???? ???? ?????? ??? ???????? ????'}
         </p>
       )}
     </div>

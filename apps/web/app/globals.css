@@ -1179,6 +1179,7 @@
     border: 1px solid var(--rule);
     background: var(--surface-raised);
     overflow: hidden;
+    box-shadow: 0 1px 0 color-mix(in oklch, var(--brand) 18%, transparent);
   }
   .calendar-header {
     display: flex;
@@ -1187,12 +1188,13 @@
     align-items: flex-end;
     gap: 1.15rem 1.5rem;
     border-bottom: 1px solid var(--rule);
+    border-top: 3px solid var(--brand);
     padding: 1.15rem 1.2rem 1.25rem;
     background:
       linear-gradient(
-        180deg,
-        color-mix(in oklch, var(--brand-tint) 72%, var(--surface-raised)) 0%,
-        var(--surface-raised) 100%
+        165deg,
+        color-mix(in oklch, var(--brand-tint) 85%, var(--surface-raised)) 0%,
+        var(--surface-raised) 62%
       );
   }
   .calendar-header__lead { min-width: min(100%, 16rem); }

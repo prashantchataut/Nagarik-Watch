@@ -9,7 +9,7 @@ import { categories as seedCategories } from '@/lib/content/seed/categories'
 import { firstAdminLoadError, safeAdminLoad } from '@/lib/admin/safe-load'
 import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/CmsCanonicalBanner'
 import { AdminButton, AdminPageHeader } from '@/components/admin/primitives'
-import { ArticleEditor } from '@/components/admin/ArticleEditor'
+import { ArticleEditorClient } from '@/components/admin/ArticleEditorClient'
 import { listMediaItems } from '@/lib/media-library'
 import { shorthandFromBlocks } from '@/lib/content/blocks'
 
@@ -86,7 +86,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
       />
       <CmsCanonicalBanner />
       <AdminLoadErrorBanner message={loadError} />
-      <ArticleEditor
+      <ArticleEditorClient
         initial={{
           id: article.id,
           slug: article.slug,

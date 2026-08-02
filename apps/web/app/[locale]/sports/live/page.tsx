@@ -6,7 +6,6 @@ import { STATIC_HUBS, localizedTitle } from '@/lib/site'
 
 const hub = STATIC_HUBS.find((item) => item.key === 'sports-live')!
 
-export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {

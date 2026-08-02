@@ -99,9 +99,10 @@ let cache: StoreShape | null = null
 let cacheAt = 0
 let writeLock: Promise<void> = Promise.resolve()
 
-/** Short TTL so serverless instances pick up desk publishes without a redeploy. */
+/** Short TTL so serverless instances pick up desk publishes without a redeploy.
+ * Publish paths call invalidateArticleStoreCache(); 30s is enough for soft lag. */
 function cacheTtlMs(): number {
-  return isProductionRuntime() ? 3_000 : 30_000
+  return isProductionRuntime() ? 30_000 : 30_000
 }
 
 export function invalidateArticleStoreCache(): void {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import {
   BS_MONTHS,
@@ -26,17 +26,29 @@ type DayCell = {
   events: ReturnType<typeof eventsForBsDay>
 }
 
+type BsPoint = { year: number; month: number; day: number }
+
+function readTodayBs(): BsPoint {
+  return adToBs(new Date())
+}
+
 /**
  * Editorial Bikram Sambat month desk: navigate months/years, mark today,
  * select a day for festival detail, and list the month agenda. Offline date math.
  */
 export function NepaliCalendar({ locale }: { locale: Locale }) {
   const en = locale === 'en'
-  const todayBs = useMemo(() => adToBs(new Date()), [])
+  const seed = useMemo(() => readTodayBs(), [])
+  const [todayBs, setTodayBs] = useState<BsPoint>(seed)
+  const [mounted, setMounted] = useState(false)
+  const [year, setYear] = useState(seed.year)
+  const [month, setMonth] = useState(seed.month)
+  const [selectedDay, setSelectedDay] = useState(seed.day)
 
-  const [year, setYear] = useState(todayBs.year)
-  const [month, setMonth] = useState(todayBs.month)
-  const [selectedDay, setSelectedDay] = useState(todayBs.day)
+  useEffect(() => {
+    setTodayBs(readTodayBs())
+    setMounted(true)
+  }, [])
 
   const length = bsMonthLength(year, month)
   const safeSelectedDay = Math.min(selectedDay, length)
@@ -226,7 +238,7 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
             <div key={`pad-${i}`} className="calendar-blank" aria-hidden="true" />
           ))}
           {cells.map((c) => {
-            const isToday = c.day === todayBs.day && viewingTodayMonth
+            const isToday = mounted && c.day === todayBs.day && viewingTodayMonth
             const isSelected = c.day === safeSelectedDay
             const hasHoliday = c.events.some((e) => e.holiday)
             const primaryEvent = c.events[0]

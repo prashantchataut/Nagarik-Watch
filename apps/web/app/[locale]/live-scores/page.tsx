@@ -4,7 +4,6 @@ import { SportsScoreboard } from '@/components/sports/SportsScoreboard'
 import { asLocale } from '@/lib/i18n/locales'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
-export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 export async function generateMetadata({

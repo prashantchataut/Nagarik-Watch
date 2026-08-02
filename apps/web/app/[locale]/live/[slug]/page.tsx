@@ -9,7 +9,6 @@ export function generateStaticParams() {
   return staticLiveBlogParams()
 }
 
-export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 function formatDate(value?: string, locale = 'ne'): string {

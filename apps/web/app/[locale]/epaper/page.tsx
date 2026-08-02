@@ -7,7 +7,6 @@ import { LiveDeskShell } from '@/components/public/LiveDeskShell'
 import { isPublicMembershipEnabled } from '@/lib/membership'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
-export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 export async function generateMetadata({

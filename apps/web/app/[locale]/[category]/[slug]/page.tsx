@@ -32,7 +32,6 @@ import { publicShareImageUrl } from '@/lib/seo/share-image'
 import { staticArticleParams } from '@/lib/static-export-params'
 
 // Must be a string literal — Next rejects ConditionalExpression segment config.
-export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 export function generateStaticParams() {

@@ -4,7 +4,6 @@ import { getDisasterAlerts } from '@/lib/live/disaster'
 import { LiveDeskShell } from '@/components/public/LiveDeskShell'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
-export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 export async function generateMetadata({

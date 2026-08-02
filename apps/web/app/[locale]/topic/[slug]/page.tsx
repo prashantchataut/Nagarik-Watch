@@ -10,7 +10,6 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref, localePrefix } from '@/lib/i18n/locales'
 import { Pagination } from '@/components/Pagination'
 
-export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 export function generateStaticParams() {

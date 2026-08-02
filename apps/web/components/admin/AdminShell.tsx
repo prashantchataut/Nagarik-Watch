@@ -201,8 +201,13 @@ export function AdminShell({
   const router = useRouter()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [signingOut, startSignOut] = useTransition()
-  const [navPending, startNav] = useTransition()
+  const [navPendingHref, setNavPendingHref] = useState<string | null>(null)
   const [signOutError, setSignOutError] = useState<string | null>(null)
+  const navPending = Boolean(navPendingHref && navPendingHref !== clientPath)
+
+  useEffect(() => {
+    setNavPendingHref(null)
+  }, [clientPath])
 
   const role = session.newsroomRole
   const roleLabel = NEWSROOM_ROLE_LABELS_NE[role] ?? role
@@ -305,7 +310,7 @@ export function AdminShell({
     signOut,
     resolveHref,
     onNavigate: () => setDrawerOpen(false),
-    startNav,
+    onNavPending: (href: string) => setNavPendingHref(href),
   }
 
   return (
@@ -398,7 +403,7 @@ function AdminSidebar({
   signOut,
   resolveHref,
   onNavigate,
-  startNav,
+  onNavPending,
   mobile = false,
   onClose,
 }: {
@@ -414,7 +419,7 @@ function AdminSidebar({
   signOut: () => void
   resolveHref: (href: string) => { href: string; external: boolean }
   onNavigate: () => void
-  startNav: (cb: () => void) => void
+  onNavPending: (href: string) => void
   mobile?: boolean
   onClose?: () => void
 }) {
@@ -466,7 +471,7 @@ function AdminSidebar({
                   rel={external ? 'noopener noreferrer' : undefined}
                   onClick={() => {
                     onNavigate()
-                    if (!external) startNav(() => undefined)
+                    if (!external) onNavPending(href)
                   }}
                   className={navClass(active)}
                   lang="ne"
@@ -504,7 +509,7 @@ function AdminSidebar({
                       rel={external ? 'noopener noreferrer' : undefined}
                       onClick={() => {
                         onNavigate()
-                        if (!external) startNav(() => undefined)
+                        if (!external) onNavPending(href)
                       }}
                       className={navClass(active)}
                       lang="ne"

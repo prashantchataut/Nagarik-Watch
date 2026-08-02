@@ -7,7 +7,7 @@ import { categories as seedCategories } from '@/lib/content/seed/categories'
 import { safeAdminLoad, firstAdminLoadError } from '@/lib/admin/safe-load'
 import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/CmsCanonicalBanner'
 import { AdminPageHeader } from '@/components/admin/primitives'
-import { ArticleEditor } from '@/components/admin/ArticleEditor'
+import { ArticleEditorClient } from '@/components/admin/ArticleEditorClient'
 import { listMediaItems } from '@/lib/media-library'
 
 export const metadata: Metadata = {
@@ -36,7 +36,7 @@ export default async function NewArticlePage() {
       <AdminPageHeader subtitle="शीर्षक र मूल भाग लेख्नुहोस्। साइडबारबाट विभाग, फोटो र प्रकाशन चरण मिलाउनुहोस्।" />
       <CmsCanonicalBanner />
       <AdminLoadErrorBanner message={loadError} />
-      <ArticleEditor
+      <ArticleEditorClient
         categories={categoriesResult.value}
         tags={tagsResult.value}
         authors={authorsResult.value}

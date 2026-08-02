@@ -6,7 +6,6 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
 import { PROVINCES } from '@/lib/site'
 
-export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 export function generateStaticParams() {

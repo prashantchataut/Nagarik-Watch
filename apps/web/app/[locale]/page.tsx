@@ -38,7 +38,6 @@ import { resolveMostReadStories } from '@/lib/content/most-read-stories'
 import { resolveTrendingStories } from '@/lib/content/trending-stories'
 import { resolveProvinceHeat } from '@/lib/content/province-heat'
 
-export const dynamic = 'force-dynamic'
 export const revalidate = 60
 
 export async function generateMetadata({
@@ -60,10 +59,11 @@ export async function generateMetadata({
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const english = locale === 'en'
-  const [homepage, activePoll, layout] = await Promise.all([
+  const [homepage, activePoll, layout, storiesPage] = await Promise.all([
     getHomepage(),
     getActivePoll(),
     resolveHomeLayoutBandEvery(),
+    getStories({ locale, perPage: 80 }).catch(() => ({ items: [] as StoryCardData[], total: 0 })),
   ])
 
   if (!homepage) {
@@ -82,9 +82,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   ].filter((story): story is NonNullable<typeof story> => Boolean(story))
 
   // Broader corpus so most-read / trending / photo / recs are not limited to the edition only.
-  const extraStories = await getStories({ locale, perPage: 80 })
-    .then((page) => page.items)
-    .catch(() => [] as StoryCardData[])
+  const extraStories = storiesPage.items
 
   const catalog = Array.from(
     new Map([...editionStories, ...extraStories].map((story) => [story.id, story])).values(),

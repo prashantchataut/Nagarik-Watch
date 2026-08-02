@@ -205,8 +205,8 @@ export default async function DashboardPage() {
           </div>
         </div>
         <div className="admin-metric-grid mt-3">
-          <AdminMetric value={mostRead.length} label="Most-read stories" href="/most-read" />
-          <AdminMetric value={trendingSamples.length} label="Trending samples (2h)" href="/trending" />
+          <AdminMetric value={mostRead.length} label="Most-read stories" href="/ne/most-read" />
+          <AdminMetric value={trendingSamples.length} label="Trending samples (2h)" href="/ne/trending" />
           <AdminMetric
             value={engagement?.storyCount ?? 0}
             label="Stories with signal"
