@@ -8,6 +8,7 @@ import {
   CONSENT_OPEN_EVENT,
   CONSENT_POLICY_VERSION,
   type ConsentChoice,
+  ensureConsentCookie,
   readConsent,
   writeConsent,
 } from '@/lib/reader/consent'
@@ -30,6 +31,8 @@ export function CookieConsent({ locale }: { locale: Locale }) {
       setVisible(true)
       setHadChoice(false)
     } else {
+      // Refresh cookie so /api/reading and /api/ranking-events see the grant.
+      ensureConsentCookie()
       setHadChoice(true)
       setPersonalization(choice.personalization)
       setAnalytics(choice.analytics)

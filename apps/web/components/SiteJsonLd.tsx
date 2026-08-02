@@ -1,10 +1,7 @@
-import { PUBLICATION, SITE_URL } from '@/lib/site'
+import { PUBLICATION, SITE_URL, isPublicPublicationValue } from '@/lib/site'
 
 function verified(value: string): string | undefined {
-  const lower = value.toLowerCase()
-  if (lower.includes('placeholder') || lower.includes('pending') || lower.includes('to be')) {
-    return undefined
-  }
+  if (!isPublicPublicationValue(value)) return undefined
   return value
 }
 
@@ -17,7 +14,7 @@ export function SiteJsonLd({ siteName }: { siteName: string }) {
       legalName: verified(PUBLICATION.legalName),
       url: SITE_URL,
       logo: `${SITE_URL}${PUBLICATION.logoPath}`,
-      email: PUBLICATION.email,
+      ...(isPublicPublicationValue(PUBLICATION.email) ? { email: PUBLICATION.email } : {}),
       address: verified(PUBLICATION.address),
       publishingPrinciples: `${SITE_URL}/editorial-policy`,
       correctionsPolicy: `${SITE_URL}/corrections-policy`,

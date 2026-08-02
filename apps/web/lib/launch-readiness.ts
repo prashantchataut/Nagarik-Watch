@@ -93,8 +93,21 @@ function buildLaunchChecks(options?: {
   const tts = getTtsState()
   const semantic = getSemanticProviderState()
   const adsMode = getAdMode()
+  const staticExport =
+    value('NEXT_PUBLIC_STATIC_EXPORT') === '1' ||
+    value('CF_PAGES_STATIC') === '1' ||
+    value('NEXT_PUBLIC_STATIC_EXPORT').toLowerCase() === 'true'
+  const starterSeed = value('ALLOW_STARTER_SEED').toLowerCase()
 
   return [
+    {
+      key: 'origin-topology',
+      label: 'Launch origin (Node, not static Pages)',
+      status: staticExport ? 'fail' : 'pass',
+      detail: staticExport
+        ? 'Static export build detected — APIs are stripped. Point apex at Vercel Node (ADR-004 / docs/launch-runbook.md)'
+        : 'Host is not a static-export Pages build',
+    },
     verifiedSetting('site-url', 'Public site URL', 'NEXT_PUBLIC_SITE_URL'),
     verifiedSetting('auth-url', 'Better Auth URL', 'BETTER_AUTH_URL'),
     {
@@ -118,18 +131,37 @@ function buildLaunchChecks(options?: {
       key: 'content-source',
       label: 'Canonical content source',
       status:
-        contentSource === 'payload' ||
-        dbMode === 'postgres' ||
-        contentSource === 'json' ||
-        !contentSource
-          ? 'pass'
-          : 'fail',
+        launchLive && contentSource !== 'payload'
+          ? 'fail'
+          : contentSource === 'payload'
+            ? 'pass'
+            : contentSource === 'json' || !contentSource
+              ? launchLive
+                ? 'fail'
+                : 'warn'
+              : 'fail',
       detail:
         contentSource === 'payload'
           ? 'Payload CMS is canonical'
-          : dbMode === 'postgres'
-            ? 'Newsroom article store uses Postgres (nw_articles)'
-            : 'Local JSON article store (dev) — set DATABASE_URL for production',
+          : launchLive
+            ? 'Live mode requires CONTENT_SOURCE=payload (ADR-014)'
+            : dbMode === 'postgres'
+              ? 'Preview may use Postgres nw_articles / JSON — flip to payload before live'
+              : 'Local JSON article store (dev) — set DATABASE_URL and plan Payload cutover',
+    },
+    {
+      key: 'starter-seed',
+      label: 'Starter seed inventory',
+      status:
+        starterSeed === 'true' || starterSeed === '1'
+          ? launchLive || dbMode === 'postgres'
+            ? 'fail'
+            : 'warn'
+          : 'pass',
+      detail:
+        starterSeed === 'true' || starterSeed === '1'
+          ? 'ALLOW_STARTER_SEED is on — turn off before public soft launch'
+          : 'Starter seed is not forced on',
     },
     verifiedSetting('payload-url', 'Payload CMS URL', 'PAYLOAD_PUBLIC_SERVER_URL', {
       required: contentSource === 'payload',
@@ -247,10 +279,21 @@ function buildLaunchChecks(options?: {
         adsMode !== 'network' ? 'pass' : isNetworkAdsReady() ? 'pass' : launchLive ? 'fail' : 'warn',
       detail:
         adsMode !== 'network'
-          ? `Ads mode is ${adsMode}; network scripts stay unloaded`
+          ? adsMode === 'house'
+            ? 'House ads mode — labeled creatives expected for soft launch revenue'
+            : 'Ads mode is off; soft launch may use NEXT_PUBLIC_ADS_MODE=house when creatives exist'
           : isNetworkAdsReady()
             ? 'Network ads mode has matching publisher credentials'
             : 'NEXT_PUBLIC_ADS_MODE=network but AdSense client or GAM network code is missing',
+    },
+    {
+      key: 'house-ads-soft',
+      label: 'Soft-launch ads path',
+      status: adsMode === 'off' && !launchLive ? 'warn' : 'pass',
+      detail:
+        adsMode === 'off'
+          ? 'Option A is free-to-read; set NEXT_PUBLIC_ADS_MODE=house when house creatives are ready'
+          : `Ads mode is ${adsMode}`,
     },
     {
       key: 'tts-provider',
@@ -267,16 +310,25 @@ function buildLaunchChecks(options?: {
     {
       key: 'background-push',
       label: 'Background browser notifications',
-      status: pushConfigured ? 'pass' : 'fail',
+      status: pushConfigured ? 'pass' : 'warn',
       detail: pushConfigured
         ? 'VAPID subscription and provider-backed push delivery are configured'
-        : 'In-app alerts work, but direct Web Push needs public/private VAPID keys and a contact subject',
+        : 'Web Push is post-soft-launch (P2); in-app alerts work without VAPID',
     },
-    verifiedSetting('notification-cron', 'Ops / scheduled-publish cron secret', 'CRON_SECRET', {
-      secret: true,
-      warning:
-        'CRON_SECRET (≥24 chars) is required for GitHub Actions ops-crons (scheduled-publish every 5 min). Without it, scheduled articles stay dark.',
-    }),
+    {
+      key: 'notification-cron',
+      label: 'Ops / scheduled-publish cron secret',
+      status:
+        value('CRON_SECRET').length >= 24 && !looksUnverified(value('CRON_SECRET'))
+          ? 'pass'
+          : launchLive
+            ? 'fail'
+            : 'warn',
+      detail:
+        value('CRON_SECRET').length >= 24 && !looksUnverified(value('CRON_SECRET'))
+          ? 'CRON_SECRET configured (≥24 chars) for GitHub ops-crons / scheduled-publish'
+          : 'CRON_SECRET (≥24 chars) is required for GitHub Actions ops-crons (scheduled-publish every 5 min). Without it, scheduled articles stay dark.',
+    },
     {
       key: 'payments',
       label: 'Payment provider',

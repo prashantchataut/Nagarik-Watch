@@ -122,6 +122,18 @@ export function writeConsent(choice: ConsentChoice): ConsentChoice {
   return normalized
 }
 
+/**
+ * Re-emit `nw_consent` from an existing localStorage grant.
+ * Needed when privacy tools clear cookies but leave storage, or legacy grants
+ * never wrote the cookie — otherwise client engagement checks pass while APIs 204.
+ */
+export function ensureConsentCookie(): ConsentChoice | null {
+  if (typeof window === 'undefined') return null
+  const choice = readConsent()
+  if (!choice) return null
+  return writeConsent(choice)
+}
+
 export function openCookiePreferences(mode: 'banner' | 'customize' = 'customize'): void {
   if (typeof window === 'undefined') return
   window.dispatchEvent(new CustomEvent(CONSENT_OPEN_EVENT, { detail: { mode } }))

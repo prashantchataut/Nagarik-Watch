@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
 import { DenseStoryItem } from '@/components/home/DenseStoryItem'
+import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
 
 type LatestRailProps = {
   stories: StoryCardData[]
@@ -53,14 +54,16 @@ export function LatestRail({
       <ol className={`mt-1 grid gap-0 ${compact ? '' : 'sm:grid-cols-2 sm:gap-x-5'}`}>
         {items.map((story) => (
           <li key={story.id} className="border-b border-rule py-2.5 last:border-b-0">
-            <DenseStoryItem
-              story={story}
-              locale={locale}
-              compact={compact}
-              showDeck
-              showDateline={!compact}
-              thumb="sm"
-            />
+            <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
+              <DenseStoryItem
+                story={story}
+                locale={locale}
+                compact={compact}
+                showDeck
+                showDateline={!compact}
+                thumb="sm"
+              />
+            </InstrumentedStory>
           </li>
         ))}
       </ol>

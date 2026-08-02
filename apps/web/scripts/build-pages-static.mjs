@@ -142,8 +142,13 @@ function writeJournalistGateway(siteUrl) {
 }
 
 try {
+  console.warn(
+    '[build-pages-static] PREVIEW ONLY — strips app/api + app/admin. Not the launch origin (ADR-004). Use Vercel Node + Cloudflare DNS for production. See docs/launch-runbook.md.',
+  )
   process.env.CONTENT_SOURCE = process.env.CONTENT_SOURCE || 'json'
   process.env.NEXT_PUBLIC_LAUNCH_STATUS = process.env.NEXT_PUBLIC_LAUNCH_STATUS || 'preview'
+  process.env.NEXT_PUBLIC_STATIC_EXPORT = '1'
+  process.env.CF_PAGES_STATIC = process.env.CF_PAGES_STATIC || '1'
   if (!process.env.NEXT_PUBLIC_SITE_URL?.trim()) {
     process.env.NEXT_PUBLIC_SITE_URL =
       process.env.CF_PAGES_URL?.trim() || 'https://nagarik-watch.pages.dev'

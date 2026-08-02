@@ -734,12 +734,17 @@ export async function recordReading(input: ReadingInput) {
          completed=nw_reading.completed or excluded.completed,
          dwell_seconds=case
            when nw_reading.last_session_id=excluded.last_session_id
-             then greatest(0, nw_reading.dwell_seconds - nw_reading.last_session_seconds) + excluded.last_session_seconds
+             then greatest(0, nw_reading.dwell_seconds - nw_reading.last_session_seconds)
+                  + greatest(nw_reading.last_session_seconds, excluded.last_session_seconds)
            else nw_reading.dwell_seconds + excluded.last_session_seconds
          end,
          sessions=case when nw_reading.last_session_id=excluded.last_session_id then nw_reading.sessions else nw_reading.sessions + 1 end,
          last_session_id=excluded.last_session_id,
-         last_session_seconds=excluded.last_session_seconds,
+         last_session_seconds=case
+           when nw_reading.last_session_id=excluded.last_session_id
+             then greatest(nw_reading.last_session_seconds, excluded.last_session_seconds)
+           else excluded.last_session_seconds
+         end,
          read_at=now()`,
       [
         randomUUID(),
@@ -763,9 +768,10 @@ export async function recordReading(input: ReadingInput) {
   const sameSession = previous?.sessionId === input.sessionId
   const previousLastSessionSeconds = previous?.lastSessionSeconds ?? previous?.dwellSeconds ?? 0
   const previousTotal = previous?.dwellSeconds ?? 0
+  const sessionSeconds = sameSession ? Math.max(previousLastSessionSeconds, safeSeconds) : safeSeconds
   const dwellSeconds = sameSession
-    ? Math.max(0, previousTotal - previousLastSessionSeconds) + safeSeconds
-    : previousTotal + safeSeconds
+    ? Math.max(0, previousTotal - previousLastSessionSeconds) + sessionSeconds
+    : previousTotal + sessionSeconds
   const now = new Date().toISOString()
   await writeLocal({
     ...store,
@@ -778,7 +784,7 @@ export async function recordReading(input: ReadingInput) {
         completed: Boolean(previous?.completed || input.completed),
         sessions: sameSession ? (previous?.sessions ?? 1) : (previous?.sessions ?? 0) + 1,
         firstReadAt: previous?.firstReadAt ?? previous?.readAt ?? now,
-        lastSessionSeconds: safeSeconds,
+        lastSessionSeconds: sessionSeconds,
         readAt: now,
       },
     },
@@ -823,8 +829,18 @@ export async function mergeAnonymousReading(anonymousId: string, userId: string)
              else nw_reading.sessions + excluded.sessions
            end,
            first_read_at=least(nw_reading.first_read_at, excluded.first_read_at),
-           last_session_id=case when excluded.read_at >= nw_reading.read_at then excluded.last_session_id else nw_reading.last_session_id end,
-           last_session_seconds=case when excluded.read_at >= nw_reading.read_at then excluded.last_session_seconds else nw_reading.last_session_seconds end,
+           last_session_id=case
+             when nw_reading.last_session_id is not null and nw_reading.last_session_id=excluded.last_session_id
+               then nw_reading.last_session_id
+             when excluded.read_at >= nw_reading.read_at then excluded.last_session_id
+             else nw_reading.last_session_id
+           end,
+           last_session_seconds=case
+             when nw_reading.last_session_id is not null and nw_reading.last_session_id=excluded.last_session_id
+               then greatest(nw_reading.last_session_seconds, excluded.last_session_seconds)
+             when excluded.read_at >= nw_reading.read_at then excluded.last_session_seconds
+             else nw_reading.last_session_seconds
+           end,
            read_at=greatest(nw_reading.read_at, excluded.read_at)`,
         [anonymousOwner, userOwner],
       )
@@ -846,8 +862,9 @@ export async function mergeAnonymousReading(anonymousId: string, userId: string)
     const existing = readings[targetKey]
     const sameSession = Boolean(existing?.sessionId && existing.sessionId === item.sessionId)
     const itemIsNewer = !existing || item.readAt >= existing.readAt
+    const winner = itemIsNewer ? item : existing
     readings[targetKey] = {
-      ...(itemIsNewer ? item : existing),
+      ...winner,
       anonymousId: '',
       userId,
       readPercent: Math.max(existing?.readPercent ?? 0, item.readPercent),
@@ -858,6 +875,12 @@ export async function mergeAnonymousReading(anonymousId: string, userId: string)
       sessions: sameSession
         ? Math.max(existing?.sessions ?? 0, item.sessions ?? 1)
         : (existing?.sessions ?? 0) + (item.sessions ?? 1),
+      sessionId: sameSession
+        ? (existing?.sessionId ?? item.sessionId)
+        : (winner?.sessionId ?? item.sessionId),
+      lastSessionSeconds: sameSession
+        ? Math.max(existing?.lastSessionSeconds ?? 0, item.lastSessionSeconds ?? 0)
+        : (winner?.lastSessionSeconds ?? winner?.dwellSeconds ?? 0),
       firstReadAt:
         [existing?.firstReadAt, item.firstReadAt, item.readAt].filter(Boolean).sort()[0] ??
         item.readAt,
@@ -957,6 +980,15 @@ export type BookmarkVelocityStat = {
 }
 
 /** Aggregate privacy-preserving first-party reading activity. Owner keys never leave storage. */
+export function compareMostReadStats(a: MostReadStat, b: MostReadStat): number {
+  return (
+    b.uniqueReaders - a.uniqueReaders ||
+    b.averageDwellSeconds - a.averageDwellSeconds ||
+    b.averageReadPercent - a.averageReadPercent ||
+    b.lastReadAt.localeCompare(a.lastReadAt)
+  )
+}
+
 export async function getMostReadStats(windowDays = 7, limit = 50): Promise<MostReadStat[]> {
   const safeDays = Math.max(1, Math.min(windowDays, 30))
   const safeLimit = Math.max(1, Math.min(limit, 200))
@@ -977,7 +1009,10 @@ export async function getMostReadStats(windowDays = 7, limit = 50): Promise<Most
        from nw_reading
        where read_at >= $1 and read_percent >= 10
        group by article_slug
-       order by count(distinct owner_key) desc, avg(read_percent) desc, max(read_at) desc
+       order by count(distinct owner_key) desc,
+                avg(dwell_seconds) desc,
+                avg(read_percent) desc,
+                max(read_at) desc
        limit $2`,
       [cutoff.toISOString(), safeLimit],
     )
@@ -1029,12 +1064,7 @@ export async function getMostReadStats(windowDays = 7, limit = 50): Promise<Most
   }
   return Array.from(grouped.values())
     .map(({ dwellSum: _dwellSum, ...stat }) => stat)
-    .sort(
-      (a, b) =>
-        b.uniqueReaders - a.uniqueReaders ||
-        b.averageReadPercent - a.averageReadPercent ||
-        b.lastReadAt.localeCompare(a.lastReadAt),
-    )
+    .sort(compareMostReadStats)
     .slice(0, safeLimit)
 }
 
@@ -1116,13 +1146,14 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
 
     await pushRows(
       `select article_slug as "articleId", article_category as "categorySlug",
-              read_at as "at", dwell_seconds as "dwellSeconds", read_percent as "readPercent"
+              read_at as "at", last_session_seconds as "dwellSeconds", read_percent as "readPercent"
        from nw_reading where read_at >= $1`,
       (row) => {
+        // Windowed: last session seconds only — lifetime dwell_seconds would inflate velocity.
         const dwell = Number(row.dwellSeconds ?? 0)
         const readPercent = Number(row.readPercent ?? 0)
-        // Sustained dwell and deep scroll count more than a bounce open.
-        const views = (dwell >= 45 ? 2 : 1) + (readPercent >= 50 ? 1 : 0)
+        // Base open + deep-scroll bonus; measured dwellSeconds also weights trending.
+        const views = 1 + (readPercent >= 50 ? 1 : 0)
         return {
           articleId: String(row.articleId ?? ''),
           categorySlug: row.categorySlug ? String(row.categorySlug) : undefined,
@@ -1131,6 +1162,7 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
           shares: 0,
           comments: 0,
           bookmarks: 0,
+          dwellSeconds: Math.max(0, dwell),
         }
       },
     )
@@ -1217,8 +1249,9 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
   const readings: EngagementSample[] = Object.values(store.readings)
     .filter((item) => Date.parse(item.readAt) >= cutoff.getTime())
     .map((item) => {
-      const dwell = item.dwellSeconds ?? 0
-      const views = (dwell >= 45 ? 2 : 1) + (item.readPercent >= 50 ? 1 : 0)
+      // Prefer last-session dwell for recent velocity; fall back for legacy rows.
+      const dwell = item.lastSessionSeconds ?? item.dwellSeconds ?? 0
+      const views = 1 + (item.readPercent >= 50 ? 1 : 0)
       return {
         articleId: item.articleSlug,
         categorySlug: item.articleCategory,
@@ -1227,6 +1260,7 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
         shares: 0,
         comments: 0,
         bookmarks: 0,
+        dwellSeconds: Math.max(0, dwell),
       }
     })
   const comments: EngagementSample[] = store.comments

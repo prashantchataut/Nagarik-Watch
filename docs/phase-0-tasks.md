@@ -15,7 +15,7 @@ clean, building, lint-green, CI-passing foundation.
 ## Architecture decisions active this phase
 
 - All decisions in `docs/adr/ADR-001..006` are the reference; nothing here overrides them.
-- ADR-004 (origin) is **intentionally deferred**, Phase 0 work is origin-agnostic., -
+- ADR-004 (origin) is **Accepted** (Vercel Node + Cloudflare edge; see `docs/adr/ADR-004-origin-hosting.md`). Phase 0 ops follow that topology.
 
 ## Task list
 

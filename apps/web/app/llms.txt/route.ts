@@ -1,6 +1,6 @@
 export const dynamic = 'force-static'
 import { getStories, getNavCategories } from '@/lib/content'
-import { PUBLICATION, SITE_URL } from '@/lib/site'
+import { PUBLICATION, SITE_URL, isPublicPublicationValue } from '@/lib/site'
 
 export const revalidate = 3600
 
@@ -19,9 +19,13 @@ export async function GET() {
     `> Nepali-primary news portal. Civic-minded, Devanagari-first, author-reviewed English section. Independent, ad-supported, free to read.`,
     ``,
     `Publisher: ${PUBLICATION.publisherName}`,
-    `Editorial contact: ${PUBLICATION.email}`,
+    ...(isPublicPublicationValue(PUBLICATION.email)
+      ? [`Editorial contact: ${PUBLICATION.email}`]
+      : [`Editorial contact: ${SITE_URL}/contact`]),
     `Site: ${SITE_URL}`,
-    ...(PUBLICATION.registrationNumber ? [`DoIB: ${PUBLICATION.registrationNumber}`] : []),
+    ...(isPublicPublicationValue(PUBLICATION.registrationNumber)
+      ? [`DoIB: ${PUBLICATION.registrationNumber}`]
+      : []),
     ``,
     `## Sections`,
     ...categories.map((c) => `- ${c.nameNe} (${c.nameEn ?? c.slug}): ${SITE_URL}/${c.slug}`),

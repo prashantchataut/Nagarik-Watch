@@ -32,6 +32,8 @@ description: >-
 
 ## Deploy / runtime
 
+- **Launch origin (ADR-004):** Vercel Node for reader+API; Cloudflare for DNS/CDN only.
+  Cloudflare Pages static `out` is preview-only (APIs stripped). See `docs/launch-runbook.md`.
 - Production needs a reachable `DATABASE_URL` (Postgres) for auth; ENOTFOUND → 503.
 - Prefer `CONTENT_SOURCE=payload` when CMS is live; JSON store may boot preview without it, but empty CMS inventory is not a launch.
 - Manifest `id` must be path-relative (`/`) so preview hosts stay same-origin.

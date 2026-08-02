@@ -4,6 +4,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localePrefix } from '@/lib/i18n/locales'
 import { InfoSection, InfoPageHeader } from '@/components/InfoPage'
 import { ContactForm } from '@/components/forms/ContactForm'
+import { PUBLICATION, isPublicPublicationValue } from '@/lib/site'
 
 type Params = { locale: string }
 
@@ -13,6 +14,7 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
   const locale: Locale = asLocale(rawLocale)
   const dict = getDictionary(locale)
   const lang = locale === 'en' ? 'en' : 'ne'
+  const publicEmail = isPublicPublicationValue(PUBLICATION.email) ? PUBLICATION.email : ''
 
   return (
     <div className="mx-auto max-w-page px-4 py-10">
@@ -39,18 +41,20 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
         <div className="mt-6"><ContactForm locale={locale} /></div>
       </section>
 
-      <div className="mt-8">
-        <p className="text-meta font-semibold uppercase tracking-wide text-ink-soft" lang={lang}>
-          {dict.contactEmailLabel}
-        </p>
-        <a
-          href={`mailto:${dict.contactEmail}`}
-          className="mt-2 inline-block font-display text-h2 font-bold text-brand transition-colors duration-fast ease-out-quint hover:text-brand-strong"
-          lang="en"
-        >
-          {dict.contactEmail}
-        </a>
-      </div>
+      {publicEmail ? (
+        <div className="mt-8">
+          <p className="text-meta font-semibold text-ink-soft" lang={lang}>
+            {dict.contactEmailLabel}
+          </p>
+          <a
+            href={`mailto:${publicEmail}`}
+            className="mt-2 inline-block font-display text-h2 font-bold text-brand transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+            lang="en"
+          >
+            {publicEmail}
+          </a>
+        </div>
+      ) : null}
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import { DenseStoryItem } from '@/components/home/DenseStoryItem'
+import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
 
 type RankedStoryListProps = {
   stories: StoryCardData[]
@@ -30,14 +31,16 @@ export function RankedStoryList({ stories, locale, startRank = 1 }: RankedStoryL
     <ol className="mt-3 divide-y divide-rule border-y border-rule sm:mt-4">
       {stories.map((story, index) => (
         <li key={story.id} className="py-2.5 sm:py-3">
-          <DenseStoryItem
-            story={story}
-            locale={locale}
-            rank={rankLabel(index, locale, startRank)}
-            thumb="md"
-            showDeck
-            showMeta
-          />
+          <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
+            <DenseStoryItem
+              story={story}
+              locale={locale}
+              rank={rankLabel(index, locale, startRank)}
+              thumb="md"
+              showDeck
+              showMeta
+            />
+          </InstrumentedStory>
         </li>
       ))}
     </ol>

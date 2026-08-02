@@ -119,13 +119,15 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <a
-              href={`mailto:${PUBLICATION.email}`}
-              className="inline-flex min-h-9 items-center rounded border border-chrome-rule px-3 text-caption font-bold text-on-chrome-soft transition-colors hover:border-brand hover:text-on-chrome"
-              lang={lang}
-            >
-              {PUBLICATION.email}
-            </a>
+            {isPublicPublicationValue(PUBLICATION.email) ? (
+              <a
+                href={`mailto:${PUBLICATION.email}`}
+                className="inline-flex min-h-9 items-center rounded border border-chrome-rule px-3 text-caption font-bold text-on-chrome-soft transition-colors hover:border-brand hover:text-on-chrome"
+                lang={lang}
+              >
+                {PUBLICATION.email}
+              </a>
+            ) : null}
             <Link
               href={localizeHref(locale, '/newsletter/archive')}
               className="inline-flex min-h-9 items-center rounded border border-chrome-rule px-3 text-caption font-bold text-on-chrome-soft transition-colors hover:border-brand hover:text-on-chrome"

@@ -5,7 +5,7 @@ import type { StoryCardData } from '@nagarikwatch/db'
 import { Hero } from '@nagarikwatch/ui'
 import { DenseStoryItem } from '@/components/home/DenseStoryItem'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
-import { getHomepage, getNavCategories } from '@/lib/content'
+import { getHomepage, getNavCategories, getStories } from '@/lib/content'
 import { dedupeHomepage } from '@/lib/content/homepage-dedup'
 import { BreakingTicker } from '@/components/BreakingTicker'
 import { SectionBlock } from '@/components/home/SectionBlock'
@@ -26,6 +26,7 @@ import { NewsletterInline } from '@/components/NewsletterInline'
 import { TodayInHistory } from '@/components/home/TodayInHistory'
 import { PhotoOfTheDay } from '@/components/home/PhotoOfTheDay'
 import { MostReadRail } from '@/components/home/MostReadRail'
+import { TrendingRail } from '@/components/home/TrendingRail'
 import { FeaturedSpotlight } from '@/components/home/FeaturedSpotlight'
 import { FeaturedBand } from '@/components/home/FeaturedBand'
 import {
@@ -34,6 +35,7 @@ import {
 } from '@/lib/content/homepage-stream'
 import { resolveHomeLayoutBandEvery } from '@/lib/experiments/home-layout'
 import { resolveMostReadStories } from '@/lib/content/most-read-stories'
+import { resolveTrendingStories } from '@/lib/content/trending-stories'
 import { resolveProvinceHeat } from '@/lib/content/province-heat'
 
 export const dynamic = 'force-dynamic'
@@ -71,24 +73,28 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   const edition = dedupeHomepage(homepage)
 
+  const editionStories = [
+    edition.lead,
+    ...edition.featured,
+    ...edition.secondary,
+    ...edition.breaking,
+    ...edition.sections.flatMap((section) => [section.lead, ...section.items]),
+  ].filter((story): story is NonNullable<typeof story> => Boolean(story))
+
+  // Broader corpus so most-read / trending / photo / recs are not limited to the edition only.
+  const extraStories = await getStories({ locale, perPage: 80 })
+    .then((page) => page.items)
+    .catch(() => [] as StoryCardData[])
+
   const catalog = Array.from(
-    new Map(
-      [
-        edition.lead,
-        ...edition.featured,
-        ...edition.secondary,
-        ...edition.breaking,
-        ...edition.sections.flatMap((section) => [section.lead, ...section.items]),
-      ]
-        .filter((story): story is NonNullable<typeof story> => Boolean(story))
-        .map((story) => [story.id, story]),
-    ).values(),
+    new Map([...editionStories, ...extraStories].map((story) => [story.id, story])).values(),
   )
 
-  const usedAbove = new Set<string>([
+  // Soft exclude for photo / for-you: only above-the-fold editorial, not every desk item.
+  const aboveFoldExclude = new Set<string>([
     edition.lead.id,
-    ...edition.featured.map((s) => s.id),
-    ...edition.secondary.map((s) => s.id),
+    ...edition.featured.slice(0, 4).map((s) => s.id),
+    ...edition.secondary.slice(0, 5).map((s) => s.id),
     ...edition.breaking.map((s) => s.id),
   ])
 
@@ -108,31 +114,37 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     categoryAware: true,
   })
 
-  for (const story of bandFeatured) usedAbove.add(story.id)
-  for (const section of edition.sections) {
-    if (section.lead) usedAbove.add(section.lead.id)
-    for (const item of section.items) usedAbove.add(item.id)
-  }
-
-  // Rails must not recycle the front-page set — thin inventory beats déjà vu.
-  const latestCandidates = [...catalog]
-    .filter((story) => !usedAbove.has(story.id))
+  // Freshness lens: full catalog by publishedAt (may include lead / featured).
+  const latest = [...catalog]
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
-  const latest = latestCandidates.slice(0, 8)
-  for (const story of latest) usedAbove.add(story.id)
+    .slice(0, 8)
 
-  const briefPool = latestCandidates.filter((s) => !usedAbove.has(s.id)).slice(0, 5)
-  for (const story of briefPool) usedAbove.add(story.id)
+  // Brief: chronological; soft-prefer non-lead for variety, still may overlap Latest.
+  const briefPool = [...catalog]
+    .filter((story) => story.id !== edition.lead.id)
+    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
+    .slice(0, 5)
 
-  const { stories: mostRead } = await resolveMostReadStories({
-    catalog,
-    excludeIds: usedAbove,
-    limit: 6,
-    windowDays: 7,
-    minLive: 2,
-  })
-  for (const story of mostRead) usedAbove.add(story.id)
-  const provinceHeat = await resolveProvinceHeat({ catalog }).catch(() => [])
+  const [
+    { stories: mostRead, live: mostReadLive },
+    { stories: trending, live: trendingLive },
+    provinceHeat,
+  ] = await Promise.all([
+    resolveMostReadStories({
+      catalog,
+      excludeIds: new Set(),
+      limit: 6,
+      windowDays: 7,
+      minLive: 2,
+    }),
+    resolveTrendingStories({
+      catalog,
+      limit: 6,
+      windowMinutes: 120,
+      minLive: 2,
+    }),
+    resolveProvinceHeat({ catalog }).catch(() => []),
+  ])
 
   const today = new Date()
   const monthDay = `${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
@@ -157,13 +169,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const photoOfDay =
     catalog.find(
       (story) =>
-        !usedAbove.has(story.id) &&
+        !aboveFoldExclude.has(story.id) &&
         (Boolean(story.hasGallery) ||
           (hasRealPhoto(story) &&
             (story.tags?.some((t) => t.slug === 'photo-story') || story.category.slug === 'photos'))),
     ) ||
-    catalog.find((story) => !usedAbove.has(story.id) && hasRealPhoto(story)) ||
+    catalog.find((story) => !aboveFoldExclude.has(story.id) && hasRealPhoto(story)) ||
     null
+
+  const streamHead = homepageStream.slice(0, 2)
+  const streamTail = homepageStream.slice(2)
 
   return (
     <div className="home-edition">
@@ -171,7 +186,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
       <div className="mx-auto max-w-page px-3 pt-3 sm:px-4 sm:pt-4">
-        {/* Front page first: lead + also-today before commerce. */}
         <section
           className="grid gap-4 border-b border-rule pb-4 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,0.38fr)] xl:items-start xl:gap-5 xl:pb-5"
           aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
@@ -231,27 +245,51 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <FeaturedSpotlight stories={spotlightFeatured} locale={locale} className="mt-4" />
 
         {/*
-          Single rail DOM: Latest once (early on all viewports), then stream | sticky brief.
-          Avoids mobile+desktop duplicate sections and duplicate heading IDs.
+          Portal packing: desks early on mobile (spine), then lens stack,
+          then remaining desks. Desktop: stream | sticky lenses (Latest + Brief + Most-read + Trending).
         */}
         <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,0.38fr)] xl:items-start xl:gap-5">
-          <LatestRail
-            stories={latest}
-            locale={locale}
-            className="border-y border-rule py-4 xl:col-start-2 xl:row-start-1 xl:border-0 xl:py-0"
-            headingId="latest-rail-title"
-          />
-
           <div className="min-w-0 space-y-5 xl:col-start-1 xl:row-start-1 xl:row-span-2">
-            {homepageStream.map((item) =>
+            {streamHead.map((item) =>
               item.kind === 'section' ? (
                 <SectionBlock key={item.section.category.slug} section={item.section} locale={locale} />
               ) : (
                 <FeaturedBand
-                  key={`featured-${item.stories.map((s) => s.id).join('-')}`}
+                  key={`featured-head-${item.stories.map((s) => s.id).join('-')}`}
                   stories={item.stories}
                   locale={locale}
-                  variant={item.variant}
+                  variant={item.variant === 'trio' ? 'asymmetric' : item.variant}
+                  categorySlug={item.categorySlug}
+                />
+              ),
+            )}
+
+            <div className="space-y-5 xl:hidden">
+              <LatestRail stories={latest} locale={locale} headingId="latest-rail-title-mobile" />
+              <TodayInBrief stories={briefPool} locale={locale} headingId="today-in-brief-mobile" />
+              <MostReadRail
+                stories={mostRead}
+                locale={locale}
+                headingId="most-read-title-mobile"
+                live={mostReadLive}
+              />
+              <TrendingRail
+                stories={trending}
+                locale={locale}
+                headingId="trending-rail-title-mobile"
+                live={trendingLive}
+              />
+            </div>
+
+            {streamTail.map((item) =>
+              item.kind === 'section' ? (
+                <SectionBlock key={item.section.category.slug} section={item.section} locale={locale} />
+              ) : (
+                <FeaturedBand
+                  key={`featured-tail-${item.stories.map((s) => s.id).join('-')}`}
+                  stories={item.stories}
+                  locale={locale}
+                  variant={item.variant === 'trio' ? 'asymmetric' : item.variant}
                   categorySlug={item.categorySlug}
                 />
               ),
@@ -262,15 +300,33 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <ProvinceHub locale={locale} heat={provinceHeat} />
           </div>
 
-          <aside className="min-w-0 space-y-5 border-t border-rule pt-5 xl:col-start-2 xl:row-start-2 xl:border-0 xl:pt-0">
+          <aside className="hidden min-w-0 space-y-5 xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:block">
             <div className="xl:sticky xl:top-28 xl:space-y-5">
+              <LatestRail stories={latest} locale={locale} compact headingId="latest-rail-title" />
               <TodayInBrief stories={briefPool} locale={locale} headingId="today-in-brief" />
-              <MostReadRail stories={mostRead} locale={locale} headingId="most-read-title" />
+              <MostReadRail
+                stories={mostRead}
+                locale={locale}
+                headingId="most-read-title"
+                live={mostReadLive}
+              />
+              <TrendingRail
+                stories={trending}
+                locale={locale}
+                headingId="trending-rail-title"
+                live={trendingLive}
+              />
               {activePoll ? (
-                <PollOfDay locale={locale} poll={activePoll} headingId={`poll-${activePoll.id}`} />
+                <PollOfDay locale={locale} poll={activePoll} headingId={`poll-${activePoll.id}-label`} />
               ) : null}
             </div>
           </aside>
+
+          {activePoll ? (
+            <div className="xl:hidden">
+              <PollOfDay locale={locale} poll={activePoll} headingId={`poll-${activePoll.id}-label-mobile`} />
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -299,7 +355,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             locale={locale}
             catalog={catalog}
             className="mt-6"
-            excludeIds={usedAbove}
+            excludeIds={aboveFoldExclude}
           />
         </Suspense>
 

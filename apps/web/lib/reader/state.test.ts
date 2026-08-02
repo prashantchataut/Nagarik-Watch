@@ -62,4 +62,37 @@ describe('reader state helpers', () => {
     expect(second[0]?.completed).toBe(true)
     expect(recentUnfinished(second)).toBeNull()
   })
+
+  it('does not shrink same-session dwell on a shorter remount sample', () => {
+    const first = upsertHistory([], {
+      articleId: 'a1',
+      slug: 'city-budget',
+      categorySlug: 'news',
+      title: 'City budget released',
+      href: '/news/city-budget',
+      readAt: '2026-06-22T00:00:00Z',
+      scrollDepth: 40,
+      completed: false,
+      readingMinutes: 3,
+      dwellSeconds: 90,
+      sessionId: 'sess-1',
+    })
+    const remount = upsertHistory(first, {
+      articleId: 'a1',
+      slug: 'city-budget',
+      categorySlug: 'news',
+      title: 'City budget released',
+      href: '/news/city-budget',
+      readAt: '2026-06-22T00:01:00Z',
+      scrollDepth: 42,
+      completed: false,
+      readingMinutes: 3,
+      dwellSeconds: 1,
+      sessionId: 'sess-1',
+    })
+
+    expect(remount[0]?.sessions).toBe(1)
+    expect(remount[0]?.dwellSeconds).toBe(90)
+    expect(remount[0]?.lastSessionSeconds).toBe(90)
+  })
 })

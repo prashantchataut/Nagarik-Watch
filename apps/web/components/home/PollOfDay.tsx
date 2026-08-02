@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
+import { hasLivePublicApi } from '@/lib/runtime/public-api'
 
 const VOTE_KEY = 'nw-poll-votes'
 const FINGERPRINT_KEY = 'nw-poll-fingerprint'
@@ -59,7 +60,9 @@ export function PollOfDay({
   headingId?: string
 }) {
   const lang = locale === 'en' ? 'en' : 'ne'
-  const labelledBy = headingId ?? `poll-${poll.id}`
+  const instanceId = useId().replace(/:/g, '')
+  const labelledBy = headingId ?? `poll-${poll.id}-label-${instanceId}`
+  const questionId = `poll-${poll.id}-q-${instanceId}`
   const [myVote, setMyVote] = useState<VoteRecord | null>(null)
   const [results, setResults] = useState<Record<string, number>>(poll.results)
   const [submitting, setSubmitting] = useState(false)
@@ -77,6 +80,14 @@ export function PollOfDay({
 
   async function castVote(optionId: string) {
     if (myVote || submitting) return
+    if (!hasLivePublicApi()) {
+      setError(
+        locale === 'en'
+          ? 'Voting is not available on this static preview host.'
+          : 'यो स्थिर पूर्वावलोकन होस्टमा मतदान उपलब्ध छैन।',
+      )
+      return
+    }
     setSubmitting(true)
     setError('')
     try {
@@ -109,7 +120,7 @@ export function PollOfDay({
   const heading = locale === 'en' ? 'Reader poll' : 'पाठक मतदान'
 
   return (
-    <section className={className} aria-labelledby={labelledBy}>
+    <section className={className} aria-labelledby={questionId}>
       <div className="border border-rule bg-surface-raised px-4 py-4 sm:px-5 sm:py-5">
         <div>
           <p
@@ -123,7 +134,7 @@ export function PollOfDay({
         </div>
 
         <h2
-          id={`poll-${poll.id}`}
+          id={questionId}
           className="mt-3 font-display text-h3 font-bold leading-snug text-ink sm:text-h2"
           lang={lang}
         >

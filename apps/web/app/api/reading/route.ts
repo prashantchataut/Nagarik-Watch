@@ -10,6 +10,7 @@ import { getSession } from '@/lib/auth/session'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { getPublicArticleIdentity } from '@/lib/content/public-article-identity'
 import { recordInteraction } from '@/lib/engagement/interaction-matrix'
+import { hasServerEngagementConsent } from '@/lib/reader/server-consent'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest) {
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
+  if (!hasServerEngagementConsent(request)) return new NextResponse(null, { status: 204 })
   const limited = await enforceRateLimit(request, 'reading', 40, 60_000)
   if (limited) return limited
 

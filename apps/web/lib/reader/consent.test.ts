@@ -4,6 +4,7 @@ import {
   CONSENT_POLICY_VERSION,
   READER_ID_KEY,
   clearPersonalizationStorage,
+  ensureConsentCookie,
   normalizeConsent,
   readConsent,
   writeConsent,
@@ -58,6 +59,30 @@ describe('reader consent', () => {
     })
     expect(window.document.cookie).toContain('nw_consent=')
     expect(decodeURIComponent(window.document.cookie)).toContain('"analytics":true')
+  })
+
+  it('rehydrates nw_consent from localStorage when the cookie was cleared', () => {
+    window.localStorage.setItem(
+      CONSENT_KEY,
+      JSON.stringify({
+        essential: true,
+        personalization: true,
+        analytics: false,
+        advertising: false,
+        decidedAt: '2026-07-18T00:00:00.000Z',
+        version: CONSENT_POLICY_VERSION,
+      }),
+    )
+    window.document.cookie = ''
+    const synced = ensureConsentCookie()
+    expect(synced?.personalization).toBe(true)
+    expect(window.document.cookie).toContain('nw_consent=')
+    expect(decodeURIComponent(window.document.cookie)).toContain('"personalization":true')
+  })
+
+  it('returns null from ensureConsentCookie when no grant exists', () => {
+    expect(ensureConsentCookie()).toBeNull()
+    expect(window.document.cookie).not.toContain('nw_consent=')
   })
 
   it('clears personalization data without deleting consent', () => {

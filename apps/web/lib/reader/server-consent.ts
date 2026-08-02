@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server'
 type ConsentCookie = {
   analytics?: unknown
   advertising?: unknown
+  personalization?: unknown
   version?: unknown
 }
 
@@ -20,6 +21,17 @@ export function hasServerAnalyticsConsent(request: NextRequest): boolean {
   const parsed = readConsentCookie(request)
   if (!parsed) return false
   return parsed.analytics === true && typeof parsed.version === 'number'
+}
+
+export function hasServerPersonalizationConsent(request: NextRequest): boolean {
+  const parsed = readConsentCookie(request)
+  if (!parsed) return false
+  return parsed.personalization === true && typeof parsed.version === 'number'
+}
+
+/** Mirrors client `hasEngagementConsent`: analytics or personalization. */
+export function hasServerEngagementConsent(request: NextRequest): boolean {
+  return hasServerAnalyticsConsent(request) || hasServerPersonalizationConsent(request)
 }
 
 export function hasServerAdvertisingConsent(request: NextRequest): boolean {

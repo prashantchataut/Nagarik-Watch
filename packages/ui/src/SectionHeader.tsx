@@ -14,6 +14,8 @@ type SectionHeaderProps = {
   href?: string
   /** BCP-47 lang for the title text; defaults to the active locale. */
   titleLang?: Locale
+  /** Optional id on the heading for aria-labelledby on wrapping sections. */
+  id?: string
   className?: string
 }
 
@@ -23,6 +25,7 @@ export function SectionHeader({
   moreLabel,
   href,
   titleLang,
+  id,
   className,
 }: SectionHeaderProps) {
   const lang = titleLang ?? locale
@@ -34,7 +37,11 @@ export function SectionHeader({
       )}
     >
       <div className="min-w-0">
-        <h2 className="font-display text-h3 font-extrabold tracking-tight text-ink" lang={lang}>
+        <h2
+          id={id}
+          className="font-display text-h3 font-extrabold tracking-tight text-ink"
+          lang={lang}
+        >
           {title}
         </h2>
         <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />

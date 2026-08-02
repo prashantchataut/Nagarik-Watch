@@ -14,13 +14,14 @@ Track user-visible capabilities only. `VERIFIED` requires the acceptance test na
 | Editorial state machine (server) | IN PROGRESS | `lib/editorial/workflow-transitions.ts` | Slug redirect on rename |
 | Integration tests (Payload REST contract) | IN PROGRESS | `pnpm test:integration`, `payload-source.contract.test.ts` | Live Payload/Postgres job in CI |
 | Newsroom Playwright E2E | IN PROGRESS | `playwright.newsroom.config.ts`, `e2e/newsroom-lifecycle.spec.ts` | Requires Docker Postgres locally |
-| Scheduled publish worker | IN PROGRESS | `/api/cron/scheduled-publish`, `lib/editorial/scheduled-publish.ts`, vercel cron `*/5` | Deploy + heartbeat verify |
+| Scheduled publish worker | IN PROGRESS | `/api/cron/scheduled-publish`, `lib/editorial/scheduled-publish.ts`, `.github/workflows/ops-crons.yml` (every 5 min; Vercel Hobby is daily-only) | Deploy + heartbeat verify |
 | Morning brief → newsletter draft | IN PROGRESS | `/api/cron/digest-compose` (draft by default; `DIGEST_SEND_NOW` to send) | Desk review UI polish |
 | Breaking auto-boost + kill switch | IN PROGRESS | `/api/cron/breaking-auto-boost`, setting `editorial.breakingAutoBoost` | Tune thresholds with live traffic |
 | House-ad A/B + winner promote | IN PROGRESS | `house-ads` challenger, `/api/cron/house-ad-promote`, admin Promote button | Live CTR volume for Bayesian winners |
 | Slug redirect on rename | IN PROGRESS | `lib/content/slug-redirects.ts`, article page `permanentRedirect` | Payload-mode rename path |
 | Province heat strip | IN PROGRESS | `lib/content/province-heat.ts`, homepage `ProvinceHub` | Needs tagged province + live readers |
-| Payload canonical cutover checklist | IN PROGRESS | `lib/content/payload-cutover.ts`, `/admin/launch` | Flip `CONTENT_SOURCE` when CMS ready |
+| Payload canonical cutover checklist | IN PROGRESS | `lib/content/payload-cutover.ts`, `/admin/launch`, `docs/launch-runbook.md` | Flip `CONTENT_SOURCE=payload` on Vercel after desk training |
+| Origin hosting (ADR-004) | VERIFIED | `docs/adr/ADR-004-origin-hosting.md` Accepted: Vercel Node + CF edge | Point apex DNS; do not launch on Pages static |
 | Revision compare UI | IN PROGRESS | journalist edit overlap % + body preview | Side-by-side admin diff optional |
 
 ## Commands

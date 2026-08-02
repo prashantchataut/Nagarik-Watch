@@ -1,66 +1,60 @@
-# Cloudflare domain cutover (free)
+# Cloudflare domain cutover
 
-## Reality check
+## Locked launch topology (ADR-004)
 
-The **full** Next.js app (admin + API + auth) is **~3.15 MiB gzip**.  
-Workers Free allows **3.00 MiB**. Deploy fails with error **10027** until that changes.
+**Production origin = Vercel (full Next.js Node app).**  
+Cloudflare provides DNS, CDN, and WAF in front of Vercel.
 
-So on Cloudflare Free you can host:
+| What | Where |
+|------|--------|
+| Public reader + `/api` + auth + engagement | **Vercel** |
+| Payload CMS | **Vercel** (or sibling project) at `PAYLOAD_PUBLIC_SERVER_URL` |
+| Edge / DNS | **Cloudflare** proxied to Vercel |
+| Cloudflare Pages `out` | Preview/mirror **only** — **not** launch origin |
 
-| What | Where | Custom domain |
-|------|--------|----------------|
-| Public reader (static) | **Pages** `nagarik-watch` → https://nagarik-watch.pages.dev | Yes (free) |
-| Admin + API + full SSR | **Not on Workers Free** | Needs Workers Paid ($5/mo) **or** origin elsewhere |
+Static Pages export (`pnpm deploy:web:static` / `build-pages-static.mjs`) **strips** `app/api`
+and `app/admin`. Auth, comments, polls, reading, contact, and cron do not work there.
+Do not set `NEXT_PUBLIC_LAUNCH_STATUS=live` on a static-only apex.
 
-## Recommended free setup (domain on Cloudflare today)
-
-### Option A — Domain on Cloudflare DNS → Vercel origin (full app including admin)
+## Option A — Domain on Cloudflare DNS → Vercel origin (launch path)
 
 1. Add your domain to Cloudflare (DNS only or Proxied).
-2. Keep production app on Vercel: https://nagarik-watch.vercel.app  
+2. Keep production app on Vercel (e.g. `https://nagarik-watch.vercel.app`).
 3. In Cloudflare DNS:
-   - `CNAME` `@` → `cname.vercel-dns.com` (or Vercel’s shown target), **Proxied** (orange cloud) if you want CF CDN/WAF  
+   - `CNAME` `@` → `cname.vercel-dns.com` (or Vercel’s shown target), **Proxied** for CDN/WAF
    - `CNAME` `www` → same
-4. In Vercel → Project → Domains → add `nagarikwatch.com` / `www`
-5. Admin: `https://yourdomain.com/admin/login`
+4. In Vercel → Project → Domains → add apex + `www`
+5. Set `NEXT_PUBLIC_SITE_URL` / `BETTER_AUTH_URL` to `https://yourdomain.com`
+6. Admin ops: `https://yourdomain.com/admin/login`  
+   Payload desk: `NEXT_PUBLIC_CMS_ADMIN_URL` / `PAYLOAD_PUBLIC_SERVER_URL`
 
-This puts the **domain and CDN on Cloudflare** while the Node app runs where it fits.
+Follow `docs/launch-runbook.md` for soft → hard launch.
 
-### Option B — Domain on Cloudflare Pages (public site only)
+## Option B — Cloudflare Pages static (preview only)
 
 ```bash
 pnpm deploy:web:static
 ```
 
-Then: Dashboard → **Workers & Pages** → **nagarik-watch** → **Custom domains** → add your domain.
+- Public HTML/CSS: on Pages  
+- `/admin`, `/api`, login, engagement: **unavailable**  
+- Use for design/content previews — **never** as the declared live product origin
 
-- Public articles/homepage: on Cloudflare  
-- `/admin`, `/api`, login: **not available** on this static export  
+## Option C — Everything on Cloudflare Workers (Paid)
 
-### Option C — Everything native on Cloudflare Workers
+Requires Workers Paid and a bundle under platform limits. Not the default launch path.
+See historical notes in deploy scripts; prefer Option A unless you intentionally migrate.
 
-1. Upgrade Workers Paid: https://dash.cloudflare.com/e3c305786313db99f7500835501638a2/workers/plans  
-2. Redeploy:
+## Current reference URLs
 
-```bash
-# WSL
-bash scripts/cf-deploy-app-wsl.sh
-```
-
-3. Set secrets in Dashboard → Worker `nagarik-watch` → Settings → Variables  
-   (copy `DATABASE_URL`, `AUTH_SECRET`, `BETTER_AUTH_SECRET`, `NEWSROOM_*` from Vercel)  
-4. Custom domains on the **Worker** (same dashboard)  
-5. Set `NEXT_PUBLIC_SITE_URL` / `BETTER_AUTH_URL` to `https://yourdomain.com`
-
-## Current live URLs
-
-- Cloudflare Pages (static): https://nagarik-watch.pages.dev  
-- Vercel (full admin): https://nagarik-watch.vercel.app/admin/login  
-- Cloudflare Worker (full app): **not deployed** (size limit)
+- Vercel (full app — launch candidate): https://nagarik-watch.vercel.app  
+- Cloudflare Pages (static preview): https://nagarik-watch.pages.dev  
+- Cloudflare Worker full app: not the default launch target
 
 ## Scripts
 
 | Command | Result |
 |---------|--------|
-| `pnpm deploy:web:static` | Static Pages (domain-ready, no admin) |
-| `pnpm deploy:web:cf` / `bash scripts/cf-deploy-app-wsl.sh` | Full Worker (needs ≤3 MiB or Paid) |
+| Vercel Git deploy / `vercel --prod` | Full Node app (launch origin) |
+| `pnpm deploy:web:static` | Static Pages preview only |
+| `pnpm deploy:web:cf` | Full Worker (Paid / size constraints) |

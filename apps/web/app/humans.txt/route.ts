@@ -1,5 +1,5 @@
 import { getAuthors } from '@/lib/content'
-import { PUBLICATION, SITE_URL } from '@/lib/site'
+import { PUBLICATION, SITE_URL, isPublicPublicationValue } from '@/lib/site'
 
 export const dynamic = 'force-static'
 export const revalidate = 3600
@@ -9,7 +9,9 @@ export async function GET() {
   const lines = [
     '/* TEAM */',
     `Publisher: ${PUBLICATION.publisherName}`,
-    `Contact: ${PUBLICATION.email}`,
+    ...(isPublicPublicationValue(PUBLICATION.email)
+      ? [`Contact: ${PUBLICATION.email}`]
+      : [`Contact: ${SITE_URL}/contact`]),
     `Site: ${SITE_URL}`,
     '',
     '/* AUTHORS */',

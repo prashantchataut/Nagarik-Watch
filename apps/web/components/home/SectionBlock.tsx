@@ -76,6 +76,7 @@ export function SectionBlock({ section, locale, className, layout }: SectionBloc
   return (
     <section className={className} aria-labelledby={`sec-${section.category.slug}`}>
       <SectionHeader
+        id={`sec-${section.category.slug}`}
         title={name}
         locale={locale}
         titleLang={titleLang as Locale}

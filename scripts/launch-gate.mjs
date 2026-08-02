@@ -32,6 +32,19 @@ function requiredSecret(name, message) {
 
 if (live) {
   requiredVerified('NEXT_PUBLIC_SITE_URL', 'Canonical site URL is missing or unverified')
+  if (
+    value('NEXT_PUBLIC_STATIC_EXPORT') === '1' ||
+    value('CF_PAGES_STATIC') === '1' ||
+    value('NEXT_PUBLIC_STATIC_EXPORT').toLowerCase() === 'true'
+  ) {
+    blockers.push(
+      'Static export flags are set — live launch requires Vercel Node origin (ADR-004), not CF Pages out',
+    )
+  }
+  const starterSeed = value('ALLOW_STARTER_SEED').toLowerCase()
+  if (starterSeed === 'true' || starterSeed === '1') {
+    blockers.push('ALLOW_STARTER_SEED must be unset/false for live launch')
+  }
   requiredVerified(
     'NEXT_PUBLIC_PUBLICATION_LEGAL_NAME',
     'Legal publisher name is missing or unverified',
@@ -96,8 +109,8 @@ if (live) {
     value('WEB_PUSH_SUBJECT'),
   )
   if (!pushConfigured) {
-    blockers.push(
-      'Background browser notifications require public/private VAPID keys and WEB_PUSH_SUBJECT',
+    warnings.push(
+      'Web Push VAPID keys are unset (post-soft-launch); in-app alerts still work without them',
     )
   }
   requiredSecret('CRON_SECRET', 'CRON_SECRET must protect scheduled notification delivery')

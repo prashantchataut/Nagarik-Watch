@@ -123,10 +123,37 @@ export function ReaderArticleControls({
     return () => window.removeEventListener(CONSENT_EVENT, refreshConsent)
   }, [])
 
+  const authorSlugsKey = story.authors.map((author) => author.slug).join('|')
+  const tagSlugsKey = (story.tags ?? []).map((tag) => tag.slug).join('|')
+
   useEffect(() => {
-    const startedAt = Date.now()
     let maxDepth = 0
     let restored = false
+    /** Active attention only: visible tab + article body in view. */
+    let activeMs = 0
+    let bodyInView = true
+    let segmentStarted: number | null =
+      document.visibilityState === 'visible' ? Date.now() : null
+    const authorSlugs = authorSlugsKey ? authorSlugsKey.split('|') : []
+    const tagSlugs = tagSlugsKey ? tagSlugsKey.split('|') : []
+
+    function pauseSegment() {
+      if (segmentStarted == null) return
+      activeMs += Date.now() - segmentStarted
+      segmentStarted = null
+    }
+
+    function resumeSegment() {
+      if (segmentStarted != null) return
+      if (document.visibilityState !== 'visible' || !bodyInView) return
+      segmentStarted = Date.now()
+    }
+
+    function activeDwellSeconds() {
+      const running = segmentStarted != null ? Date.now() - segmentStarted : 0
+      // Never invent a 1s floor — remounts would wipe a long same-session dwell.
+      return Math.max(0, Math.round((activeMs + running) / 1000))
+    }
 
     function currentDepth() {
       const scrollable = document.documentElement.scrollHeight - window.innerHeight
@@ -165,7 +192,7 @@ export function ReaderArticleControls({
       record()
       const readPercent = Math.round(maxDepth)
       const completed = maxDepth >= 92
-      const dwellSeconds = Math.max(1, Math.round((Date.now() - startedAt) / 1000))
+      const dwellSeconds = activeDwellSeconds()
 
       // Device history stays behind personalization consent.
       if (hasPersonalizationConsent()) {
@@ -176,8 +203,8 @@ export function ReaderArticleControls({
           articleId: story.id,
           slug: story.slug,
           categorySlug: story.category.slug,
-          tagSlugs: story.tags?.map((tag) => tag.slug) ?? [],
-          authorSlugs: story.authors.map((author) => author.slug),
+          tagSlugs,
+          authorSlugs,
           title,
           href,
           readAt: new Date().toISOString(),
@@ -212,25 +239,54 @@ export function ReaderArticleControls({
         keepalive: true,
       })
         .then((response) => {
-          if (!response.ok) throw new Error(`Reading sync failed: ${response.status}`)
+          // 204 = cookie consent missing/mismatched; treat as failed sync, not success.
+          if (response.status === 204 || !response.ok) {
+            throw new Error(`Reading sync failed: ${response.status}`)
+          }
           setHistorySyncFailed(false)
         })
         .catch(() => setHistorySyncFailed(true))
+    }
+
+    function onVisibility() {
+      if (document.visibilityState === 'visible') resumeSegment()
+      else pauseSegment()
+    }
+
+    const bodyTarget =
+      document.querySelector<HTMLElement>('[data-narrator-body="true"]')?.closest('article') ??
+      document.querySelector<HTMLElement>('article') ??
+      document.querySelector<HTMLElement>('main')
+    let observer: IntersectionObserver | null = null
+    if (bodyTarget && typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0]
+          bodyInView = Boolean(entry?.isIntersecting && (entry.intersectionRatio ?? 0) >= 0.25)
+          if (bodyInView) resumeSegment()
+          else pauseSegment()
+        },
+        { threshold: [0, 0.25, 0.5, 1] },
+      )
+      observer.observe(bodyTarget)
     }
 
     record()
     restorePosition()
     window.addEventListener('scroll', recordThrottled, { passive: true })
     window.addEventListener('pagehide', persist)
+    document.addEventListener('visibilitychange', onVisibility)
     const interval = window.setInterval(persist, 15_000)
     return () => {
       persist()
       window.removeEventListener('scroll', recordThrottled)
       window.removeEventListener('pagehide', persist)
+      document.removeEventListener('visibilitychange', onVisibility)
+      observer?.disconnect()
       window.clearInterval(interval)
       recordThrottled.cancel()
     }
-  }, [href, readingMinutes, story.category.slug, story.id, story.slug, story.titleNe, title, readingSessionId])
+  }, [authorSlugsKey, href, readingMinutes, readingSessionId, story.category.slug, story.id, story.slug, story.titleNe, tagSlugsKey, title])
 
   const remaining = useMemo(
     () => remainingReadingMinutes(readingMinutes, scrollDepth),

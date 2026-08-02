@@ -76,13 +76,17 @@ export async function buildStoryEngagementIndex(
     const current = bySlug.get(sample.articleId) ?? emptySignals()
     const ageMs = Math.max(0, now - Date.parse(sample.at))
     const weighted = sample.views + sample.shares * 6 + sample.comments * 3 + (sample.bookmarks ?? 0) * 4
-    current.viewsPerHour += weighted / Math.max(1, windowMinutes / 60)
+    const dwellBoost = Math.min(6, (sample.dwellSeconds ?? 0) / 30)
+    current.viewsPerHour += (weighted + dwellBoost) / Math.max(1, windowMinutes / 60)
     current.commentsPerHour += sample.comments / Math.max(1, windowMinutes / 60)
     current.sharesPerHour += sample.shares / Math.max(1, windowMinutes / 60)
     current.shareVelocity += sample.shares
     current.commentVelocity += sample.comments
     current.bookmarkVelocity += sample.bookmarks ?? 0
-    if (ageMs <= 10 * 60_000) current.viewsLast10Min += weighted
+    if (sample.dwellSeconds && sample.dwellSeconds > 0) {
+      current.dwellTimeSeconds = Math.max(current.dwellTimeSeconds, sample.dwellSeconds)
+    }
+    if (ageMs <= 10 * 60_000) current.viewsLast10Min += weighted + dwellBoost
     bySlug.set(sample.articleId, current)
   }
 

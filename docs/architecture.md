@@ -4,10 +4,11 @@
 > skill: requirements → patterns → design (with explicit trade-offs) → ADRs → review.
 > Significant decisions are recorded as ADRs in `docs/adr/`.
 
-This document is **host-agnostic** on the origin (per ADR-004's deferred decision) but
-fixed everywhere else. The architecture is deliberately **monorepo + modular monolith**:
-one deployable web app, one CMS app, a shared design-system package, and small shared
-libraries. We are not building microservices for a news portal at this scale., -
+**Origin (ADR-004 Accepted):** Vercel Node for the reader+API app; Cloudflare for DNS/CDN/WAF.
+Cloudflare Pages static `out` is preview-only. Elsewhere the architecture is a
+**monorepo + modular monolith**: one deployable web app, one CMS app, a shared
+design-system package, and small shared libraries. We are not building microservices
+for a news portal at this scale.
 
 ## 1. Requirements
 
@@ -166,8 +167,8 @@ graph TD
 
 ## 4. Hosting decision framework (input to ADR-004)
 
-The origin is the only undecided piece. CDN is Cloudflare either way. The table below is
-the decision matrix; ADR-004 records the final pick before Phase 1 deploy.
+The origin decision is recorded in ADR-004 (Vercel Node + Cloudflare edge). The table below is
+the historical decision matrix; CDN is Cloudflare either way.the decision matrix; ADR-004 records the final pick before Phase 1 deploy.
 
 | Criterion (weight) | Option A: Managed Vercel origin + CF | Option B: Nepal VPS (Babal/Vianet) origin + CF | Option C: Hybrid (Vercel origin, R2 + Postgres near readers) |
 |, , , , , , , , , |, , , , , , , , , , , -|, , , , , , , , , , , , |, , , , , , , , , , , , , , , , |
@@ -180,14 +181,14 @@ the decision matrix; ADR-004 records the final pick before Phase 1 deploy.
 | Data residency / locality | origin abroad | origin in Nepal | origin abroad, media on R2 |
 | Solo-dev fit | ★★★★★ best | ★★ worst | ★★★★ good |
 
-**Recommendation to be confirmed in ADR-004:** **Option A (Vercel + Cloudflare)** for the
-solo-dev reality, with the CDN doing the heavy lifting for Nepali latency. If real-world
-testing shows Nepali-origin latency materially hurting MISS performance, **Option C**
-(hybrid) is the cheapest upgrade. Option B is reserved for cases where Nepal data
-residency becomes a regulatory requirement.
+**ADR-004 decision (2026-08-02):** **Option A (Vercel Node origin + Cloudflare edge)** is
+**Accepted** — see `docs/adr/ADR-004-origin-hosting.md`. Cloudflare Pages static `out` is
+preview-only (APIs stripped). If real-world testing shows Nepali-origin latency materially
+hurting MISS performance, **Option C** (hybrid) is the cheapest upgrade. Option B is
+reserved for cases where Nepal data residency becomes a regulatory requirement.
 
 PostgreSQL location follows the origin decision: managed Postgres (Neon/Supabase) co-
-region with Vercel for A/C; self-hosted on the VPS for B., -
+region with Vercel for A/C; self-hosted on the VPS for B.
 
 ## 5. Data & content flow (end to end)
 
@@ -252,17 +253,17 @@ for roles and transitions., -
 
 ## 9. Open architectural questions
 
-1. **Origin hosting final pick** → ADR-004 (Nepal VPS vs managed).
+1. **Origin hosting** → ADR-004 **Accepted** (Vercel Node + Cloudflare edge). Pages static is preview-only.
 2. **Cloudflare Images vs `next/image` + R2 only**, cost/quality trade-off, decided in Phase 1.
 3. **Meilisearch migration threshold**, at what search volume / latency do we move off Postgres FTS?
 4. **Live blog realtime transport**, Server-Sent Events vs WebSocket vs polling (Phase 3).
-5. **Multi-region**, not needed at launch; revisit if diaspora traffic dominates., -
+5. **Multi-region**, not needed at launch; revisit if diaspora traffic dominates.
 
 ## 10. Architecture review checkpoint
 
 Before Phase 1 implementation begins, validate against this document:
 
-- [ ] Origin decision recorded in ADR-004.
+- [x] Origin decision recorded in ADR-004.
 - [ ] NFR budgets encoded in CI (Lighthouse thresholds).
 - [ ] Content model approved (`docs/content-model.md`).
 - [ ] Editorial workflow approved (`docs/editorial-workflow.md`).

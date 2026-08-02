@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { StoryCardData } from '@nagarikwatch/db'
-import { rankStories, viralityScore, weightedScore } from './ranking'
+import { banditExplorationScore, rankStories, viralityScore, weightedScore } from './ranking'
 
 function story(id: string, publishedAt = '2026-06-22T00:00:00Z'): StoryCardData {
   return {
@@ -56,5 +56,12 @@ describe('ranking', () => {
     expect(viralityScore({ shareVelocity: 8, commentVelocity: 2 }))
       .toBeGreaterThan(viralityScore({ shareVelocity: 2, commentVelocity: 2 }))
     expect(viralityScore({ shareVelocity: 100, commentVelocity: 100 })).toBeLessThan(1)
+  })
+
+  it('raises bandit exploration when impressions are thin relative to peers', () => {
+    const cold = banditExplorationScore({ impressions: 2, clicks: 0, totalImpressions: 200 })
+    const hot = banditExplorationScore({ impressions: 80, clicks: 8, totalImpressions: 200 })
+    expect(cold).toBeGreaterThan(hot)
+    expect(cold).toBeGreaterThan(0)
   })
 })

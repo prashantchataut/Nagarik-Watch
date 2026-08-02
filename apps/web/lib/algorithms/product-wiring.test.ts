@@ -37,11 +37,45 @@ describe('product wiring + honesty gates', () => {
       ['../../app/api/cron/interactions-rebuild/route.ts', 'lib/engagement/interaction-matrix'],
       ['../../app/api/cron/ops-probe/route.ts', 'lib/ops/health-snapshot'],
       ['../../app/admin/(desk)/algorithms/page.tsx', 'runAllAlgorithms'],
+      ['../../app/[locale]/page.tsx', 'resolveMostReadStories'],
+      ['../../app/[locale]/page.tsx', 'resolveTrendingStories'],
+      ['../../app/[locale]/page.tsx', 'getStories'],
+      ['../../app/api/reading/route.ts', 'hasServerEngagementConsent'],
+      ['../../app/api/ranking-events/route.ts', 'hasServerEngagementConsent'],
+      ['../../components/public/RankedStoryList.tsx', 'InstrumentedStory'],
+      ['../../components/reader/ReaderArticleControls.tsx', 'response.status === 204'],
+      ['../../components/ranking/RankingImpression.tsx', 'CONSENT_EVENT'],
+      ['../../app/admin/(desk)/launch/page.tsx', 'getLaunchPhases'],
+      ['../../app/admin/(desk)/launch/page.tsx', 'getPayloadCutoverChecklist'],
+      ['../../components/home/PollOfDay.tsx', 'hasLivePublicApi'],
     ]
 
     for (const [file, needle] of surfaces) {
       expect(read(file), `${file} should wire ${needle}`).toContain(needle)
     }
+  })
+
+  it('allows algorithmic lens overlap: same story can be latest and most-read', () => {
+    const page = read('../../app/[locale]/page.tsx')
+    expect(page).toContain('excludeIds: new Set()')
+    expect(page).toContain('resolveTrendingStories')
+    expect(page).toContain('aboveFoldExclude')
+    expect(page).not.toContain('Rails must not recycle the front-page set')
+    expect(page).not.toContain('buildStoryEngagementIndex')
+  })
+
+  it('keeps catalog surfaces honest about homepage wiring', () => {
+    const weighted = ALGORITHM_CATALOG.find((entry) => entry.id === 'weighted-scoring-ranker')
+    const bandit = ALGORITHM_CATALOG.find((entry) => entry.id === 'multi-armed-bandit')
+    const virality = ALGORITHM_CATALOG.find((entry) => entry.id === 'virality-prediction')
+    const diversity = ALGORITHM_CATALOG.find((entry) => entry.id === 'homepage-slot-diversity')
+    const continueReading = ALGORITHM_CATALOG.find((entry) => entry.id === 'continue-reading-ranker')
+    expect(weighted?.surface).not.toMatch(/^homepage\b/)
+    expect(weighted?.summary).toMatch(/qualityTrustScore/)
+    expect(bandit?.surface).toMatch(/not homepage/)
+    expect(virality?.surface).toMatch(/not homepage/)
+    expect(diversity?.surface).toMatch(/not wired on homepage/)
+    expect(continueReading?.surface).toMatch(/not homepage/)
   })
 
   it('reports ok:false for unknown ids instead of silent success', () => {

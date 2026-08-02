@@ -1,7 +1,7 @@
-export const dynamic = 'force-static'
 import { getAuthors, getNavCategories, getStories, getTags } from '@/lib/content'
-import { PUBLICATION, SITE_URL, PROVINCES } from '@/lib/site'
+import { PUBLICATION, SITE_URL, PROVINCES, isPublicPublicationValue } from '@/lib/site'
 
+export const dynamic = 'force-static'
 export const revalidate = 3600
 
 /**
@@ -27,7 +27,9 @@ export async function GET() {
     `# ${PUBLICATION.publisherName} — Full Content Index`,
     ``,
     `Site: ${SITE_URL}`,
-    `Contact: ${PUBLICATION.email}`,
+    ...(isPublicPublicationValue(PUBLICATION.email)
+      ? [`Contact: ${PUBLICATION.email}`]
+      : [`Contact: ${SITE_URL}/contact`]),
     `Generated: ${new Date().toISOString()}`,
     ``,
     `## Categories`,

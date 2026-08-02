@@ -110,12 +110,12 @@ export const dictionary = {
     contactLead: 'सुझाव, सुधार वा समाचार टिप भए हामीलाई खबर गर्नुहोस्।',
     contactTipHeading: 'समाचार टिप',
     contactTip:
-      'कुनै घटना वा कथा छ भने contact@nagarikwatch.com मा इमेल गर्नुहोस्। संवेदनशील टिपका लागि हामी सुरक्षित च्यानल उपलब्ध गराउँछौं।',
+      'कुनै घटना वा कथा छ भने तलको फारम वा प्रकाशित समाचार-कक्ष इमेलमा पठाउनुहोस्। संवेदनशील टिपका लागि हामी सुरक्षित च्यानल उपलब्ध गराउँछौं।',
     contactCorrectionHeading: 'सच्याइ अनुरोध',
     contactCorrection:
       'प्रकाशित कथामा त्रुटि देख्नुभयो भने कृपया इमेल गर्नुहोस्। हामी तुरुन्त समीक्षा गर्छौं।',
     contactEmailLabel: 'इमेल',
-    contactEmail: 'contact@nagarikwatch.com',
+    contactEmail: '',
     contactPageHeading: 'अन्य सम्पर्क',
     footerDisclaimer:
       'समाचार, विचार, विज्ञापन र प्रायोजित सामग्री अलग-अलग लेबल गरिन्छ। त्रुटि भेटिएमा सच्याइ पृष्ठ र सम्बन्धित लेखमा अद्यावधिक गरिन्छ।',
@@ -262,12 +262,12 @@ export const dictionary = {
     contactLead: 'Tell us about suggestions, corrections or a news tip.',
     contactTipHeading: 'News tip',
     contactTip:
-      'Have an event or story? Email contact@nagarikwatch.com. For sensitive tips we can provide a secure channel.',
+      'Have an event or story? Use the form below or the published newsroom email when available. For sensitive tips we can provide a secure channel.',
     contactCorrectionHeading: 'Correction request',
     contactCorrection:
       'Spotted an error in a published story? Please email us. We review immediately.',
     contactEmailLabel: 'Email',
-    contactEmail: 'contact@nagarikwatch.com',
+    contactEmail: '',
     contactPageHeading: 'Other contact',
     footerDisclaimer:
       'News, opinion, advertising and sponsored material are labelled separately. Corrections are recorded on the relevant article and policy pages.',

@@ -26,6 +26,8 @@ export type EngagementSample = {
   comments: number
   /** Explicit saves; optional for backward-compatible event producers. */
   bookmarks?: number
+  /** Measured active dwell seconds when the sample comes from a reading session. */
+  dwellSeconds?: number
 }
 
 export type TrendingStory<T extends StoryCardData = StoryCardData> = T & {
@@ -54,9 +56,10 @@ const DEFAULTS = {
   recencyHalfLifeHours: 6,
 }
 
-/** Sum a sample's weighted engagement (views dominate, shares/comments amplify). */
+/** Sum a sample's weighted engagement (views dominate; dwell, shares, comments amplify). */
 function weightOf(s: EngagementSample): number {
-  return s.views + s.shares * 6 + s.comments * 3 + (s.bookmarks ?? 0) * 4
+  const dwellBoost = Math.min(6, (s.dwellSeconds ?? 0) / 30)
+  return s.views + s.shares * 6 + s.comments * 3 + (s.bookmarks ?? 0) * 4 + dwellBoost
 }
 
 type ResolvedWindows = {

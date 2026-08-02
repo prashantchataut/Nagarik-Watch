@@ -31,8 +31,10 @@ const policySections: Record<string, PolicySection[]> = {
     {
       headingNe: 'सम्पर्क बिन्दु',
       headingEn: 'Contact point',
-      bodyNe: `समाचार टिप, सुधार वा गोपनीय सम्पर्कका लागि ${PUBLICATION.email} प्रयोग गर्नुहोस्। संवेदनशील जानकारी पठाउँदा प्रमाण, मिति र तपाईंले चाहेको गोपनीयता स्तर स्पष्ट लेख्नुहोस्।`,
-      bodyEn: `Use ${PUBLICATION.email} for news tips, corrections or confidential contact. For sensitive information, include evidence, dates and the confidentiality level you need.`,
+      bodyNe:
+        'समाचार टिप, सुधार वा गोपनीय सम्पर्कका लागि सम्पर्क पृष्ठको फारम वा प्रकाशित समाचार-कक्ष इमेल प्रयोग गर्नुहोस्। संवेदनशील जानकारी पठाउँदा प्रमाण, मिति र तपाईंले चाहेको गोपनीयता स्तर स्पष्ट लेख्नुहोस्।',
+      bodyEn:
+        'Use the contact form or the published newsroom email for news tips, corrections or confidential contact. For sensitive information, include evidence, dates and the confidentiality level you need.',
     },
   ],
   '/editorial-policy': [

@@ -1,6 +1,11 @@
 # Cloudflare Workers hosting (OpenNext) — Free tier
 
-Nagarik Watch's public Next.js app (`apps/web`) deploys to **Cloudflare Workers Free** via [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare).
+> **Not the launch origin.** Production reader+API runs on **Vercel Node** with Cloudflare
+> DNS/CDN (ADR-004). This document covers the optional Workers Free / OpenNext path and
+> its size limits. For launch topology see `docs/CLOUDFLARE-DOMAIN.md` and
+> `docs/launch-runbook.md`.
+
+Nagarik Watch's public Next.js app (`apps/web`) can deploy to **Cloudflare Workers Free** via [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare) when the gzip bundle fits.
 
 ## Requirements (all free)
 

@@ -53,6 +53,9 @@ article. Do not spray cosmetic edits across the whole tree in one pass.
 - Public copy: honest empty states; no fake reader data; no em dashes.
 - Monetization Option A: free to read; membership chrome stays behind
   `NEXT_PUBLIC_MEMBERSHIP_PUBLIC`.
+- **Launch origin:** Vercel Node + Cloudflare DNS/CDN (ADR-004). Cloudflare Pages
+  static `out` is preview-only — it strips APIs. Soft → hard steps:
+  `docs/launch-runbook.md`. Drive checks from `/admin/launch`.
 - Static / Cloudflare Pages: publish `apps/web/out`, never `.next`. If a page looks
   “HTML only,” check stylesheet 404 / deploy skew before rewriting CSS imports.
 - Do not commit unless the user asks.

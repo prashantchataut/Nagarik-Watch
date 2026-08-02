@@ -3,6 +3,7 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { getLaunchChecksAsync, launchScore } from '@/lib/launch-readiness'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
 import { getPayloadCutoverChecklist } from '@/lib/content/payload-cutover'
+import { getLaunchPhases } from '@/lib/launch-phases'
 import { AdminPageHeader, AdminCard, OpsCheckBadge } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default async function LaunchPage() {
   await requireNewsroomSession()
   const [checks, ops] = await Promise.all([getLaunchChecksAsync(), getOpsHealthSnapshot()])
   const cutover = getPayloadCutoverChecklist()
+  const phases = getLaunchPhases()
   const score = launchScore(checks)
   return (
     <div>
@@ -30,6 +32,7 @@ export default async function LaunchPage() {
           <p className="admin-metric__value admin-metric__value--brand !text-[3.25rem]">{score}%</p>
           <p className="mt-2 text-meta text-ink-soft">
             100% requires passing env, auth, persistent DB, storage, email and live data checks.
+            Origin must be Vercel Node (ADR-004) — not CF Pages static.
           </p>
         </AdminCard>
         <AdminCard>
@@ -37,10 +40,34 @@ export default async function LaunchPage() {
             प्रकाशन अघिको नियम
           </h2>
           <p className="mt-2 text-meta leading-7 text-ink-soft" lang="ne">
-            Fail भएका items सार्वजनिक लन्च अघि सच्याउनुपर्छ। Warn भएका items स्पष्ट UI लेबल वा manual fallback सहित मात्र देखाउनुहोस्। नक्कली लाइभ डाटा, नक्कली विज्ञापन र नक्कली पेवाल सार्वजनिक रूपमा नदेखाउनुहोस्।
+            Fail भएका items सार्वजनिक लन्च अघि सच्याउनुपर्छ। Warn भएका items स्पष्ट UI लेबल वा manual
+            fallback सहित मात्र देखाउनुहोस्। नक्कली लाइभ डाटा, नक्कली विज्ञापन र नक्कली पेवाल सार्वजनिक रूपमा
+            नदेखाउनुहोस्।
+          </p>
+          <p className="mt-2 text-caption text-mute" lang="en">
+            Runbook: docs/launch-runbook.md · Soft stay preview · Hard needs pnpm launch:gate
           </p>
         </AdminCard>
       </div>
+
+      <h2 className="admin-section-title mb-3">Soft → hard phases</h2>
+      <div className="mb-8 grid gap-4 lg:grid-cols-2">
+        {phases.map((phase) => (
+          <AdminCard key={phase.id}>
+            <h3 className="admin-section-title !text-[1rem]">{phase.title}</h3>
+            <p className="mt-1 text-meta text-ink-soft">{phase.summary}</p>
+            <ol className="mt-3 list-decimal space-y-2 pl-4 text-meta text-ink-soft">
+              {phase.items.map((item) => (
+                <li key={item.id}>
+                  <span className="font-semibold text-ink">{item.label}</span>
+                  <span className="mt-0.5 block text-caption text-mute">{item.detail}</span>
+                </li>
+              ))}
+            </ol>
+          </AdminCard>
+        ))}
+      </div>
+
       <div className="grid gap-3">
         {checks.map((check) => (
           <AdminCard key={check.key} className="grid gap-2 sm:grid-cols-[180px_1fr_auto] sm:items-center">
@@ -58,10 +85,10 @@ export default async function LaunchPage() {
       <AdminCard className="mb-5">
         <p className="text-meta text-ink-soft" lang="en">
           {cutover.currentlyCanonical
-            ? 'CONTENT_SOURCE=payload is live. Public reads Payload; local desk article writes are blocked — publish in Payload or set CONTENT_SOURCE=json.'
+            ? 'CONTENT_SOURCE=payload is live. Public reads Payload; local desk article writes are blocked — publish in Payload.'
             : cutover.ready
               ? 'Gates look ready. Set CONTENT_SOURCE=payload only after the desk is trained on Payload and PAYLOAD_PUBLIC_SERVER_URL is set.'
-              : 'Web desk + Postgres (CONTENT_SOURCE=json) is the live news path. Complete checks before flipping to Payload.'}
+              : 'Complete checks before flipping to Payload. Web desk + JSON is preview-only for launch.'}
         </p>
         <ul className="mt-3 divide-y divide-rule">
           {cutover.checks.map((check) => (

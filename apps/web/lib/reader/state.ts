@@ -70,7 +70,11 @@ export function upsertHistory(
 ): ReadingHistoryRecord[] {
   const existing = records.find((record) => record.articleId === next.articleId)
   const sameSession = Boolean(next.sessionId && existing?.lastSessionId === next.sessionId)
-  const sessionSeconds = Math.max(0, next.dwellSeconds ?? 0)
+  const incomingSeconds = Math.max(0, next.dwellSeconds ?? 0)
+  // Same-session dwell is monotonic so a remount cannot shrink an earlier longer sample.
+  const sessionSeconds = sameSession
+    ? Math.max(existing?.lastSessionSeconds ?? 0, incomingSeconds)
+    : incomingSeconds
   const previousSessionSeconds = existing?.lastSessionSeconds ?? 0
   const totalSeconds = sameSession
     ? Math.max(0, (existing?.dwellSeconds ?? 0) - previousSessionSeconds) + sessionSeconds

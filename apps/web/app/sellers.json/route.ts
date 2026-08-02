@@ -1,11 +1,13 @@
 export const dynamic = 'force-static'
-import { PUBLICATION } from '@/lib/site'
+import { PUBLICATION, isPublicPublicationValue } from '@/lib/site'
 
 function defaultSellersJson(): string {
   return JSON.stringify(
     {
       version: '1.0',
-      contact_email: PUBLICATION.email,
+      ...(isPublicPublicationValue(PUBLICATION.email)
+        ? { contact_email: PUBLICATION.email }
+        : {}),
       sellers: [],
     },
     null,

@@ -1,87 +1,53 @@
-# ADR-004: Origin hosting, decision deferred (framework recorded)
+# ADR-004: Origin hosting — Vercel Node + Cloudflare edge
 
-- **Status:** Proposed (decision deferred to before Phase 1 deploy)
-- **Date:** 2026-06-18
+- **Status:** Accepted
+- **Date:** 2026-08-02
 - **Decision owner:** Founder + Architect
-- **Supersedes:** none
+- **Supersedes:** deferred framework of 2026-06-18
 
 ## Context
 
-Two locked decisions are in tension:
+Next.js App Router requires a Node origin. Cloudflare Pages static `apps/web/out` strips
+`app/api` and `app/admin` and cannot host auth, engagement, comments, polls, contact, or
+cron. Workers Free also rejects the full OpenNext bundle (~3 MiB gzip vs 3 MiB limit).
 
-- The **tech stack is Next.js App Router** (SPEC.md), which requires a Node runtime, it
-  **cannot run on cPanel/shared hosting**, the kind of hosting most commonly sold by
-  Nepal-local providers.
-- The **hosting posture is "Nepal-local"** (founder's choice), motivated by latency to
-  Nepali readers and local support.
-
-"Local hosting + modern Next.js" is therefore not a single button; it must be resolved
-into one of a few concrete shapes. The **edge/CDN layer is Cloudflare by default** but
-swappable (ADR-003), so the **origin** is the only open piece: where the Next.js Node
-process runs, and where Postgres lives.
-
-The full decision matrix lives in `docs/architecture.md` §4. Summary ("Cloudflare" below
-means the default edge/CDN per ADR-003; the origin choice is independent):
-
-| Option | Origin | Postgres | Nepal latency | Ops burden | Cost | Solo-dev fit |
-|, -|, -|, -|, -|, -|, -|, -|
-| **A** Managed Vercel + default edge | Vercel | Managed (Neon/Supabase) | CDN masks on HIT | ★★★★★ none | $$$ usage | ★★★★★ |
-| **B** Nepal VPS (Babal/Vianet/Subisu) + default edge | VPS (Docker) | Self-host on VPS | ★★★★★ origin in-country | ★★ high | $ flat | ★★ |
-| **C** Hybrid: managed origin (Vercel) + default edge, Postgres co-region | Vercel | Managed | CDN masks on HIT | ★★★★ | $$$ | ★★★★ |
+Nepali readers are served primarily from the Cloudflare edge on cache HIT; origin location
+matters mainly on MISS. Solo-ops burden dominates over in-country origin preference.
 
 ## Decision
 
-**No final pick yet.** This ADR records the framework and defers the choice to **just
-before Phase 1 deploy**, when we can make a cheaper, better-informed decision.
+**Option A (with CF edge):** 
 
-Concretely, the choice will be made by:
+| Layer | Choice |
+|-------|--------|
+| Public reader + API + Better Auth + ops | **Vercel** (Node Next.js) |
+| Edge / DNS / WAF / CDN | **Cloudflare** (proxied CNAME to Vercel) |
+| CMS | **Payload** (`apps/admin`) on its own host (same or sibling Vercel project) |
+| Postgres | Managed (Neon / Supabase) shared by web + Payload |
+| Media | Vercel Blob and/or R2 with public base URL |
 
-1. Running a one-week **latency probe** from Nepali networks (NTC + Ncell, mobile + fixed)
-   against a temp Vercel deployment vs a temp Nepal-VPS deployment, measuring TTFB on
-   cache MISS (the only case where origin location matters).
-2. Confirming the **ops budget** the founder is willing to carry (backups, updates, SSL,
-   uptime), if "near zero," Option A/C; if "I'll manage a box," Option B.
-3. Confirming any **data-residency** requirement (regulatory or preferential). If Nepal
-   residency is required for editorial data, Option B becomes mandatory.
+**Cloudflare Pages static `out` is not the launch origin.** It may remain a preview/mirror
+only. Declaring `NEXT_PUBLIC_LAUNCH_STATUS=live` while apex points at static Pages is a
+launch failure mode.
 
-## Interim recommendation (to be confirmed by the probe + ops budget)
+See `docs/CLOUDFLARE-DOMAIN.md` and `docs/launch-runbook.md`.
 
-**Option A (Managed Vercel + Cloudflare)** as the default, because the solo-dev reality
-makes ops burden the dominant constraint, and the Cloudflare CDN serves the hot read path
-from edges near Nepal regardless of origin location.
+## Consequences
 
-If the latency probe shows Nepali MISS performance is materially worse with a far origin,
-**upgrade to Option C (hybrid)**, keep the managed origin, put media on R2 (already
-planned), and co-locate Postgres in a region with good connectivity to Nepal.
+- **Positive:** Full product surface works (APIs, auth, engagement, cron, revalidate).
+- **Positive:** Matches existing launch gate (`CONTENT_SOURCE=payload`, Postgres, email).
+- **Negative:** Apex DNS must target Vercel, not Pages; CF static deploys must not be
+  mistaken for production.
+- **Negative:** Payload down ⇒ public content down until failover is designed (out of
+  soft-launch scope).
 
-**Option B (Nepal VPS)** is the right answer only if (a) Nepal data residency becomes
-mandatory, or (b) the founder explicitly wants to operate infrastructure and accept the
-ops load.
+## Rejected for launch
 
-## Why defer (not just pick A now)
+- **Option B (Nepal VPS)** — deferred unless data residency becomes mandatory.
+- **Workers Free full app** — size-blocked.
+- **Hybrid static HTML + separate API host** — extra split complexity; not chosen.
 
-- The CDN already serves Nepali readers from nearby edges; origin location affects only
-  cache-miss performance, which we can't estimate well without measurement.
-- The founder's "Nepal-local" intent may be satisfied by a Nepal-edge CDN presence +
-  Nepal domain (`.com.np`) without a Nepal origin, worth confirming before committing to
-  the ops cost of Option B.
-- Deferring costs nothing: the Next.js app is origin-agnostic; deploy targets are a config
-  change.
+## Follow-ups
 
-## Consequences (of deferring)
-
-- **Positive:** the app stays origin-agnostic; we decide with data; no premature lock-in.
-- **Negative:** one open item on the launch critical path; must be closed before Phase 1
-  deploy (it is the explicit gate for Phase 1).
-
-## Trade-offs
-
-Decision quality over decision speed. The cost of the probe (a week, trivial spend) is
-far smaller than the cost of operating an unwanted Nepal VPS for a year, or discovering
-latency problems after launch.
-
-## Triggers to force the decision
-
-- Phase 1 deploy gate (hard).
-- Any regulatory signal that Nepal data residency is required for online news (force B).
-- Founder resolution of ops budget (force A/C).
+- Soft → hard launch phases: `docs/launch-runbook.md`
+- Cutover checklist: `apps/web/lib/content/payload-cutover.ts` + `/admin/launch`

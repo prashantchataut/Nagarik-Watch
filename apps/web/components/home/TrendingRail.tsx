@@ -11,19 +11,18 @@ function toNeDigits(n: number, locale: Locale): string {
   return String(n).replace(/[0-9]/g, (d) => NE[Number(d)] ?? d)
 }
 
-/** Compact numbered most-read list for the homepage rail. */
-export function MostReadRail({
+/** Compact numbered trending list for the homepage rail (velocity lens). */
+export function TrendingRail({
   locale,
   stories,
   className,
-  headingId = 'most-read-title',
+  headingId = 'trending-rail-title',
   live = true,
 }: {
   locale: Locale
   stories: StoryCardData[]
   className?: string
   headingId?: string
-  /** False when rail falls back to recent catalog (thin engagement). */
   live?: boolean
 }) {
   if (stories.length === 0) return null
@@ -34,12 +33,12 @@ export function MostReadRail({
     <section className={className} aria-labelledby={headingId} lang={lang}>
       <div className="mb-2.5">
         <h2 id={headingId} className="font-display text-h3 font-extrabold text-ink">
-          {en ? 'Most read' : 'धेरै पढिएको'}
+          {en ? 'Trending' : 'ट्रेन्डिङ'}
         </h2>
         <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
         {!live ? (
           <p className="mt-1.5 text-caption text-mute">
-            {en ? 'Not enough reads yet · showing recent' : 'अझै पर्याप्त पढाइ छैन · ताजा क्रम'}
+            {en ? 'Not enough signal yet · showing recent' : 'अझै पर्याप्त संकेत छैन · ताजा क्रम'}
           </p>
         ) : null}
       </div>
@@ -62,7 +61,7 @@ export function MostReadRail({
       </ol>
       <p className="pt-3">
         <Link
-          href={localizeHref(locale, '/most-read')}
+          href={localizeHref(locale, '/trending')}
           className="inline-flex min-h-9 items-center text-meta font-bold text-brand-strong underline-offset-4 hover:underline"
         >
           {en ? 'Full list' : 'पूर्ण सूची'}

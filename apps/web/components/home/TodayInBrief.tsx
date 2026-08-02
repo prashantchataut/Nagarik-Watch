@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
+import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
 
 type TodayInBriefProps = {
   stories: StoryCardData[]
@@ -57,13 +58,15 @@ export function TodayInBrief({
                 >
                   {toNeDigits(i + 1, locale)}
                 </span>
-                <Link
-                  href={href}
-                  className="group min-w-0 flex-1 text-meta font-semibold leading-snug text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong sm:text-body"
-                  lang={titleLang}
-                >
-                  <span className="line-clamp-3">{title}</span>
-                </Link>
+                <InstrumentedStory articleSlug={s.slug} articleCategory={s.category.slug}>
+                  <Link
+                    href={href}
+                    className="group min-w-0 flex-1 text-meta font-semibold leading-snug text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong sm:text-body"
+                    lang={titleLang}
+                  >
+                    <span className="line-clamp-3">{title}</span>
+                  </Link>
+                </InstrumentedStory>
               </li>
             )
           })}

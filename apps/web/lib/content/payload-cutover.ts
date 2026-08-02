@@ -1,6 +1,7 @@
 /**
  * Payload CMS cutover readiness — honest checklist for /admin/launch.
  * Does not flip CONTENT_SOURCE; operators set env after each gate passes.
+ * See docs/launch-runbook.md Phase 1.
  */
 export type CutoverCheck = {
   key: string
@@ -11,6 +12,18 @@ export type CutoverCheck = {
 
 function value(name: string): string {
   return process.env[name]?.trim() ?? ''
+}
+
+function looksUnverified(input: string): boolean {
+  const lower = input.toLowerCase()
+  return (
+    !input ||
+    lower.includes('placeholder') ||
+    lower.includes('pending') ||
+    lower.includes('replace-before-launch') ||
+    lower.includes('change-me') ||
+    lower.includes('0000000')
+  )
 }
 
 export function getPayloadCutoverChecklist(): {
@@ -27,12 +40,26 @@ export function getPayloadCutoverChecklist(): {
   const siteUrl = value('NEXT_PUBLIC_SITE_URL')
   const blob = value('BLOB_READ_WRITE_TOKEN')
   const storageBase = value('STORAGE_PUBLIC_BASE_URL') || value('R2_PUBLIC_BASE_URL')
+  const starterSeed = value('ALLOW_STARTER_SEED').toLowerCase()
+  const staticExport =
+    value('NEXT_PUBLIC_STATIC_EXPORT') === '1' ||
+    value('CF_PAGES_STATIC') === '1' ||
+    value('NEXT_PUBLIC_STATIC_EXPORT').toLowerCase() === 'true'
+  const launchStatus = (value('NEXT_PUBLIC_LAUNCH_STATUS') || 'preview').toLowerCase()
 
   const checks: CutoverCheck[] = [
     {
+      key: 'origin-node',
+      label: 'Node origin (not static Pages)',
+      ok: !staticExport,
+      detail: staticExport
+        ? 'Static export strips APIs — point apex at Vercel Node (ADR-004), not CF Pages out'
+        : 'Reader host is not a static-export build',
+    },
+    {
       key: 'payload-url',
       label: 'Payload public URL',
-      ok: Boolean(payloadUrl),
+      ok: Boolean(payloadUrl) && !looksUnverified(payloadUrl),
       detail: payloadUrl
         ? 'PAYLOAD_PUBLIC_SERVER_URL / PAYLOAD_ADMIN_URL set'
         : 'Set PAYLOAD_PUBLIC_SERVER_URL to the live CMS origin',
@@ -40,7 +67,7 @@ export function getPayloadCutoverChecklist(): {
     {
       key: 'payload-token',
       label: 'Journalist API token',
-      ok: Boolean(token),
+      ok: Boolean(token) && !looksUnverified(token),
       detail: token
         ? 'PAYLOAD_API_TOKEN present (least-privilege service account)'
         : 'Create a Payload API key and set PAYLOAD_API_TOKEN',
@@ -48,7 +75,7 @@ export function getPayloadCutoverChecklist(): {
     {
       key: 'payload-secret',
       label: 'Payload secret',
-      ok: secret.length >= 32,
+      ok: secret.length >= 32 && !looksUnverified(secret),
       detail:
         secret.length >= 32
           ? 'PAYLOAD_SECRET length ok'
@@ -57,9 +84,9 @@ export function getPayloadCutoverChecklist(): {
     {
       key: 'revalidate',
       label: 'Shared revalidation secret',
-      ok: Boolean(revalidate),
+      ok: Boolean(revalidate) && revalidate.length >= 16 && !looksUnverified(revalidate),
       detail: revalidate
-        ? 'REVALIDATE_SECRET shared with web app'
+        ? 'REVALIDATE_SECRET shared with web app — prove publish → public ≤60s after flip'
         : 'Set the same REVALIDATE_SECRET on web + Payload',
     },
     {
@@ -74,7 +101,7 @@ export function getPayloadCutoverChecklist(): {
     {
       key: 'site-url',
       label: 'Public site URL',
-      ok: Boolean(siteUrl),
+      ok: Boolean(siteUrl) && !looksUnverified(siteUrl),
       detail: siteUrl ? 'NEXT_PUBLIC_SITE_URL set' : 'Set NEXT_PUBLIC_SITE_URL for absolute links',
     },
     {
@@ -86,13 +113,33 @@ export function getPayloadCutoverChecklist(): {
         : 'Configure BLOB_READ_WRITE_TOKEN or R2 + STORAGE_PUBLIC_BASE_URL',
     },
     {
+      key: 'seed-off',
+      label: 'Starter seed disabled',
+      ok: starterSeed !== 'true' && starterSeed !== '1',
+      detail:
+        starterSeed === 'true' || starterSeed === '1'
+          ? 'ALLOW_STARTER_SEED must be unset/false before public cutover'
+          : 'Starter seed is not forced on',
+    },
+    {
+      key: 'launch-status',
+      label: 'Launch status still preview until hard gate',
+      ok: launchStatus !== 'live' || contentSource === 'payload',
+      detail:
+        launchStatus === 'live' && contentSource !== 'payload'
+          ? 'Cannot stay live without CONTENT_SOURCE=payload'
+          : launchStatus === 'live'
+            ? 'Live status with Payload canonical — keep MFA/legal gate green'
+            : 'NEXT_PUBLIC_LAUNCH_STATUS is preview (correct until hard launch)',
+    },
+    {
       key: 'web-desk',
       label: 'Local web news desk',
       ok: true,
       detail:
         contentSource === 'payload'
-          ? 'Web /admin/articles still writes the local store; Payload is linked via banner until cutover is intentional'
-          : 'CONTENT_SOURCE is not payload — web desk is the primary CMS',
+          ? 'Web /admin/articles writes are blocked when Payload is canonical — publish in Payload'
+          : 'CONTENT_SOURCE is not payload — web desk / JSON store is still primary',
     },
     {
       key: 'source-flip',
@@ -100,12 +147,14 @@ export function getPayloadCutoverChecklist(): {
       ok: contentSource === 'payload' && Boolean(payloadUrl),
       detail:
         contentSource === 'payload' && payloadUrl
-          ? 'CONTENT_SOURCE=payload is live (public may read CMS; desk uses local store)'
-          : 'After checks pass: set CONTENT_SOURCE=payload and redeploy web',
+          ? 'CONTENT_SOURCE=payload is live'
+          : 'After checks pass: set CONTENT_SOURCE=payload and redeploy web on Vercel',
     },
   ]
 
-  const gateChecks = checks.filter((check) => check.key !== 'source-flip' && check.key !== 'web-desk')
+  const gateChecks = checks.filter(
+    (check) => check.key !== 'source-flip' && check.key !== 'web-desk' && check.key !== 'launch-status',
+  )
   const ready = gateChecks.every((check) => check.ok)
 
   return {

@@ -53,7 +53,7 @@ export const PUBLICATION = {
   editorInChief: process.env.NEXT_PUBLIC_EDITOR_IN_CHIEF?.trim() || '',
   registrationNumber: process.env.NEXT_PUBLIC_DOIB_NUMBER?.trim() || '',
   address: process.env.NEXT_PUBLIC_NEWSROOM_ADDRESS?.trim() || '',
-  email: process.env.NEXT_PUBLIC_NEWSROOM_EMAIL?.trim() || 'contact@nagarikwatch.com',
+  email: process.env.NEXT_PUBLIC_NEWSROOM_EMAIL?.trim() || '',
   phone: process.env.NEXT_PUBLIC_NEWSROOM_PHONE?.trim() || '',
   ownership:
     'Nagarik Watch separates editorial, opinion, advertising and sponsored material. Corrections are recorded on article and policy pages.',
@@ -62,7 +62,21 @@ export const PUBLICATION = {
 
 /** Hide unverified launch placeholders from the public footer/chrome. */
 export function isPublicPublicationValue(value: string | undefined): boolean {
-  return Boolean(value?.trim())
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed) return false
+  const lower = trimmed.toLowerCase()
+  if (
+    lower.includes('placeholder') ||
+    lower.includes('pending') ||
+    lower.includes('replace-before-launch') ||
+    lower.includes('change-me') ||
+    lower.includes('0000000') ||
+    lower.includes('todo') ||
+    lower.includes('tbd')
+  ) {
+    return false
+  }
+  return true
 }
 
 export type StaticHubKey =
