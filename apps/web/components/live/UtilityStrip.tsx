@@ -7,6 +7,11 @@ type UtilityStripProps = {
   locale: Locale
 }
 
+/**
+ * Compact live reference under the masthead.
+ * When NEPSE is unavailable, omit the markets row entirely — a permanent
+ * "unavailable" banner under the brand reads as a broken portal.
+ */
 export async function UtilityStrip({ locale }: UtilityStripProps) {
   const nepse = await getRealNepse(locale)
   const en = locale === 'en'
@@ -17,44 +22,42 @@ export async function UtilityStrip({ locale }: UtilityStripProps) {
     <div className="border-b border-rule bg-surface">
       <div className="mx-auto max-w-page px-3 sm:px-4">
         <div className="flex flex-col gap-1.5 py-1.5 sm:flex-row sm:items-center sm:gap-3 sm:py-2">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5">
-            <span className="shrink-0 text-caption font-extrabold text-brand-strong" lang={en ? 'en' : 'ne'}>
-              {en ? 'Markets' : 'बजार'}
-            </span>
-            {data ? (
-              <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 text-caption text-ink">
-                <span className="font-semibold">{en ? 'NEPSE' : 'नेप्से'}</span>
-                <span className="font-bold tabular-nums">
-                  {localizeNumber(data.index.toFixed(2), locale)}
-                </span>
+          {data ? (
+            <>
+              <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5">
                 <span
-                  className={
-                    data.change >= 0
-                      ? 'font-semibold tabular-nums text-up'
-                      : 'font-semibold tabular-nums text-down'
-                  }
+                  className="shrink-0 text-caption font-extrabold text-brand-strong"
+                  lang={en ? 'en' : 'ne'}
                 >
-                  {data.change >= 0 ? '+' : ''}
-                  {localizeNumber(data.change.toFixed(2), locale)} (
-                  {data.changePercent >= 0 ? '+' : ''}
-                  {localizeNumber(data.changePercent.toFixed(2), locale)}%)
+                  {en ? 'Markets' : 'बजार'}
                 </span>
-              </span>
-            ) : (
-              <span className="text-caption text-ink-soft">
-                {en ? 'Market feed unavailable' : 'बजार डेटा उपलब्ध छैन'}
-              </span>
-            )}
-          </div>
-
-          <span className="hidden h-4 w-px shrink-0 bg-rule sm:block" aria-hidden />
+                <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 text-caption text-ink">
+                  <span className="font-semibold">{en ? 'NEPSE' : 'नेप्से'}</span>
+                  <span className="font-bold tabular-nums">
+                    {localizeNumber(data.index.toFixed(2), locale)}
+                  </span>
+                  <span
+                    className={
+                      data.change >= 0
+                        ? 'font-semibold tabular-nums text-up'
+                        : 'font-semibold tabular-nums text-down'
+                    }
+                  >
+                    {data.change >= 0 ? '+' : ''}
+                    {localizeNumber(data.change.toFixed(2), locale)} (
+                    {data.changePercent >= 0 ? '+' : ''}
+                    {localizeNumber(data.changePercent.toFixed(2), locale)}%)
+                  </span>
+                </span>
+              </div>
+              <span className="hidden h-4 w-px shrink-0 bg-rule sm:block" aria-hidden />
+            </>
+          ) : null}
 
           <div className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between sm:gap-3">
             <ReaderPlaceLive locale={locale} variant="strip" />
             {updated ? (
-              <p className="mt-1 shrink-0 text-caption text-ink-soft sm:mt-0">
-                {updated}
-              </p>
+              <p className="mt-1 shrink-0 text-caption text-ink-soft sm:mt-0">{updated}</p>
             ) : null}
           </div>
         </div>

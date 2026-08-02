@@ -51,12 +51,15 @@ export function PollOfDay({
   locale,
   poll,
   className,
+  headingId,
 }: {
   locale: Locale
   poll: PublicPoll
   className?: string
+  headingId?: string
 }) {
   const lang = locale === 'en' ? 'en' : 'ne'
+  const labelledBy = headingId ?? `poll-${poll.id}`
   const [myVote, setMyVote] = useState<VoteRecord | null>(null)
   const [results, setResults] = useState<Record<string, number>>(poll.results)
   const [submitting, setSubmitting] = useState(false)
@@ -106,10 +109,11 @@ export function PollOfDay({
   const heading = locale === 'en' ? 'Reader poll' : 'पाठक मतदान'
 
   return (
-    <section className={className} aria-labelledby={`poll-${poll.id}`}>
+    <section className={className} aria-labelledby={labelledBy}>
       <div className="border border-rule bg-surface-raised px-4 py-4 sm:px-5 sm:py-5">
         <div>
           <p
+            id={labelledBy}
             className="text-meta font-extrabold text-brand-strong"
             lang={lang}
           >

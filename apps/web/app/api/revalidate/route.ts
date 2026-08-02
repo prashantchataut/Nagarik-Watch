@@ -1,9 +1,9 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
-import { revalidatePath } from 'next/cache'
 import { after } from 'next/server'
 import { NextResponse, type NextRequest } from 'next/server'
 import { recordNotificationEvent } from '@/lib/notifications/store'
 import { deliverPushEvent } from '@/lib/notifications/subscriptions'
+import { revalidatePublishedArticle } from '@/lib/content/revalidate-published'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -72,19 +72,19 @@ export async function POST(request: NextRequest) {
 
   const category = cleanSegment(message.categorySlug)
   const slug = cleanSegment(message.slug)
-  const locales = ['ne', 'en'] as const
-  const paths = new Set<string>(['/', '/rss.xml', '/news-sitemap.xml', '/sitemap.xml'])
+  const authorSlugs = Array.isArray(message.authorSlugs)
+    ? message.authorSlugs.map(cleanSegment).filter(Boolean)
+    : []
+  const tagSlugs = Array.isArray(message.tagSlugs)
+    ? message.tagSlugs.map(cleanSegment).filter(Boolean)
+    : []
 
-  for (const locale of locales) {
-    paths.add(`/${locale}`)
-    paths.add(`/${locale}/latest`)
-    if (category) paths.add(`/${locale}/${category}`)
-    if (category && slug) paths.add(`/${locale}/${category}/${slug}`)
-  }
-  if (category) paths.add(`/${category}`)
-  if (category && slug) paths.add(`/${category}/${slug}`)
-
-  for (const path of paths) revalidatePath(path)
+  const paths = revalidatePublishedArticle({
+    categorySlug: category,
+    slug,
+    authorSlugs,
+    tagSlugs,
+  })
 
   if (slug && category && message.titleNe && message.articleId) {
     const event = await recordNotificationEvent({
@@ -93,11 +93,16 @@ export async function POST(request: NextRequest) {
       categorySlug: category,
       titleNe: String(message.titleNe).trim().slice(0, 240),
       titleEn: message.titleEn ? String(message.titleEn).trim().slice(0, 240) : undefined,
-      authorSlugs: Array.isArray(message.authorSlugs) ? message.authorSlugs.map(cleanSegment).filter(Boolean) : [],
-      tagSlugs: Array.isArray(message.tagSlugs) ? message.tagSlugs.map(cleanSegment).filter(Boolean) : [],
+      authorSlugs,
+      tagSlugs,
       isBreaking: Boolean(message.isBreaking),
-      notificationMode: message.notificationMode === 'breaking' || message.notificationMode === 'followers' ? message.notificationMode : 'none',
-      notificationTagSlugs: Array.isArray(message.notificationTagSlugs) ? message.notificationTagSlugs.map(cleanSegment).filter(Boolean) : [],
+      notificationMode:
+        message.notificationMode === 'breaking' || message.notificationMode === 'followers'
+          ? message.notificationMode
+          : 'none',
+      notificationTagSlugs: Array.isArray(message.notificationTagSlugs)
+        ? message.notificationTagSlugs.map(cleanSegment).filter(Boolean)
+        : [],
       publishedAt: Number.isFinite(Date.parse(String(message.publishedAt ?? '')))
         ? new Date(String(message.publishedAt)).toISOString()
         : new Date().toISOString(),
@@ -110,6 +115,6 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     ok: true,
     articleId: cleanSegment(message.articleId),
-    revalidated: Array.from(paths),
+    revalidated: paths,
   })
 }

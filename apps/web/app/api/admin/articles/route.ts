@@ -8,8 +8,26 @@ import { blocksFromShorthand } from '@/lib/content/blocks'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { revalidatePublishedArticle, publicArticlePath, isPubliclyVisibleStage } from '@/lib/content/revalidate-published'
+import {
+  isPayloadCanonical,
+  payloadAdminUrl,
+} from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
+
+function payloadCanonicalBlockedResponse() {
+  return NextResponse.json(
+    {
+      error:
+        'सार्वजनिक साइट Payload CMS बाट चल्छ। यो स्थानीय डेस्कबाट लेख सुरक्षित/प्रकाशित गर्दा पाठकले देख्दैनन्।',
+      cmsUrl: payloadAdminUrl(),
+      visibility: 'shadow',
+      visibilityHint:
+        'CONTENT_SOURCE=payload छ। प्रकाशन Payload एडमिनबाट गर्नुहोस्, वा CONTENT_SOURCE=json राख्नुहोस्।',
+    },
+    { status: 409 },
+  )
+}
 
 const WORKFLOW_STAGES: StoredArticle['workflowStage'][] = [
   'idea',
@@ -46,6 +64,7 @@ export async function POST(request: NextRequest) {
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
+  if (isPayloadCanonical()) return payloadCanonicalBlockedResponse()
   const limited = await enforceRateLimit(request, 'admin-article-create', 20, 60_000)
   if (limited) return limited
 

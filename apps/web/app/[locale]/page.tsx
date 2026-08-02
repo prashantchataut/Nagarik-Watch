@@ -109,22 +109,29 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   })
 
   for (const story of bandFeatured) usedAbove.add(story.id)
+  for (const section of edition.sections) {
+    if (section.lead) usedAbove.add(section.lead.id)
+    for (const item of section.items) usedAbove.add(item.id)
+  }
 
-  const latest = [...catalog]
-    .filter((story) => story.id !== edition.lead.id)
+  // Rails must not recycle the front-page set — thin inventory beats déjà vu.
+  const latestCandidates = [...catalog]
+    .filter((story) => !usedAbove.has(story.id))
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
+  const latest = latestCandidates.slice(0, 8)
+  for (const story of latest) usedAbove.add(story.id)
 
-  const secondaryIds = new Set(homepage.secondary.map((s) => s.id))
-  const briefStories = latest.filter((s) => !secondaryIds.has(s.id)).slice(0, 5)
-  const briefPool = briefStories.length >= 3 ? briefStories : latest.slice(0, 5)
+  const briefPool = latestCandidates.filter((s) => !usedAbove.has(s.id)).slice(0, 5)
+  for (const story of briefPool) usedAbove.add(story.id)
 
   const { stories: mostRead } = await resolveMostReadStories({
     catalog,
-    excludeIds: secondaryIds,
+    excludeIds: usedAbove,
     limit: 6,
     windowDays: 7,
     minLive: 2,
   })
+  for (const story of mostRead) usedAbove.add(story.id)
   const provinceHeat = await resolveProvinceHeat({ catalog }).catch(() => [])
 
   const today = new Date()
@@ -223,15 +230,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         <FeaturedSpotlight stories={spotlightFeatured} locale={locale} className="mt-4" />
 
-        {/* Mobile: ताजा early so readers choose before the category stream. */}
-        <LatestRail
-          stories={latest}
-          locale={locale}
-          className="mt-4 border-y border-rule py-4 xl:hidden"
-        />
-
+        {/*
+          Single rail DOM: Latest once (early on all viewports), then stream | sticky brief.
+          Avoids mobile+desktop duplicate sections and duplicate heading IDs.
+        */}
         <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,0.38fr)] xl:items-start xl:gap-5">
-          <div className="min-w-0 space-y-5">
+          <LatestRail
+            stories={latest}
+            locale={locale}
+            className="border-y border-rule py-4 xl:col-start-2 xl:row-start-1 xl:border-0 xl:py-0"
+            headingId="latest-rail-title"
+          />
+
+          <div className="min-w-0 space-y-5 xl:col-start-1 xl:row-start-1 xl:row-span-2">
             {homepageStream.map((item) =>
               item.kind === 'section' ? (
                 <SectionBlock key={item.section.category.slug} section={item.section} locale={locale} />
@@ -251,22 +262,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <ProvinceHub locale={locale} heat={provinceHeat} />
           </div>
 
-          <aside className="hidden min-w-0 xl:block">
-            <div className="sticky top-28 space-y-5">
-              <LatestRail stories={latest} locale={locale} compact />
-              <TodayInBrief stories={briefPool} locale={locale} />
-              <MostReadRail stories={mostRead} locale={locale} />
-              {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
+          <aside className="min-w-0 space-y-5 border-t border-rule pt-5 xl:col-start-2 xl:row-start-2 xl:border-0 xl:pt-0">
+            <div className="xl:sticky xl:top-28 xl:space-y-5">
+              <TodayInBrief stories={briefPool} locale={locale} headingId="today-in-brief" />
+              <MostReadRail stories={mostRead} locale={locale} headingId="most-read-title" />
+              {activePoll ? (
+                <PollOfDay locale={locale} poll={activePoll} headingId={`poll-${activePoll.id}`} />
+              ) : null}
             </div>
           </aside>
-        </div>
-
-        <div className="mt-5 grid gap-5 border-t border-rule pt-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-6 xl:hidden">
-          <TodayInBrief stories={briefPool} locale={locale} />
-          <div className="space-y-6">
-            <MostReadRail stories={mostRead} locale={locale} />
-            {activePoll ? <PollOfDay locale={locale} poll={activePoll} /> : null}
-          </div>
         </div>
       </div>
 

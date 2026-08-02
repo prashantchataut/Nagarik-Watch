@@ -9,11 +9,13 @@ import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/Cms
 import {
   AdminButton,
   AdminCard,
+  AdminCallout,
   AdminFilterLink,
   AdminPageHeader,
   AdminTable,
   StatusBadge,
 } from '@/components/admin/primitives'
+import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
 
 export const metadata: Metadata = {
   title: 'समाचार',
@@ -68,6 +70,14 @@ export default async function ArticlesPage({
   let items = listResult.value.items
   const total = listResult.value.total
 
+  const ops = await getOpsHealthSnapshot().catch(() => null)
+  const scheduledCron = ops?.cron.find((job) => job.job === 'scheduled-publish')
+  const cronSecretMissing =
+    !process.env.CRON_SECRET?.trim() || (process.env.CRON_SECRET?.trim().length ?? 0) < 32
+  const showScheduledCronWarning =
+    (status === 'scheduled' || items.some((article) => article.workflowStage === 'scheduled')) &&
+    Boolean(scheduledCron?.missed || cronSecretMissing)
+
   if (query) {
     items = items.filter((article) => {
       const hay = `${article.titleNe} ${article.slug} ${article.categorySlug} ${article.deckNe ?? ''}`.toLowerCase()
@@ -94,6 +104,21 @@ export default async function ArticlesPage({
 
       <CmsCanonicalBanner />
       <AdminLoadErrorBanner message={loadError} />
+      {showScheduledCronWarning ? (
+        <AdminCallout tone="attention" className="mb-4">
+          <p className="text-meta font-semibold text-ink" lang="ne">
+            तालिकाबद्ध प्रकाशन चल्न सक्दैन: cron हराएको वा CRON_SECRET छैन।
+          </p>
+          <p className="mt-1 text-caption text-ink-soft" lang="ne">
+            {cronSecretMissing
+              ? 'GitHub Actions secrets मा CRON_SECRET (≥24 अक्षर) र वैकल्पिक CRON_BASE_URL सेट गर्नुहोस्।'
+              : `scheduled-publish पछिल्लो रन: ${scheduledCron?.lastRunAt ?? 'कहिल्यै होइन'}।`}{' '}
+            <Link href="/admin/launch" className="font-semibold text-brand-strong underline-offset-2 hover:underline">
+              Launch जाँच
+            </Link>
+          </p>
+        </AdminCallout>
+      ) : null}
 
       <form method="get" className="mb-4 flex flex-wrap items-end gap-2" role="search">
         {status ? <input type="hidden" name="status" value={status} /> : null}

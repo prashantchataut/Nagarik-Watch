@@ -10,7 +10,8 @@ import { getAuthor } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export function generateStaticParams() {
   return staticAuthorParams()

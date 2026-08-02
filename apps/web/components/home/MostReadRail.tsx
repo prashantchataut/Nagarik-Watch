@@ -15,19 +15,21 @@ export function MostReadRail({
   locale,
   stories,
   className,
+  headingId = 'most-read-title',
 }: {
   locale: Locale
   stories: StoryCardData[]
   className?: string
+  headingId?: string
 }) {
   if (stories.length === 0) return null
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
 
   return (
-    <section className={className} aria-labelledby="most-read-title" lang={lang}>
+    <section className={className} aria-labelledby={headingId} lang={lang}>
       <div className="mb-2.5">
-        <h2 id="most-read-title" className="font-display text-h3 font-extrabold text-ink">
+        <h2 id={headingId} className="font-display text-h3 font-extrabold text-ink">
           {en ? 'Most read' : 'धेरै पढिएको'}
         </h2>
         <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />

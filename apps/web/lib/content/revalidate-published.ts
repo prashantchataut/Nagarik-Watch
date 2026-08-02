@@ -27,6 +27,7 @@ export function revalidatePublishedArticle(input: {
     paths.add(`/${locale}/latest`)
     paths.add(`/${locale}/most-read`)
     paths.add(`/${locale}/trending`)
+    paths.add(`/${locale}/search`)
     if (category) {
       paths.add(`/${locale}/${category}`)
       paths.add(`/${category}`)
@@ -45,6 +46,7 @@ export function revalidatePublishedArticle(input: {
       }
     }
   }
+  paths.add('/search')
 
   for (const path of paths) {
     try {

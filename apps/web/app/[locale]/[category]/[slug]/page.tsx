@@ -18,6 +18,7 @@ import { AdSlot } from '@/components/AdSlot'
 import { CommentSection } from '@/components/article/CommentSection'
 import { SpeculationRules } from '@/components/SpeculationRules'
 import { SpeakableJsonLd } from '@/components/seo/Schema'
+import { DocumentLang } from '@/components/DocumentLang'
 import { PrintButton } from '@/components/article/PrintButton'
 import { ReactionBar } from '@/components/article/ReactionBar'
 import { ShareBar } from '@/components/article/ShareBar'
@@ -68,17 +69,19 @@ export async function generateMetadata({
   const locale = asLocale(raw)
   const article = await getArticleBySlug(category, slug, locale)
   if (!article) return {}
-  const title =
-    locale === 'en' && article.seoTitleEn
+  const useEnglish = locale === 'en' && Boolean(article.hasEnglish)
+  const titleRaw =
+    useEnglish && article.seoTitleEn
       ? article.seoTitleEn
-      : locale === 'en' && article.titleEn
+      : useEnglish && article.titleEn
         ? article.titleEn
         : article.seoTitleNe || article.titleNe
+  const title = titleRaw.trim() || (useEnglish ? 'Article' : 'लेख')
   const description =
-    locale === 'en' && article.seoDescriptionEn
+    useEnglish && article.seoDescriptionEn
       ? article.seoDescriptionEn
-      : article.seoDescriptionNe || (locale === 'en' ? article.deckEn : article.deckNe)
-  const canonical = `${SITE_URL}${localizeHref(locale, `/${category}/${slug}`)}`
+      : article.seoDescriptionNe || (useEnglish ? article.deckEn : article.deckNe)
+  const canonical = `${SITE_URL}${localizeHref(useEnglish ? 'en' : 'ne', `/${category}/${slug}`)}`
   const shareImage = publicShareImageUrl(article.heroImage?.url, SITE_URL, {
     width: article.heroImage?.width,
     height: article.heroImage?.height,
@@ -86,7 +89,7 @@ export async function generateMetadata({
   const nePath = `/${category}/${slug}`
   const enPath = `/en/${category}/${slug}`
   return {
-    title,
+    title: { absolute: `${title} | Nagarik Watch` },
     description,
     alternates: {
       canonical,
@@ -100,6 +103,7 @@ export async function generateMetadata({
       title,
       description,
       url: canonical,
+      locale: useEnglish ? 'en_NP' : 'ne_NP',
       publishedTime: article.publishedAt,
       modifiedTime: article.updatedAt,
       images: [{ url: shareImage, alt: article.heroImage?.alt || title }],
@@ -160,7 +164,8 @@ export default async function ArticlePage({
   )
 
   return (
-    <article className="pb-10 print:pb-0">
+    <article className="pb-10 print:pb-0" lang={readingEnglish ? 'en' : 'ne'}>
+      {englishMissing ? <DocumentLang lang="ne" /> : null}
       <SpeculationRules prerenderUrls={relatedHrefs.slice(0, 2)} prefetchUrls={relatedHrefs} />
       <ArticleJsonLd
         article={article}

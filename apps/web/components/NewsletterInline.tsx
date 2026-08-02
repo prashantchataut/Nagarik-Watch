@@ -14,19 +14,19 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
 
   const labels = {
     heading: locale === 'en' ? 'Daily briefing' : 'दैनिक ब्रिफिङ',
-    placeholder: locale === 'en' ? 'you@email.com' : 'you@email.com',
+    placeholder: locale === 'en' ? 'you@email.com' : 'namaste@example.com',
     button: locale === 'en' ? 'Subscribe' : 'दर्ता गर्नुहोस्',
     submitting: locale === 'en' ? 'Saving…' : 'सुरक्षित हुँदै…',
     success:
       locale === 'en'
         ? 'Check your inbox to confirm the subscription.'
-        : 'सदस्यता पुष्टि गर्न आफ्नो इमेल जाँच्नुहोस्।',
+        : 'पुष्टि गर्न आफ्नो इमेल जाँच्नुहोस्।',
     error: locale === 'en' ? 'Newsletter is unavailable right now.' : 'न्युजलेटर अहिले उपलब्ध छैन।',
     invalid: locale === 'en' ? 'Enter a valid email.' : 'मान्य इमेल लेख्नुहोस्।',
     privacy:
       locale === 'en'
         ? 'One digest, unsubscribe anytime.'
-        : 'एक डाइजेस्ट, जुनसुकै बेला सदस्यता रद्द गर्न सकिन्छ।',
+        : 'एक डाइजेस्ट मात्र; जुनसुकै बेला हटाउन सकिन्छ।',
   }
 
   async function submit(e: React.FormEvent) {

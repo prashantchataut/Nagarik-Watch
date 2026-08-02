@@ -7,6 +7,7 @@ type TodayInBriefProps = {
   stories: StoryCardData[]
   locale: Locale
   className?: string
+  headingId?: string
 }
 
 const NE = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९']
@@ -16,7 +17,12 @@ function toNeDigits(n: number, locale: Locale): string {
 }
 
 /** Dense daily briefing list for sidebar or mid-page packing. */
-export function TodayInBrief({ stories, locale, className }: TodayInBriefProps) {
+export function TodayInBrief({
+  stories,
+  locale,
+  className,
+  headingId = 'today-in-brief',
+}: TodayInBriefProps) {
   const items = stories.slice(0, 6)
   if (items.length === 0) return null
 
@@ -24,11 +30,11 @@ export function TodayInBrief({ stories, locale, className }: TodayInBriefProps) 
   const lang = locale === 'en' ? 'en' : 'ne'
 
   return (
-    <section className={className} aria-labelledby="today-in-brief">
+    <section className={className} aria-labelledby={headingId}>
       <div className="border border-rule bg-surface-raised px-3.5 py-3.5 sm:px-4 sm:py-4">
         <div className="flex items-end justify-between gap-3 border-b border-rule pb-2">
           <div className="min-w-0">
-            <h2 id="today-in-brief" className="font-display text-h3 font-extrabold text-ink" lang={lang}>
+            <h2 id={headingId} className="font-display text-h3 font-extrabold text-ink" lang={lang}>
               {dict.briefTitle}
             </h2>
             <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />

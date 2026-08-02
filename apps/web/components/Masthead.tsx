@@ -45,6 +45,7 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
   const savedHref = localizeHref(locale, '/saved')
   const searchHref = localizeHref(locale, '/search')
   const utilitiesHref = localizeHref(locale, '/utilities')
+  const calendarHref = localizeHref(locale, '/utilities/calendar')
   const latestHref = localizeHref(locale, '/latest')
   const toggleHref = swapLocale(pathname)
   const lang = locale === 'en' ? 'en' : 'ne'
@@ -189,7 +190,7 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
 
           <div className="hidden shrink-0 items-center gap-1.5 py-1.5 lg:flex">
             <Link
-              href={utilitiesHref}
+              href={calendarHref}
               className="inline-flex min-h-9 items-center rounded-sm bg-paper/15 px-2.5 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-paper/25"
               lang={lang}
             >

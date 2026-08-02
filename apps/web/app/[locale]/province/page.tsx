@@ -4,7 +4,8 @@ import { getStories } from '@/lib/content'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { PROVINCES } from '@/lib/site'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export default async function ProvincesPage({
   params,

@@ -9,23 +9,31 @@ type LatestRailProps = {
   className?: string
   /** Sidebar: single-column, tighter packing for persistent desktop rail. */
   compact?: boolean
+  /** Unique when the rail is rendered twice (mobile + desktop). */
+  headingId?: string
 }
 
 /**
  * Dense “ताजा” feed: thumbnail + headline + short deck + meta.
  * Shares DenseStoryItem with featured / also-today rails.
  */
-export function LatestRail({ stories, locale, className, compact = false }: LatestRailProps) {
+export function LatestRail({
+  stories,
+  locale,
+  className,
+  compact = false,
+  headingId = 'latest-rail-title',
+}: LatestRailProps) {
   const items = stories.slice(0, compact ? 5 : 8)
   if (items.length === 0) return null
   const english = locale === 'en'
 
   return (
-    <aside className={className} aria-labelledby="latest-rail-title">
+    <aside className={className} aria-labelledby={headingId}>
       <div className="flex items-end justify-between gap-3 border-b border-rule pb-2">
         <div className="min-w-0">
           <h2
-            id="latest-rail-title"
+            id={headingId}
             className="text-pretty font-display text-h3 font-extrabold text-ink"
             lang={english ? 'en' : 'ne'}
           >

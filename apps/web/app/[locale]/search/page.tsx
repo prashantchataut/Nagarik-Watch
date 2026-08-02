@@ -56,4 +56,6 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   }
 }
 
-export const dynamic = 'force-static'
+/** Must refresh after publish; corpus is loaded from the live content store. */
+export const dynamic = 'force-dynamic'
+export const revalidate = 60

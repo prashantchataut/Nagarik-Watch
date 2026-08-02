@@ -29,10 +29,17 @@ export async function runScheduledPublish(now = new Date()): Promise<ScheduledPu
     return { published: [], skipped: 'payload-canonical', inspected: 0 }
   }
 
-  const { items: articles } = await listArticlesForAdmin({ limit: 500 }).catch(() => ({
-    items: [],
-    total: 0,
-  }))
+  let articles
+  try {
+    const listed = await listArticlesForAdmin({ limit: 500 })
+    articles = listed.items
+  } catch (error) {
+    console.error(
+      '[scheduled-publish] listArticlesForAdmin failed',
+      error instanceof Error ? error.message : error,
+    )
+    return { published: [], skipped: 'store-unavailable', inspected: 0 }
+  }
   const due = articles.filter((article) => {
     if (article.workflowStage !== 'scheduled') return false
     const at = Date.parse(article.publishedAt)

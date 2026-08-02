@@ -83,6 +83,8 @@ export async function AdSlot({
   }
 
   if (mode === 'off' && collapseWhenOff) return null
+  // Empty house inventory must not reserve dashed media-kit shells on the public page.
+  if (mode === 'house' && !creative) return null
 
   const description = locale === 'en' ? placement.descriptionEn : placement.descriptionNe
 

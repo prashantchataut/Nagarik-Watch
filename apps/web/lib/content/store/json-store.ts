@@ -1,8 +1,8 @@
 /**
  * Article store — Postgres (`nw_articles`) in production when DATABASE_URL is
- * set; local JSON file for development. Empty stores auto-seed original
- * Nagarik Watch starter articles (editable via /admin/articles). Never holds
- * scraped BBC / Online Khabar copy.
+ * set; local JSON file for development. Development empty stores may auto-seed
+ * starter articles (editable via /admin/articles). Production never auto-publishes
+ * seed unless ALLOW_STARTER_SEED=true. Never holds scraped third-party copy.
  */
 import 'server-only'
 import { promises as fs } from 'node:fs'
@@ -21,6 +21,14 @@ const DATA_DIR = path.resolve(process.cwd(), 'data')
 const STORE_FILE = path.join(DATA_DIR, 'articles.json')
 const PUBLIC_WORKFLOW_STAGES: readonly WorkflowStage[] = ['published', 'updated']
 const SCHEMA_KEY = 'nw-articles-v1'
+
+/** Production must not invent a published edition unless operators opt in. */
+function allowStarterSeed(): boolean {
+  const flag = process.env.ALLOW_STARTER_SEED?.trim().toLowerCase()
+  if (flag === 'true' || flag === '1') return true
+  if (flag === 'false' || flag === '0') return false
+  return !isProductionRuntime()
+}
 
 export type StoredArticle = {
   id: string
@@ -255,6 +263,9 @@ async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
   )
 
   if (rawArticles.length === 0) {
+    if (!allowStarterSeed()) {
+      return { articles: [], version: 1 }
+    }
     const seeded = normalizeArticles(buildOriginalStarterArticles())
     await insertSeedArticles(pool, seeded)
     return { articles: seeded, version: 1 }
@@ -262,6 +273,9 @@ async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
 
   const articles = await repairStaleEditionHeroes(pool, rawArticles)
   const refreshed = await refreshEditionArticles(pool, articles)
+  if (!allowStarterSeed()) {
+    return { articles: refreshed, version: 1 }
+  }
   const missing = missingSeedArticles(refreshed)
   if (missing.length > 0) {
     const normalizedMissing = normalizeArticles(missing)
@@ -309,11 +323,17 @@ async function readFromFile(): Promise<StoreShape> {
     const parsed = JSON.parse(raw) as StoreShape
     const existing = normalizeArticles(withoutLegacyStarters(parsed.articles ?? []))
     if (!existing.length) {
+      if (!allowStarterSeed()) {
+        return { articles: [], version: 1 }
+      }
       const seeded = normalizeArticles(buildOriginalStarterArticles())
       const store = { articles: seeded, version: 1 }
       await fs.mkdir(DATA_DIR, { recursive: true })
       await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
       return store
+    }
+    if (!allowStarterSeed()) {
+      return { articles: existing, version: parsed.version ?? 1 }
     }
     const missing = normalizeArticles(missingSeedArticles(existing))
     const articles = missing.length ? [...existing, ...missing] : existing
@@ -327,6 +347,9 @@ async function readFromFile(): Promise<StoreShape> {
     }
     return store
   } catch {
+    if (!allowStarterSeed()) {
+      return { articles: [], version: 1 }
+    }
     const seeded = normalizeArticles(buildOriginalStarterArticles())
     const store = { articles: seeded, version: 1 }
     try {
@@ -346,13 +369,14 @@ async function read(): Promise<StoreShape> {
     try {
       return rememberCache(await readFromPostgres(pool))
     } catch (error) {
-      // Transient Postgres failures must not crash admin RSC pages.
+      // Transient Postgres failures must not crash admin RSC pages in local/dev.
+      // In production, empty inventory looks like a mass-unpublish — fail loud.
       console.error(
         '[json-store] readFromPostgres failed; falling back to file/empty',
         error instanceof Error ? error.message : error,
       )
       if (isProductionRuntime()) {
-        return rememberCache({ articles: [], version: 1 })
+        throw error instanceof Error ? error : new Error('Article store Postgres read failed')
       }
     }
   }

@@ -3,7 +3,8 @@ import type { Metadata } from 'next'
 import { permanentRedirect } from 'next/navigation'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export function generateStaticParams() {
   return staticTagParams()

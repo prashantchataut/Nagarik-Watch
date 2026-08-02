@@ -27,7 +27,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ bookmarks: list })
   } catch (error) {
     console.error('[bookmarks:GET]', error)
-    return NextResponse.json({ bookmarks: [] })
+    return NextResponse.json(
+      { error: 'Bookmarks temporarily unavailable.', bookmarks: null },
+      { status: 503 },
+    )
   }
 }
 

@@ -143,15 +143,19 @@ export async function getPollForVoting(pollId: string): Promise<Poll | null> {
   const cleanId = cleanText(pollId, 120)
   if (!cleanId) return null
   const pool = await ensureSchema()
+  let poll: Poll | null = null
   if (pool) {
     const result = await pool.query<Row>(
       `SELECT * FROM nw_polls WHERE id = $1 AND status = 'active' LIMIT 1`,
       [cleanId],
     )
-    return result.rows[0] ? rowToPoll(result.rows[0]) : null
+    poll = result.rows[0] ? rowToPoll(result.rows[0]) : null
+  } else {
+    const found = (await readLocal()).find((candidate) => candidate.id === cleanId)
+    poll = found?.status === 'active' ? found : null
   }
-  const poll = (await readLocal()).find((candidate) => candidate.id === cleanId)
-  return poll?.status === 'active' ? poll : null
+  if (!poll || !isPublicReadyPoll(poll)) return null
+  return poll
 }
 
 export async function createPoll(input: {

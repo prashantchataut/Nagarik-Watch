@@ -6,7 +6,7 @@ import {
   payloadCollectionAdminUrl,
 } from '@/lib/content/payload-admin-client'
 
-/** Honest banner when CONTENT_SOURCE=payload — local desk still works. */
+/** Honest banner when CONTENT_SOURCE=payload — local desk article writes are blocked. */
 export function CmsCanonicalBanner({
   collection = 'articles',
 }: {
@@ -27,12 +27,11 @@ export function CmsCanonicalBanner({
   return (
     <AdminCallout tone="attention" className="mb-4">
       <p className="text-meta font-semibold text-ink" lang="ne">
-        CONTENT_SOURCE=payload सेट छ। सार्वजनिक साइट CMS बाट पढ्न सक्छ; यो डेस्क भने स्थानीय
-        समाचार स्टोरमा लेख्छ।
+        CONTENT_SOURCE=payload सेट छ। सार्वजनिक साइट CMS बाट पढ्छ; यो डेस्कबाट लेख सुरक्षित/प्रकाशित
+        गर्न सकिँदैन।
       </p>
       <p className="mt-1 text-caption text-ink-soft" lang="ne">
-        CMS मा सिधै काम गर्न तलको लिंक खोल्नुहोस्। कटओभर पूरा नभएसम्म स्थानीय सूची र नयाँ समाचार
-        प्रयोग गर्न सकिन्छ — तर प्रकाशित लेख सार्वजनिकमा नदेखिन सक्छ।
+        प्रकाशन Payload CMS बाट गर्नुहोस्, वा सार्वजनिक स्रोत CONTENT_SOURCE=json मा फर्काउनुहोस्।
       </p>
       <div className="mt-3">
         <AdminButton href={cmsUrl} variant="secondary" target="_blank" rel="noopener noreferrer">

@@ -272,8 +272,10 @@ function buildLaunchChecks(options?: {
         ? 'VAPID subscription and provider-backed push delivery are configured'
         : 'In-app alerts work, but direct Web Push needs public/private VAPID keys and a contact subject',
     },
-    verifiedSetting('notification-cron', 'Notification delivery cron secret', 'CRON_SECRET', {
+    verifiedSetting('notification-cron', 'Ops / scheduled-publish cron secret', 'CRON_SECRET', {
       secret: true,
+      warning:
+        'CRON_SECRET (≥24 chars) is required for GitHub Actions ops-crons (scheduled-publish every 5 min). Without it, scheduled articles stay dark.',
     }),
     {
       key: 'payments',
