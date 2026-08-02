@@ -38,11 +38,12 @@ describe('getOpsHealthSnapshot', () => {
     expect(snapshot.pool.saturation).toBe(1)
   })
 
-  it('marks a cron job missed when it has never run', async () => {
+  it('marks a cron job as never when it has never run', async () => {
     mockGetPoolStats.mockReturnValue(null)
     mockGetCronHeartbeats.mockResolvedValue([])
     const snapshot = await getOpsHealthSnapshot()
     expect(snapshot.cron.length).toBeGreaterThan(0)
+    expect(snapshot.cron.every((job) => job.state === 'never')).toBe(true)
     expect(snapshot.cron.every((job) => job.missed)).toBe(true)
   })
 
@@ -53,6 +54,7 @@ describe('getOpsHealthSnapshot', () => {
     ])
     const snapshot = await getOpsHealthSnapshot()
     const job = snapshot.cron.find((c) => c.job === 'notifications-deliver')
+    expect(job?.state).toBe('ok')
     expect(job?.missed).toBe(false)
   })
 

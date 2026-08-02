@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getLaunchChecksAsync, launchScore } from '@/lib/launch-readiness'
+import { getLaunchStatusSummary } from '@/lib/launch-phases'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
 import { getPayloadCutoverChecklist } from '@/lib/content/payload-cutover'
-import { getLaunchPhases } from '@/lib/launch-phases'
-import { AdminPageHeader, AdminCard, OpsCheckBadge } from '@/components/admin/primitives'
+import { AdminPageHeader, AdminCard, OpsCheckBadge, AdminCallout } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'लन्च चेक',
@@ -21,8 +21,8 @@ export default async function LaunchPage() {
   await requireNewsroomSession()
   const [checks, ops] = await Promise.all([getLaunchChecksAsync(), getOpsHealthSnapshot()])
   const cutover = getPayloadCutoverChecklist()
-  const phases = getLaunchPhases()
   const score = launchScore(checks)
+  const status = getLaunchStatusSummary(checks, score)
   return (
     <div>
       <AdminPageHeader subtitle="Production gate before showing the client a serious build" />
@@ -31,36 +31,54 @@ export default async function LaunchPage() {
           <p className="admin-metric__label">Readiness</p>
           <p className="admin-metric__value admin-metric__value--brand !text-[3.25rem]">{score}%</p>
           <p className="mt-2 text-meta text-ink-soft">
-            100% requires passing env, auth, persistent DB, storage, email and live data checks.
-            Origin must be Vercel Node (ADR-004) — not CF Pages static.
+            Env score from automatic probes. Soft {status.soft.passCount}/
+            {status.soft.items.length} · Hard {status.hard.passCount}/{status.hard.items.length} ·{' '}
+            {status.failCount} fail · {status.warnCount} warn
           </p>
         </AdminCard>
         <AdminCard>
-          <h2 className="admin-section-title" lang="ne">
-            प्रकाशन अघिको नियम
-          </h2>
-          <p className="mt-2 text-meta leading-7 text-ink-soft" lang="ne">
-            Fail भएका items सार्वजनिक लन्च अघि सच्याउनुपर्छ। Warn भएका items स्पष्ट UI लेबल वा manual
-            fallback सहित मात्र देखाउनुहोस्। नक्कली लाइभ डाटा, नक्कली विज्ञापन र नक्कली पेवाल सार्वजनिक रूपमा
-            नदेखाउनुहोस्।
-          </p>
-          <p className="mt-2 text-caption text-mute" lang="en">
-            Runbook: docs/launch-runbook.md · Soft stay preview · Hard needs pnpm launch:gate
+          <p className="admin-metric__label">Current stage</p>
+          <p className="mt-1 text-[1.35rem] font-semibold text-ink">{status.stageLabel}</p>
+          <p className="mt-2 text-meta leading-7 text-ink-soft">{status.nextAction}</p>
+          <p className="mt-2 text-caption text-mute">
+            Status: {status.launchStatus} · In-repo program: complete · Remaining: operator env,
+            DNS, corpus, legal
           </p>
         </AdminCard>
       </div>
 
+      <AdminCallout tone={status.failCount > 0 ? 'danger' : 'attention'} className="mb-6">
+        <p className="text-meta leading-7">
+          {status.inRepoComplete
+            ? 'Code and docs for the launch program are in place. Clearing fails/warns requires Vercel secrets, Payload cutover, real stories, and verified publication identity — not more homepage polish.'
+            : 'In-repo launch work is incomplete.'}{' '}
+          Runbook: <code className="text-caption">docs/launch-runbook.md</code>
+        </p>
+      </AdminCallout>
+
       <h2 className="admin-section-title mb-3">Soft → hard phases</h2>
       <div className="mb-8 grid gap-4 lg:grid-cols-2">
-        {phases.map((phase) => (
+        {[status.soft, status.hard].map((phase) => (
           <AdminCard key={phase.id}>
-            <h3 className="admin-section-title !text-[1rem]">{phase.title}</h3>
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="admin-section-title !text-[1rem]">{phase.title}</h3>
+              <OpsCheckBadge
+                status={phase.failCount > 0 ? 'fail' : phase.warnCount > 0 ? 'warn' : 'pass'}
+              />
+            </div>
             <p className="mt-1 text-meta text-ink-soft">{phase.summary}</p>
-            <ol className="mt-3 list-decimal space-y-2 pl-4 text-meta text-ink-soft">
+            <p className="mt-1 text-caption text-mute">
+              {phase.passCount} pass · {phase.warnCount} warn · {phase.failCount} fail
+            </p>
+            <ol className="mt-3 list-decimal space-y-3 pl-4 text-meta text-ink-soft">
               {phase.items.map((item) => (
                 <li key={item.id}>
-                  <span className="font-semibold text-ink">{item.label}</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-ink">{item.label}</span>
+                    <OpsCheckBadge status={item.status} />
+                  </div>
                   <span className="mt-0.5 block text-caption text-mute">{item.detail}</span>
+                  <span className="mt-0.5 block text-caption text-mute">{item.evidence}</span>
                 </li>
               ))}
             </ol>
@@ -107,15 +125,33 @@ export default async function LaunchPage() {
       </AdminCard>
 
       <h2 className="admin-section-title mb-3 mt-8">Ops health snapshot</h2>
+      <AdminCallout tone="attention" className="mb-4">
+        <p className="text-meta leading-7">
+          Pool max is <strong>1 connection per Node instance</strong> (Aiven slot safety). Seeing 1/1
+          in use while this page loads is normal — only <strong>waiting &gt; 0</strong> means pressure.
+          Cron rows stay <strong>NEVER</strong> until Vercel daily crons and/or GitHub{' '}
+          <code className="text-caption">ops-crons.yml</code> hit production with{' '}
+          <code className="text-caption">CRON_SECRET</code> + <code className="text-caption">CRON_BASE_URL</code>.
+          Local preview does not invent heartbeats.
+        </p>
+      </AdminCallout>
       <div className="grid gap-3 lg:grid-cols-2">
         <AdminCard>
           <p className="admin-section-title !text-[0.95rem]">Database pool</p>
           {ops.pool.configured ? (
-            <p className="mt-1 text-meta text-ink-soft">
-              Saturation {pct(ops.pool.saturation)} · {ops.pool.totalCount}/{ops.pool.max} connections in
-              use
-              {ops.pool.waitingCount > 0 ? ` · ${ops.pool.waitingCount} waiting` : ''}
-            </p>
+            <>
+              <p className="mt-1 text-meta text-ink-soft">
+                {ops.pool.totalCount - ops.pool.idleCount}/{ops.pool.max} in use · {ops.pool.idleCount}{' '}
+                idle · {ops.pool.waitingCount} waiting · saturation {pct(ops.pool.saturation)}
+              </p>
+              <p className="mt-1 text-caption text-mute">
+                {ops.pool.waitingCount > 0
+                  ? 'Waiting clients — pool pressure under load.'
+                  : ops.pool.max === 1
+                    ? 'Max 1/instance by design. Not an outage signal by itself.'
+                    : 'No queue waiting.'}
+              </p>
+            </>
           ) : (
             <p className="mt-1 text-meta text-ink-soft">
               No shared pool has been created in this process yet.
@@ -125,17 +161,31 @@ export default async function LaunchPage() {
         <AdminCard>
           <p className="admin-section-title !text-[0.95rem]">Cron heartbeats</p>
           <div className="mt-1 grid gap-1">
-            {ops.cron.map((job) => (
-              <p key={job.job} className="text-meta text-ink-soft">
-                <span className={job.missed ? 'font-bold text-breaking' : 'font-bold text-brand-strong'}>
-                  {job.missed ? 'MISSED' : 'OK'}
-                </span>{' '}
-                {job.label} —{' '}
-                {job.lastRunAt
-                  ? `last ran ${job.ageMinutes !== null ? Math.round(job.ageMinutes) : '?'} min ago`
-                  : 'never recorded'}
-              </p>
-            ))}
+            {ops.cron.map((job) => {
+              const badge =
+                job.state === 'ok' ? 'pass' : job.state === 'stale' ? 'fail' : 'warn'
+              const label =
+                job.state === 'ok' ? 'OK' : job.state === 'stale' ? 'STALE' : 'NEVER'
+              return (
+                <p key={job.job} className="text-meta text-ink-soft">
+                  <span
+                    className={
+                      job.state === 'ok'
+                        ? 'font-bold text-brand-strong'
+                        : job.state === 'stale'
+                          ? 'font-bold text-breaking'
+                          : 'font-bold text-ink-soft'
+                    }
+                  >
+                    {label}
+                  </span>{' '}
+                  <OpsCheckBadge status={badge} /> {job.label} —{' '}
+                  {job.lastRunAt
+                    ? `last ran ${job.ageMinutes !== null ? Math.round(job.ageMinutes) : '?'} min ago`
+                    : 'never recorded (scheduler not hitting this host yet)'}
+                </p>
+              )
+            })}
           </div>
         </AdminCard>
       </div>

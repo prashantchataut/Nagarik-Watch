@@ -7,6 +7,9 @@ describe('launch readiness topology gates', () => {
     delete process.env.NEXT_PUBLIC_STATIC_EXPORT
     delete process.env.ALLOW_STARTER_SEED
     delete process.env.NEXT_PUBLIC_LAUNCH_STATUS
+    delete process.env.CAPTCHA_PROVIDER
+    delete process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+    delete process.env.TURNSTILE_SECRET_KEY
   })
 
   it('fails origin-topology when static export flags are set', () => {
@@ -24,6 +27,23 @@ describe('launch readiness topology gates', () => {
 
   it('passes origin-topology on a Node-capable host', () => {
     const check = getLaunchChecks().find((item) => item.key === 'origin-topology')
+    expect(check?.status).toBe('pass')
+  })
+
+  it('warns on abuse-captcha until Turnstile is configured', () => {
+    process.env.NEXT_PUBLIC_LAUNCH_STATUS = 'preview'
+    delete process.env.CAPTCHA_PROVIDER
+    delete process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+    delete process.env.TURNSTILE_SECRET_KEY
+    const check = getLaunchChecks().find((item) => item.key === 'abuse-captcha')
+    expect(check?.status).toBe('warn')
+  })
+
+  it('passes abuse-captcha when Turnstile keys are set', () => {
+    process.env.CAPTCHA_PROVIDER = 'turnstile'
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = 'site-key-example'
+    process.env.TURNSTILE_SECRET_KEY = 'secret-key-example'
+    const check = getLaunchChecks().find((item) => item.key === 'abuse-captcha')
     expect(check?.status).toBe('pass')
   })
 })

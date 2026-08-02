@@ -5,6 +5,7 @@ import { getOpsMigrationStatus } from '@/lib/ops-migrations'
 import { getPaymentAdapterState } from '@/lib/payments/adapter'
 import { isPayloadStorageWired } from '@/lib/storage-adapter'
 import { twoFactorConfigured } from '@/lib/security/mfa'
+import { getCaptchaState } from '@/lib/security/turnstile'
 import { lintSecurityHeaders } from '@/lib/security/header-lint'
 import { getAdMode, isNetworkAdsReady } from '@/lib/ads'
 import { getSentryState } from '@/lib/observability/sentry'
@@ -93,6 +94,7 @@ function buildLaunchChecks(options?: {
   const tts = getTtsState()
   const semantic = getSemanticProviderState()
   const adsMode = getAdMode()
+  const captcha = getCaptchaState()
   const staticExport =
     value('NEXT_PUBLIC_STATIC_EXPORT') === '1' ||
     value('CF_PAGES_STATIC') === '1' ||
@@ -348,6 +350,18 @@ function buildLaunchChecks(options?: {
           : 'Staff MFA is available but not enforced; set STAFF_MFA_ENABLED=true before launch',
     },
     {
+      key: 'abuse-captcha',
+      label: 'Turnstile on public writes',
+      status: captcha.enabled ? 'pass' : launchLive ? 'fail' : 'warn',
+      detail: captcha.enabled
+        ? 'CAPTCHA_PROVIDER=turnstile with site + secret keys'
+        : captcha.reason === 'unsupported_provider'
+          ? 'CAPTCHA_PROVIDER must be turnstile'
+          : launchLive
+            ? 'Live mode requires Turnstile on contact, newsletter, and submissions'
+            : 'Set CAPTCHA_PROVIDER=turnstile + NEXT_PUBLIC_TURNSTILE_SITE_KEY + TURNSTILE_SECRET_KEY before hard launch',
+    },
+    {
       key: 'live-data',
       label: 'Live data providers',
       status: value('FOOTBALL_API_KEY') || value('NEPSE_API_URL') ? 'pass' : 'warn',
@@ -398,6 +412,7 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
   }
   const launchMinimum = Number(value('LAUNCH_MIN_PUBLISHED_ARTICLES') || 30)
   const declared = Number(value('PUBLISHED_ARTICLE_COUNT') || 0)
+  const launchLive = (value('NEXT_PUBLIC_LAUNCH_STATUS') || 'preview').toLowerCase() === 'live'
   const volumeIdx = checks.findIndex((check) => check.key === 'content-volume')
   if (volumeIdx >= 0) {
     const count = livePublished >= 0 ? livePublished : declared
@@ -409,6 +424,40 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
       status: count >= launchMinimum ? 'pass' : livePublished === 0 ? 'fail' : 'warn',
       detail: `${count}/${launchMinimum} published articles (${source})`,
     }
+  }
+
+  try {
+    const { getOpsHealthSnapshot } = await import('@/lib/ops/health-snapshot')
+    const ops = await getOpsHealthSnapshot()
+    const scheduled = ops.cron.find((job) => job.job === 'scheduled-publish')
+    const neverCount = ops.cron.filter((job) => job.state === 'never').length
+    const staleCount = ops.cron.filter((job) => job.state === 'stale').length
+    const cronIdx = checks.findIndex((check) => check.key === 'notification-cron')
+    if (cronIdx >= 0) {
+      const secretOk =
+        value('CRON_SECRET').length >= 24 && !looksUnverified(value('CRON_SECRET'))
+      let status: LaunchCheck['status'] = 'pass'
+      let detail = 'CRON_SECRET set and scheduled-publish heartbeat is fresh'
+      if (!secretOk) {
+        status = launchLive ? 'fail' : 'warn'
+        detail =
+          'CRON_SECRET (≥24 chars) required for GitHub ops-crons / scheduled-publish. Without it, scheduled articles stay dark.'
+      } else if (!scheduled || scheduled.state === 'never') {
+        status = launchLive ? 'fail' : 'warn'
+        detail = `CRON_SECRET set, but ${neverCount}/${ops.cron.length} jobs have never recorded a heartbeat (wire CRON_BASE_URL + GitHub ops-crons / Vercel crons, or POST /api/cron/scheduled-publish once)`
+      } else if (scheduled.state === 'stale' || staleCount > 0) {
+        status = launchLive ? 'fail' : 'warn'
+        detail = `Cron heartbeats stale (${staleCount} overdue). Check ops-crons.yml secrets and vercel.json daily jobs.`
+      }
+      checks[cronIdx] = {
+        key: 'notification-cron',
+        label: 'Ops / scheduled-publish cron secret',
+        status,
+        detail,
+      }
+    }
+  } catch {
+    // Keep sync CRON_SECRET probe if ops snapshot fails.
   }
 
   return checks

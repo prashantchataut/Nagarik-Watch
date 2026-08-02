@@ -31,6 +31,8 @@ export type PoolSnapshot = {
   saturation: number
 }
 
+export type CronRunState = 'ok' | 'stale' | 'never'
+
 export type CronSnapshot = {
   job: string
   label: string
@@ -38,6 +40,9 @@ export type CronSnapshot = {
   lastRunAt: string | null
   ageMinutes: number | null
   health: number
+  /** ok within interval; stale = ran but overdue; never = no heartbeat recorded yet. */
+  state: CronRunState
+  /** True when not ok (stale or never). Kept for ops-probe / existing callers. */
   missed: boolean
 }
 
@@ -78,6 +83,8 @@ function cronSnapshots(heartbeats: CronHeartbeat[]): CronSnapshot[] {
     const heartbeat = byJob.get(expectation.job)
     const ageMinutes = minutesSince(heartbeat)
     const health = ageMinutes === null ? 0 : cronHealthScore(ageMinutes, expectation.intervalMinutes)
+    const state: CronRunState =
+      ageMinutes === null ? 'never' : health < 1 ? 'stale' : 'ok'
     return {
       job: expectation.job,
       label: expectation.label,
@@ -85,7 +92,8 @@ function cronSnapshots(heartbeats: CronHeartbeat[]): CronSnapshot[] {
       lastRunAt: heartbeat?.lastRunAt ?? null,
       ageMinutes,
       health,
-      missed: health < 1,
+      state,
+      missed: state !== 'ok',
     }
   })
 }

@@ -6,6 +6,19 @@ canonical (ADR-014); origin = **Vercel Node + Cloudflare DNS/CDN** (ADR-004).
 Public pages never show this checklist. Drive it from `/admin/launch` on the **Node** host
 and `pnpm launch:gate`.
 
+## Status (2026-08-02)
+
+| Layer | State |
+|-------|--------|
+| In-repo (code, gates, ADR-004, honesty, CI smoke) | **Complete** |
+| Operator Phase 0 (DNS → Vercel, Postgres, email, Blob) | Remaining |
+| Operator Phase 1 (`CONTENT_SOURCE=payload`, ≥30 stories) | Remaining |
+| Operator Phase 2 (soft traffic while `preview`) | Remaining |
+| Operator Phase 3 (`live` + `launch:gate`) | Remaining |
+
+`/admin/launch` shows an env **readiness %**, soft/hard phase badges wired to probes, and a
+**current stage** + next action. A high score on localhost does not mean production is live.
+
 ## Topology (locked)
 
 ```
@@ -84,9 +97,20 @@ pnpm validate:newsroom              # local stack env
 
 - **Sub-daily** (scheduled-publish every 5 min, house-ad-promote, breaking boost): GitHub
   Actions [`.github/workflows/ops-crons.yml`](../.github/workflows/ops-crons.yml) with
-  `CRON_SECRET` + `CRON_BASE_URL` (Vercel production URL).
+  repo secrets `CRON_SECRET` (≥24 chars) + `CRON_BASE_URL` (Vercel production URL, no trailing slash).
 - **Daily** only on Vercel Hobby: see root `vercel.json` crons (notifications, digest,
   ops-probe, interactions-rebuild).
+
+Until those schedulers hit the Node host, `/admin/launch` shows cron heartbeats as **NEVER**
+(not a false outage). **STALE** means a job ran before but missed its interval. Pool **1/1**
+with waiting 0 is expected (max 1 connection per instance).
+
+Manual smoke (once secrets exist):
+
+```bash
+curl -X POST "$CRON_BASE_URL/api/cron/scheduled-publish" \
+  -H "Authorization: Bearer $CRON_SECRET"
+```
 
 ## Anti-goals
 

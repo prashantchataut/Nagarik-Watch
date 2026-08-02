@@ -2,6 +2,22 @@
 
 Track user-visible capabilities only. `VERIFIED` requires the acceptance test named in Evidence.
 
+## Launch readiness program (2026-08)
+
+| Gate | Status | Evidence | Remaining work |
+|---|---|---|---|
+| ADR-004 origin decision | VERIFIED | `docs/adr/ADR-004-origin-hosting.md` Accepted | Point apex DNS at Vercel (operator) |
+| Launch probes + `/admin/launch` stages | VERIFIED | `launch-readiness.ts`, `launch-phases.ts`, Turnstile check | Operator clears fails/warns on Node host |
+| Launch gate + origin assert scripts | VERIFIED | `scripts/launch-gate.mjs`, `assert-launch-origin.mjs` | Run with `live` only after legal/MFA |
+| Publication honesty (no fake contact) | VERIFIED | `site.ts`, Footer, contact, well-known routes | Fill verified `NEXT_PUBLIC_*` legal env |
+| Payload cutover checklist | IN PROGRESS | `payload-cutover.ts`, runbook Phase 1 | Flip `CONTENT_SOURCE=payload` + corpus ≥30 |
+| Soft launch product loops | IN PROGRESS | Auth, polls, comments, consent, crons in code | Soft traffic + 48h cron heartbeat on Vercel |
+| Hard launch (DoIB, MFA, analytics, Turnstile) | NOT STARTED | Runbook Phase 3 | Operator secrets + `launch:gate` then `live` |
+
+Operator source of truth: [`docs/launch-runbook.md`](launch-runbook.md). Do not claim hard live from repo score alone.
+
+## Newsroom repair gates
+
 | Gate | Status | Evidence | Remaining work |
 |---|---|---|---|
 | Local dev stack (Postgres + web + Payload CMS) | IN PROGRESS | `pnpm dev:newsroom`, `docker-compose.yml`, `scripts/validate-newsroom-env.mjs` | Docker optional when hosted Postgres is configured |
