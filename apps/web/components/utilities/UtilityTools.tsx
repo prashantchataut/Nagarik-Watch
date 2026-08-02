@@ -32,11 +32,11 @@ function ToolWorkspace({
 }) {
   return (
     <section
-      className="border border-rule bg-surface-raised"
+      className="utility-tool-workspace border border-rule bg-surface-raised"
       lang={locale === 'en' ? 'en' : 'ne'}
     >
       {summary ? (
-        <p className="border-b border-rule px-4 py-3 text-meta leading-relaxed text-ink-soft sm:px-5">
+        <p className="border-b border-rule bg-brand-tint/25 px-4 py-3 text-meta leading-relaxed text-ink-soft sm:px-5">
           {summary}
         </p>
       ) : null}
@@ -66,7 +66,7 @@ function Field({
 function Result({ label, value }: { label: string; value: string }) {
   return (
     <output
-      className="grid content-center gap-1 rounded-md border border-rule bg-brand-tint/45 px-4 py-3 sm:px-5 sm:py-4"
+      className="grid content-center gap-1 border border-rule bg-brand-tint/45 px-4 py-3 sm:px-5 sm:py-4"
       aria-live="polite"
     >
       <span className="text-caption font-bold text-ink-soft">{label}</span>

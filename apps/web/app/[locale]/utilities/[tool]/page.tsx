@@ -18,7 +18,12 @@ export function generateStaticParams() {
 }
 
 const meta = {
-  calendar: ['Nepali calendar', 'नेपाली पात्रो', 'Browse Bikram Sambat months, festivals and holidays.', 'विक्रम संवत् महिना, पर्व र बिदा हेर्नुहोस्।'],
+  calendar: [
+    'Nepali calendar',
+    'नेपाली पात्रो',
+    'Browse Bikram Sambat months with festivals and public holidays marked on the desk.',
+    'विक्रम संवत् महिना, पर्व र सार्वजनिक बिदा एकै डेस्कमा हेर्नुहोस्।',
+  ],
   'date-converter': ['BS / AD date converter', 'बि.सं. / इस्वी मिति रूपान्तरण', 'Convert dates accurately in both directions.', 'दुवै दिशामा मिति सही रूपमा रूपान्तरण गर्नुहोस्।'],
   'preeti-unicode': ['Preeti Unicode converter', 'प्रिती युनिकोड रूपान्तरण', 'Convert legacy Nepali font text in your browser.', 'पुरानो नेपाली फन्टको पाठ ब्राउजरमै रूपान्तरण गर्नुहोस्।'],
   currency: ['NPR currency converter', 'नेपाली मुद्रा रूपान्तरण', 'Convert NPR and major currencies when verified rates are available.', 'प्रमाणित दर उपलब्ध हुँदा नेपाली रुपैयाँ र प्रमुख मुद्रा रूपान्तरण गर्नुहोस्।'],
