@@ -54,23 +54,23 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
-    "@eslint/js": "^9.39.4",
+    "@eslint/js": "^10.0.1",
     "@nagarikwatch/tsconfig": "workspace:*",
     "@playwright/test": "^1.49.0",
-    "@types/node": "^22.10.2",
-    "eslint": "^9.15.0",
-    "eslint-config-prettier": "^9.1.0",
-    "globals": "^15.15.0",
+    "@types/node": "^26.1.2",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.8.0",
     "next": "15.5.18",
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
     "turbo": "^2.3.3",
-    "typescript": "~5.9.3",
+    "typescript": "~7.0.2",
     "wrangler": "^4.112.0"
   },
   "pnpm": {
     "overrides": {
-      "typescript": "~5.9.3"
+      "typescript": "~7.0.2"
     }
   }
 }
