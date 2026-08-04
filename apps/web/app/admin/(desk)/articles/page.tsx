@@ -138,11 +138,11 @@ export default async function ArticlesPage({
       {showPayloadScheduleNote ? (
         <AdminCallout tone="attention" className="mb-4">
           <p className="text-meta font-semibold text-ink" lang="ne">
-            Payload मोड: डेस्क cron ले चरण फ्लिप गर्दैन।
+            Payload मोड: प्रकाशन Payload CMS बाट सञ्चालन हुन्छ।
           </p>
           <p className="mt-1 text-caption text-ink-soft" lang="ne">
-            सार्वजनिक साइट <span lang="en">publishAt ≤ now</span> गेटले तालिकाबद्ध सामग्री देखाउँछ।
-            चरण <span lang="en">published</span> मा सार्न Payload CMS बाट गर्नुहोस्।
+            तालिकाबद्ध सामग्री अब cron बाट <span lang="en">published</span> मा सारिन्छ, तर डेस्क लेख
+            सुरक्षित/सम्पादन यो सतहबाट होइन, Payload CMS बाट गर्नुहोस्।
           </p>
         </AdminCallout>
       ) : null}
@@ -153,7 +153,7 @@ export default async function ArticlesPage({
           </p>
           <p className="mt-1 text-caption text-ink-soft" lang="ne">
             {cronSecretMissing
-              ? 'GitHub Actions secrets मा CRON_SECRET (≥24 अक्षर) र वैकल्पिक CRON_BASE_URL सेट गर्नुहोस्।'
+              ? 'GitHub Actions secrets मा CRON_SECRET (≥32 अक्षर) र वैकल्पिक CRON_BASE_URL सेट गर्नुहोस्।'
               : `scheduled-publish पछिल्लो रन: ${scheduledCron?.lastRunAt ?? 'कहिल्यै होइन'}।`}{' '}
             <Link href="/admin/launch" className="font-semibold text-brand-strong underline-offset-2 hover:underline">
               Launch जाँच

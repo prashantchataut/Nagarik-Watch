@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
+import { TurnstileField } from '@/components/forms/TurnstileField'
 
 const VOTE_KEY = 'nw-poll-votes'
 const FINGERPRINT_KEY = 'nw-poll-fingerprint'
@@ -46,6 +47,12 @@ function fingerprint(): string {
   } catch {
     return window.crypto.randomUUID()
   }
+}
+
+function readTurnstileToken(): string {
+  if (typeof document === 'undefined') return ''
+  const input = document.querySelector<HTMLInputElement>('input[name="cf-turnstile-response"]')
+  return input?.value?.trim() ?? ''
 }
 
 export function PollOfDay({
@@ -94,7 +101,12 @@ export function PollOfDay({
       const response = await fetch('/api/polls/vote', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ pollId: poll.id, optionId, fingerprint: fingerprint() }),
+        body: JSON.stringify({
+          pollId: poll.id,
+          optionId,
+          fingerprint: fingerprint(),
+          turnstileToken: readTurnstileToken(),
+        }),
       })
       const body = (await response.json()) as {
         error?: string
@@ -190,6 +202,9 @@ export function PollOfDay({
                 ? 'Choose one option. One vote per reader.'
                 : 'एउटा विकल्प छान्नुहोस्। प्रत्येक पाठकलाई एक मत।')}
         </p>
+        <div className="mt-3">
+          <TurnstileField siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
+        </div>
       </div>
     </section>
   )

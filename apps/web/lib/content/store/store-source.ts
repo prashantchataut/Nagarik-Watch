@@ -48,6 +48,13 @@ function resolveHero(a: StoredArticle) {
 }
 
 type TaxonomyCatalog = { authors: Author[]; tags: Tag[]; categories: Category[] }
+let taxonomyCache:
+  | {
+      expiresAt: number
+      value: TaxonomyCatalog
+    }
+  | null = null
+const TAXONOMY_CACHE_TTL_MS = 15_000
 
 function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): StoryCardData {
   const cat =
@@ -136,12 +143,17 @@ function toFullArticle(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatal
 }
 
 async function loadCatalog(): Promise<TaxonomyCatalog> {
+  if (taxonomyCache && taxonomyCache.expiresAt > Date.now()) {
+    return taxonomyCache.value
+  }
   const [categoryList, tagList, authorList] = await Promise.all([
     listContentCategories(),
     listContentTags(),
     listContentAuthors(),
   ])
-  return { categories: categoryList, tags: tagList, authors: authorList }
+  const value = { categories: categoryList, tags: tagList, authors: authorList }
+  taxonomyCache = { value, expiresAt: Date.now() + TAXONOMY_CACHE_TTL_MS }
+  return value
 }
 
 export function createStoreContentSource(): ContentSource {

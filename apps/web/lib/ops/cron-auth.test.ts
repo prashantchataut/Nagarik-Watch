@@ -15,17 +15,18 @@ describe('isCronAuthorized', () => {
     const previous = process.env.CRON_SECRET
     delete process.env.CRON_SECRET
     expect(isCronAuthorized(requestWithAuth('Bearer anything'))).toBe(false)
-    process.env.CRON_SECRET = 'too-short'
-    expect(isCronAuthorized(requestWithAuth('Bearer too-short'))).toBe(false)
+    process.env.CRON_SECRET = 'too-short-even-if-twenty-four!!'
+    expect(isCronAuthorized(requestWithAuth('Bearer too-short-even-if-twenty-four!!'))).toBe(false)
     if (previous === undefined) delete process.env.CRON_SECRET
     else process.env.CRON_SECRET = previous
   })
 
   it('accepts a matching Bearer token when the secret is long enough', () => {
     const previous = process.env.CRON_SECRET
-    process.env.CRON_SECRET = 'cron-secret-with-enough-length-24+'
-    expect(isCronAuthorized(requestWithAuth('Bearer cron-secret-with-enough-length-24+'))).toBe(true)
-    expect(isCronAuthorized(requestWithAuth('Bearer wrong'))).toBe(false)
+    const secret = 'cron-secret-with-enough-length-32chars!!'
+    process.env.CRON_SECRET = secret
+    expect(isCronAuthorized(requestWithAuth(`Bearer ${secret}`))).toBe(true)
+    expect(isCronAuthorized(requestWithAuth('Bearer wrong-secret-with-enough-length-xxx'))).toBe(false)
     if (previous === undefined) delete process.env.CRON_SECRET
     else process.env.CRON_SECRET = previous
   })

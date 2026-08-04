@@ -55,9 +55,9 @@ Hobby Vercel rejects `*/5`, `*/15`, and hourly schedules. These hit production w
 | `/api/cron/breaking-auto-boost` | every 15 min | Optional breaking boost |
 | `/api/cron/house-ad-promote` | every 6 h | Promote house-ad A/B winners |
 
-Repo secrets: `CRON_SECRET` (≥24 chars), optional `CRON_BASE_URL` (default `https://www.nagarikwatch.com`).
+Repo secrets: `CRON_SECRET` (≥32 chars), optional `CRON_BASE_URL` (default `https://www.nagarikwatch.com`).
 
-All require `Authorization: Bearer $CRON_SECRET` (≥24 chars).
+All require `Authorization: Bearer $CRON_SECRET` (≥32 chars).
 
 ## Deploy checklist (ops)
 

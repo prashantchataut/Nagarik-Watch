@@ -297,3 +297,71 @@ export async function updatePayloadArticleWorkflowStage(
     }),
   })
 }
+
+type PayloadScheduledArticle = {
+  id: string | number
+  slug?: string
+  publishAt?: string
+  workflowStage?: string
+  category?: { slug?: string } | string | number
+  tags?: Array<{ tag?: { slug?: string } | string | number }>
+}
+
+type PayloadScheduledPublishResult = {
+  published: Array<{ id: string; slug: string; categorySlug?: string; tagSlugs: string[]; publishedAt: string }>
+  inspected: number
+}
+
+function relationSlug(
+  input: { slug?: string } | string | number | undefined,
+): string | undefined {
+  if (!input) return undefined
+  if (typeof input === 'object') return input.slug ? String(input.slug) : undefined
+  return undefined
+}
+
+export async function publishDuePayloadScheduledArticles(
+  now = new Date(),
+  limit = 200,
+): Promise<PayloadScheduledPublishResult> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    depth: '1',
+    sort: 'publishAt',
+  })
+  params.set('where[workflowStage][equals]', 'scheduled')
+  params.set('where[publishAt][less_than_equal]', now.toISOString())
+
+  const listed = await payloadJson<PayloadList<PayloadScheduledArticle>>(
+    `/api/articles?${params.toString()}`,
+  )
+  const docs = listed.docs ?? []
+  const published: PayloadScheduledPublishResult['published'] = []
+
+  for (const doc of docs) {
+    const patched = await payloadJson<PayloadScheduledArticle>(
+      `/api/articles/${encodeURIComponent(String(doc.id))}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({
+          workflowStage: 'published',
+          _status: 'published',
+          noIndex: false,
+          includeInNewsSitemap: true,
+        }),
+      },
+    )
+    const tagSlugs = (patched.tags ?? [])
+      .map((row) => relationSlug(row.tag))
+      .filter((slug): slug is string => Boolean(slug))
+    published.push({
+      id: String(patched.id),
+      slug: String(patched.slug ?? ''),
+      categorySlug: relationSlug(patched.category),
+      tagSlugs,
+      publishedAt: String(patched.publishAt ?? now.toISOString()),
+    })
+  }
+
+  return { published, inspected: docs.length }
+}

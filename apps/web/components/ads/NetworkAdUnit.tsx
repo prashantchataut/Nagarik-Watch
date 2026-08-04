@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { hasAdvertisingConsent } from '@/lib/reader/consent'
 
 type Googletag = {
   cmd: Array<() => void>
@@ -14,9 +15,14 @@ type Googletag = {
   display: (id: string) => void
 }
 
+type AdsByGoogle = {
+  push: (config: Record<string, unknown>) => number
+  loaded?: boolean
+}
+
 /**
- * Renders a real AdSense or GAM slot when credentials exist; otherwise null
- * so the parent can keep the reserved labelled container.
+ * Renders a real AdSense or GAM slot only when credentials exist and the reader
+ * has granted advertising consent. Otherwise null so parents can collapse.
  */
 export function NetworkAdUnit({
   network,
@@ -34,10 +40,17 @@ export function NetworkAdUnit({
   height: number
 }) {
   const gamRef = useRef<HTMLDivElement>(null)
+  const adsenseRef = useRef<HTMLModElement>(null)
+  const pushed = useRef(false)
+  const [consentAds, setConsentAds] = useState(false)
   const kind = network.trim().toLowerCase()
 
   useEffect(() => {
-    if (kind !== 'gam' || !gamPath?.trim() || !gamRef.current) return
+    setConsentAds(hasAdvertisingConsent())
+  }, [])
+
+  useEffect(() => {
+    if (!consentAds || kind !== 'gam' || !gamPath?.trim() || !gamRef.current) return
     const w = window as Window & { googletag?: Partial<Googletag> }
     const id = gamRef.current.id
     if (!w.googletag) w.googletag = { cmd: [] }
@@ -54,11 +67,45 @@ export function NetworkAdUnit({
         googletag.display(id)
       }
     })
-  }, [kind, gamPath, width, height])
+  }, [consentAds, kind, gamPath, width, height])
+
+  useEffect(() => {
+    if (!consentAds || kind !== 'adsense') return
+    if (!adsenseClient?.trim() || !adsenseSlot?.trim()) return
+    if (pushed.current) return
+
+    let attempts = 0
+    const timer = window.setInterval(() => {
+      attempts += 1
+      const w = window as Window & { adsbygoogle?: AdsByGoogle | unknown[] }
+      if (!Array.isArray(w.adsbygoogle)) {
+        w.adsbygoogle = []
+      }
+      // Script present or queue ready — push once so AdSense can fill the <ins>.
+      const scriptReady =
+        Boolean(document.getElementById('nw-adsense')) ||
+        (typeof (w.adsbygoogle as AdsByGoogle).loaded === 'boolean'
+          ? Boolean((w.adsbygoogle as AdsByGoogle).loaded)
+          : attempts >= 2)
+      if (!scriptReady && attempts < 40) return
+      try {
+        ;(w.adsbygoogle as AdsByGoogle).push({})
+        pushed.current = true
+      } catch {
+        // Ignore double-push / race errors from the AdSense loader.
+      }
+      window.clearInterval(timer)
+    }, 250)
+
+    return () => window.clearInterval(timer)
+  }, [consentAds, kind, adsenseClient, adsenseSlot])
+
+  if (!consentAds) return null
 
   if (kind === 'adsense' && adsenseClient?.trim() && adsenseSlot?.trim()) {
     return (
       <ins
+        ref={adsenseRef}
         className="adsbygoogle"
         style={{ display: 'block', width, minHeight: height }}
         data-ad-client={adsenseClient.trim()}

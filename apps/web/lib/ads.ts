@@ -263,16 +263,29 @@ export function getAdNetworkKind(): 'adsense' | 'gam' | '' {
   return ''
 }
 
-/** Network mode is ready only when the matching publisher credential exists. */
+/** Canonical GAM network code (prefer NEXT_PUBLIC_GAM_NETWORK_CODE). */
+export function getGamNetworkCode(): string {
+  return (
+    process.env.NEXT_PUBLIC_GAM_NETWORK_CODE?.trim() ||
+    process.env.NEXT_PUBLIC_AD_NETWORK_CODE?.trim() ||
+    ''
+  )
+}
+
+/**
+ * Network mode is ready only when publisher credentials are complete enough to
+ * actually fill a unit (AdSense needs client + slot; GAM needs network code).
+ */
 export function isNetworkAdsReady(): boolean {
   if (getAdMode() !== 'network') return false
   const kind = getAdNetworkKind()
-  if (kind === 'adsense') return Boolean(process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim())
-  if (kind === 'gam') {
+  if (kind === 'adsense') {
     return Boolean(
-      process.env.NEXT_PUBLIC_GAM_NETWORK_CODE?.trim() || process.env.NEXT_PUBLIC_AD_NETWORK_CODE?.trim(),
+      process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() &&
+        process.env.NEXT_PUBLIC_ADSENSE_SLOT?.trim(),
     )
   }
+  if (kind === 'gam') return Boolean(getGamNetworkCode())
   return false
 }
 

@@ -7,6 +7,7 @@ import {
   adPlacement,
   getAdMode,
   getAdNetworkKind,
+  getGamNetworkCode,
   isNetworkAdsReady,
   type AdPlacementKey,
   type AdSize,
@@ -14,6 +15,7 @@ import {
 import { AdTracker } from '@/components/ads/AdTracker'
 import { HouseAdLink } from '@/components/ads/HouseAdLink'
 import { NetworkAdUnit } from '@/components/ads/NetworkAdUnit'
+import { ConsentGatedAd } from '@/components/ads/ConsentGatedAd'
 import { SponsoredBadge } from '@nagarikwatch/ui'
 import { getHouseAd, houseAdExperimentId, type HouseAdCreative } from '@/lib/house-ads'
 import { assignAndRecordExperiment } from '@/lib/experiments/store'
@@ -85,10 +87,13 @@ export async function AdSlot({
   if (mode === 'off' && collapseWhenOff) return null
   // Empty house inventory must not reserve dashed media-kit shells on the public page.
   if (mode === 'house' && !creative) return null
+  // Network without complete credentials: collapse (no empty "live" shells).
+  if (mode === 'network' && !isNetworkAdsReady()) return null
 
   const description = locale === 'en' ? placement.descriptionEn : placement.descriptionNe
+  const gamCode = getGamNetworkCode()
 
-  return (
+  const shell = (
     <aside
       className={`${slotClass(resolvedVariant)} ${SIZE_CLASS[placement.size]} ${className}`}
       aria-label={`${adLabel}: ${placement.label}`}
@@ -159,27 +164,14 @@ export async function AdSlot({
             </span>
           </HouseAdLink>
         ) : mode === 'network' ? (
-          isNetworkAdsReady() ? (
-            <NetworkAdUnit
-              network={getAdNetworkKind()}
-              adsenseClient={process.env.NEXT_PUBLIC_ADSENSE_CLIENT}
-              adsenseSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT}
-              gamPath={
-                process.env.NEXT_PUBLIC_GAM_NETWORK_CODE
-                  ? `/${process.env.NEXT_PUBLIC_GAM_NETWORK_CODE}/${placement.key}`
-                  : undefined
-              }
-              width={placement.width}
-              height={placement.height}
-            />
-          ) : (
-            <span className="mt-2 max-w-[22rem] text-caption leading-relaxed text-ink-soft sm:mt-0">
-              {locale === 'en'
-                ? 'Network inventory reserved. Publisher credentials are not configured yet.'
-                : 'नेटवर्क स्थान सुरक्षित छ। प्रकाशक प्रमाणपत्र अहिले कन्फिगर छैन।'}
-              <span className="mt-1 block text-mute">{description}</span>
-            </span>
-          )
+          <NetworkAdUnit
+            network={getAdNetworkKind()}
+            adsenseClient={process.env.NEXT_PUBLIC_ADSENSE_CLIENT}
+            adsenseSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT}
+            gamPath={gamCode ? `/${gamCode}/${placement.key}` : undefined}
+            width={placement.width}
+            height={placement.height}
+          />
         ) : resolvedVariant === 'mobile' ? (
           <Link
             href={mediaKitHref}
@@ -205,6 +197,11 @@ export async function AdSlot({
       </div>
     </aside>
   )
+
+  if (mode === 'network') {
+    return <ConsentGatedAd>{shell}</ConsentGatedAd>
+  }
+  return shell
 }
 
 export function AdStack({ locale, className = '' }: { locale: Locale; className?: string }) {

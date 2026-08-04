@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
+import { TurnstileField } from '@/components/forms/TurnstileField'
 
 type Comment = {
   id: string
@@ -110,6 +111,7 @@ export function CommentSection({
     const form = new FormData(event.currentTarget)
     const authorName = String(form.get('authorName') ?? '').trim()
     const bodyNe = String(form.get('bodyNe') ?? '').trim()
+    const turnstileToken = String(form.get('cf-turnstile-response') ?? '')
     if ((!signedIn && !authorName) || bodyNe.length < 3) {
       setError(
         ne
@@ -130,6 +132,7 @@ export function CommentSection({
             bodyNe,
             parentId: replyTo?.id,
             locale,
+            turnstileToken,
           }),
         })
         const data = await response.json().catch(() => ({}))
@@ -355,6 +358,7 @@ export function CommentSection({
               }
             />
           </label>
+          <TurnstileField siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
           <div className="comment-composer__footer">
             <p>{ne ? 'सम्पादकीय स्वीकृतिपछि सार्वजनिक हुन्छ।' : 'Published after editorial moderation.'}</p>
             <div className="flex flex-wrap gap-2">

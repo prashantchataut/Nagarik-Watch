@@ -271,7 +271,7 @@ function buildLaunchChecks(options?: {
     {
       key: 'error-monitoring',
       label: 'Error monitoring (Sentry)',
-      status: sentry.dsnConfigured ? 'pass' : 'warn',
+      status: sentry.ready ? 'pass' : sentry.dsnConfigured ? 'warn' : 'warn',
       detail: sentry.detail,
     },
     {
@@ -286,7 +286,7 @@ function buildLaunchChecks(options?: {
             : 'Ads mode is off; soft launch may use NEXT_PUBLIC_ADS_MODE=house when creatives exist'
           : isNetworkAdsReady()
             ? 'Network ads mode has matching publisher credentials'
-            : 'NEXT_PUBLIC_ADS_MODE=network but AdSense client or GAM network code is missing',
+            : 'NEXT_PUBLIC_ADS_MODE=network but AdSense client+slot or GAM network code is missing',
     },
     {
       key: 'house-ads-soft',
@@ -295,7 +295,9 @@ function buildLaunchChecks(options?: {
       detail:
         adsMode === 'off'
           ? 'Option A free-to-read with ads off is allowed for soft launch; set house mode when creatives are ready'
-          : `Ads mode is ${adsMode}`,
+          : adsMode === 'house'
+            ? 'House ads mode — verify active creatives in /admin/ads (async check enriches this)'
+            : `Ads mode is ${adsMode}`,
     },
     {
       key: 'tts-provider',
@@ -321,15 +323,15 @@ function buildLaunchChecks(options?: {
       key: 'notification-cron',
       label: 'Ops / scheduled-publish cron secret',
       status:
-        value('CRON_SECRET').length >= 24 && !looksUnverified(value('CRON_SECRET'))
+        value('CRON_SECRET').length >= 32 && !looksUnverified(value('CRON_SECRET'))
           ? 'pass'
           : launchLive
             ? 'fail'
             : 'warn',
       detail:
-        value('CRON_SECRET').length >= 24 && !looksUnverified(value('CRON_SECRET'))
-          ? 'CRON_SECRET configured (≥24 chars) for GitHub ops-crons / scheduled-publish'
-          : 'CRON_SECRET (≥24 chars) is required for GitHub Actions ops-crons (scheduled-publish every 5 min). Without it, scheduled articles stay dark.',
+        value('CRON_SECRET').length >= 32 && !looksUnverified(value('CRON_SECRET'))
+          ? 'CRON_SECRET configured (≥32 chars) for GitHub ops-crons / scheduled-publish'
+          : 'CRON_SECRET (≥32 chars) is required for GitHub Actions ops-crons (scheduled-publish every 5 min). Without it, scheduled articles stay dark.',
     },
     {
       key: 'payments',
@@ -435,13 +437,13 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
     const cronIdx = checks.findIndex((check) => check.key === 'notification-cron')
     if (cronIdx >= 0) {
       const secretOk =
-        value('CRON_SECRET').length >= 24 && !looksUnverified(value('CRON_SECRET'))
+        value('CRON_SECRET').length >= 32 && !looksUnverified(value('CRON_SECRET'))
       let status: LaunchCheck['status'] = 'pass'
       let detail = 'CRON_SECRET set and scheduled-publish heartbeat is fresh'
       if (!secretOk) {
         status = launchLive ? 'fail' : 'warn'
         detail =
-          'CRON_SECRET (≥24 chars) required for GitHub ops-crons / scheduled-publish. Without it, scheduled articles stay dark.'
+          'CRON_SECRET (≥32 chars) required for GitHub ops-crons / scheduled-publish. Without it, scheduled articles stay dark.'
       } else if (!scheduled || scheduled.state === 'never') {
         status = launchLive ? 'fail' : 'warn'
         detail = `CRON_SECRET set, but ${neverCount}/${ops.cron.length} jobs have never recorded a heartbeat (wire CRON_BASE_URL + GitHub ops-crons / Vercel crons, or POST /api/cron/scheduled-publish once)`
@@ -458,6 +460,27 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
     }
   } catch {
     // Keep sync CRON_SECRET probe if ops snapshot fails.
+  }
+
+  try {
+    const adsMode = getAdMode()
+    const houseIdx = checks.findIndex((check) => check.key === 'house-ads-soft')
+    if (houseIdx >= 0 && adsMode === 'house') {
+      const { listHouseAds } = await import('@/lib/house-ads')
+      const ads = await listHouseAds().catch(() => [])
+      const active = ads.filter((ad) => ad.active).length
+      checks[houseIdx] = {
+        key: 'house-ads-soft',
+        label: 'Soft-launch ads path',
+        status: active > 0 ? 'pass' : launchLive ? 'fail' : 'warn',
+        detail:
+          active > 0
+            ? `House ads mode with ${active} active creative${active === 1 ? '' : 's'}`
+            : 'NEXT_PUBLIC_ADS_MODE=house but no active creatives in /admin/ads — public slots collapse empty',
+      }
+    }
+  } catch {
+    // Keep sync house-ads probe if inventory lookup fails.
   }
 
   return checks

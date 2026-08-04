@@ -3,7 +3,10 @@ import {
   listArticlesForAdmin,
   updateArticle,
 } from '@/lib/content/store/json-store'
-import { isPayloadCanonical } from '@/lib/content/payload-admin-client'
+import {
+  isPayloadCanonical,
+  publishDuePayloadScheduledArticles,
+} from '@/lib/content/payload-admin-client'
 import { revalidatePublishedArticle } from '@/lib/content/revalidate-published'
 import { canActorTransition } from '@/lib/editorial/workflow-transitions'
 
@@ -23,13 +26,35 @@ export type ScheduledPublishResult = {
  */
 export async function runScheduledPublish(now = new Date()): Promise<ScheduledPublishResult> {
   if (isPayloadCanonical()) {
-    // Payload already soft-gates public reads with publishAt <= now in payload-source.
-    // Stage flip to `published` belongs in Payload CMS (or a Payload job with API token).
-    // Returning a distinct skip reason so ops/cron responses are not mistaken for success.
-    return {
-      published: [],
-      skipped: 'payload-canonical-soft-gate',
-      inspected: 0,
+    try {
+      const payload = await publishDuePayloadScheduledArticles(now)
+      for (const article of payload.published) {
+        if (!article.categorySlug || !article.slug) continue
+        revalidatePublishedArticle({
+          categorySlug: article.categorySlug,
+          slug: article.slug,
+          tagSlugs: article.tagSlugs,
+        })
+      }
+      return {
+        published: payload.published.map((item) => ({
+          id: item.id,
+          slug: item.slug,
+          publishedAt: item.publishedAt,
+        })),
+        skipped: payload.published.length === 0 ? 'none-due' : 'ok',
+        inspected: payload.inspected,
+      }
+    } catch (error) {
+      console.error(
+        '[scheduled-publish] payload canonical failed',
+        error instanceof Error ? error.message : error,
+      )
+      return {
+        published: [],
+        skipped: 'payload-publish-failed',
+        inspected: 0,
+      }
     }
   }
 

@@ -149,6 +149,7 @@ export default async function ArticlePage({
         articlePremium: Boolean(article.premium),
       })
     : true
+  const showAds = !article.adFree
   const body = readingEnglish && article.bodyEn ? article.bodyEn : article.bodyNe
   const visibleBody = canReadFull ? body : previewBlocks(body)
   const [openingBody, remainingBody] = splitAfterParagraphs(visibleBody)
@@ -307,15 +308,23 @@ export default async function ArticlePage({
                 locale={readingLocale}
                 source={article.source}
                 className="mt-2"
+                suppressAds={!showAds}
               />
-              <AdSlot
-                locale={readingLocale}
-                placementKey="article-top-billboard"
-                variant="billboard"
-                className="print:hidden"
-              />
+              {showAds ? (
+                <AdSlot
+                  locale={readingLocale}
+                  placementKey="article-top-billboard"
+                  variant="billboard"
+                  className="print:hidden"
+                />
+              ) : null}
               {remainingBody.length ? (
-                <ArticleBody blocks={remainingBody} locale={readingLocale} className="mt-8" />
+                <ArticleBody
+                  blocks={remainingBody}
+                  locale={readingLocale}
+                  className="mt-8"
+                  suppressAds={!showAds}
+                />
               ) : null}
               <ReactionBar
                 locale={readingLocale}
@@ -332,12 +341,14 @@ export default async function ArticlePage({
                   variant="compact"
                 />
               </div>
-              <AdSlot
-                locale={readingLocale}
-                placementKey="article-native-related"
-                variant="native"
-                className="print:hidden"
-              />
+              {showAds ? (
+                <AdSlot
+                  locale={readingLocale}
+                  placementKey="article-native-related"
+                  variant="native"
+                  className="print:hidden"
+                />
+              ) : null}
               {membershipPublic && !canReadFull ? <PaywallNotice locale={readingLocale} /> : null}
               {article.corrections?.length ? (
                 <CorrectionNotice
@@ -380,15 +391,17 @@ export default async function ArticlePage({
             </div>
           </div>
 
-          <aside
-            className="hidden space-y-6 print:hidden lg:block"
-            aria-label={readingEnglish ? 'Advertisement' : 'विज्ञापन'}
-          >
-            <AdSlot locale={readingLocale} placementKey="article-sidebar-top" variant="rail" />
-            <div className="sticky top-24 space-y-6">
-              <AdSlot locale={readingLocale} placementKey="article-sidebar-sticky" variant="rail" />
-            </div>
-          </aside>
+          {showAds ? (
+            <aside
+              className="hidden space-y-6 print:hidden lg:block"
+              aria-label={readingEnglish ? 'Advertisement' : 'विज्ञापन'}
+            >
+              <AdSlot locale={readingLocale} placementKey="article-sidebar-top" variant="rail" />
+              <div className="sticky top-24 space-y-6">
+                <AdSlot locale={readingLocale} placementKey="article-sidebar-sticky" variant="rail" />
+              </div>
+            </aside>
+          ) : null}
         </div>
 
         <div className="mt-8 border-t border-rule pt-6 print:hidden">

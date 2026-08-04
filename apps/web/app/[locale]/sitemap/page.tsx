@@ -4,12 +4,15 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getAuthors, getNavCategories, getStories, getTags } from '@/lib/content'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
+import { isPublicMembershipEnabled } from '@/lib/membership'
 
 export const dynamic = 'force-static'
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const lang = locale === 'en' ? 'en' : 'ne'
+  const membershipPublic = isPublicMembershipEnabled()
+  const hubs = STATIC_HUBS.filter((hub) => membershipPublic || hub.key !== 'membership')
   const [categories, authors, tags, recent] = await Promise.all([
     getNavCategories(),
     getAuthors(),
@@ -51,7 +54,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             {locale === 'en' ? 'News hubs' : 'समाचार खण्ड'}
           </h2>
           <ul className="mt-3 grid gap-2 text-body">
-            {STATIC_HUBS.map((hub) => (
+            {hubs.map((hub) => (
               <li key={hub.key}>
                 <Link
                   href={localizeHref(locale, hub.path)}

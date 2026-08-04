@@ -8,10 +8,9 @@ import { SaveDataBoot } from '@/components/SaveDataBoot'
 import { SiteJsonLd } from '@/components/SiteJsonLd'
 import { AnalyticsGate } from '@/components/analytics/AnalyticsGate'
 import { NetworkAdScripts } from '@/components/ads/NetworkAdScripts'
-import { getAdMode, getAdNetworkKind } from '@/lib/ads'
 import { RumBoot } from '@/components/RumBoot'
 import { getNavCategories, getTags } from '@/lib/content'
-import { PUBLICATION, STATIC_HUBS, TOPICS_STRIP_HUBS } from '@/lib/site'
+import { getAdMode, getAdNetworkKind, getGamNetworkCode } from '@/lib/ads'
 import { getSession } from '@/lib/auth/session'
 import {
   accountKindLabel,
@@ -122,7 +121,7 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
         mode={getAdMode()}
         network={getAdNetworkKind()}
         adsenseClient={process.env.NEXT_PUBLIC_ADSENSE_CLIENT}
-        gamNetworkCode={process.env.NEXT_PUBLIC_GAM_NETWORK_CODE}
+        gamNetworkCode={getGamNetworkCode() || undefined}
       />
     </>
   )

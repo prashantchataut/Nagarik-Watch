@@ -11,6 +11,7 @@ import { createMediaItem } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { validateImageUpload } from '@/lib/storage/media-validation'
+import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -39,6 +40,16 @@ export async function POST(request: NextRequest) {
     CONTRIBUTOR_ROLES.has(role)
   if (!mayUpload) {
     return NextResponse.json({ error: 'अनुमति छैन।' }, { status: 403 })
+  }
+  if (isPayloadCanonical()) {
+    return NextResponse.json(
+      {
+        error:
+          'Payload canonical मोडमा यो डेस्क upload सतह बन्द छ। मिडिया Payload CMS बाट अपलोड गर्नुहोस्।',
+        cmsUrl: payloadCollectionAdminUrl('media'),
+      },
+      { status: 409 },
+    )
   }
 
   let form: FormData

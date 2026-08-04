@@ -5,11 +5,18 @@ import { AD_PLACEMENTS } from '@/lib/ads'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import Link from 'next/link'
 
+function adSalesEmail(): string {
+  const configured = process.env.NEXT_PUBLIC_AD_SALES_EMAIL?.trim()
+  if (configured && configured.includes('@')) return configured
+  return 'ads@nagarikwatch.com'
+}
+
 export default async function AdvertisePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale: Locale = asLocale((await params).locale)
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
   const placements = Object.values(AD_PLACEMENTS)
+  const salesEmail = adSalesEmail()
   const featured = placements.filter((p) =>
     ['home-top', 'home-billboard', 'article-sidebar-sticky', 'mobile-sticky'].includes(p.key),
   )
@@ -26,8 +33,8 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
             : 'व्यावसायिक अभियान सम्पादकीय कामबाट अलग रहन्छ। हरेक विज्ञापन र प्रायोजित सामग्री पाठकले देख्नुअघि लेबल हुन्छ।'}
         </p>
         <p className="mt-4 text-body text-ink">
-          <a href="mailto:ads@nagarikwatch.com" className="font-semibold text-brand-strong">
-            ads@nagarikwatch.com
+          <a href={`mailto:${salesEmail}`} className="font-semibold text-brand-strong">
+            {salesEmail}
           </a>
           <span className="text-ink-soft">
             {en

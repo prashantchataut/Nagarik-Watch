@@ -18,10 +18,12 @@ export function getSentryState(): SentryState {
       detail: 'SENTRY_DSN unset. Errors log to console only.',
     }
   }
+  // DSN alone is not a live SDK. Never report ready until @sentry/nextjs is installed and initialized.
   return {
-    ready: true,
+    ready: false,
     dsnConfigured: true,
-    detail: 'DSN configured. Install @sentry/nextjs and wire init for full source-map upload.',
+    detail:
+      'SENTRY_DSN is set but @sentry/nextjs is not wired. Errors still log to console only — do not treat launch probes as Sentry-backed.',
   }
 }
 

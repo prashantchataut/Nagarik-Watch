@@ -108,7 +108,7 @@ pnpm validate:newsroom              # local stack env
 
 - **Sub-daily** (scheduled-publish every 5 min, house-ad-promote, breaking boost): GitHub
   Actions [`.github/workflows/ops-crons.yml`](../.github/workflows/ops-crons.yml) with
-  repo secrets `CRON_SECRET` (≥24 chars) + `CRON_BASE_URL` (Vercel production URL, no trailing slash).
+  repo secrets `CRON_SECRET` (≥32 chars) + `CRON_BASE_URL` (Vercel production URL, no trailing slash).
 - **Daily** only on Vercel Hobby: see root `vercel.json` crons (notifications, digest,
   ops-probe, interactions-rebuild).
 

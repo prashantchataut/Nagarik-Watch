@@ -12,6 +12,7 @@ import { AdminButton, AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditorClient } from '@/components/admin/ArticleEditorClient'
 import { listMediaItems } from '@/lib/media-library'
 import { shorthandFromBlocks } from '@/lib/content/blocks'
+import { isPayloadCanonical, payloadAdminUrl } from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,10 +27,29 @@ export const metadata: Metadata = {
 
 export default async function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireNewsroomSession()
+  const payloadCanonical = isPayloadCanonical()
   if (!canEdit(session.newsroomRole)) {
     return (
       <div className="rounded-lg border border-breaking/30 bg-brand-tint p-4 text-meta font-semibold text-brand-strong" lang="ne">
         यो लेख सम्पादन गर्ने अनुमति छैन।
+      </div>
+    )
+  }
+  if (payloadCanonical) {
+    return (
+      <div>
+        <AdminPageHeader subtitle="Payload canonical mode सक्रिय छ" />
+        <CmsCanonicalBanner />
+        <div className="rounded-lg border border-rule bg-surface-raised p-5">
+          <p className="text-meta font-semibold text-ink" lang="ne">
+            यो लेख Payload CMS बाट सम्पादन गर्नुहोस् ताकि प्रकाशन परिवर्तन सीधै पाठक-साइटमा लागु होस्।
+          </p>
+          <p className="mt-2 text-caption text-ink-soft">
+            <a href={payloadAdminUrl()} className="text-brand-strong underline-offset-2 hover:underline">
+              {payloadAdminUrl()}
+            </a>
+          </p>
+        </div>
       </div>
     )
   }

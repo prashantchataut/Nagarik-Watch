@@ -12,6 +12,7 @@ import {
   readConsent,
   writeConsent,
 } from '@/lib/reader/consent'
+import { getAdModeClient } from '@/lib/ads-client'
 
 export function CookieConsent({ locale }: { locale: Locale }) {
   const dialogRef = useRef<HTMLElement>(null)
@@ -174,10 +175,18 @@ export function CookieConsent({ locale }: { locale: Locale }) {
             />
             <CategoryToggle
               locale={locale}
-              titleEn="Advertising measure"
-              titleNe="विज्ञापन मापन"
-              descEn="House-ad clicks only"
-              descNe="घरको विज्ञापन क्लिक मात्र"
+              titleEn="Advertising"
+              titleNe="विज्ञापन"
+              descEn={
+                getAdModeClient() === 'network'
+                  ? 'House measurement; AdSense/GAM only with consent'
+                  : 'House-ad views and clicks only'
+              }
+              descNe={
+                getAdModeClient() === 'network'
+                  ? 'घर मापन; सहमतिपछि मात्र AdSense/GAM'
+                  : 'घरको विज्ञापन दृश्य/क्लिक मात्र'
+              }
               checked={advertising}
               onChange={setAdvertising}
             />

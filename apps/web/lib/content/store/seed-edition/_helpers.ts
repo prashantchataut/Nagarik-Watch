@@ -133,6 +133,8 @@ export function base(partial: BasePartial, createdBy = 'newsroom-edition-2026-07
     bodyNe,
     bodyEn,
     heroImageUrl,
+    // Seeded EN copy is editorial draft material until explicitly reviewed/published.
+    englishStatus: partial.titleEn && partial.bodyEn?.length ? 'in_progress' : 'none',
     hasEnglish: Boolean(partial.titleEn && partial.bodyEn?.length),
     readingMinutes: Math.max(2, Math.round(words / 200)),
     createdBy,

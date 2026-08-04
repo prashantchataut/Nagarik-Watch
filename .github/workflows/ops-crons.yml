@@ -55,8 +55,8 @@ jobs:
           JOBS: ${{ steps.pick.outputs.jobs }}
         run: |
           set -euo pipefail
-          if [ -z "${CRON_SECRET:-}" ] || [ "${#CRON_SECRET}" -lt 24 ]; then
-            echo "CRON_SECRET repo secret missing or shorter than 24 chars."
+          if [ -z "${CRON_SECRET:-}" ] || [ "${#CRON_SECRET}" -lt 32 ]; then
+            echo "CRON_SECRET repo secret missing or shorter than 32 chars."
             exit 1
           fi
           base="${CRON_BASE_URL:-https://www.nagarikwatch.com}"

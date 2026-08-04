@@ -185,6 +185,7 @@ function asCard(doc: PayloadDoc): StoryCardData {
     hasEnglish: String(doc.englishStatus ?? 'none') === 'published',
     isBreaking: Boolean(doc.isBreaking),
     premium: doc.premium === true,
+    adFree: doc.adFree === true,
     readingMinutes: doc.readingMinutes ? Number(doc.readingMinutes) : undefined,
     province: doc.province ? String(doc.province) : undefined,
     district: doc.district ? String(doc.district) : undefined,
@@ -205,6 +206,7 @@ type PayloadFindOptions = {
   limit?: number
   page?: number
   depth?: number
+  revalidateSeconds?: number
 }
 
 type PayloadFindResult<T> = {
@@ -245,10 +247,12 @@ async function payloadFind<T extends PayloadDoc>(
     }
   }
 
-  const response = await fetch(
-    `${payloadServerUrl()}/api/${collection}?${params.toString()}`,
-    { cache: 'no-store', headers: { accept: 'application/json' } },
-  )
+  const revalidateSeconds = Math.max(0, Number(options.revalidateSeconds ?? 0))
+  const response = await fetch(`${payloadServerUrl()}/api/${collection}?${params.toString()}`, {
+    cache: revalidateSeconds > 0 ? 'force-cache' : 'no-store',
+    next: revalidateSeconds > 0 ? { revalidate: revalidateSeconds } : undefined,
+    headers: { accept: 'application/json' },
+  })
   const body = (await response.json().catch(() => ({}))) as PayloadFindResult<T> & {
     errors?: Array<{ message?: string }>
     message?: string
@@ -267,6 +271,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
         where: { ...publicArticleWhere(), slug: { equals: slug } },
         limit: 1,
         depth: 2,
+        revalidateSeconds: 15,
       })
       const doc = docs[0] as unknown as PayloadDoc | undefined
       if (!doc) return null
@@ -321,6 +326,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
         page: needsBodyFilter ? 1 : page,
         sort: '-publishAt',
         depth: 1,
+        revalidateSeconds: needsBodyFilter ? 30 : 20,
       })
       let items = (docs as unknown as PayloadDoc[]).map(asCard)
       if (opts.hasGallery === true) items = items.filter((c) => c.hasGallery)
@@ -353,30 +359,35 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
             sort: '-publishAt',
             limit: 60,
             depth: 1,
+            revalidateSeconds: 20,
           }),
           payloadFind<PayloadDoc>('articles', {
             where: { ...publishedWhere, featuredState: { equals: 'lead' } },
             sort: '-publishAt',
             limit: 1,
             depth: 1,
+            revalidateSeconds: 20,
           }),
           payloadFind<PayloadDoc>('articles', {
             where: { ...publishedWhere, featuredState: { equals: 'featured' } },
             sort: '-publishAt',
             limit: 6,
             depth: 1,
+            revalidateSeconds: 20,
           }),
           payloadFind<PayloadDoc>('articles', {
             where: { ...publishedWhere, featuredState: { equals: 'secondary' } },
             sort: '-publishAt',
             limit: 6,
             depth: 1,
+            revalidateSeconds: 20,
           }),
           payloadFind<PayloadDoc>('categories', {
             where: { showInNav: { equals: true } },
             sort: 'navOrder',
             limit: 50,
             depth: 0,
+            revalidateSeconds: 120,
           }),
         ])
 
@@ -428,6 +439,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
         where: { slug: { equals: slug } },
         limit: 1,
         depth: 0,
+        revalidateSeconds: 120,
       })
       const doc = docs[0] as unknown as PayloadDoc | undefined
       return doc ? asCategory(doc as CategoryField) : null
@@ -445,6 +457,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
         sort: 'navOrder',
         limit: 50,
         depth: 0,
+        revalidateSeconds: 120,
       })
       return (docs as unknown as PayloadDoc[]).map((c) => asCategory(c as CategoryField))
     },
@@ -455,6 +468,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
         sort: 'name',
         limit: 500,
         depth: 1,
+        revalidateSeconds: 180,
       })
       return (docs as unknown as Array<PayloadDoc & {
         role?: string
@@ -477,6 +491,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
         sort: 'nameNe',
         limit: 1000,
         depth: 0,
+        revalidateSeconds: 180,
       })
       return (docs as unknown as PayloadDoc[])
         .map((doc) => asTag(doc as TagField))
@@ -492,18 +507,21 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
             sort: '-publishAt',
             limit: 5,
             depth: 1,
+            revalidateSeconds: 20,
           }),
           payloadFind<PayloadDoc>('articles', {
             where: { ...publishedWhere, featuredState: { equals: 'lead' } },
             sort: '-publishAt',
             limit: 1,
             depth: 1,
+            revalidateSeconds: 20,
           }),
           payloadFind<PayloadDoc>('articles', {
             where: { ...publishedWhere, featuredState: { equals: 'secondary' } },
             sort: '-publishAt',
             limit: 4,
             depth: 1,
+            revalidateSeconds: 20,
           }),
         ])
       const latest = (latestDocs as unknown as PayloadDoc[]).map(asCard)
@@ -525,6 +543,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
         where: { slug: { equals: slug } },
         limit: 1,
         depth: 1,
+        revalidateSeconds: 60,
       })
       const doc = docs[0] as unknown as
         | (PayloadDoc & {
@@ -553,6 +572,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
         where: { slug: { equals: slug } },
         limit: 1,
         depth: 0,
+        revalidateSeconds: 120,
       })
       const doc = docs[0] as unknown as PayloadDoc | undefined
       if (!doc) return null
@@ -605,6 +625,7 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
     seoTitleNe: doc.seoTitle ? String(doc.seoTitle) : undefined,
     seoDescriptionNe: doc.seoDescription ? String(doc.seoDescription) : undefined,
     premium: doc.premium === true,
+    adFree: doc.adFree === true,
     noindex: doc.noIndex === true,
     doNotRecommend: doc.doNotRecommend === true,
     commentsEnabled: doc.commentsEnabled !== false,

@@ -73,6 +73,8 @@ export interface StoryCardData {
   isBreaking: boolean
   /** Paid-membership story; cards render a visible access marker. */
   premium?: boolean
+  /** When true, suppress display ads on the article surface. */
+  adFree?: boolean
   /** Optional reading-time, used by some card variants. */
   readingMinutes?: number
   /** Province slug (e.g. bagmati) when geo-tagged. */
@@ -234,6 +236,8 @@ export interface Article extends StoryCardData {
   sponsorName?: string
   exclusive?: boolean
   premium?: boolean
+  /** Suppress display ads for sensitive reporting. */
+  adFree?: boolean
   factCheckStatus?:
     | 'not_fact_check'
     | 'in_review'

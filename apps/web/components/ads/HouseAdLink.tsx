@@ -1,5 +1,6 @@
 'use client'
 
+import { getAdModeClient } from '@/lib/ads-client'
 import { hasAdvertisingConsent } from '@/lib/reader/consent'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
 import { getOrCreateReaderId, hasPersonalizationConsent } from '@/lib/reader/consent'
@@ -21,8 +22,33 @@ function visitorKey(): string {
   }
 }
 
+function recordHouseClickEvent(placementKey: string): void {
+  if (!hasLivePublicApi()) return
+  if (!hasAdvertisingConsent()) return
+  const payload = JSON.stringify({
+    placementKey,
+    mode: getAdModeClient(),
+    event: 'click',
+  })
+  try {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/ads/event', new Blob([payload], { type: 'application/json' }))
+      return
+    }
+  } catch {
+    // fall through to fetch
+  }
+  void fetch('/api/ads/event', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: payload,
+    keepalive: true,
+  }).catch(() => undefined)
+}
+
 /** Record house-ad experiment conversion (click) via existing experiments API. */
-export function trackHouseAdClick(experimentId: string | undefined): void {
+export function trackHouseAdClick(experimentId: string | undefined, placementKey?: string): void {
+  if (placementKey) recordHouseClickEvent(placementKey)
   if (!experimentId || !hasLivePublicApi()) return
   if (!hasAdvertisingConsent()) return
   void fetch('/api/experiments', {
@@ -55,7 +81,7 @@ export function HouseAdLink({
       href={href}
       className={className}
       data-ad-click-target={placementKey}
-      onClick={() => trackHouseAdClick(experimentId)}
+      onClick={() => trackHouseAdClick(experimentId, placementKey)}
     >
       {children}
     </a>

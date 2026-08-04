@@ -15,6 +15,8 @@ type ArticleBodyProps = {
   /** Provenance for aggregated/wire stories; original/undefined renders nothing. */
   source?: SourceAttribution
   className?: string
+  /** When true, skip injected and body adSlot blocks (sensitive / adFree articles). */
+  suppressAds?: boolean
 }
 
 /** Paragraph index after which the in-article ad slot is injected. */
@@ -28,15 +30,23 @@ const AD_AFTER_PARAGRAPH = 4
  * After the 4th paragraph a reserved 300x250 ad slot is injected so the ad never causes
  * layout shift (size is fixed up front) and is labeled reader-facing (ADR-006).
  */
-export function ArticleBody({ blocks, locale, source, className }: ArticleBodyProps) {
+export function ArticleBody({
+  blocks,
+  locale,
+  source,
+  className,
+  suppressAds = false,
+}: ArticleBodyProps) {
   let paragraphCount = 0
   let adInjected = false
 
   const out: React.ReactNode[] = []
 
   blocks.forEach((block, i) => {
-    out.push(<BlockRenderer key={`b-${i}`} block={block} locale={locale} />)
-    if (block.type === 'paragraph') {
+    out.push(
+      <BlockRenderer key={`b-${i}`} block={block} locale={locale} suppressAds={suppressAds} />,
+    )
+    if (!suppressAds && block.type === 'paragraph') {
       paragraphCount += 1
       if (!adInjected && paragraphCount >= AD_AFTER_PARAGRAPH && blocks.length > 6) {
         out.push(
@@ -100,9 +110,11 @@ export function TagRow({
 function BlockRenderer({
   block,
   locale,
+  suppressAds = false,
 }: {
   block: ArticleBlock
   locale: Locale
+  suppressAds?: boolean
 }) {
   const lang = locale === 'en' ? 'en' : 'ne'
   switch (block.type) {
@@ -187,6 +199,7 @@ function BlockRenderer({
     }
 
     case 'adSlot': {
+      if (suppressAds) return null
       const placementKey = isAdPlacementKey(block.placementKey)
         ? block.placementKey
         : 'article-inline-1'

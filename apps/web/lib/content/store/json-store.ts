@@ -72,6 +72,8 @@ export type StoredArticle = {
   premium: boolean
   commentsEnabled: boolean
   locale: Locale
+  /** Author-reviewed English workflow. Public /en requires `published`. */
+  englishStatus?: 'none' | 'requested' | 'in_progress' | 'ready' | 'published'
   hasEnglish: boolean
   readingMinutes: number
   createdBy: string
@@ -88,6 +90,43 @@ export type StoredArticle = {
     | 'false'
     | 'mixed'
     | 'context_needed'
+}
+
+/** ADR-007: public English only when englishStatus is published (never titleEn presence alone). */
+export function articleHasPublicEnglish(article: Pick<StoredArticle, 'englishStatus' | 'hasEnglish'>): boolean {
+  if (article.englishStatus) return article.englishStatus === 'published'
+  // Legacy rows without englishStatus: do not expose EN (fail closed).
+  return false
+}
+
+function normalizeEnglishStatus(
+  value: StoredArticle['englishStatus'] | 'draft' | 'in_review' | undefined,
+): StoredArticle['englishStatus'] {
+  if (value === 'draft') return 'requested'
+  if (value === 'in_review') return 'ready'
+  return value ?? 'none'
+}
+
+function assertEnglishPublicationReady(input: {
+  englishStatus: StoredArticle['englishStatus']
+  titleEn?: string
+  bodyEn?: ArticleBlock[]
+}): void {
+  if (input.englishStatus !== 'published') return
+  if (!input.titleEn?.trim() || !input.bodyEn?.length) {
+    throw new Error('English publication requires both titleEn and bodyEn.')
+  }
+}
+
+function assertSourceAttribution(input: {
+  sourceType: StoredArticle['sourceType']
+  sourceName?: string
+  sourceUrl?: string
+}): void {
+  if (input.sourceType === 'original') return
+  if (!input.sourceName?.trim() || !input.sourceUrl?.trim()) {
+    throw new Error('Aggregated/wire stories require sourceName and sourceUrl.')
+  }
 }
 
 type StoreShape = {
@@ -461,7 +500,7 @@ export async function listArticles(
   const store = await read()
   let items = store.articles
   if (opts.category) items = items.filter((a) => a.categorySlug === opts.category)
-  if (opts.locale === 'en') items = items.filter((a) => a.hasEnglish)
+  if (opts.locale === 'en') items = items.filter((a) => articleHasPublicEnglish(a))
   if (opts.status) items = items.filter((a) => a.workflowStage === opts.status)
   else items = items.filter((a) => PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage))
   if (opts.breaking) items = items.filter((a) => a.isBreaking)
@@ -603,13 +642,14 @@ export async function getHomepageData(): Promise<{
 
   const byCategory = new Map<string, StoredArticle[]>()
   for (const a of published) {
-    if (a.id === leadId) continue
+    if (a.id === leadId || reserved.has(a.id)) continue
     const list = byCategory.get(a.categorySlug) ?? []
     list.push(a)
     byCategory.set(a.categorySlug, list)
   }
   const sections = Array.from(byCategory.entries())
     .map(([categorySlug, articles]) => ({ categorySlug, articles: articles.slice(0, 4) }))
+    .filter((section) => section.articles.length > 0)
     .slice(0, 6)
 
   return { lead, featured, secondary, breaking, sections }
@@ -652,6 +692,7 @@ export async function createArticle(input: {
   premium?: boolean
   commentsEnabled?: boolean
   locale?: Locale
+  englishStatus?: StoredArticle['englishStatus']
   createdBy: string
   province?: string
   district?: string
@@ -685,6 +726,19 @@ export async function createArticle(input: {
         : input.publishedAt && Number.isFinite(Date.parse(input.publishedAt))
           ? new Date(input.publishedAt).toISOString()
           : now_iso
+  const englishStatus = normalizeEnglishStatus(input.englishStatus)
+  assertEnglishPublicationReady({
+    englishStatus,
+    titleEn: input.titleEn,
+    bodyEn: input.bodyEn,
+  })
+  const sourceType = input.sourceType ?? 'original'
+  assertSourceAttribution({
+    sourceType,
+    sourceName: input.sourceName,
+    sourceUrl: input.sourceUrl,
+  })
+
   const article: StoredArticle = {
     id: genId(),
     slug: input.slug,
@@ -713,7 +767,7 @@ export async function createArticle(input: {
     isFeatured: input.isFeatured ?? 'none',
     featuredExpiresAt: input.featuredExpiresAt,
     workflowStage: stage,
-    sourceType: input.sourceType ?? 'original',
+    sourceType,
     sourceName: input.sourceName,
     sourceUrl: input.sourceUrl,
     seoTitleNe: input.seoTitleNe,
@@ -725,7 +779,8 @@ export async function createArticle(input: {
     premium: input.premium ?? false,
     commentsEnabled: input.commentsEnabled ?? true,
     locale: input.locale ?? 'ne',
-    hasEnglish: Boolean(input.titleEn && input.bodyEn && input.bodyEn.length > 0),
+    englishStatus,
+    hasEnglish: englishStatus === 'published',
     readingMinutes: estimateReadingMinutes(input.bodyNe),
     createdBy: input.createdBy,
     updatedBy: input.createdBy,
@@ -795,9 +850,25 @@ export async function updateArticle(
     !isPublicWorkflowStage(patch.workflowStage) &&
     isPublicWorkflowStage(existing.workflowStage)
 
+  const nextEnglishStatus = normalizeEnglishStatus(
+    patch.englishStatus ?? existing.englishStatus,
+  )
+  assertEnglishPublicationReady({
+    englishStatus: nextEnglishStatus,
+    titleEn: patch.titleEn ?? existing.titleEn,
+    bodyEn: patch.bodyEn ?? existing.bodyEn,
+  })
+  const nextSourceType = patch.sourceType ?? existing.sourceType
+  assertSourceAttribution({
+    sourceType: nextSourceType,
+    sourceName: patch.sourceName ?? existing.sourceName,
+    sourceUrl: patch.sourceUrl ?? existing.sourceUrl,
+  })
+
   const updated: StoredArticle = {
     ...existing,
     ...patch,
+    sourceType: nextSourceType,
     id: existing.id,
     createdBy: existing.createdBy,
     updatedAt: now_iso,
@@ -824,9 +895,8 @@ export async function updateArticle(
         : unpublish
           ? false
           : existing.includeInNewsSitemap),
-    hasEnglish: Boolean(
-      (patch.titleEn ?? existing.titleEn) && (patch.bodyEn ?? existing.bodyEn)?.length,
-    ),
+    englishStatus: nextEnglishStatus,
+    hasEnglish: nextEnglishStatus === 'published',
     readingMinutes: estimateReadingMinutes(patch.bodyNe ?? existing.bodyNe),
   }
   const articles = [...store.articles]

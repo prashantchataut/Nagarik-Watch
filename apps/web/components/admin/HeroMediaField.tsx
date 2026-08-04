@@ -65,6 +65,14 @@ export function HeroMediaField({ url, alt, caption, credit, library, onChange }:
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok) {
+          if (typeof data?.url === 'string' && data.url) {
+            onChange({
+              url: data.url,
+              alt: String(data.alt ?? alt ?? ''),
+              caption,
+              credit,
+            })
+          }
           setUploadError(
             String(data?.error ?? 'अपलोड असफल। URL टाँस्न वा Blob कन्फिगर गर्नुहोस्।'),
           )

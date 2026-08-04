@@ -7,8 +7,9 @@ import {
   isValidCommentParent,
 } from '@/lib/engagement/store'
 import { getSession } from '@/lib/auth/session'
-import { enforceRateLimit } from '@/lib/rate-limit'
+import { clientIp, enforceRateLimit } from '@/lib/rate-limit'
 import { getPublicArticleIdentity } from '@/lib/content/public-article-identity'
+import { getCaptchaState, verifyTurnstileToken } from '@/lib/security/turnstile'
 
 export const dynamic = 'force-dynamic'
 
@@ -65,11 +66,25 @@ export async function POST(request: NextRequest) {
   const submittedName = String(body.authorName ?? '').trim()
   const bodyNe = String(body.bodyNe ?? '').trim()
   const parentId = body.parentId ? String(body.parentId).trim() : undefined
+  const turnstileToken = String(body.turnstileToken ?? '')
   const locale = body.locale === 'en' ? 'en' : 'ne'
   const session = await getSession().catch(() => null)
 
+  // P0: anonymous inventable display names are closed. Sign-in required until Turnstile ships.
+  if (!session?.userId) {
+    return NextResponse.json(
+      {
+        error:
+          locale === 'en'
+            ? 'Sign in is required to comment.'
+            : 'टिप्पणी गर्न साइन इन आवश्यक छ।',
+      },
+      { status: 401 },
+    )
+  }
+
   if (
-    !articleSlug || !articleCategory || !bodyNe || (!session && !submittedName) ||
+    !articleSlug || !articleCategory || !bodyNe ||
     articleSlug.length > 160 || articleCategory.length > 120 || submittedName.length > 80 ||
     (parentId?.length ?? 0) > 160
   ) {
@@ -77,6 +92,15 @@ export async function POST(request: NextRequest) {
   }
   if (bodyNe.length < 3 || bodyNe.length > 2000) {
     return NextResponse.json({ error: locale === 'en' ? 'Comment must be 3–2,000 characters.' : 'टिप्पणी ३ देखि २००० अक्षरभित्र हुनुपर्छ।' }, { status: 400 })
+  }
+  if (getCaptchaState().enabled) {
+    const captcha = await verifyTurnstileToken(turnstileToken, clientIp(request))
+    if (!captcha.success) {
+      return NextResponse.json(
+        { error: locale === 'en' ? 'Captcha verification failed.' : 'क्याप्चा प्रमाणिकरण असफल भयो।' },
+        { status: 400 },
+      )
+    }
   }
 
   let article
