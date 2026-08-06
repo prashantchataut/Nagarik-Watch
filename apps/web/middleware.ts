@@ -1,18 +1,20 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { isAllowedPublicFirstSegment } from '@/lib/public-path-allowlist'
+import { isCalendarHostname } from '@/lib/calendar-host'
 
 /**
  * Public URLs keep Nepali at the root and English under /en. Internally the App Router
  * receives an explicit /ne segment so one typed route tree can render both languages.
  * Admin requests also receive a stable pathname header for the protected admin layout.
+ *
+ * Calendar subdomain (`calendar.*` or NEXT_PUBLIC_CALENDAR_HOST): bare `/` and `/en`
+ * map to the पात्रो desk so the utility product can live on its own host.
  */
 function firstSegment(pathname: string): string {
   return pathname.split('/').filter(Boolean)[0] ?? ''
 }
 
 function hardNotFound(request: NextRequest, locale: 'ne' | 'en'): NextResponse {
-  // Locale rewrite makes App Router notFound() a soft 404 (HTTP 200). Unknown
-  // top-level paths must fail closed here so crawlers see a real 404 status.
   const destination = request.nextUrl.clone()
   destination.pathname = locale === 'en' ? '/en/__not-found' : '/ne/__not-found'
   const requestHeaders = new Headers(request.headers)
@@ -23,8 +25,17 @@ function hardNotFound(request: NextRequest, locale: 'ne' | 'en'): NextResponse {
   })
 }
 
+function withCalendarRoot(pathname: string): string {
+  if (pathname === '/' || pathname === '') return '/patro'
+  if (pathname === '/en' || pathname === '/en/') return '/en/patro'
+  return pathname
+}
+
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const host = request.headers.get('host')
+  const calendarHost = isCalendarHostname(host)
+  let pathname = request.nextUrl.pathname
+  if (calendarHost) pathname = withCalendarRoot(pathname)
 
   if (pathname === '/ne' || pathname.startsWith('/ne/')) {
     const canonical = request.nextUrl.clone()
@@ -58,6 +69,14 @@ export function middleware(request: NextRequest) {
     requestHeaders.set('x-locale', 'en')
     requestHeaders.set('x-pathname', pathname)
     requestHeaders.set('x-nw-shell', resolveShell(pathname.slice(3) || '/'))
+    if (calendarHost) requestHeaders.set('x-nw-calendar-host', '1')
+
+    // Host mapped `/en` → `/en/patro`: rewrite so the App Router sees the desk path.
+    if (pathname !== request.nextUrl.pathname) {
+      const destination = request.nextUrl.clone()
+      destination.pathname = pathname
+      return NextResponse.rewrite(destination, { request: { headers: requestHeaders } })
+    }
     return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
@@ -72,6 +91,7 @@ export function middleware(request: NextRequest) {
   requestHeaders.set('x-locale', 'ne')
   requestHeaders.set('x-pathname', pathname)
   requestHeaders.set('x-nw-shell', resolveShell(pathname))
+  if (calendarHost) requestHeaders.set('x-nw-calendar-host', '1')
   return NextResponse.rewrite(internal, { request: { headers: requestHeaders } })
 }
 
@@ -79,11 +99,9 @@ function resolveShell(pathWithoutEnPrefix: string): 'public' | 'auth' | 'journal
   const parts = pathWithoutEnPrefix.split('/').filter(Boolean)
   const seg = parts[0] ?? ''
   if (seg === 'journalist') return 'journalist'
-  // Legacy aliases
   if (seg === 'login' || seg === 'register') return 'auth'
   if (seg === 'auth') {
     const page = parts[1] ?? ''
-    // Credential / invite forms stay minimal. Account pages keep full portal chrome.
     const formOnly = new Set([
       'login',
       'signup',

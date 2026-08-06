@@ -141,3 +141,15 @@ export function IconClose(props: IconProps) {
     </svg>
   )
 }
+
+export function IconCalendar(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      {props.title ? <title>{props.title}</title> : null}
+      <rect x="3.5" y="5" width="17" height="15" rx="1.5" />
+      <path d="M8 3.5v3" />
+      <path d="M16 3.5v3" />
+      <path d="M3.5 10h17" />
+    </svg>
+  )
+}

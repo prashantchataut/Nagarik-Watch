@@ -7,13 +7,14 @@ import type { Category, Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, pathsMatch, swapLocale } from '@/lib/i18n/locales'
+import { patroEntryHref } from '@/lib/calendar-host'
 import { MobileNav } from '@/components/MobileNav'
 import { ProvinceMegaMenu } from '@/components/ProvinceMegaMenu'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Logo } from '@/components/Logo'
 import { TopicsStrip, type TopicChip } from '@/components/TopicsStrip'
 import type { AccountKind } from '@/lib/account-identity'
-import { IconBookmark, IconSearch, IconUser } from '@/components/icons/PortalIcons'
+import { IconBookmark, IconCalendar, IconChart, IconSearch, IconUser } from '@/components/icons/PortalIcons'
 
 type MastheadAccount = {
   kind: AccountKind
@@ -44,8 +45,8 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
   const homeHref = localizeHref(locale, '/')
   const savedHref = localizeHref(locale, '/saved')
   const searchHref = localizeHref(locale, '/search')
-  const utilitiesHref = localizeHref(locale, '/utilities')
-  const calendarHref = localizeHref(locale, '/utilities/calendar')
+  const patroHref = patroEntryHref(locale)
+  const marketHref = localizeHref(locale, '/market')
   const latestHref = localizeHref(locale, '/latest')
   const toggleHref = swapLocale(pathname)
   const lang = locale === 'en' ? 'en' : 'ne'
@@ -68,6 +69,9 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
         ? 'Staff account'
         : 'कर्मचारी खाता'
     : undefined
+  const patroActive =
+    pathname.includes('/patro') || pathname.includes('/utilities/calendar')
+  const marketActive = pathname.includes('/market')
 
   useEffect(() => {
     setDateLabel(formatDate(new Date().toISOString(), locale))
@@ -109,13 +113,6 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
               {dateLabel ? dict.mastheadDate(dateLabel) : '\u00a0'}
             </p>
             <Link
-              href={utilitiesHref}
-              className={`${UTIL_LINK} nw-masthead__utility hidden lg:inline-flex`}
-              lang={lang}
-            >
-              {locale === 'en' ? 'Utilities' : 'उपयोगी'}
-            </Link>
-            <Link
               href={accountHref}
               className={`${UTIL_LINK} hidden sm:inline-flex`}
               lang={lang}
@@ -151,7 +148,7 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
         </div>
       </div>
 
-      {/* Band 2 — Crimson category desk */}
+      {/* Band 2 — Crimson category desk + utility CTAs */}
       <nav
         aria-label={dict.primaryNav}
         className="nw-masthead__primary border-b border-black/15 bg-brand-bar text-paper"
@@ -190,29 +187,34 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
 
           <div className="hidden shrink-0 items-center gap-1.5 py-1.5 lg:flex">
             <Link
-              href={calendarHref}
-              className="inline-flex min-h-9 items-center rounded-sm bg-paper/15 px-2.5 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-paper/25"
+              href={patroHref}
+              aria-current={patroActive ? 'page' : undefined}
+              className={
+                patroActive
+                  ? 'inline-flex min-h-9 items-center gap-1.5 rounded-sm bg-paper px-3 text-caption font-bold text-brand-bar'
+                  : 'inline-flex min-h-9 items-center gap-1.5 rounded-sm bg-paper px-3 text-caption font-bold text-brand-bar transition-colors duration-fast ease-out-quint hover:bg-brand-tint active:scale-[0.98]'
+              }
               lang={lang}
             >
+              <IconCalendar className="h-4 w-4" />
               {locale === 'en' ? 'Calendar' : 'पात्रो'}
             </Link>
             <Link
-              href={localizeHref(locale, '/market')}
-              className="inline-flex min-h-9 items-center rounded-sm bg-paper/15 px-2.5 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-paper/25"
+              href={marketHref}
+              aria-current={marketActive ? 'page' : undefined}
+              className={
+                marketActive
+                  ? 'inline-flex min-h-9 items-center gap-1.5 rounded-sm border border-paper/50 bg-paper/20 px-2.5 text-caption font-bold text-paper'
+                  : 'inline-flex min-h-9 items-center gap-1.5 rounded-sm border border-paper/35 bg-transparent px-2.5 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-paper/15 active:scale-[0.98]'
+              }
               lang={lang}
             >
+              <IconChart className="h-4 w-4" />
               {locale === 'en' ? 'Market' : 'बजार'}
             </Link>
             <Link
-              href={localizeHref(locale, '/health')}
-              className="inline-flex min-h-9 items-center rounded-sm bg-paper/15 px-2.5 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-paper/25"
-              lang={lang}
-            >
-              {locale === 'en' ? 'Health' : 'स्वास्थ्य'}
-            </Link>
-            <Link
               href={latestHref}
-              className="inline-flex min-h-9 items-center rounded-md bg-paper px-3 text-caption font-bold text-brand-bar transition-colors duration-fast ease-out-quint hover:bg-brand-tint"
+              className="inline-flex min-h-9 items-center rounded-sm bg-paper/15 px-2.5 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-paper/25 active:scale-[0.98]"
               lang={lang}
             >
               {dict.navLatest}

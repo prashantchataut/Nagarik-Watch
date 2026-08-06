@@ -8,11 +8,10 @@ type RelatedStoriesProps = {
   className?: string
 }
 
-/** Editorial "read next" rail at the foot of articles. */
+/** Portal-style related strip: thumb + headline grid under the article. */
 export function RelatedStories({ stories, locale, className }: RelatedStoriesProps) {
   if (stories.length === 0) return null
   const dict = getDictionary(locale)
-  const [lead, ...rest] = stories
   const lang = locale === 'en' ? 'en' : 'ne'
 
   return (
@@ -23,16 +22,13 @@ export function RelatedStories({ stories, locale, className }: RelatedStoriesPro
         </h2>
         <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
       </div>
-      <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(16rem,0.9fr)] lg:gap-5">
-        {lead ? <DenseStoryItem story={lead} locale={locale} thumb="lg" showDeck /> : null}
-        <ol className="divide-y divide-rule border-y border-rule">
-          {rest.map((story) => (
-            <li key={story.slug} className="py-2.5 first:pt-0 last:pb-0">
-              <DenseStoryItem story={story} locale={locale} thumb="sm" showDeck={false} />
-            </li>
-          ))}
-        </ol>
-      </div>
+      <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
+        {stories.slice(0, 6).map((story) => (
+          <li key={story.slug} className="min-w-0 border-b border-rule pb-3 last:border-b-0 sm:border-b-0 sm:pb-0">
+            <DenseStoryItem story={story} locale={locale} thumb="md" showDeck={false} />
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

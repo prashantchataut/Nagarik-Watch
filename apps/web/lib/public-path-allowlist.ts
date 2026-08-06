@@ -31,6 +31,7 @@ const RESERVED = new Set([
   'newsletter-confirmed',
   'opinion',
   'photos',
+  'patro',
   'privacy',
   'profile',
   'province',

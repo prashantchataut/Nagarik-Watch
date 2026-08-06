@@ -24,7 +24,7 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
   const nepseUp = Boolean(nepse.data && nepse.data.change >= 0)
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
+    <div className="mx-auto max-w-page px-4 py-5 sm:py-7">
       <HubIndexHeader
         title={en ? 'Market and shares' : 'बजार र सेयर'}
         lead={
@@ -37,7 +37,7 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
 
       <section className="market-board" aria-label={en ? 'Market board' : 'बजार बोर्ड'}>
         <div className="market-board__lead">
-          <p className="market-board__label" lang="en">
+          <p className="market-board__label" lang={lang}>
             {dict.nepseTitle}
           </p>
           {nepse.data ? (
@@ -106,45 +106,37 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
         </div>
       </section>
 
-      <section className="mt-10 border-y border-rule py-6">
-        <h2 className="font-display text-h2 text-ink" lang={lang}>
-          {en ? 'Forex rates (NRB)' : 'विदेशी मुद्रा दर (ने.रा.बै.)'}
-        </h2>
-        <p className="mt-1 text-caption text-mute" lang={lang}>
-          {sourceFor(forex.source, locale)} · {relativeTime(forex.updatedAt, locale)}
-        </p>
+      <section className="market-forex" aria-label={en ? 'Forex rates' : 'विदेशी मुद्रा दर'}>
+        <div className="market-forex__head">
+          <h2 lang={lang}>{en ? 'Forex rates (NRB)' : 'विदेशी मुद्रा दर (ने.रा.बै.)'}</h2>
+          <p className="market-forex__meta" lang={lang}>
+            {sourceFor(forex.source, locale)} · {relativeTime(forex.updatedAt, locale)}
+          </p>
+        </div>
         {forex.data && forex.data.length > 0 ? (
-          <div className="mt-4 overflow-x-auto">
-            <table className="min-w-full divide-y divide-rule text-left text-body">
-              <thead className="text-caption uppercase tracking-wide text-mute">
+          <div className="overflow-x-auto">
+            <table>
+              <thead>
                 <tr>
-                  <th className="py-2 pr-4" lang={lang}>
-                    {en ? 'Currency' : 'मुद्रा'}
-                  </th>
-                  <th className="py-2 pr-4" lang={lang}>
-                    {en ? 'Buy' : 'खरिद'}
-                  </th>
-                  <th className="py-2 pr-4" lang={lang}>
-                    {en ? 'Sell' : 'बिक्री'}
-                  </th>
-                  <th className="py-2 pr-4" lang={lang}>
-                    {en ? 'Unit' : 'एकाइ'}
-                  </th>
+                  <th lang={lang}>{en ? 'Currency' : 'मुद्रा'}</th>
+                  <th lang={lang}>{en ? 'Buy' : 'खरिद'}</th>
+                  <th lang={lang}>{en ? 'Sell' : 'बिक्री'}</th>
+                  <th lang={lang}>{en ? 'Unit' : 'एकाइ'}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-rule">
+              <tbody>
                 {forex.data.map((r) => (
                   <tr key={r.iso3}>
-                    <td className="py-2.5 pr-4 font-semibold text-ink" lang="en">
+                    <td className="font-semibold text-ink" lang="en">
                       {r.iso3}: {r.name}
                     </td>
-                    <td className="py-2.5 pr-4 tabular-nums text-ink">
+                    <td className="tabular-nums text-ink">
                       {localizeNumber(r.buy.toFixed(2), locale)}
                     </td>
-                    <td className="py-2.5 pr-4 tabular-nums text-ink">
+                    <td className="tabular-nums text-ink">
                       {localizeNumber(r.sell.toFixed(2), locale)}
                     </td>
-                    <td className="py-2.5 pr-4 text-meta text-mute" lang="en">
+                    <td className="text-meta text-mute" lang="en">
                       {r.unit}
                     </td>
                   </tr>

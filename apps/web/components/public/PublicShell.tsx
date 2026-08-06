@@ -23,6 +23,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { HtmlLangSync } from '@/components/HtmlLangSync'
 import type { TopicChip } from '@/components/TopicsStrip'
 import { UtilityStrip } from '@/components/live/UtilityStrip'
+import { PUBLICATION, STATIC_HUBS, TOPICS_STRIP_HUBS } from '@/lib/site'
 
 function buildTopicChips(locale: Locale, tags: Awaited<ReturnType<typeof getTags>>): TopicChip[] {
   const shortNe: Record<string, string> = {

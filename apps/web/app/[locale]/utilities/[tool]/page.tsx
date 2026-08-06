@@ -1,12 +1,12 @@
+import { redirect } from 'next/navigation'
+import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { staticUtilityToolParams } from '@/lib/static-export-params'
 import { notFound } from 'next/navigation'
-import { asLocale } from '@/lib/i18n/locales'
 import { UtilityPageShell } from '@/components/utilities/UtilityPageShell'
 import {
   DynamicAgeCalculator,
   DynamicCurrencyConverter,
   DynamicDateConverter,
-  DynamicNepaliCalendar,
   DynamicPreetiUnicode,
   DynamicUnitConverter,
 } from '@/components/utilities/DynamicUtilityTools'
@@ -18,12 +18,6 @@ export function generateStaticParams() {
 }
 
 const meta = {
-  calendar: [
-    'Nepali calendar',
-    'नेपाली पात्रो',
-    'Browse Bikram Sambat months with festivals and public holidays marked on the desk.',
-    'विक्रम संवत् महिना, पर्व र सार्वजनिक बिदा एकै डेस्कमा हेर्नुहोस्।',
-  ],
   'date-converter': [
     'BS / AD date converter',
     'बि.सं. / इस्वी मिति रूपान्तरण',
@@ -63,12 +57,16 @@ export default async function UtilityToolPage({
 }) {
   const { locale: raw, tool } = await params
   const locale = asLocale(raw)
+
+  if (tool === 'calendar') {
+    redirect(localizeHref(locale, '/patro'))
+  }
+
   const item = meta[tool as keyof typeof meta]
   if (!item) notFound()
   const en = locale === 'en'
   let content
-  if (tool === 'calendar') content = <DynamicNepaliCalendar locale={locale} />
-  else if (tool === 'date-converter') content = <DynamicDateConverter locale={locale} />
+  if (tool === 'date-converter') content = <DynamicDateConverter locale={locale} />
   else if (tool === 'preeti-unicode') content = <DynamicPreetiUnicode locale={locale} />
   else if (tool === 'currency') {
     const forex = await getRealForex(locale)

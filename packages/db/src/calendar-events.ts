@@ -1,3 +1,5 @@
+import { bsMonthLength } from './date'
+
 /**
  * Bikram Sambat festival and public-holiday dataset.
  *
@@ -76,4 +78,44 @@ export function eventsForBsDay(month: number, day: number): readonly CalendarEve
 /** Find public holidays for a given BS month. */
 export function holidaysForBsMonth(month: number): readonly CalendarEvent[] {
   return BS_CALENDAR_EVENTS.filter((e) => e.month === month && e.holiday)
+}
+
+export type UpcomingCalendarEvent = CalendarEvent & {
+  year: number
+  /** Inclusive: 0 means today. */
+  daysUntil: number
+}
+
+/**
+ * Next festival / holiday hits from a BS date, walking day-by-day across year wrap.
+ * Uses the static month/day dataset (same dates every BS year).
+ */
+export function upcomingCalendarEvents(
+  from: { year: number; month: number; day: number },
+  limit = 8,
+  horizonDays = 400,
+): UpcomingCalendarEvent[] {
+  const out: UpcomingCalendarEvent[] = []
+  let year = from.year
+  let month = from.month
+  let day = from.day
+
+  for (let i = 0; i < horizonDays && out.length < limit; i++) {
+    const hits = eventsForBsDay(month, day)
+    for (const event of hits) {
+      if (out.length >= limit) break
+      out.push({ ...event, year, daysUntil: i })
+    }
+    day += 1
+    const length = bsMonthLength(year, month)
+    if (day > length) {
+      day = 1
+      month += 1
+      if (month > 12) {
+        month = 1
+        year += 1
+      }
+    }
+  }
+  return out
 }

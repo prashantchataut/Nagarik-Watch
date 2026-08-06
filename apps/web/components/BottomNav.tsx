@@ -5,10 +5,9 @@ import { usePathname } from 'next/navigation'
 import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
+import { patroEntryHref } from '@/lib/calendar-host'
 
-export const NW_OPEN_MENU_EVENT = 'nw:open-menu'
-
-/** BBC-style primary mobile IA: Home / Latest / Search / Sections / Account. */
+/** Portal mobile IA: Home / Latest / Search / Calendar / Account. */
 type BottomNavProps = {
   locale: Locale
   /** Logged-in profile or login path from PublicShell. */
@@ -38,9 +37,9 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
       match: (p: string) => p.includes('/search'),
     },
     {
-      key: 'sections' as const,
-      href: null as string | null,
-      match: () => false,
+      key: 'patro' as const,
+      href: patroEntryHref(locale),
+      match: (p: string) => p.includes('/patro') || p.includes('/utilities/calendar'),
     },
     {
       key: 'account' as const,
@@ -58,12 +57,8 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
     home: dict.home,
     latest: dict.navLatest,
     search: dict.search,
-    sections: locale === 'en' ? 'Sections' : 'विभाग',
+    patro: locale === 'en' ? 'Calendar' : 'पात्रो',
     account: locale === 'en' ? 'Account' : 'खाता',
-  }
-
-  function openSectionsMenu() {
-    window.dispatchEvent(new CustomEvent(NW_OPEN_MENU_EVENT))
   }
 
   return (
@@ -85,22 +80,10 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
               {active ? (
                 <span className="absolute inset-x-3 top-0 h-0.5 bg-brand" aria-hidden="true" />
               ) : null}
-              {item.href === null ? (
-                <button
-                  type="button"
-                  onClick={openSectionsMenu}
-                  className={className}
-                  aria-label={labels.sections}
-                >
-                  <Icon name={item.key} active={false} />
-                  <span lang={lang}>{labels[item.key]}</span>
-                </button>
-              ) : (
-                <Link href={item.href} aria-current={active ? 'page' : undefined} className={className}>
-                  <Icon name={item.key} active={active} />
-                  <span lang={lang}>{labels[item.key]}</span>
-                </Link>
-              )}
+              <Link href={item.href} aria-current={active ? 'page' : undefined} className={className}>
+                <Icon name={item.key} active={active} />
+                <span lang={lang}>{labels[item.key]}</span>
+              </Link>
             </li>
           )
         })}
@@ -109,7 +92,16 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
   )
 }
 
-function Icon({ name, active }: { name: string; active: boolean }) {
+/** Kept for MobileNav / legacy listeners that open the sections drawer. */
+export const NW_OPEN_MENU_EVENT = 'nw:open-menu'
+
+function Icon({
+  name,
+  active,
+}: {
+  name: 'home' | 'latest' | 'search' | 'patro' | 'account'
+  active: boolean
+}) {
   const common = {
     width: 22,
     height: 22,
@@ -143,10 +135,13 @@ function Icon({ name, active }: { name: string; active: boolean }) {
           <path d="m21 21-4.3-4.3" />
         </svg>
       )
-    case 'sections':
+    case 'patro':
       return (
         <svg {...common}>
-          <path d="M4 6h16M4 12h16M4 18h10" />
+          <rect x="3.5" y="5" width="17" height="15" rx="1.5" />
+          <path d="M8 3.5v3" />
+          <path d="M16 3.5v3" />
+          <path d="M3.5 10h17" />
         </svg>
       )
     case 'account':
@@ -156,7 +151,10 @@ function Icon({ name, active }: { name: string; active: boolean }) {
           <path d="M5 20a7 7 0 0 1 14 0" />
         </svg>
       )
-    default:
+    default: {
+      const _exhaustive: never = name
+      void _exhaustive
       return null
+    }
   }
 }

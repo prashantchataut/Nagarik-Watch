@@ -3,7 +3,7 @@ import type { CategoryRef, Locale } from '@nagarikwatch/db'
 import { cn } from './cn'
 
 /**
- * Editorial category kicker (underline + brand ink). Not a rounded chip.
+ * Editorial category kicker: solid brand rectangle (portal desk tag).
  * Links to the locale-correct category landing; pass `as="span"` inside another link.
  */
 type CategoryLabelProps = {
@@ -38,7 +38,7 @@ export function CategoryLabel({
     <Link
       href={href}
       lang={lang}
-      className={cn(classes, 'transition-colors duration-fast ease-out-quint hover:text-brand')}
+      className={cn(classes, 'transition-colors duration-fast ease-out-quint')}
     >
       {label}
     </Link>

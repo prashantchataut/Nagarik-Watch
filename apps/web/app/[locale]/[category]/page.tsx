@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { StoryGrid } from '@nagarikwatch/ui'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getCategory, getCategoryPage } from '@/lib/content'
 import { Pagination } from '@/components/Pagination'
 import { AdSlot } from '@/components/AdSlot'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
-
+import { CategoryDesk } from '@/components/category/CategoryDesk'
 import { isStaticPagesExport } from '@/lib/build-mode'
 import { staticCategoryParams } from '@/lib/static-export-params'
 
@@ -62,26 +61,19 @@ export default async function CategoryPage({
   if (!category || !result || page > result.totalPages) notFound()
   const name = english ? category.nameEn : category.nameNe
   const description = english ? category.descriptionEn : category.descriptionNe
+  // Short desk lead only when CMS has real copy; never invent marketing blurb.
+  const lead = description?.trim() || undefined
 
   return (
     <div className="mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5">
-      <HubIndexHeader
-        title={name}
-        lead={
-          description ||
-          (english
-            ? 'Reviewed stories from this section.'
-            : '?? ??????? ????????? ??????? ???? ???? ???????')
-        }
-        lang={english ? 'en' : 'ne'}
-      />
+      <HubIndexHeader title={name} lead={lead} lang={english ? 'en' : 'ne'} />
       {result.items.length ? (
         <>
           <div className="mt-3 border-b border-rule pb-3">
             <AdSlot locale={locale} placementKey="category-top" />
           </div>
           <div className="mt-4">
-            <StoryGrid stories={result.items} locale={locale} />
+            <CategoryDesk stories={result.items} locale={locale} />
           </div>
           <AdSlot locale={locale} placementKey="category-inline" variant="inline" className="mt-4" />
           <Pagination
@@ -99,7 +91,7 @@ export default async function CategoryPage({
         >
           {english
             ? 'No reviewed stories are published in this section yet.'
-            : '?? ??????? ????????? ??????? ???? ???? ?????? ??? ???????? ????'}
+            : 'यो खण्डमा अझै समीक्षित समाचार प्रकाशित भएका छैनन्।'}
         </p>
       )}
     </div>

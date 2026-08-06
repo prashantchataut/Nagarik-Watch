@@ -57,6 +57,8 @@ APIs (`scripts/build-pages-static.mjs`).
 ## Phase 0 — Topology
 
 1. Add domain on Vercel; CF DNS CNAME `@`/`www` → Vercel (see `docs/CLOUDFLARE-DOMAIN.md`).
+   Optional: add `calendar.` on the same project and set `NEXT_PUBLIC_CALENDAR_HOST`
+   so पात्रो can live on its own host.
 2. Set secrets on Vercel (DB, auth, email, storage). Keep `NEXT_PUBLIC_LAUNCH_STATUS=preview`.
 3. Run `pnpm migrate:ops` against production Postgres.
 4. Confirm `/admin/launch` loads on the Vercel origin (not Pages).

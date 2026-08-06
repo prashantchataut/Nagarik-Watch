@@ -14,6 +14,7 @@ import { PaywallNotice } from '@/components/article/PaywallNotice'
 import { RelatedStories } from '@/components/article/RelatedStories'
 import { ReadingProgress } from '@/components/article/ReadingProgress'
 import { ReaderArticleControls } from '@/components/reader/ReaderArticleControls'
+import { DenseStoryItem } from '@/components/home/DenseStoryItem'
 import { AdSlot } from '@/components/AdSlot'
 import { CommentSection } from '@/components/article/CommentSection'
 import { SpeculationRules } from '@/components/SpeculationRules'
@@ -179,10 +180,10 @@ export default async function ArticlePage({
         cssSelectors={['article h1', 'article .article-deck']}
       />
 
-      <div className="mx-auto max-w-page px-4 pt-8 sm:pt-10">
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:items-start lg:gap-x-10">
+      <div className="mx-auto max-w-page px-3 pt-4 sm:px-4 sm:pt-5">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:items-start lg:gap-x-8">
           <div className="min-w-0">
-            <header className="max-w-body border-b border-rule pb-6" lang={readingEnglish ? 'en' : 'ne'}>
+            <header className="max-w-body border-b border-rule pb-5" lang={readingEnglish ? 'en' : 'ne'}>
               {englishMissing ? (
                 <p
                   className="mb-4 border border-rule bg-surface-raised px-3 py-2 text-meta text-ink-soft print:hidden"
@@ -201,17 +202,17 @@ export default async function ArticlePage({
               <div className="flex flex-wrap items-center gap-2">
                 <CategoryLabel category={article.category} locale={readingLocale} />
                 {membershipPublic && article.premium ? (
-                  <span className="rounded-md border border-brand bg-brand-tint px-2 py-0.5 text-caption font-bold text-brand-strong">
+                  <span className="rounded-sm bg-ink px-2 py-0.5 text-caption font-bold text-paper">
                     {readingEnglish ? 'Member' : 'सदस्य'}
                   </span>
                 ) : null}
                 <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
               </div>
-              <h1 className="mt-3 font-display text-[clamp(1.65rem,3.6vw,2.35rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-ink">
+              <h1 className="mt-3 text-pretty font-display text-[clamp(1.85rem,4vw,2.85rem)] font-extrabold leading-[1.12] tracking-[-0.025em] text-ink">
                 {title}
               </h1>
               {deck ? (
-                <p className="article-deck mt-2.5 text-body leading-relaxed text-ink-soft sm:text-body-lg">
+                <p className="article-deck mt-2.5 max-w-[42rem] text-body leading-relaxed text-ink-soft sm:text-body-lg">
                   {deck}
                 </p>
               ) : null}
@@ -222,7 +223,7 @@ export default async function ArticlePage({
                   publishedAt={article.publishedAt}
                   source={article.source}
                 />
-                <dl className="article-trust-ledger__facts mt-4">
+                <dl className="article-trust-ledger__facts mt-3">
                   <div>
                     <dt className="sr-only">{readingEnglish ? 'Reading time' : 'पढाइ समय'}</dt>
                     <dd>
@@ -266,7 +267,7 @@ export default async function ArticlePage({
 
             {article.heroImage ? (
               <figure className="mt-4 max-w-body">
-                <div className="relative aspect-[16/9] overflow-hidden border border-rule bg-surface-raised">
+                <div className="relative aspect-[16/9] overflow-hidden bg-surface-raised">
                   <Image
                     src={article.heroImage.url}
                     alt={article.heroImage.alt}
@@ -288,7 +289,7 @@ export default async function ArticlePage({
             ) : null}
 
             <div id="article-reading-column" className="mt-4 max-w-body min-w-0">
-              <div className="sticky top-[4.25rem] z-30 -mx-1 mb-4 border-b border-rule bg-surface/95 px-1 py-1.5 backdrop-blur-sm print:hidden sm:top-[5rem]">
+              <div className="sticky top-[4.25rem] z-30 -mx-1 mb-4 border-b border-rule bg-surface px-1 py-1.5 print:hidden sm:top-[5rem]">
                 <ReaderArticleControls
                   story={article}
                   locale={readingLocale}
@@ -391,17 +392,48 @@ export default async function ArticlePage({
             </div>
           </div>
 
-          {showAds ? (
-            <aside
-              className="hidden space-y-6 print:hidden lg:block"
-              aria-label={readingEnglish ? 'Advertisement' : 'विज्ञापन'}
-            >
-              <AdSlot locale={readingLocale} placementKey="article-sidebar-top" variant="rail" />
-              <div className="sticky top-24 space-y-6">
-                <AdSlot locale={readingLocale} placementKey="article-sidebar-sticky" variant="rail" />
+          <aside
+            className="mt-8 hidden space-y-5 print:hidden lg:mt-0 lg:block"
+            aria-label={readingEnglish ? 'Related and ads' : 'सम्बन्धित र विज्ञापन'}
+          >
+            {related.length > 0 ? (
+              <div className="border border-rule bg-surface-raised p-3">
+                <p
+                  className="mb-2 text-meta font-extrabold text-brand-strong"
+                  lang={readingEnglish ? 'en' : 'ne'}
+                >
+                  {readingEnglish ? 'Also read' : 'यो पनि पढ्नुहोस्'}
+                </p>
+                <span className="mb-2 block h-0.5 w-10 bg-brand" aria-hidden="true" />
+                <ul className="divide-y divide-rule border-y border-rule">
+                  {related.slice(0, 4).map((story) => (
+                    <li key={story.id} className="py-2.5">
+                      <DenseStoryItem
+                        story={story}
+                        locale={readingLocale}
+                        thumb="sm"
+                        showDeck={false}
+                        showMeta={false}
+                        compact
+                      />
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </aside>
-          ) : null}
+            ) : null}
+            {showAds ? (
+              <div className="space-y-5">
+                <AdSlot locale={readingLocale} placementKey="article-sidebar-top" variant="rail" />
+                <div className="sticky top-24 space-y-5">
+                  <AdSlot
+                    locale={readingLocale}
+                    placementKey="article-sidebar-sticky"
+                    variant="rail"
+                  />
+                </div>
+              </div>
+            ) : null}
+          </aside>
         </div>
 
         <div className="mt-8 border-t border-rule pt-6 print:hidden">

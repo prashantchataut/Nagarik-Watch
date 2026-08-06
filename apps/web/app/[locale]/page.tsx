@@ -9,7 +9,6 @@ import { getHomepage, getNavCategories, getStories } from '@/lib/content'
 import { dedupeHomepage } from '@/lib/content/homepage-dedup'
 import { BreakingTicker } from '@/components/BreakingTicker'
 import { SectionBlock } from '@/components/home/SectionBlock'
-import { TodayInBrief } from '@/components/home/TodayInBrief'
 import { LatestRail } from '@/components/home/LatestRail'
 import { HomeEmptyEdition } from '@/components/home/HomeEmptyEdition'
 import { ProvinceHub } from '@/components/home/ProvinceHub'
@@ -26,7 +25,6 @@ import { NewsletterInline } from '@/components/NewsletterInline'
 import { TodayInHistory } from '@/components/home/TodayInHistory'
 import { PhotoOfTheDay } from '@/components/home/PhotoOfTheDay'
 import { MostReadRail } from '@/components/home/MostReadRail'
-import { TrendingRail } from '@/components/home/TrendingRail'
 import { FeaturedSpotlight } from '@/components/home/FeaturedSpotlight'
 import { FeaturedBand } from '@/components/home/FeaturedBand'
 import {
@@ -35,7 +33,6 @@ import {
 } from '@/lib/content/homepage-stream'
 import { resolveHomeLayoutBandEvery } from '@/lib/experiments/home-layout'
 import { resolveMostReadStories } from '@/lib/content/most-read-stories'
-import { resolveTrendingStories } from '@/lib/content/trending-stories'
 import { resolveProvinceHeat } from '@/lib/content/province-heat'
 
 export const revalidate = 60
@@ -117,15 +114,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
     .slice(0, 8)
 
-  // Brief: chronological; soft-prefer non-lead for variety, still may overlap Latest.
-  const briefPool = [...catalog]
-    .filter((story) => story.id !== edition.lead.id)
-    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
-    .slice(0, 5)
-
   const [
     { stories: mostRead, live: mostReadLive },
-    { stories: trending, live: trendingLive },
     provinceHeat,
   ] = await Promise.all([
     resolveMostReadStories({
@@ -133,12 +123,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       excludeIds: new Set(),
       limit: 6,
       windowDays: 7,
-      minLive: 2,
-    }),
-    resolveTrendingStories({
-      catalog,
-      limit: 6,
-      windowMinutes: 120,
       minLive: 2,
     }),
     resolveProvinceHeat({ catalog }).catch(() => []),
@@ -256,26 +240,24 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   key={`featured-head-${item.stories.map((s) => s.id).join('-')}`}
                   stories={item.stories}
                   locale={locale}
-                  variant={item.variant === 'trio' ? 'asymmetric' : item.variant}
+                  variant="asymmetric"
                   categorySlug={item.categorySlug}
                 />
               ),
             )}
 
+            {/* Mobile: desks first; Latest compact after first desk band. */}
             <div className="space-y-5 xl:hidden">
-              <LatestRail stories={latest} locale={locale} headingId="latest-rail-title-mobile" />
-              <TodayInBrief stories={briefPool} locale={locale} headingId="today-in-brief-mobile" />
+              <LatestRail
+                stories={latest.slice(0, 4)}
+                locale={locale}
+                headingId="latest-rail-title-mobile"
+              />
               <MostReadRail
                 stories={mostRead}
                 locale={locale}
                 headingId="most-read-title-mobile"
                 live={mostReadLive}
-              />
-              <TrendingRail
-                stories={trending}
-                locale={locale}
-                headingId="trending-rail-title-mobile"
-                live={trendingLive}
               />
             </div>
 
@@ -287,7 +269,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   key={`featured-tail-${item.stories.map((s) => s.id).join('-')}`}
                   stories={item.stories}
                   locale={locale}
-                  variant={item.variant === 'trio' ? 'asymmetric' : item.variant}
+                  variant="asymmetric"
                   categorySlug={item.categorySlug}
                 />
               ),
@@ -301,18 +283,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <aside className="hidden min-w-0 space-y-5 xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:block">
             <div className="xl:sticky xl:top-28 xl:space-y-5">
               <LatestRail stories={latest} locale={locale} compact headingId="latest-rail-title" />
-              <TodayInBrief stories={briefPool} locale={locale} headingId="today-in-brief" />
               <MostReadRail
                 stories={mostRead}
                 locale={locale}
                 headingId="most-read-title"
                 live={mostReadLive}
-              />
-              <TrendingRail
-                stories={trending}
-                locale={locale}
-                headingId="trending-rail-title"
-                live={trendingLive}
               />
               {activePoll ? (
                 <PollOfDay locale={locale} poll={activePoll} headingId={`poll-${activePoll.id}-label`} />

@@ -6,7 +6,7 @@ import { HubIndexHeader } from '@/components/HubIndexHeader'
 
 export const UTILITY_LINKS = [
   {
-    path: '/utilities/calendar',
+    path: '/patro',
     ne: 'नेपाली पात्रो',
     en: 'Nepali calendar',
     noteNe: 'पर्व, बिदा र बि.सं. महिना',

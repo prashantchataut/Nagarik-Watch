@@ -6,6 +6,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, pathsMatch, swapLocale } from '@/lib/i18n/locales'
+import { patroEntryHref } from '@/lib/calendar-host'
 import { LogoMark } from '@/components/Logo'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { STATIC_HUBS, PROVINCES } from '@/lib/site'
@@ -299,6 +300,16 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                 label={locale === 'en' ? 'More' : 'थप'}
                 lang={locale === 'en' ? 'en' : 'ne'}
               >
+                <li>
+                  <Link
+                    href={patroEntryHref(locale)}
+                    onClick={() => setOpen(false)}
+                    className={`${DRAWER_LINK} font-semibold text-brand-strong`}
+                    lang={locale === 'en' ? 'en' : 'ne'}
+                  >
+                    {locale === 'en' ? 'Nepali calendar' : 'नेपाली पात्रो'}
+                  </Link>
+                </li>
                 {STATIC_HUBS.filter((hub) =>
                   [
                     'latest',

@@ -94,7 +94,7 @@ export async function PublicHubPage({
       : 'यो खण्डमा अझै समाचार प्रकाशित भएका छैनन्।'
 
   return (
-    <div className="mx-auto max-w-page px-4 py-6 sm:py-8">
+    <div className="mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5">
       <HubIndexHeader
         title={localizedTitle(locale, hub)}
         lead={localizedLead(locale, hub)}

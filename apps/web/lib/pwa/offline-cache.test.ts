@@ -77,6 +77,7 @@ describe('isPublicArticlePath', () => {
       '/topic/floods',
       '/province/bagmati',
       '/utilities/calendar',
+      '/patro',
       '/auth/login',
       '/saved',
       '/politics',
