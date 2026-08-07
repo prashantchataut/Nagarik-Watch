@@ -413,15 +413,12 @@ async function read(): Promise<StoreShape> {
     try {
       return rememberCache(await readFromPostgres(pool))
     } catch (error) {
-      // Transient Postgres failures must not crash admin RSC pages in local/dev.
-      // In production, empty inventory looks like a mass-unpublish — fail loud.
+      // Pool exhaustion / connect timeouts must not take down the public site.
+      // Prefer cached/file inventory so readers still get the edition.
       console.error(
         '[json-store] readFromPostgres failed; falling back to file/empty',
         error instanceof Error ? error.message : error,
       )
-      if (isProductionRuntime()) {
-        throw error instanceof Error ? error : new Error('Article store Postgres read failed')
-      }
     }
   }
   return rememberCache(await readFromFile())

@@ -94,7 +94,7 @@ export function postgresPoolConfig(
     // Keep the default small — the app uses one shared pool (see lib/pg-pool.ts).
     max: Number(process.env.NW_DB_POOL_MAX ?? 3),
     idleTimeoutMillis: 10_000,
-    connectionTimeoutMillis: 5_000,
+    connectionTimeoutMillis: 2_000,
     allowExitOnIdle: true,
     ...rest,
   }

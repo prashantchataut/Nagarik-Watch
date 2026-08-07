@@ -38,7 +38,7 @@ function buildTopicChips(locale: Locale, tags: Awaited<ReturnType<typeof getTags
 export async function PublicShell({ locale, children }: { locale: Locale; children: ReactNode }) {
   const dict = getDictionary(locale)
   const [navCategories, tags, session] = await Promise.all([
-    getNavCategories(),
+    getNavCategories().catch(() => []),
     getTags().catch(() => []),
     getSession().catch(() => null),
   ])

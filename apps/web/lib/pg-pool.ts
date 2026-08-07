@@ -27,16 +27,23 @@ export type SharedQueryable = {
 
 let pool: Pool | null = null
 let poolPromise: Promise<Pool | null> | null = null
+/** After a failed connect, skip pool creation briefly to avoid stampedes. */
+let poolCooldownUntil = 0
 
 /** Vercel can run many warm instances; a max of three per instance still exhausted
  *  the production database (Postgres 53300), so each instance holds a single connection. */
 export const SHARED_POOL_MAX_PER_INSTANCE = 1
 
+const DEFAULT_CONNECT_TIMEOUT_MS = 2_000
+const POOL_FAIL_COOLDOWN_MS = Number(process.env.NW_DB_FAIL_COOLDOWN_MS ?? 30_000)
+
 function sharedPoolConfig(): PoolConfig | null {
   return postgresPoolConfig({
     max: SHARED_POOL_MAX_PER_INSTANCE,
     idleTimeoutMillis: Number(process.env.NW_DB_IDLE_TIMEOUT_MS ?? 10_000),
-    connectionTimeoutMillis: Number(process.env.NW_DB_CONNECT_TIMEOUT_MS ?? 5_000),
+    connectionTimeoutMillis: Number(
+      process.env.NW_DB_CONNECT_TIMEOUT_MS ?? DEFAULT_CONNECT_TIMEOUT_MS,
+    ),
     allowExitOnIdle: true,
   })
 }
@@ -44,6 +51,7 @@ function sharedPoolConfig(): PoolConfig | null {
 async function createSharedPool(): Promise<Pool | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
   if (!resolveDatabaseUrl()) return null
+  if (Date.now() < poolCooldownUntil) return null
 
   const config = sharedPoolConfig()
   if (!config) return null
@@ -55,38 +63,50 @@ async function createSharedPool(): Promise<Pool | null> {
     console.error('[pg-pool] idle client error', error instanceof Error ? error.message : error)
   })
 
-  // Fail fast if the URL is wrong so we don't leave a half-open pool cached.
-  await next.query('SELECT 1')
+  try {
+    // Fail fast if the URL is wrong or the DB is saturated.
+    await next.query('SELECT 1')
+  } catch (error) {
+    await next.end().catch(() => undefined)
+    poolCooldownUntil = Date.now() + POOL_FAIL_COOLDOWN_MS
+    console.error(
+      '[pg-pool] shared pool probe failed',
+      error instanceof Error ? error.message : error,
+    )
+    return null
+  }
   return next
 }
 
 /**
- * Returns the singleton pool, or null when DATABASE_URL is unset / build-time.
- * Never creates a second pool in this process.
+ * Returns the singleton pool, or null when DATABASE_URL is unset / build-time /
+ * temporarily unavailable. Never creates a second pool in this process.
+ * Never throws — callers treat null as "skip Postgres this request".
  */
 export async function getSharedPool(): Promise<Pool | null> {
   if (pool) return pool
+  if (Date.now() < poolCooldownUntil) return null
   if (!poolPromise) {
     poolPromise = createSharedPool()
       .then((created) => {
         pool = created
+        if (!created) {
+          poolPromise = null
+        }
         return created
       })
       .catch((error) => {
         poolPromise = null
         pool = null
-        throw error
+        poolCooldownUntil = Date.now() + POOL_FAIL_COOLDOWN_MS
+        console.error(
+          '[pg-pool] could not create shared pool',
+          error instanceof Error ? error.message : error,
+        )
+        return null
       })
   }
-  try {
-    return await poolPromise
-  } catch (error) {
-    console.error(
-      '[pg-pool] could not create shared pool',
-      error instanceof Error ? error.message : error,
-    )
-    return null
-  }
+  return poolPromise
 }
 
 export async function getSharedPoolOrThrow(): Promise<Pool> {
@@ -129,5 +149,6 @@ export async function closeSharedPool(): Promise<void> {
   const current = pool
   pool = null
   poolPromise = null
+  poolCooldownUntil = 0
   if (current) await current.end().catch(() => undefined)
 }

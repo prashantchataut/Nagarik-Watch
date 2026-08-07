@@ -1,7 +1,7 @@
 import 'server-only'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { cleanMultiline, cleanText, ensureOperationalSchema, isProductionRuntime, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
+import { cleanMultiline, cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
 import { getPollVoteCounts } from '@/lib/engagement/store'
 
 export type Poll = {
@@ -133,7 +133,6 @@ export async function getActivePoll(): Promise<PublicPoll | null> {
     if (!poll || !isPublicReadyPoll(poll)) return null
     return { ...poll, results: await getPollVoteCounts(poll.id) }
   } catch (error) {
-    if (isProductionRuntime()) throw error
     console.error('[polls] getActivePoll failed', error instanceof Error ? error.message : error)
     return null
   }

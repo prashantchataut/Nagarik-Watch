@@ -72,9 +72,16 @@ export async function getOperationalPool(): Promise<Queryable | null> {
   }
 }
 
+/**
+ * Pass-through for callers that already acquired a pool (or null).
+ * Never throws: pool exhaustion must not take down public RSC pages.
+ * Writers should treat null as "storage unavailable" and return a soft error.
+ */
 export function requireOperationalPool(pool: Queryable | null): Queryable | null {
   if (!pool && isProductionRuntime()) {
-    throw new Error('Postgres is required for production operational storage.')
+    console.error(
+      '[ops-db] Postgres unavailable for operational storage; continuing without pool',
+    )
   }
   return pool
 }

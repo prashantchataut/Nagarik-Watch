@@ -33,7 +33,7 @@ import { resolveHomeLayoutBandEvery } from '@/lib/experiments/home-layout'
 import { resolveMostReadStories } from '@/lib/content/most-read-stories'
 import { resolveProvinceHeat } from '@/lib/content/province-heat'
 
-export const revalidate = 60
+export const revalidate = 120
 
 export async function generateMetadata({
   params,
@@ -55,14 +55,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const locale = asLocale((await params).locale)
   const english = locale === 'en'
   const [homepage, activePoll, layout, storiesPage] = await Promise.all([
-    getHomepage(),
-    getActivePoll(),
-    resolveHomeLayoutBandEvery(),
-    getStories({ locale, perPage: 80 }).catch(() => ({ items: [] as StoryCardData[], total: 0 })),
+    getHomepage().catch(() => null),
+    getActivePoll().catch(() => null),
+    resolveHomeLayoutBandEvery().catch(() => ({ bandEvery: 3, variantId: null })),
+    getStories({ locale, perPage: 24 }).catch(() => ({ items: [] as StoryCardData[], total: 0 })),
   ])
 
   if (!homepage) {
-    const categories = await getNavCategories()
+    const categories = await getNavCategories().catch(() => [])
     return <HomeEmptyEdition locale={locale} categories={categories} />
   }
 
