@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { isAllowedPublicFirstSegment } from '@/lib/public-path-allowlist'
-import { isCalendarHostname } from '@/lib/calendar-host'
+import {
+  apexPatroLocale,
+  getCalendarOrigin,
+  isCalendarHostname,
+  patroSubdomainLanding,
+} from '@/lib/calendar-host'
 
 /**
  * Public URLs keep Nepali at the root and English under /en. Internally the App Router
@@ -9,6 +14,7 @@ import { isCalendarHostname } from '@/lib/calendar-host'
  *
  * पात्रो subdomain (`patro.*`, `calendar.*`, or NEXT_PUBLIC_CALENDAR_HOST): bare `/`
  * and `/en` map to the पात्रो desk so the utility product can live on its own host.
+ * When the env host is set, apex `/patro` permanently redirects to that subdomain.
  */
 function firstSegment(pathname: string): string {
   return pathname.split('/').filter(Boolean)[0] ?? ''
@@ -34,6 +40,17 @@ function withCalendarRoot(pathname: string): string {
 export function middleware(request: NextRequest) {
   const host = request.headers.get('host')
   const calendarHost = isCalendarHostname(host)
+  const calendarOrigin = getCalendarOrigin()
+
+  // Apex bookmarks → पात्रो product host (308) when configured.
+  if (!calendarHost && calendarOrigin) {
+    const locale = apexPatroLocale(request.nextUrl.pathname)
+    if (locale) {
+      const landing = patroSubdomainLanding(locale)
+      if (landing) return NextResponse.redirect(landing, 308)
+    }
+  }
+
   let pathname = request.nextUrl.pathname
   if (calendarHost) pathname = withCalendarRoot(pathname)
 
@@ -68,7 +85,7 @@ export function middleware(request: NextRequest) {
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-locale', 'en')
     requestHeaders.set('x-pathname', pathname)
-    requestHeaders.set('x-nw-shell', resolveShell(pathname.slice(3) || '/'))
+    requestHeaders.set('x-nw-shell', resolveShell(pathname.slice(3) || '/', calendarHost))
     if (calendarHost) requestHeaders.set('x-nw-calendar-host', '1')
 
     // Host mapped `/en` → `/en/patro`: rewrite so the App Router sees the desk path.
@@ -90,12 +107,16 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-locale', 'ne')
   requestHeaders.set('x-pathname', pathname)
-  requestHeaders.set('x-nw-shell', resolveShell(pathname))
+  requestHeaders.set('x-nw-shell', resolveShell(pathname, calendarHost))
   if (calendarHost) requestHeaders.set('x-nw-calendar-host', '1')
   return NextResponse.rewrite(internal, { request: { headers: requestHeaders } })
 }
 
-function resolveShell(pathWithoutEnPrefix: string): 'public' | 'auth' | 'journalist' {
+function resolveShell(
+  pathWithoutEnPrefix: string,
+  calendarHost: boolean,
+): 'public' | 'auth' | 'journalist' | 'patro' {
+  if (calendarHost) return 'patro'
   const parts = pathWithoutEnPrefix.split('/').filter(Boolean)
   const seg = parts[0] ?? ''
   if (seg === 'journalist') return 'journalist'

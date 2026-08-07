@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getStories } from '@/lib/content'
-import { getRealForex, getRealGoldSilver } from '@/lib/live/real'
+import { getRealForex, getRealGoldSilver, getRealNepse } from '@/lib/live/real'
 import { canonicalAlternates } from '@/lib/seo/canonical'
+import { mainSiteHref } from '@/lib/calendar-host'
 import { PatroShell } from '@/components/utilities/PatroShell'
 import { PatroDesk } from '@/components/utilities/PatroDesk'
 
@@ -27,33 +29,46 @@ export async function generateMetadata({
 export default async function PatroPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const en = locale === 'en'
-  const [forex, gold, storiesPage] = await Promise.all([
+  const onCalendarHost = (await headers()).get('x-nw-calendar-host') === '1'
+
+  const [forex, gold, nepse, storiesPage] = await Promise.all([
     getRealForex(locale),
     getRealGoldSilver(locale),
+    getRealNepse(locale),
     getStories({ locale, perPage: 9 }).catch(() => ({ items: [], total: 0 })),
   ])
 
   const latestStories = storiesPage.items.slice(0, 6).map((story) => {
     const title = en && story.titleEn ? story.titleEn : story.titleNe
     const rawThumb = story.heroImage?.url
-    const thumb =
-      rawThumb && !rawThumb.startsWith('data:') ? rawThumb : null
+    const thumb = rawThumb && !rawThumb.startsWith('data:') ? rawThumb : null
+    const path = `/${story.category.slug}/${story.slug}`
     return {
       id: story.id,
-      href: localizeHref(locale, `/${story.category.slug}/${story.slug}`),
+      href: onCalendarHost ? mainSiteHref(locale, path) : localizeHref(locale, path),
       title,
       thumb,
     }
   })
 
-  return (
-    <PatroShell locale={locale}>
-      <PatroDesk
-        locale={locale}
-        forex={forex.data ?? []}
-        gold={gold.data ?? null}
-        latestStories={latestStories}
-      />
-    </PatroShell>
+  const desk = (
+    <PatroDesk
+      locale={locale}
+      forex={forex.data ?? []}
+      gold={gold.data ?? null}
+      nepse={nepse.data ?? null}
+      forexMeta={{ source: forex.source, updatedAt: forex.updatedAt }}
+      goldMeta={{ source: gold.source, updatedAt: gold.updatedAt }}
+      nepseMeta={{ source: nepse.source, updatedAt: nepse.updatedAt }}
+      latestIndexHref={
+        onCalendarHost ? mainSiteHref(locale, '/latest') : localizeHref(locale, '/latest')
+      }
+      latestStories={latestStories}
+    />
   )
+
+  // Calendar host already wraps with PatroChrome / standalone shell.
+  if (onCalendarHost) return desk
+
+  return <PatroShell locale={locale}>{desk}</PatroShell>
 }

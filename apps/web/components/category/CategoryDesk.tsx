@@ -1,18 +1,32 @@
+import type { ReactNode } from 'react'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import { Hero } from '@nagarikwatch/ui'
 import { DenseStoryItem } from '@/components/home/DenseStoryItem'
 import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
+import { CategoryMoreStories } from '@/components/category/CategoryMoreStories'
 
 type CategoryDeskProps = {
   stories: StoryCardData[]
   locale: Locale
+  /** Override the “more” section heading (topic / hub). */
+  moreHeading?: { ne: string; en: string }
+  /** Override the side-rail kicker. */
+  sideKicker?: { ne: string; en: string }
+  /** Optional mid-band (ads) between lead pack and more stories. */
+  midSlot?: ReactNode
 }
 
 /**
- * Category / section index packing: lead + side rail, then dense thumb rows.
- * Matches homepage desk rhythm (not equal card grids).
+ * Category / section / topic index packing: lead + side rail, then list/grid more.
+ * Shared desk language across category, topic, and hub pages.
  */
-export function CategoryDesk({ stories, locale }: CategoryDeskProps) {
+export function CategoryDesk({
+  stories,
+  locale,
+  moreHeading,
+  sideKicker,
+  midSlot,
+}: CategoryDeskProps) {
   if (!stories.length) return null
   const english = locale === 'en'
   const lang = english ? 'en' : 'ne'
@@ -20,6 +34,14 @@ export function CategoryDesk({ stories, locale }: CategoryDeskProps) {
   if (!lead) return null
   const side = rest.slice(0, 4)
   const more = rest.slice(4)
+  const sideLabel =
+    sideKicker != null
+      ? english
+        ? sideKicker.en
+        : sideKicker.ne
+      : english
+        ? 'Also in this section'
+        : 'यस खण्डका अन्य'
 
   return (
     <div className="grid gap-5">
@@ -30,7 +52,7 @@ export function CategoryDesk({ stories, locale }: CategoryDeskProps) {
         {side.length > 0 ? (
           <aside className="min-w-0 border-t border-rule pt-3 xl:border-t-0 xl:pl-5 xl:pt-0">
             <p className="mb-2 text-meta font-extrabold text-brand-strong" lang={lang}>
-              {english ? 'Also in this section' : 'यस खण्डका अन्य'}
+              {sideLabel}
             </p>
             <span className="mb-2 block h-0.5 w-10 bg-brand" aria-hidden="true" />
             <ul className="divide-y divide-rule border-y border-rule">
@@ -46,25 +68,9 @@ export function CategoryDesk({ stories, locale }: CategoryDeskProps) {
         ) : null}
       </section>
 
-      {more.length > 0 ? (
-        <section>
-          <div className="border-b border-rule pb-2">
-            <h2 className="font-display text-h3 font-extrabold text-ink" lang={lang}>
-              {english ? 'More stories' : 'थप समाचार'}
-            </h2>
-            <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
-          </div>
-          <ul className="mt-2 divide-y divide-rule">
-            {more.map((story) => (
-              <li key={story.id} className="py-2.5">
-                <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-                  <DenseStoryItem story={story} locale={locale} thumb="md" showDeck />
-                </InstrumentedStory>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      {midSlot}
+
+      <CategoryMoreStories stories={more} locale={locale} heading={moreHeading} />
     </div>
   )
 }

@@ -31,7 +31,7 @@ export async function BottomChrome({
           </div>
         </div>
       ) : null}
-      <CookieConsent locale={locale} />
+      <CookieConsent locale={locale} adsElevated={adsOn} />
     </div>
   )
 }

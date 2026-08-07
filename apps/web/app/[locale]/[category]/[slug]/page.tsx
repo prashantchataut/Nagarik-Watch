@@ -397,7 +397,7 @@ export default async function ArticlePage({
             aria-label={readingEnglish ? 'Related and ads' : 'सम्बन्धित र विज्ञापन'}
           >
             {related.length > 0 ? (
-              <div className="border border-rule bg-surface-raised p-3">
+              <div>
                 <p
                   className="mb-2 text-meta font-extrabold text-brand-strong"
                   lang={readingEnglish ? 'en' : 'ne'}
@@ -406,14 +406,15 @@ export default async function ArticlePage({
                 </p>
                 <span className="mb-2 block h-0.5 w-10 bg-brand" aria-hidden="true" />
                 <ul className="divide-y divide-rule border-y border-rule">
-                  {related.slice(0, 4).map((story) => (
-                    <li key={story.id} className="py-2.5">
+                  {related.slice(0, 6).map((story) => (
+                    <li key={story.id} className="py-2">
                       <DenseStoryItem
                         story={story}
                         locale={readingLocale}
                         thumb="sm"
                         showDeck={false}
-                        showMeta={false}
+                        showMeta
+                        showDateline={false}
                         compact
                       />
                     </li>

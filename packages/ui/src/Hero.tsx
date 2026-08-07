@@ -9,13 +9,15 @@ type HeroProps = {
   story: StoryCardData
   locale: Locale
   className?: string
+  /** Lead image fetch priority (default true for desk leads). */
+  priority?: boolean
 }
 
 /**
  * Front-page lead: large headline band, then a dominant photo —
  * dense commercial portal hierarchy for Nepali readers.
  */
-export function Hero({ story, locale, className }: HeroProps) {
+export function Hero({ story, locale, className, priority = true }: HeroProps) {
   const title = locale === 'en' && story.titleEn ? story.titleEn : story.titleNe
   const deck = locale === 'en' ? story.deckEn : story.deckNe
   const href = `${locale === 'en' ? '/en' : ''}/${story.category.slug}/${story.slug}/`
@@ -62,7 +64,7 @@ export function Hero({ story, locale, className }: HeroProps) {
             src={story.heroImage!.url}
             alt={story.heroImage!.alt}
             fill
-            priority
+            priority={priority}
             unoptimized={unoptimized}
             sizes="(min-width: 1280px) 760px, (min-width: 1024px) 60vw, 100vw"
             className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.015]"

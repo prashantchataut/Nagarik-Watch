@@ -12,13 +12,26 @@ import {
   upcomingCalendarEvents,
 } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
+import { localizeNumber, relativeTime } from '@/lib/live/format'
 import { NepaliCalendar } from '@/components/utilities/NepaliCalendar'
 import type { ForexRate, GoldSilverReading } from '@/lib/live/real'
+import type { NepseReading } from '@/lib/live/types'
+
+type RateMeta = {
+  source: string
+  updatedAt: string
+}
 
 type PatroDeskProps = {
   locale: Locale
   forex: ForexRate[]
   gold: GoldSilverReading | null
+  nepse: NepseReading | null
+  forexMeta: RateMeta
+  goldMeta: RateMeta
+  nepseMeta: RateMeta
+  /** Absolute or localized href for “all latest” (apex when on calendar host). */
+  latestIndexHref: string
   latestStories: Array<{
     id: string
     href: string
@@ -32,11 +45,21 @@ const TOOL_TILES = [
   { path: '/utilities/currency', ne: 'मुद्रा रूपान्तरण', en: 'Currency', tone: 'b' },
   { path: '/rashifal', ne: 'राशिफल', en: 'Horoscope', tone: 'c' },
   { path: '/utilities/preeti-unicode', ne: 'प्रिती युनिकोड', en: 'Preeti Unicode', tone: 'd' },
-  { path: '/market', ne: 'सेयर बजार', en: 'Share market', tone: 'e' },
+  { path: '/market', ne: 'सेयर / सुन', en: 'Shares / gold', tone: 'e' },
   { path: '/utilities', ne: 'सबै उपकरण', en: 'All tools', tone: 'f' },
 ] as const
 
-export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps) {
+export function PatroDesk({
+  locale,
+  forex,
+  gold,
+  nepse,
+  forexMeta,
+  goldMeta,
+  nepseMeta,
+  latestIndexHref,
+  latestStories,
+}: PatroDeskProps) {
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
   const today = useMemo(() => adToBs(new Date()), [])
@@ -48,15 +71,16 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
   const monthName = en ? BS_MONTHS_EN[today.month - 1] : BS_MONTHS[today.month - 1]
   const todayLabel = formatBsFull(today, locale)
   const usd = forex.find((r) => r.iso3 === 'USD') ?? forex[0]
+  const nepseUp = Boolean(nepse && nepse.change >= 0)
   const adDateLabel = useMemo(
     () =>
-      new Intl.DateTimeFormat(en ? 'en-GB' : 'en-GB', {
+      new Intl.DateTimeFormat('en-GB', {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
         year: 'numeric',
       }).format(new Date()),
-    [en],
+    [],
   )
 
   return (
@@ -111,7 +135,7 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
             )}
           </section>
 
-          <section className="patro-widget">
+          <section className="patro-widget" id="holidays">
             <h2>{en ? 'Holidays ahead' : 'आगामी बिदा'}</h2>
             {holidays.length === 0 ? (
               <p className="patro-widget__empty">
@@ -142,6 +166,40 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
           </section>
 
           <section className="patro-widget">
+            <h2>NEPSE</h2>
+            {nepse ? (
+              <dl className="patro-rates">
+                <div>
+                  <dt>{en ? 'Index' : 'सूचकाङ्क'}</dt>
+                  <dd className="tabular-nums">{localizeNumber(nepse.index.toFixed(2), locale)}</dd>
+                </div>
+                <div>
+                  <dt>{en ? 'Change' : 'परिवर्तन'}</dt>
+                  <dd className={`tabular-nums${nepseUp ? ' is-up' : ' is-down'}`}>
+                    <span aria-hidden="true">{nepseUp ? '▲' : '▼'}</span>{' '}
+                    {localizeNumber(Math.abs(nepse.change).toFixed(2), locale)} (
+                    {localizeNumber(Math.abs(nepse.changePercent).toFixed(2), locale)}%)
+                  </dd>
+                </div>
+              </dl>
+            ) : (
+              <div className="patro-widget__empty-block">
+                <p className="patro-widget__empty">
+                  {en ? 'Index feed unavailable.' : 'सूचकाङ्क फिड उपलब्ध छैन।'}
+                </p>
+                <p className="patro-widget__more">
+                  <Link href={localizeHref(locale, '/market')}>
+                    {en ? 'Open market board' : 'बजार बोर्ड खोल्नुहोस्'}
+                  </Link>
+                </p>
+              </div>
+            )}
+            <p className="patro-widget__stamp">
+              {sourceFor(nepseMeta.source, locale)} · {relativeTime(nepseMeta.updatedAt, locale)}
+            </p>
+          </section>
+
+          <section className="patro-widget">
             <h2>{en ? 'Gold & silver' : 'सुनचाँदी'}</h2>
             {gold ? (
               <dl className="patro-rates">
@@ -168,6 +226,9 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
                 </p>
               </div>
             )}
+            <p className="patro-widget__stamp">
+              {sourceFor(goldMeta.source, locale)} · {relativeTime(goldMeta.updatedAt, locale)}
+            </p>
           </section>
 
           <section className="patro-widget">
@@ -177,10 +238,10 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
                 <div>
                   <dt>
                     {usd.iso3} → NPR
-                    {usd.unit && usd.unit !== '1' ? ` (${usd.unit})` : ''}
+                    {usd.unit && usd.unit !== '1' && usd.unit !== 'NPR' ? ` (${usd.unit})` : ''}
                   </dt>
                   <dd className="tabular-nums">
-                    {en ? usd.sell.toFixed(2) : toDevanagari(usd.sell.toFixed(2))}
+                    {localizeNumber(usd.sell.toFixed(2), locale)}
                   </dd>
                 </div>
               </dl>
@@ -198,6 +259,9 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
                 </p>
               </div>
             )}
+            <p className="patro-widget__stamp">
+              {sourceFor(forexMeta.source, locale)} · {relativeTime(forexMeta.updatedAt, locale)}
+            </p>
             <p className="patro-widget__more">
               <Link href={localizeHref(locale, '/utilities/currency')}>
                 {en ? 'Open converter' : 'रूपान्तरण खोल्नुहोस्'}
@@ -227,7 +291,7 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
         <section className="patro-news" aria-labelledby="patro-news-title">
           <div className="patro-news__head">
             <h2 id="patro-news-title">{en ? 'Latest news' : 'ताजा समाचार'}</h2>
-            <Link href={localizeHref(locale, '/latest')}>{en ? 'All latest' : 'सबै ताजा'}</Link>
+            <Link href={latestIndexHref}>{en ? 'All latest' : 'सबै ताजा'}</Link>
           </div>
           <ul className="patro-news__grid">
             {latestStories.map((story) => (
@@ -253,4 +317,10 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
 function formatNpr(value: number, locale: Locale): string {
   const formatted = value.toLocaleString(locale === 'en' ? 'en-NP' : 'ne-NP')
   return locale === 'en' ? `NPR ${formatted}` : `रु. ${formatted}`
+}
+
+function sourceFor(source: string, locale: Locale): string {
+  const cleaned = source.trim()
+  if (cleaned) return cleaned
+  return locale === 'en' ? 'Source unavailable' : 'स्रोत उपलब्ध छैन'
 }

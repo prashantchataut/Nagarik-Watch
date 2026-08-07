@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import type { StoryCardData } from '@nagarikwatch/db'
+import { RecommendedRailSkeleton } from '@nagarikwatch/ui'
 import { MegaStoryBlock } from '@/components/home/MegaStoryBlock'
 import { asLocale } from '@/lib/i18n/locales'
 import { getHomepage, getNavCategories, getStories } from '@/lib/content'
@@ -286,7 +287,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </section>
 
-        <Suspense fallback={null}>
+        <Suspense fallback={<RecommendedRailSkeleton className="mt-6" />}>
           <RecommendedForYou
             locale={locale}
             catalog={catalog}

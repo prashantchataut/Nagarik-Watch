@@ -400,11 +400,12 @@ Kill TopicsStrip hubs on mobile. Move hubs into hamburger.
 - Redirect `/patro` → subdomain  
 - Wire live gold/forex/NEPSE consistently with `/market`  
 
-### Phase 3 — Polish for pitch deck (1 week)
-- Empty/loading skeletons matching layouts  
-- Mobile QA on mid Android Chrome  
-- LCP budget: hero image priority; no interstitial  
-- Capture before/after for supervisor  
+### Phase 3 — Polish for pitch deck (1 week) ✅
+- Empty/loading skeletons matching layouts (`HomeFeedSkeleton`, `CategoryDeskSkeleton`, `ArticleBodySkeleton` hero plane, `PatroDeskSkeleton`)  
+- Cookie strip: no first-visit scrim; compact mobile actions; lifts above sticky ad  
+- LCP: MegaStory #0 + Hero `priority` wired; StoryGrid `priorityLead` no longer voided  
+- Soft-nav routes: locale / category / topic / article / patro `loading.tsx`  
+- Capture before/after: DevTools Pixel 5 / 390×844 — homepage fold, cookie + BottomNav, category soft-nav  
 
 **Do not** spray cosmetic edits tree-wide. Order: homepage → chrome → category → article → patro subdomain → rest.
 

@@ -1,5 +1,4 @@
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
-import { Hero } from '@nagarikwatch/ui'
 import { getStories, type StoryListOptions } from '@/lib/content'
 import { rankStories } from '@/lib/ranking'
 import { buildStoryEngagementIndex, signalsForStory } from '@/lib/ranking-signals'
@@ -7,9 +6,8 @@ import { localizedLead, localizedTitle, type StaticHub } from '@/lib/site'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { UtilityWidgetRail } from '@/components/live/LiveWidgets'
 import { AdSlot } from '@/components/AdSlot'
+import { CategoryDesk } from '@/components/category/CategoryDesk'
 import { ReaderSubmissionForm } from '@/components/forms/ReaderSubmissionForm'
-import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
-import { DenseStoryItem } from '@/components/home/DenseStoryItem'
 
 /** Map each hub key to real getStories filters — never return the unfiltered national pool for specialty desks. */
 export function hubStoryFilters(hubKey: StaticHub['key']): StoryListOptions {
@@ -84,9 +82,6 @@ export async function PublicHubPage({
   ])
   const ranked = rankStories(items, (story, index) => signalsForStory(story, engagement, index))
   const stories = ranked.slice(0, 12)
-  const leadStory = stories[0]
-  const sideStories = stories.slice(1, 5)
-  const compactStories = stories.slice(5)
   const lang = locale === 'en' ? 'en' : 'ne'
   const empty =
     locale === 'en'
@@ -110,67 +105,24 @@ export async function PublicHubPage({
       {hub.key === 'submit-story' ? <ReaderSubmissionWorkflow locale={locale} /> : null}
 
       {stories.length > 0 ? (
-        <section className="mt-4 grid gap-4 border-b border-rule pb-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(16rem,0.75fr)] xl:items-start xl:gap-5">
-          {leadStory ? (
-            <InstrumentedStory
-              articleSlug={leadStory.slug}
-              articleCategory={leadStory.category.slug}
-            >
-              <Hero story={leadStory} locale={locale} />
-            </InstrumentedStory>
-          ) : null}
-          {sideStories.length > 0 ? (
-            <aside className="min-w-0 border-t border-rule pt-3 xl:border-t-0 xl:pl-5 xl:pt-0">
-              <p className="mb-2 text-meta font-extrabold text-brand-strong" lang={lang}>
-                {locale === 'en' ? 'Also here' : 'यहाँका अन्य'}
-              </p>
-              <span className="mb-2 block h-0.5 w-10 bg-brand" aria-hidden="true" />
-              <ul className="divide-y divide-rule border-y border-rule">
-                {sideStories.map((story) => (
-                  <li key={story.slug} className="py-2.5">
-                    <InstrumentedStory
-                      articleSlug={story.slug}
-                      articleCategory={story.category.slug}
-                    >
-                      <DenseStoryItem story={story} locale={locale} showDeck={false} thumb="sm" />
-                    </InstrumentedStory>
-                  </li>
-                ))}
-              </ul>
-            </aside>
-          ) : null}
-        </section>
+        <div className="mt-4">
+          <CategoryDesk
+            stories={stories}
+            locale={locale}
+            moreHeading={{ ne: 'यस खण्डका थप सामग्री', en: 'More in this section' }}
+            sideKicker={{ ne: 'यहाँका अन्य', en: 'Also here' }}
+            midSlot={
+              <div className="border-y border-rule py-3">
+                <AdSlot locale={locale} placementKey="hub-inline" variant="native" />
+              </div>
+            }
+          />
+        </div>
       ) : hub.key === 'submit-story' ? null : (
         <div className="mt-4 border-y border-rule py-5" lang={lang}>
           <p className="max-w-body text-body text-ink-soft">{empty}</p>
         </div>
       )}
-
-      {stories.length > 0 ? (
-        <div className="mt-5 border-y border-rule py-3">
-          <AdSlot locale={locale} placementKey="hub-inline" variant="native" />
-        </div>
-      ) : null}
-
-      {compactStories.length > 0 ? (
-        <section className="mt-5">
-          <div className="border-b border-rule pb-2">
-            <h2 className="font-display text-h3 font-extrabold text-ink" lang={lang}>
-              {locale === 'en' ? 'More in this section' : 'यस खण्डका थप सामग्री'}
-            </h2>
-            <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
-          </div>
-          <ul className="mt-2 divide-y divide-rule">
-            {compactStories.map((story) => (
-              <li key={story.slug} className="py-2.5">
-                <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-                  <DenseStoryItem story={story} locale={locale} thumb="md" />
-                </InstrumentedStory>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
     </div>
   )
 }

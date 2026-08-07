@@ -30,17 +30,23 @@ Do not set `NEXT_PUBLIC_LAUNCH_STATUS=live` on a static-only apex.
 
 ### Calendar subdomain (पात्रो product)
 
-Nepali portals often put the calendar on `calendar.yourdomain.com`. That is supported
-on the **same Vercel project** (no second deploy):
+Nepali portals put the calendar on a utility host. Preferred:
 
-1. Vercel → Domains → add `calendar.yourdomain.com`
-2. Cloudflare DNS → `CNAME calendar` → Vercel target (Proxied)
-3. Set `NEXT_PUBLIC_CALENDAR_HOST=https://calendar.yourdomain.com` on the web app
-4. Middleware maps `calendar…/` → `/patro` and `calendar…/en` → `/en/patro`
+`patro.nagarikwatch.com` (legacy `calendar.*` still accepted).
+
+Same Vercel project (no second deploy):
+
+1. Vercel → Domains → add `patro.nagarikwatch.com`
+2. Cloudflare DNS → `CNAME patro` → Vercel target (Proxied)
+3. Set `NEXT_PUBLIC_CALENDAR_HOST=https://patro.nagarikwatch.com` on the web app
+4. Middleware:
+   - maps `patro…/` → `/patro` and `patro…/en` → `/en/patro`
+   - **308-redirects** apex `/patro` and `/en/patro` → the subdomain
+   - sets `x-nw-calendar-host` so the layout renders **PatroChrome** (no news masthead)
 5. Masthead / bottom-nav पात्रो CTAs use that origin when the env is set
 
 Until the env is set, पात्रो stays on the apex at `/patro` (and `/utilities/calendar`
-redirects there).
+redirects there) under the news shell with an embedded utility nav.
 
 Follow `docs/launch-runbook.md` for soft → hard launch.
 

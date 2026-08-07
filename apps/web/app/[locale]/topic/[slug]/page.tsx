@@ -1,14 +1,14 @@
-import { staticTopicParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import type { CategoryRef, Locale } from '@nagarikwatch/db'
 import { notFound } from 'next/navigation'
-import { StoryGrid } from '@nagarikwatch/ui'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
+import { CategoryDesk } from '@/components/category/CategoryDesk'
 import { getStories, getTag } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref, localePrefix } from '@/lib/i18n/locales'
 import { Pagination } from '@/components/Pagination'
+import { staticTopicParams } from '@/lib/static-export-params'
 
 export const revalidate = 60
 
@@ -19,10 +19,7 @@ export function generateStaticParams() {
 type Params = { locale: string; slug: string }
 
 /**
- * Topic (tag) landing. Resolves the tag (404 if unknown) and renders its paginated story
- * grid. Pagination mirrors the category page: ?page=N as real links, page 1 keeps a bare
- * canonical, page 2+ is noindex. Tag names/descriptions are Nepali-primary; the English
- * route surfaces the English fields when present.
+ * Topic (tag) landing. Same desk language as category indexes (lead + rail + list/grid).
  */
 export default async function TopicPage({
   params,
@@ -40,8 +37,6 @@ export default async function TopicPage({
   const data = await getTag(slug, locale)
   if (!data) notFound()
 
-  // Fetch the full paginated list for this locale so /en honours the same visibility rules
-  // as the rest of the site (ADR-007). getTag returns page 1 only; getStories paginates.
   const result = await getStories({ tag: slug, page, locale })
   const dict = getDictionary(locale)
   const { tag } = data
@@ -49,13 +44,10 @@ export default async function TopicPage({
   const name = locale === 'en' && tag.nameEn ? tag.nameEn : tag.nameNe
   const nameLang = locale === 'en' && tag.nameEn ? 'en' : 'ne'
   const description = locale === 'en' ? tag.descriptionEn : tag.descriptionNe
-
-  // Most common category across this topic's stories — the parent section the reader is
-  // most likely to have come from, so the back-link points somewhere useful rather than home.
   const parentCategory = mostCommonCategory(result.items.map((s) => s.category))
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8">
+    <div className="mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5">
       <div>
         <HubIndexHeader
           title={name}
@@ -68,14 +60,14 @@ export default async function TopicPage({
           lang={nameLang}
           kicker={dict.topicStories}
         />
-        <div className="mt-4 flex flex-wrap items-center gap-3">
+        <div className="mt-3 flex flex-wrap items-center gap-3">
           <span
             className="inline-flex items-center rounded-sm bg-brand-tint px-2.5 py-1 text-meta font-bold text-brand-strong"
             lang={nameLang}
           >
             {dict.storyCountTopic(result.total)}
           </span>
-          {parentCategory && (
+          {parentCategory ? (
             <Link
               href={localizeHref(locale, `/${parentCategory.slug}`)}
               lang={lang}
@@ -83,12 +75,12 @@ export default async function TopicPage({
             >
               {dict.topicBackToCategory}
             </Link>
-          )}
+          ) : null}
         </div>
       </div>
 
       {result.items.length === 0 ? (
-        <div className="mt-8 border-y border-rule bg-brand-tint/35 px-4 py-8" lang={lang}>
+        <div className="mt-6 border-y border-rule bg-brand-tint/35 px-4 py-8" lang={lang}>
           <p className="font-display text-h2 text-ink">
             {locale === 'en' ? 'No stories yet' : 'अझै समाचार छैन'}
           </p>
@@ -99,8 +91,13 @@ export default async function TopicPage({
           </p>
         </div>
       ) : (
-        <div className="mt-8">
-          <StoryGrid stories={result.items} locale={locale} />
+        <div className="mt-4">
+          <CategoryDesk
+            stories={result.items}
+            locale={locale}
+            sideKicker={{ ne: 'यस विषयका अन्य', en: 'Also on this topic' }}
+            moreHeading={{ ne: 'थप यस विषयमा', en: 'More on this topic' }}
+          />
         </div>
       )}
 
@@ -109,16 +106,12 @@ export default async function TopicPage({
         totalPages={result.totalPages}
         basePath={localizeHref(locale, `/topic/${slug}`)}
         locale={locale}
-        className="mt-12"
+        className="mt-8"
       />
     </div>
   )
 }
 
-/**
- * Returns the category that appears most often in a list of story categories, or null when
- * the list is empty. Ties resolve to the first-seen category so the back-link is stable.
- */
 function mostCommonCategory(cats: CategoryRef[]): CategoryRef | null {
   if (cats.length === 0) return null
   const counts = new Map<string, { ref: CategoryRef; n: number }>()

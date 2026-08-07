@@ -1751,6 +1751,98 @@
 
 /* Patro desk — calendar product surface (structure, Civic Crimson tokens) */
 @layer components {
+  .patro-chrome {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background:
+      linear-gradient(180deg, color-mix(in oklch, var(--brand-tint) 55%, transparent) 0%, transparent 12rem),
+      var(--paper);
+  }
+  .patro-chrome__header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    border-bottom: 1px solid var(--rule);
+    background: color-mix(in oklch, var(--surface) 92%, transparent);
+    backdrop-filter: blur(8px);
+  }
+  .patro-chrome__band {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: var(--page-max, 78rem);
+    margin-inline: auto;
+    padding: 0.65rem 0.75rem;
+  }
+  @media (min-width: 640px) {
+    .patro-chrome__band { padding: 0.75rem 1rem; gap: 1rem; }
+  }
+  .patro-chrome__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+    border-radius: var(--radius-1);
+  }
+  .patro-chrome__brand:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+  .patro-chrome__product {
+    flex-shrink: 0;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-1);
+    background: var(--brand);
+    color: var(--paper);
+    font-size: 0.78rem;
+    font-weight: 850;
+    letter-spacing: 0.02em;
+  }
+  .patro-chrome__actions {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .patro-chrome__news-cta {
+    display: inline-flex;
+    min-height: 2.25rem;
+    align-items: center;
+    border-radius: var(--radius-1);
+    background: var(--brand-strong);
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8125rem;
+    font-weight: 800;
+    color: var(--paper);
+    transition: filter 160ms ease, transform 120ms ease;
+  }
+  .patro-chrome__news-cta:hover { filter: brightness(1.06); }
+  .patro-chrome__news-cta:active { transform: scale(0.98); }
+  .patro-chrome__nav-wrap {
+    max-width: var(--page-max, 78rem);
+    margin-inline: auto;
+    padding: 0 0.75rem;
+  }
+  @media (min-width: 640px) {
+    .patro-chrome__nav-wrap { padding: 0 1rem; }
+  }
+  .patro-chrome__nav-wrap .patro-tool-nav {
+    margin-bottom: 0;
+    border-bottom: 0;
+  }
+  .patro-chrome__nav-wrap .patro-tool-nav ul {
+    padding-bottom: 0.55rem;
+  }
+  .patro-chrome__main {
+    flex: 1;
+  }
+  .patro-chrome__footer {
+    margin-top: auto;
+    border-top: 1px solid var(--rule);
+    background: var(--surface-raised);
+  }
+
   .patro-tool-nav {
     margin-bottom: 1rem;
     border-bottom: 1px solid var(--rule);
@@ -1905,6 +1997,12 @@
   }
   .patro-widget__more a { color: var(--brand-strong); }
   .patro-widget__more a:hover { text-decoration: underline; }
+  .patro-widget__stamp {
+    margin: 0.55rem 0 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--mute);
+  }
   .patro-rates {
     margin: 0;
     display: grid;
@@ -1918,6 +2016,8 @@
   }
   .patro-rates dt { color: var(--ink-soft); font-weight: 700; }
   .patro-rates dd { margin: 0; font-weight: 850; color: var(--ink); }
+  .patro-rates dd.is-up { color: color-mix(in oklch, #0f4c3a 80%, var(--ink)); }
+  .patro-rates dd.is-down { color: color-mix(in oklch, var(--brand-strong) 85%, #5a1a12); }
 
   .patro-desk__main { min-width: 0; display: grid; gap: 1rem; }
 

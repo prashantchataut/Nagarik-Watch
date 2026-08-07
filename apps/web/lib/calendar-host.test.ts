@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import {
+  apexPatroLocale,
   calendarHostname,
   getCalendarOrigin,
   isCalendarHostname,
   mainSiteHref,
   patroEntryHref,
+  patroSubdomainLanding,
 } from './calendar-host'
 
 describe('calendar-host', () => {
@@ -15,6 +17,7 @@ describe('calendar-host', () => {
   it('returns null origin when unset', () => {
     expect(getCalendarOrigin()).toBeNull()
     expect(calendarHostname()).toBeNull()
+    expect(patroSubdomainLanding('ne')).toBeNull()
     expect(patroEntryHref('ne')).toMatch(/^\/patro\/?$/)
     expect(patroEntryHref('en')).toMatch(/^\/en\/patro\/?$/)
   })
@@ -41,9 +44,19 @@ describe('calendar-host', () => {
     expect(getCalendarOrigin()).toBe('https://patro.nagarikwatch.com')
     expect(patroEntryHref('ne')).toBe('https://patro.nagarikwatch.com/')
     expect(patroEntryHref('en')).toBe('https://patro.nagarikwatch.com/en')
+    expect(patroSubdomainLanding('ne')).toBe('https://patro.nagarikwatch.com/')
     expect(isCalendarHostname('patro.nagarikwatch.com')).toBe(true)
     expect(isCalendarHostname('patro.localhost')).toBe(true)
     expect(isCalendarHostname('patro.preview.test')).toBe(true)
+  })
+
+  it('maps apex /patro paths for subdomain redirect', () => {
+    expect(apexPatroLocale('/patro')).toBe('ne')
+    expect(apexPatroLocale('/patro/')).toBe('ne')
+    expect(apexPatroLocale('/en/patro')).toBe('en')
+    expect(apexPatroLocale('/en/patro/')).toBe('en')
+    expect(apexPatroLocale('/market')).toBeNull()
+    expect(apexPatroLocale('/')).toBeNull()
   })
 
   it('builds absolute main-site hrefs', () => {

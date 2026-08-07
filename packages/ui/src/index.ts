@@ -7,7 +7,17 @@ export { CategoryLabel } from './CategoryLabel'
 export { Dateline } from './Dateline'
 export { Hero } from './Hero'
 export { SectionHeader } from './SectionHeader'
-export { StoryCardSkeleton, StoryGridSkeleton, ArticleBodySkeleton } from './Skeleton'
+export {
+  StoryCardSkeleton,
+  StoryGridSkeleton,
+  DenseStoryRowSkeleton,
+  MegaStoryBlockSkeleton,
+  HomeFeedSkeleton,
+  CategoryDeskSkeleton,
+  ArticleBodySkeleton,
+  PatroDeskSkeleton,
+  RecommendedRailSkeleton,
+} from './Skeleton'
 export { LiveWidget, type LiveWidgetStatus, type LiveWidgetTone } from './LiveWidget'
 export { SponsoredBadge } from './SponsoredBadge'
 export { CorrectionNotice } from './CorrectionNotice'

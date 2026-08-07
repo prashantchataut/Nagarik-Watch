@@ -4,6 +4,7 @@ import { asLocale } from '@/lib/i18n/locales'
 import { staticLocaleParams } from '@/lib/static-export-params'
 import { PublicShell } from '@/components/public/PublicShell'
 import { AuthChrome } from '@/components/auth/AuthChrome'
+import { PatroChrome } from '@/components/utilities/PatroChrome'
 
 export function generateStaticParams() {
   return staticLocaleParams()
@@ -27,12 +28,15 @@ export default async function LocaleLayout({
   }
 
   const headerStore = await headers()
+  const calendarHost = headerStore.get('x-nw-calendar-host') === '1'
   const shell =
-    (headerStore.get('x-nw-shell') as 'public' | 'auth' | 'journalist' | null) ?? 'public'
+    (headerStore.get('x-nw-shell') as 'public' | 'auth' | 'journalist' | 'patro' | null) ?? 'public'
 
   return (
     <div lang={locale === 'en' ? 'en' : 'ne'}>
-      {shell === 'auth' ? (
+      {calendarHost || shell === 'patro' ? (
+        <PatroChrome locale={locale}>{children}</PatroChrome>
+      ) : shell === 'auth' ? (
         <AuthChrome locale={locale}>{children}</AuthChrome>
       ) : shell === 'journalist' ? (
         children
