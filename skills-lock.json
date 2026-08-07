@@ -55,6 +55,12 @@
       "skillPath": "skills/cloudflare-one-migrations/SKILL.md",
       "computedHash": "bc6c9fc5dbfcd512dbceb7c6940e351b617897ee2429561a183fef358b4fbef5"
     },
+    "core-web-vitals": {
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github",
+      "skillPath": "skills/core-web-vitals/SKILL.md",
+      "computedHash": "4684e264c8e3dd529aefe97c3102814e3b63a9ea21a163d0f835ed506773e3f8"
+    },
     "deploy-to-vercel": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
