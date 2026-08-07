@@ -21,50 +21,18 @@ import {
 import { localizeHref } from '@/lib/i18n/locales'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { HtmlLangSync } from '@/components/HtmlLangSync'
-import type { TopicChip } from '@/components/TopicsStrip'
+import { AdSlot } from '@/components/AdSlot'
 import { UtilityStrip } from '@/components/live/UtilityStrip'
-import { PUBLICATION, STATIC_HUBS, TOPICS_STRIP_HUBS } from '@/lib/site'
+import type { TopicChip } from '@/components/TopicsStrip'
+import { PUBLICATION } from '@/lib/site'
 
 function buildTopicChips(locale: Locale, tags: Awaited<ReturnType<typeof getTags>>): TopicChip[] {
-  const shortNe: Record<string, string> = {
-    latest: 'ताजा',
-    trending: 'ट्रेन्डिङ',
-    'most-read': 'धेरै पढिएको',
-    'editor-picks': 'सम्पादकीय छनोट',
-    exclusive: 'विशेष',
-    'fact-check': 'तथ्य-जाँच',
-    market: 'बजार',
-    rashifal: 'राशिफल',
-  }
-  const shortEn: Record<string, string> = {
-    latest: 'Latest',
-    trending: 'Trending',
-    'most-read': 'Most read',
-    'editor-picks': "Editor's pick",
-    exclusive: 'Exclusive',
-    'fact-check': 'Fact check',
-    market: 'Market',
-    rashifal: 'Horoscope',
-  }
-
-  const hubs: TopicChip[] = []
-  for (const key of TOPICS_STRIP_HUBS) {
-    const hub = STATIC_HUBS.find((h) => h.key === key)
-    if (!hub) continue
-    hubs.push({
-      href: localizeHref(locale, hub.path),
-      label: locale === 'en' ? shortEn[key] ?? hub.titleEn : shortNe[key] ?? hub.titleNe,
-      lang: locale === 'en' ? 'en' : 'ne',
-    })
-  }
-
-  const tagChips: TopicChip[] = tags.slice(0, 8).map((tag) => ({
+  // Phase 0: strip shows live tags / topics, not hub synonyms of bottom nav.
+  return tags.slice(0, 12).map((tag) => ({
     href: localizeHref(locale, `/tag/${tag.slug}`),
     label: locale === 'en' && tag.nameEn ? tag.nameEn : tag.nameNe,
     lang: locale === 'en' && tag.nameEn ? 'en' : 'ne',
   }))
-
-  return [...hubs, ...tagChips]
 }
 
 export async function PublicShell({ locale, children }: { locale: Locale; children: ReactNode }) {
@@ -95,7 +63,23 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
         {dict.skipToContent}
       </a>
       <SiteJsonLd siteName={PUBLICATION.publisherName} />
-      <Masthead locale={locale} navCategories={navCategories} topics={topics} account={account} />
+      <Masthead
+        locale={locale}
+        navCategories={navCategories}
+        topics={topics}
+        account={account}
+        leaderboard={
+          <Suspense fallback={null}>
+            <AdSlot
+              locale={locale}
+              placementKey="masthead-leaderboard"
+              variant="inline"
+              collapseWhenOff
+              className="!my-0"
+            />
+          </Suspense>
+        }
+      />
       <Suspense
         fallback={
           <div

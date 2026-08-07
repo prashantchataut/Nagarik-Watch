@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
@@ -29,6 +29,8 @@ type MastheadProps = {
   navCategories: Category[]
   topics?: TopicChip[]
   account?: MastheadAccount | null
+  /** OnlineKhabar-style leaderboard beside the logo (desktop). */
+  leaderboard?: ReactNode
 }
 
 const UTIL_LINK =
@@ -37,7 +39,13 @@ const UTIL_LINK =
 const UTIL_ICON =
   'inline-flex h-9 w-9 items-center justify-center rounded-md text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-on-chrome focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
-export function Masthead({ locale, navCategories, topics = [], account = null }: MastheadProps) {
+export function Masthead({
+  locale,
+  navCategories,
+  topics = [],
+  account = null,
+  leaderboard = null,
+}: MastheadProps) {
   const dict = getDictionary(locale)
   const pathname = usePathname() ?? '/'
   const [condensed, setCondensed] = useState(false)
@@ -89,9 +97,9 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
       className="nw-masthead sticky top-0 z-40"
       data-condensed={condensed ? 'true' : 'false'}
     >
-      {/* Band 1 — Brand bar (paper in light, black in dark) */}
+      {/* Band 1 — Left logo + leaderboard (OnlineKhabar) + utilities */}
       <div className="nw-masthead__chrome border-b border-chrome-rule bg-chrome text-on-chrome">
-        <div className="mx-auto flex max-w-page items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4 sm:py-3.5">
+        <div className="mx-auto flex max-w-page items-center gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-2.5">
           <div className="flex shrink-0 items-center gap-1 md:hidden">
             <MobileNav locale={locale} navCategories={navCategories} account={account} />
           </div>
@@ -101,12 +109,18 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
             className="nw-masthead__logo min-w-0 shrink rounded-md transition-opacity duration-fast ease-out-quint hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             aria-label={dict.siteName}
           >
-            <Logo siteName={dict.siteName} tone="chrome" className="max-w-[13rem] sm:max-w-[17rem]" />
+            <Logo siteName={dict.siteName} tone="chrome" className="max-w-[11rem] sm:max-w-[15rem]" />
           </Link>
 
-          <div className="ml-auto flex min-w-0 items-center justify-end gap-0.5 sm:gap-1">
+          {leaderboard ? (
+            <div className="nw-masthead__leaderboard hidden min-w-0 flex-1 justify-center px-2 lg:flex">
+              <div className="w-full max-w-[728px]">{leaderboard}</div>
+            </div>
+          ) : null}
+
+          <div className="ml-auto flex min-w-0 shrink-0 items-center justify-end gap-0.5 sm:gap-1">
             <p
-              className="nw-masthead__utility mr-1 hidden truncate text-caption font-semibold text-on-chrome-soft lg:block"
+              className="nw-masthead__utility mr-1 hidden truncate text-caption font-semibold text-on-chrome-soft xl:block"
               lang={lang}
               suppressHydrationWarning
             >
@@ -129,7 +143,12 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
             >
               <IconBookmark />
             </Link>
-            <Link href={searchHref} className={UTIL_ICON} title={dict.search} aria-label={dict.search}>
+            <Link
+              href={searchHref}
+              className={`${UTIL_ICON} hidden lg:inline-flex`}
+              title={dict.search}
+              aria-label={dict.search}
+            >
               <IconSearch />
             </Link>
             <ThemeToggle
@@ -185,7 +204,7 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
             </li>
           </ul>
 
-          <div className="hidden shrink-0 items-center gap-1.5 py-1.5 lg:flex">
+          <div className="hidden shrink-0 items-center gap-1.5 py-1 lg:flex">
             <Link
               href={patroHref}
               aria-current={patroActive ? 'page' : undefined}
@@ -223,8 +242,11 @@ export function Masthead({ locale, navCategories, topics = [], account = null }:
         </div>
       </nav>
 
-      {!condensed ? (
-        <TopicsStrip locale={locale} topics={topics} searchHref={searchHref} />
+      {/* Desktop only: trending tags. Hubs belong in drawer / bottom nav on mobile. */}
+      {!condensed && topics.length > 0 ? (
+        <div className="hidden md:block">
+          <TopicsStrip locale={locale} topics={topics} searchHref={searchHref} />
+        </div>
       ) : null}
     </header>
   )
@@ -266,8 +288,8 @@ function NavLink({
       aria-current={active ? 'page' : undefined}
       className={
         active
-          ? 'inline-flex min-h-11 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-sm bg-brand-bar-active px-2.5 text-meta font-black text-paper sm:px-3 sm:text-body'
-          : 'inline-flex min-h-11 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-sm px-2.5 text-meta font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:bg-brand-bar-active/85 hover:text-paper sm:px-3 sm:text-body'
+          ? 'inline-flex min-h-10 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-sm bg-brand-bar-active px-2.5 text-meta font-black text-paper sm:px-3 sm:text-body'
+          : 'inline-flex min-h-10 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-sm px-2.5 text-meta font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:bg-brand-bar-active/85 hover:text-paper sm:px-3 sm:text-body'
       }
     >
       {children}

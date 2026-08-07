@@ -1796,14 +1796,14 @@
   .patro-today-badge {
     display: grid;
     place-items: center;
-    width: 4.25rem;
-    height: 4.25rem;
+    width: 5.25rem;
+    height: 5.25rem;
     flex-shrink: 0;
     border-radius: 999px;
     background: var(--brand);
     color: var(--paper);
     font-family: var(--font-mukta), sans-serif;
-    font-size: 1.85rem;
+    font-size: 2.15rem;
     font-weight: 850;
     line-height: 1;
   }
@@ -1816,7 +1816,7 @@
   .patro-today-title {
     margin: 0.15rem 0 0;
     font-family: var(--font-mukta), sans-serif;
-    font-size: clamp(1.35rem, 3vw, 1.85rem);
+    font-size: clamp(1.5rem, 3.2vw, 2.05rem);
     font-weight: 850;
     line-height: 1.15;
     color: var(--ink);
@@ -1825,6 +1825,12 @@
     margin: 0.25rem 0 0;
     font-size: 0.875rem;
     color: var(--ink-soft);
+  }
+  .patro-today-ad {
+    margin: 0.35rem 0 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--mute);
   }
 
   .patro-desk__layout {

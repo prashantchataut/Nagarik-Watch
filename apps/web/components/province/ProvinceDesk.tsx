@@ -52,7 +52,7 @@ export function ProvinceDesk({
             <Hero story={leadStory} locale={locale} />
           </InstrumentedStory>
           {sideStories.length > 0 ? (
-            <aside className="min-w-0 xl:border-l xl:border-rule xl:pl-5">
+            <aside className="min-w-0 xl:pl-5">
               <p className="text-meta font-extrabold text-brand-strong" lang={lang}>
                 {en ? 'Also from this province' : 'यस प्रदेशका अन्य'}
               </p>

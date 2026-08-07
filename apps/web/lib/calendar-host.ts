@@ -3,9 +3,10 @@ import { localizeHref } from '@/lib/i18n/locales'
 import { SITE_URL } from '@/lib/site'
 
 /**
- * Optional calendar product host (e.g. https://calendar.nagarikwatch.com).
- * When set, पात्रो entry points leave the news apex for the calendar subdomain.
- * Middleware maps that host's `/` → `/patro` (and `/en` → `/en/patro`).
+ * Optional पात्रो product host (preferred: https://patro.nagarikwatch.com).
+ * Legacy `calendar.*` hosts still work. When set, पात्रो entry points leave the
+ * news apex for the utility subdomain. Middleware maps that host's `/` → `/patro`
+ * (and `/en` → `/en/patro`).
  */
 export function getCalendarOrigin(): string | null {
   const raw = process.env.NEXT_PUBLIC_CALENDAR_HOST?.trim()
@@ -28,14 +29,23 @@ export function calendarHostname(): string | null {
   }
 }
 
-/** True for configured calendar host or any `calendar.*` hostname (local preview). */
+function isPatroOrCalendarHost(host: string): boolean {
+  return (
+    host === 'patro.localhost' ||
+    host === 'calendar.localhost' ||
+    host.startsWith('patro.') ||
+    host.startsWith('calendar.')
+  )
+}
+
+/** True for configured पात्रो/calendar host or any `patro.*` / `calendar.*` hostname. */
 export function isCalendarHostname(hostHeader: string | null | undefined): boolean {
   if (!hostHeader) return false
   const host = hostHeader.split(':')[0]?.toLowerCase() ?? ''
   if (!host) return false
   const configured = calendarHostname()
   if (configured && host === configured) return true
-  return host === 'calendar.localhost' || host.startsWith('calendar.')
+  return isPatroOrCalendarHost(host)
 }
 
 /** Public entry URL for the पात्रो desk (absolute when subdomain is configured). */

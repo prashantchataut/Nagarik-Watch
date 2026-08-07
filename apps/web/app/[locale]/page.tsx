@@ -1,10 +1,8 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import Link from 'next/link'
 import type { StoryCardData } from '@nagarikwatch/db'
-import { Hero } from '@nagarikwatch/ui'
-import { DenseStoryItem } from '@/components/home/DenseStoryItem'
-import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import { MegaStoryBlock } from '@/components/home/MegaStoryBlock'
+import { asLocale } from '@/lib/i18n/locales'
 import { getHomepage, getNavCategories, getStories } from '@/lib/content'
 import { dedupeHomepage } from '@/lib/content/homepage-dedup'
 import { BreakingTicker } from '@/components/BreakingTicker'
@@ -25,7 +23,6 @@ import { NewsletterInline } from '@/components/NewsletterInline'
 import { TodayInHistory } from '@/components/home/TodayInHistory'
 import { PhotoOfTheDay } from '@/components/home/PhotoOfTheDay'
 import { MostReadRail } from '@/components/home/MostReadRail'
-import { FeaturedSpotlight } from '@/components/home/FeaturedSpotlight'
 import { FeaturedBand } from '@/components/home/FeaturedBand'
 import {
   buildFeaturedBandPool,
@@ -93,13 +90,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ...edition.breaking.map((s) => s.id),
   ])
 
-  const spotlightFeatured = edition.featured.slice(0, 4)
+  // A1 portal feed: lead + featured + secondary, capped, then desks.
+  const portalFeedIds = new Set<string>()
+  const portalFeed: StoryCardData[] = []
+  for (const story of [edition.lead, ...edition.featured, ...edition.secondary]) {
+    if (!story || portalFeedIds.has(story.id)) continue
+    portalFeedIds.add(story.id)
+    portalFeed.push(story)
+    if (portalFeed.length >= 5) break
+  }
   const bandFeatured = buildFeaturedBandPool({
     featured: edition.featured,
     catalog,
     excludeIds: new Set([
-      edition.lead.id,
-      ...edition.secondary.map((s) => s.id),
+      ...portalFeed.map((s) => s.id),
       ...edition.breaking.map((s) => s.id),
     ]),
   })
@@ -168,53 +172,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
       <div className="mx-auto max-w-page px-3 pt-3 sm:px-4 sm:pt-4">
+        {/* A1 — centered mega-headline portal feed (OK / Ratopati / NepalKhabar grammar) */}
         <section
-          className="grid gap-4 border-b border-rule pb-4 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,0.38fr)] xl:items-start xl:gap-5 xl:pb-5"
+          className="space-y-8 border-b border-rule pb-6 sm:space-y-10 sm:pb-8"
           aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
         >
-          <InstrumentedStory
-            articleSlug={edition.lead.slug}
-            articleCategory={edition.lead.category.slug}
-          >
-            <Hero story={edition.lead} locale={locale} />
-          </InstrumentedStory>
-
-          <aside className="min-w-0 xl:border-l xl:border-rule xl:pl-5">
-            <div className="mb-2.5">
-              <p
-                className="text-meta font-extrabold text-brand-strong"
-                lang={english ? 'en' : 'ne'}
-              >
-                {english ? 'Also today' : 'आजका अन्य'}
-              </p>
-              <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
-            </div>
-            <div className="divide-y divide-rule border-y border-rule">
-              {edition.secondary.slice(0, 5).map((story, index) => (
-                <InstrumentedStory
-                  key={story.id}
-                  articleSlug={story.slug}
-                  articleCategory={story.category.slug}
-                >
-                  <DenseStoryItem
-                    story={story}
-                    locale={locale}
-                    showDeck={false}
-                    className={`py-3 xl:py-2.5 ${index >= 4 ? 'xl:hidden' : ''}`}
-                  />
-                </InstrumentedStory>
-              ))}
-            </div>
-            <p className="pt-2 xl:pt-1.5">
-              <Link
-                href={localizeHref(locale, '/latest')}
-                className="inline-flex min-h-9 items-center rounded-md text-meta font-bold text-brand-strong underline-offset-4 hover:underline xl:text-caption"
-                lang={english ? 'en' : 'ne'}
-              >
-                {english ? 'Latest updates' : 'ताजा अपडेट'}
-              </Link>
-            </p>
-          </aside>
+          {portalFeed.map((story, index) => (
+            <InstrumentedStory
+              key={story.id}
+              articleSlug={story.slug}
+              articleCategory={story.category.slug}
+            >
+              <MegaStoryBlock story={story} locale={locale} priority={index === 0} />
+            </InstrumentedStory>
+          ))}
         </section>
 
         <AdSlot
@@ -224,11 +195,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           className="mt-4"
         />
 
-        <FeaturedSpotlight stories={spotlightFeatured} locale={locale} className="mt-4" />
-
         {/*
-          Portal packing: desks early on mobile (spine), then lens stack,
-          then remaining desks. Desktop: stream | sticky lenses (Latest + Brief + Most-read + Trending).
+          Portal packing: desks early on mobile (spine), then one lens,
+          then remaining desks. Desktop: stream | sticky Latest (+ poll).
         */}
         <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,0.38fr)] xl:items-start xl:gap-5">
           <div className="min-w-0 space-y-5 xl:col-start-1 xl:row-start-1 xl:row-span-2">
@@ -246,18 +215,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               ),
             )}
 
-            {/* Mobile: desks first; Latest compact after first desk band. */}
-            <div className="space-y-5 xl:hidden">
+            {/* Mobile: one recency rail after first desk band (not Latest + Most-read). */}
+            <div className="xl:hidden">
               <LatestRail
                 stories={latest.slice(0, 4)}
                 locale={locale}
                 headingId="latest-rail-title-mobile"
-              />
-              <MostReadRail
-                stories={mostRead}
-                locale={locale}
-                headingId="most-read-title-mobile"
-                live={mostReadLive}
               />
             </div>
 
@@ -281,7 +244,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
 
           <aside className="hidden min-w-0 space-y-5 xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:block">
-            <div className="xl:sticky xl:top-28 xl:space-y-5">
+            <div className="xl:sticky xl:top-24 xl:space-y-5">
               <LatestRail stories={latest} locale={locale} compact headingId="latest-rail-title" />
               <MostReadRail
                 stories={mostRead}

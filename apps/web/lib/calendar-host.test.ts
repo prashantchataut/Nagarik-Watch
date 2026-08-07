@@ -36,6 +36,16 @@ describe('calendar-host', () => {
     expect(isCalendarHostname('www.example.com')).toBe(false)
   })
 
+  it('detects patro hostnames', () => {
+    process.env.NEXT_PUBLIC_CALENDAR_HOST = 'https://patro.nagarikwatch.com'
+    expect(getCalendarOrigin()).toBe('https://patro.nagarikwatch.com')
+    expect(patroEntryHref('ne')).toBe('https://patro.nagarikwatch.com/')
+    expect(patroEntryHref('en')).toBe('https://patro.nagarikwatch.com/en')
+    expect(isCalendarHostname('patro.nagarikwatch.com')).toBe(true)
+    expect(isCalendarHostname('patro.localhost')).toBe(true)
+    expect(isCalendarHostname('patro.preview.test')).toBe(true)
+  })
+
   it('builds absolute main-site hrefs', () => {
     expect(mainSiteHref('ne', '/')).toMatch(/\/$|\/ne\/?$|https?:\/\//)
     expect(mainSiteHref('en', '/market')).toContain('/en/market')

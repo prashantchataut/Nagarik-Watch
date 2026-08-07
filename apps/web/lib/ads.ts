@@ -26,6 +26,17 @@ export type AdPlacement = {
 }
 
 export const AD_PLACEMENTS = {
+  'masthead-leaderboard': {
+    key: 'masthead-leaderboard',
+    surface: 'home',
+    size: 'leaderboard',
+    width: 728,
+    height: 90,
+    label: 'Masthead leaderboard',
+    descriptionNe: 'लोगो छेउको मास्टहेड 728×90 स्थान (OnlineKhabar शैली)।',
+    descriptionEn: 'Masthead 728×90 beside the logo (OnlineKhabar-style).',
+    position: 'Chrome / masthead beside logo',
+  },
   'home-top': {
     key: 'home-top',
     surface: 'home',

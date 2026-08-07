@@ -132,25 +132,29 @@ export function CookieConsent({ locale }: { locale: Locale }) {
         aria-describedby="cookie-consent-body"
         lang={lang}
       >
-        <div className="px-4 py-3 sm:px-5 sm:py-4">
-          <h2
-            id="cookie-consent-title"
-            className="font-display text-body-lg font-extrabold text-ink sm:text-h3"
-          >
-            {en ? 'Cookie choices' : 'कुकी छनोट'}
-          </h2>
-          <span className="mt-1 block h-0.5 w-8 bg-brand" aria-hidden="true" />
-          <p id="cookie-consent-body" className="mt-2 text-meta leading-relaxed text-ink-soft">
-            {en
-              ? 'Essential cookies keep sign-in and language working. Optional cookies help recommendations, visit counts, and house-ad measurement.'
-              : 'आवश्यक कुकीले लगइन र भाषा चलाउँछ। वैकल्पिक कुकी सिफारिस, भिजिट गणना र घरको विज्ञापन मापनका लागि हुन्छ।'}{' '}
-            <Link
-              href={localizeHref(locale, '/cookies')}
-              className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+        <div className="flex items-start gap-3 px-3 py-2.5 sm:block sm:px-5 sm:py-4">
+          <div className="min-w-0 flex-1">
+            <h2
+              id="cookie-consent-title"
+              className="font-display text-meta font-extrabold text-ink sm:text-h3"
             >
-              {en ? 'Cookie policy' : 'कुकी नीति'}
-            </Link>
-          </p>
+              {en ? 'Cookie choices' : 'कुकी छनोट'}
+            </h2>
+            <p
+              id="cookie-consent-body"
+              className="mt-0.5 line-clamp-2 text-caption leading-snug text-ink-soft sm:mt-2 sm:line-clamp-none sm:text-meta sm:leading-relaxed"
+            >
+              {en
+                ? 'Essential cookies keep sign-in and language working. Optional cookies help recommendations, visit counts, and house-ad measurement.'
+                : 'आवश्यक कुकीले लगइन र भाषा चलाउँछ। वैकल्पिक कुकी सिफारिस, भिजिट गणना र घरको विज्ञापन मापनका लागि हुन्छ।'}{' '}
+              <Link
+                href={localizeHref(locale, '/cookies')}
+                className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+              >
+                {en ? 'Cookie policy' : 'कुकी नीति'}
+              </Link>
+            </p>
+          </div>
         </div>
 
         {customize ? (

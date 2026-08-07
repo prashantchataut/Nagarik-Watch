@@ -48,6 +48,16 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
   const monthName = en ? BS_MONTHS_EN[today.month - 1] : BS_MONTHS[today.month - 1]
   const todayLabel = formatBsFull(today, locale)
   const usd = forex.find((r) => r.iso3 === 'USD') ?? forex[0]
+  const adDateLabel = useMemo(
+    () =>
+      new Intl.DateTimeFormat(en ? 'en-GB' : 'en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }).format(new Date()),
+    [en],
+  )
 
   return (
     <div className="patro-desk" lang={lang}>
@@ -62,6 +72,9 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
             {en
               ? `${monthName} ${today.year} B.S.`
               : `${monthName} ${toDevanagari(today.year)} बि.सं.`}
+          </p>
+          <p className="patro-today-ad" lang="en">
+            {adDateLabel}
           </p>
         </div>
       </div>
@@ -142,11 +155,18 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
                 </div>
               </dl>
             ) : (
-              <p className="patro-widget__empty">
-                {en
-                  ? 'Rates appear when the newsroom publishes them.'
-                  : 'समाचार कक्षले दर प्रकाशन गरेपछि यहाँ देखिन्छ।'}
-              </p>
+              <div className="patro-widget__empty-block">
+                <p className="patro-widget__empty">
+                  {en
+                    ? 'No verified bullion rate published yet.'
+                    : 'प्रमाणित सुनचाँदी दर अहिले उपलब्ध छैन।'}
+                </p>
+                <p className="patro-widget__more">
+                  <Link href={localizeHref(locale, '/market')}>
+                    {en ? 'Open market board' : 'बजार बोर्ड खोल्नुहोस्'}
+                  </Link>
+                </p>
+              </div>
             )}
           </section>
 
@@ -165,9 +185,18 @@ export function PatroDesk({ locale, forex, gold, latestStories }: PatroDeskProps
                 </div>
               </dl>
             ) : (
-              <p className="patro-widget__empty">
-                {en ? 'Verified rates unavailable right now.' : 'प्रमाणित दर अहिले उपलब्ध छैन।'}
-              </p>
+              <div className="patro-widget__empty-block">
+                <p className="patro-widget__empty">
+                  {en
+                    ? 'Verified forex unavailable. Try the market board.'
+                    : 'प्रमाणित मुद्रा दर उपलब्ध छैन। बजार बोर्ड हेर्नुहोस्।'}
+                </p>
+                <p className="patro-widget__more">
+                  <Link href={localizeHref(locale, '/market')}>
+                    {en ? 'Open market board' : 'बजार बोर्ड खोल्नुहोस्'}
+                  </Link>
+                </p>
+              </div>
             )}
             <p className="patro-widget__more">
               <Link href={localizeHref(locale, '/utilities/currency')}>

@@ -7,8 +7,8 @@ import { isCalendarHostname } from '@/lib/calendar-host'
  * receives an explicit /ne segment so one typed route tree can render both languages.
  * Admin requests also receive a stable pathname header for the protected admin layout.
  *
- * Calendar subdomain (`calendar.*` or NEXT_PUBLIC_CALENDAR_HOST): bare `/` and `/en`
- * map to the पात्रो desk so the utility product can live on its own host.
+ * पात्रो subdomain (`patro.*`, `calendar.*`, or NEXT_PUBLIC_CALENDAR_HOST): bare `/`
+ * and `/en` map to the पात्रो desk so the utility product can live on its own host.
  */
 function firstSegment(pathname: string): string {
   return pathname.split('/').filter(Boolean)[0] ?? ''

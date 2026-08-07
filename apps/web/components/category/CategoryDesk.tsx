@@ -28,7 +28,7 @@ export function CategoryDesk({ stories, locale }: CategoryDeskProps) {
           <Hero story={lead} locale={locale} />
         </InstrumentedStory>
         {side.length > 0 ? (
-          <aside className="min-w-0 border-t border-rule pt-3 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
+          <aside className="min-w-0 border-t border-rule pt-3 xl:border-t-0 xl:pl-5 xl:pt-0">
             <p className="mb-2 text-meta font-extrabold text-brand-strong" lang={lang}>
               {english ? 'Also in this section' : 'यस खण्डका अन्य'}
             </p>

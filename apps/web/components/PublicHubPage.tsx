@@ -120,7 +120,7 @@ export async function PublicHubPage({
             </InstrumentedStory>
           ) : null}
           {sideStories.length > 0 ? (
-            <aside className="min-w-0 border-t border-rule pt-3 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
+            <aside className="min-w-0 border-t border-rule pt-3 xl:border-t-0 xl:pl-5 xl:pt-0">
               <p className="mb-2 text-meta font-extrabold text-brand-strong" lang={lang}>
                 {locale === 'en' ? 'Also here' : 'यहाँका अन्य'}
               </p>

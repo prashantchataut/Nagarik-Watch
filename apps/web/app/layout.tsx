@@ -9,9 +9,8 @@ import { SITE_URL } from '@/lib/site'
 const themeBootScript = `(() => {
   try {
     const stored = localStorage.getItem('nw-theme');
-    const theme = stored === 'dark' || stored === 'light'
-      ? stored
-      : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    // Pitch / reading default is light. Dark only when the reader chose it.
+    const theme = stored === 'dark' || stored === 'light' ? stored : 'light';
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
   } catch {
