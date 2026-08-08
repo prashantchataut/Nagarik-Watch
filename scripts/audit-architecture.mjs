@@ -69,6 +69,14 @@ const rateLimit = readFileSync(join(root, 'apps/web/lib/rate-limit.ts'), 'utf8')
 if (!/CREATE TABLE IF NOT EXISTS nw_rate_limits/.test(rateLimit)) {
   failures.push('Public write rate limiting is not shared through Postgres.')
 }
+if (!/Rate limit store unavailable/.test(rateLimit)) {
+  failures.push('Production rate limiting must fail closed when Postgres is unavailable.')
+}
+
+const contentResolve = readFileSync(join(root, 'apps/web/lib/content/resolve-content-source.ts'), 'utf8')
+if (!/isPayloadSourceMisconfigured/.test(contentResolve) || !/Refusing to fall back/.test(contentResolve)) {
+  failures.push('Content source must fail closed when Payload is misconfigured (no silent desk fallthrough).')
+}
 
 const payloadAdminClient = readFileSync(join(root, 'apps/web/lib/content/payload-admin-client.ts'), 'utf8')
 if (!/users API-Key/.test(payloadAdminClient) || !/assertLocalContentAdmin/.test(payloadAdminClient)) {

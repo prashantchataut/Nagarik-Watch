@@ -1,6 +1,7 @@
 import 'server-only'
 import { createHash, randomBytes, randomUUID } from 'node:crypto'
 import { NEWSROOM_ROLES, type NewsroomRole } from '@/lib/admin-roles'
+import { ensurePayloadAuthorForEmail } from '@/lib/content/payload-admin-client'
 import { sendEmail } from '@/lib/email-provider'
 import {
   cleanText,
@@ -410,6 +411,15 @@ export async function acceptNewsroomInvite(input: {
         [invite.id],
       )
       return { ok: false, reason: 'account_missing' }
+    }
+    // Best-effort: provision Payload Author so journalist desk can draft after cutover.
+    try {
+      await ensurePayloadAuthorForEmail({ email, role: 'contributor' })
+    } catch (error) {
+      console.error(
+        '[newsroom-invite] Payload author ensure failed',
+        error instanceof Error ? error.message : error,
+      )
     }
     return { ok: true, role: invite.role }
   }

@@ -9,28 +9,25 @@ import type {
   Tag,
 } from '@nagarikwatch/db'
 import type { ContentSource, StoryListOptions } from './source'
-import { createStoreContentSource } from './store/store-source'
-import { isPayloadCanonical } from './payload-admin-client'
+import {
+  contentSourceFingerprint,
+  resolveContentSource,
+} from './resolve-content-source'
 
-async function resolveSource(): Promise<ContentSource> {
-  if (isPayloadCanonical()) {
-    const { createPayloadContentSource } = await import('./payload-source')
-    return createPayloadContentSource()
-  }
-
-  return createStoreContentSource()
-}
-
-let cached: Promise<ContentSource> | null = null
+let cached: { key: string; source: Promise<ContentSource> } | null = null
 
 async function source(): Promise<ContentSource> {
-  if (!cached) {
-    cached = resolveSource().catch((error) => {
-      cached = null
-      throw error
-    })
+  const key = contentSourceFingerprint()
+  if (!cached || cached.key !== key) {
+    cached = {
+      key,
+      source: resolveContentSource().catch((error) => {
+        if (cached?.key === key) cached = null
+        throw error
+      }),
+    }
   }
-  return cached
+  return cached.source
 }
 
 export async function getArticleBySlug(

@@ -108,9 +108,10 @@ export async function rateLimit(opts: RateLimitOptions): Promise<RateLimitResult
   }
 
   if (!pool) {
-    // Prefer availability of newsroom writes over hard-failing every API.
+    // Production: fail closed. In-memory buckets are per-instance and do not
+    // rate-limit abuse across serverless isolates.
     if (isProductionRuntime()) {
-      console.error('[rate-limit] falling back to in-memory bucket (Postgres schema unavailable)')
+      throw new Error('Rate limit store unavailable (Postgres required in production).')
     }
     return memoryRateLimit(opts)
   }
@@ -156,6 +157,7 @@ export async function rateLimit(opts: RateLimitOptions): Promise<RateLimitResult
     return { ok: row.ok, remaining: Math.max(0, Math.floor(tokens)), resetAt }
   } catch (error) {
     console.error('[rate-limit] postgres path failed', error instanceof Error ? error.message : error)
+    if (isProductionRuntime()) throw error
     return memoryRateLimit(opts)
   }
 }
@@ -194,7 +196,21 @@ export async function enforceRateLimit(
       },
     )
   } catch (error) {
-    console.error('[rate-limit] enforce failed open', error instanceof Error ? error.message : error)
+    console.error('[rate-limit] enforce failed', error instanceof Error ? error.message : error)
+    if (isProductionRuntime()) {
+      return new Response(
+        JSON.stringify({ error: 'सेवा अस्थायी रूपमा उपलब्ध छैन। केही क्षणमा फेरि प्रयास गर्नुहोस्।' }),
+        {
+          status: 503,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Retry-After': '30',
+            'cache-control': 'no-store',
+          },
+        },
+      )
+    }
+    // Local/dev: keep writes available when Postgres is not running.
     return null
   }
 }

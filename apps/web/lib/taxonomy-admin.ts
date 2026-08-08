@@ -3,7 +3,16 @@ import type { Author, Category, Tag } from '@nagarikwatch/db'
 import { categories } from '@/lib/content/seed/categories'
 import { authors as seedAuthors } from '@/lib/content/seed/authors'
 import { tags as seedTags } from '@/lib/content/seed/tags'
-import { asSlug, cleanMultiline, cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
+import {
+  asSlug,
+  cleanMultiline,
+  cleanText,
+  ensureOperationalSchema,
+  isProductionRuntime,
+  requireOperationalPool,
+  toIso,
+  type Queryable,
+} from '@/lib/ops-db'
 
 export type TaxonomyKind = 'category' | 'tag' | 'author'
 export type TaxonomyStatus = 'active' | 'hidden' | 'archived'
@@ -39,6 +48,12 @@ type Row = {
 }
 
 const memory = new Map<string, TaxonomyTerm>()
+let bootstrapPromise: Promise<void> | null = null
+
+function allowInMemorySeedFallback(): boolean {
+  // Production must not invent taxonomy from seed when Postgres is empty/down.
+  return !isProductionRuntime()
+}
 
 function seedMemory() {
   if (memory.size) return
@@ -100,10 +115,52 @@ function seedMemory() {
   }
 }
 
-/** Active categories for nav + article editor (admin taxonomy is the SoT when present). */
+/**
+ * One-time empty-table bootstrap: copy seed taxonomy into Postgres so the desk
+ * has a single SoT (nw_taxonomy_terms). Never overwrites operator edits.
+ */
+async function bootstrapTaxonomyFromSeed(pool: Queryable): Promise<void> {
+  const count = await pool.query<{ n: string }>(`SELECT COUNT(*)::text AS n FROM nw_taxonomy_terms`)
+  if (Number(count.rows[0]?.n ?? 0) > 0) return
+
+  seedMemory()
+  for (const term of memory.values()) {
+    await pool.query(
+      `INSERT INTO nw_taxonomy_terms (id, kind, slug, name_ne, name_en, description_ne, description_en, status, sort_order, metadata)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb)
+       ON CONFLICT (kind, slug) DO NOTHING`,
+      [
+        term.id,
+        term.kind,
+        term.slug,
+        term.nameNe,
+        term.nameEn,
+        term.descriptionNe ?? null,
+        term.descriptionEn ?? null,
+        term.status,
+        term.sortOrder,
+        JSON.stringify(term.metadata),
+      ],
+    )
+  }
+}
+
+async function ensureBootstrapped(pool: Queryable | null): Promise<void> {
+  if (!pool) return
+  if (!bootstrapPromise) {
+    bootstrapPromise = bootstrapTaxonomyFromSeed(pool).catch((error) => {
+      bootstrapPromise = null
+      throw error
+    })
+  }
+  await bootstrapPromise
+}
+
+/** Active categories for nav + article editor (Postgres taxonomy is the SoT). */
 export async function listContentCategories(): Promise<Category[]> {
   const terms = (await listTaxonomyTerms('category')).filter((term) => term.status === 'active')
   if (!terms.length) {
+    if (!allowInMemorySeedFallback()) return []
     return categories
       .filter((c) => c.showInNav !== false)
       .sort((a, b) => (a.navOrder ?? 0) - (b.navOrder ?? 0))
@@ -122,7 +179,10 @@ export async function listContentCategories(): Promise<Category[]> {
 
 export async function listContentTags(): Promise<Tag[]> {
   const terms = (await listTaxonomyTerms('tag')).filter((term) => term.status === 'active')
-  if (!terms.length) return seedTags
+  if (!terms.length) {
+    if (!allowInMemorySeedFallback()) return []
+    return seedTags
+  }
   return terms.map((term) => ({
     id: term.id,
     slug: term.slug,
@@ -135,7 +195,10 @@ export async function listContentTags(): Promise<Tag[]> {
 
 export async function listContentAuthors(): Promise<Author[]> {
   const terms = (await listTaxonomyTerms('author')).filter((term) => term.status === 'active')
-  if (!terms.length) return seedAuthors.filter((author) => author.isActive !== false)
+  if (!terms.length) {
+    if (!allowInMemorySeedFallback()) return []
+    return seedAuthors.filter((author) => author.isActive !== false)
+  }
   return terms.map((term) => {
     const rawRole = String(term.metadata.role ?? 'staff')
     const role: Author['role'] =
@@ -212,11 +275,19 @@ export async function listTaxonomyTerms(kind?: TaxonomyKind): Promise<TaxonomyTe
   seedMemory()
   const pool = await ensureSchema()
   if (pool) {
+    await ensureBootstrapped(pool)
     const result = kind
-      ? await pool.query<Row>(`SELECT * FROM nw_taxonomy_terms WHERE kind = $1 ORDER BY sort_order ASC, name_ne ASC`, [kind])
-      : await pool.query<Row>(`SELECT * FROM nw_taxonomy_terms ORDER BY kind ASC, sort_order ASC, name_ne ASC`)
+      ? await pool.query<Row>(
+          `SELECT * FROM nw_taxonomy_terms WHERE kind = $1 ORDER BY sort_order ASC, name_ne ASC`,
+          [kind],
+        )
+      : await pool.query<Row>(
+          `SELECT * FROM nw_taxonomy_terms ORDER BY kind ASC, sort_order ASC, name_ne ASC`,
+        )
     if (result.rows.length) return result.rows.map(rowToTerm)
+    if (isProductionRuntime()) return []
   }
+  if (!allowInMemorySeedFallback()) return []
   const terms = Array.from(memory.values())
   return (kind ? terms.filter((term) => term.kind === kind) : terms).sort((a, b) =>
     a.sortOrder === b.sortOrder ? a.nameNe.localeCompare(b.nameNe) : a.sortOrder - b.sortOrder,
@@ -271,17 +342,27 @@ export async function upsertTaxonomyTerm(input: {
     )
     return rowToTerm(result.rows[0]!)
   }
+  if (isProductionRuntime()) {
+    throw new Error('Taxonomy storage unavailable (Postgres required in production).')
+  }
   const existing = memory.get(`${term.kind}:${term.slug}`)
-  memory.set(`${term.kind}:${term.slug}`, existing ? { ...existing, ...term, id: existing.id, createdAt: existing.createdAt } : term)
+  memory.set(
+    `${term.kind}:${term.slug}`,
+    existing ? { ...existing, ...term, id: existing.id, createdAt: existing.createdAt } : term,
+  )
   return memory.get(`${term.kind}:${term.slug}`)!
 }
 
 export async function archiveTaxonomyTerm(kind: TaxonomyKind, slug: string): Promise<boolean> {
   const pool = await ensureSchema()
   if (pool) {
-    const result = await pool.query(`UPDATE nw_taxonomy_terms SET status = 'archived', updated_at = now() WHERE kind = $1 AND slug = $2`, [kind, slug])
+    const result = await pool.query(
+      `UPDATE nw_taxonomy_terms SET status = 'archived', updated_at = now() WHERE kind = $1 AND slug = $2`,
+      [kind, slug],
+    )
     return Number(result.rowCount ?? 0) > 0
   }
+  if (isProductionRuntime()) return false
   const term = memory.get(`${kind}:${slug}`)
   if (!term) return false
   memory.set(`${kind}:${slug}`, { ...term, status: 'archived', updatedAt: new Date().toISOString() })

@@ -92,6 +92,68 @@ async function findDocument(
   return result.docs?.[0] ?? null
 }
 
+/**
+ * Ensure a Payload Authors document exists for a newsroom email.
+ * Required for the journalist→Payload draft bridge (ADR-014).
+ * No-op when Payload credentials are not configured.
+ */
+export async function ensurePayloadAuthorForEmail(input: {
+  email: string
+  name?: string
+  role?: 'staff' | 'columnist' | 'contributor' | 'wire'
+}): Promise<{ id: string; slug: string; created: boolean } | null> {
+  const email = input.email.trim().toLowerCase()
+  if (!email || !email.includes('@')) return null
+  if (
+    !process.env.PAYLOAD_API_TOKEN?.trim() ||
+    !(
+      process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim() ||
+      process.env.PAYLOAD_ADMIN_URL?.trim()
+    )
+  ) {
+    return null
+  }
+
+  const existing = await findDocument('authors', 'email', email)
+  if (existing) {
+    return {
+      id: String(existing.id),
+      slug: String(existing.slug ?? email.split('@')[0]),
+      created: false,
+    }
+  }
+
+  const local = email.split('@')[0] || 'author'
+  const slugBase = local
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 48) || 'author'
+  let slug = slugBase
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const clash = await findDocument('authors', 'slug', slug)
+    if (!clash) break
+    slug = `${slugBase}-${attempt + 2}`
+  }
+
+  const created = await payloadJson<PayloadDoc>('/api/authors', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: input.name?.trim() || local,
+      slug,
+      email,
+      role: input.role ?? 'contributor',
+      isActive: true,
+    }),
+  })
+
+  return {
+    id: String(created.id),
+    slug: String(created.slug ?? slug),
+    created: true,
+  }
+}
+
 export type PayloadJournalistDraftInput = {
   reporterEmail: string
   titleNe: string

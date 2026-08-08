@@ -9,7 +9,7 @@ import {
   listJournalistDraftMeta,
   saveJournalistDraftMeta,
 } from '@/lib/journalist-workspace'
-import { createPayloadJournalistDraft, isPayloadCanonical } from '@/lib/content/payload-admin-client'
+import { createPayloadJournalistDraft, ensurePayloadAuthorForEmail, isPayloadCanonical } from '@/lib/content/payload-admin-client'
 import { enforceRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
@@ -75,6 +75,13 @@ export async function POST(request: NextRequest) {
     const notificationTags = requestedNotificationTags.length ? requestedNotificationTags.filter((slug) => tagSlugs.includes(slug)) : tagSlugs
     const bodyBlocks = blocksFromShorthand(bodyNe, titleNe)
     const editorPitch = String(body.editorPitch ?? '').trim() || undefined
+    if (isPayloadCanonical()) {
+      await ensurePayloadAuthorForEmail({
+        email: session.email,
+        name: session.email.split('@')[0],
+        role: 'contributor',
+      })
+    }
     const article = isPayloadCanonical()
       ? await createPayloadJournalistDraft({
           reporterEmail: session.email,

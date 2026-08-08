@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getEmailProviderState } from '@/lib/email-provider'
 import { getOperationalPool, operationalStorageMode } from '@/lib/ops-db'
 import {
+  isPayloadCanonical,
   isPayloadSourceMisconfigured,
   payloadServerUrl,
 } from '@/lib/content/payload-admin-client'
@@ -10,7 +11,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 type Check = {
-  status: 'pass' | 'fail' | 'skip'
+  status: 'pass' | 'fail' | 'skip' | 'warn'
   detail: string
   latencyMs?: number
 }
@@ -33,31 +34,59 @@ async function timed(name: string, fn: () => Promise<string>): Promise<[string, 
   }
 }
 
+function launchStatus(): string {
+  return (process.env.NEXT_PUBLIC_LAUNCH_STATUS?.trim() || 'preview').toLowerCase()
+}
+
 function configurationCheck(contentSource: string, storage: string): Check {
-  // Intentional desk path: json + Postgres is a valid production configuration.
   if (isPayloadSourceMisconfigured()) {
     return {
       status: 'fail',
-      detail: `content=${contentSource}; storage=${storage}; Payload URL missing`,
+      detail: `content=${contentSource}; storage=${storage}; Payload URL missing (fail-closed)`,
     }
   }
-  if (contentSource === 'payload') {
-    return { status: 'pass', detail: `content=payload; storage=${storage}` }
+
+  const status = launchStatus()
+  if (status === 'live' && contentSource !== 'payload') {
+    return {
+      status: 'fail',
+      detail: `launch=live requires CONTENT_SOURCE=payload; got content=${contentSource}; storage=${storage}`,
+    }
   }
+
+  if (contentSource === 'payload') {
+    return {
+      status: 'pass',
+      detail: `mode=hard; content=payload; storage=${storage}; launch=${status}`,
+    }
+  }
+
   if (process.env.NODE_ENV === 'production' && storage !== 'postgres') {
     return {
       status: 'fail',
       detail: `content=${contentSource}; storage=${storage}; production requires Postgres`,
     }
   }
+
+  // Soft desk is valid only while launch stays preview / non-live.
+  if (process.env.NODE_ENV === 'production') {
+    return {
+      status: 'warn',
+      detail: `mode=soft-desk; content=${contentSource || 'json'}; storage=${storage}; launch=${status}; Payload cutover pending (ADR-014)`,
+    }
+  }
+
   return {
     status: 'pass',
-    detail: `content=${contentSource || 'json'}; storage=${storage}`,
+    detail: `mode=dev; content=${contentSource || 'json'}; storage=${storage}`,
   }
 }
 
 export async function GET() {
-  const contentSource = process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'json'
+  const contentSource =
+    process.env.CONTENT_SOURCE?.trim() ||
+    process.env.PAYLOAD_CONTENT_SOURCE?.trim() ||
+    'json'
   const checks: Record<string, Check> = {}
 
   checks.configuration = configurationCheck(contentSource, operationalStorageMode())
@@ -77,7 +106,7 @@ export async function GET() {
     }
   }
 
-  if (contentSource === 'payload') {
+  if (isPayloadCanonical() || contentSource === 'payload') {
     const [name, check] = await timed('payload', async () => {
       const response = await fetch(`${payloadServerUrl()}/api/articles?limit=1&depth=0`, {
         headers: { accept: 'application/json' },
@@ -89,7 +118,10 @@ export async function GET() {
     })
     checks[name] = check
   } else {
-    checks.payload = { status: 'skip', detail: 'Payload source not selected' }
+    checks.payload = {
+      status: 'skip',
+      detail: 'Payload source not selected (soft desk)',
+    }
   }
 
   const email = getEmailProviderState()
@@ -99,10 +131,19 @@ export async function GET() {
   }
 
   const failed = Object.values(checks).some((check) => check.status === 'fail')
+  // Soft-desk warn must not take the origin out of rotation, but must not look "all green".
+  const overall = failed ? 'degraded' : checks.configuration.status === 'warn' ? 'ok-soft' : 'ok'
+
   return NextResponse.json(
     {
-      status: failed ? 'degraded' : 'ok',
+      status: overall,
       service: 'nagarik-watch-web',
+      contentMode: isPayloadCanonical()
+        ? 'payload'
+        : isPayloadSourceMisconfigured()
+          ? 'misconfigured'
+          : 'soft-desk',
+      launchStatus: launchStatus(),
       commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) || undefined,
       checkedAt: new Date().toISOString(),
       checks,

@@ -19,8 +19,8 @@ import type {
 import type { ContentSource, StoryListOptions } from '../source'
 import { matchesStoryListFilters, storyHasGallery, storyHasVideo } from '../story-filters'
 import { categories, categoryBySlug } from '../seed/categories'
-import { authors, authorBySlug } from '../seed/authors'
-import { tags, tagBySlug } from '../seed/tags'
+import { authors } from '../seed/authors'
+import { tagBySlug } from '../seed/tags'
 import * as store from './json-store'
 import type { StoredArticle } from './json-store'
 import { placeholder } from '../seed/media'
@@ -30,16 +30,53 @@ import {
   listContentCategories,
   listContentTags,
 } from '@/lib/taxonomy-admin'
+import { isProductionRuntime } from '@/lib/ops-db'
 
 const PER_PAGE = 12
 
+function allowSeedTaxonomyFallback(): boolean {
+  return !isProductionRuntime()
+}
+
+function resolveCategory(
+  slug: string,
+  catalog?: TaxonomyCatalog,
+): Category | undefined {
+  const fromCatalog = catalog?.categories.find((c) => c.slug === slug)
+  if (fromCatalog) return fromCatalog
+  if (!allowSeedTaxonomyFallback()) return undefined
+  return categoryBySlug.get(slug)
+}
+
+function resolveAuthor(
+  idOrSlug: string,
+  catalog?: TaxonomyCatalog,
+): Author | undefined {
+  const pool = catalog?.authors ?? (allowSeedTaxonomyFallback() ? authors : [])
+  return pool.find((au) => au.id === idOrSlug || au.slug === idOrSlug)
+}
+
+function resolveTag(slug: string, catalog?: TaxonomyCatalog): Tag | undefined {
+  const fromCatalog = catalog?.tags.find((t) => t.slug === slug)
+  if (fromCatalog) return fromCatalog
+  if (!allowSeedTaxonomyFallback()) return undefined
+  return tagBySlug.get(slug)
+}
+
 function resolveHero(a: StoredArticle) {
-  if (a.heroImageUrl) {
-    const url = normalizeEditionHeroUrl(a.heroImageUrl, a.slug) ?? a.heroImageUrl
-    return { url, alt: a.heroImageAlt ?? a.titleNe }
+  const raw = a.heroImageUrl?.trim()
+  // Production: never invent data: SVG heroes that read as broken photography.
+  if (raw && !(isProductionRuntime() && raw.startsWith('data:'))) {
+    const url = normalizeEditionHeroUrl(raw, a.slug) ?? raw
+    if (!(isProductionRuntime() && url.startsWith('data:'))) {
+      return { url, alt: a.heroImageAlt ?? a.titleNe }
+    }
+  }
+  if (isProductionRuntime()) {
+    return { url: '', alt: a.heroImageAlt ?? a.titleNe }
   }
   const label =
-    (categoryBySlug.get(a.categorySlug)?.nameNe ?? a.categorySlug).slice(0, 28)
+    (resolveCategory(a.categorySlug)?.nameNe ?? a.categorySlug).slice(0, 28)
   const media = placeholder(a.slug, a.categorySlug, label, a.titleNe, {
     w: 1600,
     h: 900,
@@ -57,22 +94,18 @@ let taxonomyCache:
 const TAXONOMY_CACHE_TTL_MS = 15_000
 
 function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): StoryCardData {
-  const cat =
-    catalog?.categories.find((c) => c.slug === a.categorySlug) ??
-    categoryBySlug.get(a.categorySlug) ?? {
-      id: a.categorySlug,
-      slug: a.categorySlug,
-      nameNe: a.categorySlug,
-      nameEn: a.categorySlug,
-    }
-  const authorPool = catalog?.authors ?? authors
+  const cat = resolveCategory(a.categorySlug, catalog) ?? {
+    id: a.categorySlug,
+    slug: a.categorySlug,
+    nameNe: a.categorySlug,
+    nameEn: a.categorySlug,
+  }
   const cardAuthors = a.authorIds
-    .map((id) => authorPool.find((au) => au.id === id || au.slug === id))
+    .map((id) => resolveAuthor(id, catalog))
     .filter((au): au is Author => Boolean(au))
   const heroImage = resolveHero(a)
-  const tagPool = catalog?.tags ?? tags
   const cardTags = a.tagSlugs
-    .map((slug) => tagPool.find((t) => t.slug === slug) ?? tagBySlug.get(slug))
+    .map((slug) => resolveTag(slug, catalog))
     .filter((t): t is Tag => Boolean(t))
   return {
     id: a.id,
@@ -105,9 +138,8 @@ function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): St
 
 function toFullArticle(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): Article {
   const card = toCard(a, locale, catalog)
-  const tagPool = catalog?.tags ?? tags
   const cardTags = a.tagSlugs
-    .map((slug) => tagPool.find((t) => t.slug === slug) ?? tagBySlug.get(slug))
+    .map((slug) => resolveTag(slug, catalog))
     .filter((t): t is Tag => Boolean(t))
   const source =
     a.sourceType !== 'original' && a.sourceName && a.sourceUrl
@@ -172,9 +204,7 @@ export function createStoreContentSource(): ContentSource {
       const lead = data.lead ? toCard(data.lead, 'ne', catalog) : null
       if (!lead) return null
       const sections: HomepageSection[] = data.sections.map((s) => {
-        const cat =
-          catalog.categories.find((c) => c.slug === s.categorySlug) ??
-          categoryBySlug.get(s.categorySlug) ?? {
+        const cat = resolveCategory(s.categorySlug, catalog) ?? {
             id: s.categorySlug,
             slug: s.categorySlug,
             nameNe: s.categorySlug,
@@ -195,7 +225,7 @@ export function createStoreContentSource(): ContentSource {
     },
     async getCategory(slug: string): Promise<Category | null> {
       const catalog = await listContentCategories()
-      return catalog.find((c) => c.slug === slug) ?? categoryBySlug.get(slug) ?? null
+      return catalog.find((c) => c.slug === slug) ?? resolveCategory(slug) ?? null
     },
     async getCategoryPage(
       slug: string,
@@ -203,8 +233,7 @@ export function createStoreContentSource(): ContentSource {
       locale: Locale,
     ): Promise<PaginatedStories | null> {
       const catalog = await loadCatalog()
-      const cat =
-        catalog.categories.find((c) => c.slug === slug) ?? categoryBySlug.get(slug)
+      const cat = resolveCategory(slug, catalog)
       if (!cat) return null
       const { items, total } = await store.listArticles({
         category: slug,
@@ -224,8 +253,7 @@ export function createStoreContentSource(): ContentSource {
       locale: Locale,
     ): Promise<{ author: Author; stories: PaginatedStories } | null> {
       const catalog = await loadCatalog()
-      const author =
-        catalog.authors.find((a) => a.slug === slug) ?? authorBySlug.get(slug)
+      const author = resolveAuthor(slug, catalog)
       if (!author) return null
       const all = await store.listArticles({ locale, limit: 1000 })
       const authorArticles = all.items.filter((a) =>
@@ -246,7 +274,7 @@ export function createStoreContentSource(): ContentSource {
       locale: Locale,
     ): Promise<{ tag: Tag; stories: PaginatedStories } | null> {
       const catalog = await loadCatalog()
-      const tag = catalog.tags.find((t) => t.slug === slug) ?? tagBySlug.get(slug)
+      const tag = resolveTag(slug, catalog)
       if (!tag) return null
       const all = await store.listArticles({ locale, limit: 1000 })
       const tagArticles = all.items.filter((a) => a.tagSlugs.includes(slug))
@@ -275,7 +303,7 @@ export function createStoreContentSource(): ContentSource {
       if (opts.author) {
         filtered = filtered.filter((a) =>
           a.authorIds.some((id) => {
-            const match = catalog.authors.find((au) => au.id === id || au.slug === id)
+            const match = resolveAuthor(id, catalog)
             return match?.slug === opts.author
           }),
         )

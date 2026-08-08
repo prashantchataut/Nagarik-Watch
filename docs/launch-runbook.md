@@ -73,9 +73,11 @@ APIs (`scripts/build-pages-static.mjs`).
 
 1. Deploy `apps/admin`; apply Payload migrations; set `PAYLOAD_DB_PUSH=false`.
 2. Complete cutover checklist on `/admin/launch` (URL, token, secret, revalidate, media).
-3. Staging: set `CONTENT_SOURCE=payload`; publish one article → public URL ≤60s via revalidate.
-4. Train desk: article CRUD in Payload; web `/admin` for ops (comments, ads, launch).
-5. Confirm hard-phase **Payload cutover** item is green before flipping live.
+3. Migrate soft-desk inventory (dry-run first):
+   `pnpm migrate:desk-to-payload` then `pnpm migrate:desk-to-payload -- --apply`
+4. Staging: set `CONTENT_SOURCE=payload`; publish one article → public URL ≤60s via revalidate.
+5. Train desk: article CRUD in Payload; web `/admin` for ops (comments, ads, launch).
+6. Confirm hard-phase **Payload cutover** item is green before flipping live.
 
 ## Phase 2 — Soft launch (still `preview`)
 

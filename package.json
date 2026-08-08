@@ -41,6 +41,7 @@
     "perf:budget": "node scripts/perf-budget.mjs",
     "perf:budget:test": "node scripts/perf-budget.mjs --self-test",
     "migrate:ops": "pnpm --filter @nagarikwatch/web migrate:ops",
+    "migrate:desk-to-payload": "tsx scripts/migrate-desk-to-payload.ts",
     "build:web": "pnpm verify:workspaces && pnpm --filter @nagarikwatch/web... build",
     "build:admin": "pnpm verify:workspaces && pnpm --filter @nagarikwatch/admin... build",
     "deploy:web:cf": "pnpm --filter @nagarikwatch/web deploy:app",
