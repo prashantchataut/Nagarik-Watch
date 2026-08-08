@@ -4,6 +4,10 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { sourceReliabilityFlags, type Category, type Locale, type Tag } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
+import { StoryBodyEditor } from '@/components/newsroom/StoryBodyEditor'
+import { MediaGalleryPicker, type GalleryMediaItem } from '@/components/newsroom/MediaGalleryPicker'
+import { RichInlineText } from '@/components/article/RichInlineText'
+import type { EditorPreferences } from '@/lib/editor-preferences-types'
 
 type DraftValues = {
   titleNe: string
@@ -93,7 +97,10 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
   const [assistance, setAssistance] = useState<Assistance | null>(null)
   const [assistanceBusy, setAssistanceBusy] = useState<AssistanceAction | null>(null)
   const [pending, startTransition] = useTransition()
+  const [editorPrefs, setEditorPrefs] = useState<Pick<EditorPreferences, 'autosaveSeconds' | 'density' | 'showFormattingHints'> | null>(null)
+  const [heroGalleryOpen, setHeroGalleryOpen] = useState(false)
   const saveRef = useRef<(stage: 'draft' | 'submitted', silent?: boolean) => void>(() => undefined)
+  const prefsApplied = useRef(false)
 
   const wordCount = useMemo(() => words(draft.bodyNe), [draft.bodyNe])
   const readingMinutes = Math.max(1, Math.ceil(wordCount / 180))
@@ -245,6 +252,41 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
   }, [initial, localRecoveryKey, mode, ne])
 
   useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await fetch('/api/newsroom/editor-preferences', { credentials: 'include' })
+        if (!res.ok) return
+        const data = (await res.json()) as { preferences?: EditorPreferences }
+        if (cancelled || !data.preferences) return
+        setEditorPrefs({
+          autosaveSeconds: data.preferences.autosaveSeconds,
+          density: data.preferences.density,
+          showFormattingHints: data.preferences.showFormattingHints,
+        })
+        if (
+          !prefsApplied.current &&
+          mode === 'create' &&
+          !initial?.categorySlug &&
+          data.preferences.defaultCategorySlug &&
+          categories.some((item) => item.slug === data.preferences!.defaultCategorySlug)
+        ) {
+          prefsApplied.current = true
+          setDraft((current) => ({
+            ...current,
+            categorySlug: data.preferences!.defaultCategorySlug,
+          }))
+        }
+      } catch {
+        /* prefs optional */
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [categories, initial?.categorySlug, mode])
+
+  useEffect(() => {
     if (mode !== 'create' || !dirty) return
     const timer = window.setTimeout(() => {
       try { sessionStorage.setItem(localRecoveryKey, JSON.stringify(draft)) } catch {}
@@ -254,11 +296,12 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
 
   useEffect(() => {
     if (mode !== 'edit') return
+    const intervalMs = Math.max(10, editorPrefs?.autosaveSeconds ?? 30) * 1000
     const timer = window.setInterval(() => {
       if (dirty && !pending) saveRef.current('draft', true)
-    }, 30_000)
+    }, intervalMs)
     return () => window.clearInterval(timer)
-  }, [dirty, mode, pending])
+  }, [dirty, editorPrefs?.autosaveSeconds, mode, pending])
 
   useEffect(() => {
     function beforeUnload(event: BeforeUnloadEvent) {
@@ -359,7 +402,17 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
             </div>
             <label className="newsroom-field"><span>{ne ? 'अंग्रेजी शीर्षक (वैकल्पिक)' : 'English headline (optional)'}</span><input lang="en" value={draft.titleEn} onChange={(event) => patch('titleEn', event.target.value)} maxLength={140} placeholder={ne ? 'मानवीय समीक्षा गरिएको अंग्रेजी शीर्षक मात्र' : 'Use only a human-reviewed translation'} /></label>
             <label className="newsroom-field"><span>{ne ? 'छोटो सारांश' : 'Deck'}</span><textarea value={draft.deckNe} onChange={(event) => patch('deckNe', event.target.value)} rows={3} maxLength={320} placeholder={ne ? 'शीर्षकमा नअटाएको मुख्य सन्दर्भ' : 'The essential context that does not fit in the headline'} /></label>
-            <label className="newsroom-field newsroom-field--body"><span>{ne ? 'समाचार सामग्री' : 'Story body'}</span><textarea value={draft.bodyNe} onChange={(event) => patch('bodyNe', event.target.value)} rows={24} placeholder={ne ? 'अनुच्छेद छुट्याउन खाली लाइन राख्नुहोस्। ## उपशीर्षक, > उद्धरण, - सूची प्रयोग गर्न सकिन्छ।' : 'Use blank lines between paragraphs. ## subhead, > quote and - list are supported.'} /></label>
+            <StoryBodyEditor
+              locale={locale}
+              label={ne ? 'समाचार सामग्री' : 'Story body'}
+              value={draft.bodyNe}
+              onChange={(next) => patch('bodyNe', next)}
+              rows={24}
+              required
+              density={editorPrefs?.density ?? 'comfortable'}
+              showHints={editorPrefs?.showFormattingHints ?? true}
+              wordCountLabel={ne ? `${wordCount} शब्द · ~${readingMinutes} मिनेट` : `${wordCount} words · ~${readingMinutes} min`}
+            />
           </section>
 
           <section className="newsroom-studio__panel" hidden={tab !== 'evidence'} aria-hidden={tab !== 'evidence'}>
@@ -376,7 +429,12 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
               {sourceChecks.length ? <ul>{sourceChecks.map(({ url, flags }) => <li key={url}><code>{url}</code><span>{flags.length ? flags.join(' · ') : (ne ? 'आधारभूत URL जाँच ठीक' : 'Basic URL checks passed')}</span></li>)}</ul> : <p>{ne ? 'नोटमा URL राखेपछि जाँच संकेत यहाँ देखिन्छ।' : 'Add source URLs to the note to see review flags.'}</p>}
             </section>
             <label className="newsroom-field"><span>{ne ? 'सम्पादकलाई प्रस्ताव' : 'Pitch to editor'}</span><textarea value={draft.editorPitch} onChange={(event) => patch('editorPitch', event.target.value)} rows={5} placeholder={ne ? 'यो समाचार किन अहिले महत्त्वपूर्ण छ?' : 'Why does this story matter now?'} /></label>
-            <label className="newsroom-field"><span>{ne ? 'तस्वीर/फाइल सन्दर्भ URL' : 'Media reference URL'}</span><input type="url" value={draft.heroImageUrl} onChange={(event) => patch('heroImageUrl', event.target.value)} /><small>{ne ? 'URL टाँस्नुहोस् वा तल फाइल अपलोड गर्नुहोस्।' : 'Paste a URL or upload a file below.'}</small></label>
+            <label className="newsroom-field"><span>{ne ? 'तस्वीर/फाइल सन्दर्भ URL' : 'Media reference URL'}</span><input type="url" value={draft.heroImageUrl} onChange={(event) => patch('heroImageUrl', event.target.value)} /><small>{ne ? 'URL टाँस्नुहोस्, ग्यालरीबाट छान्नुहोस्, वा तल फाइल अपलोड गर्नुहोस्।' : 'Paste a URL, pick from the gallery, or upload a file below.'}</small></label>
+            <div className="newsroom-field newsroom-field--actions">
+              <button type="button" onClick={() => setHeroGalleryOpen(true)}>
+                {ne ? 'मिडिया ग्यालरी' : 'Media gallery'}
+              </button>
+            </div>
             <div className="newsroom-field">
               <span>{ne ? 'थम्बनेल अपलोड' : 'Thumbnail upload'}</span>
               <input
@@ -419,6 +477,16 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
                 <figcaption>{ne ? 'सन्दर्भ पूर्वावलोकन' : 'Reference preview'}</figcaption>
               </figure>
             ) : null}
+            <MediaGalleryPicker
+              locale={locale}
+              open={heroGalleryOpen}
+              onClose={() => setHeroGalleryOpen(false)}
+              onPick={(item: GalleryMediaItem) => {
+                patch('heroImageUrl', item.url)
+                setStatus({ type: 'ok', message: ne ? 'ग्यालरीबाट छानियो।' : 'Selected from gallery.' })
+              }}
+              title={ne ? 'हिरो / सन्दर्भ छवि' : 'Hero / reference image'}
+            />
           </section>
 
           <section className="newsroom-studio__panel" hidden={tab !== 'distribution'} aria-hidden={tab !== 'distribution'}>
@@ -430,7 +498,37 @@ export function JournalistArticleDraftForm({ locale, categories, tags, mode = 'c
           </section>
 
           <section className="newsroom-studio__panel" hidden={tab !== 'preview'} aria-hidden={tab !== 'preview'}>
-            <article className="newsroom-preview" lang="ne"><p>{categories.find((item) => item.slug === draft.categorySlug)?.nameNe ?? draft.categorySlug}</p><h2>{draft.titleNe || 'शीर्षक यहाँ देखिन्छ'}</h2>{draft.deckNe ? <h3>{draft.deckNe}</h3> : null}<div>{draft.bodyNe.split(/\n{2,}/).filter(Boolean).map((paragraph, index) => paragraph.startsWith('## ') ? <h4 key={index}>{paragraph.replace(/^##\s*/, '')}</h4> : paragraph.startsWith('> ') ? <blockquote key={index}>{paragraph.replace(/^>\s*/, '')}</blockquote> : <p key={index}>{paragraph}</p>)}</div></article>
+            <article className="newsroom-preview" lang="ne">
+              <p>{categories.find((item) => item.slug === draft.categorySlug)?.nameNe ?? draft.categorySlug}</p>
+              <h2>{draft.titleNe || 'शीर्षक यहाँ देखिन्छ'}</h2>
+              {draft.deckNe ? <h3>{draft.deckNe}</h3> : null}
+              <div>
+                {draft.bodyNe.split(/\n{2,}/).filter(Boolean).map((paragraph, index) => {
+                  if (paragraph.startsWith('## ')) {
+                    return (
+                      <h4 key={index}>
+                        <RichInlineText text={paragraph.replace(/^##\s*/, '')} />
+                      </h4>
+                    )
+                  }
+                  if (paragraph.startsWith('> ')) {
+                    return (
+                      <blockquote key={index}>
+                        <RichInlineText text={paragraph.replace(/^>\s*/, '')} />
+                      </blockquote>
+                    )
+                  }
+                  if (paragraph.startsWith('![') && paragraph.includes('](')) {
+                    return <p key={index} className="newsroom-preview__media">{ne ? '[छवि]' : '[image]'}</p>
+                  }
+                  return (
+                    <p key={index}>
+                      <RichInlineText text={paragraph} />
+                    </p>
+                  )
+                })}
+              </div>
+            </article>
           </section>
         </main>
 

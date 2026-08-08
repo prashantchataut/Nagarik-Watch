@@ -113,6 +113,21 @@ export function getPayloadCutoverChecklist(): {
         : 'Configure BLOB_READ_WRITE_TOKEN or R2 + STORAGE_PUBLIC_BASE_URL',
     },
     {
+      key: 'corpus-migrate',
+      label: 'Desk → Payload corpus migration',
+      ok:
+        contentSource === 'payload' ||
+        value('DESK_TO_PAYLOAD_MIGRATED').toLowerCase() === 'true' ||
+        value('DESK_TO_PAYLOAD_MIGRATED') === '1',
+      detail:
+        contentSource === 'payload'
+          ? 'CONTENT_SOURCE=payload (migration expected before flip)'
+          : value('DESK_TO_PAYLOAD_MIGRATED').toLowerCase() === 'true' ||
+              value('DESK_TO_PAYLOAD_MIGRATED') === '1'
+            ? 'DESK_TO_PAYLOAD_MIGRATED set after pnpm migrate:desk-to-payload -- --apply'
+            : 'Run pnpm migrate:desk-to-payload (dry-run) then --apply; set DESK_TO_PAYLOAD_MIGRATED=true',
+    },
+    {
       key: 'seed-off',
       label: 'Starter seed disabled',
       ok: starterSeed !== 'true' && starterSeed !== '1',
@@ -153,7 +168,11 @@ export function getPayloadCutoverChecklist(): {
   ]
 
   const gateChecks = checks.filter(
-    (check) => check.key !== 'source-flip' && check.key !== 'web-desk' && check.key !== 'launch-status',
+    (check) =>
+      check.key !== 'source-flip' &&
+      check.key !== 'web-desk' &&
+      check.key !== 'launch-status' &&
+      check.key !== 'corpus-migrate',
   )
   const ready = gateChecks.every((check) => check.ok)
 

@@ -11,6 +11,8 @@ import {
   HeroMediaField,
   type HeroMediaLibraryItem,
 } from '@/components/admin/HeroMediaField'
+import { StoryBodyEditor } from '@/components/newsroom/StoryBodyEditor'
+import type { EditorPreferences } from '@/lib/editor-preferences-types'
 import { PROVINCES } from '@/lib/site'
 
 type ArticleDraft = {
@@ -146,6 +148,11 @@ export function ArticleEditor({
     msg?: string
   }>({ kind: 'idle' })
   const [pending, startTransition] = useTransition()
+  const [editorPrefs, setEditorPrefs] = useState<Pick<
+    EditorPreferences,
+    'density' | 'showFormattingHints' | 'defaultCategorySlug'
+  > | null>(null)
+  const prefsApplied = useRef(false)
 
   useEffect(() => {
     if (isNew && draft.titleNe && !draft.slug) {
@@ -158,6 +165,41 @@ export function ArticleEditor({
       setDraft((d) => ({ ...d, slug }))
     }
   }, [isNew, draft.titleNe, draft.slug])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await fetch('/api/newsroom/editor-preferences', { credentials: 'include' })
+        if (!res.ok) return
+        const data = (await res.json()) as { preferences?: EditorPreferences }
+        if (cancelled || !data.preferences) return
+        setEditorPrefs({
+          density: data.preferences.density,
+          showFormattingHints: data.preferences.showFormattingHints,
+          defaultCategorySlug: data.preferences.defaultCategorySlug,
+        })
+        if (
+          !prefsApplied.current &&
+          isNew &&
+          !initial?.category &&
+          data.preferences.defaultCategorySlug &&
+          categories.some((item) => item.slug === data.preferences!.defaultCategorySlug)
+        ) {
+          prefsApplied.current = true
+          setDraft((current) => ({
+            ...current,
+            category: data.preferences!.defaultCategorySlug,
+          }))
+        }
+      } catch {
+        /* optional */
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [categories, initial?.category, isNew])
 
   const canPublishArticle = canPublish(role)
   const canEditArticle = canEdit(role)
@@ -449,35 +491,20 @@ export function ArticleEditor({
             placeholder="एक–दुई वाक्यको सारांश"
             lang="ne"
           />
-          <label className="grid gap-1.5">
-            <span className="flex items-center justify-between text-meta font-semibold text-ink" lang="ne">
-              <span>
-                मूल भाग <span className="text-brand">*</span>
-              </span>
-              <span className="font-normal text-mute">
-                {wordCount} शब्द · ~{readingMinutes} मिनेट
-              </span>
-            </span>
-            <textarea
-              id="article-body-ne"
-              name="bodyNe"
-              value={draft.bodyNe}
-              onChange={(e) => update('bodyNe', e.target.value)}
-              rows={22}
-              lang="ne"
-              required
-              aria-required="true"
-              placeholder={`पहिलो अनुच्छेद…
-
-## सह-शीर्षक
-दोस्रो अनुच्छेद…
-
-> उद्धरण
-
-- सूची`}
-              className="w-full rounded-md border border-rule bg-surface px-3.5 py-3 font-devanagari text-body-lg leading-relaxed text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
-            />
-          </label>
+          <StoryBodyEditor
+            locale="ne"
+            id="article-body-ne"
+            name="bodyNe"
+            label="मूल भाग"
+            value={draft.bodyNe}
+            onChange={(next) => update('bodyNe', next)}
+            rows={22}
+            required
+            density={editorPrefs?.density ?? 'comfortable'}
+            showHints={editorPrefs?.showFormattingHints ?? true}
+            wordCountLabel={`${wordCount} शब्द · ~${readingMinutes} मिनेट`}
+            className="admin-story-body"
+          />
           <details className="text-caption text-ink-soft">
             <summary className="cursor-pointer font-semibold" lang="ne">
               अंग्रेजी अनुवाद र लेखन सर्टकट
@@ -498,13 +525,19 @@ export function ArticleEditor({
                 rows={2}
                 lang="en"
               />
-              <textarea
+              <StoryBodyEditor
+                locale="en"
+                id="article-body-en"
+                name="bodyEn"
+                label="Body (English)"
                 value={draft.bodyEn}
-                onChange={(e) => update('bodyEn', e.target.value)}
+                onChange={(next) => update('bodyEn', next)}
                 rows={10}
-                lang="en"
+                density={editorPrefs?.density ?? 'comfortable'}
+                showHints={false}
+                wordCountLabel={`${draft.bodyEn.trim() ? draft.bodyEn.trim().split(/\s+/).length : 0} words`}
+                className="admin-story-body"
                 placeholder="Author-reviewed English translation"
-                className="w-full rounded-md border border-rule bg-surface px-3.5 py-3 text-body leading-relaxed text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
               />
               <ul className="space-y-1 pl-4" lang="ne">
                 <li>रिक्त लाइन = अनुच्छेद</li>
@@ -516,6 +549,10 @@ export function ArticleEditor({
                 </li>
                 <li>
                   <code>-</code> = सूची
+                </li>
+                <li>
+                  <code>**मोटो**</code> · <code>*तिर्खा*</code> · <code>==हाइलाइट==</code> ·{' '}
+                  <code>[पाठ](url)</code>
                 </li>
               </ul>
             </div>

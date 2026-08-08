@@ -10,6 +10,7 @@ import type { NewsroomRole } from '@/lib/admin-roles'
 import {
   adminDeskLabelNe,
   canCreate,
+  canEdit,
   COMMUNITY_MANAGER_ROLES,
   EDITOR_ROLES,
   MEDIA_MANAGER_ROLES,
@@ -56,6 +57,9 @@ function primaryNavFor(desk: AdminDeskVariant, role: NewsroomRole): NavItem[] {
   if (canCreate(role) && desk !== 'ops') {
     items.push({ label: 'नयाँ समाचार', href: '/admin/articles/new', icon: 'plus' })
   }
+  if (canEdit(role) && desk !== 'ops') {
+    items.push({ label: 'सम्पादक सेटिङ', href: '/admin/editor-preferences', icon: 'settings' })
+  }
   if (desk === 'editor') {
     items.push({ label: 'पत्रकार इनबक्स', href: '/admin/journalists', icon: 'author' })
   }
@@ -82,6 +86,7 @@ const NAV_GROUPS: {
       { label: 'मिडिया', href: '/admin/media', icon: 'media', roles: MEDIA_MANAGER_ROLES },
       { label: 'लाइभ ब्लग', href: '/admin/live-blogs', icon: 'live', roles: EDITOR_ROLES },
       { label: 'पत्रकार डेस्क', href: '/admin/journalists', icon: 'author', roles: EDITOR_ROLES },
+      { label: 'सम्पादक सेटिङ', href: '/admin/editor-preferences', icon: 'settings', roles: EDITOR_ROLES },
       {
         label: 'टिप्पणी',
         href: '/admin/comments',

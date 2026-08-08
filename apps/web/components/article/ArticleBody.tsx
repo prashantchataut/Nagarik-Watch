@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { ArticleBlock, Locale, SourceAttribution, Tag } from '@nagarikwatch/db'
+import { RichInlineText } from '@/components/article/RichInlineText'
 import { cn, CorrectionNotice as UiCorrectionNotice } from '@nagarikwatch/ui'
 import { AttributionLine } from './AttributionLine'
 import { AdSlot } from '@/components/AdSlot'
@@ -121,21 +122,21 @@ function BlockRenderer({
     case 'paragraph':
       return (
         <p className="text-body-lg leading-[1.7] text-ink" lang={lang}>
-          {block.text}
+          <RichInlineText text={block.text} />
         </p>
       )
 
     case 'heading2':
       return (
         <h2 className="pt-5 font-display text-h2 leading-tight text-ink" lang={lang}>
-          {block.text}
+          <RichInlineText text={block.text} />
         </h2>
       )
 
     case 'heading3':
       return (
         <h3 className="pt-4 font-display text-h3 leading-tight text-ink" lang={lang}>
-          {block.text}
+          <RichInlineText text={block.text} />
         </h3>
       )
 
@@ -171,7 +172,7 @@ function BlockRenderer({
           lang={quoteLang}
         >
           <p className="font-display text-body-lg font-bold leading-snug text-ink sm:text-h3">
-            {quote}
+            <RichInlineText text={quote} />
           </p>
           {block.attribution && (
             <footer className="mt-2.5 text-meta font-semibold text-brand-strong">
@@ -188,7 +189,7 @@ function BlockRenderer({
     case 'list': {
       const items = block.items.map((it, idx) => (
         <li key={idx} lang={lang} className="text-body-lg leading-[1.7] text-ink">
-          {it}
+          <RichInlineText text={it} />
         </li>
       ))
       return block.ordered ? (

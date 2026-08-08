@@ -90,6 +90,19 @@ export default async function JournalistToolsPage({ params }: { params: Promise<
             </ul>
           </article>
 
+          <article className="newsroom-tool-card">
+            <h2>{ne ? 'डेस्क उपकरण' : 'Desk tools'}</h2>
+            <ul>
+              <li>
+                <Link href={localizeHref(locale, '/journalist/profile')} className="newsroom-inline-link">
+                  {ne ? 'सम्पादक प्राथमिकता' : 'Editor preferences'}
+                </Link>
+              </li>
+              <li>{ne ? 'लेखन फारममा ढाँचा टूलबार (मोटो, लिंक, छवि…)' : 'Formatting toolbar in the draft form (bold, link, image…)'}</li>
+              <li>{ne ? 'मिडिया ग्यालरीबाट शरीर/हिरो छवि' : 'Body/hero images from the media gallery'}</li>
+            </ul>
+          </article>
+
           <article className="newsroom-tool-card newsroom-tool-card--wide">
             <h2>{ne ? 'ढाँचा: नयाँ ड्राफ्टमा टाँस्नुहोस्' : 'Frames: paste into a new draft'}</h2>
             <div className="newsroom-template-list">

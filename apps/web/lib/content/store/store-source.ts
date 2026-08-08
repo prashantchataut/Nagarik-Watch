@@ -20,7 +20,7 @@ import type { ContentSource, StoryListOptions } from '../source'
 import { matchesStoryListFilters, storyHasGallery, storyHasVideo } from '../story-filters'
 import { categories, categoryBySlug } from '../seed/categories'
 import { authors } from '../seed/authors'
-import { tagBySlug } from '../seed/tags'
+import { tags, tagBySlug } from '../seed/tags'
 import * as store from './json-store'
 import type { StoredArticle } from './json-store'
 import { placeholder } from '../seed/media'
@@ -103,7 +103,11 @@ function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): St
   const cardAuthors = a.authorIds
     .map((id) => resolveAuthor(id, catalog))
     .filter((au): au is Author => Boolean(au))
-  const heroImage = resolveHero(a)
+  const heroResolved = resolveHero(a)
+  const heroImage =
+    heroResolved.url.trim().length > 0
+      ? heroResolved
+      : undefined
   const cardTags = a.tagSlugs
     .map((slug) => resolveTag(slug, catalog))
     .filter((t): t is Tag => Boolean(t))

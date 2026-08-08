@@ -165,7 +165,11 @@ export interface SourceAttribution {
 
 export interface ParagraphBlock {
   type: 'paragraph'
-  /** Plain text. Inline emphasis is out of scope for the seed (no raw HTML). */
+  /**
+   * Plain text with optional inline shorthand:
+   * **bold**, *italic*, ==highlight==, [label](https://…).
+   * Never store raw HTML.
+   */
   text: string
 }
 

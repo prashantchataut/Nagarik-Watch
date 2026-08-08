@@ -5,7 +5,10 @@ import type { Locale } from '@nagarikwatch/db'
 import { getNewsroomSession } from '@/lib/auth/session'
 import { CONTRIBUTOR_ROLES, NEWSROOM_ROLE_LABELS_EN, NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import { getEditorPreferences } from '@/lib/editor-preferences'
+import { getNavCategories } from '@/lib/content'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
+import { EditorPreferencesForm } from '@/components/newsroom/EditorPreferencesForm'
 
 export const metadata: Metadata = { title: 'Journalist profile', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
@@ -21,6 +24,10 @@ export default async function JournalistProfilePage({ params }: { params: Promis
   const roleLabel = ne
     ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole]
     : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
+  const [preferences, categories] = await Promise.all([
+    getEditorPreferences(session.userId),
+    getNavCategories(),
+  ])
 
   return (
     <JournalistWorkspaceShell
@@ -35,8 +42,8 @@ export default async function JournalistProfilePage({ params }: { params: Promis
             <h1>{ne ? 'प्रोफाइल' : 'Profile'}</h1>
             <p>
               {ne
-                ? 'न्युजरुम पहिचान र सार्वजनिक byline कहाँ व्यवस्थापन हुन्छ।'
-                : 'Where newsroom identity and the public byline are managed.'}
+                ? 'न्युजरुम पहिचान, सम्पादक प्राथमिकता र सार्वजनिक byline कहाँ व्यवस्थापन हुन्छ।'
+                : 'Where newsroom identity, editor preferences and the public byline are managed.'}
             </p>
           </div>
         </header>
@@ -83,6 +90,13 @@ export default async function JournalistProfilePage({ params }: { params: Promis
             </div>
           </div>
         </section>
+
+        <EditorPreferencesForm
+          locale={locale}
+          initial={preferences}
+          categories={categories}
+          variant="journalist"
+        />
       </main>
     </JournalistWorkspaceShell>
   )

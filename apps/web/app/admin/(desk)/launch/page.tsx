@@ -4,6 +4,7 @@ import { getLaunchChecksAsync, launchScore } from '@/lib/launch-readiness'
 import { getLaunchStatusSummary } from '@/lib/launch-phases'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
 import { getPayloadCutoverChecklist } from '@/lib/content/payload-cutover'
+import { getCutoverStatus } from '@/lib/content/cutover-status'
 import { AdminPageHeader, AdminCard, OpsCheckBadge, AdminCallout } from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
@@ -19,7 +20,11 @@ function pct(value: number): string {
 
 export default async function LaunchPage() {
   await requireNewsroomSession()
-  const [checks, ops] = await Promise.all([getLaunchChecksAsync(), getOpsHealthSnapshot()])
+  const [checks, ops, cutoverStatus] = await Promise.all([
+    getLaunchChecksAsync(),
+    getOpsHealthSnapshot(),
+    getCutoverStatus(),
+  ])
   const cutover = getPayloadCutoverChecklist()
   const score = launchScore(checks)
   const status = getLaunchStatusSummary(checks, score)
@@ -105,8 +110,38 @@ export default async function LaunchPage() {
           {cutover.currentlyCanonical
             ? 'CONTENT_SOURCE=payload is live. Public reads Payload; local desk article writes are blocked — publish in Payload.'
             : cutover.ready
-              ? 'Gates look ready. Set CONTENT_SOURCE=payload only after the desk is trained on Payload and PAYLOAD_PUBLIC_SERVER_URL is set.'
-              : 'Complete checks before flipping to Payload. Web desk + JSON is preview-only for launch.'}
+              ? 'Env gates look ready. Migrate corpus, set DESK_TO_PAYLOAD_MIGRATED=true, prove publish→public ≤60s, then flip CONTENT_SOURCE=payload.'
+              : 'Complete checks before flipping to Payload. Web desk + JSON is soft-preview only (ADR-014).'}
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-md border border-rule bg-surface-raised p-3">
+            <p className="text-caption text-mute">Desk articles</p>
+            <p className="mt-1 text-h3 font-bold text-ink">{cutoverStatus.desk.total}</p>
+          </div>
+          <div className="rounded-md border border-rule bg-surface-raised p-3">
+            <p className="text-caption text-mute">Published (soft)</p>
+            <p className="mt-1 text-h3 font-bold text-ink">{cutoverStatus.desk.published}</p>
+          </div>
+          <div className="rounded-md border border-rule bg-surface-raised p-3">
+            <p className="text-caption text-mute">Submitted</p>
+            <p className="mt-1 text-h3 font-bold text-ink">{cutoverStatus.desk.submitted}</p>
+          </div>
+          <div className="rounded-md border border-rule bg-surface-raised p-3">
+            <p className="text-caption text-mute">CONTENT_SOURCE</p>
+            <p className="mt-1 font-mono text-meta font-bold text-ink">{cutoverStatus.contentSource}</p>
+          </div>
+        </div>
+        {cutoverStatus.nextSteps.length > 0 ? (
+          <ol className="mt-4 list-decimal space-y-2 pl-5 text-meta text-ink-soft">
+            {cutoverStatus.nextSteps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        ) : null}
+        <p className="mt-3 text-caption text-mute" lang="en">
+          Migrate commands (repo root):{' '}
+          <code>pnpm migrate:desk-to-payload</code> then{' '}
+          <code>pnpm migrate:desk-to-payload -- --apply</code>. Runbook Phase 1b.
         </p>
         <ul className="mt-3 divide-y divide-rule">
           {cutover.checks.map((check) => (
