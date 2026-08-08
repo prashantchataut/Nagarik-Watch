@@ -32,7 +32,7 @@ export function FeaturedBand({
 
   return (
     <section
-      className={`border-t border-rule pt-4 ${className}`.trim()}
+      className={`border-t border-rule pt-3.5 pb-1 ${className}`.trim()}
       aria-label={categorySlug ? `${label} (${categorySlug})` : label}
     >
       {asymmetric ? (

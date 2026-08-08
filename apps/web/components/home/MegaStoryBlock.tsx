@@ -9,38 +9,46 @@ type MegaStoryBlockProps = {
   locale: Locale
   /** First story gets priority image fetch. */
   priority?: boolean
+  /** Lead is larger display type; standard is the follow-on mega. */
+  size?: 'lead' | 'standard'
   className?: string
 }
 
 /**
- * A1 portal-feed lead block: centered category pill → display headline → byline → image.
- * Matches OnlineKhabar / Ratopati / NepalKhabar grammar without copying their brand colors.
+ * A1 portal-feed lead: centered category pill → display headline → deck → byline → image.
+ * Civic Crimson portal grammar; dense Devanagari reading, not SaaS hero chrome.
  */
 export function MegaStoryBlock({
   story,
   locale,
   priority = false,
+  size = 'lead',
   className = '',
 }: MegaStoryBlockProps) {
   const english = locale === 'en'
   const title = english && story.titleEn ? story.titleEn : story.titleNe
   const titleLang = english && story.titleEn ? 'en' : 'ne'
+  const deck = english ? story.deckEn : story.deckNe
   const href = localizeHref(locale, `/${story.category.slug}/${story.slug}`)
   const image = story.heroImage
   const unoptimized = Boolean(image?.url?.startsWith('data:'))
   const showPhoto = Boolean(image?.url) && !unoptimized
+  const titleClass =
+    size === 'lead'
+      ? 'text-[clamp(1.7rem,4.4vw,3.35rem)] leading-[1.12]'
+      : 'text-[clamp(1.4rem,3.4vw,2.45rem)] leading-[1.15]'
 
   return (
     <article className={`mega-story group text-center ${className}`.trim()}>
-      <div className="mx-auto flex max-w-[46rem] flex-col items-center">
+      <div className="mx-auto flex max-w-[42rem] flex-col items-center">
         <CategoryLabel
           category={story.category}
           locale={locale}
           as="span"
-          className="mb-2.5 !mx-auto"
+          className="mb-2 !mx-auto"
         />
         <h2
-          className="text-pretty font-display text-[clamp(1.65rem,4.2vw,3.25rem)] font-extrabold leading-[1.12] tracking-[-0.02em] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong"
+          className={`text-pretty font-display font-extrabold tracking-[-0.02em] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong ${titleClass}`}
           lang={titleLang}
         >
           <Link
@@ -50,7 +58,15 @@ export function MegaStoryBlock({
             {title}
           </Link>
         </h2>
-        <div className="mt-3 flex justify-center">
+        {deck ? (
+          <p
+            className="mt-2.5 max-w-[36rem] text-pretty text-body leading-relaxed text-ink-soft line-clamp-2 sm:text-body-lg"
+            lang={titleLang}
+          >
+            {deck}
+          </p>
+        ) : null}
+        <div className="mt-2.5 flex justify-center">
           <Byline authors={story.authors} locale={locale} publishedAt={story.publishedAt} />
         </div>
       </div>
@@ -58,7 +74,9 @@ export function MegaStoryBlock({
       {showPhoto ? (
         <Link
           href={href}
-          className="relative mt-4 block overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand aspect-[16/10] sm:mt-5 sm:aspect-[16/9]"
+          className={`relative mt-3.5 block overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:mt-4 ${
+            size === 'lead' ? 'aspect-[16/10] sm:aspect-[16/9]' : 'aspect-[16/10] sm:aspect-[2/1]'
+          }`}
         >
           <Image
             src={image!.url}
@@ -70,7 +88,7 @@ export function MegaStoryBlock({
           />
         </Link>
       ) : (
-        <div className="mx-auto mt-4 h-px w-16 bg-rule sm:mt-5" aria-hidden="true" />
+        <div className="mx-auto mt-3.5 h-px w-14 bg-rule sm:mt-4" aria-hidden="true" />
       )}
     </article>
   )

@@ -8,15 +8,33 @@ import NepaliDate from 'nepali-datetime'
 export function formatDate(iso: string, locale: 'ne' | 'en'): string {
   const date = new Date(iso)
   if (Number.isNaN(date.getTime())) return ''
+  // Noon UTC avoids server (UTC) vs browser (NPT) calendar-day flips near midnight.
+  const stable = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 12, 0, 0),
+  )
   if (locale === 'en') {
-    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ] as const
+    return `${stable.getUTCDate()} ${months[stable.getUTCMonth()]} ${stable.getUTCFullYear()}`
   }
   try {
-    const bs = new NepaliDate(date)
+    const bs = new NepaliDate(stable)
     const monthName = BS_MONTHS[bs.getMonth()] ?? ''
     return `${toDevanagari(bs.getDate())} ${monthName} ${toDevanagari(bs.getYear())}`
   } catch {
-    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    return `${stable.getUTCDate()}/${stable.getUTCMonth() + 1}/${stable.getUTCFullYear()}`
   }
 }
 

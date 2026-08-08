@@ -48,9 +48,8 @@ function hasPhoto(story: StoryCardData): boolean {
 }
 
 /**
- * Homepage category desk. Dense portal packing:
- * every band is image+copy, never sparse text-only columns with empty cells,
- * never giant SVG placeholder mosaics that read as unfinished.
+ * Homepage category desk. Dense portal packing with layout rotation:
+ * desk / mosaic / stack — never the same 1+3 silhouette on every band.
  */
 export function SectionBlock({ section, locale, className, layout }: SectionBlockProps) {
   const dict = getDictionary(locale)
@@ -64,17 +63,29 @@ export function SectionBlock({ section, locale, className, layout }: SectionBloc
   const all = section.lead ? [section.lead, ...section.items] : section.items
   const photoCount = all.filter(hasPhoto).length
 
-  const requested = layout === 'lead-rail' ? 'desk' : layout === 'overlay-grid' ? 'mosaic' : layout === 'text-led' ? 'stack' : layout
-  const chosen =
-    requested ??
-    (photoCount >= 3 && all.length >= 3
-      ? 'mosaic'
-      : all.length >= 2
-        ? 'desk'
-        : 'stack')
+  const requested =
+    layout === 'lead-rail'
+      ? 'desk'
+      : layout === 'overlay-grid'
+        ? 'mosaic'
+        : layout === 'text-led'
+          ? 'stack'
+          : layout
+
+  let chosen: 'desk' | 'mosaic' | 'stack' = requested ?? 'desk'
+  if (!requested) {
+    if (photoCount >= 3 && all.length >= 3) chosen = 'mosaic'
+    else if (all.length >= 2) chosen = 'desk'
+    else chosen = 'stack'
+  } else if (requested === 'mosaic' && photoCount < 3) {
+    chosen = all.length >= 4 ? 'stack' : 'desk'
+  }
 
   return (
-    <section className={className} aria-labelledby={`sec-${section.category.slug}`}>
+    <section
+      className={`border-b border-rule pb-4 ${className ?? ''}`.trim()}
+      aria-labelledby={`sec-${section.category.slug}`}
+    >
       <SectionHeader
         id={`sec-${section.category.slug}`}
         title={name}
@@ -84,24 +95,25 @@ export function SectionBlock({ section, locale, className, layout }: SectionBloc
         moreLabel={dict.seeAll}
       />
 
-      <div className="mt-3">
-        {chosen === 'desk' && <DeskLayout items={all} locale={locale} />}
-        {chosen === 'mosaic' && <MosaicLayout items={all} locale={locale} />}
-        {chosen === 'stack' && <StackLayout items={all} locale={locale} />}
+      <div className="mt-2.5">
+        {chosen === 'desk' ? <DeskLayout items={all} locale={locale} /> : null}
+        {chosen === 'mosaic' ? <MosaicLayout items={all} locale={locale} /> : null}
+        {chosen === 'stack' ? <StackLayout items={all} locale={locale} /> : null}
       </div>
     </section>
   )
 }
 
-/** Lead story + packed horizontal rail. Default dense desk. */
+/** Lead story + packed rail. Prefer a real photo as the visual lead when available. */
 function DeskLayout({ items, locale }: { items: StoryCardData[]; locale: Locale }) {
-  const [lead, ...rest] = items
-  if (!lead) return null
-  const rail = rest.slice(0, 5)
-  const leadVariant = hasPhoto(lead) ? 'featured' : 'default'
+  if (items.length === 0) return null
+  const photoLead = items.find(hasPhoto)
+  const lead = photoLead ?? items[0]!
+  const rail = items.filter((story) => story.id !== lead.id).slice(0, 5)
+  const leadVariant = hasPhoto(lead) ? 'featured' : 'text-led'
 
   return (
-    <div className="grid gap-4 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:gap-5 lg:gap-6">
+    <div className="grid gap-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] md:gap-4 lg:gap-5">
       <RankedCard
         story={lead}
         locale={locale}
@@ -110,9 +122,9 @@ function DeskLayout({ items, locale }: { items: StoryCardData[]; locale: Locale 
         className="min-w-0"
       />
       {rail.length > 0 ? (
-        <ul className="flex min-w-0 flex-col divide-y divide-rule border-y border-rule md:border-t-0 md:border-b-0">
+        <ul className="flex min-w-0 flex-col divide-y divide-rule border-y border-rule md:border-y-0">
           {rail.map((s) => (
-            <li key={s.slug} className="py-2.5 first:pt-0 last:pb-0 md:first:pt-0">
+            <li key={s.slug} className="py-2 first:pt-0 last:pb-0 md:py-2.5">
               <RankedCard story={s} locale={locale} variant="horizontal" />
             </li>
           ))}

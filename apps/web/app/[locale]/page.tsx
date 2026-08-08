@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import type { StoryCardData } from '@nagarikwatch/db'
 import { RecommendedRailSkeleton } from '@nagarikwatch/ui'
-import { MegaStoryBlock } from '@/components/home/MegaStoryBlock'
+import { PortalFeed } from '@/components/home/PortalFeed'
 import { asLocale } from '@/lib/i18n/locales'
 import { getHomepage, getNavCategories, getStories } from '@/lib/content'
 import { dedupeHomepage } from '@/lib/content/homepage-dedup'
@@ -10,19 +10,14 @@ import { BreakingTicker } from '@/components/BreakingTicker'
 import { SectionBlock } from '@/components/home/SectionBlock'
 import { LatestRail } from '@/components/home/LatestRail'
 import { HomeEmptyEdition } from '@/components/home/HomeEmptyEdition'
+import { HomeClosingDesk } from '@/components/home/HomeClosingDesk'
 import { ProvinceHub } from '@/components/home/ProvinceHub'
 import { AdSlot } from '@/components/AdSlot'
 import { RecommendedForYou } from '@/components/reader/RecommendedForYou'
 import { PollOfDay } from '@/components/home/PollOfDay'
 import { getActivePoll } from '@/lib/polls-admin'
-import {
-  HomeLayoutExperiment,
-} from '@/components/experiments/HomeLayoutExperiment'
-import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
+import { HomeLayoutExperiment } from '@/components/experiments/HomeLayoutExperiment'
 import { canonicalAlternates } from '@/lib/seo/canonical'
-import { NewsletterInline } from '@/components/NewsletterInline'
-import { TodayInHistory } from '@/components/home/TodayInHistory'
-import { PhotoOfTheDay } from '@/components/home/PhotoOfTheDay'
 import { MostReadRail } from '@/components/home/MostReadRail'
 import { FeaturedBand } from '@/components/home/FeaturedBand'
 import {
@@ -34,6 +29,8 @@ import { resolveMostReadStories } from '@/lib/content/most-read-stories'
 import { resolveProvinceHeat } from '@/lib/content/province-heat'
 
 export const revalidate = 120
+
+const SECTION_LAYOUTS = ['desk', 'mosaic', 'stack', 'desk', 'mosaic', 'stack'] as const
 
 export async function generateMetadata({
   params,
@@ -53,7 +50,6 @@ export async function generateMetadata({
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
-  const english = locale === 'en'
   const [homepage, activePoll, layout, storiesPage] = await Promise.all([
     getHomepage().catch(() => null),
     getActivePoll().catch(() => null),
@@ -76,14 +72,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ...edition.sections.flatMap((section) => [section.lead, ...section.items]),
   ].filter((story): story is NonNullable<typeof story> => Boolean(story))
 
-  // Broader corpus so most-read / trending / photo / recs are not limited to the edition only.
   const extraStories = storiesPage.items
 
   const catalog = Array.from(
     new Map([...editionStories, ...extraStories].map((story) => [story.id, story])).values(),
   )
 
-  // Soft exclude for photo / for-you: only above-the-fold editorial, not every desk item.
   const aboveFoldExclude = new Set<string>([
     edition.lead.id,
     ...edition.featured.slice(0, 4).map((s) => s.id),
@@ -91,7 +85,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ...edition.breaking.map((s) => s.id),
   ])
 
-  // A1 portal feed: lead + featured + secondary, capped, then desks.
   const portalFeedIds = new Set<string>()
   const portalFeed: StoryCardData[] = []
   for (const story of [edition.lead, ...edition.featured, ...edition.secondary]) {
@@ -114,15 +107,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     categoryAware: true,
   })
 
-  // Freshness lens: full catalog by publishedAt (may include lead / featured).
   const latest = [...catalog]
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
     .slice(0, 8)
 
-  const [
-    { stories: mostRead, live: mostReadLive },
-    provinceHeat,
-  ] = await Promise.all([
+  const [{ stories: mostRead, live: mostReadLive }, provinceHeat] = await Promise.all([
     resolveMostReadStories({
       catalog,
       excludeIds: new Set(),
@@ -164,6 +153,34 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     catalog.find((story) => !aboveFoldExclude.has(story.id) && hasRealPhoto(story)) ||
     null
 
+  let sectionIndex = 0
+  function renderStreamItem(
+    item: (typeof homepageStream)[number],
+    keyPrefix: string,
+  ) {
+    if (item.kind === 'section') {
+      const layoutVariant = SECTION_LAYOUTS[sectionIndex % SECTION_LAYOUTS.length]
+      sectionIndex += 1
+      return (
+        <SectionBlock
+          key={item.section.category.slug}
+          section={item.section}
+          locale={locale}
+          layout={layoutVariant}
+        />
+      )
+    }
+    return (
+      <FeaturedBand
+        key={`${keyPrefix}-${item.stories.map((s) => s.id).join('-')}`}
+        stories={item.stories}
+        locale={locale}
+        variant="asymmetric"
+        categorySlug={item.categorySlug}
+      />
+    )
+  }
+
   const streamHead = homepageStream.slice(0, 2)
   const streamTail = homepageStream.slice(2)
 
@@ -172,51 +189,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <HomeLayoutExperiment />
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
-      <div className="mx-auto max-w-page px-3 pt-3 sm:px-4 sm:pt-4">
-        {/* A1 — centered mega-headline portal feed (OK / Ratopati / NepalKhabar grammar) */}
-        <section
-          className="space-y-8 border-b border-rule pb-6 sm:space-y-10 sm:pb-8"
-          aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
-        >
-          {portalFeed.map((story, index) => (
-            <InstrumentedStory
-              key={story.id}
-              articleSlug={story.slug}
-              articleCategory={story.category.slug}
-            >
-              <MegaStoryBlock story={story} locale={locale} priority={index === 0} />
-            </InstrumentedStory>
-          ))}
-        </section>
+      <div className="mx-auto max-w-page px-3 pt-3 sm:px-4 sm:pt-3.5">
+        <PortalFeed stories={portalFeed} locale={locale} />
 
-        <AdSlot
-          locale={locale}
-          placementKey="home-top"
-          variant="inline"
-          className="mt-4"
-        />
+        <AdSlot locale={locale} placementKey="home-top" variant="inline" className="mt-3" />
 
-        {/*
-          Portal packing: desks early on mobile (spine), then one lens,
-          then remaining desks. Desktop: stream | sticky Latest (+ poll).
-        */}
-        <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,0.38fr)] xl:items-start xl:gap-5">
-          <div className="min-w-0 space-y-5 xl:col-start-1 xl:row-start-1 xl:row-span-2">
-            {streamHead.map((item) =>
-              item.kind === 'section' ? (
-                <SectionBlock key={item.section.category.slug} section={item.section} locale={locale} />
-              ) : (
-                <FeaturedBand
-                  key={`featured-head-${item.stories.map((s) => s.id).join('-')}`}
-                  stories={item.stories}
-                  locale={locale}
-                  variant="asymmetric"
-                  categorySlug={item.categorySlug}
-                />
-              ),
-            )}
+        <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(15.5rem,0.36fr)] xl:items-start xl:gap-5">
+          <div className="min-w-0 space-y-4 xl:col-start-1 xl:row-start-1 xl:row-span-2">
+            {streamHead.map((item) => renderStreamItem(item, 'featured-head'))}
 
-            {/* Mobile: one recency rail after first desk band (not Latest + Most-read). */}
             <div className="xl:hidden">
               <LatestRail
                 stories={latest.slice(0, 4)}
@@ -225,27 +206,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               />
             </div>
 
-            {streamTail.map((item) =>
-              item.kind === 'section' ? (
-                <SectionBlock key={item.section.category.slug} section={item.section} locale={locale} />
-              ) : (
-                <FeaturedBand
-                  key={`featured-tail-${item.stories.map((s) => s.id).join('-')}`}
-                  stories={item.stories}
-                  locale={locale}
-                  variant="asymmetric"
-                  categorySlug={item.categorySlug}
-                />
-              ),
-            )}
+            {streamTail.map((item) => renderStreamItem(item, 'featured-tail'))}
 
-            <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="pt-1" />
+            <AdSlot locale={locale} placementKey="home-mid" variant="inline" className="pt-0.5" />
 
-            <ProvinceHub locale={locale} heat={provinceHeat} />
+            <ProvinceHub locale={locale} heat={provinceHeat} className="border-b border-rule pb-4" />
           </div>
 
-          <aside className="hidden min-w-0 space-y-5 xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:block">
-            <div className="xl:sticky xl:top-24 xl:space-y-5">
+          <aside className="hidden min-w-0 space-y-4 xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:block">
+            <div className="xl:sticky xl:top-24 xl:space-y-4">
               <LatestRail stories={latest} locale={locale} compact headingId="latest-rail-title" />
               <MostReadRail
                 stories={mostRead}
@@ -254,54 +223,50 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 live={mostReadLive}
               />
               {activePoll ? (
-                <PollOfDay locale={locale} poll={activePoll} headingId={`poll-${activePoll.id}-label`} />
+                <PollOfDay
+                  locale={locale}
+                  poll={activePoll}
+                  headingId={`poll-${activePoll.id}-label`}
+                />
               ) : null}
             </div>
           </aside>
 
           {activePoll ? (
             <div className="xl:hidden">
-              <PollOfDay locale={locale} poll={activePoll} headingId={`poll-${activePoll.id}-label-mobile`} />
+              <PollOfDay
+                locale={locale}
+                poll={activePoll}
+                headingId={`poll-${activePoll.id}-label-mobile`}
+              />
             </div>
           ) : null}
         </div>
       </div>
 
-      <div className="mx-auto max-w-page px-3 pb-10 sm:px-4 lg:pb-12">
+      <div className="mx-auto max-w-page px-3 pb-8 sm:px-4 lg:pb-10">
         <AdSlot
           locale={locale}
           placementKey="home-billboard"
           variant="billboard"
-          className="mt-6"
+          className="mt-5"
         />
 
-        <section
-          className="mt-6 border border-rule bg-surface-raised px-4 py-4 sm:px-5 sm:py-5"
-          aria-labelledby="home-newsletter"
-        >
-          <div className="mx-auto max-w-xl">
-            <h2 id="home-newsletter" className="sr-only" lang={english ? 'en' : 'ne'}>
-              {english ? 'Newsletter' : 'न्युजलेटर'}
-            </h2>
-            <NewsletterInline locale={locale} />
-          </div>
-        </section>
-
-        <Suspense fallback={<RecommendedRailSkeleton className="mt-6" />}>
+        <Suspense fallback={<RecommendedRailSkeleton className="mt-5" />}>
           <RecommendedForYou
             locale={locale}
             catalog={catalog}
-            className="mt-6"
+            className="mt-5"
             excludeIds={aboveFoldExclude}
           />
         </Suspense>
 
-        <div
-          className={`mt-6 grid gap-5 border-t border-rule pt-5 ${photoOfDay ? 'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-6' : ''}`}
-        >
-          <TodayInHistory locale={locale} stories={historyStories} mode={historyMode} />
-          {photoOfDay ? <PhotoOfTheDay locale={locale} story={photoOfDay} /> : null}
-        </div>
+        <HomeClosingDesk
+          locale={locale}
+          historyStories={historyStories}
+          historyMode={historyMode}
+          photoOfDay={photoOfDay}
+        />
       </div>
     </div>
   )

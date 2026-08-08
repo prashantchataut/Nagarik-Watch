@@ -6,7 +6,9 @@ import type { Locale } from '@nagarikwatch/db'
 /** Keep <html lang> honest across client navigations; root layout may not remount. */
 export function HtmlLangSync({ locale }: { locale: Locale }) {
   useEffect(() => {
-    document.documentElement.lang = locale
+    if (document.documentElement.lang !== locale) {
+      document.documentElement.lang = locale
+    }
   }, [locale])
   return null
 }

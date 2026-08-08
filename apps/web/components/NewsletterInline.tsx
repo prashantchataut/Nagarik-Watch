@@ -61,10 +61,10 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
 
   return (
     <div>
-      <p className="text-meta font-semibold text-ink-soft" lang={lang}>
+      <p className="font-display text-body font-extrabold text-ink" lang={lang}>
         {labels.heading}
       </p>
-      <form onSubmit={submit} className="mt-3 flex flex-col gap-2" noValidate>
+      <form onSubmit={submit} className="mt-2 flex flex-col gap-2" noValidate>
         <div className="flex flex-col gap-2 sm:flex-row">
           <label htmlFor="nw-newsletter-email" className="sr-only">
             {labels.placeholder}

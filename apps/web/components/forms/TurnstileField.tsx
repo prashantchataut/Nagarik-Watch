@@ -12,7 +12,7 @@ export function TurnstileField({ siteKey }: { siteKey?: string }) {
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         strategy="afterInteractive"
       />
-      <div className="cf-turnstile" data-sitekey={siteKey} data-theme="auto" />
+      <div className="cf-turnstile" data-sitekey={siteKey} data-theme="light" />
     </>
   )
 }

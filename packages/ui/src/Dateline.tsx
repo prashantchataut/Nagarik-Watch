@@ -16,7 +16,12 @@ export function Dateline({ iso, locale, className }: DatelineProps) {
   const label = formatDate(iso, locale)
   if (!label) return null
   return (
-    <time dateTime={iso} lang={locale === 'en' ? 'en' : 'ne'} className={className}>
+    <time
+      dateTime={iso}
+      lang={locale === 'en' ? 'en' : 'ne'}
+      className={className}
+      suppressHydrationWarning
+    >
       {label}
     </time>
   )

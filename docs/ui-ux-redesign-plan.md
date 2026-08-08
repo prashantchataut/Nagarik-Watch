@@ -452,6 +452,20 @@ Kill TopicsStrip hubs on mobile. Move hubs into hamburger.
 
 ---
 
+## 11. Homepage polish pass (2026-08-08)
+
+Shipped against pitch screenshots (uneven gaps / monotony / weak close):
+
+- `PortalFeed`: 1–3 centered mega leads (deck + size variants) + dense dual for picks 4–5
+- `SectionBlock`: rotate desk / mosaic / stack; photo-preferring desk lead
+- `HomeClosingDesk`: newsletter + archive + photo as one closing band
+- Tighter section rhythm (`space-y-4`, hairline desk bottoms)
+- Dateline hydration: UTC-stable `formatDate` + `suppressHydrationWarning` on `<time>`
+
+Still open from §9: trending source decision; patro DNS/env; gold stamped rates for pitch.
+
+---
+
 ## 10. Skill / process notes
 
 Applied: `redesign-existing-projects` audit order, `design-taste-frontend` brief inference + dials, `impeccable` PRODUCT/DESIGN context + shape discipline, `nagarik-watch-product` public/reader rules, prior homepage critique (25/40).

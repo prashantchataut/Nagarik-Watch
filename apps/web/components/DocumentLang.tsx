@@ -8,10 +8,11 @@ import { useEffect } from 'react'
  */
 export function DocumentLang({ lang }: { lang: 'ne' | 'en' }) {
   useEffect(() => {
-    const previous = document.documentElement.lang
-    document.documentElement.lang = lang
+    const root = document.documentElement
+    const previous = root.lang
+    if (previous !== lang) root.lang = lang
     return () => {
-      document.documentElement.lang = previous
+      if (root.lang === lang) root.lang = previous
     }
   }, [lang])
   return null
