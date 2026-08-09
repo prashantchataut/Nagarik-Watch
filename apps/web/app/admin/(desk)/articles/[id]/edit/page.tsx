@@ -1,6 +1,7 @@
 import { staticArticleIdParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { getNavCategories, getAuthors, getTags } from '@/lib/content'
 import { findArticleForAdmin } from '@/lib/content/store/json-store'
 import { requireNewsroomSession } from '@/lib/auth/session'
@@ -12,7 +13,7 @@ import { AdminButton, AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditorClient } from '@/components/admin/ArticleEditorClient'
 import { listMediaItems } from '@/lib/media-library'
 import { shorthandFromBlocks } from '@/lib/content/blocks'
-import { isPayloadCanonical, payloadAdminUrl } from '@/lib/content/payload-admin-client'
+import { isPayloadCanonical, isPayloadSourceMisconfigured, payloadAdminUrl } from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,6 +28,7 @@ export const metadata: Metadata = {
 
 export default async function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireNewsroomSession()
+  if (isPayloadSourceMisconfigured()) redirect('/admin/launch')
   const payloadCanonical = isPayloadCanonical()
   if (!canEdit(session.newsroomRole)) {
     return (

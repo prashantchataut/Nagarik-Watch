@@ -42,6 +42,19 @@ describe('content source resolution', () => {
     await expect(resolveContentSource()).rejects.toThrow(/PAYLOAD_PUBLIC_SERVER_URL/)
   })
 
+  it('fail-closes a declared live launch that still points at the shadow store', async () => {
+    process.env.NEXT_PUBLIC_LAUNCH_STATUS = 'live'
+    process.env.CONTENT_SOURCE = 'json'
+    process.env.PAYLOAD_PUBLIC_SERVER_URL = 'https://cms.example.test'
+
+    const { isPayloadSourceMisconfigured, shouldBlockLocalContentWrites } = await import('./payload-admin-client')
+    const { resolveContentSource } = await import('./resolve-content-source')
+
+    expect(isPayloadSourceMisconfigured()).toBe(true)
+    expect(shouldBlockLocalContentWrites()).toBe(true)
+    await expect(resolveContentSource()).rejects.toThrow(/requires CONTENT_SOURCE=payload/)
+  })
+
   it('fingerprints content source so warm caches invalidate on env flip', async () => {
     process.env.CONTENT_SOURCE = 'json'
     delete process.env.PAYLOAD_PUBLIC_SERVER_URL

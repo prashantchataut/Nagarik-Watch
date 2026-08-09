@@ -11,10 +11,28 @@ import { createMediaItem } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { validateImageUpload } from '@/lib/storage/media-validation'
-import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
+import { isPayloadCanonical, payloadCollectionAdminUrl, payloadAdminUrlIfConfigured, shouldBlockLocalContentWrites } from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
+function blockedUploadResponse() {
+  const canonical = isPayloadCanonical()
+  return NextResponse.json(
+    {
+      error: canonical
+        ? 'Payload canonical मोडमा यो डेस्क upload सतह बन्द छ। मिडिया Payload CMS बाट अपलोड गर्नुहोस्।'
+        : 'Live deployment content authority is misconfigured. Local media uploads are blocked.',
+      cmsUrl: canonical
+        ? payloadCollectionAdminUrl('media')
+        : payloadAdminUrlIfConfigured('/collections/media') ?? undefined,
+      configurationHint: canonical
+        ? undefined
+        : 'Set CONTENT_SOURCE=payload and PAYLOAD_PUBLIC_SERVER_URL on the web deployment.',
+    },
+    { status: canonical ? 409 : 503 },
+  )
+}
 
 /**
  * POST /api/admin/media/upload — multipart file → storage adapter → media library row.
@@ -41,16 +59,7 @@ export async function POST(request: NextRequest) {
   if (!mayUpload) {
     return NextResponse.json({ error: 'अनुमति छैन।' }, { status: 403 })
   }
-  if (isPayloadCanonical()) {
-    return NextResponse.json(
-      {
-        error:
-          'Payload canonical मोडमा यो डेस्क upload सतह बन्द छ। मिडिया Payload CMS बाट अपलोड गर्नुहोस्।',
-        cmsUrl: payloadCollectionAdminUrl('media'),
-      },
-      { status: 409 },
-    )
-  }
+  if (shouldBlockLocalContentWrites()) return blockedUploadResponse()
 
   let form: FormData
   try {
@@ -84,6 +93,19 @@ export async function POST(request: NextRequest) {
   const safeName = file.name.replace(/[^\w.\-]+/g, '_').slice(0, 80) || 'image.jpg'
   const token = process.env.BLOB_READ_WRITE_TOKEN?.trim()
   const requestOrigin = request.headers.get('origin') ?? undefined
+
+  // This legacy web-desk endpoint uses Vercel Blob's server upload API. Vercel
+  // request bodies have a lower practical ceiling than our local/R2 validator;
+  // canonical Payload uses clientUploads and is the right path for larger media.
+  if (process.env.VERCEL && token && file.size > 4 * 1024 * 1024) {
+    return NextResponse.json(
+      {
+        error:
+          'This web-desk upload is limited to 4MB on Vercel. Use Payload Media for larger files, or upload an image under 4MB.',
+      },
+      { status: 413 },
+    )
+  }
 
   let blobUrl: string
   try {
@@ -130,9 +152,20 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('[media] upload failed', error)
+    const detail = error instanceof Error ? error.message : 'Upload failed.'
+    const storageConfigurationError =
+      /blob.*token|token.*blob|unauthori[sz]ed|forbidden|invalid.*token|BLOB_READ_WRITE_TOKEN/i.test(
+        detail,
+      )
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Upload failed.' },
-      { status: 502 },
+      {
+        error: storageConfigurationError
+          ? 'Media storage credentials are invalid or belong to a different deployment. Reconnect Vercel Blob to the web project (or use Payload Media in canonical mode).'
+          : 'The configured media provider rejected the upload.',
+        detail: detail.slice(0, 300),
+        provider: token ? 'vercel-blob' : process.env.CF_WORKERS === '1' ? 'cloudflare-r2' : 'unknown',
+      },
+      { status: storageConfigurationError ? 503 : 502 },
     )
   }
 

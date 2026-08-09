@@ -29,6 +29,7 @@ let pool: Pool | null = null
 let poolPromise: Promise<Pool | null> | null = null
 /** After a failed connect, skip pool creation briefly to avoid stampedes. */
 let poolCooldownUntil = 0
+let lastPoolError: { message: string; code?: string; at: number } | null = null
 
 /** Vercel can run many warm instances; a max of three per instance still exhausted
  *  the production database (Postgres 53300), so each instance holds a single connection. */
@@ -69,12 +70,22 @@ async function createSharedPool(): Promise<Pool | null> {
   } catch (error) {
     await next.end().catch(() => undefined)
     poolCooldownUntil = Date.now() + POOL_FAIL_COOLDOWN_MS
+    lastPoolError = {
+      message: error instanceof Error ? error.message : String(error),
+      code:
+        error && typeof error === 'object' && 'code' in error
+          ? String((error as { code?: unknown }).code ?? '') || undefined
+          : undefined,
+      at: Date.now(),
+    }
     console.error(
       '[pg-pool] shared pool probe failed',
       error instanceof Error ? error.message : error,
     )
     return null
   }
+  lastPoolError = null
+  poolCooldownUntil = 0
   return next
 }
 
@@ -99,6 +110,14 @@ export async function getSharedPool(): Promise<Pool | null> {
         poolPromise = null
         pool = null
         poolCooldownUntil = Date.now() + POOL_FAIL_COOLDOWN_MS
+        lastPoolError = {
+          message: error instanceof Error ? error.message : String(error),
+          code:
+            error && typeof error === 'object' && 'code' in error
+              ? String((error as { code?: unknown }).code ?? '') || undefined
+              : undefined,
+          at: Date.now(),
+        }
         console.error(
           '[pg-pool] could not create shared pool',
           error instanceof Error ? error.message : error,
@@ -133,6 +152,24 @@ export async function withSharedClient<T>(fn: (client: PoolClient) => Promise<T>
 
 export type PoolStats = { totalCount: number; idleCount: number; waitingCount: number; max: number }
 
+export type PoolConnectionState = {
+  connected: boolean
+  coolingDown: boolean
+  cooldownRemainingMs: number
+  lastError: { message: string; code?: string; at: number } | null
+}
+
+/** Safe operational state for health diagnostics; contains no credentials. */
+export function getPoolConnectionState(): PoolConnectionState {
+  const remaining = Math.max(0, poolCooldownUntil - Date.now())
+  return {
+    connected: Boolean(pool),
+    coolingDown: remaining > 0,
+    cooldownRemainingMs: remaining,
+    lastError: lastPoolError,
+  }
+}
+
 /** Read-only snapshot for ops health reporting; never creates a pool as a side effect. */
 export function getPoolStats(): PoolStats | null {
   if (!pool) return null
@@ -150,5 +187,6 @@ export async function closeSharedPool(): Promise<void> {
   pool = null
   poolPromise = null
   poolCooldownUntil = 0
+  lastPoolError = null
   if (current) await current.end().catch(() => undefined)
 }

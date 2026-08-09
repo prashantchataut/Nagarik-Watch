@@ -187,9 +187,7 @@ export function StoryCard({
               aria-hidden="true"
             />
           </div>
-        ) : (
-          <span className="mt-1 h-10 w-1 shrink-0 bg-brand" aria-hidden="true" />
-        )}
+        ) : null}
         <div className="min-w-0 flex-1 overflow-hidden">
           <div className="mb-0.5 flex flex-wrap items-center gap-2">
             <CategoryLabel category={story.category} locale={locale} as="span" />

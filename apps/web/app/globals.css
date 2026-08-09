@@ -91,30 +91,32 @@
     border-radius: var(--radius-2);
   }
 
-  /* Desk kicker: solid brand rectangle (portal category tag), sharp corners. */
+  /* Editorial kicker: category is a typographic signal, not a repeated UI badge. */
   .category-pill {
     display: inline-flex;
     align-items: center;
-    background: var(--brand);
-    color: var(--paper);
-    border-radius: var(--radius-1);
-    padding: 0.18rem 0.45rem;
-    font-size: 0.6875rem;
+    background: transparent;
+    color: var(--brand-strong);
+    border-radius: 0;
+    padding: 0;
+    font-size: 0.75rem;
     font-weight: 800;
-    letter-spacing: 0.04em;
-    line-height: 1.25;
+    letter-spacing: 0.035em;
+    line-height: 1.35;
     text-transform: uppercase;
   }
 
   .category-pill[lang='ne'] {
     letter-spacing: 0;
     text-transform: none;
-    font-weight: 700;
+    font-weight: 800;
   }
 
   a.category-pill:hover {
-    background: var(--brand-strong);
-    color: var(--paper);
+    background: transparent;
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
   }
 
   /* Reader text-resize (FontSizeControl). The control sets data-reading-size on <html>. */

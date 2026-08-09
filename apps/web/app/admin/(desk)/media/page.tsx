@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import { assertLocalContentAdmin, isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
+import { assertLocalContentAdmin, isPayloadCanonical, isPayloadSourceMisconfigured, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 import { assertNewsroomRole, MEDIA_MANAGER_ROLES } from '@/lib/admin-roles'
 import { createMediaItem, listMediaItems } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
@@ -26,16 +26,21 @@ async function saveMedia(formData: FormData) {
 export default async function MediaPage() {
   const session = await requireNewsroomSession()
   assertNewsroomRole(session.newsroomRole, MEDIA_MANAGER_ROLES)
+  if (isPayloadSourceMisconfigured()) redirect('/admin/launch')
   if (isPayloadCanonical()) redirect(payloadCollectionAdminUrl('media'))
   const items = await listMediaItems({ limit: 72 })
-  const persistentStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.S3_BUCKET || process.env.STORAGE_BUCKET)
+  const persistentStorage = Boolean(
+    process.env.BLOB_READ_WRITE_TOKEN?.trim() ||
+      (process.env.CF_WORKERS === '1' &&
+        (process.env.STORAGE_PUBLIC_BASE_URL?.trim() || process.env.R2_PUBLIC_BASE_URL?.trim())),
+  )
   return (
     <div>
       <AdminPageHeader subtitle="Image library metadata and production storage readiness" />
       {!persistentStorage ? (
         <AdminCallout tone="attention" className="mb-5">
           <p className="text-meta text-ink-soft" lang="ne">
-            Persistent media storage कन्फिगर छैन। Vercel मा local filesystem upload production-safe हुँदैन; Blob/S3/R2 जोड्नुहोस्।
+            Persistent media storage कन्फिगर छैन। Vercel मा local filesystem upload production-safe हुँदैन; यो web desk का लागि Vercel Blob जोड्नुहोस्, वा canonical Payload Media प्रयोग गर्नुहोस्।
           </p>
         </AdminCallout>
       ) : null}

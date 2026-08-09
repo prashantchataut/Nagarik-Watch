@@ -7,14 +7,13 @@ import type { Category, Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, pathsMatch, swapLocale } from '@/lib/i18n/locales'
-import { patroEntryHref } from '@/lib/calendar-host'
 import { MobileNav } from '@/components/MobileNav'
 import { ProvinceMegaMenu } from '@/components/ProvinceMegaMenu'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Logo } from '@/components/Logo'
 import { TopicsStrip, type TopicChip } from '@/components/TopicsStrip'
 import type { AccountKind } from '@/lib/account-identity'
-import { IconBookmark, IconCalendar, IconChart, IconSearch, IconUser } from '@/components/icons/PortalIcons'
+import { IconBookmark, IconSearch, IconUser } from '@/components/icons/PortalIcons'
 
 type MastheadAccount = {
   kind: AccountKind
@@ -34,10 +33,10 @@ type MastheadProps = {
 }
 
 const UTIL_LINK =
-  'inline-flex min-h-9 items-center gap-1.5 rounded-md px-2 text-caption font-semibold text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:text-on-chrome focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
+  'inline-flex min-h-9 items-center gap-1.5 border-b border-transparent px-2 text-caption font-semibold text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:border-on-chrome-soft hover:text-on-chrome focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
 const UTIL_ICON =
-  'inline-flex h-9 w-9 items-center justify-center rounded-md text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-on-chrome focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
+  'inline-flex h-9 w-9 items-center justify-center border-b border-transparent text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:border-on-chrome-soft hover:text-on-chrome focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
 export function Masthead({
   locale,
@@ -53,8 +52,6 @@ export function Masthead({
   const homeHref = localizeHref(locale, '/')
   const savedHref = localizeHref(locale, '/saved')
   const searchHref = localizeHref(locale, '/search')
-  const patroHref = patroEntryHref(locale)
-  const marketHref = localizeHref(locale, '/market')
   const latestHref = localizeHref(locale, '/latest')
   const toggleHref = swapLocale(pathname)
   const lang = locale === 'en' ? 'en' : 'ne'
@@ -77,9 +74,6 @@ export function Masthead({
         ? 'Staff account'
         : 'कर्मचारी खाता'
     : undefined
-  const patroActive =
-    pathname.includes('/patro') || pathname.includes('/utilities/calendar')
-  const marketActive = pathname.includes('/market')
 
   useEffect(() => {
     setDateLabel(formatDate(new Date().toISOString(), locale))
@@ -97,7 +91,7 @@ export function Masthead({
       className="nw-masthead sticky top-0 z-40"
       data-condensed={condensed ? 'true' : 'false'}
     >
-      {/* Band 1 — Left logo + leaderboard (OnlineKhabar) + utilities */}
+      {/* Band 1: publication identity, leaderboard and reader controls */}
       <div className="nw-masthead__chrome border-b border-chrome-rule bg-chrome text-on-chrome">
         <div className="mx-auto flex max-w-page items-center gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-2.5">
           <div className="flex shrink-0 items-center gap-1 md:hidden">
@@ -106,7 +100,7 @@ export function Masthead({
 
           <Link
             href={homeHref}
-            className="nw-masthead__logo min-w-0 shrink rounded-md transition-opacity duration-fast ease-out-quint hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="nw-masthead__logo min-w-0 shrink transition-opacity duration-fast ease-out-quint hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             aria-label={dict.siteName}
           >
             <Logo siteName={dict.siteName} tone="chrome" className="max-w-[11rem] sm:max-w-[15rem]" />
@@ -153,11 +147,11 @@ export function Masthead({
             </Link>
             <ThemeToggle
               locale={locale}
-              className="!h-9 !w-9 !rounded-md !text-on-chrome-soft hover:!bg-brand-tint hover:!text-on-chrome"
+              className="!h-9 !w-9 !rounded-none !text-on-chrome-soft hover:!bg-transparent hover:!text-on-chrome"
             />
             <Link
               href={toggleHref}
-              className="inline-flex h-9 min-w-[3.25rem] items-center justify-center rounded-md bg-brand px-2.5 text-meta font-black text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              className="inline-flex h-9 min-w-[3.25rem] items-center justify-center border-l border-chrome-rule px-2.5 text-meta font-black text-paper transition-colors duration-fast ease-out-quint hover:text-on-chrome focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               lang={locale === 'en' ? 'ne' : 'en'}
               aria-label={dict.localeToggleAria}
             >
@@ -167,7 +161,7 @@ export function Masthead({
         </div>
       </div>
 
-      {/* Band 2 — Crimson category desk + utility CTAs */}
+      {/* Band 2: primary newsroom navigation */}
       <nav
         aria-label={dict.primaryNav}
         className="nw-masthead__primary border-b border-black/15 bg-brand-bar text-paper"
@@ -178,6 +172,11 @@ export function Masthead({
               <NavLink href={homeHref} active={pathsMatch(pathname, homeHref)}>
                 <HomeGlyph />
                 <span className="sr-only sm:not-sr-only">{dict.home}</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink href={latestHref} active={pathsMatch(pathname, latestHref)} lang={lang}>
+                {dict.navLatest}
               </NavLink>
             </li>
             {navCategories.map((c) => {
@@ -203,42 +202,6 @@ export function Masthead({
               </NavLink>
             </li>
           </ul>
-
-          <div className="hidden shrink-0 items-center gap-1.5 py-1 lg:flex">
-            <Link
-              href={patroHref}
-              aria-current={patroActive ? 'page' : undefined}
-              className={
-                patroActive
-                  ? 'inline-flex min-h-9 items-center gap-1.5 rounded-sm bg-paper px-3 text-caption font-bold text-brand-bar'
-                  : 'inline-flex min-h-9 items-center gap-1.5 rounded-sm bg-paper px-3 text-caption font-bold text-brand-bar transition-colors duration-fast ease-out-quint hover:bg-brand-tint active:scale-[0.98]'
-              }
-              lang={lang}
-            >
-              <IconCalendar className="h-4 w-4" />
-              {locale === 'en' ? 'Calendar' : 'पात्रो'}
-            </Link>
-            <Link
-              href={marketHref}
-              aria-current={marketActive ? 'page' : undefined}
-              className={
-                marketActive
-                  ? 'inline-flex min-h-9 items-center gap-1.5 rounded-sm border border-paper/50 bg-paper/20 px-2.5 text-caption font-bold text-paper'
-                  : 'inline-flex min-h-9 items-center gap-1.5 rounded-sm border border-paper/35 bg-transparent px-2.5 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-paper/15 active:scale-[0.98]'
-              }
-              lang={lang}
-            >
-              <IconChart className="h-4 w-4" />
-              {locale === 'en' ? 'Market' : 'बजार'}
-            </Link>
-            <Link
-              href={latestHref}
-              className="inline-flex min-h-9 items-center rounded-sm bg-paper/15 px-2.5 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-paper/25 active:scale-[0.98]"
-              lang={lang}
-            >
-              {dict.navLatest}
-            </Link>
-          </div>
         </div>
       </nav>
 
@@ -288,8 +251,8 @@ function NavLink({
       aria-current={active ? 'page' : undefined}
       className={
         active
-          ? 'inline-flex min-h-10 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-sm bg-brand-bar-active px-2.5 text-meta font-black text-paper sm:px-3 sm:text-body'
-          : 'inline-flex min-h-10 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-sm px-2.5 text-meta font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:bg-brand-bar-active/85 hover:text-paper sm:px-3 sm:text-body'
+          ? 'inline-flex min-h-10 cursor-pointer items-center gap-1.5 whitespace-nowrap border-b-2 border-paper bg-brand-bar-active px-2.5 text-meta font-black text-paper sm:px-3 sm:text-body'
+          : 'inline-flex min-h-10 cursor-pointer items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent px-2.5 text-meta font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:border-paper/70 hover:bg-brand-bar-active/65 hover:text-paper sm:px-3 sm:text-body'
       }
     >
       {children}

@@ -36,6 +36,20 @@ export type NewsroomSession = ReaderSession & {
   newsroomRole: NewsroomRole
 }
 
+/**
+ * Better Auth uses `better-auth.session_token` by default and adds
+ * `better-auth.session_data` when cookie caching is enabled. Production adds
+ * the `__Secure-` prefix. If neither cookie is present, there is no session to
+ * resolve, so public requests must not initialise Better Auth or touch
+ * Postgres just to learn that the visitor is anonymous.
+ */
+export function hasBetterAuthSessionCookie(cookieHeader: string | null): boolean {
+  if (!cookieHeader) return false
+  return /(?:^|;\s*)(?:__Secure-)?better-auth\.(?:session_token|session_data)=/i.test(
+    cookieHeader,
+  )
+}
+
 const NEWSROOM_ROLES: ReadonlySet<NewsroomRole> = new Set<NewsroomRole>([
   'viewer',
   'contributor',
@@ -68,8 +82,10 @@ export const getSession = cache(async (): Promise<ReaderSession | null> => {
   if (process.env.E2E_TEST === 'true' && process.env.E2E_NEWSROOM !== 'true') return null
   if (process.env.CF_PAGES_STATIC === '1') return null
   try {
+    const requestHeaders = await headers()
+    if (!hasBetterAuthSessionCookie(requestHeaders.get('cookie'))) return null
     const auth = await getAuth()
-    const session = await auth.api.getSession({ headers: await headers() })
+    const session = await auth.api.getSession({ headers: requestHeaders })
     if (!session?.user) return null
     const user = session.user as {
       role?: string

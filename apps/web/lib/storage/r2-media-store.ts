@@ -53,12 +53,13 @@ export async function saveR2MediaFile(input: {
     }
   } catch (error) {
     // Outside the Workers runtime (local next dev / Vercel) there is no binding.
-    if (
-      error instanceof Error &&
-      (/getCloudflareContext|Cloudflare|MEDIA_BUCKET/i.test(error.message) ||
-        error.message.includes('not been initialized'))
-    ) {
-      return null
+    if (error instanceof Error) {
+      const message = error.message
+      const contextUnavailable =
+        /getCloudflareContext.*(?:not|outside|unavailable|unsupported)/i.test(message) ||
+        /Cloudflare context.*(?:not|outside|unavailable|unsupported|initialized)/i.test(message) ||
+        message.includes('not been initialized')
+      if (contextUnavailable) return null
     }
     throw error
   }

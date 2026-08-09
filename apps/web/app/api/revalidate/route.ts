@@ -15,6 +15,8 @@ type RevalidateMessage = {
   articleId?: string
   slug?: string
   categorySlug?: string
+  previousSlug?: string
+  previousCategorySlug?: string
   status?: string
   titleNe?: string
   titleEn?: string
@@ -72,6 +74,8 @@ export async function POST(request: NextRequest) {
 
   const category = cleanSegment(message.categorySlug)
   const slug = cleanSegment(message.slug)
+  const previousCategory = cleanSegment(message.previousCategorySlug)
+  const previousSlug = cleanSegment(message.previousSlug)
   const authorSlugs = Array.isArray(message.authorSlugs)
     ? message.authorSlugs.map(cleanSegment).filter(Boolean)
     : []
@@ -86,7 +90,21 @@ export async function POST(request: NextRequest) {
     tagSlugs,
   })
 
-  if (slug && category && message.titleNe && message.articleId) {
+  if (
+    previousSlug &&
+    previousCategory &&
+    (previousSlug !== slug || previousCategory !== category)
+  ) {
+    for (const path of revalidatePublishedArticle({
+      categorySlug: previousCategory,
+      slug: previousSlug,
+    })) {
+      if (!paths.includes(path)) paths.push(path)
+    }
+  }
+
+  const notificationEligible = message.status === 'published' || message.status === 'updated'
+  if (notificationEligible && slug && category && message.titleNe && message.articleId) {
     const event = await recordNotificationEvent({
       articleId: cleanSegment(message.articleId),
       articleSlug: slug,

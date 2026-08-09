@@ -122,10 +122,19 @@ export async function probeDatabase(): Promise<DatabaseProbe> {
 
   try {
     // Reuse the process-wide pool — never open+end a throwaway Pool per probe.
-    const { getSharedPool } = await import('@/lib/pg-pool')
+    const { getPoolConnectionState, getSharedPool } = await import('@/lib/pg-pool')
     const pool = await getSharedPool()
     if (!pool) {
-      return { ok: false, host, detail: 'DATABASE_URL is not set in this deployment.', code: 'MISSING' }
+      const state = getPoolConnectionState()
+      const lastError = state.lastError
+      return {
+        ok: false,
+        host,
+        code: lastError?.code || (state.coolingDown ? 'COOLDOWN' : 'UNREACHABLE'),
+        detail: lastError
+          ? `DATABASE_URL is configured, but Postgres is unreachable: ${lastError.message.slice(0, 180)}${state.coolingDown ? ` (retry cooldown ${Math.ceil(state.cooldownRemainingMs / 1000)}s)` : ''}`
+          : 'DATABASE_URL is configured, but no Postgres connection could be established.',
+      }
     }
     await pool.query('SELECT 1 AS ok')
     return { ok: true, host, detail: 'Postgres is reachable.' }

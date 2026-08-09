@@ -3,7 +3,7 @@ import type { CategoryRef, Locale } from '@nagarikwatch/db'
 import { cn } from './cn'
 
 /**
- * Editorial category kicker: solid brand rectangle (portal desk tag).
+ * Editorial category kicker for desk-level story labeling.
  * Links to the locale-correct category landing; pass `as="span"` inside another link.
  */
 type CategoryLabelProps = {

@@ -11,22 +11,26 @@ import { recordAuditEvent } from '@/lib/audit-log'
 import { revalidatePublishedArticle, publicArticlePath, isPubliclyVisibleStage } from '@/lib/content/revalidate-published'
 import {
   isPayloadCanonical,
-  payloadAdminUrl,
+  payloadAdminUrlIfConfigured,
+  shouldBlockLocalContentWrites,
 } from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
 
 function payloadCanonicalBlockedResponse() {
+  const canonical = isPayloadCanonical()
   return NextResponse.json(
     {
-      error:
-        'सार्वजनिक साइट Payload CMS बाट चल्छ। यो स्थानीय डेस्कबाट लेख सुरक्षित/प्रकाशित गर्दा पाठकले देख्दैनन्।',
-      cmsUrl: payloadAdminUrl(),
-      visibility: 'shadow',
-      visibilityHint:
-        'CONTENT_SOURCE=payload छ। प्रकाशन Payload एडमिनबाट गर्नुहोस्, वा CONTENT_SOURCE=json राख्नुहोस्।',
+      error: canonical
+        ? 'सार्वजनिक साइट Payload CMS बाट चल्छ। यो स्थानीय डेस्कबाट लेख सुरक्षित/प्रकाशित गर्दा पाठकले देख्दैनन्।'
+        : 'Live deployment content authority is misconfigured. Shadow-store article writes are blocked to prevent invisible publications.',
+      cmsUrl: payloadAdminUrlIfConfigured() ?? undefined,
+      visibility: 'blocked',
+      visibilityHint: canonical
+        ? 'Publish editorial content from Payload CMS.'
+        : 'Set CONTENT_SOURCE=payload and PAYLOAD_PUBLIC_SERVER_URL on the web deployment, then redeploy.',
     },
-    { status: 409 },
+    { status: canonical ? 409 : 503 },
   )
 }
 
@@ -78,7 +82,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
-  if (isPayloadCanonical()) return payloadCanonicalBlockedResponse()
+  if (shouldBlockLocalContentWrites()) return payloadCanonicalBlockedResponse()
   const limited = await enforceRateLimit(request, 'admin-article-update', 40, 60_000)
   if (limited) return limited
 
@@ -123,7 +127,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     const patch: Record<string, unknown> = { ...body }
-    if (requestedStage === 'published') {
+    if (requestedStage === 'published' || requestedStage === 'updated') {
       if (body.noIndex === undefined) patch.noIndex = false
       if (body.includeInNewsSitemap === undefined) patch.includeInNewsSitemap = true
     } else if (requestedStage) {
@@ -203,7 +207,7 @@ export async function DELETE(
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
-  if (isPayloadCanonical()) return payloadCanonicalBlockedResponse()
+  if (shouldBlockLocalContentWrites()) return payloadCanonicalBlockedResponse()
   const limited = await enforceRateLimit(request, 'admin-article-delete', 10, 60_000)
   if (limited) return limited
 

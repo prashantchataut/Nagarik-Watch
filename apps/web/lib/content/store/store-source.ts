@@ -128,6 +128,8 @@ function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): St
     hasEnglish: a.hasEnglish,
     isBreaking: a.isBreaking,
     premium: a.premium,
+    noIndex: a.noIndex,
+    includeInNewsSitemap: a.includeInNewsSitemap,
     readingMinutes: a.readingMinutes,
     province: a.province,
     district: a.district,

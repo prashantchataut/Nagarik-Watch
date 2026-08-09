@@ -9,7 +9,7 @@ import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/Cms
 import { AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditorClient } from '@/components/admin/ArticleEditorClient'
 import { listMediaItems } from '@/lib/media-library'
-import { isPayloadCanonical, payloadAdminUrl } from '@/lib/content/payload-admin-client'
+import { isPayloadCanonical, isPayloadSourceMisconfigured, payloadAdminUrl } from '@/lib/content/payload-admin-client'
 
 export const metadata: Metadata = {
   title: 'नयाँ समाचार',
@@ -20,6 +20,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function NewArticlePage() {
   const session = await requireNewsroomSession()
+  if (isPayloadSourceMisconfigured()) redirect('/admin/launch')
   const payloadCanonical = isPayloadCanonical()
   if (!canCreate(session.newsroomRole)) {
     redirect('/admin/articles')

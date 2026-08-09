@@ -37,6 +37,26 @@ const configuredPatterns = [
   .map(configuredRemotePattern)
   .filter((pattern) => pattern !== null)
 
+// Compatibility for legacy editor rows that stored Brave's image proxy URL
+// before durable newsroom media was wired. This fixes the current `_next/image`
+// 400s without opening the optimizer to arbitrary remote hosts. New editorial
+// media must be uploaded to Payload/Blob; migrate these URLs and remove this
+// compatibility host once the legacy corpus is clean.
+configuredPatterns.push({
+  protocol: 'https',
+  hostname: 'imgs.search.brave.com',
+  pathname: '/**',
+})
+
+// Canonical Payload media is stored in Vercel Blob in production. Blob store
+// hostnames are generated per store, so allow only Vercel's public Blob domain
+// family rather than permitting arbitrary HTTPS image origins.
+configuredPatterns.push({
+  protocol: 'https',
+  hostname: '**.public.blob.vercel-storage.com',
+  pathname: '/**',
+})
+
 const remotePatterns = configuredPatterns.filter(
   (pattern, index, all) =>
     all.findIndex(

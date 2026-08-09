@@ -337,8 +337,8 @@ async function buildAuth(): Promise<AuthInstance> {
     await runMigrations()
   }
 
-  // Kick off boot repair in the background for non-login routes. Admin login
-  // awaits ensureNewsroomBootAccounts itself so passwords sync before sign-in.
+  // Kick off non-blocking boot provisioning. Production login no longer waits
+  // for password re-hashing; explicit repair is opt-in via AUTH_BOOT_REPAIR_ON_LOGIN.
   after(() =>
     ensureNewsroomBootAccounts(
       auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],

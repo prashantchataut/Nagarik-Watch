@@ -180,6 +180,10 @@ async function ensureArticlesTable(pool: Queryable): Promise<void> {
     )`,
     `CREATE UNIQUE INDEX IF NOT EXISTS nw_articles_category_slug_uidx
      ON nw_articles (category_slug, slug)`,
+    `CREATE INDEX IF NOT EXISTS nw_articles_public_idx
+     ON nw_articles (workflow_stage, published_at DESC)`,
+    `CREATE INDEX IF NOT EXISTS nw_articles_updated_idx
+     ON nw_articles (updated_at DESC)`,
   ])
 }
 
@@ -210,11 +214,6 @@ async function insertSeedArticles(pool: Queryable, articles: StoredArticle[]): P
       ],
     )
   }
-}
-
-/** Drop legacy short starters so the full art-ed-* edition is the public inventory. */
-async function purgeLegacyStarterRows(pool: Queryable): Promise<void> {
-  await pool.query(`DELETE FROM nw_articles WHERE id LIKE 'art-nw-%'`)
 }
 
 function withoutLegacyStarters(articles: StoredArticle[]): StoredArticle[] {
@@ -298,7 +297,6 @@ async function refreshEditionArticles(
 }
 
 async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
-  await purgeLegacyStarterRows(pool)
   const result = await pool.query<{ document: unknown }>(`SELECT document FROM nw_articles`)
   const rawArticles = withoutLegacyStarters(
     result.rows.map((row) => parseDocument(row.document)).filter((a): a is StoredArticle => Boolean(a)),
@@ -359,6 +357,18 @@ async function writeToPostgres(pool: Queryable, store: StoreShape): Promise<void
       ],
     )
   }
+}
+
+type StoreMutation =
+  | { type: 'upsert'; article: StoredArticle }
+  | { type: 'delete'; id: string }
+
+async function applyStoreMutation(pool: Queryable, mutation: StoreMutation): Promise<void> {
+  if (mutation.type === 'delete') {
+    await pool.query(`DELETE FROM nw_articles WHERE id = $1`, [mutation.id])
+    return
+  }
+  await insertSeedArticles(pool, [mutation.article])
 }
 
 async function readFromFile(): Promise<StoreShape> {
@@ -424,10 +434,11 @@ async function read(): Promise<StoreShape> {
   return rememberCache(await readFromFile())
 }
 
-async function writeUnlocked(store: StoreShape): Promise<void> {
+async function writeUnlocked(store: StoreShape, mutation?: StoreMutation): Promise<void> {
   const pool = await getArticlesPool()
   if (pool) {
-    await writeToPostgres(pool, store)
+    if (mutation) await applyStoreMutation(pool, mutation)
+    else await writeToPostgres(pool, store)
     rememberCache(store)
     return
   }
@@ -518,6 +529,62 @@ export async function listArticlesForAdmin(
     q?: string
   } = {},
 ): Promise<{ items: StoredArticle[]; total: number }> {
+  const pool = await getArticlesPool()
+  if (pool) {
+    try {
+      const clauses: string[] = []
+      const params: unknown[] = []
+      if (opts.status) {
+        params.push(opts.status)
+        clauses.push(`workflow_stage = $${params.length}`)
+      }
+      const q = opts.q?.trim()
+      if (q) {
+        params.push(`%${q}%`)
+        const index = params.length
+        clauses.push(`(
+          document->>'titleNe' ILIKE $${index}
+          OR COALESCE(document->>'titleEn', '') ILIKE $${index}
+          OR slug ILIKE $${index}
+          OR category_slug ILIKE $${index}
+          OR COALESCE(document->>'deckNe', '') ILIKE $${index}
+        )`)
+      }
+      const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : ''
+      const count = await pool.query<{ total: string | number }>(
+        `SELECT COUNT(*) AS total FROM nw_articles ${where}`,
+        params,
+      )
+
+      const pageParams = [...params]
+      let pagination = ''
+      if (opts.limit !== undefined) {
+        pageParams.push(Math.max(1, opts.limit))
+        const limitIndex = pageParams.length
+        pageParams.push(Math.max(0, opts.offset ?? 0))
+        const offsetIndex = pageParams.length
+        pagination = `LIMIT $${limitIndex} OFFSET $${offsetIndex}`
+      }
+      const result = await pool.query<{ document: unknown }>(
+        `SELECT document FROM nw_articles ${where} ORDER BY updated_at DESC ${pagination}`,
+        pageParams,
+      )
+      return {
+        items: normalizeArticles(
+          result.rows
+            .map((row) => parseDocument(row.document))
+            .filter((article): article is StoredArticle => Boolean(article)),
+        ),
+        total: Number(count.rows[0]?.total ?? 0),
+      }
+    } catch (error) {
+      console.error(
+        '[json-store] direct admin article query failed; falling back to cached inventory',
+        error instanceof Error ? error.message : error,
+      )
+    }
+  }
+
   const store = await read()
   let items = store.articles
   if (opts.status) items = items.filter((a) => a.workflowStage === opts.status)
@@ -544,6 +611,49 @@ export async function getAdminDashboardSnapshot(): Promise<{
   breakingCount: number
   recentPublished: StoredArticle[]
 }> {
+  const pool = await getArticlesPool()
+  if (pool) {
+    try {
+      const stats = await pool.query<{
+        published_total: string | number
+        scheduled_count: string | number
+        breaking_count: string | number
+      }>(`
+        SELECT
+          COUNT(*) FILTER (WHERE workflow_stage IN ('published', 'updated')) AS published_total,
+          COUNT(*) FILTER (WHERE workflow_stage = 'scheduled') AS scheduled_count,
+          COUNT(*) FILTER (
+            WHERE workflow_stage IN ('published', 'updated')
+              AND COALESCE((document->>'isBreaking')::boolean, false)
+          ) AS breaking_count
+        FROM nw_articles
+      `)
+      const recent = await pool.query<{ document: unknown }>(`
+        SELECT document
+        FROM nw_articles
+        WHERE workflow_stage IN ('published', 'updated')
+        ORDER BY published_at DESC NULLS LAST
+        LIMIT 8
+      `)
+      const row = stats.rows[0]
+      return {
+        publishedTotal: Number(row?.published_total ?? 0),
+        scheduledCount: Number(row?.scheduled_count ?? 0),
+        breakingCount: Number(row?.breaking_count ?? 0),
+        recentPublished: normalizeArticles(
+          recent.rows
+            .map((item) => parseDocument(item.document))
+            .filter((article): article is StoredArticle => Boolean(article)),
+        ),
+      }
+    } catch (error) {
+      console.error(
+        '[json-store] dashboard aggregate query failed; falling back to cached inventory',
+        error instanceof Error ? error.message : error,
+      )
+    }
+  }
+
   const store = await read()
   const published = store.articles
     .filter((article) => PUBLIC_WORKFLOW_STAGES.includes(article.workflowStage))
@@ -774,7 +884,7 @@ export async function createArticle(input: {
       input.includeInNewsSitemap ?? PUBLIC_WORKFLOW_STAGES.includes(stage),
     aiSummary: input.aiSummary,
     premium: input.premium ?? false,
-    commentsEnabled: input.commentsEnabled ?? true,
+    commentsEnabled: input.commentsEnabled ?? false,
     locale: input.locale ?? 'ne',
     englishStatus,
     hasEnglish: englishStatus === 'published',
@@ -788,7 +898,10 @@ export async function createArticle(input: {
     dataStory: input.dataStory,
     factCheckStatus: input.factCheckStatus,
   }
-  await writeUnlocked({ ...store, articles: [...store.articles, article] })
+  await writeUnlocked(
+    { ...store, articles: [...store.articles, article] },
+    { type: 'upsert', article },
+  )
   return article
   })
 }
@@ -898,7 +1011,7 @@ export async function updateArticle(
   }
   const articles = [...store.articles]
   articles[idx] = updated
-  await writeUnlocked({ ...store, articles })
+  await writeUnlocked({ ...store, articles }, { type: 'upsert', article: updated })
 
   const slugChanged =
     (patch.slug !== undefined && patch.slug !== existing.slug) ||
@@ -924,7 +1037,10 @@ export async function deleteArticle(id: string): Promise<boolean> {
     const store = await read()
     const idx = store.articles.findIndex((a) => a.id === id)
     if (idx === -1) return false
-    await writeUnlocked({ ...store, articles: store.articles.filter((article) => article.id !== id) })
+    await writeUnlocked(
+      { ...store, articles: store.articles.filter((article) => article.id !== id) },
+      { type: 'delete', id },
+    )
     return true
   })
 }

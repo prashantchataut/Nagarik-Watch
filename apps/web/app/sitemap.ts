@@ -94,7 +94,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Articles. ne sees every story; fetch the full set once and emit per-locale URLs, gating
   // the English URL on hasEnglish so we never advertise a /en page that 404s (ADR-007).
   const all = await getStories({ locale: 'ne', perPage: 1000 })
-  for (const s of all.items) {
+  for (const s of all.items.filter((story) => story.noIndex !== true)) {
     const lastModified = new Date(s.publishedAt)
     const ageHours = (Date.now() - lastModified.getTime()) / 3_600_000
     // News-recency weighting keeps crawl priority honest for fresh/breaking

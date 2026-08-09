@@ -10,7 +10,12 @@ export async function GET() {
   const cutoff = Date.now() - 48 * 60 * 60 * 1000
   const { items } = await getStories({ locale: 'ne', perPage: 100 })
   const fresh = items
-    .filter((item) => Date.parse(item.publishedAt) >= cutoff)
+    .filter(
+      (item) =>
+        item.noIndex !== true &&
+        item.includeInNewsSitemap !== false &&
+        Date.parse(item.publishedAt) >= cutoff,
+    )
     .map((item) => ({
       item,
       priority: newsSitemapPriority((Date.now() - Date.parse(item.publishedAt)) / 3_600_000, item.isBreaking, 0.8),

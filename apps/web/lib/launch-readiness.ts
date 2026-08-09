@@ -74,7 +74,10 @@ function buildLaunchChecks(options?: {
   const publishedCount = Number(value('PUBLISHED_ARTICLE_COUNT') || 0)
   const launchMinimum = Number(value('LAUNCH_MIN_PUBLISHED_ARTICLES') || 30)
   const storageCredentialsPresent = Object.entries(process.env).some(
-    ([name, current]) => /^(STORAGE_|S3_|BLOB_)/.test(name) && Boolean(current?.trim()),
+    ([name, current]) =>
+      /^(STORAGE_|S3_|BLOB_)/.test(name) &&
+      typeof current === 'string' &&
+      Boolean(current.trim()),
   )
   const storageAdapterWired = isPayloadStorageWired()
   const blobUploadReady = Boolean(value('BLOB_READ_WRITE_TOKEN'))
@@ -331,7 +334,7 @@ function buildLaunchChecks(options?: {
       detail:
         value('CRON_SECRET').length >= 32 && !looksUnverified(value('CRON_SECRET'))
           ? 'CRON_SECRET configured (≥32 chars) for GitHub ops-crons / scheduled-publish'
-          : 'CRON_SECRET (≥32 chars) is required for GitHub Actions ops-crons (scheduled-publish every 5 min). Without it, scheduled articles stay dark.',
+          : 'CRON_SECRET (≥32 chars) is required for GitHub Actions ops-crons (scheduled-publish every 5 min). Without it, scheduled workflow promotion, notifications, and deterministic cache revalidation are not guaranteed.',
     },
     {
       key: 'payments',
@@ -443,7 +446,7 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
       if (!secretOk) {
         status = launchLive ? 'fail' : 'warn'
         detail =
-          'CRON_SECRET (≥32 chars) required for GitHub ops-crons / scheduled-publish. Without it, scheduled articles stay dark.'
+          'CRON_SECRET (≥32 chars) required for GitHub ops-crons / scheduled-publish. Without it, scheduled workflow promotion, notifications, and deterministic cache revalidation are not guaranteed.'
       } else if (!scheduled || scheduled.state === 'never') {
         status = launchLive ? 'fail' : 'warn'
         detail = `CRON_SECRET set, but ${neverCount}/${ops.cron.length} jobs have never recorded a heartbeat (wire CRON_BASE_URL + GitHub ops-crons / Vercel crons, or POST /api/cron/scheduled-publish once)`

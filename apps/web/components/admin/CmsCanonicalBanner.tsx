@@ -16,8 +16,11 @@ export function CmsCanonicalBanner({
     return (
       <AdminCallout tone="danger" className="mb-4">
         <p className="text-meta font-semibold text-ink" lang="ne">
-          CONTENT_SOURCE=payload छ तर PAYLOAD_PUBLIC_SERVER_URL सेट छैन। सार्वजनिक साइट स्थानीय
-          स्टोर पढ्छ; CMS URL थप्नुहोस् वा CONTENT_SOURCE=json राख्नुहोस्।
+          Live content authority configuration मिलेको छैन। सार्वजनिक साइटलाई Payload CMS सँग
+          स्पष्ट रूपमा जोड्नुपर्छ; shadow-store प्रकाशन सुरक्षा कारणले बन्द गरिएको छ।
+        </p>
+        <p className="mt-1 text-caption text-ink-soft" lang="en">
+          Set CONTENT_SOURCE=payload and PAYLOAD_PUBLIC_SERVER_URL on the web deployment, then redeploy.
         </p>
       </AdminCallout>
     )

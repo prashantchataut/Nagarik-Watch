@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canCreate, canEdit, canPublish } from '@/lib/admin-roles'
 import { listArticlesForAdmin, type StoredArticle } from '@/lib/content/store/json-store'
@@ -17,7 +18,7 @@ import {
   StatusBadge,
 } from '@/components/admin/primitives'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
-import { isPayloadCanonical } from '@/lib/content/payload-admin-client'
+import { isPayloadCanonical, isPayloadSourceMisconfigured, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
 
 export const metadata: Metadata = {
   title: 'समाचार',
@@ -68,6 +69,10 @@ export default async function ArticlesPage({
   searchParams: Promise<{ status?: string; q?: string; page?: string }>
 }) {
   const session = await requireNewsroomSession()
+  if (isPayloadSourceMisconfigured()) redirect('/admin/launch')
+  if (isPayloadCanonical()) {
+    redirect(payloadCollectionAdminUrl('articles'))
+  }
   const sp = await searchParams
   const status = normalizeStatus(sp.status)
   const query = (sp.q ?? '').trim()
@@ -95,7 +100,7 @@ export default async function ArticlesPage({
   const scheduledCron = ops?.cron.find((job) => job.job === 'scheduled-publish')
   const cronSecretMissing =
     !process.env.CRON_SECRET?.trim() || (process.env.CRON_SECRET?.trim().length ?? 0) < 32
-  const payloadMode = isPayloadCanonical()
+  const payloadMode = false
   const showScheduledCronWarning =
     !payloadMode &&
     (status === 'scheduled' || items.some((article) => article.workflowStage === 'scheduled')) &&

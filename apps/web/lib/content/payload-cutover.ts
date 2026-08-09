@@ -84,7 +84,7 @@ export function getPayloadCutoverChecklist(): {
     {
       key: 'revalidate',
       label: 'Shared revalidation secret',
-      ok: Boolean(revalidate) && revalidate.length >= 16 && !looksUnverified(revalidate),
+      ok: Boolean(revalidate) && revalidate.length >= 32 && !looksUnverified(revalidate),
       detail: revalidate
         ? 'REVALIDATE_SECRET shared with web app — prove publish → public ≤60s after flip'
         : 'Set the same REVALIDATE_SECRET on web + Payload',

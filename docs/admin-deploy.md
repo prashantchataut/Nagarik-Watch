@@ -16,9 +16,12 @@ Provision managed Postgres with backups and point-in-time recovery. Both applica
 `DATABASE_URL`: Payload owns editorial tables while the web app uses the same database for
 Better Auth and namespaced `nw_*` operational tables.
 
-Provision durable S3-compatible object storage before editors upload production media.
-Configure `STORAGE_ENDPOINT`, `STORAGE_REGION`, `STORAGE_BUCKET`, credentials, and
-`STORAGE_PUBLIC_BASE_URL`.
+Provision durable media storage before editors upload production media. The canonical
+`apps/admin` deployment is currently wired to Payload's **Vercel Blob** adapter, not a generic
+S3 adapter. Attach a Blob store to the Payload Vercel project so that project receives
+`BLOB_READ_WRITE_TOKEN`. Merely setting `STORAGE_ENDPOINT` / `STORAGE_BUCKET` does not wire
+Payload uploads in the current codebase. If R2/S3 is preferred later, add and test the matching
+Payload storage adapter first.
 
 ## 2. Deploy Payload (`apps/admin`)
 
@@ -30,7 +33,7 @@ Required values:
 - `PAYLOAD_DB_PUSH=false`
 - `NEXT_PUBLIC_SITE_URL=https://example.com`
 - `REVALIDATE_SECRET` shared with the web project
-- object-storage values
+- `BLOB_READ_WRITE_TOKEN` injected by the Blob store attached to **this Payload project**
 
 Apply migrations before or during the controlled deployment:
 

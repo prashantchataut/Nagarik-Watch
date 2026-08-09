@@ -1,5 +1,5 @@
 import 'server-only'
-import { cleanMultiline, cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
+import { cleanMultiline, cleanText, ensureOperationalSchema, isProductionRuntime, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
 
 export type MediaItem = {
   id: string
@@ -70,6 +70,11 @@ export async function createMediaItem(input: { url: unknown; alt: unknown; capti
     const result = await pool.query<Row>(`INSERT INTO nw_media_items (id, url, alt, caption, credit) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [item.id, item.url, item.alt, item.caption ?? null, item.credit ?? null])
     mediaListCache = null
     return rowToItem(result.rows[0]!)
+  }
+  if (isProductionRuntime()) {
+    throw new Error(
+      'Media object was uploaded, but DATABASE_URL is unavailable so its library metadata cannot be persisted safely.',
+    )
   }
   memory.set(item.id, item)
   mediaListCache = null

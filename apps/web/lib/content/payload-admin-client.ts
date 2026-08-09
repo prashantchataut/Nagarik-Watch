@@ -11,11 +11,23 @@ export function isPayloadCanonical(): boolean {
   )
 }
 
-/** True when env asks for Payload but the public CMS URL is missing (misconfig). */
+/**
+ * True when the content authority declaration is unsafe. Preview may use the
+ * local desk store, but a declared live launch is required by ADR-014 to use
+ * Payload with a configured CMS URL. This prevents successful shadow writes
+ * that the public reader can never see.
+ */
 export function isPayloadSourceMisconfigured(): boolean {
-  const source = process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim()
+  const source = process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'json'
+  const launchLive =
+    (process.env.NEXT_PUBLIC_LAUNCH_STATUS?.trim() || 'preview').toLowerCase() === 'live'
+  if (launchLive && source !== 'payload') return true
   if (source !== 'payload') return false
   return !isPayloadCanonical()
+}
+
+export function shouldBlockLocalContentWrites(): boolean {
+  return isPayloadCanonical() || isPayloadSourceMisconfigured()
 }
 
 export function payloadServerUrl(): string {
@@ -25,10 +37,26 @@ export function payloadServerUrl(): string {
   throw new Error('PAYLOAD_PUBLIC_SERVER_URL is required when Payload is canonical.')
 }
 
-export function payloadAdminUrl(path = ''): string {
+export function payloadAdminUrlIfConfigured(path = ''): string | null {
   const configured = process.env.PAYLOAD_ADMIN_URL?.trim()
-  const base = configured ? configured.replace(/\/$/, '') : `${payloadServerUrl()}/admin`
+  const publicServer = process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim()
+  const base = configured
+    ? configured.replace(/\/$/, '')
+    : publicServer
+      ? `${publicServer.replace(/\/$/, '')}/admin`
+      : null
+  if (!base) return null
   return `${base}${path.startsWith('/') ? path : path ? `/${path}` : ''}`
+}
+
+export function payloadAdminUrl(path = ''): string {
+  const configured = payloadAdminUrlIfConfigured(path)
+  if (configured) return configured
+  if (process.env.NODE_ENV !== 'production') {
+    const base = 'http://localhost:3001/admin'
+    return `${base}${path.startsWith('/') ? path : path ? `/${path}` : ''}`
+  }
+  throw new Error('PAYLOAD_PUBLIC_SERVER_URL or PAYLOAD_ADMIN_URL is required for the Payload admin URL.')
 }
 
 export function payloadCollectionAdminUrl(collection: string, id?: string): string {
@@ -42,6 +70,11 @@ export function assertLocalContentAdmin(): void {
   if (isPayloadCanonical()) {
     throw new Error(
       `Production content is managed in Payload CMS: ${payloadAdminUrl()}. The web admin shadow store is disabled.`,
+    )
+  }
+  if (isPayloadSourceMisconfigured()) {
+    throw new Error(
+      'Live launch content authority is misconfigured. Set CONTENT_SOURCE=payload and PAYLOAD_PUBLIC_SERVER_URL before editorial writes are allowed.',
     )
   }
 }
@@ -63,10 +96,15 @@ function payloadHeaders(): HeadersInit {
 }
 
 async function payloadJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const timeoutMs = Math.max(
+    1_500,
+    Math.min(10_000, Number(process.env.NW_PAYLOAD_ADMIN_TIMEOUT_MS ?? 4_000)),
+  )
   const response = await fetch(`${payloadServerUrl()}${path}`, {
     ...init,
     headers: { ...payloadHeaders(), ...(init?.headers ?? {}) },
     cache: 'no-store',
+    signal: init?.signal ?? AbortSignal.timeout(timeoutMs),
   })
   const body = (await response.json().catch(() => ({}))) as T & {
     errors?: Array<{ message?: string }>

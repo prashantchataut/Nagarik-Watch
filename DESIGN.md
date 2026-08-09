@@ -172,12 +172,22 @@ whitespace. Readers come to scan many stories; blank mid-page voids read as unfi
 | Dial | Homepage target | Notes |
 |------|-----------------|-------|
 | Visual density | **7 / 10** | Tight story rows, image+deck on rails, packed section bands |
-| Design variance | **5 / 10** | Structured multi-column grids, not artsy asymmetry |
+| Design variance | **7 / 10** | Explicit desk compositions with controlled asymmetry, not repeated card templates |
 | Motion | **3 / 10** | Hover/focus only; no scroll theatre |
 
 Reference craft bar for packing: serious Nepali news portals (e.g. OnlineKhabar-class
 information density). We match **story packing and scan rhythm**, never ad clutter,
 autoplay, or interstitial traps. PRODUCT.md still bans tabloid chrome.
+
+**Homepage editorial composition (2026-08-09):**
+
+- The opening package is **one dominant lead + one support lead + two support briefs + a compact top-story pulse**. Never stack multiple centered mega-heroes.
+- Category sections choose a composition by **editorial role**, not by array index or modulo rotation: news desk, split desk, photo desk, voices, or compact desk.
+- Lists are reserved for information that is genuinely sequential or ranked (`Latest`, `Most read`). Editorial category sections must compose stories rather than render interchangeable rows.
+- Homepage category kickers are typographic brand labels, not repeated filled pills. Trending topics are plain newsroom links with separators, not chips.
+- Reader personalization and province engagement analytics stay out of the main pitch homepage. The homepage foregrounds reporting, freshness, geography, photography and editorial judgment.
+- Ads follow completed editorial units: the first inline placement comes only after three populated desks; the closing billboard sits after the category stream. No ad-story-ad cadence.
+- Mobile removes the persistent live utility strip and keeps the first screens focused on masthead, breaking news, the lead package and a compact latest package.
 
 **Layout primitives:**
 
@@ -372,5 +382,9 @@ both themes. This stops light mode reading as an inverted portal., -
 | 2026-07-26 | Homepage density **7/10**; soft section rules | Sparse SaaS spacing + thick ink rules felt unfinished vs Nepali portal craft |
 | 2026-07-26 | Latest rail = image + deck + meta | Headline-only lists read as blank wireframes |
 | 2026-07-26 | Hide demo/placeholder polls on public | Real portal cannot show “test/demo” poll copy |
-| 2026-07-26 | Category desks: **desk/stack/mosaic** only | text-led columns + giant SVG mosaics left empty cells and looked unfinished vs OnlineKhabar packing |
+| 2026-07-26 | Category desks must **vary by editorial purpose** | text-led columns + giant SVG mosaics left empty cells and looked unfinished vs OnlineKhabar packing |
+| 2026-08-09 | Homepage opening = **lead/support/pulse**, never stacked mega-heroes | First-screen story choice and hierarchy matter more than oversized presentation |
+| 2026-08-09 | Homepage sections map to **editorial roles**, never modulo rotation | Distinct politics, business, opinion, sports and media rhythms prevent template monotony |
+| 2026-08-09 | **No homepage dashboard layer** | Personalization and reader-heat analytics compete with journalism on the pitch surface |
+| 2026-08-09 | Masthead primary bar is **news navigation only** | Calendar/market button clusters made the publication chrome feel app-like |
 | 2026-07-26 | Treat `data:` heroes as soft media | Never blow SVG stand-ins to full overlay cards; prefer packed horizontal desks |

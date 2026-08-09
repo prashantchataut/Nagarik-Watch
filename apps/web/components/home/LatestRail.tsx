@@ -8,16 +8,10 @@ type LatestRailProps = {
   stories: StoryCardData[]
   locale: Locale
   className?: string
-  /** Sidebar: single-column, tighter packing for persistent desktop rail. */
   compact?: boolean
-  /** Unique when the rail is rendered twice (mobile + desktop). */
   headingId?: string
 }
 
-/**
- * Dense “ताजा” feed: thumbnail + headline + short deck + meta.
- * Shares DenseStoryItem with featured / also-today rails.
- */
 export function LatestRail({
   stories,
   locale,
@@ -25,9 +19,11 @@ export function LatestRail({
   compact = false,
   headingId = 'latest-rail-title',
 }: LatestRailProps) {
-  const items = stories.slice(0, compact ? 5 : 8)
+  const items = stories.slice(0, compact ? 5 : 5)
   if (items.length === 0) return null
   const english = locale === 'en'
+  const lead = items[0]!
+  const briefs = items.slice(1)
 
   return (
     <aside className={className} aria-labelledby={headingId}>
@@ -51,22 +47,52 @@ export function LatestRail({
         </Link>
       </div>
 
-      <ol className={`mt-1 grid gap-0 ${compact ? '' : 'sm:grid-cols-2 sm:gap-x-5'}`}>
-        {items.map((story) => (
-          <li key={story.id} className="border-b border-rule py-2.5 last:border-b-0">
-            <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-              <DenseStoryItem
-                story={story}
-                locale={locale}
-                compact={compact}
-                showDeck
-                showDateline={!compact}
-                thumb="sm"
-              />
+      {compact ? (
+        <ol className="mt-1 divide-y divide-rule">
+          {items.map((story) => (
+            <li key={story.id} className="py-2.5">
+              <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
+                <DenseStoryItem
+                  story={story}
+                  locale={locale}
+                  compact
+                  showDeck
+                  showDateline={false}
+                  thumb="sm"
+                />
+              </InstrumentedStory>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <div className="mt-1">
+          <div className="py-3">
+            <InstrumentedStory articleSlug={lead.slug} articleCategory={lead.category.slug}>
+              <DenseStoryItem story={lead} locale={locale} showDeck showDateline thumb="lg" />
             </InstrumentedStory>
-          </li>
-        ))}
-      </ol>
+          </div>
+          {briefs.length > 0 ? (
+            <ol className="grid border-t border-rule sm:grid-cols-2 lg:grid-cols-4">
+              {briefs.map((story, index) => (
+                <li
+                  key={story.id}
+                  className={`min-w-0 py-2.5 ${index % 2 === 1 ? 'border-l border-rule pl-3 sm:pl-4' : 'pr-3 sm:pr-4'} ${index >= 2 ? 'border-t border-rule lg:border-t-0' : ''} ${index > 0 ? 'lg:border-l lg:border-rule lg:pl-4' : ''}`}
+                >
+                  <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
+                    <DenseStoryItem
+                      story={story}
+                      locale={locale}
+                      showDeck={false}
+                      showThumb={false}
+                      showDateline
+                    />
+                  </InstrumentedStory>
+                </li>
+              ))}
+            </ol>
+          ) : null}
+        </div>
+      )}
     </aside>
   )
 }

@@ -75,6 +75,10 @@ export interface StoryCardData {
   premium?: boolean
   /** When true, suppress display ads on the article surface. */
   adFree?: boolean
+  /** SEO directive only; a no-index story can still be publicly readable. */
+  noIndex?: boolean
+  /** Distribution control for Google News sitemap output. */
+  includeInNewsSitemap?: boolean
   /** Optional reading-time, used by some card variants. */
   readingMinutes?: number
   /** Province slug (e.g. bagmati) when geo-tagged. */

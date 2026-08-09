@@ -6,7 +6,8 @@ import { SITE_URL } from '@/lib/site'
 
 export async function getDistributionStories(locale: Locale, limit = 50): Promise<StoryCardData[]> {
   const { items } = await getStories({ locale, perPage: limit })
-  return locale === 'en' ? items.filter((item) => item.hasEnglish) : items
+  const distributable = items.filter((item) => item.noIndex !== true)
+  return locale === 'en' ? distributable.filter((item) => item.hasEnglish) : distributable
 }
 
 export function distributionStory(story: StoryCardData, locale: Locale) {

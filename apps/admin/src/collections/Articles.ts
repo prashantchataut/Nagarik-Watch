@@ -283,7 +283,11 @@ export const Articles: CollectionConfig = {
         { label: 'Archived', value: 'archived' },
         { label: 'Retracted', value: 'retracted' },
       ],
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        description:
+          'Editorial stage only. To make a story public, use Payload’s Publish action as well. Public visibility requires document status Published, a public workflow stage, and publishAt not in the future.',
+      },
     },
     {
       name: 'assignedTo',

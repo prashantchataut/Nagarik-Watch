@@ -5,9 +5,27 @@ import { assertNewsroomRole, MEDIA_MANAGER_ROLES, canEdit } from '@/lib/admin-ro
 import { createMediaItem, listMediaItems } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { enforceRateLimit } from '@/lib/rate-limit'
-import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
+import { isPayloadCanonical, payloadCollectionAdminUrl, payloadAdminUrlIfConfigured, shouldBlockLocalContentWrites } from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
+
+function blockedMediaResponse() {
+  const canonical = isPayloadCanonical()
+  return NextResponse.json(
+    {
+      error: canonical
+        ? 'Production media is managed in Payload CMS.'
+        : 'Live deployment content authority is misconfigured. Local media writes are blocked.',
+      cmsUrl: canonical
+        ? payloadCollectionAdminUrl('media')
+        : payloadAdminUrlIfConfigured('/collections/media') ?? undefined,
+      configurationHint: canonical
+        ? undefined
+        : 'Set CONTENT_SOURCE=payload and PAYLOAD_PUBLIC_SERVER_URL on the web deployment.',
+    },
+    { status: canonical ? 409 : 503 },
+  )
+}
 
 /** GET /api/admin/media — list library items for the article editor picker. */
 export async function GET() {
@@ -15,12 +33,7 @@ export async function GET() {
   if (!canEdit(session.newsroomRole)) {
     return NextResponse.json({ error: 'अनुमति छैन।' }, { status: 403 })
   }
-  if (isPayloadCanonical()) {
-    return NextResponse.json(
-      { error: 'Production media is managed in Payload CMS.', cmsUrl: payloadCollectionAdminUrl('media') },
-      { status: 409 },
-    )
-  }
+  if (shouldBlockLocalContentWrites()) return blockedMediaResponse()
   const items = await listMediaItems()
   return NextResponse.json({ items })
 }
@@ -35,12 +48,7 @@ export async function POST(request: NextRequest) {
 
   const session = await requireNewsroomSession()
   assertNewsroomRole(session.newsroomRole, MEDIA_MANAGER_ROLES)
-  if (isPayloadCanonical()) {
-    return NextResponse.json(
-      { error: 'Production media is managed in Payload CMS.', cmsUrl: payloadCollectionAdminUrl('media') },
-      { status: 409 },
-    )
-  }
+  if (shouldBlockLocalContentWrites()) return blockedMediaResponse()
 
   let body: Record<string, unknown>
   try {

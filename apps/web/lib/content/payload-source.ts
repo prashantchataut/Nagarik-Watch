@@ -125,7 +125,6 @@ function publicArticleWhere(): Record<string, Record<string, unknown>> {
     _status: { equals: 'published' },
     workflowStage: { in: ['scheduled', 'published', 'updated'] },
     publishAt: { less_than_equal: new Date().toISOString() },
-    noIndex: { not_equals: true },
   }
 }
 
@@ -186,6 +185,8 @@ function asCard(doc: PayloadDoc): StoryCardData {
     isBreaking: Boolean(doc.isBreaking),
     premium: doc.premium === true,
     adFree: doc.adFree === true,
+    noIndex: doc.noIndex === true,
+    includeInNewsSitemap: doc.includeInNewsSitemap !== false,
     readingMinutes: doc.readingMinutes ? Number(doc.readingMinutes) : undefined,
     province: doc.province ? String(doc.province) : undefined,
     district: doc.district ? String(doc.district) : undefined,
@@ -248,10 +249,15 @@ async function payloadFind<T extends PayloadDoc>(
   }
 
   const revalidateSeconds = Math.max(0, Number(options.revalidateSeconds ?? 0))
+  const timeoutMs = Math.max(
+    1_500,
+    Math.min(10_000, Number(process.env.NW_PAYLOAD_READ_TIMEOUT_MS ?? 4_000)),
+  )
   const response = await fetch(`${payloadServerUrl()}/api/${collection}?${params.toString()}`, {
     cache: revalidateSeconds > 0 ? 'force-cache' : 'no-store',
     next: revalidateSeconds > 0 ? { revalidate: revalidateSeconds } : undefined,
     headers: { accept: 'application/json' },
+    signal: AbortSignal.timeout(timeoutMs),
   })
   const body = (await response.json().catch(() => ({}))) as PayloadFindResult<T> & {
     errors?: Array<{ message?: string }>
@@ -352,58 +358,41 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
 
     async getHomepage(): Promise<HomepageData | null> {
       const publishedWhere = publicArticleWhere()
-      const [{ docs }, { docs: leadDocs }, { docs: featuredDocs }, { docs: secondaryDocs }, { docs: catDocs }] =
-        await Promise.all([
-          payloadFind<PayloadDoc>('articles', {
-            where: publishedWhere,
-            sort: '-publishAt',
-            limit: 60,
-            depth: 1,
-            revalidateSeconds: 20,
-          }),
-          payloadFind<PayloadDoc>('articles', {
-            where: { ...publishedWhere, featuredState: { equals: 'lead' } },
-            sort: '-publishAt',
-            limit: 1,
-            depth: 1,
-            revalidateSeconds: 20,
-          }),
-          payloadFind<PayloadDoc>('articles', {
-            where: { ...publishedWhere, featuredState: { equals: 'featured' } },
-            sort: '-publishAt',
-            limit: 6,
-            depth: 1,
-            revalidateSeconds: 20,
-          }),
-          payloadFind<PayloadDoc>('articles', {
-            where: { ...publishedWhere, featuredState: { equals: 'secondary' } },
-            sort: '-publishAt',
-            limit: 6,
-            depth: 1,
-            revalidateSeconds: 20,
-          }),
-          payloadFind<PayloadDoc>('categories', {
-            where: { showInNav: { equals: true } },
-            sort: 'navOrder',
-            limit: 50,
-            depth: 0,
-            revalidateSeconds: 120,
-          }),
-        ])
+      // One bounded article request is enough to compose the whole homepage.
+      // The previous implementation made four near-identical cross-service
+      // article requests on a cold render, multiplying Payload cold-start/DB
+      // latency and making the reader feel slow whenever the CMS was unhealthy.
+      const [{ docs }, { docs: catDocs }] = await Promise.all([
+        payloadFind<PayloadDoc>('articles', {
+          where: publishedWhere,
+          sort: '-publishAt',
+          limit: 120,
+          depth: 1,
+          revalidateSeconds: 20,
+        }),
+        payloadFind<PayloadDoc>('categories', {
+          where: { showInNav: { equals: true } },
+          sort: 'navOrder',
+          limit: 50,
+          depth: 0,
+          revalidateSeconds: 120,
+        }),
+      ])
 
       const rows = docs as unknown as PayloadDoc[]
       const cards = rows.map(asCard)
       if (!cards.length) return null
 
-      const editorialLead = (leadDocs as unknown as PayloadDoc[])
-        .filter((doc) => placementActive(doc))
+      const activeRows = rows.filter((doc) => placementActive(doc))
+      const editorialLead = activeRows
+        .filter((doc) => doc.featuredState === 'lead')
         .map(asCard)[0]
       const lead = editorialLead ?? cards[0]!
-      const editorialFeatured = (featuredDocs as unknown as PayloadDoc[])
-        .filter((doc) => placementActive(doc))
+      const editorialFeatured = activeRows
+        .filter((doc) => doc.featuredState === 'featured')
         .map(asCard)
-      const editorialSecondary = (secondaryDocs as unknown as PayloadDoc[])
-        .filter((doc) => placementActive(doc))
+      const editorialSecondary = activeRows
+        .filter((doc) => doc.featuredState === 'secondary')
         .map(asCard)
       const fallbackPool = cards.filter((card) => card.id !== lead.id)
       const featured = Array.from(
@@ -626,6 +615,8 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
     seoDescriptionNe: doc.seoDescription ? String(doc.seoDescription) : undefined,
     premium: doc.premium === true,
     adFree: doc.adFree === true,
+    noIndex: doc.noIndex === true,
+    includeInNewsSitemap: doc.includeInNewsSitemap !== false,
     noindex: doc.noIndex === true,
     doNotRecommend: doc.doNotRecommend === true,
     commentsEnabled: doc.commentsEnabled !== false,

@@ -6,6 +6,7 @@ import { getNewsroomSession } from '@/lib/auth/session'
 import { ensureNewsroomBootAccounts, getBootLoginHint } from '@/lib/auth/boot-accounts'
 import { StaffAuthShell } from '@/components/auth/StaffAuthShell'
 import { AdminLoginForm } from './AdminLoginForm'
+import { probeDatabase } from '@/lib/db-url'
 
 export const metadata: Metadata = {
   title: 'Newsroom Login · नागरिक वाच',
@@ -24,19 +25,30 @@ export default async function AdminLoginPage({
   try {
     const auth = await getAuth()
     authReady = true
-    await ensureNewsroomBootAccounts(
-      auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
-      { forcePassword: true },
-    )
+    // Do not bcrypt/rewrite every configured staff password on every login
+    // page render. `getAuth()` already schedules normal boot provisioning after
+    // the response. Operators can explicitly request a blocking repair when
+    // rotating an env password by setting AUTH_BOOT_REPAIR_ON_LOGIN=true for
+    // one deployment/request window.
+    if (
+      process.env.NODE_ENV !== 'production' ||
+      process.env.AUTH_BOOT_REPAIR_ON_LOGIN === 'true'
+    ) {
+      await ensureNewsroomBootAccounts(
+        auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
+        { forcePassword: process.env.AUTH_BOOT_REPAIR_ON_LOGIN === 'true' },
+      )
+    }
   } catch (error) {
     bootFailed = true
     console.error('[admin/login] auth/boot failed', error)
   }
 
-  const [session, query, boot] = await Promise.all([
+  const [session, query, boot, databaseProbe] = await Promise.all([
     getNewsroomSession(),
     searchParams,
     getBootLoginHint(),
+    bootFailed ? probeDatabase() : Promise.resolve(null),
   ])
   if (session) redirect('/admin/dashboard')
 
@@ -67,7 +79,7 @@ export default async function AdminLoginPage({
         <aside className="newsroom-login-form__error" role="status">
           <strong>लगइन सेवा अफलाइन।</strong>
           <span className="mt-1.5 block">
-            DATABASE_URL र NEWSROOM_* env जाँच्नुहोस्, त्यसपछि पृष्ठ रिफ्रेस गर्नुहोस्।
+            {databaseProbe?.detail ?? 'DATABASE_URL र NEWSROOM_* env जाँच्नुहोस्, त्यसपछि पृष्ठ रिफ्रेस गर्नुहोस्।'}
           </span>
         </aside>
       ) : null}

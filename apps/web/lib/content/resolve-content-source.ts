@@ -25,8 +25,16 @@ export function contentSourceFingerprint(): string {
 
 export async function resolveContentSource(): Promise<ContentSource> {
   if (isPayloadSourceMisconfigured()) {
+    const source =
+      process.env.CONTENT_SOURCE?.trim() ||
+      process.env.PAYLOAD_CONTENT_SOURCE?.trim() ||
+      'json'
+    const launchLive =
+      (process.env.NEXT_PUBLIC_LAUNCH_STATUS?.trim() || 'preview').toLowerCase() === 'live'
     throw new Error(
-      'CONTENT_SOURCE=payload requires PAYLOAD_PUBLIC_SERVER_URL (or PAYLOAD_ADMIN_URL). Refusing to fall back to the desk store.',
+      launchLive && source !== 'payload'
+        ? 'NEXT_PUBLIC_LAUNCH_STATUS=live requires CONTENT_SOURCE=payload. Refusing to serve from the shadow desk store.'
+        : 'CONTENT_SOURCE=payload requires PAYLOAD_PUBLIC_SERVER_URL (or PAYLOAD_ADMIN_URL). Refusing to fall back to the desk store.',
     )
   }
 

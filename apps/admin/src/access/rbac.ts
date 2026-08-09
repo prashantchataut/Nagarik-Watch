@@ -145,14 +145,21 @@ export const userManagerRoles = ['admin', 'super_admin'] as const satisfies read
 
 export const hardDeleteRoles = ['super_admin'] as const satisfies readonly NewsroomRole[]
 
-/** Public readers see only articles that are genuinely public and whose publication time has arrived. */
+/**
+ * Public readers see articles that are genuinely published and whose
+ * publication time has arrived.
+ *
+ * `noIndex` is deliberately NOT part of this visibility predicate. It is an
+ * SEO directive (robots/sitemap), not an editorial publication switch. Using
+ * it here previously made a perfectly published story disappear from the
+ * reader API whenever an editor checked "no index".
+ */
 export const publishedOrNewsroom: Access = ({ req }) => {
   if (hasAnyRole(req.user, newsroomInternalRoles)) return true
   const conditions: Where[] = [
     { _status: { equals: 'published' } },
     { workflowStage: { in: ['scheduled', 'published', 'updated'] } },
     { publishAt: { less_than_equal: new Date().toISOString() } },
-    { noIndex: { not_equals: true } },
   ]
   return {
     and: conditions,

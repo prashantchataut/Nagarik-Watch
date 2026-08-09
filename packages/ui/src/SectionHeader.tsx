@@ -39,12 +39,12 @@ export function SectionHeader({
       <div className="min-w-0">
         <h2
           id={id}
-          className="font-display text-h3 font-extrabold tracking-tight text-ink"
+          className="font-display text-h3 font-extrabold tracking-tight text-ink sm:text-h2"
           lang={lang}
         >
           {title}
         </h2>
-        <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
+        <span className="mt-1.5 block h-0.5 w-12 bg-brand" aria-hidden="true" />
       </div>
       {href && moreLabel && (
         <Link

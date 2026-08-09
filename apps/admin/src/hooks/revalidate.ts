@@ -17,6 +17,13 @@ type ArticleDoc = {
   tags?: Array<{ tag?: string | number | { slug?: string } }>
 }
 
+function isReaderVisible(article: ArticleDoc | null | undefined): boolean {
+  if (!article || article._status !== 'published') return false
+  if (article.workflowStage !== 'published' && article.workflowStage !== 'updated') return false
+  const publishAt = article.publishAt ? Date.parse(String(article.publishAt)) : 0
+  return !publishAt || !Number.isFinite(publishAt) || publishAt <= Date.now()
+}
+
 function webBaseUrl(): string | null {
   const value = process.env.NEXT_PUBLIC_SITE_URL?.trim() || process.env.WEB_PUBLIC_URL?.trim()
   return value ? value.replace(/\/$/, '') : null
@@ -83,10 +90,16 @@ async function relationshipSlugs(
  * Publishing remains available if the reader deployment is temporarily down;
  * the failure is logged and the site's normal dynamic reads remain the backstop.
  */
-export const revalidatePublishedArticle: CollectionAfterChangeHook = async ({ doc, req }) => {
+export const revalidatePublishedArticle: CollectionAfterChangeHook = async ({
+  doc,
+  previousDoc,
+  req,
+}) => {
   const article = doc as ArticleDoc
-  if (article._status !== 'published') return doc
-  if (article.workflowStage !== 'published' && article.workflowStage !== 'updated') return doc
+  const previous = (previousDoc ?? null) as ArticleDoc | null
+  const visibleNow = isReaderVisible(article)
+  const visibleBefore = isReaderVisible(previous)
+  if (!visibleNow && !visibleBefore) return doc
 
   const baseUrl = webBaseUrl()
   const secret = signingSecret()
@@ -97,25 +110,38 @@ export const revalidatePublishedArticle: CollectionAfterChangeHook = async ({ do
     return doc
   }
 
+  const [currentCategorySlug, previousCategorySlug, authorSlugs, tagSlugs] = await Promise.all([
+    categorySlug(article, req),
+    previous ? categorySlug(previous, req) : Promise.resolve(''),
+    relationshipSlugs(article.authors, 'author', 'authors', req),
+    relationshipSlugs(article.tags, 'tag', 'tags', req),
+  ])
+
   const payload = JSON.stringify({
     event: 'article.changed',
     articleId: String(article.id),
     slug: String(article.slug ?? ''),
-    categorySlug: await categorySlug(article, req),
-    status: article.workflowStage,
+    categorySlug: currentCategorySlug,
+    previousSlug: previous ? String(previous.slug ?? '') : undefined,
+    previousCategorySlug,
+    status: visibleNow ? article.workflowStage : 'unpublished',
     titleNe: String(article.titleNe ?? ''),
     titleEn: article.titleEn ? String(article.titleEn) : undefined,
     isBreaking: Boolean(article.isBreaking),
     notificationMode: article.notificationMode ?? 'none',
     notificationTagSlugs: Array.isArray(article.notificationTagSlugs) ? article.notificationTagSlugs.map(String) : [],
     publishedAt: article.publishAt ? String(article.publishAt) : new Date().toISOString(),
-    authorSlugs: await relationshipSlugs(article.authors, 'author', 'authors', req),
-    tagSlugs: await relationshipSlugs(article.tags, 'tag', 'tags', req),
+    authorSlugs,
+    tagSlugs,
   })
   const timestamp = String(Date.now())
   const signature = createHmac('sha256', secret).update(`${timestamp}.${payload}`).digest('hex')
 
   try {
+    const timeoutMs = Math.max(
+      500,
+      Math.min(5_000, Number(process.env.NW_REVALIDATE_TIMEOUT_MS ?? 1_500)),
+    )
     const response = await fetch(`${baseUrl}/api/revalidate`, {
       method: 'POST',
       headers: {
@@ -124,7 +150,7 @@ export const revalidatePublishedArticle: CollectionAfterChangeHook = async ({ do
         'x-nw-signature': signature,
       },
       body: payload,
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(timeoutMs),
     })
     if (!response.ok) {
       const detail = await response.text().catch(() => '')

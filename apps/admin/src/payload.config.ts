@@ -34,9 +34,40 @@ const PAYLOAD_SECRET =
   process.env.PAYLOAD_SECRET ?? (isBuild ? 'build-placeholder-not-used-at-runtime' : undefined)
 const DATABASE_URL =
   process.env.DATABASE_URL ??
+  process.env.POSTGRES_URL ??
+  process.env.POSTGRES_PRISMA_URL ??
+  process.env.POSTGRES_URL_NON_POOLING ??
+  process.env.NEON_DATABASE_URL ??
   (isBuild ? 'postgres://build-placeholder.not.used.at.runtime/db' : undefined)
 const SERVER_URL =
   process.env.PAYLOAD_PUBLIC_SERVER_URL ?? (isBuild ? 'http://localhost:3001' : undefined)
+
+function adminDatabasePoolConfig(connectionString: string) {
+  let hostname = ''
+  try {
+    hostname = new URL(connectionString).hostname.toLowerCase()
+  } catch {
+    return { connectionString }
+  }
+
+  const explicit = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED?.trim()
+  const relaxTls =
+    explicit === 'false' ||
+    (explicit !== 'true' &&
+      (hostname.endsWith('.aivencloud.com') || hostname.endsWith('.aiven.io')))
+
+  if (!relaxTls) return { connectionString }
+
+  const url = new URL(connectionString)
+  url.searchParams.delete('ssl')
+  url.searchParams.delete('sslmode')
+  url.searchParams.delete('uselibpqcompat')
+  url.searchParams.set('sslmode', 'no-verify')
+  return {
+    connectionString: url.toString(),
+    ssl: { rejectUnauthorized: false },
+  }
+}
 
 /**
  * Validate env at runtime (NOT at build). Called once on first server boot
@@ -45,7 +76,12 @@ const SERVER_URL =
  */
 function validateAtBoot() {
   if (isBuild) return
-  loadEnv()
+  loadEnv({
+    ...process.env,
+    // Keep the CMS aligned with the web app's accepted Vercel/Neon aliases,
+    // while preserving DATABASE_URL as the canonical validated key.
+    DATABASE_URL,
+  })
 }
 
 /**
@@ -99,9 +135,7 @@ export default buildConfig({
   // Validate env once the server actually boots — never during `next build`.
   onInit: validateAtBoot,
   db: postgresAdapter({
-    pool: {
-      connectionString: DATABASE_URL as string,
-    },
+    pool: adminDatabasePoolConfig(DATABASE_URL as string),
     // Dev pushes the schema live (fast iteration). Prod runs against generated
     // migrations (source of truth) so schema changes are reviewed and ordered.
     // Set PAYLOAD_DB_PUSH=false in production; defaults to true for local dev.

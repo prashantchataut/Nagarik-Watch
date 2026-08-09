@@ -55,7 +55,7 @@ export function ProvinceMegaMenu({ locale }: { locale: Locale }) {
         onKeyDown={(e) => {
           if (e.key === 'Escape') setOpen(false)
         }}
-        className="inline-flex min-h-11 items-center gap-1 px-2.5 text-meta font-bold text-surface/90 transition-colors duration-fast ease-out-quint hover:bg-brand-bar-active/80 hover:text-paper sm:px-3 sm:text-body"
+        className="inline-flex min-h-11 items-center gap-1 px-2.5 text-meta font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:bg-brand-bar-active/80 hover:text-paper sm:px-3 sm:text-body"
         lang={lang}
       >
         {label}

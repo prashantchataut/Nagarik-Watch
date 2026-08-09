@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { getNavCategories } from '@/lib/content'
 import { requireNewsroomSession } from '@/lib/auth/session'
@@ -31,25 +32,23 @@ export const dynamic = 'force-dynamic'
 export default async function DashboardPage() {
   const newsroom = await requireNewsroomSession()
 
-  const [snapshotResult, categoriesResult, pendingReviews, mostRead, trendingSamples, adSummaries, engagement] =
-    await Promise.all([
-      safeAdminLoad(
-        'dashboard-snapshot',
-        () => getAdminDashboardSnapshot(),
-        {
-          publishedTotal: 0,
-          scheduledCount: 0,
-          breakingCount: 0,
-          recentPublished: [],
-        },
-      ),
-      safeAdminLoad('dashboard-categories', () => getNavCategories(), []),
-      listPendingJournalistReviews().catch(() => []),
-      getMostReadStats(7, 8).catch(() => []),
-      getTrendingSamples(120).catch(() => []),
-      getAdEventSummary().catch(() => []),
-      buildStoryEngagementIndex(120).catch(() => null),
-    ])
+  // Keep the first admin response on the critical editorial path only. Reader
+  // analytics/ad aggregates stream below in their own Suspense boundary so a
+  // slow operational query cannot hold the whole dashboard for seconds.
+  const [snapshotResult, categoriesResult, pendingReviews] = await Promise.all([
+    safeAdminLoad(
+      'dashboard-snapshot',
+      () => getAdminDashboardSnapshot(),
+      {
+        publishedTotal: 0,
+        scheduledCount: 0,
+        breakingCount: 0,
+        recentPublished: [],
+      },
+    ),
+    safeAdminLoad('dashboard-categories', () => getNavCategories(), []),
+    listPendingJournalistReviews().catch(() => []),
+  ])
 
   const snapshot = snapshotResult.value
   const categories = categoriesResult.value
@@ -60,15 +59,6 @@ export default async function DashboardPage() {
   const desk = resolveAdminDeskVariant(role)
   const roleLabel = NEWSROOM_ROLE_LABELS_NE[role] ?? role
   const deskLabel = adminDeskLabelNe(desk)
-  const adImpressions = adSummaries.reduce((sum, row) => sum + row.impressions, 0)
-  const adClicks = adSummaries.reduce((sum, row) => sum + row.clicks, 0)
-  const avgDwell =
-    mostRead.length > 0
-      ? Math.round(
-          mostRead.reduce((sum, row) => sum + (row.averageDwellSeconds ?? 0), 0) / mostRead.length,
-        )
-      : 0
-
   const metrics =
     desk === 'super' || desk === 'admin'
       ? [
@@ -187,62 +177,16 @@ export default async function DashboardPage() {
         ))}
       </section>
 
-      <AdminCard>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="admin-section-title" lang="ne">
-            पाठक संकेत (७ दिन / २ घण्टा)
-          </h3>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/admin/session-quality" className="text-meta font-semibold text-brand" lang="ne">
-              सत्र गुणस्तर
-            </Link>
-            <Link href="/admin/algorithms" className="text-meta font-semibold text-brand" lang="ne">
-              अल्गोरिदम
-            </Link>
-            <Link href="/admin/ads" className="text-meta font-semibold text-brand" lang="en">
-              Ads
-            </Link>
-          </div>
-        </div>
-        <div className="admin-metric-grid mt-3">
-          <AdminMetric value={mostRead.length} label="Most-read stories" href="/ne/most-read" />
-          <AdminMetric value={trendingSamples.length} label="Trending samples (2h)" href="/ne/trending" />
-          <AdminMetric
-            value={engagement?.storyCount ?? 0}
-            label="Stories with signal"
-            href="/admin/algorithms"
-          />
-          <AdminMetric
-            value={avgDwell > 0 ? `${avgDwell}s` : '—'}
-            label="Avg dwell (top)"
-            href="/admin/session-quality"
-          />
-          <AdminMetric value={adImpressions} label="Ad impressions (30d)" href="/admin/ads" />
-          <AdminMetric value={adClicks} label="Ad clicks (30d)" href="/admin/ads" />
-        </div>
-        {mostRead.length === 0 ? (
-          <p className="mt-3 text-meta text-ink-soft" lang="ne">
-            अहिलेसम्म पर्याप्त पढाइ संकेत छैन। Analytics consent दिएका पाठकको watch-time आएपछि most-read र
-            trending भरिन्छ।
-          </p>
-        ) : (
-          <ul className="admin-list mt-3">
-            {mostRead.slice(0, 5).map((row) => (
-              <li key={row.articleSlug}>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-meta font-semibold text-ink" lang="ne">
-                    {row.articleTitleNe || row.articleSlug}
-                  </p>
-                  <p className="text-caption text-mute" lang="en">
-                    {row.uniqueReaders} readers · {row.averageDwellSeconds}s dwell ·{' '}
-                    {Math.round(row.averageReadPercent)}% scroll
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </AdminCard>
+      <Suspense
+        fallback={
+          <AdminCard>
+            <h3 className="admin-section-title" lang="ne">पाठक संकेत</h3>
+            <p className="mt-2 text-meta text-mute" lang="ne">विश्लेषण लोड हुँदैछ…</p>
+          </AdminCard>
+        }
+      >
+        <DashboardSignals />
+      </Suspense>
 
       {desk === 'editor' && pendingReviews.length > 0 ? (
         <AdminCard>
@@ -325,3 +269,70 @@ export default async function DashboardPage() {
     </div>
   )
 }
+
+async function DashboardSignals() {
+  const [mostRead, trendingSamples, adSummaries, engagement] = await Promise.all([
+    getMostReadStats(7, 8).catch(() => []),
+    getTrendingSamples(120).catch(() => []),
+    getAdEventSummary().catch(() => []),
+    buildStoryEngagementIndex(120).catch(() => null),
+  ])
+  const adImpressions = adSummaries.reduce((sum, row) => sum + row.impressions, 0)
+  const adClicks = adSummaries.reduce((sum, row) => sum + row.clicks, 0)
+  const avgDwell =
+    mostRead.length > 0
+      ? Math.round(
+          mostRead.reduce((sum, row) => sum + (row.averageDwellSeconds ?? 0), 0) / mostRead.length,
+        )
+      : 0
+
+  return (
+    <AdminCard>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="admin-section-title" lang="ne">
+          पाठक संकेत (७ दिन / २ घण्टा)
+        </h3>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/admin/session-quality" className="text-meta font-semibold text-brand" lang="ne">
+            सत्र गुणस्तर
+          </Link>
+          <Link href="/admin/algorithms" className="text-meta font-semibold text-brand" lang="ne">
+            अल्गोरिदम
+          </Link>
+          <Link href="/admin/ads" className="text-meta font-semibold text-brand" lang="en">
+            Ads
+          </Link>
+        </div>
+      </div>
+      <div className="admin-metric-grid mt-3">
+        <AdminMetric value={mostRead.length} label="Most-read stories" href="/ne/most-read" />
+        <AdminMetric value={trendingSamples.length} label="Trending samples (2h)" href="/ne/trending" />
+        <AdminMetric value={engagement?.storyCount ?? 0} label="Stories with signal" href="/admin/algorithms" />
+        <AdminMetric value={avgDwell > 0 ? `${avgDwell}s` : '—'} label="Avg dwell (top)" href="/admin/session-quality" />
+        <AdminMetric value={adImpressions} label="Ad impressions (30d)" href="/admin/ads" />
+        <AdminMetric value={adClicks} label="Ad clicks (30d)" href="/admin/ads" />
+      </div>
+      {mostRead.length === 0 ? (
+        <p className="mt-3 text-meta text-ink-soft" lang="ne">
+          अहिलेसम्म पर्याप्त पढाइ संकेत छैन। Analytics consent दिएका पाठकको watch-time आएपछि most-read र trending भरिन्छ।
+        </p>
+      ) : (
+        <ul className="admin-list mt-3">
+          {mostRead.slice(0, 5).map((row) => (
+            <li key={row.articleSlug}>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-meta font-semibold text-ink" lang="ne">
+                  {row.articleTitleNe || row.articleSlug}
+                </p>
+                <p className="text-caption text-mute" lang="en">
+                  {row.uniqueReaders} readers · {row.averageDwellSeconds}s dwell · {Math.round(row.averageReadPercent)}% scroll
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </AdminCard>
+  )
+}
+
