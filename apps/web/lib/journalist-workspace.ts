@@ -1,5 +1,12 @@
 import 'server-only'
-import { ensureOperationalSchema, isProductionRuntime, requireOperationalPool, runSchemaStatements, type Queryable, toIso } from '@/lib/ops-db'
+import {
+  ensureOperationalSchema,
+  isProductionRuntime,
+  requireOperationalPool,
+  runSchemaStatements,
+  type Queryable,
+  toIso,
+} from '@/lib/ops-db'
 import {
   createJournalistDraftRevision,
   normalizeJournalistDraftSnapshot,
@@ -134,7 +141,14 @@ async function pool(): Promise<Queryable | null> {
 
 function list(value: unknown): string[] {
   if (!Array.isArray(value)) return []
-  return [...new Set(value.map(String).map((item) => item.trim().toLowerCase()).filter(Boolean))].slice(0, 40)
+  return [
+    ...new Set(
+      value
+        .map(String)
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ].slice(0, 40)
 }
 
 function mode(value: unknown): JournalistDraftMeta['notificationMode'] {
@@ -165,9 +179,10 @@ function rowToMeta(row: Row): JournalistDraftMeta {
 }
 
 function rowToRevision(row: RevisionRow): JournalistDraftRevision {
-  const snapshot = row.snapshot && typeof row.snapshot === 'object' && !Array.isArray(row.snapshot)
-    ? row.snapshot as Partial<JournalistDraftSnapshot>
-    : {}
+  const snapshot =
+    row.snapshot && typeof row.snapshot === 'object' && !Array.isArray(row.snapshot)
+      ? (row.snapshot as Partial<JournalistDraftSnapshot>)
+      : {}
   return {
     id: row.id,
     articleId: row.article_id ?? undefined,
@@ -202,7 +217,10 @@ export async function saveJournalistDraftMeta(input: {
   revisionRequestedAt?: string
 }): Promise<JournalistDraftMeta> {
   const now = new Date().toISOString()
-  const existing = await getJournalistDraftMeta(input.articleId || input.articleSlug, input.reporterId)
+  const existing = await getJournalistDraftMeta(
+    input.articleId || input.articleSlug,
+    input.reporterId,
+  )
   const meta: JournalistDraftMeta = {
     articleId: input.articleId?.slice(0, 160) || existing?.articleId,
     articleSlug: input.articleSlug.slice(0, 160),
@@ -244,10 +262,22 @@ export async function saveJournalistDraftMeta(input: {
         updated_at=now()
       RETURNING *`,
       [
-        meta.articleSlug,meta.articleId ?? null,meta.titleNe,meta.categorySlug,meta.workflowStage,
-        meta.reporterId,meta.reportingLocation ?? null,meta.sourceNote ?? null,meta.editorPitch ?? null,
-        meta.mediaReferenceUrl ?? null,meta.customHomepageText ?? null,meta.customSocialText ?? null,meta.notificationMode,
-        JSON.stringify(meta.notificationTags),meta.editorFeedback ?? null,meta.revisionRequestedAt ?? null,
+        meta.articleSlug,
+        meta.articleId ?? null,
+        meta.titleNe,
+        meta.categorySlug,
+        meta.workflowStage,
+        meta.reporterId,
+        meta.reportingLocation ?? null,
+        meta.sourceNote ?? null,
+        meta.editorPitch ?? null,
+        meta.mediaReferenceUrl ?? null,
+        meta.customHomepageText ?? null,
+        meta.customSocialText ?? null,
+        meta.notificationMode,
+        JSON.stringify(meta.notificationTags),
+        meta.editorFeedback ?? null,
+        meta.revisionRequestedAt ?? null,
       ],
     )
     return rowToMeta(result.rows[0]!)
@@ -260,8 +290,13 @@ export async function listJournalistDraftMeta(reporterId?: string): Promise<Jour
   const database = await pool()
   if (database) {
     const result = reporterId
-      ? await database.query<Row>(`SELECT * FROM nw_journalist_draft_meta WHERE reporter_id=$1 ORDER BY updated_at DESC LIMIT 100`, [reporterId])
-      : await database.query<Row>(`SELECT * FROM nw_journalist_draft_meta ORDER BY updated_at DESC LIMIT 100`)
+      ? await database.query<Row>(
+          `SELECT * FROM nw_journalist_draft_meta WHERE reporter_id=$1 ORDER BY updated_at DESC LIMIT 100`,
+          [reporterId],
+        )
+      : await database.query<Row>(
+          `SELECT * FROM nw_journalist_draft_meta ORDER BY updated_at DESC LIMIT 100`,
+        )
     return result.rows.map(rowToMeta)
   }
   return [...memory.values()]
@@ -275,7 +310,10 @@ export async function listPendingJournalistReviews(): Promise<JournalistDraftMet
   return all.filter((item) => item.workflowStage === 'submitted')
 }
 
-export async function getJournalistDraftMeta(identifier: string, reporterId?: string): Promise<JournalistDraftMeta | null> {
+export async function getJournalistDraftMeta(
+  identifier: string,
+  reporterId?: string,
+): Promise<JournalistDraftMeta | null> {
   const database = await pool()
   if (database) {
     const params: unknown[] = [identifier]
@@ -286,9 +324,13 @@ export async function getJournalistDraftMeta(identifier: string, reporterId?: st
     )
     return result.rows[0] ? rowToMeta(result.rows[0]) : null
   }
-  return [...memory.values()].find((item) =>
-    (item.articleId === identifier || item.articleSlug === identifier) && (!reporterId || item.reporterId === reporterId),
-  ) ?? null
+  return (
+    [...memory.values()].find(
+      (item) =>
+        (item.articleId === identifier || item.articleSlug === identifier) &&
+        (!reporterId || item.reporterId === reporterId),
+    ) ?? null
+  )
 }
 
 export async function appendJournalistDraftRevision(input: {
@@ -310,9 +352,17 @@ export async function appendJournalistDraftRevision(input: {
       ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)
       RETURNING *`,
       [
-        revision.id, revision.articleId ?? null, revision.articleSlug, revision.reporterId,
-        revision.actorId, revision.actorRole, revision.action, revision.stage, revision.createdAt,
-        revision.contentHash, JSON.stringify(revision.snapshot),
+        revision.id,
+        revision.articleId ?? null,
+        revision.articleSlug,
+        revision.reporterId,
+        revision.actorId,
+        revision.actorRole,
+        revision.action,
+        revision.stage,
+        revision.createdAt,
+        revision.contentHash,
+        JSON.stringify(revision.snapshot),
       ],
     )
     return rowToRevision(result.rows[0]!)
@@ -337,8 +387,10 @@ export async function listJournalistDraftRevisions(
     return result.rows.map(rowToRevision)
   }
   return revisionMemory
-    .filter((item) =>
-      item.reporterId === reporterId && (item.articleId === identifier || item.articleSlug === identifier),
+    .filter(
+      (item) =>
+        item.reporterId === reporterId &&
+        (item.articleId === identifier || item.articleSlug === identifier),
     )
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
     .slice(0, 200)

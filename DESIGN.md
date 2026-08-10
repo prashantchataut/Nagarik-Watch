@@ -169,11 +169,11 @@ Tokens: `space-1`=4 … `space-2`=8 … up to `space-12`=128.
 **Decision (2026-07-26):** Portal surfaces target **dense editorial packing**, not gallery
 whitespace. Readers come to scan many stories; blank mid-page voids read as unfinished.
 
-| Dial | Homepage target | Notes |
-|------|-----------------|-------|
-| Visual density | **7 / 10** | Tight story rows, image+deck on rails, packed section bands |
-| Design variance | **7 / 10** | Explicit desk compositions with controlled asymmetry, not repeated card templates |
-| Motion | **3 / 10** | Hover/focus only; no scroll theatre |
+| Dial            | Homepage target | Notes                                                                             |
+| --------------- | --------------- | --------------------------------------------------------------------------------- |
+| Visual density  | **7 / 10**      | Tight story rows, image+deck on rails, packed section bands                       |
+| Design variance | **7 / 10**      | Explicit desk compositions with controlled asymmetry, not repeated card templates |
+| Motion          | **3 / 10**      | Hover/focus only; no scroll theatre                                               |
 
 Reference craft bar for packing: serious Nepali news portals (e.g. OnlineKhabar-class
 information density). We match **story packing and scan rhythm**, never ad clutter,
@@ -369,22 +369,22 @@ both themes. This stops light mode reading as an inverted portal., -
 
 ## Decision log
 
-| Date | Decision | Rationale |
-|------|----------|-----------|
-| 2026-06-18 | **Palette A, Civic Crimson CHOSEN** | Founder pick; civic fit, flag-adjacent, distinct from Setopati/Ratopati |
-| 2026-06-18 | 3 palettes proposed; A recommended | Ownability + civic fit |
-| 2026-06-18 | Light-first, dark as toggle | Reading scene forces it |
-| 2026-06-18 | Noto Sans Devanagari + Mukta + Inter | Free, OFL, best coverage |
-| 2026-07-19 | Latin UI: **Source Sans 3** (not Inter) | Matches `fonts.ts`; Inter is anti-slop reflex-reject |
-| 2026-07-24 | Dark mode: **true black** surfaces | Founder: reddish soft dark looked amateur; black + crimson accents |
-| 2026-07-26 | Light chrome: **paper masthead/footer** | Light mode felt dark because chrome was always black |
-| 2026-07-26 | **Mukta locked** for Devanagari display | Founder preference; end Baloo A/B |
-| 2026-07-26 | Homepage density **7/10**; soft section rules | Sparse SaaS spacing + thick ink rules felt unfinished vs Nepali portal craft |
-| 2026-07-26 | Latest rail = image + deck + meta | Headline-only lists read as blank wireframes |
-| 2026-07-26 | Hide demo/placeholder polls on public | Real portal cannot show “test/demo” poll copy |
-| 2026-07-26 | Category desks must **vary by editorial purpose** | text-led columns + giant SVG mosaics left empty cells and looked unfinished vs OnlineKhabar packing |
-| 2026-08-09 | Homepage opening = **lead/support/pulse**, never stacked mega-heroes | First-screen story choice and hierarchy matter more than oversized presentation |
-| 2026-08-09 | Homepage sections map to **editorial roles**, never modulo rotation | Distinct politics, business, opinion, sports and media rhythms prevent template monotony |
-| 2026-08-09 | **No homepage dashboard layer** | Personalization and reader-heat analytics compete with journalism on the pitch surface |
-| 2026-08-09 | Masthead primary bar is **news navigation only** | Calendar/market button clusters made the publication chrome feel app-like |
-| 2026-07-26 | Treat `data:` heroes as soft media | Never blow SVG stand-ins to full overlay cards; prefer packed horizontal desks |
+| Date       | Decision                                                             | Rationale                                                                                           |
+| ---------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| 2026-06-18 | **Palette A, Civic Crimson CHOSEN**                                  | Founder pick; civic fit, flag-adjacent, distinct from Setopati/Ratopati                             |
+| 2026-06-18 | 3 palettes proposed; A recommended                                   | Ownability + civic fit                                                                              |
+| 2026-06-18 | Light-first, dark as toggle                                          | Reading scene forces it                                                                             |
+| 2026-06-18 | Noto Sans Devanagari + Mukta + Inter                                 | Free, OFL, best coverage                                                                            |
+| 2026-07-19 | Latin UI: **Source Sans 3** (not Inter)                              | Matches `fonts.ts`; Inter is anti-slop reflex-reject                                                |
+| 2026-07-24 | Dark mode: **true black** surfaces                                   | Founder: reddish soft dark looked amateur; black + crimson accents                                  |
+| 2026-07-26 | Light chrome: **paper masthead/footer**                              | Light mode felt dark because chrome was always black                                                |
+| 2026-07-26 | **Mukta locked** for Devanagari display                              | Founder preference; end Baloo A/B                                                                   |
+| 2026-07-26 | Homepage density **7/10**; soft section rules                        | Sparse SaaS spacing + thick ink rules felt unfinished vs Nepali portal craft                        |
+| 2026-07-26 | Latest rail = image + deck + meta                                    | Headline-only lists read as blank wireframes                                                        |
+| 2026-07-26 | Hide demo/placeholder polls on public                                | Real portal cannot show “test/demo” poll copy                                                       |
+| 2026-07-26 | Category desks must **vary by editorial purpose**                    | text-led columns + giant SVG mosaics left empty cells and looked unfinished vs OnlineKhabar packing |
+| 2026-08-09 | Homepage opening = **lead/support/pulse**, never stacked mega-heroes | First-screen story choice and hierarchy matter more than oversized presentation                     |
+| 2026-08-09 | Homepage sections map to **editorial roles**, never modulo rotation  | Distinct politics, business, opinion, sports and media rhythms prevent template monotony            |
+| 2026-08-09 | **No homepage dashboard layer**                                      | Personalization and reader-heat analytics compete with journalism on the pitch surface              |
+| 2026-08-09 | Masthead primary bar is **news navigation only**                     | Calendar/market button clusters made the publication chrome feel app-like                           |
+| 2026-07-26 | Treat `data:` heroes as soft media                                   | Never blow SVG stand-ins to full overlay cards; prefer packed horizontal desks                      |

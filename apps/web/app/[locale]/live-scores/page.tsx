@@ -15,9 +15,7 @@ export async function generateMetadata({
   const en = locale === 'en'
   return {
     title: en ? 'Live scores' : 'प्रत्यक्ष स्कोर',
-    description: en
-      ? 'Verified football and cricket scores.'
-      : 'प्रमाणित फुटबल र क्रिकेट स्कोर।',
+    description: en ? 'Verified football and cricket scores.' : 'प्रमाणित फुटबल र क्रिकेट स्कोर।',
     alternates: canonicalAlternates(locale, '/live-scores'),
   }
 }

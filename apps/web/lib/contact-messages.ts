@@ -2,7 +2,13 @@ import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { cleanMultiline, cleanText, ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import {
+  cleanMultiline,
+  cleanText,
+  ensureOperationalSchema,
+  toIso,
+  type Queryable,
+} from '@/lib/ops-db'
 
 export type ContactMessageStatus = 'unread' | 'in_review' | 'resolved'
 
@@ -37,7 +43,9 @@ const LOCAL_STORE_PATH =
 let localWriteQueue = Promise.resolve()
 
 function isProductionRuntime(): boolean {
-  return process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE !== 'phase-production-build'
+  return (
+    process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE !== 'phase-production-build'
+  )
 }
 
 async function schema(): Promise<Queryable | null> {
@@ -145,7 +153,15 @@ export async function createContactMessage(input: {
     const result = await pool.query<ContactRow>(
       `INSERT INTO nw_contact_messages (id, name, email, subject, message, locale, status)
        VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [record.id, record.name, record.email, record.subject, record.message, record.locale, record.status],
+      [
+        record.id,
+        record.name,
+        record.email,
+        record.subject,
+        record.message,
+        record.locale,
+        record.status,
+      ],
     )
     const saved = result.rows[0]
     if (!saved) throw new Error('Contact message was not persisted')

@@ -1,7 +1,12 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { listExperimentAnalyses } from '@/lib/experiments/store'
-import { AdminCard, AdminEmptyState, AdminPageHeader, AdminTable } from '@/components/admin/primitives'
+import {
+  AdminCard,
+  AdminEmptyState,
+  AdminPageHeader,
+  AdminTable,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'Experiments',
@@ -16,9 +21,7 @@ export default async function ExperimentsPage() {
 
   return (
     <div>
-      <AdminPageHeader
-        subtitle="Deterministic assignment, anonymous deduplicated events, and Bayesian winner guardrails."
-      />
+      <AdminPageHeader subtitle="Deterministic assignment, anonymous deduplicated events, and Bayesian winner guardrails." />
 
       {experiments.length === 0 ? (
         <AdminEmptyState
@@ -41,9 +44,7 @@ export default async function ExperimentsPage() {
                     winner threshold {(definition.winnerProbability * 100).toFixed(1)}%
                   </p>
                 </div>
-                <span className="admin-status admin-status--neutral">
-                  {analysis.decision}
-                </span>
+                <span className="admin-status admin-status--neutral">{analysis.decision}</span>
               </div>
 
               {analysis.sequential ? (
@@ -71,8 +72,8 @@ export default async function ExperimentsPage() {
                     {analysis.variants.map((variant) => (
                       <tr key={variant.variantId}>
                         <td className="font-semibold text-ink">
-                          {definition.variants.find((item) => item.id === variant.variantId)?.label ??
-                            variant.variantId}
+                          {definition.variants.find((item) => item.id === variant.variantId)
+                            ?.label ?? variant.variantId}
                           {analysis.winner === variant.variantId ? (
                             <span className="ml-2 text-caption text-brand-strong">winner</span>
                           ) : null}
@@ -97,4 +98,3 @@ export default async function ExperimentsPage() {
     </div>
   )
 }
-

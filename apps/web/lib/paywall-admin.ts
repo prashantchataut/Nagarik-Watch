@@ -1,5 +1,11 @@
 import 'server-only'
-import { cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
+import {
+  cleanText,
+  ensureOperationalSchema,
+  requireOperationalPool,
+  toIso,
+  type Queryable,
+} from '@/lib/ops-db'
 
 export type SubscriptionStatus = 'active' | 'trialing' | 'expired' | 'comped'
 
@@ -24,8 +30,9 @@ type Row = {
 const memory = new Map<string, ManualSubscription>()
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return requireOperationalPool(await ensureOperationalSchema('paywall-admin', async (pool) => {
-    await pool.query(`
+  return requireOperationalPool(
+    await ensureOperationalSchema('paywall-admin', async (pool) => {
+      await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_manual_subscriptions (
         email text PRIMARY KEY,
         status text NOT NULL DEFAULT 'active',
@@ -35,7 +42,8 @@ async function ensureSchema(): Promise<Queryable | null> {
         updated_at timestamptz NOT NULL DEFAULT now()
       )
     `)
-  }))
+    }),
+  )
 }
 
 function rowToSubscription(row: Row): ManualSubscription {
@@ -52,7 +60,9 @@ function rowToSubscription(row: Row): ManualSubscription {
 export async function listManualSubscriptions(): Promise<ManualSubscription[]> {
   const pool = await ensureSchema()
   if (pool) {
-    const result = await pool.query<Row>(`SELECT * FROM nw_manual_subscriptions ORDER BY updated_at DESC LIMIT 500`)
+    const result = await pool.query<Row>(
+      `SELECT * FROM nw_manual_subscriptions ORDER BY updated_at DESC LIMIT 500`,
+    )
     return result.rows.map(rowToSubscription)
   }
   return Array.from(memory.values()).sort((a, b) => (b.updatedAt > a.updatedAt ? 1 : -1))
@@ -67,7 +77,10 @@ export async function setManualSubscription(input: {
 }): Promise<ManualSubscription | null> {
   const email = cleanText(input.email, 200).toLowerCase()
   if (!email.includes('@')) return null
-  const status = input.status === 'expired' || input.status === 'trialing' || input.status === 'comped' ? input.status : 'active'
+  const status =
+    input.status === 'expired' || input.status === 'trialing' || input.status === 'comped'
+      ? input.status
+      : 'active'
   const plan = cleanText(input.plan || 'manual', 80)
   const note = cleanText(input.note, 500) || undefined
   const expiresAtRaw = cleanText(input.expiresAt, 40)
@@ -87,7 +100,13 @@ export async function setManualSubscription(input: {
        VALUES ($1,$2,$3,$4,$5)
        ON CONFLICT (email) DO UPDATE SET status = EXCLUDED.status, plan = EXCLUDED.plan, note = EXCLUDED.note, expires_at = EXCLUDED.expires_at, updated_at = now()
        RETURNING *`,
-      [subscription.email, subscription.status, subscription.plan, subscription.note ?? null, subscription.expiresAt ?? null],
+      [
+        subscription.email,
+        subscription.status,
+        subscription.plan,
+        subscription.note ?? null,
+        subscription.expiresAt ?? null,
+      ],
     )
     return rowToSubscription(result.rows[0]!)
   }

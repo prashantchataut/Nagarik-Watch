@@ -83,7 +83,11 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     const minutesSince = num(input, 'minutesSinceLast', 45)
     const cooldown = num(input, 'cooldownMinutes', 30)
     const score = minutesSince >= cooldown ? 1 : minutesSince / cooldown
-    return { score: clamp01(score), detail: `cooldownOk=${minutesSince >= cooldown}`, mode: 'heuristic' }
+    return {
+      score: clamp01(score),
+      detail: `cooldownOk=${minutesSince >= cooldown}`,
+      mode: 'heuristic',
+    }
   },
   'locale-preference-scorer': (input) => {
     const ne = num(input, 'neReads', 7)
@@ -100,12 +104,16 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
   'return-visit-propensity': (input) => {
     const sessions = num(input, 'sessions7d', 4)
     const completion = num(input, 'completionRate', 0.5)
-    const score = clamp01(sessions / 10 * 0.5 + completion * 0.5)
+    const score = clamp01((sessions / 10) * 0.5 + completion * 0.5)
     return { score, detail: `returnPropensity=${score.toFixed(3)}`, mode: 'heuristic' }
   },
   'onboarding-topic-picker': (input) => {
     const coverage = num(input, 'coverageBreadth', 0.7)
-    return { score: clamp01(coverage), detail: `onboardingRank=${coverage.toFixed(3)}`, mode: 'heuristic' }
+    return {
+      score: clamp01(coverage),
+      detail: `onboardingRank=${coverage.toFixed(3)}`,
+      mode: 'heuristic',
+    }
   },
   'quiet-hours-scheduler': (input) => {
     const hour = num(input, 'hour', 22)
@@ -147,7 +155,7 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
   'deadline-risk-scorer': (input) => {
     const remaining = num(input, 'checklistRemaining', 3)
     const hoursLeft = num(input, 'hoursLeft', 4)
-    const score = clamp01(remaining / 5 * 0.5 + (1 - Math.min(1, hoursLeft / 24)) * 0.5)
+    const score = clamp01((remaining / 5) * 0.5 + (1 - Math.min(1, hoursLeft / 24)) * 0.5)
     return { score, detail: `deadlineRisk=${score.toFixed(3)}`, mode: 'heuristic' }
   },
   'headline-ab-ranker': (input) => {
@@ -175,7 +183,9 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     return { score, detail: `bylineBalance=${score.toFixed(3)}`, mode: 'heuristic' }
   },
   'embargo-countdown': (input) => {
-    const releaseAt = Date.parse(str(input, 'releaseAt', new Date(Date.now() + 3600_000).toISOString()))
+    const releaseAt = Date.parse(
+      str(input, 'releaseAt', new Date(Date.now() + 3600_000).toISOString()),
+    )
     const hours = Math.max(0, (releaseAt - Date.now()) / 3_600_000)
     return { score: hours, detail: `hoursUntilRelease=${hours.toFixed(2)}`, mode: 'heuristic' }
   },
@@ -249,7 +259,11 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     const budget = num(input, 'monthlyBudget', 0.01)
     const rate = errors / Math.max(1, requests)
     const burn = budget > 0 ? rate / budget : 0
-    return { score: burn, detail: `burnRate=${burn.toFixed(3)} errorRate=${rate.toFixed(5)}`, mode: 'heuristic' }
+    return {
+      score: burn,
+      detail: `burnRate=${burn.toFixed(3)} errorRate=${rate.toFixed(5)}`,
+      mode: 'heuristic',
+    }
   },
   'deploy-risk-scorer': (input) => {
     const heat = num(input, 'pathHeat', 0.4)
@@ -275,7 +289,7 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
   'queue-backlog-scorer': (input) => {
     const depth = num(input, 'depth', 40)
     const oldestMin = num(input, 'oldestMinutes', 25)
-    const score = clamp01(depth / 100 * 0.5 + oldestMin / 60 * 0.5)
+    const score = clamp01((depth / 100) * 0.5 + (oldestMin / 60) * 0.5)
     return { score, detail: `backlog=${score.toFixed(3)}`, mode: 'heuristic' }
   },
   'seo-indexation-health': (input) => {
@@ -303,11 +317,17 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     return { score, detail: `bundleBudget=${score.toFixed(3)}`, mode: 'heuristic' }
   },
   'cron-miss-detector': (input) => {
-    const lastRun = Date.parse(str(input, 'lastRunAt', new Date(Date.now() - 2 * 3600_000).toISOString()))
+    const lastRun = Date.parse(
+      str(input, 'lastRunAt', new Date(Date.now() - 2 * 3600_000).toISOString()),
+    )
     const intervalMin = num(input, 'intervalMinutes', 60)
     const ageMin = (Date.now() - lastRun) / 60_000
     const missed = ageMin > intervalMin * 1.5
-    return { score: missed ? 1 : 0, detail: `cronMissed=${missed} ageMin=${ageMin.toFixed(1)}`, mode: 'heuristic' }
+    return {
+      score: missed ? 1 : 0,
+      detail: `cronMissed=${missed} ageMin=${ageMin.toFixed(1)}`,
+      mode: 'heuristic',
+    }
   },
   'storage-growth-forecast': (input) => {
     const daily = (input.dailyBytes as number[]) ?? [100, 110, 120, 130]
@@ -320,7 +340,9 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     const impact = num(input, 'userImpact', 0.6)
     const duration = num(input, 'durationMinutes', 40)
     const errorRate = num(input, 'errorRate', 0.05)
-    const score = clamp01(impact * 0.4 + Math.min(1, duration / 120) * 0.3 + Math.min(1, errorRate * 10) * 0.3)
+    const score = clamp01(
+      impact * 0.4 + Math.min(1, duration / 120) * 0.3 + Math.min(1, errorRate * 10) * 0.3,
+    )
     return { score, detail: `incidentSeverity=${score.toFixed(3)}`, mode: 'heuristic' }
   },
 
@@ -329,7 +351,11 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     const hasCanonical = Boolean(input.hasCanonical ?? true)
     const hasHero = Boolean(input.hasHero ?? true)
     const { ok, issues } = validateAmpHtml({ hasCanonical, hasHeroImage: hasHero })
-    return { score: ok ? 1 : 1 - issues.length / 3, detail: `ampLocalValid=${ok}`, mode: 'heuristic' }
+    return {
+      score: ok ? 1 : 1 - issues.length / 3,
+      detail: `ampLocalValid=${ok}`,
+      mode: 'heuristic',
+    }
   },
   'instant-articles-check': (input) => {
     const title = str(input, 'title', 'Headline')
@@ -349,22 +375,35 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     const hasGps = Boolean(input.hasGps)
     const hasExif = Boolean(input.hasExif ?? hasGps)
     const score = hasGps ? 1 : hasExif ? 0.6 : 0
-    return { score, detail: `exifRisk=${score.toFixed(3)} recommendStrip=${hasExif}`, mode: 'heuristic' }
+    return {
+      score,
+      detail: `exifRisk=${score.toFixed(3)} recommendStrip=${hasExif}`,
+      mode: 'heuristic',
+    }
   },
   'alt-text-quality': (input) => {
     const alt = str(input, 'alt', '')
     if (!alt.trim()) return { score: 0, detail: 'alt empty', mode: 'heuristic' }
-    if (/\.(jpe?g|png|webp|gif)$/i.test(alt)) return { score: 0.1, detail: 'alt looks like filename', mode: 'heuristic' }
+    if (/\.(jpe?g|png|webp|gif)$/i.test(alt))
+      return { score: 0.1, detail: 'alt looks like filename', mode: 'heuristic' }
     const score = clamp01(alt.trim().length / 60)
     return { score, detail: `altQuality=${score.toFixed(3)}`, mode: 'heuristic' }
   },
   'video-bitrate-ladder': (input) => {
     const height = num(input, 'height', 1080)
     const rungs = height >= 1080 ? 4 : height >= 720 ? 3 : 2
-    return { score: rungs, detail: `bitrateRungs=${rungs} sourceHeight=${height}`, mode: 'heuristic' }
+    return {
+      score: rungs,
+      detail: `bitrateRungs=${rungs} sourceHeight=${height}`,
+      mode: 'heuristic',
+    }
   },
   'podcast-chapter-splitter': (input) => {
-    const transcript = str(input, 'transcript', 'Intro\n00:00 Welcome\n05:00 Interview\n20:00 Outro')
+    const transcript = str(
+      input,
+      'transcript',
+      'Intro\n00:00 Welcome\n05:00 Interview\n20:00 Outro',
+    )
     const chapters = transcript.split('\n').filter((line) => /\d+:\d+/.test(line)).length
     return { score: chapters, detail: `chapters=${chapters}`, mode: 'heuristic' }
   },
@@ -372,7 +411,11 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     const w = num(input, 'width', 1200)
     const h = num(input, 'height', 630)
     const ok = ogImageDimensionOk(w, h)
-    return { score: ogImageDimensionScore(w, h), detail: `ogDims=${w}x${h} ok=${ok}`, mode: 'heuristic' }
+    return {
+      score: ogImageDimensionScore(w, h),
+      detail: `ogDims=${w}x${h} ok=${ok}`,
+      mode: 'heuristic',
+    }
   },
   'feed-item-truncation': (input) => {
     const title = str(input, 'title', 'A'.repeat(90))
@@ -384,10 +427,15 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     const mime = str(input, 'mime', 'image/jpeg')
     const ext = str(input, 'ext', 'jpg')
     const size = num(input, 'bytes', 200_000)
-    const mimeOk = mime.startsWith('image/') || mime.startsWith('video/') || mime.startsWith('audio/')
+    const mimeOk =
+      mime.startsWith('image/') || mime.startsWith('video/') || mime.startsWith('audio/')
     const sizeOk = size > 0 && size < 25_000_000
     const score = mimeOk && sizeOk ? 1 : 0
-    return { score, detail: `uploadGate ok=${score === 1} mime=${mime} ext=${ext}`, mode: 'heuristic' }
+    return {
+      score,
+      detail: `uploadGate ok=${score === 1} mime=${mime} ext=${ext}`,
+      mode: 'heuristic',
+    }
   },
   'subtitle-sync-scorer': (input) => {
     const gaps = num(input, 'maxGapSeconds', 1.5)
@@ -428,7 +476,10 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
  * @deprecated Not used by the capability registry. Kept only so historical
  * tests can assert the hash helper is no longer on the dispatch path.
  */
-export function genericHeuristic(id: string, input: Record<string, unknown>): ReturnType<AlgorithmHandler> {
+export function genericHeuristic(
+  id: string,
+  input: Record<string, unknown>,
+): ReturnType<AlgorithmHandler> {
   const salt = str(input, 'salt', JSON.stringify(Object.keys(input).sort()))
   const score = hashScore(id, salt)
   if (input.text && typeof input.text === 'string') {

@@ -5,31 +5,37 @@ Branch: `rebuild/2026-07-20-audit-backup`
 ## A. What was fixed
 
 ### Reader UI
+
 - Homepage cross-module deduplication (`dedupeHomepage`) removes repeated lead stories from breaking ticker and desk modules
 - Reader-safe notification desk copy (no provider/configuration jargon)
 - Article pages include correction request + policy links in trust block
 - Publisher placeholder strings removed from public defaults; unverified legal fields stay hidden
 
 ### Admin / backend
+
 - Payload content source used during production builds when `CONTENT_SOURCE=payload` (build-time bypass removed)
 - Admin articles list already redirects to Payload when canonical (verified)
 - RBAC unit tests for create/edit/publish/delete roles
 
 ### Localization / trust
+
 - Trust route smoke tests (`e2e/routes-trust.spec.ts`) for policy pages and malformed `/en/ne`
 - Internal link audit script for 9 policy paths
 
 ### SEO / security
+
 - Existing CSP/HSTS headers retained in `next.config.ts` (no regression)
 - Article JSON-LD and canonical/hreflang metadata unchanged but verified in code review
 
 ### Testing / CI
+
 - Route matrix generator (`scripts/route-matrix.mjs`, 153 routes)
 - Playwright laptop (1024×768) and narrow mobile (360×800) projects
 - Optional CI `payload-smoke` job when `PAYLOAD_PUBLIC_SERVER_URL` secret is set
 - Internal links audit wired into `verify:static`
 
 ### Operations
+
 - Baseline verification doc and master audit doc
 - Safety branch created for rollback
 
@@ -39,25 +45,25 @@ See [`docs/audits/route-matrix.csv`](route-matrix.csv) (153 routes enumerated).
 
 Live spot checks (2026-07-20):
 
-| Route | Status | Notes |
-|---|---|---|
-| `/` | 200 | Seed/store content |
-| `/about` | 200 | Trust page |
-| `/privacy` | 200 | Trust page |
-| `/ethics` | 200 | Trust page |
-| `/en/ne` | 404 | Correct block |
+| Route      | Status | Notes              |
+| ---------- | ------ | ------------------ |
+| `/`        | 200    | Seed/store content |
+| `/about`   | 200    | Trust page         |
+| `/privacy` | 200    | Trust page         |
+| `/ethics`  | 200    | Trust page         |
+| `/en/ne`   | 404    | Correct block      |
 
 Full Playwright matrix: run `pnpm test:e2e` after build (requires ~4 min).
 
 ## C. Before/after evidence
 
-| Issue | Before | After |
-|---|---|---|
-| Lead duplicated in breaking | Same story in ticker + hero | Dedup helper + e2e assertion |
-| `/en/ne` locale bug | Malformed path | 404 + test |
-| Provider jargon in notifications | "provider configuration" | Reader-safe copy |
+| Issue                            | Before                                     | After                               |
+| -------------------------------- | ------------------------------------------ | ----------------------------------- |
+| Lead duplicated in breaking      | Same story in ticker + hero                | Dedup helper + e2e assertion        |
+| `/en/ne` locale bug              | Malformed path                             | 404 + test                          |
+| Provider jargon in notifications | "provider configuration"                   | Reader-safe copy                    |
 | Publisher placeholders in footer | "pending verification" strings as defaults | Empty defaults + hide until env set |
-| Payload skipped at build | `NEXT_PHASE` bypass | Uses Payload when canonical |
+| Payload skipped at build         | `NEXT_PHASE` bypass                        | Uses Payload when canonical         |
 
 ## D. Test evidence
 

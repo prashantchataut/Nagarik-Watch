@@ -81,7 +81,9 @@ export function readConsent(): ConsentChoice | null {
 }
 
 /** Merge a partial update into existing consent without clobbering other flags. */
-export function mergeConsent(patch: Partial<Omit<ConsentChoice, 'essential' | 'version'>>): ConsentChoice {
+export function mergeConsent(
+  patch: Partial<Omit<ConsentChoice, 'essential' | 'version'>>,
+): ConsentChoice {
   const previous = readConsent() ?? defaultConsent()
   return writeConsent({
     ...previous,

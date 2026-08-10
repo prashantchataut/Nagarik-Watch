@@ -24,7 +24,10 @@ export function RelatedStories({ stories, locale, className }: RelatedStoriesPro
       </div>
       <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
         {stories.slice(0, 6).map((story) => (
-          <li key={story.slug} className="min-w-0 border-b border-rule pb-3 last:border-b-0 sm:border-b-0 sm:pb-0">
+          <li
+            key={story.slug}
+            className="min-w-0 border-b border-rule pb-3 last:border-b-0 sm:border-b-0 sm:pb-0"
+          >
             <DenseStoryItem story={story} locale={locale} thumb="md" showDeck={false} />
           </li>
         ))}

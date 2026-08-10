@@ -38,7 +38,10 @@ export default async function ProvincesPage() {
       <AdminPageHeader
         subtitle="नेपालका सात प्रदेश — प्रदेश सम्पादक कार्यप्रवाहका लागि आधार"
         action={
-          <AdminButton href="/admin/users" title="प्रयोगकर्ता व्यवस्थापनमा प्रदेश सम्पादक भूमिका दिनुहोस्">
+          <AdminButton
+            href="/admin/users"
+            title="प्रयोगकर्ता व्यवस्थापनमा प्रदेश सम्पादक भूमिका दिनुहोस्"
+          >
             + प्रदेश सम्पादक नियुक्ति
           </AdminButton>
         }
@@ -49,9 +52,13 @@ export default async function ProvincesPage() {
           <thead>
             <tr>
               <th lang="ne">प्रदेश (ने)</th>
-              <th className="hidden sm:table-cell" lang="ne">प्रदेश (En)</th>
+              <th className="hidden sm:table-cell" lang="ne">
+                प्रदेश (En)
+              </th>
               <th lang="ne">स्लग</th>
-              <th className="!text-right" lang="ne">समाचार</th>
+              <th className="!text-right" lang="ne">
+                समाचार
+              </th>
               <th lang="ne">पृष्ठ</th>
             </tr>
           </thead>

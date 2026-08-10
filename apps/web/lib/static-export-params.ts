@@ -1,5 +1,5 @@
 import 'server-only'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import type { Locale } from '@nagarikwatch/db'
 
@@ -18,15 +18,27 @@ type ArticlesFile = {
 
 const LOCALES: Locale[] = ['ne', 'en']
 
+function resolveArticlesFile(): string {
+  const inApp = path.join(process.cwd(), 'apps/web', 'data', 'articles.json')
+  if (existsSync(inApp)) return inApp
+  const inCwd = path.join(process.cwd(), 'data', 'articles.json')
+  if (existsSync(inCwd)) return inCwd
+  return inCwd
+}
+
 function readPublishedArticles(): ArticleSeed[] {
-  const file = path.join(process.cwd(), 'data', 'articles.json')
-  const parsed = JSON.parse(readFileSync(file, 'utf8')) as ArticlesFile
-  return (parsed.articles ?? []).filter(
-    (article) =>
-      article.workflowStage === 'published' ||
-      article.workflowStage === 'updated' ||
-      !article.workflowStage,
-  )
+  try {
+    const file = resolveArticlesFile()
+    const parsed = JSON.parse(readFileSync(file, 'utf8')) as ArticlesFile
+    return (parsed.articles ?? []).filter(
+      (article) =>
+        article.workflowStage === 'published' ||
+        article.workflowStage === 'updated' ||
+        !article.workflowStage,
+    )
+  } catch {
+    return []
+  }
 }
 
 export function staticLocaleParams(): Array<{ locale: Locale }> {
@@ -38,9 +50,7 @@ export function staticCategoryParams(): Array<{ locale: Locale; category: string
   for (const article of readPublishedArticles()) {
     categories.add(article.categorySlug)
   }
-  return LOCALES.flatMap((locale) =>
-    [...categories].map((category) => ({ locale, category })),
-  )
+  return LOCALES.flatMap((locale) => [...categories].map((category) => ({ locale, category })))
 }
 
 export function staticArticleParams(): Array<{ locale: Locale; category: string; slug: string }> {
@@ -81,11 +91,17 @@ function localeFieldParams<T extends string>(
 }
 
 export function staticAuthorParams() {
-  return localeFieldParams('slug', authors.map((author) => author.slug))
+  return localeFieldParams(
+    'slug',
+    authors.map((author) => author.slug),
+  )
 }
 
 export function staticTopicParams() {
-  return localeFieldParams('slug', tags.map((tag) => tag.slug))
+  return localeFieldParams(
+    'slug',
+    tags.map((tag) => tag.slug),
+  )
 }
 
 export function staticTagParams() {
@@ -93,7 +109,10 @@ export function staticTagParams() {
 }
 
 export function staticProvinceParams() {
-  return localeFieldParams('slug', PROVINCES.map((province) => province.slug))
+  return localeFieldParams(
+    'slug',
+    PROVINCES.map((province) => province.slug),
+  )
 }
 
 export function staticDistrictParams() {

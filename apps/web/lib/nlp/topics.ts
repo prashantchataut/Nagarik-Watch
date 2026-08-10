@@ -35,7 +35,10 @@ export function classifyTopic(text: string): TopicClassification {
 }
 
 /** Multi-topic ranking for journalist assist — returns every topic with a non-zero hit. */
-export function classifyTopics(text: string, limit = 5): Array<TopicClassification & { matched?: string[] }> {
+export function classifyTopics(
+  text: string,
+  limit = 5,
+): Array<TopicClassification & { matched?: string[] }> {
   const tokens = tokenSet(text)
   const hits: Array<TopicClassification & { matched: string[] }> = []
   for (const [topic, keywords] of Object.entries(TOPIC_KEYWORDS)) {

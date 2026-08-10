@@ -80,7 +80,9 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                   {locale === 'en' && story.titleEn ? story.titleEn : story.titleNe}
                 </Link>
                 <p className="mt-1 text-caption text-mute">
-                  {locale === 'en' && story.category.nameEn ? story.category.nameEn : story.category.nameNe}
+                  {locale === 'en' && story.category.nameEn
+                    ? story.category.nameEn
+                    : story.category.nameNe}
                 </p>
               </li>
             ))}

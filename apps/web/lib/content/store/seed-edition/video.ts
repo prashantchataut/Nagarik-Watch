@@ -14,7 +14,7 @@ export function editionVideo(): StoredArticle[] {
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["exclusive-report"],
+      tagSlugs: ['exclusive-report'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -23,16 +23,10 @@ export function editionVideo(): StoredArticle[] {
         p('सहमति बिना नजिकको अनुहार नदेखाउने नीति छ।'),
         p('मोबाइल पनि क्यामेरा हो, जिम्मेवारी उस्तै हो।'),
         h2('प्रक्रिया चरण'),
-        list([
-          'पाइच',
-          'फिल्ड सुरक्षा',
-          'सम्पादन जाँच',
-        ]),
+        list(['पाइच', 'फिल्ड सुरक्षा', 'सम्पादन जाँच']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('From field shots to edit: transparency builds trust.'),
-      ],
+      bodyEn: [p('From field shots to edit: transparency builds trust.')],
     }),
     base({
       id: 'art-ed-video-2',
@@ -53,16 +47,10 @@ export function editionVideo(): StoredArticle[] {
         p('लाइभ ब्लगले समयरेखा दिन्छ।'),
         p('दुवैमा स्रोत स्पष्टता अनिवार्य छ।'),
         h2('सम्पादकीय छनोट'),
-        list([
-          'इन्टरनेट लागत',
-          'दृश्य आवश्यकता',
-          'सच्याइ सजिलो',
-        ]),
+        list(['इन्टरनेट लागत', 'दृश्य आवश्यकता', 'सच्याइ सजिलो']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Use blogs for rapid updates and video for clearer explanation.'),
-      ],
+      bodyEn: [p('Use blogs for rapid updates and video for clearer explanation.')],
     }),
     base({
       id: 'art-ed-video-3',
@@ -75,7 +63,7 @@ export function editionVideo(): StoredArticle[] {
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
       isFeatured: 'secondary',
-      tagSlugs: ["climate"],
+      tagSlugs: ['climate'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -84,16 +72,10 @@ export function editionVideo(): StoredArticle[] {
         p('उपशीर्षक नेपालीमा हुन्छ।'),
         p('पुनःप्रसारण समय तोकिएको हुन्छ।'),
         h2('उत्पादन सुझाव'),
-        list([
-          'ठूलो फन्ट',
-          'स्थानीय उदाहरण',
-          'कल टु एक्शन',
-        ]),
+        list(['ठूलो फन्ट', 'स्थानीय उदाहरण', 'कल टु एक्शन']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Maps and plain language on video help people grasp risk.'),
-      ],
+      bodyEn: [p('Maps and plain language on video help people grasp risk.')],
     }),
     base({
       id: 'art-ed-video-4',
@@ -105,7 +87,7 @@ export function editionVideo(): StoredArticle[] {
       deckEn: 'Virality does not justify cutting away context.',
       publishedAt: isoDaysAgo(3, 10),
       updatedAt: isoDaysAgo(3, 10),
-      tagSlugs: ["editor-pick"],
+      tagSlugs: ['editor-pick'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -114,15 +96,10 @@ export function editionVideo(): StoredArticle[] {
         p('थम्बनेल भ्रामक नहोस्।'),
         p('टिम तालिम नियमित छ।'),
         h2('लाल रेखा'),
-        list([
-          'हिंसा ग्लोरिफाइ नगर्ने',
-          'बालबालिका पहिचान',
-        ]),
+        list(['हिंसा ग्लोरिफाइ नगर्ने', 'बालबालिका पहिचान']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Virality does not justify cutting away context.'),
-      ],
+      bodyEn: [p('Virality does not justify cutting away context.')],
     }),
     base({
       id: 'art-ed-video-5',
@@ -134,7 +111,7 @@ export function editionVideo(): StoredArticle[] {
       deckEn: 'Ordered tapes and files make history searchable.',
       publishedAt: isoDaysAgo(4, 6),
       updatedAt: isoDaysAgo(4, 6),
-      tagSlugs: ["data-story"],
+      tagSlugs: ['data-story'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -143,16 +120,10 @@ export function editionVideo(): StoredArticle[] {
         p('कपीराइट र अनुमति ध्यानमा छ।'),
         p('पाठक विशेष कथा श्रृंखला आउनेछ।'),
         h2('अभिलेख प्राथमिकता'),
-        list([
-          'मेटाडेटा',
-          'ब्याकअप',
-          'सार्वजनिक पहुँच तह',
-        ]),
+        list(['मेटाडेटा', 'ब्याकअप', 'सार्वजनिक पहुँच तह']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Ordered tapes and files make history searchable.'),
-      ],
-    })
+      bodyEn: [p('Ordered tapes and files make history searchable.')],
+    }),
   ]
 }

@@ -5,7 +5,11 @@ import type { Locale } from '@nagarikwatch/db'
 import { getNavCategories, getTags } from '@/lib/content'
 import { getNewsroomSession } from '@/lib/auth/session'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
-import { CONTRIBUTOR_ROLES, NEWSROOM_ROLE_LABELS_EN, NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
+import {
+  CONTRIBUTOR_ROLES,
+  NEWSROOM_ROLE_LABELS_EN,
+  NEWSROOM_ROLE_LABELS_NE,
+} from '@/lib/admin-roles'
 import { getJournalistDraftMeta, listJournalistDraftRevisions } from '@/lib/journalist-workspace'
 import { revisionSimilarity } from '@/lib/journalist/desk-scoring'
 import { findArticleForAdmin } from '@/lib/content/store/json-store'
@@ -19,14 +23,22 @@ export function generateStaticParams() {
 }
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = { title: 'Edit journalist draft', robots: { index: false, follow: false } }
+export const metadata: Metadata = {
+  title: 'Edit journalist draft',
+  robots: { index: false, follow: false },
+}
 
-export default async function JournalistEditPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
+export default async function JournalistEditPage({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>
+}) {
   const { locale: rawLocale, id: rawId } = await params
   const locale: Locale = asLocale(rawLocale)
   const session = await getNewsroomSession()
   if (!session) redirect(localizeHref(locale, '/journalist/login'))
-  if (!CONTRIBUTOR_ROLES.has(session.newsroomRole)) redirect(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
+  if (!CONTRIBUTOR_ROLES.has(session.newsroomRole))
+    redirect(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
   const id = decodeURIComponent(rawId)
   const meta = await getJournalistDraftMeta(id, session.userId)
   if (!meta) notFound()
@@ -34,16 +46,26 @@ export default async function JournalistEditPage({ params }: { params: Promise<{
     getNavCategories(),
     getTags(),
     isPayloadCanonical()
-      ? meta.articleId ? getPayloadJournalistDraft(meta.articleId) : null
+      ? meta.articleId
+        ? getPayloadJournalistDraft(meta.articleId)
+        : null
       : findArticleForAdmin(meta.articleId || meta.articleSlug),
     listJournalistDraftRevisions(meta.articleId || meta.articleSlug, session.userId),
   ])
   if (!article) notFound()
-  const roleLabel = locale === 'ne' ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole] : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
+  const roleLabel =
+    locale === 'ne'
+      ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole]
+      : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
   const bodyNe = shorthandFromBlocks(article.bodyNe)
   const articleTags = 'tagSlugs' in article ? article.tagSlugs : []
   return (
-    <JournalistWorkspaceShell locale={locale} name={session.displayName || session.email} roleLabel={roleLabel} active="new">
+    <JournalistWorkspaceShell
+      locale={locale}
+      name={session.displayName || session.email}
+      roleLabel={roleLabel}
+      active="new"
+    >
       <JournalistArticleDraftForm
         locale={locale}
         categories={categories}
@@ -83,11 +105,22 @@ export default async function JournalistEditPage({ params }: { params: Promise<{
             ('mediaReferenceUrl' in article ? article.mediaReferenceUrl : undefined) ||
             meta.mediaReferenceUrl ||
             '',
-          reportingLocation: ('reportingLocation' in article ? article.reportingLocation : undefined) || meta.reportingLocation || '',
-          sourceNote: ('sourceNote' in article ? article.sourceNote : undefined) || meta.sourceNote || '',
-          editorPitch: ('editorPitch' in article ? article.editorPitch : undefined) || meta.editorPitch || '',
-          customHomepageText: ('homepageTeaserNe' in article ? article.homepageTeaserNe : undefined) || meta.customHomepageText || '',
-          customSocialText: ('socialCopyNe' in article ? article.socialCopyNe : undefined) || meta.customSocialText || '',
+          reportingLocation:
+            ('reportingLocation' in article ? article.reportingLocation : undefined) ||
+            meta.reportingLocation ||
+            '',
+          sourceNote:
+            ('sourceNote' in article ? article.sourceNote : undefined) || meta.sourceNote || '',
+          editorPitch:
+            ('editorPitch' in article ? article.editorPitch : undefined) || meta.editorPitch || '',
+          customHomepageText:
+            ('homepageTeaserNe' in article ? article.homepageTeaserNe : undefined) ||
+            meta.customHomepageText ||
+            '',
+          customSocialText:
+            ('socialCopyNe' in article ? article.socialCopyNe : undefined) ||
+            meta.customSocialText ||
+            '',
           notificationMode: meta.notificationMode,
           notificationTags: meta.notificationTags,
           workflowStage: meta.workflowStage,

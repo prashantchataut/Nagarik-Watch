@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { HomepageSection, StoryCardData } from '@nagarikwatch/db'
-import {
-  bandEveryForVariant,
-  buildFeaturedBandPool,
-  buildHomepageStream,
-} from './homepage-stream'
+import { bandEveryForVariant, buildFeaturedBandPool, buildHomepageStream } from './homepage-stream'
 
 function story(id: string, categorySlug = 'politics'): StoryCardData {
   return {
@@ -87,14 +83,7 @@ describe('buildHomepageStream', () => {
   })
 
   it('builds a mid-scroll pool without spotlight duplicates', () => {
-    const featured = [
-      story('f1'),
-      story('f2'),
-      story('f3'),
-      story('f4'),
-      story('f5'),
-      story('f6'),
-    ]
+    const featured = [story('f1'), story('f2'), story('f3'), story('f4'), story('f5'), story('f6')]
     const pool = buildFeaturedBandPool({
       featured,
       catalog: [story('c1'), story('c2', 'society')],

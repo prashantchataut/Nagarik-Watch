@@ -58,9 +58,12 @@ export function BookmarkButton({
 
   function persistLocal(nextBookmarked: boolean) {
     const records = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))
-    const next = 'authors' in story && 'publishedAt' in story
-      ? setBookmark(records, story as StoryCardData, nextBookmarked)
-      : records.filter((record) => record.articleId !== story.id && record.story.slug !== story.slug)
+    const next =
+      'authors' in story && 'publishedAt' in story
+        ? setBookmark(records, story as StoryCardData, nextBookmarked)
+        : records.filter(
+            (record) => record.articleId !== story.id && record.story.slug !== story.slug,
+          )
     localStorage.setItem(READER_BOOKMARKS_KEY, JSON.stringify(next))
     setBookmarked(nextBookmarked)
     window.dispatchEvent(new Event('nw-reader-state-change'))

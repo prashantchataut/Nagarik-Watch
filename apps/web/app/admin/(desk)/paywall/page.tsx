@@ -5,7 +5,15 @@ import { assertNewsroomRole, MEMBERSHIP_MANAGER_ROLES } from '@/lib/admin-roles'
 import { listManualSubscriptions, setManualSubscription } from '@/lib/paywall-admin'
 import { membershipMode } from '@/lib/membership'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { AdminPageHeader, AdminCard, AdminButton, AdminInput, AdminTextarea, AdminSelect, AdminTable } from '@/components/admin/primitives'
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminButton,
+  AdminInput,
+  AdminTextarea,
+  AdminSelect,
+  AdminTable,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'सदस्यता / Paywall',
@@ -32,7 +40,13 @@ async function saveSubscription(formData: FormData) {
     expiresAt: formData.get('expiresAt'),
   })
   if (subscription) {
-    await recordAuditEvent({ session, action: 'update', targetType: 'subscription', targetId: subscription.email, summary: `Subscription updated: ${subscription.email}` })
+    await recordAuditEvent({
+      session,
+      action: 'update',
+      targetType: 'subscription',
+      targetId: subscription.email,
+      summary: `Subscription updated: ${subscription.email}`,
+    })
   }
   revalidatePath('/admin/paywall')
 }
@@ -48,8 +62,15 @@ export default async function PaywallPage() {
       <AdminPageHeader subtitle="सदस्यता अहिले सार्वजनिक रूपमा बन्द छ (Option A: निःशुल्क + विज्ञापन)। यो पृष्ठ म्यानुअल अपवादका लागि मात्र।" />
       <AdminCard className="mb-5">
         <p className="text-body text-ink-soft" lang="ne">
-          सार्वजनिक साइटमा सदस्यता CTA देखाइँदैन जबसम्म <code className="font-mono text-ink" lang="en">NEXT_PUBLIC_MEMBERSHIP_PUBLIC=true</code> सेट हुँदैन। हालको mode:{' '}
-          <code className="font-mono text-ink" lang="en">{mode}</code>.
+          सार्वजनिक साइटमा सदस्यता CTA देखाइँदैन जबसम्म{' '}
+          <code className="font-mono text-ink" lang="en">
+            NEXT_PUBLIC_MEMBERSHIP_PUBLIC=true
+          </code>{' '}
+          सेट हुँदैन। हालको mode:{' '}
+          <code className="font-mono text-ink" lang="en">
+            {mode}
+          </code>
+          .
         </p>
       </AdminCard>
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.35fr]">
@@ -95,10 +116,16 @@ export default async function PaywallPage() {
                   <tr key={item.email}>
                     <td className="text-meta text-ink">{item.email}</td>
                     <td>
-                      <span className={`admin-status admin-status--${subscriptionStatusTone(item.status)}`}>{item.status}</span>
+                      <span
+                        className={`admin-status admin-status--${subscriptionStatusTone(item.status)}`}
+                      >
+                        {item.status}
+                      </span>
                     </td>
                     <td className="text-meta text-ink-soft">{item.plan}</td>
-                    <td className="text-caption text-mute">{item.expiresAt ? new Date(item.expiresAt).toLocaleDateString() : '-'}</td>
+                    <td className="text-caption text-mute">
+                      {item.expiresAt ? new Date(item.expiresAt).toLocaleDateString() : '-'}
+                    </td>
                   </tr>
                 ))}
               </tbody>

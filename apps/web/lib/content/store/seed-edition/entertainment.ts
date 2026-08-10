@@ -14,25 +14,21 @@ export function editionEntertainment(): StoredArticle[] {
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["editor-pick"],
+      tagSlugs: ['editor-pick'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
-        p('चलचित्र महोत्सव सांस्कृतिक क्यालेन्डरको महत्त्वपूर्ण हिस्सा हो। नागरिक वाच डेस्कले पहुँच र विविधतालाई मापदण्ड मान्छ।'),
+        p(
+          'चलचित्र महोत्सव सांस्कृतिक क्यालेन्डरको महत्त्वपूर्ण हिस्सा हो। नागरिक वाच डेस्कले पहुँच र विविधतालाई मापदण्ड मान्छ।',
+        ),
         p('केवल प्रचार होइन, सिर्जनाकार संवाद चाहिन्छ।'),
         p('भाषा उपशीर्षकले फरक दर्शक जोड्छ।'),
         p('स्थानीय हल सहकार्यले लागत घटाउन सक्छ।'),
         h2('महोत्सवका मापदण्ड'),
-        list([
-          'सुलभ टिकट',
-          'नयाँ निर्देशक खण्ड',
-          'उपशीर्षक पहुँच',
-        ]),
+        list(['सुलभ टिकट', 'नयाँ निर्देशक खण्ड', 'उपशीर्षक पहुँच']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Festivals should open discussion and collaboration, not only screenings.'),
-      ],
+      bodyEn: [p('Festivals should open discussion and collaboration, not only screenings.')],
     }),
     base({
       id: 'art-ed-entertainment-2',
@@ -48,21 +44,17 @@ export function editionEntertainment(): StoredArticle[] {
       reportingLocation: 'पोखरा',
       province: 'gandaki',
       bodyNe: [
-        p('लोक संगीत पहिचानको अंश हो। नागरिक वाच डेस्कले पुस्ता हस्तान्तरण कमजोर हुँदा चिन्ता व्यक्त गर्छ।'),
+        p(
+          'लोक संगीत पहिचानको अंश हो। नागरिक वाच डेस्कले पुस्ता हस्तान्तरण कमजोर हुँदा चिन्ता व्यक्त गर्छ।',
+        ),
         p('पर्यटन प्रदर्शन मात्र पर्याप्त होइन।'),
         p('महिला लोक गायिकाको मञ्च पहुँच बढाउनुपर्छ।'),
         p('डिजिटल अभिलेखले संरक्षण सहयोग गर्छ।'),
         h2('जोगाउने उपाय'),
-        list([
-          'विद्यालय कार्यक्रम',
-          'सामुदायिक रेडियो प्रसारण',
-          'युवा कलाकार मेन्टरसिप',
-        ]),
+        list(['विद्यालय कार्यक्रम', 'सामुदायिक रेडियो प्रसारण', 'युवा कलाकार मेन्टरसिप']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Keeping folk music alive needs live stages and teaching, not only recordings.'),
-      ],
+      bodyEn: [p('Keeping folk music alive needs live stages and teaching, not only recordings.')],
     }),
     base({
       id: 'art-ed-entertainment-3',
@@ -74,20 +66,18 @@ export function editionEntertainment(): StoredArticle[] {
       deckEn: 'Theatre raises social themes; ticket price and hall access decide who can attend.',
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
-      tagSlugs: ["editor-pick"],
+      tagSlugs: ['editor-pick'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
-        p('रङ्गमञ्च समुदाय संवादको शक्तिशाली माध्यम हो। नागरिक वाच डेस्कले साना उत्पादनलाई स्थान दिन आग्रह गर्छ।'),
+        p(
+          'रङ्गमञ्च समुदाय संवादको शक्तिशाली माध्यम हो। नागरिक वाच डेस्कले साना उत्पादनलाई स्थान दिन आग्रह गर्छ।',
+        ),
         p('हल भाडा मुख्य खर्च हो।'),
         p('समीक्षा संस्कृतिले गुणस्तर बहस खुलाउँछ।'),
         p('प्रदेश सहरमा भ्रमणले दर्शक आधार फराकिलो बनाउँछ।'),
         h2('दर्शक विस्तार'),
-        list([
-          'विद्यार्थी छुट',
-          'भ्रमण प्रदर्शनी',
-          'स्थानीय भाषा नाटक',
-        ]),
+        list(['विद्यार्थी छुट', 'भ्रमण प्रदर्शनी', 'स्थानीय भाषा नाटक']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
       bodyEn: [
@@ -109,21 +99,17 @@ export function editionEntertainment(): StoredArticle[] {
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
-        p('स्ट्रिमिङले पहुँच बढायो तर हल अर्थतन्त्रमा चाप पर्‍यो। नागरिक वाच डेस्क दुवै माध्यमको सहअस्तित्व खोज्छ।'),
+        p(
+          'स्ट्रिमिङले पहुँच बढायो तर हल अर्थतन्त्रमा चाप पर्‍यो। नागरिक वाच डेस्क दुवै माध्यमको सहअस्तित्व खोज्छ।',
+        ),
         p('नेपाली सामग्रीको खोज योग्यता महत्त्वपूर्ण छ।'),
         p('सिनेमा हल सामाजिक अनुभव बेच्न सक्छ।'),
         p('नीतिले साना निर्मातालाई ठाउँ दिनुपर्छ।'),
         h2('उद्योगका प्रश्न'),
-        list([
-          'रिलिज झ्याल पारदर्शिता',
-          'राजस्व बाँडफाँड',
-          'पाइरेसी निवारण',
-        ]),
+        list(['रिलिज झ्याल पारदर्शिता', 'राजस्व बाँडफाँड', 'पाइरेसी निवारण']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Audience habits changed; halls and home viewing both need clear strategies.'),
-      ],
+      bodyEn: [p('Audience habits changed; halls and home viewing both need clear strategies.')],
     }),
     base({
       id: 'art-ed-entertainment-5',
@@ -135,7 +121,7 @@ export function editionEntertainment(): StoredArticle[] {
       deckEn: 'Advance calendars help families and visitors plan around festivals and exhibitions.',
       publishedAt: isoDaysAgo(4, 6),
       updatedAt: isoDaysAgo(4, 6),
-      tagSlugs: ["climate"],
+      tagSlugs: ['climate'],
       reportingLocation: 'भक्तपुर',
       province: 'bagmati',
       bodyNe: [
@@ -144,16 +130,12 @@ export function editionEntertainment(): StoredArticle[] {
         p('युवा स्वयंसेवक परिचालनले ऊर्जा थप्छ।'),
         p('अभिलेखीकरणले पछिल्ला पुस्तालाई सम्पदा बुझाउँछ।'),
         h2('आयोजना सुधार'),
-        list([
-          'अग्रिम सूचना',
-          'भीड व्यवस्थापन',
-          'स्थानीय कलाकार प्राथमिकता',
-        ]),
+        list(['अग्रिम सूचना', 'भीड व्यवस्थापन', 'स्थानीय कलाकार प्राथमिकता']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
       bodyEn: [
         p('Advance calendars help families and visitors plan around festivals and exhibitions.'),
       ],
-    })
+    }),
   ]
 }

@@ -92,12 +92,7 @@ export function parseInlineMarks(input: string): InlineMark[] {
 /** True when text contains any supported inline mark delimiters. */
 export function hasInlineMarks(input: string): boolean {
   const text = String(input ?? '')
-  return (
-    LINK_RE.test(text) ||
-    HIGHLIGHT_RE.test(text) ||
-    BOLD_RE.test(text) ||
-    ITALIC_RE.test(text)
-  )
+  return LINK_RE.test(text) || HIGHLIGHT_RE.test(text) || BOLD_RE.test(text) || ITALIC_RE.test(text)
 }
 
 export function wrapTextSelection(

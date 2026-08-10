@@ -60,11 +60,7 @@ export function FontSizeControl({ locale }: { locale: Locale }) {
   ]
 
   return (
-    <div
-      role="radiogroup"
-      aria-label={dict.fontSizeLabel}
-      className="article-font-control"
-    >
+    <div role="radiogroup" aria-label={dict.fontSizeLabel} className="article-font-control">
       {steps.map((s) => {
         const active = size === s.value
         return (

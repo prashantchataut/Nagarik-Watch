@@ -51,7 +51,10 @@ export function TodayInBrief({
             const titleLang = locale === 'en' && s.titleEn ? 'en' : 'ne'
             const href = localizeHref(locale, `/${s.category.slug}/${s.slug}`)
             return (
-              <li key={s.slug} className="flex gap-2.5 border-b border-rule py-2.5 last:border-b-0 last:pb-0">
+              <li
+                key={s.slug}
+                className="flex gap-2.5 border-b border-rule py-2.5 last:border-b-0 last:pb-0"
+              >
                 <span
                   aria-hidden="true"
                   className="mt-0.5 w-5 shrink-0 text-right font-display text-body font-bold leading-snug text-brand"

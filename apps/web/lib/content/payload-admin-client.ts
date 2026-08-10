@@ -18,7 +18,8 @@ export function isPayloadCanonical(): boolean {
  * that the public reader can never see.
  */
 export function isPayloadSourceMisconfigured(): boolean {
-  const source = process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'json'
+  const source =
+    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'json'
   const launchLive =
     (process.env.NEXT_PUBLIC_LAUNCH_STATUS?.trim() || 'preview').toLowerCase() === 'live'
   if (launchLive && source !== 'payload') return true
@@ -56,7 +57,9 @@ export function payloadAdminUrl(path = ''): string {
     const base = 'http://localhost:3001/admin'
     return `${base}${path.startsWith('/') ? path : path ? `/${path}` : ''}`
   }
-  throw new Error('PAYLOAD_PUBLIC_SERVER_URL or PAYLOAD_ADMIN_URL is required for the Payload admin URL.')
+  throw new Error(
+    'PAYLOAD_PUBLIC_SERVER_URL or PAYLOAD_ADMIN_URL is required for the Payload admin URL.',
+  )
 }
 
 export function payloadCollectionAdminUrl(collection: string, id?: string): string {
@@ -111,7 +114,8 @@ async function payloadJson<T>(path: string, init?: RequestInit): Promise<T> {
     message?: string
   }
   if (!response.ok) {
-    const message = body.errors?.[0]?.message || body.message || `Payload request failed: ${response.status}`
+    const message =
+      body.errors?.[0]?.message || body.message || `Payload request failed: ${response.status}`
     throw new Error(message)
   }
   return body
@@ -144,10 +148,7 @@ export async function ensurePayloadAuthorForEmail(input: {
   if (!email || !email.includes('@')) return null
   if (
     !process.env.PAYLOAD_API_TOKEN?.trim() ||
-    !(
-      process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim() ||
-      process.env.PAYLOAD_ADMIN_URL?.trim()
-    )
+    !(process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim() || process.env.PAYLOAD_ADMIN_URL?.trim())
   ) {
     return null
   }
@@ -162,11 +163,12 @@ export async function ensurePayloadAuthorForEmail(input: {
   }
 
   const local = email.split('@')[0] || 'author'
-  const slugBase = local
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 48) || 'author'
+  const slugBase =
+    local
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 48) || 'author'
   let slug = slugBase
   for (let attempt = 0; attempt < 5; attempt++) {
     const clash = await findDocument('authors', 'slug', slug)
@@ -232,37 +234,40 @@ export async function createPayloadJournalistDraft(
     )
   }
 
-  const created = await payloadJson<PayloadDoc & { workflowStage?: string }>('/api/articles?draft=true', {
-    method: 'POST',
-    body: JSON.stringify({
-      titleNe: input.titleNe,
-      titleEn: input.titleEn,
-      slug: input.slug,
-      deckNe: input.deckNe,
-      bodyNe: input.bodyNe,
-      englishStatus: input.titleEn ? 'in_progress' : 'none',
-      workflowStage: input.workflowStage,
-      category: category.id,
-      tags: tags.filter((tag): tag is PayloadDoc => Boolean(tag)).map((tag) => ({ tag: tag.id })),
-      authors: [{ author: author.id }],
-      sourceType: 'original',
-      locale: input.locale,
-      noIndex: true,
-      includeInNewsSitemap: false,
-      homepageTeaserNe: input.homepageTeaserNe,
-      socialCopyNe: input.socialCopyNe,
-      reportingLocation: input.reportingLocation,
-      sourceNote: input.sourceNote,
-      editorPitch: input.editorPitch,
-      mediaReferenceUrl: input.mediaReferenceUrl,
-      internalNotes: input.internalNotes,
-      premium: false,
-      commentsEnabled: true,
-      notificationMode: input.notificationMode ?? 'none',
-      notificationTagSlugs: input.notificationTagSlugs ?? [],
-      _status: 'draft',
-    }),
-  })
+  const created = await payloadJson<PayloadDoc & { workflowStage?: string }>(
+    '/api/articles?draft=true',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        titleNe: input.titleNe,
+        titleEn: input.titleEn,
+        slug: input.slug,
+        deckNe: input.deckNe,
+        bodyNe: input.bodyNe,
+        englishStatus: input.titleEn ? 'in_progress' : 'none',
+        workflowStage: input.workflowStage,
+        category: category.id,
+        tags: tags.filter((tag): tag is PayloadDoc => Boolean(tag)).map((tag) => ({ tag: tag.id })),
+        authors: [{ author: author.id }],
+        sourceType: 'original',
+        locale: input.locale,
+        noIndex: true,
+        includeInNewsSitemap: false,
+        homepageTeaserNe: input.homepageTeaserNe,
+        socialCopyNe: input.socialCopyNe,
+        reportingLocation: input.reportingLocation,
+        sourceNote: input.sourceNote,
+        editorPitch: input.editorPitch,
+        mediaReferenceUrl: input.mediaReferenceUrl,
+        internalNotes: input.internalNotes,
+        premium: false,
+        commentsEnabled: true,
+        notificationMode: input.notificationMode ?? 'none',
+        notificationTagSlugs: input.notificationTagSlugs ?? [],
+        _status: 'draft',
+      }),
+    },
+  )
 
   return {
     id: String(created.id),
@@ -408,13 +413,17 @@ type PayloadScheduledArticle = {
 }
 
 type PayloadScheduledPublishResult = {
-  published: Array<{ id: string; slug: string; categorySlug?: string; tagSlugs: string[]; publishedAt: string }>
+  published: Array<{
+    id: string
+    slug: string
+    categorySlug?: string
+    tagSlugs: string[]
+    publishedAt: string
+  }>
   inspected: number
 }
 
-function relationSlug(
-  input: { slug?: string } | string | number | undefined,
-): string | undefined {
+function relationSlug(input: { slug?: string } | string | number | undefined): string | undefined {
   if (!input) return undefined
   if (typeof input === 'object') return input.slug ? String(input.slug) : undefined
   return undefined

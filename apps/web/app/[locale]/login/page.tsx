@@ -8,11 +8,7 @@ export const metadata: Metadata = {
 }
 
 /** Compatibility route. Reader authentication lives under /auth. */
-export default async function LegacyLoginPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function LegacyLoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   permanentRedirect(localizeHref(locale, '/auth/login'))
 }

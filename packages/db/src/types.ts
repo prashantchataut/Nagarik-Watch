@@ -584,7 +584,10 @@ export interface RecommendationEvent {
   /** Ranker version recorded with the impression for reproducible audits. */
   algorithmVersion?: string
   /** Dominant strategy by shown article id; contains no personal data. */
-  strategies?: Record<string, 'content' | 'session' | 'freshness' | 'follow' | 'editorial' | 'cold-start'>
+  strategies?: Record<
+    string,
+    'content' | 'session' | 'freshness' | 'follow' | 'editorial' | 'cold-start'
+  >
   at: string
 }
 

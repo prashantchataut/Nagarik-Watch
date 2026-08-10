@@ -6,11 +6,7 @@ import { PROVINCES } from '@/lib/site'
 
 export const revalidate = 60
 
-export default async function ProvincesPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function ProvincesPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const [{ items: allTagged }, ...perProvince] = await Promise.all([
     getStories({ locale, perPage: 40 }),

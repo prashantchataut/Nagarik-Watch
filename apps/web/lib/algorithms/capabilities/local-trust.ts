@@ -1,6 +1,10 @@
 import type { CapabilitySpec } from '../types'
 import { num, str, okLocal } from '../handlers/utils'
-import { sourceReliabilityScore, factConsistencyScore, misinformationPatternScore } from '../product/editorial-scorers'
+import {
+  sourceReliabilityScore,
+  factConsistencyScore,
+  misinformationPatternScore,
+} from '../product/editorial-scorers'
 import { botScore } from '../product/traffic-quality'
 import { surfaceFor } from './surface'
 
@@ -14,9 +18,12 @@ export const LOCAL_TRUST_CAPABILITIES: CapabilitySpec[] = [
       const storiesPublished = num(input, 'storiesPublished', 240)
       const yearsActive = num(input, 'yearsActive', 6)
       const score = sourceReliabilityScore({ correctionsIssued, storiesPublished, yearsActive })
-      return okLocal(`sourceReliability=${score.toFixed(3)} corrections=${correctionsIssued}/${storiesPublished}`, {
-        score,
-      })
+      return okLocal(
+        `sourceReliability=${score.toFixed(3)} corrections=${correctionsIssued}/${storiesPublished}`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -27,7 +34,10 @@ export const LOCAL_TRUST_CAPABILITIES: CapabilitySpec[] = [
       const claims = num(input, 'claims', 5)
       const citations = num(input, 'citations', 3)
       const score = factConsistencyScore(claims, citations)
-      return okLocal(`factConsistency=${score.toFixed(3)} claims=${claims} corroborated=${citations}`, { score })
+      return okLocal(
+        `factConsistency=${score.toFixed(3)} claims=${claims} corroborated=${citations}`,
+        { score },
+      )
     },
   },
   {

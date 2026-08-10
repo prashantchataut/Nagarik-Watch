@@ -175,7 +175,9 @@ function asCard(doc: PayloadDoc): StoryCardData {
     titleEn: doc.titleEn ? String(doc.titleEn) : undefined,
     deckNe: doc.homepageTeaserNe
       ? String(doc.homepageTeaserNe)
-      : doc.deckNe ? String(doc.deckNe) : undefined,
+      : doc.deckNe
+        ? String(doc.deckNe)
+        : undefined,
     deckEn: doc.deckEn ? String(doc.deckEn) : undefined,
     heroImage: media,
     byline: String(doc.byline ?? authors.map((author) => author.name).join(', ')),
@@ -264,7 +266,8 @@ async function payloadFind<T extends PayloadDoc>(
     message?: string
   }
   if (!response.ok) {
-    const message = body.errors?.[0]?.message || body.message || `Payload read failed: ${response.status}`
+    const message =
+      body.errors?.[0]?.message || body.message || `Payload read failed: ${response.status}`
     throw new Error(message)
   }
   return { ...body, docs: Array.isArray(body.docs) ? body.docs : [] }
@@ -384,9 +387,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
       if (!cards.length) return null
 
       const activeRows = rows.filter((doc) => placementActive(doc))
-      const editorialLead = activeRows
-        .filter((doc) => doc.featuredState === 'lead')
-        .map(asCard)[0]
+      const editorialLead = activeRows.filter((doc) => doc.featuredState === 'lead').map(asCard)[0]
       const lead = editorialLead ?? cards[0]!
       const editorialFeatured = activeRows
         .filter((doc) => doc.featuredState === 'featured')
@@ -401,11 +402,14 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
             ...editorialFeatured,
             ...fallbackPool.filter((c) => c.editorPick || c.exclusive),
             ...fallbackPool,
+            ...cards,
           ].map((card) => [card.id, card]),
         ).values(),
       ).slice(0, 6)
       const secondary = Array.from(
-        new Map([...editorialSecondary, ...fallbackPool].map((card) => [card.id, card])).values(),
+        new Map(
+          [...editorialSecondary, ...fallbackPool, ...cards].map((card) => [card.id, card]),
+        ).values(),
       ).slice(0, 6)
       const breaking = cards.filter((card) => card.isBreaking).slice(0, 6)
       const sections = (catDocs as unknown as PayloadDoc[])
@@ -459,12 +463,16 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
         depth: 1,
         revalidateSeconds: 180,
       })
-      return (docs as unknown as Array<PayloadDoc & {
-        role?: string
-        bio?: string
-        photo?: MediaField
-        isActive?: boolean
-      }>).map((doc) => ({
+      return (
+        docs as unknown as Array<
+          PayloadDoc & {
+            role?: string
+            bio?: string
+            photo?: MediaField
+            isActive?: boolean
+          }
+        >
+      ).map((doc) => ({
         id: String(doc.id),
         slug: String(doc.slug ?? ''),
         name: String(doc.name ?? ''),
@@ -489,8 +497,8 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
 
     async getFeatured() {
       const publishedWhere = publicArticleWhere()
-      const [{ docs: latestDocs }, { docs: leadDocs }, { docs: secondaryDocs }] =
-        await Promise.all([
+      const [{ docs: latestDocs }, { docs: leadDocs }, { docs: secondaryDocs }] = await Promise.all(
+        [
           payloadFind<PayloadDoc>('articles', {
             where: publishedWhere,
             sort: '-publishAt',
@@ -512,7 +520,8 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
             depth: 1,
             revalidateSeconds: 20,
           }),
-        ])
+        ],
+      )
       const latest = (latestDocs as unknown as PayloadDoc[]).map(asCard)
       const lead = (leadDocs as unknown as PayloadDoc[]).map(asCard)[0] ?? latest[0]
       if (!lead) return { lead: undefined, secondary: [] }

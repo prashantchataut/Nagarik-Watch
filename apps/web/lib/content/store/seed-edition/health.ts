@@ -14,7 +14,7 @@ export function editionHealth(): StoredArticle[] {
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["climate"],
+      tagSlugs: ['climate'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -23,16 +23,10 @@ export function editionHealth(): StoredArticle[] {
         p('गर्भवती र बालबालिका प्राथमिक समूह हुन्।'),
         p('अफवाह औषधि सेवन घातक हुन सक्छ।'),
         h2('घरमा अपनाउने सावधानी'),
-        list([
-          'उमालेको/शोधित पानी',
-          'झुलको प्रयोग',
-          'लक्षण देखिए जाँच',
-        ]),
+        list(['उमालेको/शोधित पानी', 'झुलको प्रयोग', 'लक्षण देखिए जाँच']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Clean water, handwashing and early checks reduce complications.'),
-      ],
+      bodyEn: [p('Clean water, handwashing and early checks reduce complications.')],
     }),
     base({
       id: 'art-ed-health-2',
@@ -40,28 +34,30 @@ export function editionHealth(): StoredArticle[] {
       categorySlug: 'health',
       titleNe: 'ग्रामीण मातृ देखभाल: पहुँच र सम्मान',
       titleEn: 'Rural maternal care: access with dignity',
-      deckNe: 'प्रसूति सेवा नजिक र सम्मानजनक हुनुपर्छ। यातायात र २४ घण्टे जनशक्ति मुख्य चुनौती हुन्।',
-      deckEn: 'Maternity care must be near and respectful; transport and 24-hour staffing are key hurdles.',
+      deckNe:
+        'प्रसूति सेवा नजिक र सम्मानजनक हुनुपर्छ। यातायात र २४ घण्टे जनशक्ति मुख्य चुनौती हुन्।',
+      deckEn:
+        'Maternity care must be near and respectful; transport and 24-hour staffing are key hurdles.',
       publishedAt: isoDaysAgo(1, 8),
       updatedAt: isoDaysAgo(1, 8),
       tagSlugs: [],
       reportingLocation: 'अछाम',
       province: 'sudurpashchim',
       bodyNe: [
-        p('मातृ मृत्यु घटाउने लक्ष्य सेवा गुणस्तरमा निर्भर छ। नागरिक वाच डेस्कले बाधा रेकर्ड गर्छ।'),
+        p(
+          'मातृ मृत्यु घटाउने लक्ष्य सेवा गुणस्तरमा निर्भर छ। नागरिक वाच डेस्कले बाधा रेकर्ड गर्छ।',
+        ),
         p('घर प्रसूति बाध्यता बन्नु हुँदैन।'),
         p('परिवार निर्णय प्रक्रियामा महिला आवाज सुनिनुपर्छ।'),
         p('रेफरल अस्पतालसँग समन्वय अनिवार्य छ।'),
         h2('सुधारका स्तम्भ'),
-        list([
-          'एम्बुलेन्स/कोष',
-          'प्रशिक्षित कर्मी',
-          'पोषण परामर्श',
-        ]),
+        list(['एम्बुलेन्स/कोष', 'प्रशिक्षित कर्मी', 'पोषण परामर्श']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
       bodyEn: [
-        p('Maternity care must be near and respectful; transport and 24-hour staffing are key hurdles.'),
+        p(
+          'Maternity care must be near and respectful; transport and 24-hour staffing are key hurdles.',
+        ),
       ],
     }),
     base({
@@ -75,25 +71,21 @@ export function editionHealth(): StoredArticle[] {
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
       isFeatured: 'secondary',
-      tagSlugs: ["editor-pick"],
+      tagSlugs: ['editor-pick'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
-        p('मानसिक स्वास्थ्य बहस बढे पनि कलंक बाँकी छ। नागरिक वाच डेस्क संवेदनशील भाषामा जोड दिन्छ।'),
+        p(
+          'मानसिक स्वास्थ्य बहस बढे पनि कलंक बाँकी छ। नागरिक वाच डेस्क संवेदनशील भाषामा जोड दिन्छ।',
+        ),
         p('आत्महत्या समाचारमा सावधानी अपरिहार्य छ।'),
         p('सेवा शुल्क र दूरी अवरोध हुन्।'),
         p('परिवार समर्थन निर्णायक हुन्छ।'),
         h2('समुदाय भूमिका'),
-        list([
-          'विद्यालय परामर्श',
-          'कार्यस्थल नीति',
-          'मिडिया भाषा',
-        ]),
+        list(['विद्यालय परामर्श', 'कार्यस्थल नीति', 'मिडिया भाषा']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Seeking help is not weakness; counselling access and privacy must expand.'),
-      ],
+      bodyEn: [p('Seeking help is not weakness; counselling access and privacy must expand.')],
     }),
     base({
       id: 'art-ed-health-4',
@@ -105,7 +97,7 @@ export function editionHealth(): StoredArticle[] {
       deckEn: 'Knowing expected waits helps patients plan.',
       publishedAt: isoDaysAgo(3, 10),
       updatedAt: isoDaysAgo(3, 10),
-      tagSlugs: ["data-story"],
+      tagSlugs: ['data-story'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -114,16 +106,10 @@ export function editionHealth(): StoredArticle[] {
         p('डिजिटल अपोइन्टमेन्ट सहयोगी हुन सक्छ।'),
         p('निजी र सरकारी दुवैमा मापदण्ड चाहिन्छ।'),
         h2('प्रशासन कदम'),
-        list([
-          'विभागगत औसत समय',
-          'टोकन प्रणाली',
-          'आपतकाल छुट्याउने',
-        ]),
+        list(['विभागगत औसत समय', 'टोकन प्रणाली', 'आपतकाल छुट्याउने']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Knowing expected waits helps patients plan.'),
-      ],
+      bodyEn: [p('Knowing expected waits helps patients plan.')],
     }),
     base({
       id: 'art-ed-health-5',
@@ -144,16 +130,10 @@ export function editionHealth(): StoredArticle[] {
         p('गर्भवती परामर्श छुटाउनु हुँदैन।'),
         p('शितल श्रृंखला विश्वसनीय बनाउनुपर्छ।'),
         h2('सञ्चार सुझाव'),
-        list([
-          'स्थानीय भाषा',
-          'साइड इफेक्ट इमानदारी',
-          'प्रश्नोत्तर सत्र',
-        ]),
+        list(['स्थानीय भाषा', 'साइड इफेक्ट इमानदारी', 'प्रश्नोत्तर सत्र']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Clear information and health-worker dialogue reduce doubt.'),
-      ],
-    })
+      bodyEn: [p('Clear information and health-worker dialogue reduce doubt.')],
+    }),
   ]
 }

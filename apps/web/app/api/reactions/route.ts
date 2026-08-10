@@ -1,9 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import {
-  isReactionEmoji,
-  reactionCounts,
-  toggleReaction,
-} from '@/lib/engagement/reactions'
+import { isReactionEmoji, reactionCounts, toggleReaction } from '@/lib/engagement/reactions'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 
@@ -33,9 +29,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
   const articleSlug = String(body.articleSlug ?? '').trim()
-  const articleCategory = String(body.articleCategory ?? '').trim().slice(0, 80)
+  const articleCategory = String(body.articleCategory ?? '')
+    .trim()
+    .slice(0, 80)
   const emoji = String(body.emoji ?? '')
-  const visitorKey = String(body.visitorKey ?? '').trim().slice(0, 200)
+  const visitorKey = String(body.visitorKey ?? '')
+    .trim()
+    .slice(0, 200)
   if (!articleSlug || !visitorKey || !isReactionEmoji(emoji)) {
     return NextResponse.json({ error: 'Invalid reaction.' }, { status: 400 })
   }

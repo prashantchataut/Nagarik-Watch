@@ -18,9 +18,7 @@ export async function safeAdminLoad<T>(
   }
 }
 
-export function firstAdminLoadError(
-  ...results: Array<{ error: string | null }>
-): string | null {
+export function firstAdminLoadError(...results: Array<{ error: string | null }>): string | null {
   for (const result of results) {
     if (result.error) return result.error
   }

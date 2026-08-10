@@ -21,11 +21,17 @@ export const LOCAL_SECURITY_CAPABILITIES: CapabilitySpec[] = [
       const refillPerSecond = num(input, 'refillPerSecond', 2)
       const secondsSinceLastRequest = num(input, 'secondsSinceLastRequest', 5)
       const tokensBefore = num(input, 'tokensBefore', 10)
-      const tokensAvailable = Math.min(capacity, tokensBefore + refillPerSecond * secondsSinceLastRequest)
+      const tokensAvailable = Math.min(
+        capacity,
+        tokensBefore + refillPerSecond * secondsSinceLastRequest,
+      )
       const allowed = tokensAvailable >= 1
-      return okLocal(`tokensAvailable=${tokensAvailable.toFixed(1)}/${capacity} allowed=${allowed}`, {
-        score: clamp01(tokensAvailable / capacity),
-      })
+      return okLocal(
+        `tokensAvailable=${tokensAvailable.toFixed(1)}/${capacity} allowed=${allowed}`,
+        {
+          score: clamp01(tokensAvailable / capacity),
+        },
+      )
     },
   },
   {
@@ -36,9 +42,13 @@ export const LOCAL_SECURITY_CAPABILITIES: CapabilitySpec[] = [
       const payload = str(input, 'requestPayload', 'category=politics&sort=latest')
       const matched = WAF_PATTERNS.filter((re) => re.test(payload))
       const blocked = matched.length > 0
-      return okAdapter('adapter-disabled', `localWafMatches=${matched.length} blocked=${blocked} (no managed WAF vendor configured)`, {
-        score: blocked ? 1 : 0,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `localWafMatches=${matched.length} blocked=${blocked} (no managed WAF vendor configured)`,
+        {
+          score: blocked ? 1 : 0,
+        },
+      )
     },
   },
   {
@@ -66,9 +76,13 @@ export const LOCAL_SECURITY_CAPABILITIES: CapabilitySpec[] = [
       const jsExecuted = Boolean(input.jsExecuted ?? true)
       const timingConsistentMs = num(input, 'challengeSolveMs', 40)
       const passed = jsExecuted && timingConsistentMs > 5 && timingConsistentMs < 2000
-      return okAdapter('adapter-disabled', `invisibleChallengePassed=${passed} (local timing probe, no vendor CAPTCHA configured)`, {
-        score: passed ? 1 : 0,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `invisibleChallengePassed=${passed} (local timing probe, no vendor CAPTCHA configured)`,
+        {
+          score: passed ? 1 : 0,
+        },
+      )
     },
   },
   {
@@ -80,9 +94,13 @@ export const LOCAL_SECURITY_CAPABILITIES: CapabilitySpec[] = [
       const totalSessions = num(input, 'totalSessions', 100)
       const ocspStapled = Boolean(input.ocspStapled ?? true)
       const resumptionRate = totalSessions > 0 ? clamp01(resumedSessions / totalSessions) : 0
-      return okAdapter('adapter-disabled', `tlsResumptionRate=${resumptionRate.toFixed(3)} ocspStapled=${ocspStapled} (no edge TLS vendor configured)`, {
-        score: resumptionRate,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `tlsResumptionRate=${resumptionRate.toFixed(3)} ocspStapled=${ocspStapled} (no edge TLS vendor configured)`,
+        {
+          score: resumptionRate,
+        },
+      )
     },
   },
   {
@@ -111,7 +129,10 @@ export const LOCAL_SECURITY_CAPABILITIES: CapabilitySpec[] = [
       const distinctUsernamesTried = num(input, 'distinctUsernamesTried', 3)
       const suspicious = failedLoginsPerMinute > 10 && distinctUsernamesTried > 5
       const score = clamp01(failedLoginsPerMinute / 20) * clamp01(distinctUsernamesTried / 10)
-      return okLocal(`credentialStuffingRisk=${suspicious} failedLoginsPerMin=${failedLoginsPerMinute}`, { score })
+      return okLocal(
+        `credentialStuffingRisk=${suspicious} failedLoginsPerMin=${failedLoginsPerMinute}`,
+        { score },
+      )
     },
   },
   {
@@ -133,9 +154,13 @@ export const LOCAL_SECURITY_CAPABILITIES: CapabilitySpec[] = [
       const secretAgeDays = num(input, 'secretAgeDays', 45)
       const rotationPolicyDays = num(input, 'rotationPolicyDays', 90)
       const overdue = secretAgeDays > rotationPolicyDays
-      return okAdapter('adapter-disabled', `secretRotationOverdue=${overdue} age=${secretAgeDays}d policy=${rotationPolicyDays}d (no secrets-manager vendor configured)`, {
-        score: overdue ? 1 : clamp01(secretAgeDays / rotationPolicyDays),
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `secretRotationOverdue=${overdue} age=${secretAgeDays}d policy=${rotationPolicyDays}d (no secrets-manager vendor configured)`,
+        {
+          score: overdue ? 1 : clamp01(secretAgeDays / rotationPolicyDays),
+        },
+      )
     },
   },
   {
@@ -147,9 +172,13 @@ export const LOCAL_SECURITY_CAPABILITIES: CapabilitySpec[] = [
       const baselineErrorRate = num(input, 'baselineErrorRate', 0.008)
       const spikeRatio = baselineErrorRate > 0 ? currentErrorRate / baselineErrorRate : 1
       const shouldRollback = spikeRatio >= 3
-      return okAdapter('adapter-disabled', `errorSpikeRatio=${spikeRatio.toFixed(2)} shouldRollback=${shouldRollback} (no deployment-platform vendor configured)`, {
-        score: clamp01(spikeRatio / 5),
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `errorSpikeRatio=${spikeRatio.toFixed(2)} shouldRollback=${shouldRollback} (no deployment-platform vendor configured)`,
+        {
+          score: clamp01(spikeRatio / 5),
+        },
+      )
     },
   },
 ]

@@ -127,15 +127,31 @@ export function MediaGalleryPicker({
   }
 
   return (
-    <div className="media-gallery-picker" role="dialog" aria-modal="true" aria-label={title ?? (ne ? 'मिडिया ग्यालरी' : 'Media gallery')}>
-      <button type="button" className="media-gallery-picker__backdrop" aria-label={ne ? 'बन्द गर्नुहोस्' : 'Close'} onClick={onClose} />
+    <div
+      className="media-gallery-picker"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title ?? (ne ? 'मिडिया ग्यालरी' : 'Media gallery')}
+    >
+      <button
+        type="button"
+        className="media-gallery-picker__backdrop"
+        aria-label={ne ? 'बन्द गर्नुहोस्' : 'Close'}
+        onClick={onClose}
+      />
       <div className="media-gallery-picker__panel">
         <header className="media-gallery-picker__header">
           <div>
             <h2>{title ?? (ne ? 'मिडिया ग्यालरी' : 'Media gallery')}</h2>
-            <p>{ne ? 'शरीरमा छवि घुसाउन वा हिरोका लागि छान्नुहोस्।' : 'Pick an image for the body or hero.'}</p>
+            <p>
+              {ne
+                ? 'शरीरमा छवि घुसाउन वा हिरोका लागि छान्नुहोस्।'
+                : 'Pick an image for the body or hero.'}
+            </p>
           </div>
-          <button type="button" onClick={onClose}>{ne ? 'बन्द' : 'Close'}</button>
+          <button type="button" onClick={onClose}>
+            {ne ? 'बन्द' : 'Close'}
+          </button>
         </header>
 
         <div className="media-gallery-picker__toolbar">
@@ -194,7 +210,13 @@ export function MediaGalleryPicker({
               }}
             >
               <span className="media-gallery-picker__thumb">
-                <Image src={item.url} alt="" fill className="object-cover" unoptimized={item.url.startsWith('data:')} />
+                <Image
+                  src={item.url}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  unoptimized={item.url.startsWith('data:')}
+                />
               </span>
               <span className="media-gallery-picker__meta">
                 <strong>{item.alt || (ne ? 'शीर्षकविहीन' : 'Untitled')}</strong>
@@ -204,7 +226,9 @@ export function MediaGalleryPicker({
           ))}
           {!pending && filtered.length === 0 && !error ? (
             <p className="media-gallery-picker__empty">
-              {ne ? 'पुस्तकालय खाली छ। URL दर्ता वा अपलोड गर्नुहोस्।' : 'Library is empty. Register a URL or upload.'}
+              {ne
+                ? 'पुस्तकालय खाली छ। URL दर्ता वा अपलोड गर्नुहोस्।'
+                : 'Library is empty. Register a URL or upload.'}
             </p>
           ) : null}
         </div>

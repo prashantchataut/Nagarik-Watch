@@ -8,7 +8,11 @@ import type { ArticleBlock } from '@nagarikwatch/db'
 import { blocksFromShorthand } from '@/lib/content/blocks'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { revalidatePublishedArticle, publicArticlePath, isPubliclyVisibleStage } from '@/lib/content/revalidate-published'
+import {
+  revalidatePublishedArticle,
+  publicArticlePath,
+  isPubliclyVisibleStage,
+} from '@/lib/content/revalidate-published'
 import {
   isPayloadCanonical,
   payloadAdminUrlIfConfigured,
@@ -116,7 +120,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   if (requestedStage === 'published' || requestedStage === 'updated') {
     const authorIds = Array.isArray(body.authorIds) ? body.authorIds.map(String) : null
     if (authorIds && authorIds.length === 0) {
-      return NextResponse.json({ error: 'प्रकाशन अघि कम्तीमा एक लेखक छान्नुहोस्।' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'प्रकाशन अघि कम्तीमा एक लेखक छान्नुहोस्।' },
+        { status: 400 },
+      )
     }
     const heroUrl = body.heroImageUrl !== undefined ? String(body.heroImageUrl ?? '').trim() : null
     const heroAlt = body.heroImageAlt !== undefined ? String(body.heroImageAlt ?? '').trim() : null
@@ -190,7 +197,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     console.error('[admin/articles] update failed', err)
     const msg = err instanceof Error ? err.message : 'सुरक्षित गर्न सकिएन।'
     if (msg.includes('स्लग पहिले नै अवस्थित') || /unique|duplicate key/i.test(msg)) {
-      return NextResponse.json({ error: msg.includes('स्लग') ? msg : 'स्लग पहिले नै अवस्थित छ।' }, { status: 409 })
+      return NextResponse.json(
+        { error: msg.includes('स्लग') ? msg : 'स्लग पहिले नै अवस्थित छ।' },
+        { status: 409 },
+      )
     }
     if (/DATABASE_URL|Postgres|production/i.test(msg)) {
       return NextResponse.json({ error: msg }, { status: 503 })

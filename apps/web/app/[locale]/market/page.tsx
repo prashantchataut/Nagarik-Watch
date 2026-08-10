@@ -45,7 +45,9 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
               <p className="market-board__value">
                 {localizeNumber(nepse.data.index.toFixed(2), locale)}
               </p>
-              <p className={nepseUp ? 'market-board__change is-up' : 'market-board__change is-down'}>
+              <p
+                className={nepseUp ? 'market-board__change is-up' : 'market-board__change is-down'}
+              >
                 <span aria-hidden="true">{nepseUp ? '▲' : '▼'}</span>{' '}
                 {Math.abs(nepse.data.change).toFixed(2)} (
                 {Math.abs(nepse.data.changePercent).toFixed(2)}%)

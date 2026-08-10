@@ -42,10 +42,7 @@ export function authClientErrorMessage(
   }
 
   if (status === 403) {
-    return (
-      serverMessage ??
-      (locale === 'ne' ? 'लगइन अनुमति छैन।' : 'Sign-in was forbidden.')
-    )
+    return serverMessage ?? (locale === 'ne' ? 'लगइन अनुमति छैन।' : 'Sign-in was forbidden.')
   }
 
   return (

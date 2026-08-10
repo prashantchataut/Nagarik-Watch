@@ -22,9 +22,13 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
       const cohortSize = num(input, 'cohortSize', 0)
       const kAnonymityThreshold = num(input, 'kAnonymityThreshold', 50)
       const safe = cohortSize >= kAnonymityThreshold
-      return okAdapter('adapter-disabled', `kAnonymitySafe=${safe} cohortSize=${cohortSize} (no clean-room vendor configured)`, {
-        score: safe ? 1 : clamp01(cohortSize / Math.max(1, kAnonymityThreshold)),
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `kAnonymitySafe=${safe} cohortSize=${cohortSize} (no clean-room vendor configured)`,
+        {
+          score: safe ? 1 : clamp01(cohortSize / Math.max(1, kAnonymityThreshold)),
+        },
+      )
     },
   },
   {
@@ -46,9 +50,13 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
       const netRevenue = num(input, 'netRevenue', 82)
       const impressions = num(input, 'impressions', 5000)
       const trueCpm = impressions > 0 ? (netRevenue / impressions) * 1000 : 0
-      return okAdapter('adapter-ready', `trueCpm=${trueCpm.toFixed(2)} netRevenue=${netRevenue} (local calc; SSP fee feed ready)`, {
-        score: trueCpm,
-      })
+      return okAdapter(
+        'adapter-ready',
+        `trueCpm=${trueCpm.toFixed(2)} netRevenue=${netRevenue} (local calc; SSP fee feed ready)`,
+        {
+          score: trueCpm,
+        },
+      )
     },
   },
   {
@@ -59,7 +67,10 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
       const disclosedHops = num(input, 'disclosedHops', 2)
       const totalHops = num(input, 'totalHops', 3)
       const score = totalHops > 0 ? clamp01(disclosedHops / totalHops) : 1
-      return okLocal(`supplyPathTransparency=${score.toFixed(3)} disclosed=${disclosedHops}/${totalHops}`, { score })
+      return okLocal(
+        `supplyPathTransparency=${score.toFixed(3)} disclosed=${disclosedHops}/${totalHops}`,
+        { score },
+      )
     },
   },
   {
@@ -83,9 +94,12 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
       const bidResponseMs = num(input, 'bidResponseMs', 620)
       const timeoutMs = num(input, 'timeoutMs', 800)
       const score = bidResponseMs <= timeoutMs ? 1 : clamp01(timeoutMs / bidResponseMs)
-      return okLocal(`bidWithinTimeout=${bidResponseMs <= timeoutMs} response=${bidResponseMs}ms budget=${timeoutMs}ms`, {
-        score,
-      })
+      return okLocal(
+        `bidWithinTimeout=${bidResponseMs <= timeoutMs} response=${bidResponseMs}ms budget=${timeoutMs}ms`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -109,7 +123,9 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
       const consentedUsers = num(input, 'consentedUsers', 420)
       const totalUsers = num(input, 'totalUsers', 600)
       const score = totalUsers > 0 ? clamp01(consentedUsers / totalUsers) : 0
-      return okLocal(`ppidCoverage=${score.toFixed(3)} consented=${consentedUsers}/${totalUsers}`, { score })
+      return okLocal(`ppidCoverage=${score.toFixed(3)} consented=${consentedUsers}/${totalUsers}`, {
+        score,
+      })
     },
   },
   {
@@ -133,7 +149,10 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
       const impressionsAcrossDevices = num(input, 'impressionsAcrossDevices', 3)
       const cap = num(input, 'frequencyCap', 5)
       const score = clamp01(1 - impressionsAcrossDevices / Math.max(1, cap))
-      return okLocal(`frequencyHeadroom=${score.toFixed(3)} seen=${impressionsAcrossDevices}/${cap}`, { score })
+      return okLocal(
+        `frequencyHeadroom=${score.toFixed(3)} seen=${impressionsAcrossDevices}/${cap}`,
+        { score },
+      )
     },
   },
   {
@@ -156,7 +175,10 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
     run: (input) => {
       const treatmentConversionRate = num(input, 'treatmentConversionRate', 0.06)
       const controlConversionRate = num(input, 'controlConversionRate', 0.045)
-      const lift = controlConversionRate > 0 ? (treatmentConversionRate - controlConversionRate) / controlConversionRate : 0
+      const lift =
+        controlConversionRate > 0
+          ? (treatmentConversionRate - controlConversionRate) / controlConversionRate
+          : 0
       return okLocal(`incrementalLift=${lift.toFixed(3)}`, { score: lift })
     },
   },
@@ -165,7 +187,11 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
     surface: surfaceFor('media-mix-modeling'),
     mode: 'local',
     run: (input) => {
-      const channelSpend = (input.channelSpend as Record<string, number>) ?? { search: 200, social: 150, display: 100 }
+      const channelSpend = (input.channelSpend as Record<string, number>) ?? {
+        search: 200,
+        social: 150,
+        display: 100,
+      }
       const channelConversions = (input.channelConversions as Record<string, number>) ?? {
         search: 40,
         social: 20,
@@ -176,10 +202,15 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
         const spend = channelSpend[channel] ?? 0
         return { channel, costPerConversion: conversions > 0 ? spend / conversions : Infinity }
       })
-      const best = contributions.filter((c) => Number.isFinite(c.costPerConversion)).sort((a, b) => a.costPerConversion - b.costPerConversion)[0]
-      return okLocal(`bestChannel=${best?.channel ?? 'none'} costPerConversion=${best?.costPerConversion.toFixed(2) ?? 'n/a'} totalSpend=${totalSpend}`, {
-        score: best ? 1 / best.costPerConversion : 0,
-      })
+      const best = contributions
+        .filter((c) => Number.isFinite(c.costPerConversion))
+        .sort((a, b) => a.costPerConversion - b.costPerConversion)[0]
+      return okLocal(
+        `bestChannel=${best?.channel ?? 'none'} costPerConversion=${best?.costPerConversion.toFixed(2) ?? 'n/a'} totalSpend=${totalSpend}`,
+        {
+          score: best ? 1 / best.costPerConversion : 0,
+        },
+      )
     },
   },
   {
@@ -192,9 +223,12 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
       const targetWinRate = num(input, 'targetWinRate', 0.5)
       const adjustment = historicalWinRate < targetWinRate ? -0.1 : 0.1
       const recommendedFloor = Math.max(0.5, currentFloor * (1 + adjustment))
-      return okLocal(`recommendedFloor=${recommendedFloor.toFixed(2)} winRate=${historicalWinRate.toFixed(2)}`, {
-        score: recommendedFloor,
-      })
+      return okLocal(
+        `recommendedFloor=${recommendedFloor.toFixed(2)} winRate=${historicalWinRate.toFixed(2)}`,
+        {
+          score: recommendedFloor,
+        },
+      )
     },
   },
   {
@@ -207,9 +241,12 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
       const hasCta = Boolean(input.hasCta ?? true)
       const fields = [hasTitle, hasImage, hasCta]
       const score = fields.filter(Boolean).length / fields.length
-      return okLocal(`nativeTemplateComplete=${score === 1} fields=${fields.filter(Boolean).length}/${fields.length}`, {
-        score,
-      })
+      return okLocal(
+        `nativeTemplateComplete=${score === 1} fields=${fields.filter(Boolean).length}/${fields.length}`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -220,7 +257,10 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
       const expectedAdBreaks = num(input, 'expectedAdBreaks', 3)
       const stitchedAdBreaks = num(input, 'stitchedAdBreaks', 3)
       const score = expectedAdBreaks > 0 ? clamp01(stitchedAdBreaks / expectedAdBreaks) : 1
-      return okLocal(`ssaiStitchRatio=${score.toFixed(3)} stitched=${stitchedAdBreaks}/${expectedAdBreaks}`, { score })
+      return okLocal(
+        `ssaiStitchRatio=${score.toFixed(3)} stitched=${stitchedAdBreaks}/${expectedAdBreaks}`,
+        { score },
+      )
     },
   },
   {
@@ -231,9 +271,12 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
       const uniqueReach = num(input, 'uniqueReach', 3200)
       const totalImpressions = num(input, 'totalImpressions', 5000)
       const dedupRate = totalImpressions > 0 ? clamp01(1 - uniqueReach / totalImpressions) : 0
-      return okLocal(`dedupRate=${dedupRate.toFixed(3)} uniqueReach=${uniqueReach}/${totalImpressions}`, {
-        score: dedupRate,
-      })
+      return okLocal(
+        `dedupRate=${dedupRate.toFixed(3)} uniqueReach=${uniqueReach}/${totalImpressions}`,
+        {
+          score: dedupRate,
+        },
+      )
     },
   },
   {
@@ -255,9 +298,12 @@ export const LOCAL_ADVERTISING_CAPABILITIES: CapabilitySpec[] = [
       const attentionScore = num(input, 'attentionScore', 0.6)
       const ecpm = num(input, 'ecpm', 4.2)
       const attentionYield = attentionScore * ecpm
-      return okLocal(`attentionYield=${attentionYield.toFixed(3)} attention=${attentionScore} ecpm=${ecpm}`, {
-        score: attentionYield,
-      })
+      return okLocal(
+        `attentionYield=${attentionYield.toFixed(3)} attention=${attentionScore} ecpm=${ecpm}`,
+        {
+          score: attentionYield,
+        },
+      )
     },
   },
 ]

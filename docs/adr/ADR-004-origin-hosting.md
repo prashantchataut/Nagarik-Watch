@@ -16,15 +16,15 @@ matters mainly on MISS. Solo-ops burden dominates over in-country origin prefere
 
 ## Decision
 
-**Option A (with CF edge):** 
+**Option A (with CF edge):**
 
-| Layer | Choice |
-|-------|--------|
-| Public reader + API + Better Auth + ops | **Vercel** (Node Next.js) |
-| Edge / DNS / WAF / CDN | **Cloudflare** (proxied CNAME to Vercel) |
-| CMS | **Payload** (`apps/admin`) on its own host (same or sibling Vercel project) |
-| Postgres | Managed (Neon / Supabase) shared by web + Payload |
-| Media | Vercel Blob and/or R2 with public base URL |
+| Layer                                   | Choice                                                                      |
+| --------------------------------------- | --------------------------------------------------------------------------- |
+| Public reader + API + Better Auth + ops | **Vercel** (Node Next.js)                                                   |
+| Edge / DNS / WAF / CDN                  | **Cloudflare** (proxied CNAME to Vercel)                                    |
+| CMS                                     | **Payload** (`apps/admin`) on its own host (same or sibling Vercel project) |
+| Postgres                                | Managed (Neon / Supabase) shared by web + Payload                           |
+| Media                                   | Vercel Blob and/or R2 with public base URL                                  |
 
 **Cloudflare Pages static `out` is not the launch origin.** It may remain a preview/mirror
 only. Declaring `NEXT_PUBLIC_LAUNCH_STATUS=live` while apex points at static Pages is a

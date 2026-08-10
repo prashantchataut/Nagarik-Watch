@@ -1,11 +1,16 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getLaunchChecksAsync, launchScore } from '@/lib/launch-readiness'
-import { getLaunchStatusSummary } from '@/lib/launch-phases'
+import { getLaunchPhases, getLaunchStatusSummary } from '@/lib/launch-phases'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
 import { getPayloadCutoverChecklist } from '@/lib/content/payload-cutover'
 import { getCutoverStatus } from '@/lib/content/cutover-status'
-import { AdminPageHeader, AdminCard, OpsCheckBadge, AdminCallout } from '@/components/admin/primitives'
+import {
+  AdminPageHeader,
+  AdminCard,
+  OpsCheckBadge,
+  AdminCallout,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'लन्च चेक',
@@ -28,6 +33,8 @@ export default async function LaunchPage() {
   const cutover = getPayloadCutoverChecklist()
   const score = launchScore(checks)
   const status = getLaunchStatusSummary(checks, score)
+  const phases = getLaunchPhases()
+  void phases
   return (
     <div>
       <AdminPageHeader subtitle="Production gate before showing the client a serious build" />
@@ -36,9 +43,9 @@ export default async function LaunchPage() {
           <p className="admin-metric__label">Readiness</p>
           <p className="admin-metric__value admin-metric__value--brand !text-[3.25rem]">{score}%</p>
           <p className="mt-2 text-meta text-ink-soft">
-            Env score from automatic probes. Soft {status.soft.passCount}/
-            {status.soft.items.length} · Hard {status.hard.passCount}/{status.hard.items.length} ·{' '}
-            {status.failCount} fail · {status.warnCount} warn
+            Env score from automatic probes. Soft {status.soft.passCount}/{status.soft.items.length}{' '}
+            · Hard {status.hard.passCount}/{status.hard.items.length} · {status.failCount} fail ·{' '}
+            {status.warnCount} warn
           </p>
         </AdminCard>
         <AdminCard>
@@ -93,7 +100,10 @@ export default async function LaunchPage() {
 
       <div className="grid gap-3">
         {checks.map((check) => (
-          <AdminCard key={check.key} className="grid gap-2 sm:grid-cols-[180px_1fr_auto] sm:items-center">
+          <AdminCard
+            key={check.key}
+            className="grid gap-2 sm:grid-cols-[180px_1fr_auto] sm:items-center"
+          >
             <OpsCheckBadge status={check.status} />
             <div>
               <p className="admin-section-title !text-[0.95rem]">{check.label}</p>
@@ -128,7 +138,9 @@ export default async function LaunchPage() {
           </div>
           <div className="rounded-md border border-rule bg-surface-raised p-3">
             <p className="text-caption text-mute">CONTENT_SOURCE</p>
-            <p className="mt-1 font-mono text-meta font-bold text-ink">{cutoverStatus.contentSource}</p>
+            <p className="mt-1 font-mono text-meta font-bold text-ink">
+              {cutoverStatus.contentSource}
+            </p>
           </div>
         </div>
         {cutoverStatus.nextSteps.length > 0 ? (
@@ -139,15 +151,16 @@ export default async function LaunchPage() {
           </ol>
         ) : null}
         <p className="mt-3 text-caption text-mute" lang="en">
-          Migrate commands (repo root):{' '}
-          <code>pnpm migrate:desk-to-payload</code> then{' '}
+          Migrate commands (repo root): <code>pnpm migrate:desk-to-payload</code> then{' '}
           <code>pnpm migrate:desk-to-payload -- --apply</code>. Runbook Phase 1b.
         </p>
         <ul className="mt-3 divide-y divide-rule">
           {cutover.checks.map((check) => (
             <li key={check.key} className="flex items-start justify-between gap-3 py-2 text-meta">
               <span>
-                <span className={check.ok ? 'font-bold text-brand-strong' : 'font-bold text-breaking'}>
+                <span
+                  className={check.ok ? 'font-bold text-brand-strong' : 'font-bold text-breaking'}
+                >
                   {check.ok ? 'OK' : 'TODO'}
                 </span>{' '}
                 {check.label}
@@ -162,12 +175,13 @@ export default async function LaunchPage() {
       <h2 className="admin-section-title mb-3 mt-8">Ops health snapshot</h2>
       <AdminCallout tone="attention" className="mb-4">
         <p className="text-meta leading-7">
-          Pool max is <strong>1 connection per Node instance</strong> (Aiven slot safety). Seeing 1/1
-          in use while this page loads is normal — only <strong>waiting &gt; 0</strong> means pressure.
-          Cron rows stay <strong>NEVER</strong> until Vercel daily crons and/or GitHub{' '}
+          Pool max is <strong>1 connection per Node instance</strong> (Aiven slot safety). Seeing
+          1/1 in use while this page loads is normal — only <strong>waiting &gt; 0</strong> means
+          pressure. Cron rows stay <strong>NEVER</strong> until Vercel daily crons and/or GitHub{' '}
           <code className="text-caption">ops-crons.yml</code> hit production with{' '}
-          <code className="text-caption">CRON_SECRET</code> + <code className="text-caption">CRON_BASE_URL</code>.
-          Local preview does not invent heartbeats.
+          <code className="text-caption">CRON_SECRET</code> +{' '}
+          <code className="text-caption">CRON_BASE_URL</code>. Local preview does not invent
+          heartbeats.
         </p>
       </AdminCallout>
       <div className="grid gap-3 lg:grid-cols-2">
@@ -176,8 +190,9 @@ export default async function LaunchPage() {
           {ops.pool.configured ? (
             <>
               <p className="mt-1 text-meta text-ink-soft">
-                {ops.pool.totalCount - ops.pool.idleCount}/{ops.pool.max} in use · {ops.pool.idleCount}{' '}
-                idle · {ops.pool.waitingCount} waiting · saturation {pct(ops.pool.saturation)}
+                {ops.pool.totalCount - ops.pool.idleCount}/{ops.pool.max} in use ·{' '}
+                {ops.pool.idleCount} idle · {ops.pool.waitingCount} waiting · saturation{' '}
+                {pct(ops.pool.saturation)}
               </p>
               <p className="mt-1 text-caption text-mute">
                 {ops.pool.waitingCount > 0
@@ -197,10 +212,8 @@ export default async function LaunchPage() {
           <p className="admin-section-title !text-[0.95rem]">Cron heartbeats</p>
           <div className="mt-1 grid gap-1">
             {ops.cron.map((job) => {
-              const badge =
-                job.state === 'ok' ? 'pass' : job.state === 'stale' ? 'fail' : 'warn'
-              const label =
-                job.state === 'ok' ? 'OK' : job.state === 'stale' ? 'STALE' : 'NEVER'
+              const badge = job.state === 'ok' ? 'pass' : job.state === 'stale' ? 'fail' : 'warn'
+              const label = job.state === 'ok' ? 'OK' : job.state === 'stale' ? 'STALE' : 'NEVER'
               return (
                 <p key={job.job} className="text-meta text-ink-soft">
                   <span

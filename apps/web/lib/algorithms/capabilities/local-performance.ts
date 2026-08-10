@@ -41,7 +41,10 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const chunkCount = num(input, 'chunkCount', 18)
       const routeCount = num(input, 'routeCount', 20)
       const score = routeCount > 0 ? clamp01(chunkCount / routeCount) : 0
-      return okLocal(`chunksPerRoute=${score.toFixed(3)} chunks=${chunkCount} routes=${routeCount}`, { score })
+      return okLocal(
+        `chunksPerRoute=${score.toFixed(3)} chunks=${chunkCount} routes=${routeCount}`,
+        { score },
+      )
     },
   },
   {
@@ -52,7 +55,9 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const totalBytes = num(input, 'totalBytes', 320_000)
       const shippedBytes = num(input, 'shippedBytes', 190_000)
       const removedRatio = totalBytes > 0 ? clamp01(1 - shippedBytes / totalBytes) : 0
-      return okLocal(`treeShakenRatio=${removedRatio.toFixed(3)} shipped=${shippedBytes}B`, { score: removedRatio })
+      return okLocal(`treeShakenRatio=${removedRatio.toFixed(3)} shipped=${shippedBytes}B`, {
+        score: removedRatio,
+      })
     },
   },
   {
@@ -62,9 +67,13 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
     run: (input) => {
       const negotiatedProtocol = String(input.negotiatedProtocol ?? 'h2')
       const isH3 = negotiatedProtocol === 'h3'
-      return okAdapter('adapter-disabled', `negotiatedProtocol=${negotiatedProtocol} (no HTTP/3 CDN vendor configured)`, {
-        score: isH3 ? 1 : 0,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `negotiatedProtocol=${negotiatedProtocol} (no HTTP/3 CDN vendor configured)`,
+        {
+          score: isH3 ? 1 : 0,
+        },
+      )
     },
   },
   {
@@ -75,7 +84,9 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const acceptEncoding = String(input.acceptEncoding ?? 'br, gzip')
       const servedEncoding = String(input.servedEncoding ?? 'br')
       const matched = acceptEncoding.includes(servedEncoding)
-      return okLocal(`servedEncoding=${servedEncoding} matchedAcceptEncoding=${matched}`, { score: matched ? 1 : 0 })
+      return okLocal(`servedEncoding=${servedEncoding} matchedAcceptEncoding=${matched}`, {
+        score: matched ? 1 : 0,
+      })
     },
   },
   {
@@ -119,7 +130,9 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const hits = num(input, 'preparedStatementHits', 900)
       const total = num(input, 'preparedStatementTotal', 1000)
       const score = total > 0 ? clamp01(hits / total) : 0
-      return okLocal(`preparedStatementHitRatio=${score.toFixed(3)} hits=${hits}/${total}`, { score })
+      return okLocal(`preparedStatementHitRatio=${score.toFixed(3)} hits=${hits}/${total}`, {
+        score,
+      })
     },
   },
   {
@@ -131,9 +144,13 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const misses = num(input, 'cacheMisses', 60)
       const total = hits + misses
       const score = total > 0 ? clamp01(hits / total) : 0
-      return okAdapter('adapter-disabled', `inMemoryFallbackHitRatio=${score.toFixed(3)} (no Redis configured)`, {
-        score,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `inMemoryFallbackHitRatio=${score.toFixed(3)} (no Redis configured)`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -145,9 +162,13 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const servedWidth = num(input, 'servedWidth', 800)
       const oversizeRatio = requestedWidth > 0 ? servedWidth / requestedWidth : 1
       const score = clamp01(1 / Math.max(1, oversizeRatio))
-      return okAdapter('adapter-disabled', `servedWidth=${servedWidth} requestedWidth=${requestedWidth} (no image CDN configured)`, {
-        score,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `servedWidth=${servedWidth} requestedWidth=${requestedWidth} (no image CDN configured)`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -158,7 +179,9 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const glyphsUsed = num(input, 'glyphsUsed', 480)
       const glyphsInFullFont = num(input, 'glyphsInFullFont', 1200)
       const score = glyphsInFullFont > 0 ? clamp01(1 - glyphsUsed / glyphsInFullFont) : 0
-      return okLocal(`subsetSavings=${score.toFixed(3)} glyphs=${glyphsUsed}/${glyphsInFullFont}`, { score })
+      return okLocal(`subsetSavings=${score.toFixed(3)} glyphs=${glyphsUsed}/${glyphsInFullFont}`, {
+        score,
+      })
     },
   },
   {
@@ -168,10 +191,14 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
     run: (input) => {
       const sandboxedScripts = num(input, 'sandboxedScripts', 3)
       const totalThirdPartyScripts = num(input, 'totalThirdPartyScripts', 4)
-      const score = totalThirdPartyScripts > 0 ? clamp01(sandboxedScripts / totalThirdPartyScripts) : 1
-      return okLocal(`sandboxedRatio=${score.toFixed(3)} scripts=${sandboxedScripts}/${totalThirdPartyScripts}`, {
-        score,
-      })
+      const score =
+        totalThirdPartyScripts > 0 ? clamp01(sandboxedScripts / totalThirdPartyScripts) : 1
+      return okLocal(
+        `sandboxedRatio=${score.toFixed(3)} scripts=${sandboxedScripts}/${totalThirdPartyScripts}`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -195,7 +222,10 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const renderedRows = num(input, 'renderedRows', 20)
       const totalRows = num(input, 'totalRows', 500)
       const score = totalRows > 0 ? clamp01(1 - renderedRows / totalRows) : 0
-      return okLocal(`virtualizationSavings=${score.toFixed(3)} rendered=${renderedRows}/${totalRows}`, { score })
+      return okLocal(
+        `virtualizationSavings=${score.toFixed(3)} rendered=${renderedRows}/${totalRows}`,
+        { score },
+      )
     },
   },
   {
@@ -217,7 +247,9 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const skeletonShownMs = num(input, 'skeletonShownMs', 120)
       const contentReadyMs = num(input, 'contentReadyMs', 900)
       const coverage = contentReadyMs > 0 ? clamp01(skeletonShownMs / contentReadyMs) : 0
-      return okLocal(`skeletonCoverage=${coverage.toFixed(3)} skeleton=${skeletonShownMs}ms`, { score: coverage })
+      return okLocal(`skeletonCoverage=${coverage.toFixed(3)} skeleton=${skeletonShownMs}ms`, {
+        score: coverage,
+      })
     },
   },
   {
@@ -228,9 +260,12 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const mainThreadMsSaved = num(input, 'mainThreadMsSaved', 40)
       const totalTaskMs = num(input, 'totalTaskMs', 100)
       const score = totalTaskMs > 0 ? clamp01(mainThreadMsSaved / totalTaskMs) : 0
-      return okLocal(`workerOffloadSavings=${score.toFixed(3)} saved=${mainThreadMsSaved}ms/${totalTaskMs}ms`, {
-        score,
-      })
+      return okLocal(
+        `workerOffloadSavings=${score.toFixed(3)} saved=${mainThreadMsSaved}ms/${totalTaskMs}ms`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -251,8 +286,12 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
     run: (input) => {
       const rawEventsPerSecond = num(input, 'rawEventsPerSecond', 60)
       const handledEventsPerSecond = num(input, 'handledEventsPerSecond', 10)
-      const score = rawEventsPerSecond > 0 ? clamp01(1 - handledEventsPerSecond / rawEventsPerSecond) : 0
-      return okLocal(`eventReductionRatio=${score.toFixed(3)} handled=${handledEventsPerSecond}/s`, { score })
+      const score =
+        rawEventsPerSecond > 0 ? clamp01(1 - handledEventsPerSecond / rawEventsPerSecond) : 0
+      return okLocal(
+        `eventReductionRatio=${score.toFixed(3)} handled=${handledEventsPerSecond}/s`,
+        { score },
+      )
     },
   },
   {
@@ -263,10 +302,15 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const reservedHeightPx = num(input, 'reservedHeightPx', 250)
       const renderedHeightPx = num(input, 'renderedHeightPx', 250)
       const match = Math.abs(reservedHeightPx - renderedHeightPx) <= 4
-      const score = match ? 1 : clamp01(1 - Math.abs(reservedHeightPx - renderedHeightPx) / Math.max(1, renderedHeightPx))
-      return okLocal(`adSlotHeightMatch=${match} reserved=${reservedHeightPx}px rendered=${renderedHeightPx}px`, {
-        score,
-      })
+      const score = match
+        ? 1
+        : clamp01(1 - Math.abs(reservedHeightPx - renderedHeightPx) / Math.max(1, renderedHeightPx))
+      return okLocal(
+        `adSlotHeightMatch=${match} reserved=${reservedHeightPx}px rendered=${renderedHeightPx}px`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -279,7 +323,10 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const clsScore = budgetScore(cls, num(input, 'clsBudget', 0.1))
       const shiftScore = clamp01(1 - layoutShiftCount / 10)
       const score = clsScore * 0.6 + shiftScore * 0.4
-      return okLocal(`visualStabilityIndex=${score.toFixed(3)} cls=${cls} shifts=${layoutShiftCount}`, { score })
+      return okLocal(
+        `visualStabilityIndex=${score.toFixed(3)} cls=${cls} shifts=${layoutShiftCount}`,
+        { score },
+      )
     },
   },
   {
@@ -290,7 +337,9 @@ export const LOCAL_PERFORMANCE_CAPABILITIES: CapabilitySpec[] = [
       const swCacheHits = num(input, 'swCacheHits', 70)
       const swCacheTotal = num(input, 'swCacheTotal', 100)
       const score = swCacheTotal > 0 ? clamp01(swCacheHits / swCacheTotal) : 0
-      return okLocal(`swCacheHitRatio=${score.toFixed(3)} hits=${swCacheHits}/${swCacheTotal}`, { score })
+      return okLocal(`swCacheHitRatio=${score.toFixed(3)} hits=${swCacheHits}/${swCacheTotal}`, {
+        score,
+      })
     },
   },
   {

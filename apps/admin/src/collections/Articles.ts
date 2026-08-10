@@ -130,7 +130,6 @@ function canUseWorkflowStage(user: unknown, stage: WorkflowStage): boolean {
   return ['idea', 'assigned', 'draft', 'submitted'].includes(stage)
 }
 
-
 export const Articles: CollectionConfig = {
   slug: 'articles',
   admin: {
@@ -228,7 +227,8 @@ export const Articles: CollectionConfig = {
       validate: (value: unknown) => !value || isValidHttpUrl(value) || 'Use a valid http(s) URL.',
       access: { read: canReadInternalField },
       admin: {
-        description: 'Reference only. Editors must upload licensed media to the Media collection before publication.',
+        description:
+          'Reference only. Editors must upload licensed media to the Media collection before publication.',
       },
     },
     {
@@ -494,7 +494,8 @@ export const Articles: CollectionConfig = {
       },
       admin: {
         position: 'sidebar',
-        description: 'A newsroom recommendation. Publishing editors remain responsible for the final alert decision.',
+        description:
+          'A newsroom recommendation. Publishing editors remain responsible for the final alert decision.',
       },
     },
     {
@@ -545,7 +546,8 @@ export const Articles: CollectionConfig = {
       admin: {
         position: 'sidebar',
         date: { pickerAppearance: 'dayAndTime' },
-        description: 'Optional. After this time, homepage placement clears (story stays published).',
+        description:
+          'Optional. After this time, homepage placement clears (story stays published).',
         condition: (_, siblingData) =>
           siblingData?.featuredState === 'lead' ||
           siblingData?.featuredState === 'featured' ||
@@ -751,8 +753,14 @@ export const Articles: CollectionConfig = {
           if (!canUseWorkflowStage(req.user, stage)) {
             throw new Error(`Your newsroom role cannot move an article to the “${stage}” stage.`)
           }
-          if (operation === 'update' && publicControlStages.has(originalStage) && !hasAnyRole(req.user, publishingRoles)) {
-            throw new Error('Only publishing roles can modify scheduled, published, archived, or retracted stories.')
+          if (
+            operation === 'update' &&
+            publicControlStages.has(originalStage) &&
+            !hasAnyRole(req.user, publishingRoles)
+          ) {
+            throw new Error(
+              'Only publishing roles can modify scheduled, published, archived, or retracted stories.',
+            )
           }
           if (status === 'published' && !hasAnyRole(req.user, publishingRoles)) {
             throw new Error('Only publishing roles can publish an article.')

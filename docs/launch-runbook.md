@@ -8,12 +8,12 @@ and `pnpm launch:gate`.
 
 ## Status (2026-08-02)
 
-| Layer | State |
-|-------|--------|
-| In-repo (code, gates, ADR-004, honesty, CI smoke) | **Complete** |
-| Operator Phase 0 (DNS → Vercel, Postgres, email, Blob) | Remaining |
-| Operator Phase Soft (`CONTENT_SOURCE=json` + Postgres desk, ≥30 stories, cron) | Remaining |
-| Operator Phase Hard (`CONTENT_SOURCE=payload` cutover + `live`) | Remaining |
+| Layer                                                                          | State        |
+| ------------------------------------------------------------------------------ | ------------ |
+| In-repo (code, gates, ADR-004, honesty, CI smoke)                              | **Complete** |
+| Operator Phase 0 (DNS → Vercel, Postgres, email, Blob)                         | Remaining    |
+| Operator Phase Soft (`CONTENT_SOURCE=json` + Postgres desk, ≥30 stories, cron) | Remaining    |
+| Operator Phase Hard (`CONTENT_SOURCE=payload` cutover + `live`)                | Remaining    |
 
 `/admin/launch` shows an env **readiness %**, soft/hard phase badges wired to probes, and a
 **current stage** + next action. A high score on localhost does not mean production is live.
@@ -36,23 +36,23 @@ APIs (`scripts/build-pages-static.mjs`).
 
 ## Env matrix (minimum)
 
-| Concern | Variables |
-|---------|-----------|
-| Origin | `NEXT_PUBLIC_SITE_URL`, `BETTER_AUTH_URL` → production domain on Vercel |
-| Status | `NEXT_PUBLIC_LAUNCH_STATUS=preview` until hard launch |
-| DB | `DATABASE_URL` (Postgres); `pnpm migrate:ops`; `AUTH_AUTO_MIGRATE=false` in prod |
-| Auth | `AUTH_SECRET` ≥32; staff MFA via `STAFF_MFA_ENABLED=true` before live |
-| Soft CMS | Unset/`json` CONTENT_SOURCE + Postgres desk (`nw_articles`) until cutover |
-| Hard CMS | `CONTENT_SOURCE=payload`, `PAYLOAD_*`, `REVALIDATE_SECRET`, `PAYLOAD_DB_PUSH=false` |
-| Email | `RESEND_API_KEY` (or newsletter API), `AUTH_EMAIL_FROM`, `NEWSLETTER_FROM` |
-| Media | `BLOB_READ_WRITE_TOKEN` and/or `R2_*` + `STORAGE_PUBLIC_BASE_URL` |
-| Ads (soft) | Ads off OK for Option A; or `NEXT_PUBLIC_ADS_MODE=house` + creatives |
-| Cron | `CRON_SECRET`; GitHub `ops-crons.yml` or Vercel cron hitting `/api/cron/*` |
-| Abuse | `CAPTCHA_PROVIDER=turnstile` + site/secret keys when live |
-| Observability | `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` (or GA4), Sentry DSN |
-| Legal | `NEXT_PUBLIC_PUBLICATION_LEGAL_NAME`, `EDITOR_IN_CHIEF`, `DOIB_NUMBER`, address, phone, email |
-| Seed | Leave `ALLOW_STARTER_SEED` unset/false in production |
-| Admin nav | Soft preview hides algorithms/experiments extras; set `NEXT_PUBLIC_ADMIN_FULL_NAV=1` to show all |
+| Concern       | Variables                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------------ |
+| Origin        | `NEXT_PUBLIC_SITE_URL`, `BETTER_AUTH_URL` → production domain on Vercel                          |
+| Status        | `NEXT_PUBLIC_LAUNCH_STATUS=preview` until hard launch                                            |
+| DB            | `DATABASE_URL` (Postgres); `pnpm migrate:ops`; `AUTH_AUTO_MIGRATE=false` in prod                 |
+| Auth          | `AUTH_SECRET` ≥32; staff MFA via `STAFF_MFA_ENABLED=true` before live                            |
+| Soft CMS      | Unset/`json` CONTENT_SOURCE + Postgres desk (`nw_articles`) until cutover                        |
+| Hard CMS      | `CONTENT_SOURCE=payload`, `PAYLOAD_*`, `REVALIDATE_SECRET`, `PAYLOAD_DB_PUSH=false`              |
+| Email         | `RESEND_API_KEY` (or newsletter API), `AUTH_EMAIL_FROM`, `NEWSLETTER_FROM`                       |
+| Media         | `BLOB_READ_WRITE_TOKEN` and/or `R2_*` + `STORAGE_PUBLIC_BASE_URL`                                |
+| Ads (soft)    | Ads off OK for Option A; or `NEXT_PUBLIC_ADS_MODE=house` + creatives                             |
+| Cron          | `CRON_SECRET`; GitHub `ops-crons.yml` or Vercel cron hitting `/api/cron/*`                       |
+| Abuse         | `CAPTCHA_PROVIDER=turnstile` + site/secret keys when live                                        |
+| Observability | `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` (or GA4), Sentry DSN                                              |
+| Legal         | `NEXT_PUBLIC_PUBLICATION_LEGAL_NAME`, `EDITOR_IN_CHIEF`, `DOIB_NUMBER`, address, phone, email    |
+| Seed          | Leave `ALLOW_STARTER_SEED` unset/false in production                                             |
+| Admin nav     | Soft preview hides algorithms/experiments extras; set `NEXT_PUBLIC_ADMIN_FULL_NAV=1` to show all |
 
 ## Phase 0 — Topology
 

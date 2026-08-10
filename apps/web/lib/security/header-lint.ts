@@ -19,7 +19,9 @@ export type SecurityHeaderLintResult = {
   missing: string[]
 }
 
-function normalizeHeaders(headers: Headers | Record<string, string | null | undefined>): Record<string, string> {
+function normalizeHeaders(
+  headers: Headers | Record<string, string | null | undefined>,
+): Record<string, string> {
   if (headers instanceof Headers) {
     const out: Record<string, string> = {}
     for (const name of REQUIRED_SECURITY_HEADERS) {
@@ -50,12 +52,16 @@ export function lintSecurityHeaders(
 }
 
 /** Weak/example values that should never ship — a header can be "present" but still unsafe. */
-export function hasWeakDirectives(headers: Headers | Record<string, string | null | undefined>): string[] {
+export function hasWeakDirectives(
+  headers: Headers | Record<string, string | null | undefined>,
+): string[] {
   const normalized = normalizeHeaders(headers)
   const warnings: string[] = []
   const csp = normalized['content-security-policy']
   if (csp && /unsafe-inline|unsafe-eval|\*(?!\.)/i.test(csp)) {
-    warnings.push('content-security-policy allows unsafe-inline/unsafe-eval or a bare wildcard source')
+    warnings.push(
+      'content-security-policy allows unsafe-inline/unsafe-eval or a bare wildcard source',
+    )
   }
   const hsts = normalized['strict-transport-security']
   if (hsts && !/max-age=\d{6,}/i.test(hsts)) {

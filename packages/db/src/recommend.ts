@@ -13,14 +13,7 @@ export const RECOMMENDER_VERSION = 'nw-hybrid-v3'
 
 export type RecommendableStory = Pick<
   StoryCardData,
-  | 'id'
-  | 'slug'
-  | 'category'
-  | 'titleNe'
-  | 'titleEn'
-  | 'publishedAt'
-  | 'isBreaking'
-  | 'authors'
+  'id' | 'slug' | 'category' | 'titleNe' | 'titleEn' | 'publishedAt' | 'isBreaking' | 'authors'
 > & {
   tags?: Array<string | { slug: string }>
   province?: string
@@ -48,7 +41,12 @@ export type RecommendOptions = {
   includeSponsored?: boolean
   /** Permit small publisher/server clock drift, but reject materially future-dated items. */
   allowedFutureSkewMinutes?: number
-  weights?: Partial<Record<'content' | 'session' | 'sequence' | 'collaborative' | 'freshness' | 'follow' | 'editorial', number>>
+  weights?: Partial<
+    Record<
+      'content' | 'session' | 'sequence' | 'collaborative' | 'freshness' | 'follow' | 'editorial',
+      number
+    >
+  >
   /** Experimental only: requires a consented interaction matrix and sufficient reader volume. */
   collaborative?: {
     enabled: boolean
@@ -124,9 +122,15 @@ export function buildInterestVector(
     for (const [key, value] of terms) vector.set(key, (vector.get(key) ?? 0) + value * weight)
   }
   const bumpHistoryMetadata = (item: ReadingHistory, weight: number) => {
-    if (item.categorySlug) vector.set(`cat:${item.categorySlug}`, (vector.get(`cat:${item.categorySlug}`) ?? 0) + 5 * weight)
-    for (const tag of item.tagSlugs ?? []) vector.set(`tag:${tag}`, (vector.get(`tag:${tag}`) ?? 0) + 4 * weight)
-    for (const author of item.authorSlugs ?? []) vector.set(`author:${author}`, (vector.get(`author:${author}`) ?? 0) + 4 * weight)
+    if (item.categorySlug)
+      vector.set(
+        `cat:${item.categorySlug}`,
+        (vector.get(`cat:${item.categorySlug}`) ?? 0) + 5 * weight,
+      )
+    for (const tag of item.tagSlugs ?? [])
+      vector.set(`tag:${tag}`, (vector.get(`tag:${tag}`) ?? 0) + 4 * weight)
+    for (const author of item.authorSlugs ?? [])
+      vector.set(`author:${author}`, (vector.get(`author:${author}`) ?? 0) + 4 * weight)
   }
 
   const history = [...(profile.history ?? [])].sort((a, b) => b.readAt.localeCompare(a.readAt))
@@ -191,9 +195,7 @@ export function nextCategoryScore(
   history: ReadingHistory[],
   storiesById: Map<string, RecommendableStory>,
 ): number {
-  const ordered = [...history]
-    .sort((a, b) => a.readAt.localeCompare(b.readAt))
-    .slice(-20)
+  const ordered = [...history].sort((a, b) => a.readAt.localeCompare(b.readAt)).slice(-20)
   const categories = ordered
     .map((item) => item.categorySlug ?? storiesById.get(item.articleId)?.category.slug)
     .filter((category): category is string => Boolean(category))
@@ -286,7 +288,8 @@ function explicitFollowScore(candidate: RecommendableStory, follows: Follow[]): 
     if (follow.kind === 'category' && candidate.category.slug === follow.targetSlug) score += 1
     if (follow.kind === 'province' && candidate.province === follow.targetSlug) score += 1
     if (follow.kind === 'topic' && candidate.tags?.includes(follow.targetSlug)) score += 1
-    if (follow.kind === 'author' && candidate.authors.some((a) => a.slug === follow.targetSlug)) score += 1
+    if (follow.kind === 'author' && candidate.authors.some((a) => a.slug === follow.targetSlug))
+      score += 1
   }
   return Math.min(score, 2)
 }
@@ -316,7 +319,9 @@ export function recommend<T extends RecommendableStory>(
   for (const candidate of candidates) storiesById.set(candidate.id, candidate)
 
   const interest = buildInterestVector(profile, storiesById, now)
-  const orderedHistory = [...(profile.history ?? [])].sort((a, b) => b.readAt.localeCompare(a.readAt))
+  const orderedHistory = [...(profile.history ?? [])].sort((a, b) =>
+    b.readAt.localeCompare(a.readAt),
+  )
   const recentStories = orderedHistory
     .slice(0, 5)
     .map((item) => storiesById.get(item.articleId))

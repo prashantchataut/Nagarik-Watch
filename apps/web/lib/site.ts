@@ -38,9 +38,7 @@ function requiredSiteUrl(): string {
   }
 
   if (process.env.NODE_ENV === 'production') {
-    throw new Error(
-      'NEXT_PUBLIC_SITE_URL is required in production (set the canonical public origin).',
-    )
+    return 'https://www.nagarikwatch.com'
   }
   return 'http://localhost:3000'
 }
@@ -128,8 +126,10 @@ export const STATIC_HUBS: StaticHub[] = [
     path: '/trending',
     titleNe: 'ट्रेन्डिङ',
     titleEn: 'Trending',
-    leadNe: 'पढाइ र टिप्पणी गतिमा आधारित लाइभ ट्रेन्डिङ। सिग्नल कम भए ताजाता र सम्पादकीय प्राथमिकतामा झर्छ।',
-    leadEn: 'Live trending from first-party reads and comment velocity. Quiet periods fall back to freshness and editorial priority.',
+    leadNe:
+      'पढाइ र टिप्पणी गतिमा आधारित लाइभ ट्रेन्डिङ। सिग्नल कम भए ताजाता र सम्पादकीय प्राथमिकतामा झर्छ।',
+    leadEn:
+      'Live trending from first-party reads and comment velocity. Quiet periods fall back to freshness and editorial priority.',
     mode: 'trending',
   },
   {
@@ -138,7 +138,8 @@ export const STATIC_HUBS: StaticHub[] = [
     titleNe: 'धेरै पढिएको',
     titleEn: 'Most Read',
     leadNe: 'पछिल्लो सात दिनका भिन्न पाठक र पढाइ गहिराइका आधारमा; पर्याप्त डाटा नहुँदा ताजा सूची।',
-    leadEn: 'Ranked by unique readers and reading depth over seven days; falls back to newest when sample size is thin.',
+    leadEn:
+      'Ranked by unique readers and reading depth over seven days; falls back to newest when sample size is thin.',
     mode: 'trending',
   },
   {

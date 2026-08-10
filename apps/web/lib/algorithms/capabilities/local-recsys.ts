@@ -33,8 +33,11 @@ function baselinePredict(matrix: Record<string, Record<string, number>>, targetU
 
   const itemBias: Record<string, number> = {}
   for (const item of items) {
-    const vals = users.map((u) => matrix[u]?.[item]).filter((v): v is number => typeof v === 'number')
-    itemBias[item] = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length - globalMean : 0
+    const vals = users
+      .map((u) => matrix[u]?.[item])
+      .filter((v): v is number => typeof v === 'number')
+    itemBias[item] =
+      vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length - globalMean : 0
   }
 
   const seen = new Set(Object.keys(matrix[targetUser] ?? {}))
@@ -49,7 +52,11 @@ function baselinePredict(matrix: Record<string, Record<string, number>>, targetU
   return { globalMean, predictions, itemCount: items.size, userCount: users.length }
 }
 
-function markovNext(history: string[]): { predicted: string | null; probability: number; states: number } {
+function markovNext(history: string[]): {
+  predicted: string | null
+  probability: number
+  states: number
+} {
   if (history.length < 2) return { predicted: null, probability: 0, states: 0 }
   const transitions = new Map<string, Map<string, number>>()
   for (let i = 0; i < history.length - 1; i++) {
@@ -71,7 +78,11 @@ function markovNext(history: string[]): { predicted: string | null; probability:
       bestTo = to
     }
   }
-  return { predicted: bestTo, probability: total > 0 ? bestCount / total : 0, states: transitions.size }
+  return {
+    predicted: bestTo,
+    probability: total > 0 ? bestCount / total : 0,
+    states: transitions.size,
+  }
 }
 
 export const LOCAL_RECSYS_CAPABILITIES: CapabilitySpec[] = [
@@ -103,11 +114,16 @@ export const LOCAL_RECSYS_CAPABILITIES: CapabilitySpec[] = [
     run: (input) => {
       const a = str(input, 'text', '')
       const b = str(input, 'other', '')
-      if (!a || !b) return fail('adapter-disabled', 'text and other are both required for similarity')
+      if (!a || !b)
+        return fail('adapter-disabled', 'text and other are both required for similarity')
       const score = textSimilarity(a, b)
-      return okAdapter('adapter-disabled', `localEmbeddingCosine=${score.toFixed(3)} (no vector-DB vendor configured)`, {
-        score,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `localEmbeddingCosine=${score.toFixed(3)} (no vector-DB vendor configured)`,
+        {
+          score,
+        },
+      )
     },
   },
   {

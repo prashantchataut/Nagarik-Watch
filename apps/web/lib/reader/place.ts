@@ -12,7 +12,8 @@ import {
 import { readLocalReaderPreferences, writeLocalReaderPreferences } from '@/lib/reader/preferences'
 
 function writeCookie(slug: string) {
-  const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : ''
+  const secure =
+    typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : ''
   document.cookie = `${LIVE_PLACE_COOKIE}=${encodeURIComponent(slug)}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`
 }
 
@@ -55,7 +56,9 @@ export function writeLocalPlace(slug: string) {
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kathmandu',
     updatedAt: new Date(0).toISOString(),
   }
-  const provinces = [...new Set([place.provinceSlug, ...current.provinces.filter((p) => p !== place.provinceSlug)])]
+  const provinces = [
+    ...new Set([place.provinceSlug, ...current.provinces.filter((p) => p !== place.provinceSlug)]),
+  ]
   writeLocalReaderPreferences({
     ...current,
     provinces,

@@ -47,7 +47,8 @@ describe('content source resolution', () => {
     process.env.CONTENT_SOURCE = 'json'
     process.env.PAYLOAD_PUBLIC_SERVER_URL = 'https://cms.example.test'
 
-    const { isPayloadSourceMisconfigured, shouldBlockLocalContentWrites } = await import('./payload-admin-client')
+    const { isPayloadSourceMisconfigured, shouldBlockLocalContentWrites } =
+      await import('./payload-admin-client')
     const { resolveContentSource } = await import('./resolve-content-source')
 
     expect(isPayloadSourceMisconfigured()).toBe(true)

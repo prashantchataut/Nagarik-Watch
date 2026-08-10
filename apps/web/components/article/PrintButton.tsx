@@ -2,13 +2,7 @@
 
 import type { Locale } from '@nagarikwatch/db'
 
-export function PrintButton({
-  locale,
-  className,
-}: {
-  locale: Locale
-  className?: string
-}) {
+export function PrintButton({ locale, className }: { locale: Locale; className?: string }) {
   const en = locale === 'en'
   return (
     <button

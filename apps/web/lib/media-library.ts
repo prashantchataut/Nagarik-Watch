@@ -1,5 +1,13 @@
 import 'server-only'
-import { cleanMultiline, cleanText, ensureOperationalSchema, isProductionRuntime, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
+import {
+  cleanMultiline,
+  cleanText,
+  ensureOperationalSchema,
+  isProductionRuntime,
+  requireOperationalPool,
+  toIso,
+  type Queryable,
+} from '@/lib/ops-db'
 
 export type MediaItem = {
   id: string
@@ -12,19 +20,27 @@ export type MediaItem = {
   updatedAt: string
 }
 
-type Row = { id: string; url: string; alt: string; caption: string | null; credit: string | null; status: 'active' | 'archived'; created_at: Date | string; updated_at: Date | string }
+type Row = {
+  id: string
+  url: string
+  alt: string
+  caption: string | null
+  credit: string | null
+  status: 'active' | 'archived'
+  created_at: Date | string
+  updated_at: Date | string
+}
 const memory = new Map<string, MediaItem>()
 const MEDIA_LIST_TTL_MS = 15_000
-let mediaListCache:
-  | {
-      expiresAt: number
-      items: MediaItem[]
-    }
-  | null = null
+let mediaListCache: {
+  expiresAt: number
+  items: MediaItem[]
+} | null = null
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return requireOperationalPool(await ensureOperationalSchema('media-library', async (pool) => {
-    await pool.query(`
+  return requireOperationalPool(
+    await ensureOperationalSchema('media-library', async (pool) => {
+      await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_media_items (
         id text PRIMARY KEY,
         url text NOT NULL,
@@ -36,11 +52,25 @@ async function ensureSchema(): Promise<Queryable | null> {
         updated_at timestamptz NOT NULL DEFAULT now()
       )
     `)
-  }))
+    }),
+  )
 }
 
-function id(): string { return `media_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}` }
-function rowToItem(row: Row): MediaItem { return { id: row.id, url: row.url, alt: row.alt, caption: row.caption ?? undefined, credit: row.credit ?? undefined, status: row.status, createdAt: toIso(row.created_at), updatedAt: toIso(row.updated_at) } }
+function id(): string {
+  return `media_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`
+}
+function rowToItem(row: Row): MediaItem {
+  return {
+    id: row.id,
+    url: row.url,
+    alt: row.alt,
+    caption: row.caption ?? undefined,
+    credit: row.credit ?? undefined,
+    status: row.status,
+    createdAt: toIso(row.created_at),
+    updatedAt: toIso(row.updated_at),
+  }
+}
 
 export async function listMediaItems(opts: { limit?: number } = {}): Promise<MediaItem[]> {
   const limit = Math.max(1, Math.min(300, opts.limit ?? 300))
@@ -49,7 +79,9 @@ export async function listMediaItems(opts: { limit?: number } = {}): Promise<Med
   }
   const pool = await ensureSchema()
   if (pool) {
-    const result = await pool.query<Row>(`SELECT * FROM nw_media_items ORDER BY created_at DESC LIMIT 300`)
+    const result = await pool.query<Row>(
+      `SELECT * FROM nw_media_items ORDER BY created_at DESC LIMIT 300`,
+    )
     const items = result.rows.map(rowToItem)
     mediaListCache = { items, expiresAt: Date.now() + MEDIA_LIST_TTL_MS }
     return items.slice(0, limit)
@@ -59,15 +91,32 @@ export async function listMediaItems(opts: { limit?: number } = {}): Promise<Med
   return items.slice(0, limit)
 }
 
-export async function createMediaItem(input: { url: unknown; alt: unknown; caption?: unknown; credit?: unknown }): Promise<MediaItem | null> {
+export async function createMediaItem(input: {
+  url: unknown
+  alt: unknown
+  caption?: unknown
+  credit?: unknown
+}): Promise<MediaItem | null> {
   const url = cleanText(input.url, 600)
   const alt = cleanText(input.alt, 240)
   if (!url || !alt) return null
   const now = new Date().toISOString()
-  const item: MediaItem = { id: id(), url, alt, caption: cleanMultiline(input.caption, 800) || undefined, credit: cleanText(input.credit, 160) || undefined, status: 'active', createdAt: now, updatedAt: now }
+  const item: MediaItem = {
+    id: id(),
+    url,
+    alt,
+    caption: cleanMultiline(input.caption, 800) || undefined,
+    credit: cleanText(input.credit, 160) || undefined,
+    status: 'active',
+    createdAt: now,
+    updatedAt: now,
+  }
   const pool = await ensureSchema()
   if (pool) {
-    const result = await pool.query<Row>(`INSERT INTO nw_media_items (id, url, alt, caption, credit) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [item.id, item.url, item.alt, item.caption ?? null, item.credit ?? null])
+    const result = await pool.query<Row>(
+      `INSERT INTO nw_media_items (id, url, alt, caption, credit) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [item.id, item.url, item.alt, item.caption ?? null, item.credit ?? null],
+    )
     mediaListCache = null
     return rowToItem(result.rows[0]!)
   }

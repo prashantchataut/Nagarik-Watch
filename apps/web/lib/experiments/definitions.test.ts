@@ -42,4 +42,3 @@ describe('experiment definitions', () => {
     expect(definitions).toEqual([])
   })
 })
-

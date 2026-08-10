@@ -184,9 +184,7 @@ export function draftFaq(
   const title = article.titleNe || 'यो समाचार'
   const items = points.map((point, index) => ({
     question:
-      index === 0
-        ? `${title} मा के भएको हो?`
-        : `यो समाचारको महत्वपूर्ण पक्ष ${index + 1} के हो?`,
+      index === 0 ? `${title} मा के भएको हो?` : `यो समाचारको महत्वपूर्ण पक्ष ${index + 1} के हो?`,
     answer: point,
   }))
   return makeDraft(items)

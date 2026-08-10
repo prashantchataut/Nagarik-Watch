@@ -62,7 +62,9 @@ export function computeStreak(history: ReadingHistoryRecord[], now = new Date())
   if (dayKeys[0] === todayKey || dayKeys[0] === yesterdayKey) {
     current = 1
     for (let i = 1; i < dayKeys.length; i += 1) {
-      const gapDays = Math.round((dayKeyToUtcMs(dayKeys[i - 1]!) - dayKeyToUtcMs(dayKeys[i]!)) / DAY_MS)
+      const gapDays = Math.round(
+        (dayKeyToUtcMs(dayKeys[i - 1]!) - dayKeyToUtcMs(dayKeys[i]!)) / DAY_MS,
+      )
       if (gapDays === 1) current += 1
       else break
     }
@@ -71,12 +73,19 @@ export function computeStreak(history: ReadingHistoryRecord[], now = new Date())
   let longest = 1
   let run = 1
   for (let i = 1; i < dayKeys.length; i += 1) {
-    const gapDays = Math.round((dayKeyToUtcMs(dayKeys[i - 1]!) - dayKeyToUtcMs(dayKeys[i]!)) / DAY_MS)
+    const gapDays = Math.round(
+      (dayKeyToUtcMs(dayKeys[i - 1]!) - dayKeyToUtcMs(dayKeys[i]!)) / DAY_MS,
+    )
     run = gapDays === 1 ? run + 1 : 1
     longest = Math.max(longest, run)
   }
 
-  return { current, longest: Math.max(longest, current), lastCompletedDate: dayKeys[0]!, totalDays: dayKeys.length }
+  return {
+    current,
+    longest: Math.max(longest, current),
+    lastCompletedDate: dayKeys[0]!,
+    totalDays: dayKeys.length,
+  }
 }
 
 /**

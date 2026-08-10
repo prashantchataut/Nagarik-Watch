@@ -18,9 +18,7 @@ export default function LocaleError({
 
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-10" role="alert" lang={en ? 'en' : 'ne'}>
-      <p className="text-meta font-extrabold text-brand-strong">
-        {en ? 'Error' : 'त्रुटि'}
-      </p>
+      <p className="text-meta font-extrabold text-brand-strong">{en ? 'Error' : 'त्रुटि'}</p>
       <h1 className="mt-1.5 font-display text-[clamp(1.5rem,3.5vw,2.1rem)] font-extrabold text-ink">
         {en ? 'Something went wrong' : 'केही गडबड भयो'}
       </h1>

@@ -2,10 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canEdit } from '@/lib/admin-roles'
-import {
-  getEditorPreferences,
-  upsertEditorPreferences,
-} from '@/lib/editor-preferences'
+import { getEditorPreferences, upsertEditorPreferences } from '@/lib/editor-preferences'
 import { enforceRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'

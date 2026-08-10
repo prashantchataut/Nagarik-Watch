@@ -78,7 +78,8 @@ export async function sendEmail(message: EmailMessage): Promise<void> {
       }),
       signal: AbortSignal.timeout(10_000),
     })
-    if (!response.ok) throw new Error(`Email provider rejected message: ${await responseError(response)}`)
+    if (!response.ok)
+      throw new Error(`Email provider rejected message: ${await responseError(response)}`)
     return
   }
 

@@ -163,7 +163,10 @@ function ScoreSection({
       {available ? (
         <ul className="mt-2">{children}</ul>
       ) : (
-        <p className="mt-4 border-y border-rule py-5 text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
+        <p
+          className="mt-4 border-y border-rule py-5 text-body text-ink-soft"
+          lang={ne ? 'ne' : 'en'}
+        >
           {ne
             ? 'प्रदायक फिड अहिले उपलब्ध छैन। स्कोर फर्किएपछि यहाँ देखिन्छ।'
             : 'No provider feed is available right now. Scores will appear here when verified.'}

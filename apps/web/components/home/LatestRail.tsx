@@ -19,7 +19,7 @@ export function LatestRail({
   compact = false,
   headingId = 'latest-rail-title',
 }: LatestRailProps) {
-  const items = stories.slice(0, compact ? 5 : 5)
+  const items = stories.slice(0, compact ? 6 : 5)
   if (items.length === 0) return null
   const english = locale === 'en'
   const lead = items[0]!
@@ -27,23 +27,26 @@ export function LatestRail({
 
   return (
     <aside className={className} aria-labelledby={headingId}>
-      <div className="flex items-end justify-between gap-3 border-b border-rule pb-2">
-        <div className="min-w-0">
+      <div className="flex items-center justify-between gap-3 border-b-2 border-brand pb-2">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-strong" />
+          </span>
           <h2
             id={headingId}
-            className="text-pretty font-display text-h3 font-extrabold text-ink"
+            className="text-pretty font-display text-h3 font-black text-ink"
             lang={english ? 'en' : 'ne'}
           >
-            {english ? 'Latest' : 'ताजा'}
+            {english ? 'Live Updates' : 'ताजा अपडेट'}
           </h2>
-          <span className="mt-1 block h-0.5 w-10 bg-brand" aria-hidden="true" />
         </div>
         <Link
           href={localizeHref(locale, '/latest')}
-          className="mb-0.5 shrink-0 cursor-pointer text-meta font-bold text-brand-strong underline-offset-4 transition-colors duration-fast ease-out-quint hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          className="shrink-0 text-caption font-bold text-brand-strong transition-colors duration-fast ease-out-quint hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           lang={english ? 'en' : 'ne'}
         >
-          {english ? 'All' : 'सबै'}
+          {english ? 'All updates →' : 'सबै ताजा →'}
         </Link>
       </div>
 
@@ -56,8 +59,9 @@ export function LatestRail({
                   story={story}
                   locale={locale}
                   compact
-                  showDeck
-                  showDateline={false}
+                  showDeck={false}
+                  showDateline
+                  showMeta
                   thumb="sm"
                 />
               </InstrumentedStory>

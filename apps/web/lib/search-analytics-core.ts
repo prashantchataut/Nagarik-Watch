@@ -18,4 +18,3 @@ export function validSearchResultCount(value: unknown): number {
   if (!Number.isFinite(count)) return 0
   return Math.max(0, Math.min(10_000, Math.floor(count)))
 }
-

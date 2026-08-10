@@ -21,7 +21,9 @@ async function main() {
     const result = await applyPendingOpsMigrationsWithClient(client)
     console.log(`[migrate:ops] newly applied: ${result.applied.join(', ') || '(none)'}`)
     const after = await getOpsMigrationStatusWithClient(client)
-    console.log(`[migrate:ops] done. applied=${after.applied.length} pending=${after.pending.length}`)
+    console.log(
+      `[migrate:ops] done. applied=${after.applied.length} pending=${after.pending.length}`,
+    )
   })
 }
 

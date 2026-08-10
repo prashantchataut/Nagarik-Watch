@@ -74,8 +74,8 @@ describe('Bayesian experiment analysis', () => {
     )
     expect(analysis.decision).toBe('winner')
     expect(analysis.winner).toBe('treatment')
-    expect(analysis.variants.find((variant) => variant.variantId === 'treatment')?.probabilityBest)
-      .toBeGreaterThan(0.95)
+    expect(
+      analysis.variants.find((variant) => variant.variantId === 'treatment')?.probabilityBest,
+    ).toBeGreaterThan(0.95)
   })
 })
-

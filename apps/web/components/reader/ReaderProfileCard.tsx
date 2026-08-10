@@ -141,13 +141,7 @@ export function ReaderProfileCard({ session, locale }: { session: ReaderSession;
             className="account-btn account-btn--ghost"
             disabled={signingOut}
           >
-            {signingOut
-              ? ne
-                ? 'साइन आउट…'
-                : 'Signing out…'
-              : ne
-                ? 'साइन आउट'
-                : 'Sign out'}
+            {signingOut ? (ne ? 'साइन आउट…' : 'Signing out…') : ne ? 'साइन आउट' : 'Sign out'}
           </button>
         </div>
       </form>

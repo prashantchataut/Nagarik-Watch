@@ -12,7 +12,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default async function ReaderProfilePage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function ReaderProfilePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
   const locale: Locale = asLocale((await params).locale)
   const session = await getSession()
   return <ReaderProfileClient locale={locale} session={session} />

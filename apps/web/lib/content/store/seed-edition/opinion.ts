@@ -14,25 +14,21 @@ export function editionOpinion(): StoredArticle[] {
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["editor-pick"],
+      tagSlugs: ['editor-pick'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
-        p('संघीयताको सफलता नागरिकको दैनिक अनुभवमा देखिनुपर्छ। नागरिक वाच विचार डेस्कले सेवा नतिजालाई केन्द्रमा राख्छ।'),
+        p(
+          'संघीयताको सफलता नागरिकको दैनिक अनुभवमा देखिनुपर्छ। नागरिक वाच विचार डेस्कले सेवा नतिजालाई केन्द्रमा राख्छ।',
+        ),
         p('दोहोरो जिम्मेवारीले नागरिक अन्योलमा पर्छन्।'),
         p('खुला तथ्यांकले तुलना सजिलो बनाउँछ।'),
         p('स्थानीय सुनुवाइ नियमित हुनुपर्छ।'),
         h2('तीन तहका प्रश्न'),
-        list([
-          'वडा सेवा समय',
-          'प्रदेश बजेट कार्यान्वयन',
-          'संघीय मापदण्ड',
-        ]),
+        list(['वडा सेवा समय', 'प्रदेश बजेट कार्यान्वयन', 'संघीय मापदण्ड']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Judge federalism by service speed and quality, not posts.'),
-      ],
+      bodyEn: [p('Judge federalism by service speed and quality, not posts.')],
     }),
     base({
       id: 'art-ed-opinion-2',
@@ -44,7 +40,7 @@ export function editionOpinion(): StoredArticle[] {
       deckEn: 'Rain is annual; preparation should not stay incomplete.',
       publishedAt: isoDaysAgo(1, 8),
       updatedAt: isoDaysAgo(1, 8),
-      tagSlugs: ["climate"],
+      tagSlugs: ['climate'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -53,16 +49,10 @@ export function editionOpinion(): StoredArticle[] {
         p('गरिब बस्ती जोखिममा बढी पर्छ।'),
         p('दीर्घकालीन लगानी अल्पकालीन राहतभन्दा सस्तो हुन्छ।'),
         h2('योजनाका प्राथमिकता'),
-        list([
-          'निकास क्षमता',
-          'अवैध निर्माण नियन्त्रण',
-          'हरित क्षेत्र',
-        ]),
+        list(['निकास क्षमता', 'अवैध निर्माण नियन्त्रण', 'हरित क्षेत्र']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Rain is annual; preparation should not stay incomplete.'),
-      ],
+      bodyEn: [p('Rain is annual; preparation should not stay incomplete.')],
     }),
     base({
       id: 'art-ed-opinion-3',
@@ -75,7 +65,7 @@ export function editionOpinion(): StoredArticle[] {
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
       isFeatured: 'secondary',
-      tagSlugs: ["exclusive-report"],
+      tagSlugs: ['exclusive-report'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -84,16 +74,10 @@ export function editionOpinion(): StoredArticle[] {
         p('पाठक गुनासो सुनुवाइ खुला हुनुपर्छ।'),
         p('स्वतन्त्र पत्रकारिता लोकतन्त्रको अक्सिजन हो।'),
         h2('सम्पादकीय मापदण्ड'),
-        list([
-          'स्रोत संरक्षण',
-          'सच्याइ नीति',
-          'घृणा भाषण बन्देज',
-        ]),
+        list(['स्रोत संरक्षण', 'सच्याइ नीति', 'घृणा भाषण बन्देज']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Freedom only serves the public when paired with credibility.'),
-      ],
+      bodyEn: [p('Freedom only serves the public when paired with credibility.')],
     }),
     base({
       id: 'art-ed-opinion-4',
@@ -105,7 +89,7 @@ export function editionOpinion(): StoredArticle[] {
       deckEn: 'Skills, internships and enterprise support must arrive as one package.',
       publishedAt: isoDaysAgo(3, 10),
       updatedAt: isoDaysAgo(3, 10),
-      tagSlugs: ["labour-migration"],
+      tagSlugs: ['labour-migration'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -114,16 +98,10 @@ export function editionOpinion(): StoredArticle[] {
         p('स्थानीय उद्योगसँग तालिम जोड्नुपर्छ।'),
         p('युवा आवाज नीति बनाउँदा सुनिनुपर्छ।'),
         h2('नीति जाँच सूची'),
-        list([
-          'सीप माग मिलान',
-          'क्षेत्रीय अवसर',
-          'महिला सुरक्षा',
-        ]),
+        list(['सीप माग मिलान', 'क्षेत्रीय अवसर', 'महिला सुरक्षा']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Skills, internships and enterprise support must arrive as one package.'),
-      ],
+      bodyEn: [p('Skills, internships and enterprise support must arrive as one package.')],
     }),
     base({
       id: 'art-ed-opinion-5',
@@ -135,25 +113,21 @@ export function editionOpinion(): StoredArticle[] {
       deckEn: 'Affordable reliable transit saves air and time.',
       publishedAt: isoDaysAgo(4, 6),
       updatedAt: isoDaysAgo(4, 6),
-      tagSlugs: ["budget-2083"],
+      tagSlugs: ['budget-2083'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
-        p('निजी सवारी मात्रले शहर धान्दैन। नागरिक वाच डेस्क सार्वजनिक विकल्प बलियो बनाउन तर्क गर्छ।'),
+        p(
+          'निजी सवारी मात्रले शहर धान्दैन। नागरिक वाच डेस्क सार्वजनिक विकल्प बलियो बनाउन तर्क गर्छ।',
+        ),
         p('अनुदान पारदर्शी हुनुपर्छ।'),
         p('पैदल र साइकल पूर्वाधार छुटाउनु हुँदैन।'),
         p('डेटामा आधारित रुट योजना चाहिन्छ।'),
         h2('लगानीका आधार'),
-        list([
-          'बस फ्रिक्वेन्सी',
-          'महिला सुरक्षा',
-          'एकीकृत टिकट',
-        ]),
+        list(['बस फ्रिक्वेन्सी', 'महिला सुरक्षा', 'एकीकृत टिकट']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Affordable reliable transit saves air and time.'),
-      ],
-    })
+      bodyEn: [p('Affordable reliable transit saves air and time.')],
+    }),
   ]
 }

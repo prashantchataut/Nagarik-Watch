@@ -130,7 +130,11 @@ export default async function PollsPage() {
                       <form action={setPollStatus}>
                         <input type="hidden" name="pollId" value={poll.id} />
                         <input type="hidden" name="status" value="active" />
-                        <AdminButton type="submit" variant="primary" className="!min-h-9 !px-3 !text-caption">
+                        <AdminButton
+                          type="submit"
+                          variant="primary"
+                          className="!min-h-9 !px-3 !text-caption"
+                        >
                           सक्रिय गर्नुहोस्
                         </AdminButton>
                       </form>
@@ -139,7 +143,11 @@ export default async function PollsPage() {
                       <form action={setPollStatus}>
                         <input type="hidden" name="pollId" value={poll.id} />
                         <input type="hidden" name="status" value="draft" />
-                        <AdminButton type="submit" variant="secondary" className="!min-h-9 !px-3 !text-caption">
+                        <AdminButton
+                          type="submit"
+                          variant="secondary"
+                          className="!min-h-9 !px-3 !text-caption"
+                        >
                           ड्राफ्टमा फर्काउनुहोस्
                         </AdminButton>
                       </form>
@@ -148,7 +156,11 @@ export default async function PollsPage() {
                       <form action={setPollStatus}>
                         <input type="hidden" name="pollId" value={poll.id} />
                         <input type="hidden" name="status" value="closed" />
-                        <AdminButton type="submit" variant="ghost" className="!min-h-9 !px-3 !text-caption">
+                        <AdminButton
+                          type="submit"
+                          variant="ghost"
+                          className="!min-h-9 !px-3 !text-caption"
+                        >
                           बन्द गर्नुहोस्
                         </AdminButton>
                       </form>

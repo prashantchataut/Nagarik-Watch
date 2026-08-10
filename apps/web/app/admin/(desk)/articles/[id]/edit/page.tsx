@@ -13,7 +13,11 @@ import { AdminButton, AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditorClient } from '@/components/admin/ArticleEditorClient'
 import { listMediaItems } from '@/lib/media-library'
 import { shorthandFromBlocks } from '@/lib/content/blocks'
-import { isPayloadCanonical, isPayloadSourceMisconfigured, payloadAdminUrl } from '@/lib/content/payload-admin-client'
+import {
+  isPayloadCanonical,
+  isPayloadSourceMisconfigured,
+  payloadAdminUrl,
+} from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,7 +36,10 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   const payloadCanonical = isPayloadCanonical()
   if (!canEdit(session.newsroomRole)) {
     return (
-      <div className="rounded-lg border border-breaking/30 bg-brand-tint p-4 text-meta font-semibold text-brand-strong" lang="ne">
+      <div
+        className="rounded-lg border border-breaking/30 bg-brand-tint p-4 text-meta font-semibold text-brand-strong"
+        lang="ne"
+      >
         यो लेख सम्पादन गर्ने अनुमति छैन।
       </div>
     )
@@ -44,10 +51,14 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
         <CmsCanonicalBanner />
         <div className="rounded-lg border border-rule bg-surface-raised p-5">
           <p className="text-meta font-semibold text-ink" lang="ne">
-            यो लेख Payload CMS बाट सम्पादन गर्नुहोस् ताकि प्रकाशन परिवर्तन सीधै पाठक-साइटमा लागु होस्।
+            यो लेख Payload CMS बाट सम्पादन गर्नुहोस् ताकि प्रकाशन परिवर्तन सीधै पाठक-साइटमा लागु
+            होस्।
           </p>
           <p className="mt-2 text-caption text-ink-soft">
-            <a href={payloadAdminUrl()} className="text-brand-strong underline-offset-2 hover:underline">
+            <a
+              href={payloadAdminUrl()}
+              className="text-brand-strong underline-offset-2 hover:underline"
+            >
               {payloadAdminUrl()}
             </a>
           </p>
@@ -57,13 +68,18 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   }
   const { id } = await params
 
-  const [categoriesResult, tagsResult, authorsResult, mediaLibrary, articleResult] = await Promise.all([
-    safeAdminLoad('edit-categories', () => getNavCategories(), seedCategories.filter((c) => c.showInNav)),
-    safeAdminLoad('edit-tags', () => getTags(), []),
-    safeAdminLoad('edit-authors', () => getAuthors(), []),
-    listMediaItems({ limit: 60 }).catch(() => []),
-    safeAdminLoad('edit-article', () => findArticleForAdmin(id), null),
-  ])
+  const [categoriesResult, tagsResult, authorsResult, mediaLibrary, articleResult] =
+    await Promise.all([
+      safeAdminLoad(
+        'edit-categories',
+        () => getNavCategories(),
+        seedCategories.filter((c) => c.showInNav),
+      ),
+      safeAdminLoad('edit-tags', () => getTags(), []),
+      safeAdminLoad('edit-authors', () => getAuthors(), []),
+      listMediaItems({ limit: 60 }).catch(() => []),
+      safeAdminLoad('edit-article', () => findArticleForAdmin(id), null),
+    ])
   const loadError = firstAdminLoadError(categoriesResult, tagsResult, authorsResult, articleResult)
   const article = articleResult.value
 
@@ -90,7 +106,10 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
             </AdminButton>
           </div>
           <p className="mt-4 text-caption text-mute">
-            <Link href="/admin/launch" className="text-brand-strong underline-offset-2 hover:underline">
+            <Link
+              href="/admin/launch"
+              className="text-brand-strong underline-offset-2 hover:underline"
+            >
               Launch जाँच
             </Link>
           </p>

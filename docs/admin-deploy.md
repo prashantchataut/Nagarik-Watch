@@ -2,10 +2,10 @@
 
 Nagarik Watch deploys as two applications from one repository:
 
-| Project | Root | Purpose |
-|---|---|---|
-| Reader/web | `apps/web` (or root Vercel config) | Public portal, Better Auth, journalist desk, operations admin |
-| Newsroom | `apps/admin` | Payload CMS, editorial workflow, media and public content REST API |
+| Project    | Root                               | Purpose                                                            |
+| ---------- | ---------------------------------- | ------------------------------------------------------------------ |
+| Reader/web | `apps/web` (or root Vercel config) | Public portal, Better Auth, journalist desk, operations admin      |
+| Newsroom   | `apps/admin`                       | Payload CMS, editorial workflow, media and public content REST API |
 
 Payload is the canonical production content source. The web app reads the separately
 deployed CMS through server-side REST requests; it does not import `@payload-config`.

@@ -36,16 +36,12 @@ export default async function DashboardPage() {
   // analytics/ad aggregates stream below in their own Suspense boundary so a
   // slow operational query cannot hold the whole dashboard for seconds.
   const [snapshotResult, categoriesResult, pendingReviews] = await Promise.all([
-    safeAdminLoad(
-      'dashboard-snapshot',
-      () => getAdminDashboardSnapshot(),
-      {
-        publishedTotal: 0,
-        scheduledCount: 0,
-        breakingCount: 0,
-        recentPublished: [],
-      },
-    ),
+    safeAdminLoad('dashboard-snapshot', () => getAdminDashboardSnapshot(), {
+      publishedTotal: 0,
+      scheduledCount: 0,
+      breakingCount: 0,
+      recentPublished: [],
+    }),
     safeAdminLoad('dashboard-categories', () => getNavCategories(), []),
     listPendingJournalistReviews().catch(() => []),
   ])
@@ -74,8 +70,18 @@ export default async function DashboardPage() {
             href: '/admin/journalists',
             tone: 'default' as const,
           },
-          { label: 'ब्रेकिङ', value: snapshot.breakingCount, href: '/admin/articles', tone: 'danger' as const },
-          { label: 'विभाग', value: categories.length, href: '/admin/categories', tone: 'brand' as const },
+          {
+            label: 'ब्रेकिङ',
+            value: snapshot.breakingCount,
+            href: '/admin/articles',
+            tone: 'danger' as const,
+          },
+          {
+            label: 'विभाग',
+            value: categories.length,
+            href: '/admin/categories',
+            tone: 'brand' as const,
+          },
         ]
       : desk === 'editor'
         ? [
@@ -97,7 +103,12 @@ export default async function DashboardPage() {
               href: '/admin/articles?status=scheduled',
               tone: 'default' as const,
             },
-            { label: 'ब्रेकिङ', value: snapshot.breakingCount, href: '/admin/articles', tone: 'danger' as const },
+            {
+              label: 'ब्रेकिङ',
+              value: snapshot.breakingCount,
+              href: '/admin/articles',
+              tone: 'danger' as const,
+            },
           ]
         : [
             {
@@ -106,8 +117,18 @@ export default async function DashboardPage() {
               href: '/admin/articles',
               tone: 'brand' as const,
             },
-            { label: 'ब्रेकिङ', value: snapshot.breakingCount, href: '/admin/articles', tone: 'danger' as const },
-            { label: 'विभाग', value: categories.length, href: '/admin/categories', tone: 'brand' as const },
+            {
+              label: 'ब्रेकिङ',
+              value: snapshot.breakingCount,
+              href: '/admin/articles',
+              tone: 'danger' as const,
+            },
+            {
+              label: 'विभाग',
+              value: categories.length,
+              href: '/admin/categories',
+              tone: 'brand' as const,
+            },
             {
               label: 'तालिका',
               value: snapshot.scheduledCount,
@@ -180,8 +201,12 @@ export default async function DashboardPage() {
       <Suspense
         fallback={
           <AdminCard>
-            <h3 className="admin-section-title" lang="ne">पाठक संकेत</h3>
-            <p className="mt-2 text-meta text-mute" lang="ne">विश्लेषण लोड हुँदैछ…</p>
+            <h3 className="admin-section-title" lang="ne">
+              पाठक संकेत
+            </h3>
+            <p className="mt-2 text-meta text-mute" lang="ne">
+              विश्लेषण लोड हुँदैछ…
+            </p>
           </AdminCard>
         }
       >
@@ -293,7 +318,11 @@ async function DashboardSignals() {
           पाठक संकेत (७ दिन / २ घण्टा)
         </h3>
         <div className="flex flex-wrap gap-3">
-          <Link href="/admin/session-quality" className="text-meta font-semibold text-brand" lang="ne">
+          <Link
+            href="/admin/session-quality"
+            className="text-meta font-semibold text-brand"
+            lang="ne"
+          >
             सत्र गुणस्तर
           </Link>
           <Link href="/admin/algorithms" className="text-meta font-semibold text-brand" lang="ne">
@@ -306,15 +335,28 @@ async function DashboardSignals() {
       </div>
       <div className="admin-metric-grid mt-3">
         <AdminMetric value={mostRead.length} label="Most-read stories" href="/ne/most-read" />
-        <AdminMetric value={trendingSamples.length} label="Trending samples (2h)" href="/ne/trending" />
-        <AdminMetric value={engagement?.storyCount ?? 0} label="Stories with signal" href="/admin/algorithms" />
-        <AdminMetric value={avgDwell > 0 ? `${avgDwell}s` : '—'} label="Avg dwell (top)" href="/admin/session-quality" />
+        <AdminMetric
+          value={trendingSamples.length}
+          label="Trending samples (2h)"
+          href="/ne/trending"
+        />
+        <AdminMetric
+          value={engagement?.storyCount ?? 0}
+          label="Stories with signal"
+          href="/admin/algorithms"
+        />
+        <AdminMetric
+          value={avgDwell > 0 ? `${avgDwell}s` : '—'}
+          label="Avg dwell (top)"
+          href="/admin/session-quality"
+        />
         <AdminMetric value={adImpressions} label="Ad impressions (30d)" href="/admin/ads" />
         <AdminMetric value={adClicks} label="Ad clicks (30d)" href="/admin/ads" />
       </div>
       {mostRead.length === 0 ? (
         <p className="mt-3 text-meta text-ink-soft" lang="ne">
-          अहिलेसम्म पर्याप्त पढाइ संकेत छैन। Analytics consent दिएका पाठकको watch-time आएपछि most-read र trending भरिन्छ।
+          अहिलेसम्म पर्याप्त पढाइ संकेत छैन। Analytics consent दिएका पाठकको watch-time आएपछि
+          most-read र trending भरिन्छ।
         </p>
       ) : (
         <ul className="admin-list mt-3">
@@ -325,7 +367,8 @@ async function DashboardSignals() {
                   {row.articleTitleNe || row.articleSlug}
                 </p>
                 <p className="text-caption text-mute" lang="en">
-                  {row.uniqueReaders} readers · {row.averageDwellSeconds}s dwell · {Math.round(row.averageReadPercent)}% scroll
+                  {row.uniqueReaders} readers · {row.averageDwellSeconds}s dwell ·{' '}
+                  {Math.round(row.averageReadPercent)}% scroll
                 </p>
               </div>
             </li>
@@ -335,4 +378,3 @@ async function DashboardSignals() {
     </AdminCard>
   )
 }
-

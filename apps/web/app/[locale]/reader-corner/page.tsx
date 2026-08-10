@@ -62,7 +62,10 @@ export default async function ReaderCornerPage({
           lang={english ? 'en' : 'ne'}
           kicker={english ? 'Reader account' : 'पाठक खाता'}
         />
-        <nav className="mt-4 flex flex-wrap gap-4" aria-label={english ? 'Desk links' : 'डेस्क लिंक'}>
+        <nav
+          className="mt-4 flex flex-wrap gap-4"
+          aria-label={english ? 'Desk links' : 'डेस्क लिंक'}
+        >
           <Link
             href={localizeHref(locale, '/saved')}
             className="inline-flex items-center border-b border-rule pb-1 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
@@ -81,13 +84,23 @@ export default async function ReaderCornerPage({
       <section className="mt-6 border-y border-rule bg-surface-raised px-4 py-5">
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <p className="text-caption font-semibold text-mute">{english ? 'Desk mode' : 'डेस्क मोड'}</p>
+            <p className="text-caption font-semibold text-mute">
+              {english ? 'Desk mode' : 'डेस्क मोड'}
+            </p>
             <p className="mt-1 font-display text-h3 text-ink">
-              {session ? (english ? 'Signed-in reader' : 'लगइन पाठक') : english ? 'Guest device' : 'अतिथि उपकरण'}
+              {session
+                ? english
+                  ? 'Signed-in reader'
+                  : 'लगइन पाठक'
+                : english
+                  ? 'Guest device'
+                  : 'अतिथि उपकरण'}
             </p>
           </div>
           <div>
-            <p className="text-caption font-semibold text-mute">{english ? 'What stays here' : 'यहाँ के रहन्छ'}</p>
+            <p className="text-caption font-semibold text-mute">
+              {english ? 'What stays here' : 'यहाँ के रहन्छ'}
+            </p>
             <p className="mt-1 text-body text-ink-soft">
               {english
                 ? 'Recommendations, recent reads, notifications and preference controls.'
@@ -95,23 +108,39 @@ export default async function ReaderCornerPage({
             </p>
           </div>
           <div>
-            <p className="text-caption font-semibold text-mute">{english ? 'Account home' : 'खाता गृह'}</p>
+            <p className="text-caption font-semibold text-mute">
+              {english ? 'Account home' : 'खाता गृह'}
+            </p>
             <Link
               href={localizeHref(locale, session ? '/auth/profile' : '/auth/login')}
               className="mt-1 inline-flex text-body font-semibold text-brand hover:text-brand-strong"
             >
-              {session ? (english ? 'Open account settings' : 'खाता सेटिङ खोल्नुहोस्') : english ? 'Sign in for sync' : 'सिङ्कका लागि लगइन'}
+              {session
+                ? english
+                  ? 'Open account settings'
+                  : 'खाता सेटिङ खोल्नुहोस्'
+                : english
+                  ? 'Sign in for sync'
+                  : 'सिङ्कका लागि लगइन'}
             </Link>
           </div>
         </div>
       </section>
 
       <div className="mt-8 space-y-10">
-        <RecommendedForYou locale={locale} catalog={storyPage.items} className="reader-corner-recommendations" />
+        <RecommendedForYou
+          locale={locale}
+          catalog={storyPage.items}
+          className="reader-corner-recommendations"
+        />
         <div className="grid gap-10 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,.8fr)]">
           <div className="space-y-10">
             <ReaderActivityPanel locale={locale} catalog={storyPage.items} />
-            <ReaderTopicOnboarding locale={locale} categories={categories} catalog={storyPage.items} />
+            <ReaderTopicOnboarding
+              locale={locale}
+              categories={categories}
+              catalog={storyPage.items}
+            />
           </div>
           <div className="space-y-10">
             <NotificationCenter locale={locale} />

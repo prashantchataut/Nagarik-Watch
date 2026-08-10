@@ -10,7 +10,9 @@ import path from 'node:path'
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 function withHttps(value) {
-  const trimmed = String(value || '').trim().replace(/\/$/, '')
+  const trimmed = String(value || '')
+    .trim()
+    .replace(/\/$/, '')
   if (!trimmed) return ''
   if (/^https?:\/\//i.test(trimmed)) return trimmed
   return `https://${trimmed}`
@@ -44,10 +46,11 @@ console.log(`[build:cf-pages] NEXT_PUBLIC_SITE_URL=${siteUrl}`)
 console.log(`[build:cf-pages] NEXT_PUBLIC_ADMIN_APP_URL=${env.NEXT_PUBLIC_ADMIN_APP_URL}`)
 console.log(`[build:cf-pages] NEXT_PUBLIC_STATIC_EXPORT=1`)
 
-const result = spawnSync(
-  'pnpm',
-  ['--filter', '@nagarikwatch/web', 'build:pages'],
-  { cwd: root, env, stdio: 'inherit', shell: process.platform === 'win32' },
-)
+const result = spawnSync('pnpm', ['--filter', '@nagarikwatch/web', 'build:pages'], {
+  cwd: root,
+  env,
+  stdio: 'inherit',
+  shell: process.platform === 'win32',
+})
 
 process.exit(result.status ?? 1)

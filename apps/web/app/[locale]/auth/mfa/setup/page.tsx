@@ -23,7 +23,10 @@ export default async function StaffMfaSetupPage({
   return (
     <main className="newsroom-login newsroom-login--admin" lang={ne ? 'ne' : 'en'}>
       <div className="newsroom-login__mast">
-        <Link href={localizeHref(locale, '/')} aria-label={ne ? 'नागरिक वाच गृहपृष्ठ' : 'Nagarik Watch home'}>
+        <Link
+          href={localizeHref(locale, '/')}
+          aria-label={ne ? 'नागरिक वाच गृहपृष्ठ' : 'Nagarik Watch home'}
+        >
           <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
         </Link>
         <span className="newsroom-login__badge">{ne ? 'सुरक्षा' : 'Security'}</span>
@@ -39,8 +42,14 @@ export default async function StaffMfaSetupPage({
               : 'MFA setup runs on the full app host only. Reader sign-in and saved stories remain available.'}
           </p>
           <ul className="newsroom-login__points">
-            <li>{ne ? 'स्थैतिक साइटमा सत्र API हुँदैन' : 'Static hosts cannot run session APIs'}</li>
-            <li>{ne ? 'पूर्ण Workers डेप्लोयमा सेटअप खोल्नुहोस्' : 'Open setup on the full Workers deploy'}</li>
+            <li>
+              {ne ? 'स्थैतिक साइटमा सत्र API हुँदैन' : 'Static hosts cannot run session APIs'}
+            </li>
+            <li>
+              {ne
+                ? 'पूर्ण Workers डेप्लोयमा सेटअप खोल्नुहोस्'
+                : 'Open setup on the full Workers deploy'}
+            </li>
           </ul>
         </section>
 

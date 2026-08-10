@@ -9,61 +9,87 @@ type PortalFeedProps = {
 }
 
 /**
- * Top-of-edition pack: 1–3 centered mega leads, then a dense dual row for
- * remaining picks so the fold does not become five identical towers.
+ * Top-of-edition pack:
+ * 1. Centered Lead Mega-Story Block (64px display Mukta, centered deck, 16:9 photo)
+ * 2. Follow-on Centered Mega Story (or dual featured cards)
+ * 3. 4-column dense pulse strip for breaking/top developments
  */
 export function PortalFeed({ stories, locale }: PortalFeedProps) {
   const english = locale === 'en'
-  const leads = stories.slice(0, 3)
-  const more = stories.slice(3, 5)
-  if (leads.length === 0) return null
+  if (stories.length === 0) return null
+
+  const lead = stories[0]!
+  const subLead = stories[1]
+  const dualPicks = stories.slice(2, 4)
+  const pulsePicks = stories.slice(4, 8)
 
   return (
     <section
-      className="border-b border-rule pb-5 sm:pb-6"
-      aria-label={english ? 'Front page' : 'मुख्य पृष्ठ'}
+      className="border-b border-rule pb-6 sm:pb-8"
+      aria-label={english ? 'Top Stories' : 'मुख्य समाचार'}
     >
-      <div className="divide-y divide-rule">
-        {leads.map((story, index) => (
-          <div key={story.id} className={index === 0 ? 'pb-5 sm:pb-6' : 'py-5 sm:py-6'}>
-            <InstrumentedStory
-              articleSlug={story.slug}
-              articleCategory={story.category.slug}
-            >
-              <MegaStoryBlock
-                story={story}
-                locale={locale}
-                priority={index === 0}
-                size={index === 0 ? 'lead' : 'standard'}
-              />
-            </InstrumentedStory>
-          </div>
-        ))}
+      {/* 1. Primary Mega Lead Story */}
+      <div className="pb-6 sm:pb-8">
+        <InstrumentedStory articleSlug={lead.slug} articleCategory={lead.category.slug}>
+          <MegaStoryBlock story={lead} locale={locale} priority size="lead" />
+        </InstrumentedStory>
       </div>
 
-      {more.length > 0 ? (
-        <ol
-          className={`mt-1 grid gap-0 border-t border-rule ${
-            more.length > 1 ? 'sm:grid-cols-2 sm:gap-x-5' : ''
-          }`}
-        >
-          {more.map((story) => (
-            <li key={story.id} className="border-b border-rule py-3 sm:border-b-0 sm:py-3.5">
-              <InstrumentedStory
-                articleSlug={story.slug}
-                articleCategory={story.category.slug}
-              >
+      {/* 2. Secondary Mega Story (if available) */}
+      {subLead ? (
+        <div className="border-t border-rule py-6 sm:py-7">
+          <InstrumentedStory articleSlug={subLead.slug} articleCategory={subLead.category.slug}>
+            <MegaStoryBlock story={subLead} locale={locale} size="standard" />
+          </InstrumentedStory>
+        </div>
+      ) : null}
+
+      {/* 3. Dual Featured Cards Row */}
+      {dualPicks.length > 0 ? (
+        <div className="grid gap-4 border-t border-rule pt-5 sm:grid-cols-2 sm:gap-6 sm:pt-6">
+          {dualPicks.map((story) => (
+            <div key={story.id} className="min-w-0">
+              <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
                 <DenseStoryItem
                   story={story}
                   locale={locale}
-                  thumb="md"
+                  thumb="lg"
                   showDeck
-                  className="text-left"
+                  showMeta
+                  className="rounded-md border border-rule/70 bg-surface-raised/40 p-3 hover:border-brand hover:bg-surface-raised transition-all"
                 />
               </InstrumentedStory>
-            </li>
+            </div>
           ))}
-        </ol>
+        </div>
+      ) : null}
+
+      {/* 4. 4-Story Pulse Strip */}
+      {pulsePicks.length > 0 ? (
+        <div className="mt-5 border-t border-rule pt-4">
+          <div className="sr-only">{english ? 'More top stories' : 'थप मुख्य समाचार'}</div>
+          <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {pulsePicks.map((story, index) => (
+              <li
+                key={story.id}
+                className={`min-w-0 py-2 ${
+                  index > 0 ? 'sm:border-l sm:border-rule sm:pl-3.5' : ''
+                }`}
+              >
+                <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
+                  <DenseStoryItem
+                    story={story}
+                    locale={locale}
+                    showDeck={false}
+                    showThumb={false}
+                    showMeta
+                    compact
+                  />
+                </InstrumentedStory>
+              </li>
+            ))}
+          </ol>
+        </div>
       ) : null}
     </section>
   )

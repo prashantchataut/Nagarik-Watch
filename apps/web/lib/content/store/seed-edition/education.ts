@@ -14,25 +14,21 @@ export function editionEducation(): StoredArticle[] {
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["editor-pick"],
+      tagSlugs: ['editor-pick'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
-        p('परीक्षा नतिजा संवेदनशील समय हो। नागरिक वाच शिक्षा डेस्कले बालबालिकाको गरिमा जोगाउन आग्रह गर्छ।'),
+        p(
+          'परीक्षा नतिजा संवेदनशील समय हो। नागरिक वाच शिक्षा डेस्कले बालबालिकाको गरिमा जोगाउन आग्रह गर्छ।',
+        ),
         p('असफलता अन्त्य होइन।'),
         p('क्यारियर परामर्श विद्यालयमै चाहिन्छ।'),
         p('डिजिटल नतिजा पहुँच समान होस्।'),
         h2('अभिभावक भूमिका'),
-        list([
-          'तुलना कम गर्ने',
-          'वैकल्पिक मार्ग खुला राख्ने',
-          'मानसिक सहयोग',
-        ]),
+        list(['तुलना कम गर्ने', 'वैकल्पिक मार्ग खुला राख्ने', 'मानसिक सहयोग']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('After results, pressure management and guidance matter as much as scores.'),
-      ],
+      bodyEn: [p('After results, pressure management and guidance matter as much as scores.')],
     }),
     base({
       id: 'art-ed-education-2',
@@ -44,20 +40,18 @@ export function editionEducation(): StoredArticle[] {
       deckEn: 'Missing subject teachers leave learning incomplete; incentives and housing help.',
       publishedAt: isoDaysAgo(1, 8),
       updatedAt: isoDaysAgo(1, 8),
-      tagSlugs: ["labour-migration"],
+      tagSlugs: ['labour-migration'],
       reportingLocation: 'बागलुङ',
       province: 'gandaki',
       bodyNe: [
-        p('शिक्षक अभाव संख्या मात्र होइन गुणस्तर संकट हो। नागरिक वाच डेस्कले कक्षा अनुभव रेकर्ड गर्छ।'),
+        p(
+          'शिक्षक अभाव संख्या मात्र होइन गुणस्तर संकट हो। नागरिक वाच डेस्कले कक्षा अनुभव रेकर्ड गर्छ।',
+        ),
         p('महिला शिक्षक सुरक्षा र आवास निर्णायक हुन्छ।'),
         p('प्रविधिले सहयोग गर्न सक्छ तर प्रतिस्थापन होइन।'),
         p('समुदाय अनुगमन रचनात्मक होस्।'),
         h2('नीति औजार'),
-        list([
-          'दुर्गम भत्ता',
-          'स्थानीय करार मापदण्ड',
-          'बहुविषय तालिम',
-        ]),
+        list(['दुर्गम भत्ता', 'स्थानीय करार मापदण्ड', 'बहुविषय तालिम']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
       bodyEn: [
@@ -75,7 +69,7 @@ export function editionEducation(): StoredArticle[] {
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
       isFeatured: 'secondary',
-      tagSlugs: ["data-story"],
+      tagSlugs: ['data-story'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -84,16 +78,10 @@ export function editionEducation(): StoredArticle[] {
         p('अभिभावक खर्च बढाउने मोडल दिगो होइन।'),
         p('खुला शैक्षिक स्रोत उपयोगी छन्।'),
         h2('समानता जाँच'),
-        list([
-          'बिजुली',
-          'शिक्षक तालिम',
-          'अफलाइन सामग्री',
-        ]),
+        list(['बिजुली', 'शिक्षक तालिम', 'अफलाइन सामग्री']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Devices alone are not enough without connectivity, training and content.'),
-      ],
+      bodyEn: [p('Devices alone are not enough without connectivity, training and content.')],
     }),
     base({
       id: 'art-ed-education-4',
@@ -105,25 +93,21 @@ export function editionEducation(): StoredArticle[] {
       deckEn: 'A single information window stops eligible students missing opportunities.',
       publishedAt: isoDaysAgo(3, 10),
       updatedAt: isoDaysAgo(3, 10),
-      tagSlugs: ["budget-2083"],
+      tagSlugs: ['budget-2083'],
       reportingLocation: 'धनुषा',
       province: 'madhesh',
       bodyNe: [
-        p('छात्रवृत्ति समानताको औजार हो। नागरिक वाच डेस्क जटिल प्रक्रियाले बाहिर पार्ने जोखिम देखाउँछ।'),
+        p(
+          'छात्रवृत्ति समानताको औजार हो। नागरिक वाच डेस्क जटिल प्रक्रियाले बाहिर पार्ने जोखिम देखाउँछ।',
+        ),
         p('दलित, महिला र अपाङ्गता कोटा कार्यान्वयन मापनयोग्य होस्।'),
         p('स्कुल स्तरमा अभिमुखीकरण गर्नुपर्छ।'),
         p('ठगी विज्ञापनबारे सतर्कता जरुरी छ।'),
         h2('सुधार'),
-        list([
-          'सरल आवेदन',
-          'समयतालिका',
-          'सहयोग डेस्क',
-        ]),
+        list(['सरल आवेदन', 'समयतालिका', 'सहयोग डेस्क']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('A single information window stops eligible students missing opportunities.'),
-      ],
+      bodyEn: [p('A single information window stops eligible students missing opportunities.')],
     }),
     base({
       id: 'art-ed-education-5',
@@ -135,7 +119,7 @@ export function editionEducation(): StoredArticle[] {
       deckEn: 'When closures are needed, homework packs and alternate sites reduce loss.',
       publishedAt: isoDaysAgo(4, 6),
       updatedAt: isoDaysAgo(4, 6),
-      tagSlugs: ["climate"],
+      tagSlugs: ['climate'],
       reportingLocation: 'सिन्धुली',
       province: 'bagmati',
       bodyNe: [
@@ -144,16 +128,10 @@ export function editionEducation(): StoredArticle[] {
         p('परीक्षा पात्रो लचिलो बनाउनुपर्छ।'),
         p('मध्याह्न भोजन व्यवस्था पनि योजनामा पर्नुपर्छ।'),
         h2('तयारी सूची'),
-        list([
-          'सुरक्षा मापदण्ड',
-          'अभिभावक सूचना',
-          'पुनःपठन तालिका',
-        ]),
+        list(['सुरक्षा मापदण्ड', 'अभिभावक सूचना', 'पुनःपठन तालिका']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('When closures are needed, homework packs and alternate sites reduce loss.'),
-      ],
-    })
+      bodyEn: [p('When closures are needed, homework packs and alternate sites reduce loss.')],
+    }),
   ]
 }

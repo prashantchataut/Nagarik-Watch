@@ -37,21 +37,26 @@ const cloudflareEdge: EdgeAdapter = {
     }
     const body = cloudflareBody(req)
     if (!body) return
-    const response = await fetch(`https://api.cloudflare.com/client/v4/zones/${encodeURIComponent(zone)}/purge_cache`, {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${token}`,
-        'content-type': 'application/json',
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/zones/${encodeURIComponent(zone)}/purge_cache`,
+      {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${token}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(body),
       },
-      body: JSON.stringify(body),
-    })
+    )
     const raw = await response.text()
     let payload: { success?: boolean; errors?: unknown } | null = null
     if (raw) {
       try {
         payload = JSON.parse(raw) as { success?: boolean; errors?: unknown }
       } catch (error) {
-        throw new Error(`Cloudflare returned invalid JSON (${response.status}): ${(error as Error).message}`)
+        throw new Error(
+          `Cloudflare returned invalid JSON (${response.status}): ${(error as Error).message}`,
+        )
       }
     }
     if (!response.ok || payload?.success === false) {
@@ -59,7 +64,8 @@ const cloudflareEdge: EdgeAdapter = {
     }
   },
   cacheHeaderFor(routeType) {
-    if (routeType === 'article' || routeType === 'static') return 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400'
+    if (routeType === 'article' || routeType === 'static')
+      return 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400'
     return 'public, max-age=0, s-maxage=60, stale-while-revalidate=600'
   },
 }
@@ -90,9 +96,9 @@ export function getStorage(): StorageAdapter {
   if (cachedStorage) return cachedStorage
   const configured = Boolean(
     process.env.STORAGE_ENDPOINT ||
-      process.env.STORAGE_ACCESS_KEY_ID ||
-      process.env.STORAGE_SECRET_ACCESS_KEY ||
-      process.env.STORAGE_BUCKET,
+    process.env.STORAGE_ACCESS_KEY_ID ||
+    process.env.STORAGE_SECRET_ACCESS_KEY ||
+    process.env.STORAGE_BUCKET,
   )
   if (configured) {
     throw new Error(

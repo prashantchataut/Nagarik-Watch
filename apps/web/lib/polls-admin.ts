@@ -1,7 +1,14 @@
 import 'server-only'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { cleanMultiline, cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
+import {
+  cleanMultiline,
+  cleanText,
+  ensureOperationalSchema,
+  requireOperationalPool,
+  toIso,
+  type Queryable,
+} from '@/lib/ops-db'
 import { getPollVoteCounts } from '@/lib/engagement/store'
 
 export type Poll = {
@@ -34,7 +41,8 @@ async function readLocal(): Promise<Poll[]> {
     const parsed = JSON.parse(await fs.readFile(LOCAL_FILE, 'utf8')) as { polls?: Poll[] }
     localCache = Array.isArray(parsed.polls) ? parsed.polls : []
   } catch (error) {
-    const code = error instanceof Error && 'code' in error ? String((error as NodeJS.ErrnoException).code) : ''
+    const code =
+      error instanceof Error && 'code' in error ? String((error as NodeJS.ErrnoException).code) : ''
     if (code !== 'ENOENT') throw error
     localCache = []
   }
@@ -53,8 +61,9 @@ async function writeLocal(polls: Poll[]): Promise<void> {
 }
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return requireOperationalPool(await ensureOperationalSchema('polls-admin', async (pool) => {
-    await pool.query(`
+  return requireOperationalPool(
+    await ensureOperationalSchema('polls-admin', async (pool) => {
+      await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_polls (
         id text PRIMARY KEY,
         question text NOT NULL,
@@ -64,7 +73,8 @@ async function ensureSchema(): Promise<Queryable | null> {
         updated_at timestamptz NOT NULL DEFAULT now()
       )
     `)
-  }))
+    }),
+  )
 }
 
 function id(): string {
@@ -89,7 +99,9 @@ function status(value: unknown): Poll['status'] {
 export async function listPolls(): Promise<Poll[]> {
   const pool = await ensureSchema()
   if (pool) {
-    const result = await pool.query<Row>(`SELECT * FROM nw_polls ORDER BY created_at DESC LIMIT 100`)
+    const result = await pool.query<Row>(
+      `SELECT * FROM nw_polls ORDER BY created_at DESC LIMIT 100`,
+    )
     return result.rows.map(rowToPoll)
   }
   return (await readLocal()).sort((a, b) => b.createdAt.localeCompare(a.createdAt))
@@ -125,9 +137,10 @@ export async function getActivePoll(): Promise<PublicPoll | null> {
       )
       poll = result.rows[0] ? rowToPoll(result.rows[0]) : null
     } else {
-      poll = (await readLocal())
-        .filter((candidate) => candidate.status === 'active')
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0] ?? null
+      poll =
+        (await readLocal())
+          .filter((candidate) => candidate.status === 'active')
+          .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0] ?? null
     }
 
     if (!poll || !isPublicReadyPoll(poll)) return null
@@ -204,10 +217,7 @@ export async function createPoll(input: {
   return poll
 }
 
-export async function updatePollStatus(
-  pollId: string,
-  nextStatus: unknown,
-): Promise<Poll | null> {
+export async function updatePollStatus(pollId: string, nextStatus: unknown): Promise<Poll | null> {
   const cleanId = cleanText(pollId, 120)
   const next = status(nextStatus)
   if (!cleanId) return null

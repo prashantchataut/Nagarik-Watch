@@ -3,14 +3,20 @@ import { validateAmpHtml, validateAppleNewsFormat, validateInstantArticle } from
 
 describe('validateAmpHtml', () => {
   it('passes a fully structured page', () => {
-    expect(validateAmpHtml({ hasCanonical: true, hasHeroImage: true, hasAmpBoilerplate: true })).toEqual({
+    expect(
+      validateAmpHtml({ hasCanonical: true, hasHeroImage: true, hasAmpBoilerplate: true }),
+    ).toEqual({
       ok: true,
       issues: [],
     })
   })
 
   it('reports every missing field', () => {
-    const { ok, issues } = validateAmpHtml({ hasCanonical: false, hasHeroImage: false, hasAmpBoilerplate: false })
+    const { ok, issues } = validateAmpHtml({
+      hasCanonical: false,
+      hasHeroImage: false,
+      hasAmpBoilerplate: false,
+    })
     expect(ok).toBe(false)
     expect(issues).toHaveLength(3)
   })
@@ -18,11 +24,17 @@ describe('validateAmpHtml', () => {
 
 describe('validateInstantArticle', () => {
   it('passes a complete article', () => {
-    expect(validateInstantArticle({ title: 'Flood update', bodyBlockCount: 4, hasCanonical: true }).ok).toBe(true)
+    expect(
+      validateInstantArticle({ title: 'Flood update', bodyBlockCount: 4, hasCanonical: true }).ok,
+    ).toBe(true)
   })
 
   it('flags an empty title and missing body', () => {
-    const { ok, issues } = validateInstantArticle({ title: '   ', bodyBlockCount: 0, hasCanonical: true })
+    const { ok, issues } = validateInstantArticle({
+      title: '   ',
+      bodyBlockCount: 0,
+      hasCanonical: true,
+    })
     expect(ok).toBe(false)
     expect(issues).toContain('Missing headline.')
     expect(issues).toContain('Article has no body blocks to export.')

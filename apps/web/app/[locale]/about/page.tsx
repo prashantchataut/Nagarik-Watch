@@ -19,7 +19,12 @@ export default async function AboutPage({ params }: { params: Promise<Params> })
 
   return (
     <div className="mx-auto max-w-page px-4 py-8 sm:py-10">
-      <InfoPageHeader kicker={dict.aboutKicker} title={dict.footerAbout} lead={dict.aboutLead} lang={lang} />
+      <InfoPageHeader
+        kicker={dict.aboutKicker}
+        title={dict.footerAbout}
+        lead={dict.aboutLead}
+        lang={lang}
+      />
 
       <div className="mt-8 space-y-0">
         <InfoSection heading={dict.aboutMissionHeading} lang={lang}>

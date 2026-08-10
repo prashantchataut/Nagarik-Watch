@@ -1,8 +1,5 @@
 import 'server-only'
-import {
-  listArticlesForAdmin,
-  updateArticle,
-} from '@/lib/content/store/json-store'
+import { listArticlesForAdmin, updateArticle } from '@/lib/content/store/json-store'
 import {
   isPayloadCanonical,
   publishDuePayloadScheduledArticles,

@@ -152,9 +152,7 @@ export async function getProviderHealth(): Promise<ProviderHealth[]> {
       try {
         const result = await provider.check()
         const missingRequiredConfiguration =
-          provider.requiresConfiguration &&
-          !configured(provider.envVars) &&
-          result.status !== 'ok'
+          provider.requiresConfiguration && !configured(provider.envVars) && result.status !== 'ok'
         return {
           key: provider.key,
           label: provider.label,

@@ -6,12 +6,15 @@ p1_count: 2
 timestamp: 2026-07-24T10-18-00Z
 slug: nagarikwatch-com
 ---
+
 # Nagarik Watch live critique
+
 Target: https://nagarikwatch.com (+ cookies, location, 404, /admin)
 Method: dual-agent
 Design Health: 19/40 Poor
 
 ## Heuristics
+
 1 Visibility 2 — KTM as ambient truth; empty markets; Escape=essential
 2 Match real world 2 — Devanagari good; fake local weather; EN kickers on NE recovery
 3 User control 2 — no city control; EN toggle traps; admin unreachable
@@ -24,6 +27,7 @@ Design Health: 19/40 Poor
 10 Help 2 — policy exists; no location honesty
 
 ## Priority
+
 P0 admin missing on live static export
 P0 locale toggle /en/ne
 P0 location always Kathmandu

@@ -24,13 +24,16 @@ function walkPages(dir, prefix, kind, locale = 'ne|en') {
     const abs = join(dir, entry)
     const st = statSync(abs)
     if (st.isDirectory()) {
-      const segment = entry.startsWith('[') && entry.endsWith(']') ? `:${entry.slice(1, -1)}` : entry
+      const segment =
+        entry.startsWith('[') && entry.endsWith(']') ? `:${entry.slice(1, -1)}` : entry
       walkPages(abs, `${prefix}/${segment}`, kind, locale)
       continue
     }
     if (!/^page\.(tsx|ts|jsx|js|mdx)$/.test(entry)) continue
     const rel = relative(root, abs).split('\\').join('/')
-    rows.push([csv(prefix || '/'), csv(rel), csv(kind), csv(locale), csv('none'), csv('')].join(','))
+    rows.push(
+      [csv(prefix || '/'), csv(rel), csv(kind), csv(locale), csv('none'), csv('')].join(','),
+    )
   }
 }
 
@@ -40,7 +43,8 @@ function walkApi(dir, prefix = '/api') {
     const abs = join(dir, entry)
     const st = statSync(abs)
     if (st.isDirectory()) {
-      const segment = entry.startsWith('[') && entry.endsWith(']') ? `:${entry.slice(1, -1)}` : entry
+      const segment =
+        entry.startsWith('[') && entry.endsWith(']') ? `:${entry.slice(1, -1)}` : entry
       walkApi(abs, `${prefix}/${segment}`)
       continue
     }
@@ -54,11 +58,20 @@ walkPages(localeRoot, '', 'public-page')
 walkPages(adminRoot, '/admin', 'admin-page', 'ne')
 walkApi(apiRoot)
 
-for (const file of ['rss.xml/route.ts', 'sitemap.xml/route.ts', 'news-sitemap.xml/route.ts', 'robots.txt/route.ts']) {
+for (const file of [
+  'rss.xml/route.ts',
+  'sitemap.xml/route.ts',
+  'news-sitemap.xml/route.ts',
+  'robots.txt/route.ts',
+]) {
   const abs = join(topRoutes, file)
   if (existsSync(abs)) {
     const route = `/${file.replace(/\/route\.(tsx|ts|js)$/, '')}`
-    rows.push([csv(route), csv(`apps/web/app/${file}`), csv('feed'), csv('n/a'), csv('none'), csv('')].join(','))
+    rows.push(
+      [csv(route), csv(`apps/web/app/${file}`), csv('feed'), csv('n/a'), csv('none'), csv('')].join(
+        ',',
+      ),
+    )
   }
 }
 

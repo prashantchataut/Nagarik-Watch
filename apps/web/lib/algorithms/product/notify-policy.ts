@@ -17,7 +17,10 @@ export function batchPressure(pending: number, windowMinutes: number): number {
   return Math.max(0, Math.min(1, pending / Math.max(1, windowMinutes / 5)))
 }
 
-export function cooldownRemainingMinutes(minutesSinceLast: number, cooldownMinutes: number): number {
+export function cooldownRemainingMinutes(
+  minutesSinceLast: number,
+  cooldownMinutes: number,
+): number {
   return Math.max(0, cooldownMinutes - minutesSinceLast)
 }
 

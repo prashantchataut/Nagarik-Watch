@@ -33,10 +33,9 @@ type StoryCardProps = {
   className?: string
 }
 
-function resolveVariant(variant: StoryCardVariant): Exclude<
-  StoryCardVariant,
-  'lead' | 'standard' | 'text-only'
-> {
+function resolveVariant(
+  variant: StoryCardVariant,
+): Exclude<StoryCardVariant, 'lead' | 'standard' | 'text-only'> {
   if (variant === 'lead') return 'featured'
   if (variant === 'standard') return 'default'
   if (variant === 'text-only') return 'compact'
@@ -97,7 +96,10 @@ export function StoryCard({
   if (layout === 'compact') {
     return (
       <article className={cn('group relative', className)}>
-        <div className="mb-1 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" /><MembershipMarker story={story} locale={locale} /></div>
+        <div className="mb-1 flex flex-wrap items-center gap-2">
+          <CategoryLabel category={story.category} locale={locale} as="span" />
+          <MembershipMarker story={story} locale={locale} />
+        </div>
         <h3
           className="text-h3 font-display text-ink group-hover:text-brand-strong transition-colors duration-fast ease-out-quint"
           lang={titleLang}
@@ -117,7 +119,10 @@ export function StoryCard({
   if (layout === 'text-led') {
     return (
       <article className={cn('group relative flex flex-col', className)}>
-        <div className="mb-1.5 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" /><MembershipMarker story={story} locale={locale} /></div>
+        <div className="mb-1.5 flex flex-wrap items-center gap-2">
+          <CategoryLabel category={story.category} locale={locale} as="span" />
+          <MembershipMarker story={story} locale={locale} />
+        </div>
         <h3
           className="font-display text-h2 leading-snug text-ink group-hover:text-brand-strong transition-colors duration-fast ease-out-quint"
           lang={titleLang}
@@ -161,11 +166,21 @@ export function StoryCard({
             <MembershipMarker story={story} locale={locale} />
           </div>
           <h3 className="font-display text-h2 leading-tight text-ink" lang={titleLang}>
-            <Link href={href} className="transition-colors duration-fast ease-out-quint hover:text-brand-strong">
+            <Link
+              href={href}
+              className="transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+            >
               {title}
             </Link>
           </h3>
-          {deck && <p className="mt-2 line-clamp-2 text-meta leading-relaxed text-ink-soft" lang={titleLang}>{deck}</p>}
+          {deck && (
+            <p
+              className="mt-2 line-clamp-2 text-meta leading-relaxed text-ink-soft"
+              lang={titleLang}
+            >
+              {deck}
+            </p>
+          )}
         </div>
       </article>
     )
@@ -200,7 +215,10 @@ export function StoryCard({
             <Link href={href}>{title}</Link>
           </h3>
           {deck ? (
-            <p className="mt-1 line-clamp-1 text-caption leading-relaxed text-ink-soft" lang={titleLang}>
+            <p
+              className="mt-1 line-clamp-1 text-caption leading-relaxed text-ink-soft"
+              lang={titleLang}
+            >
               {deck}
             </p>
           ) : null}
@@ -220,7 +238,9 @@ export function StoryCard({
 
   if (isFeatured && placeholderMedia) {
     return (
-      <article className={cn('group relative flex flex-col border-t-2 border-brand pt-3', className)}>
+      <article
+        className={cn('group relative flex flex-col border-t-2 border-brand pt-3', className)}
+      >
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <CategoryLabel category={story.category} locale={locale} as="span" />
           <MembershipMarker story={story} locale={locale} />
@@ -232,7 +252,10 @@ export function StoryCard({
           <Link href={href}>{title}</Link>
         </HeadingTag>
         {deck ? (
-          <p className="mt-2 line-clamp-3 text-body-lg leading-relaxed text-ink-soft" lang={titleLang}>
+          <p
+            className="mt-2 line-clamp-3 text-body-lg leading-relaxed text-ink-soft"
+            lang={titleLang}
+          >
             {deck}
           </p>
         ) : null}
@@ -266,7 +289,10 @@ export function StoryCard({
       ) : isFeatured ? (
         <div className="mb-3 border-t-2 border-brand pt-3" aria-hidden="true" />
       ) : null}
-      <div className="mb-2 flex flex-wrap items-center gap-2"><CategoryLabel category={story.category} locale={locale} as="span" /><MembershipMarker story={story} locale={locale} /></div>
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <CategoryLabel category={story.category} locale={locale} as="span" />
+        <MembershipMarker story={story} locale={locale} />
+      </div>
       <HeadingTag
         className={cn(
           'font-display text-ink group-hover:text-brand-strong transition-colors duration-fast ease-out-quint',
@@ -277,7 +303,10 @@ export function StoryCard({
         <Link href={href}>{title}</Link>
       </HeadingTag>
       {deck && (
-        <p className="mt-2 text-body-lg text-ink-soft leading-relaxed line-clamp-3" lang={titleLang}>
+        <p
+          className="mt-2 text-body-lg text-ink-soft leading-relaxed line-clamp-3"
+          lang={titleLang}
+        >
           {deck}
         </p>
       )}

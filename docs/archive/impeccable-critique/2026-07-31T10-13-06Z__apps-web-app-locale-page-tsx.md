@@ -2,12 +2,13 @@
 target: homepage
 total_score: 25
 max_score: 40
-na_heuristics: 
+na_heuristics:
 p0_count: 1
 p1_count: 2
 timestamp: 2026-07-31T10-13-06Z
 slug: apps-web-app-locale-page-tsx
 ---
+
 # Critique: Homepage (`apps/web/app/[locale]/page.tsx`)
 
 **Mode:** Read (scan + choose stories)  
@@ -15,19 +16,19 @@ slug: apps-web-app-locale-page-tsx
 
 ## Design Health Score
 
-| # | Heuristic | Score | Key Issue |
-|---|-----------|------:|-----------|
-| 1 | Visibility of System Status | 3 | Breaking ticker + datelines help; condensed masthead hides utilities without explanation |
-| 2 | Match System / Real World | 3 | Nepali desk language fits; "Editor's picks" / "More picks" feel CMS-exported |
-| 3 | User Control and Freedom | 3 | Easy exits via nav; sticky sidebar + marquee compete for attention |
-| 4 | Consistency and Standards | 2 | Locale href builders inconsistent; PollOfDay duplicate IDs |
-| 5 | Error Prevention | 3 | Poll/newsletter validation OK; no guard against over-tagging breaking |
-| 6 | Recognition Rather Than Recall | 2 | Four overlapping "today importance" rails force re-parsing |
-| 7 | Flexibility and Efficiency | 2 | Focus exists; no strong shortcuts; crowded nav overflow |
-| 8 | Aesthetic and Minimalist Design | 2 | Soft rules good; module count + equal FeaturedBand trios compete |
-| 9 | Error Recovery | 3 | Poll/newsletter errors clear; empty edition honest |
-| 10 | Help and Documentation | 2 | Recs explain link exists; poll/newsletter microcopy light |
-| **Total** | | **25/40** | **Acceptable** |
+| #         | Heuristic                       |     Score | Key Issue                                                                                |
+| --------- | ------------------------------- | --------: | ---------------------------------------------------------------------------------------- |
+| 1         | Visibility of System Status     |         3 | Breaking ticker + datelines help; condensed masthead hides utilities without explanation |
+| 2         | Match System / Real World       |         3 | Nepali desk language fits; "Editor's picks" / "More picks" feel CMS-exported             |
+| 3         | User Control and Freedom        |         3 | Easy exits via nav; sticky sidebar + marquee compete for attention                       |
+| 4         | Consistency and Standards       |         2 | Locale href builders inconsistent; PollOfDay duplicate IDs                               |
+| 5         | Error Prevention                |         3 | Poll/newsletter validation OK; no guard against over-tagging breaking                    |
+| 6         | Recognition Rather Than Recall  |         2 | Four overlapping "today importance" rails force re-parsing                               |
+| 7         | Flexibility and Efficiency      |         2 | Focus exists; no strong shortcuts; crowded nav overflow                                  |
+| 8         | Aesthetic and Minimalist Design |         2 | Soft rules good; module count + equal FeaturedBand trios compete                         |
+| 9         | Error Recovery                  |         3 | Poll/newsletter errors clear; empty edition honest                                       |
+| 10        | Help and Documentation          |         2 | Recs explain link exists; poll/newsletter microcopy light                                |
+| **Total** |                                 | **25/40** | **Acceptable**                                                                           |
 
 ## Design Specificity Verdict
 
@@ -52,30 +53,35 @@ The front peak is credible Nepali portal craft. The single biggest opportunity i
 ## Priority Issues
 
 ### [P0] Mobile stream order: LatestRail before category desks
+
 - **What:** On `<xl`, DOM dumps Latest (up to 8) before SectionBlock desks.
 - **Why it matters:** Primary Android-4G persona scans desks after the lead; a long Latest grid feels like a wire feed and buries desk identity.
 - **Fix:** On mobile, render category stream first; keep Latest as xl sticky only, or collapse Latest to ≤4 compact rows after the first desk.
 - **Suggested command:** `$impeccable layout`
 
 ### [P1] Four overlapping "today" choosers
+
 - **What:** आजका अन्य + ताजा + आजका मुख्य कुरा + धेरै पढिएको all answer the same question.
 - **Why it matters:** Extraneous cognitive load; hierarchy credibility drops when lists disagree.
-- **Fix:** Keep lead rail + one recency rail + one social-proof rail. Demote or remove Brief *or* Most-read from the homepage sticky stack.
+- **Fix:** Keep lead rail + one recency rail + one social-proof rail. Demote or remove Brief _or_ Most-read from the homepage sticky stack.
 - **Suggested command:** `$impeccable distill`
 
 ### [P1] PollOfDay duplicate `id={`poll-${id}`}`
+
 - **What:** Kicker `<p>` and question `<h2>` share the same id; aria-labelledby is ambiguous.
 - **Why it matters:** Invalid HTML; assistive tech confusion on a live interactive module.
 - **Fix:** Unique ids (`poll-${id}-label` vs `poll-${id}`); labelledby points at the question.
 - **Suggested command:** `$impeccable harden`
 
 ### [P2] FeaturedBand equal 3-col thumbs
+
 - **What:** `md:grid-cols-3` equal `thumb="md"` peers; visually unlabeled (`aria-label` only).
 - **Why it matters:** Closest on-page match to banned identical feature-card grids; mid-scroll valley feels templated.
 - **Fix:** Asymmetric 1+2 stack, or require a soft SectionHeader; never three equal peers.
 - **Suggested command:** `$impeccable layout`
 
 ### [P3] Lower-third engagement stack
+
 - **What:** Billboard → newsletter → recs → history/photo after desks.
 - **Why it matters:** Peak-end rule: end does not earn the open; conversion aftertaste dilutes editorial close.
 - **Fix:** Cap to one post-desk conversion module above history/photo; lazy-mount recs.
@@ -100,6 +106,6 @@ The front peak is credible Nepali portal craft. The single biggest opportunity i
 
 ## Questions to Consider
 
-1. If you deleted TodayInBrief *and* MostReadRail from the homepage for a week, would bounce rise — or would category desks finally feel like the paper's spine?
+1. If you deleted TodayInBrief _and_ MostReadRail from the homepage for a week, would bounce rise — or would category desks finally feel like the paper's spine?
 2. Is FeaturedBand quiet mid-scroll packing, or filler when desks cannot sustain rhythm?
 3. For the Android-4G reader, is "density 7" currently story packing — or module packing because every CMS widget showed up?

@@ -50,7 +50,12 @@ export function NetworkAdScripts({
 
   if (kind === 'gam' && gamNetworkCode?.trim()) {
     return (
-      <Script id="nw-gam" async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js" strategy="afterInteractive" />
+      <Script
+        id="nw-gam"
+        async
+        src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
+        strategy="afterInteractive"
+      />
     )
   }
 

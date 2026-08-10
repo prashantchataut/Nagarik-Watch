@@ -18,7 +18,11 @@ export async function GET() {
     )
     .map((item) => ({
       item,
-      priority: newsSitemapPriority((Date.now() - Date.parse(item.publishedAt)) / 3_600_000, item.isBreaking, 0.8),
+      priority: newsSitemapPriority(
+        (Date.now() - Date.parse(item.publishedAt)) / 3_600_000,
+        item.isBreaking,
+        0.8,
+      ),
     }))
     // Crawlers read news sitemaps top-down under a fixed budget, so the
     // freshest/breaking stories should appear first.

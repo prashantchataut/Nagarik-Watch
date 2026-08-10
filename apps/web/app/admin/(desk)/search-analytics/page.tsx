@@ -1,7 +1,12 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getSearchAnalyticsSummary } from '@/lib/search-analytics'
-import { AdminCard, AdminEmptyState, AdminMetric, AdminPageHeader } from '@/components/admin/primitives'
+import {
+  AdminCard,
+  AdminEmptyState,
+  AdminMetric,
+  AdminPageHeader,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'Search Analytics',
@@ -16,14 +21,15 @@ export default async function SearchAnalyticsPage() {
 
   return (
     <div>
-      <AdminPageHeader
-        subtitle="Consent-aware, privacy-scrubbed search demand and zero-result gaps · last 30 days"
-      />
+      <AdminPageHeader subtitle="Consent-aware, privacy-scrubbed search demand and zero-result gaps · last 30 days" />
 
       <section className="admin-metric-grid" aria-label="Search analytics summary">
         <AdminMetric value={summary.totalSearches} label="Searches" />
         <AdminMetric value={summary.zeroResultSearches} label="Zero results" />
-        <AdminMetric value={`${(summary.zeroResultRate * 100).toFixed(1)}%`} label="Zero-result rate" />
+        <AdminMetric
+          value={`${(summary.zeroResultRate * 100).toFixed(1)}%`}
+          label="Zero-result rate"
+        />
       </section>
 
       {summary.totalSearches === 0 ? (
@@ -72,4 +78,3 @@ export default async function SearchAnalyticsPage() {
     </div>
   )
 }
-

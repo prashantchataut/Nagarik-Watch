@@ -22,9 +22,7 @@ export default function AdminIndexPage() {
   }
 
   const cms =
-    process.env.NEXT_PUBLIC_CMS_ADMIN_URL?.trim() ||
-    process.env.PAYLOAD_ADMIN_URL?.trim() ||
-    ''
+    process.env.NEXT_PUBLIC_CMS_ADMIN_URL?.trim() || process.env.PAYLOAD_ADMIN_URL?.trim() || ''
 
   return (
     <main className="newsroom-login newsroom-login--admin mx-auto min-h-[70vh] max-w-xl" lang="ne">
@@ -37,8 +35,8 @@ export default function AdminIndexPage() {
         <h1>न्युजरुम डेस्क</h1>
         <span className="newsroom-login__brief-rule" aria-hidden="true" />
         <p>
-          सार्वजनिक स्थैतिक साइटमा पूर्ण अप्स कन्सोल चल्दैन। सम्पादकीय CMS वा पूर्ण Workers
-          डेप्लोय चाहिन्छ।
+          सार्वजनिक स्थैतिक साइटमा पूर्ण अप्स कन्सोल चल्दैन। सम्पादकीय CMS वा पूर्ण Workers डेप्लोय
+          चाहिन्छ।
         </p>
       </section>
 
@@ -58,7 +56,10 @@ export default function AdminIndexPage() {
           गृहपृष्ठमा फर्कनुहोस्
         </Link>
       </div>
-      <p className="mt-10 border-t border-rule pt-6 text-meta leading-relaxed text-ink-soft" lang="en">
+      <p
+        className="mt-10 border-t border-rule pt-6 text-meta leading-relaxed text-ink-soft"
+        lang="en"
+      >
         Set <code className="text-ink">NEXT_PUBLIC_CMS_ADMIN_URL</code> to your Payload admin, or
         deploy the OpenNext Worker build so <code className="text-ink">/admin/login</code> works on
         this domain.

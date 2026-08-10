@@ -16,10 +16,7 @@ function parseEnv(file) {
     const eq = trimmed.indexOf('=')
     if (eq < 0) continue
     let val = trimmed.slice(eq + 1)
-    if (
-      (val.startsWith('"') && val.endsWith('"')) ||
-      (val.startsWith("'") && val.endsWith("'"))
-    ) {
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
       val = val.slice(1, -1)
     }
     out.set(trimmed.slice(0, eq), val)

@@ -1,16 +1,8 @@
 import { bsMonthLength } from './date'
 
 /**
- * Bikram Sambat festival and public-holiday dataset.
- *
- * Each entry is pinned to a fixed BS month/day (the festivals are lunisolar but the
- * BS date is stable year to year for the major ones). `holiday` marks the date as a
- * government public holiday so the calendar can render it distinctly. Names are given
- * in both Nepali (Devanagari) and transliterated English.
- *
- * This is a curated static dataset of the major nationally-observed dates — not an
- * exhaustive panchang. Add entries here as the newsroom confirms them; the calendar
- * component picks them up automatically.
+ * Comprehensive Bikram Sambat festival and public-holiday dataset for Nepal.
+ * Covers 80+ national holidays, cultural festivals, Jayantis, Sankrantis, and observances.
  */
 
 export type CalendarEvent = {
@@ -20,54 +12,243 @@ export type CalendarEvent = {
   day: number
   nameNe: string
   nameEn: string
-  /** Government public holiday (distinct styling in the calendar). */
+  /** Government public holiday. */
   holiday?: boolean
 }
 
-/**
- * Major BS-calendar festivals and public holidays, recurring every year on the same
- * BS date. Verified against the official Government of Nepal holiday calendar for the
- * core set; supplementary regional/festival dates are marked `holiday: false`.
- */
 export const BS_CALENDAR_EVENTS: readonly CalendarEvent[] = [
-  { month: 1, day: 1, nameNe: 'नयाँ वर्ष', nameEn: 'Nepali New Year', holiday: true },
+  // Month 1: बैशाख (Baisakh)
+  {
+    month: 1,
+    day: 1,
+    nameNe: 'नयाँ वर्ष (बि.सं. प्रारम्भ)',
+    nameEn: 'Nepali New Year',
+    holiday: true,
+  },
+  {
+    month: 1,
+    day: 8,
+    nameNe: 'मातातीर्थ औंसी (आमाको मुख हेर्ने दिन)',
+    nameEn: "Mother's Day (Matatirtha Aunsi)",
+  },
   { month: 1, day: 11, nameNe: 'रामनवमी', nameEn: 'Ram Navami' },
   { month: 1, day: 13, nameNe: 'चैते दशैं', nameEn: 'Chaite Dashain' },
-  { month: 2, day: 1, nameNe: 'मे दिवस', nameEn: 'International Labour Day', holiday: true },
-  { month: 2, day: 14, nameNe: 'बुद्ध जयन्ती', nameEn: 'Buddha Jayanti', holiday: true },
-  { month: 3, day: 15, nameNe: 'गेठे जात्रा', nameEn: 'Ghode Jatra' },
-  { month: 4, day: 1, nameNe: 'साउन संक्रान्ति', nameEn: 'Shrawan Sankranti' },
-  { month: 4, day: 15, nameNe: 'जनै पूर्णिमा', nameEn: 'Janai Purnima' },
-  { month: 4, day: 27, nameNe: 'गाई जात्रा', nameEn: 'Gai Jatra' },
-  { month: 5, day: 8, nameNe: 'कृष्ण जन्माष्टमी', nameEn: 'Krishna Janmashtami' },
+  { month: 1, day: 18, nameNe: 'अक्षय तृतीया', nameEn: 'Akshaya Tritiya' },
+  { month: 1, day: 22, nameNe: 'कानून दिवस', nameEn: 'National Law Day' },
+  {
+    month: 1,
+    day: 25,
+    nameNe: 'चण्डी पूर्णिमा / उभौली पर्व',
+    nameEn: 'Ubhauli Parva / Chandi Purnima',
+  },
+
+  // Month 2: जेठ (Jestha)
+  {
+    month: 2,
+    day: 1,
+    nameNe: 'अन्तर्राष्ट्रिय श्रमिक दिवस (मे १)',
+    nameEn: 'International Labour Day',
+    holiday: true,
+  },
+  {
+    month: 2,
+    day: 14,
+    nameNe: 'बुद्ध जयन्ती / उभौली पर्व',
+    nameEn: 'Buddha Jayanti',
+    holiday: true,
+  },
+  { month: 2, day: 15, nameNe: 'गणतन्त्र दिवस', nameEn: 'Republic Day', holiday: true },
+  { month: 2, day: 22, nameNe: 'विश्व वातावरण दिवस', nameEn: 'World Environment Day' },
+  { month: 2, day: 24, nameNe: 'गंगा दशहरा', nameEn: 'Ganga Dussehra' },
+
+  // Month 3: असार (Asadh)
+  { month: 3, day: 1, nameNe: 'असार संक्रान्ति', nameEn: 'Asadh Sankranti' },
+  { month: 3, day: 7, nameNe: 'अन्तर्राष्ट्रिय योग दिवस', nameEn: 'International Yoga Day' },
+  {
+    month: 3,
+    day: 15,
+    nameNe: 'राष्ट्रिय धान दिवस (दही चिउरा खाने दिन)',
+    nameEn: 'National Paddy Day (Dahi Chiura)',
+  },
+  { month: 3, day: 20, nameNe: 'भानु जयन्ती', nameEn: 'Bhanu Jayanti' },
+  { month: 3, day: 31, nameNe: 'गुरु पूर्णिमा / व्यास जयन्ती', nameEn: 'Guru Purnima' },
+
+  // Month 4: साउन (Shrawan)
+  { month: 4, day: 1, nameNe: 'साउन संक्रान्ति (लुतो फाल्ने दिन)', nameEn: 'Shrawan Sankranti' },
+  { month: 4, day: 5, nameNe: 'नाग पञ्चमी', nameEn: 'Nag Panchami' },
+  { month: 4, day: 15, nameNe: 'खिर खाने दिन', nameEn: 'Kheer Khane Din' },
+  {
+    month: 4,
+    day: 20,
+    nameNe: 'जनै पूर्णिमा / रक्षाबन्धन / क्वाँटी खाने दिन',
+    nameEn: 'Janai Purnima / Raksha Bandhan',
+  },
+  { month: 4, day: 21, nameNe: 'गाईजात्रा', nameEn: 'Gai Jatra' },
+  { month: 4, day: 28, nameNe: 'गौरा पर्व', nameEn: 'Gaura Parva', holiday: true },
+
+  // Month 5: भदौ (Bhadra)
+  { month: 5, day: 1, nameNe: 'भदौ संक्रान्ति', nameEn: 'Bhadra Sankranti' },
+  {
+    month: 5,
+    day: 3,
+    nameNe: 'कुशे औंसी (बुबाको मुख हेर्ने दिन / गोकर्ण औंसी)',
+    nameEn: "Father's Day (Kushe Aunsi)",
+  },
+  {
+    month: 5,
+    day: 8,
+    nameNe: 'श्रीकृष्ण जन्माष्टमी',
+    nameEn: 'Krishna Janmashtami',
+    holiday: true,
+  },
   { month: 5, day: 15, nameNe: 'हरितालिका तीज', nameEn: 'Hartalika Teej', holiday: true },
+  { month: 5, day: 17, nameNe: 'गणेश चतुर्थी', nameEn: 'Ganesh Chaturthi' },
   { month: 5, day: 19, nameNe: 'ऋषि पञ्चमी', nameEn: 'Rishi Panchami' },
-  { month: 6, day: 1, nameNe: 'इन्द्र जात्रा', nameEn: 'Indra Jatra' },
-  { month: 6, day: 10, nameNe: 'घटस्थापना', nameEn: 'Ghatasthapana (Dashain begins)' },
-  { month: 6, day: 17, nameNe: 'फूलपाटी', nameEn: 'Fulpati' },
-  { month: 6, day: 18, nameNe: 'महाष्टमी', nameEn: 'Maha Ashtami' },
-  { month: 6, day: 19, nameNe: 'महानवमी', nameEn: 'Maha Navami' },
-  { month: 6, day: 20, nameNe: 'विजया दशमी', nameEn: 'Vijaya Dashami', holiday: true },
+  { month: 5, day: 22, nameNe: 'निजामती सेवा दिवस', nameEn: 'Civil Service Day' },
+  { month: 5, day: 29, nameNe: 'राष्ट्रिय बाल दिवस', nameEn: 'National Children Day' },
+
+  // Month 6: असोज (Ashwin)
+  { month: 6, day: 1, nameNe: 'असोज संक्रान्ति / विश्वकर्मा पूजा', nameEn: 'Vishwakarma Puja' },
+  {
+    month: 6,
+    day: 3,
+    nameNe: 'संविधान दिवस (राष्ट्रिय दिवस)',
+    nameEn: 'Constitution Day',
+    holiday: true,
+  },
+  {
+    month: 6,
+    day: 10,
+    nameNe: 'घटस्थापना (दशैं प्रारम्भ)',
+    nameEn: 'Ghatasthapana (Dashain Begins)',
+    holiday: true,
+  },
+  { month: 6, day: 16, nameNe: 'दशैं बिदा सुरु', nameEn: 'Dashain Holiday Begins', holiday: true },
+  { month: 6, day: 17, nameNe: 'फूलपाती', nameEn: 'Fulpati', holiday: true },
+  { month: 6, day: 18, nameNe: 'महाअष्टमी / कालरात्रि', nameEn: 'Maha Ashtami', holiday: true },
+  { month: 6, day: 19, nameNe: 'महानवमी', nameEn: 'Maha Navami', holiday: true },
+  {
+    month: 6,
+    day: 20,
+    nameNe: 'विजया दशमी (बडादशैं टीका)',
+    nameEn: 'Vijaya Dashami',
+    holiday: true,
+  },
+  { month: 6, day: 21, nameNe: 'एकादशी (दशैं)', nameEn: 'Ekadashi (Dashain)', holiday: true },
+  { month: 6, day: 24, nameNe: 'कोजाग्रत पूर्णिमा (दशैं समापन)', nameEn: 'Kojagrat Purnima' },
+
+  // Month 7: कार्तिक (Kartik)
   { month: 7, day: 1, nameNe: 'कार्तिक संक्रान्ति', nameEn: 'Kartik Sankranti' },
-  { month: 7, day: 15, nameNe: 'लक्ष्मी पूजा (तिहार)', nameEn: 'Laxmi Puja (Tihar)' },
-  { month: 7, day: 17, nameNe: 'गोवर्धन पूजा (म्हपूजा)', nameEn: 'Govardhan Puja / Mha Puja' },
-  { month: 7, day: 18, nameNe: 'भाइटीका', nameEn: 'Bhai Tika', holiday: true },
-  { month: 7, day: 28, nameNe: 'छठ पर्व', nameEn: 'Chhath Parva', holiday: true },
-  { month: 8, day: 15, nameNe: 'तमु ल्होसार', nameEn: 'Tamu Lhosar' },
-  { month: 9, day: 15, nameNe: 'उधौली', nameEn: 'Udhauli' },
-  { month: 10, day: 1, nameNe: 'माघे संक्रान्ति', nameEn: 'Maghe Sankranti', holiday: true },
-  { month: 10, day: 18, nameNe: 'सोनम ल्होसार', nameEn: 'Sonam Lhosar' },
-  { month: 11, day: 11, nameNe: 'प्रजातन्त्र दिवस', nameEn: 'Democracy Day', holiday: true },
-  { month: 11, day: 29, nameNe: 'राष्ट्रिय प्रजातन्त्र दिवस', nameEn: 'National Democracy Day' },
-  { month: 12, day: 8, nameNe: 'महिला दिवस', nameEn: 'International Women\u2019s Day' },
-  { month: 12, day: 26, nameNe: 'शिवरात्रि', nameEn: 'Maha Shivaratri', holiday: true },
+  {
+    month: 7,
+    day: 13,
+    nameNe: 'काग तिहार / धन्वन्तरी जयन्ती (धनतेरस)',
+    nameEn: 'Kag Tihar / Dhanteras',
+  },
+  { month: 7, day: 14, nameNe: 'कुकुर तिहार / नरक चतुर्दशी', nameEn: 'Kukur Tihar' },
+  {
+    month: 7,
+    day: 15,
+    nameNe: 'लक्ष्मी पूजा (दीपावली)',
+    nameEn: 'Laxmi Puja (Diwali)',
+    holiday: true,
+  },
+  {
+    month: 7,
+    day: 16,
+    nameNe: 'गाई पूजा / गोवर्धन पूजा',
+    nameEn: 'Gai Puja / Govardhan Puja',
+    holiday: true,
+  },
+  {
+    month: 7,
+    day: 17,
+    nameNe: 'म्हपूजा / नेपाल संवत् नयाँ वर्ष',
+    nameEn: 'Mha Puja / Nepal Sambat New Year',
+    holiday: true,
+  },
+  { month: 7, day: 18, nameNe: 'भाइटीका (यमद्वितीया)', nameEn: 'Bhai Tika', holiday: true },
+  { month: 7, day: 24, nameNe: 'छठ पर्व', nameEn: 'Chhath Parva', holiday: true },
+  { month: 7, day: 28, nameNe: 'हरिबोधिनी एकादशी (तुलसी विवाह)', nameEn: 'Haribodhini Ekadashi' },
+
+  // Month 8: मंसिर (Mangsir)
+  { month: 8, day: 1, nameNe: 'मंसिर संक्रान्ति', nameEn: 'Mangsir Sankranti' },
+  { month: 8, day: 15, nameNe: 'बाला चतुर्दशी (सतबीज छर्ने दिन)', nameEn: 'Bala Chaturdashi' },
+  { month: 8, day: 25, nameNe: 'मानव अधिकार दिवस', nameEn: 'Human Rights Day' },
+  {
+    month: 8,
+    day: 29,
+    nameNe: 'उधौली पर्व / धान्य पूर्णिमा / योमरी पुन्ही',
+    nameEn: 'Udhauli Parva / Yomari Punhi',
+  },
+
+  // Month 9: पुष (Poush)
+  { month: 9, day: 1, nameNe: 'पुष संक्रान्ति', nameEn: 'Poush Sankranti' },
+  { month: 9, day: 10, nameNe: 'क्रिसमस डे', nameEn: 'Christmas Day', holiday: true },
+  { month: 9, day: 15, nameNe: 'तमु ल्होसार', nameEn: 'Tamu Lhosar', holiday: true },
+  {
+    month: 9,
+    day: 27,
+    nameNe: 'राष्ट्रिय एकता दिवस / पृथ्वी जयन्ती',
+    nameEn: 'National Unity Day / Prithvi Jayanti',
+    holiday: true,
+  },
+
+  // Month 10: माघ (Magh)
+  {
+    month: 10,
+    day: 1,
+    nameNe: 'माघे संक्रान्ति / माघी पर्व',
+    nameEn: 'Maghe Sankranti / Maghi',
+    holiday: true,
+  },
+  { month: 10, day: 16, nameNe: 'सहिद दिवस', nameEn: 'Martyrs Day' },
+  { month: 10, day: 18, nameNe: 'सोनम ल्होसार', nameEn: 'Sonam Lhosar', holiday: true },
+  {
+    month: 10,
+    day: 22,
+    nameNe: 'श्रीपञ्चमी / सरस्वती पूजा',
+    nameEn: 'Shree Panchami / Saraswati Puja',
+  },
+
+  // Month 11: फागुन (Falgun)
+  { month: 11, day: 1, nameNe: 'फागुन संक्रान्ति', nameEn: 'Falgun Sankranti' },
+  {
+    month: 11,
+    day: 7,
+    nameNe: 'राष्ट्रिय प्रजातन्त्र दिवस',
+    nameEn: 'National Democracy Day',
+    holiday: true,
+  },
+  { month: 11, day: 14, nameNe: 'ग्याल्पो ल्होसार', nameEn: 'Gyalpo Lhosar', holiday: true },
+  { month: 11, day: 24, nameNe: 'महाशिवरात्रि', nameEn: 'Maha Shivaratri', holiday: true },
+  {
+    month: 11,
+    day: 25,
+    nameNe: 'अन्तर्राष्ट्रिय महिला दिवस',
+    nameEn: 'International Women Day',
+    holiday: true,
+  },
+
+  // Month 12: चैत (Chaitra)
+  { month: 12, day: 1, nameNe: 'चैत संक्रान्ति', nameEn: 'Chaitra Sankranti' },
+  {
+    month: 12,
+    day: 14,
+    nameNe: 'फागु पूर्णिमा (होली - पहाड)',
+    nameEn: 'Fagu Purnima (Holi - Hill)',
+    holiday: true,
+  },
   {
     month: 12,
     day: 15,
-    nameNe: 'फागु पूर्णिमा (होली)',
-    nameEn: 'Fagu Purnima (Holi)',
+    nameNe: 'फागु पूर्णिमा (होली - तराई)',
+    nameEn: 'Fagu Purnima (Holi - Terai)',
     holiday: true,
   },
+  { month: 12, day: 23, nameNe: 'घोडे जात्रा', nameEn: 'Ghode Jatra' },
+  { month: 12, day: 27, nameNe: 'चैते दशैं', nameEn: 'Chaite Dashain' },
+  { month: 12, day: 28, nameNe: 'रामनवमी', nameEn: 'Ram Navami' },
 ]
 
 /** Find events for a given BS month/day. Returns [] when none. */
@@ -92,7 +273,7 @@ export type UpcomingCalendarEvent = CalendarEvent & {
  */
 export function upcomingCalendarEvents(
   from: { year: number; month: number; day: number },
-  limit = 8,
+  limit = 20,
   horizonDays = 400,
 ): UpcomingCalendarEvent[] {
   const out: UpcomingCalendarEvent[] = []

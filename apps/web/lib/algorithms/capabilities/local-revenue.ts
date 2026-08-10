@@ -14,8 +14,13 @@ export const LOCAL_REVENUE_CAPABILITIES: CapabilitySpec[] = [
       const engagement = num(input, 'engagementScore', 0.5)
       const isMember = Boolean(input.isMember)
       const articlePremium = Boolean(input.articlePremium)
-      const willingnessToPay = clamp01(1 - freeArticlesRemaining / Math.max(1, freeArticleLimit)) * 0.6 + engagement * 0.4
-      const showPaywall = shouldShowPaywall({ isMember, freeRemaining: freeArticlesRemaining, articlePremium })
+      const willingnessToPay =
+        clamp01(1 - freeArticlesRemaining / Math.max(1, freeArticleLimit)) * 0.6 + engagement * 0.4
+      const showPaywall = shouldShowPaywall({
+        isMember,
+        freeRemaining: freeArticlesRemaining,
+        articlePremium,
+      })
       return okAdapter(
         'adapter-ready',
         `paywallPropensity=${willingnessToPay.toFixed(3)} showPaywall=${showPaywall} (local gate; vendor A/B ready)`,
@@ -34,9 +39,12 @@ export const LOCAL_REVENUE_CAPABILITIES: CapabilitySpec[] = [
       const fillRate = num(input, 'fillRate', 0.6)
       const revenue = (impressions * fillRate * ecpm) / 1000
       const ctr = impressions > 0 ? clicks / impressions : 0
-      return okLocal(`estimatedRevenue=${revenue.toFixed(2)} ctr=${ctr.toFixed(4)} fill=${fillRate.toFixed(2)}`, {
-        score: revenue,
-      })
+      return okLocal(
+        `estimatedRevenue=${revenue.toFixed(2)} ctr=${ctr.toFixed(4)} fill=${fillRate.toFixed(2)}`,
+        {
+          score: revenue,
+        },
+      )
     },
   },
 ]

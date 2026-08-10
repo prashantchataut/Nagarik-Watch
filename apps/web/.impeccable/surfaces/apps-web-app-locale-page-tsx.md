@@ -1,7 +1,7 @@
 ---
 version: 1
-slug: "apps-web-app-locale-page-tsx"
-primary_target: "apps/web/app/[locale]/page.tsx"
+slug: 'apps-web-app-locale-page-tsx'
+primary_target: 'apps/web/app/[locale]/page.tsx'
 related_targets: []
 ---
 

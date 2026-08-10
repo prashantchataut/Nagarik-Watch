@@ -19,11 +19,7 @@ export function HomeDeskRail({ locale, categories = [], className }: HomeDeskRai
   if (!desks.length) return null
 
   return (
-    <nav
-      id="desks"
-      aria-label={english ? 'Sections' : 'विभाग'}
-      className={className}
-    >
+    <nav id="desks" aria-label={english ? 'Sections' : 'विभाग'} className={className}>
       <ul className="flex gap-0 overflow-x-auto border-y border-rule [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden">
         {desks.map((category) => (
           <li key={category.slug} className="shrink-0">

@@ -22,9 +22,7 @@ async function main() {
     JSON.stringify(
       {
         hasDatabaseUrl: Boolean(process.env.DATABASE_URL?.trim()),
-        hasAuthSecret: Boolean(
-          (process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET)?.trim(),
-        ),
+        hasAuthSecret: Boolean((process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET)?.trim()),
         authSecretLen: (process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET || '').length,
         bootEmails: emails.map(mask),
         bootEmailCount: emails.length,

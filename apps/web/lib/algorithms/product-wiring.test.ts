@@ -19,7 +19,9 @@ describe('product wiring + honesty gates', () => {
     // Dead helper may still exist for history, but must not be the dispatch path.
     const probe = genericHeuristic('definitely-not-a-catalog-id', { salt: 'x' })
     expect(typeof probe.score).toBe('number')
-    expect(ALGORITHM_CATALOG.some((entry) => entry.id === 'definitely-not-a-catalog-id')).toBe(false)
+    expect(ALGORITHM_CATALOG.some((entry) => entry.id === 'definitely-not-a-catalog-id')).toBe(
+      false,
+    )
   })
 
   it('keeps high-priority surfaces import-wired to product modules', () => {
@@ -69,7 +71,9 @@ describe('product wiring + honesty gates', () => {
     const bandit = ALGORITHM_CATALOG.find((entry) => entry.id === 'multi-armed-bandit')
     const virality = ALGORITHM_CATALOG.find((entry) => entry.id === 'virality-prediction')
     const diversity = ALGORITHM_CATALOG.find((entry) => entry.id === 'homepage-slot-diversity')
-    const continueReading = ALGORITHM_CATALOG.find((entry) => entry.id === 'continue-reading-ranker')
+    const continueReading = ALGORITHM_CATALOG.find(
+      (entry) => entry.id === 'continue-reading-ranker',
+    )
     expect(weighted?.surface).not.toMatch(/^homepage\b/)
     expect(weighted?.summary).toMatch(/qualityTrustScore/)
     expect(bandit?.surface).toMatch(/not homepage/)

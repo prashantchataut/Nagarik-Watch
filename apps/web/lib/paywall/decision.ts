@@ -18,13 +18,19 @@ export type PaywallDecisionInput = {
  * Members always read free. A premium article is gated for everyone else.
  * A non-premium article is gated only once the free-article meter is exhausted.
  */
-export function shouldShowPaywall({ isMember, freeRemaining, articlePremium }: PaywallDecisionInput): boolean {
+export function shouldShowPaywall({
+  isMember,
+  freeRemaining,
+  articlePremium,
+}: PaywallDecisionInput): boolean {
   if (isMember) return false
   if (articlePremium) return true
   return freeRemaining <= 0
 }
 
-export function paywallReason(input: PaywallDecisionInput): 'none' | 'premium-article' | 'meter-exhausted' {
+export function paywallReason(
+  input: PaywallDecisionInput,
+): 'none' | 'premium-article' | 'meter-exhausted' {
   if (!shouldShowPaywall(input)) return 'none'
   return input.articlePremium ? 'premium-article' : 'meter-exhausted'
 }

@@ -9,7 +9,6 @@ import { SITE_URL } from '@/lib/site'
 const themeBootScript = `(() => {
   try {
     const stored = localStorage.getItem('nw-theme');
-    // Pitch / reading default is light. Dark only when the reader chose it.
     const theme = stored === 'dark' || stored === 'light' ? stored : 'light';
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
@@ -20,8 +19,9 @@ const themeBootScript = `(() => {
 })();`
 
 export const metadata: Metadata = {
-  title: { default: 'Nagarik Watch', template: '%s | Nagarik Watch' },
-  description: 'Independent Nepali news, public-service information and useful tools.',
+  title: { default: 'नागरिक वाच | Nagarik Watch', template: '%s | Nagarik Watch' },
+  description:
+    'नेपालको स्वतन्त्र समाचार, सार्वजनिक सरोकार र डिजिटल पात्रो। Independent Nepali news and public service portal.',
   metadataBase: new URL(SITE_URL),
   manifest: '/manifest.webmanifest',
 }
@@ -35,6 +35,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang={lang} className={fontVariables} suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
       <body className="min-h-screen bg-surface font-sans text-ink antialiased">{children}</body>

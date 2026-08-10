@@ -18,7 +18,11 @@ import {
   StatusBadge,
 } from '@/components/admin/primitives'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
-import { isPayloadCanonical, isPayloadSourceMisconfigured, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
+import {
+  isPayloadCanonical,
+  isPayloadSourceMisconfigured,
+  payloadCollectionAdminUrl,
+} from '@/lib/content/payload-admin-client'
 
 export const metadata: Metadata = {
   title: 'समाचार',
@@ -160,7 +164,10 @@ export default async function ArticlesPage({
             {cronSecretMissing
               ? 'GitHub Actions secrets मा CRON_SECRET (≥32 अक्षर) र वैकल्पिक CRON_BASE_URL सेट गर्नुहोस्।'
               : `scheduled-publish पछिल्लो रन: ${scheduledCron?.lastRunAt ?? 'कहिल्यै होइन'}।`}{' '}
-            <Link href="/admin/launch" className="font-semibold text-brand-strong underline-offset-2 hover:underline">
+            <Link
+              href="/admin/launch"
+              className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+            >
               Launch जाँच
             </Link>
           </p>
@@ -287,7 +294,8 @@ export default async function ArticlesPage({
                       </td>
                       <td className="!text-right">
                         <div className="flex justify-end gap-1.5">
-                          {article.workflowStage === 'published' || article.workflowStage === 'updated' ? (
+                          {article.workflowStage === 'published' ||
+                          article.workflowStage === 'updated' ? (
                             <AdminButton
                               href={publicHref}
                               variant="ghost"

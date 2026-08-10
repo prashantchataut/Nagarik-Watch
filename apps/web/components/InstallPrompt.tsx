@@ -22,9 +22,23 @@ function isArticlePath(pathname: string) {
   const offset = parts[0] === 'en' ? 1 : 0
   if (parts.length - offset !== 2) return false
   return !new Set([
-    'admin', 'api', 'auth', 'journalist', 'reader-corner', 'saved', 'search',
-    'latest', 'trending', 'most-read', 'membership', 'contact', 'about',
-    'tag', 'author', 'province', 'district',
+    'admin',
+    'api',
+    'auth',
+    'journalist',
+    'reader-corner',
+    'saved',
+    'search',
+    'latest',
+    'trending',
+    'most-read',
+    'membership',
+    'contact',
+    'about',
+    'tag',
+    'author',
+    'province',
+    'district',
   ]).has(parts[offset] ?? '')
 }
 
@@ -101,7 +115,9 @@ export function InstallPrompt() {
     <aside className="install-prompt" role="dialog" aria-labelledby="install-prompt-title">
       <div>
         <strong id="install-prompt-title">
-          {english ? 'Read Nagarik Watch from your home screen' : 'होम स्क्रिनबाट नागरिक वाच पढ्नुहोस्'}
+          {english
+            ? 'Read Nagarik Watch from your home screen'
+            : 'होम स्क्रिनबाट नागरिक वाच पढ्नुहोस्'}
         </strong>
         <p>
           {english
@@ -116,7 +132,11 @@ export function InstallPrompt() {
         <button type="button" onClick={() => postpone(7, SNOOZE_UNTIL_KEY)}>
           {english ? 'Maybe later' : 'पछि सम्झाउनुहोस्'}
         </button>
-        <button type="button" aria-label={english ? 'Dismiss install suggestion' : 'स्थापना सुझाव बन्द गर्नुहोस्'} onClick={() => postpone(30, DISMISSED_UNTIL_KEY)}>
+        <button
+          type="button"
+          aria-label={english ? 'Dismiss install suggestion' : 'स्थापना सुझाव बन्द गर्नुहोस्'}
+          onClick={() => postpone(30, DISMISSED_UNTIL_KEY)}
+        >
           ×
         </button>
       </div>

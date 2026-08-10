@@ -57,7 +57,10 @@ export default async function EpaperViewerPage({
       title={edition.edition}
       dek={new Date(edition.date).toLocaleDateString(en ? 'en-GB' : 'ne-NP')}
       aside={
-        <Link href={localizeHref(locale, '/epaper')} className="text-meta font-semibold text-brand-strong">
+        <Link
+          href={localizeHref(locale, '/epaper')}
+          className="text-meta font-semibold text-brand-strong"
+        >
           {en ? 'All editions' : 'सबै संस्करण'}
         </Link>
       }

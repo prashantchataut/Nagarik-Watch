@@ -76,7 +76,12 @@ async function seedCategories(payload: BasePayload): Promise<SlugToId> {
       showInNav: category.showInNav,
     }
     const doc = existing
-      ? await payload.update({ collection: 'categories', id: existing.id, data, overrideAccess: true })
+      ? await payload.update({
+          collection: 'categories',
+          id: existing.id,
+          data,
+          overrideAccess: true,
+        })
       : await payload.create({ collection: 'categories', data, overrideAccess: true })
     ids.set(category.slug, doc.id)
   }

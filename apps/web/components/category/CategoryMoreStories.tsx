@@ -18,11 +18,7 @@ type CategoryMoreStoriesProps = {
  * Section body under the category lead: list (default) or thumb grid.
  * Matches Ratopati category view switcher without copying their chrome.
  */
-export function CategoryMoreStories({
-  stories,
-  locale,
-  heading,
-}: CategoryMoreStoriesProps) {
+export function CategoryMoreStories({ stories, locale, heading }: CategoryMoreStoriesProps) {
   const english = locale === 'en'
   const lang = english ? 'en' : 'ne'
   const [view, setView] = useState<ViewMode>('list')
@@ -30,13 +26,7 @@ export function CategoryMoreStories({
   if (!stories.length) return null
 
   const title =
-    heading != null
-      ? english
-        ? heading.en
-        : heading.ne
-      : english
-        ? 'More stories'
-        : 'थप समाचार'
+    heading != null ? (english ? heading.en : heading.ne) : english ? 'More stories' : 'थप समाचार'
 
   return (
     <section aria-labelledby={headingId}>

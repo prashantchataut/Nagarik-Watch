@@ -8,13 +8,7 @@ function isRealPhoto(url: string | undefined): boolean {
 }
 
 /** Visual feature for the day. Skips placeholder media so the band never shows a black slab. */
-export function PhotoOfTheDay({
-  locale,
-  story,
-}: {
-  locale: Locale
-  story: StoryCardData | null
-}) {
+export function PhotoOfTheDay({ locale, story }: { locale: Locale; story: StoryCardData | null }) {
   if (!story?.heroImage?.url || !isRealPhoto(story.heroImage.url)) return null
   const en = locale === 'en'
   const title = en && story.titleEn ? story.titleEn : story.titleNe

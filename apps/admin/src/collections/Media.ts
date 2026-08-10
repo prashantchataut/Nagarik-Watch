@@ -1,5 +1,10 @@
 import type { CollectionConfig } from 'payload'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { anyone, hardDeleteRoles, newsroomContributorRoles, withRoles } from '../access/rbac'
+
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -14,6 +19,7 @@ export const Media: CollectionConfig = {
   },
   upload: {
     mimeTypes: ['image/*'],
+    staticDir: path.resolve(dirname, '../../public/media'),
   },
   fields: [
     {

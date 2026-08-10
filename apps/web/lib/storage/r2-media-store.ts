@@ -36,9 +36,7 @@ export async function saveR2MediaFile(input: {
     })
 
     const base =
-      process.env.STORAGE_PUBLIC_BASE_URL?.trim() ||
-      process.env.R2_PUBLIC_BASE_URL?.trim() ||
-      ''
+      process.env.STORAGE_PUBLIC_BASE_URL?.trim() || process.env.R2_PUBLIC_BASE_URL?.trim() || ''
     if (!base) {
       throw new Error(
         'STORAGE_PUBLIC_BASE_URL (or R2_PUBLIC_BASE_URL) is required for public R2 media URLs.',

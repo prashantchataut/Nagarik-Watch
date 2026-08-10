@@ -31,10 +31,7 @@ export function SectionHeader({
   const lang = titleLang ?? locale
   return (
     <div
-      className={cn(
-        'flex items-end justify-between gap-4 border-b border-rule pb-2',
-        className,
-      )}
+      className={cn('flex items-end justify-between gap-4 border-b border-rule pb-2', className)}
     >
       <div className="min-w-0">
         <h2

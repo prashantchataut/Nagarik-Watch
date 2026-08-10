@@ -63,25 +63,37 @@ async function categorySlug(doc: ArticleDoc, req: PayloadRequestLike) {
   }
 }
 
-
 async function relationshipSlugs(
-  items: Array<{ author?: string | number | { id?: string | number; slug?: string }; tag?: string | number | { id?: string | number; slug?: string } }> | undefined,
+  items:
+    | Array<{
+        author?: string | number | { id?: string | number; slug?: string }
+        tag?: string | number | { id?: string | number; slug?: string }
+      }>
+    | undefined,
   field: 'author' | 'tag',
   collection: 'authors' | 'tags',
   req: PayloadRequestLike,
 ): Promise<string[]> {
-  const slugs = await Promise.all((items ?? []).map(async (item) => {
-    const relationship = item[field]
-    if (relationship && typeof relationship === 'object' && relationship.slug) return String(relationship.slug)
-    const id = typeof relationship === 'object' ? relationship?.id : relationship
-    if (id === undefined || id === null) return ''
-    try {
-      const related = await req.payload.findByID({ collection, id, depth: 0, overrideAccess: true })
-      return String((related as { slug?: string }).slug ?? '')
-    } catch {
-      return ''
-    }
-  }))
+  const slugs = await Promise.all(
+    (items ?? []).map(async (item) => {
+      const relationship = item[field]
+      if (relationship && typeof relationship === 'object' && relationship.slug)
+        return String(relationship.slug)
+      const id = typeof relationship === 'object' ? relationship?.id : relationship
+      if (id === undefined || id === null) return ''
+      try {
+        const related = await req.payload.findByID({
+          collection,
+          id,
+          depth: 0,
+          overrideAccess: true,
+        })
+        return String((related as { slug?: string }).slug ?? '')
+      } catch {
+        return ''
+      }
+    }),
+  )
   return [...new Set(slugs.filter(Boolean))]
 }
 
@@ -129,7 +141,9 @@ export const revalidatePublishedArticle: CollectionAfterChangeHook = async ({
     titleEn: article.titleEn ? String(article.titleEn) : undefined,
     isBreaking: Boolean(article.isBreaking),
     notificationMode: article.notificationMode ?? 'none',
-    notificationTagSlugs: Array.isArray(article.notificationTagSlugs) ? article.notificationTagSlugs.map(String) : [],
+    notificationTagSlugs: Array.isArray(article.notificationTagSlugs)
+      ? article.notificationTagSlugs.map(String)
+      : [],
     publishedAt: article.publishAt ? String(article.publishAt) : new Date().toISOString(),
     authorSlugs,
     tagSlugs,

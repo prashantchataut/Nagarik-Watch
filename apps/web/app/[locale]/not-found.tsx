@@ -11,7 +11,11 @@ export default async function NotFound() {
   return (
     <main className="mx-auto min-h-[70vh] max-w-page px-4 py-8 sm:py-10">
       <header className="border-b border-rule pb-4">
-        <Link href="/" className="inline-flex items-center gap-3 text-ink hover:text-brand-strong" lang="ne">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-3 text-ink hover:text-brand-strong"
+          lang="ne"
+        >
           <Logo className="h-8 w-auto" />
           <span className="sr-only">नागरिक वाच</span>
         </Link>
@@ -21,7 +25,10 @@ export default async function NotFound() {
         <p className="text-meta font-extrabold text-brand-strong" lang="ne">
           पृष्ठ फेला परेन
         </p>
-        <h1 className="mt-1.5 font-display text-[clamp(1.5rem,3.5vw,2.1rem)] font-extrabold tracking-tight text-ink text-wrap-balance" lang="ne">
+        <h1
+          className="mt-1.5 font-display text-[clamp(1.5rem,3.5vw,2.1rem)] font-extrabold tracking-tight text-ink text-wrap-balance"
+          lang="ne"
+        >
           {ne.notFoundHeading}
         </h1>
         <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />

@@ -25,11 +25,7 @@ export const SHELL_PRECACHE_URLS = [
 ] as const
 
 /** Icons/manifest may use cache-first; HTML must not. */
-export const SHELL_ASSET_URLS = [
-  '/manifest.webmanifest',
-  '/icon.svg',
-  '/apple-icon.png',
-] as const
+export const SHELL_ASSET_URLS = ['/manifest.webmanifest', '/icon.svg', '/apple-icon.png'] as const
 
 export const CURRENT_OFFLINE_CACHE_NAMES = [
   SHELL_CACHE_NAME,
@@ -196,7 +192,11 @@ export type OfflineResponseLike = {
  */
 export function isOfflineCacheableResponse(response: OfflineResponseLike): boolean {
   if (!response.ok || response.status === 0) return false
-  if (response.type === 'opaque' || response.type === 'opaqueredirect' || response.type === 'error') {
+  if (
+    response.type === 'opaque' ||
+    response.type === 'opaqueredirect' ||
+    response.type === 'error'
+  ) {
     return false
   }
   return isCacheControlAllowed(response.cacheControl)

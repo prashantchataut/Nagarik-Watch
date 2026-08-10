@@ -182,7 +182,13 @@ export const CORE_HANDLERS: Record<string, AlgorithmHandler> = {
       ['kathmandu', 0.6],
     ])
     const candidates = [
-      { id: 'a', vector: new Map([['politics', 1], ['kathmandu', 0.5]]) },
+      {
+        id: 'a',
+        vector: new Map([
+          ['politics', 1],
+          ['kathmandu', 0.5],
+        ]),
+      },
       { id: 'b', vector: new Map([['sports', 1]]) },
     ]
     const recs = knnRecommend(interest, candidates, 3)
@@ -197,23 +203,27 @@ export const CORE_HANDLERS: Record<string, AlgorithmHandler> = {
       sampleStory(input),
       sampleStory({ id: 'x2', slug: 'x2', category: 'sports', titleNe: 'खेल' }),
     ]
-    const result = recommend(catalog, {
-      userId: 'session',
-      bookmarks: [],
-      follows: [],
-      history: [
-        {
-          id: 'h1',
-          userId: 'session',
-          articleId: catalog[0]!.id,
-          categorySlug: catalog[0]!.category.slug,
-          readAt: new Date().toISOString(),
-          scrollDepth: 80,
-          readingSeconds: 90,
-          completed: false,
-        },
-      ],
-    }, { limit: 3 })
+    const result = recommend(
+      catalog,
+      {
+        userId: 'session',
+        bookmarks: [],
+        follows: [],
+        history: [
+          {
+            id: 'h1',
+            userId: 'session',
+            articleId: catalog[0]!.id,
+            categorySlug: catalog[0]!.category.slug,
+            readAt: new Date().toISOString(),
+            scrollDepth: 80,
+            readingSeconds: 90,
+            completed: false,
+          },
+        ],
+      },
+      { limit: 3 },
+    )
     return {
       score: result[0]?.recScore ?? 0,
       detail: `session recommend n=${result.length} strategy=${result[0]?.recStrategy ?? 'none'}`,
@@ -327,7 +337,11 @@ export const CORE_HANDLERS: Record<string, AlgorithmHandler> = {
       upvotes: num(input, 'upvotes', 10),
       downvotes: num(input, 'downvotes', 1),
     })
-    return { score: ranked.rankScore, detail: `rankComment=${ranked.rankScore.toFixed(4)}`, mode: 'production' }
+    return {
+      score: ranked.rankScore,
+      detail: `rankComment=${ranked.rankScore.toFixed(4)}`,
+      mode: 'production',
+    }
   },
   'reputation-score': (input) => {
     const score = reputationScore(num(input, 'approved', 20), num(input, 'rejected', 2))
@@ -352,7 +366,11 @@ export const CORE_HANDLERS: Record<string, AlgorithmHandler> = {
       },
       { userId: 'u1', sent24h: num(input, 'sentToday', 1) },
     )
-    return { score: scored.score, detail: `notify score=${scored.score} willSend=${scored.willSend}`, mode: 'production' }
+    return {
+      score: scored.score,
+      detail: `notify score=${scored.score} willSend=${scored.willSend}`,
+      mode: 'production',
+    }
   },
   'fatigue-prevention': (input) => {
     const sent = num(input, 'sentToday', 4)

@@ -25,8 +25,10 @@ export type AmpValidationInput = {
 export function validateAmpHtml(input: AmpValidationInput): ValidationResult {
   const issues: string[] = []
   if (!input.hasCanonical) issues.push('Missing <link rel="canonical"> back to the standard page.')
-  if (!input.hasHeroImage) issues.push('Missing a hero image block (amp-img requires explicit width/height).')
-  if (input.hasAmpBoilerplate === false) issues.push('Missing the AMP boilerplate <style amp-boilerplate> tag.')
+  if (!input.hasHeroImage)
+    issues.push('Missing a hero image block (amp-img requires explicit width/height).')
+  if (input.hasAmpBoilerplate === false)
+    issues.push('Missing the AMP boilerplate <style amp-boilerplate> tag.')
   return result(issues)
 }
 

@@ -89,9 +89,7 @@ export function blocksFromShorthand(input: unknown, fallbackText = ''): ArticleB
         type: 'list',
         ordered,
         items: lines
-          .map((line) =>
-            ordered ? line.replace(/^\d+\.\s+/, '').trim() : line.slice(2).trim(),
-          )
+          .map((line) => (ordered ? line.replace(/^\d+\.\s+/, '').trim() : line.slice(2).trim()))
           .filter(Boolean),
       })
       continue

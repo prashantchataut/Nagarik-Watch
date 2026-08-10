@@ -64,9 +64,8 @@ describe('interaction-matrix (local file fallback)', () => {
   })
 
   it('reports the number of distinct readers via matrixReaderCount', async () => {
-    const { matrixReaderCount, recordInteraction, getInteractionMatrix } = await import(
-      './interaction-matrix'
-    )
+    const { matrixReaderCount, recordInteraction, getInteractionMatrix } =
+      await import('./interaction-matrix')
     await recordInteraction('reader-f', 'story-1')
     await recordInteraction('reader-g', 'story-1')
 

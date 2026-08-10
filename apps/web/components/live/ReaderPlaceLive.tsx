@@ -3,10 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import type { LivePlace } from '@/lib/live/places'
-import {
-  hasStoredPlaceChoice,
-  readLocalPlace,
-} from '@/lib/reader/place'
+import { hasStoredPlaceChoice, readLocalPlace } from '@/lib/reader/place'
 import { fetchPlaceWeatherInBrowser } from '@/lib/live/fetch-place-weather-browser'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
 import { PlaceCityPicker } from '@/components/live/PlaceCityPicker'
@@ -56,27 +53,30 @@ export function ReaderPlaceLive({ locale, variant = 'board' }: ReaderPlaceLivePr
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const refreshWeather = useCallback(async (slug: string) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const reading = await loadWeather(slug)
-      if (!reading) {
+  const refreshWeather = useCallback(
+    async (slug: string) => {
+      setLoading(true)
+      setError(null)
+      try {
+        const reading = await loadWeather(slug)
+        if (!reading) {
+          setError(en ? 'Weather unavailable' : 'मौसम उपलब्ध छैन')
+          setTempC(null)
+          setAqi(null)
+          return
+        }
+        setTempC(reading.tempC)
+        setAqi(typeof reading.aqi === 'number' ? reading.aqi : null)
+      } catch {
         setError(en ? 'Weather unavailable' : 'मौसम उपलब्ध छैन')
         setTempC(null)
         setAqi(null)
-        return
+      } finally {
+        setLoading(false)
       }
-      setTempC(reading.tempC)
-      setAqi(typeof reading.aqi === 'number' ? reading.aqi : null)
-    } catch {
-      setError(en ? 'Weather unavailable' : 'मौसम उपलब्ध छैन')
-      setTempC(null)
-      setAqi(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [en])
+    },
+    [en],
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -123,12 +123,7 @@ export function ReaderPlaceLive({ locale, variant = 'board' }: ReaderPlaceLivePr
             </>
           )}
         </span>
-        <PlaceCityPicker
-          locale={locale}
-          place={place}
-          onPlaceChange={onPlaceChange}
-          compact
-        />
+        <PlaceCityPicker locale={locale} place={place} onPlaceChange={onPlaceChange} compact />
       </div>
     )
   }

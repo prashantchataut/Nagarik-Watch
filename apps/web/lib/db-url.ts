@@ -156,7 +156,10 @@ export async function probeDatabase(): Promise<DatabaseProbe> {
       }
     }
 
-    if (/self-signed certificate|certificate/i.test(message) || code === 'DEPTH_ZERO_SELF_SIGNED_CERT') {
+    if (
+      /self-signed certificate|certificate/i.test(message) ||
+      code === 'DEPTH_ZERO_SELF_SIGNED_CERT'
+    ) {
       return {
         ok: false,
         host,

@@ -4,7 +4,7 @@
  * Usage: node scripts/configure-admin-env.mjs
  */
 import { randomBytes } from 'node:crypto'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 

@@ -71,9 +71,7 @@ async function writePostgres(articles: ReturnType<typeof buildEditionArticles>) 
        ON nw_articles (category_slug, slug)`,
     )
 
-    await pool.query(
-      `DELETE FROM nw_articles WHERE id LIKE 'art-nw-%' OR id LIKE 'art-ed-%'`,
-    )
+    await pool.query(`DELETE FROM nw_articles WHERE id LIKE 'art-nw-%' OR id LIKE 'art-ed-%'`)
 
     for (const article of articles) {
       await pool.query(

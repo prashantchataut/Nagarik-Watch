@@ -72,9 +72,7 @@ export function JournalistWorkspaceShell({
         <div className="newsroom-sidebar__identity">
           <strong>{name}</strong>
           <span>{roleLabel}</span>
-          <Link href={localizeHref(locale, '/')}>
-            {ne ? 'सार्वजनिक साइट' : 'Public site'}
-          </Link>
+          <Link href={localizeHref(locale, '/')}>{ne ? 'सार्वजनिक साइट' : 'Public site'}</Link>
           <JournalistSignOutButton locale={locale} />
         </div>
       </aside>

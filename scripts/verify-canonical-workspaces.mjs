@@ -12,7 +12,9 @@ for (const entry of requiredEntries) {
   if (!workspaceText.includes(entry)) problems.push(`pnpm-workspace.yaml is missing ${entry}`)
 }
 if (workspaceText.includes("'apps/*'") || workspaceText.includes('"apps/*"')) {
-  problems.push("pnpm-workspace.yaml must not use apps/* because it re-enables the retired apps/cms workspace")
+  problems.push(
+    'pnpm-workspace.yaml must not use apps/* because it re-enables the retired apps/cms workspace',
+  )
 }
 if (existsSync(legacyManifest)) {
   problems.push(

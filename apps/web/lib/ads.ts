@@ -293,7 +293,7 @@ export function isNetworkAdsReady(): boolean {
   if (kind === 'adsense') {
     return Boolean(
       process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() &&
-        process.env.NEXT_PUBLIC_ADSENSE_SLOT?.trim(),
+      process.env.NEXT_PUBLIC_ADSENSE_SLOT?.trim(),
     )
   }
   if (kind === 'gam') return Boolean(getGamNetworkCode())

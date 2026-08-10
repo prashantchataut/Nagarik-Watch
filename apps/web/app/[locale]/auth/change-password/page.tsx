@@ -6,7 +6,10 @@ import { localizeHref } from '@/lib/i18n/locales'
 
 export const dynamic = 'force-static'
 
-export const metadata: Metadata = { title: 'Change password', robots: { index: false, follow: false } }
+export const metadata: Metadata = {
+  title: 'Change password',
+  robots: { index: false, follow: false },
+}
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: raw } = await params
@@ -18,7 +21,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         {ne
           ? 'पासवर्ड बदल्न लगइन आवश्यक छ। API उपलब्ध नभए फारम असफल हुन सक्छ।'
           : 'Sign-in is required to change password. The form may fail when the auth API is offline.'}{' '}
-        <Link href={localizeHref(locale, '/auth/login')} className="font-bold text-brand-strong underline-offset-2 hover:underline">
+        <Link
+          href={localizeHref(locale, '/auth/login')}
+          className="font-bold text-brand-strong underline-offset-2 hover:underline"
+        >
           {ne ? 'लगइन' : 'Sign in'}
         </Link>
       </p>

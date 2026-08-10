@@ -57,11 +57,7 @@ export function localizeHref(locale: Locale, path: string): string {
   const hashIdx = href.indexOf('#')
   const queryIdx = href.indexOf('?')
   const cut =
-    hashIdx >= 0 && queryIdx >= 0
-      ? Math.min(hashIdx, queryIdx)
-      : hashIdx >= 0
-        ? hashIdx
-        : queryIdx
+    hashIdx >= 0 && queryIdx >= 0 ? Math.min(hashIdx, queryIdx) : hashIdx >= 0 ? hashIdx : queryIdx
   if (cut >= 0) {
     const base = href.slice(0, cut)
     const rest = href.slice(cut)

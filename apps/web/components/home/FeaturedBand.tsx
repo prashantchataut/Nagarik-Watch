@@ -44,7 +44,13 @@ export function FeaturedBand({
             {rest.slice(0, 2).map((story) => (
               <li key={story.id} className="py-2.5 first:pt-0 last:pb-0">
                 <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-                  <DenseStoryItem story={story} locale={locale} thumb="sm" showDeck={false} compact />
+                  <DenseStoryItem
+                    story={story}
+                    locale={locale}
+                    thumb="sm"
+                    showDeck={false}
+                    compact
+                  />
                 </InstrumentedStory>
               </li>
             ))}

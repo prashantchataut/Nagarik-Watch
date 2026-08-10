@@ -20,7 +20,9 @@ describe('algorithm runtime', () => {
       if (!result.ok) expect(result.reason).toBeTruthy()
     }
     const counts = algorithmRuntimeModeCounts(results)
-    expect(counts.production + counts.local + counts['adapter-ready'] + counts['adapter-disabled']).toBe(232)
+    expect(
+      counts.production + counts.local + counts['adapter-ready'] + counts['adapter-disabled'],
+    ).toBe(232)
     expect(counts.production).toBeGreaterThan(10)
     expect(counts.local).toBeGreaterThan(100)
   })
@@ -54,7 +56,9 @@ describe('algorithm runtime', () => {
   })
 
   it('spot-checks newly registered local capabilities compute real, non-hashed scores', () => {
-    const ner = runAlgorithm('named-entity-recognition', { text: 'काठमाडौं सरकारले वर्षाका कारण बाढी चेतावनी दियो' })
+    const ner = runAlgorithm('named-entity-recognition', {
+      text: 'काठमाडौं सरकारले वर्षाका कारण बाढी चेतावनी दियो',
+    })
     expect(ner.ok).toBe(true)
     expect(ner.mode).toBe('local')
     expect(ner.outputs?.entities).toBeDefined()
@@ -67,7 +71,10 @@ describe('algorithm runtime', () => {
     expect(embedding.mode).toBe('adapter-disabled')
     expect(embedding.score).toBeGreaterThan(0.2)
 
-    const unrelated = runAlgorithm('embedding-similarity', { text: 'काठमाडौंमा बाढी', other: 'क्रिकेट खेल परिणाम' })
+    const unrelated = runAlgorithm('embedding-similarity', {
+      text: 'काठमाडौंमा बाढी',
+      other: 'क्रिकेट खेल परिणाम',
+    })
     expect(unrelated.score).toBeLessThan(embedding.score!)
 
     const matrixFactorization = runAlgorithm('matrix-factorization')

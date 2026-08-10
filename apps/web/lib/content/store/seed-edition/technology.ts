@@ -14,25 +14,21 @@ export function editionTechnology(): StoredArticle[] {
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["data-story"],
+      tagSlugs: ['data-story'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
-        p('डिजिटल सेवा विस्तार सकारात्मक छ। नागरिक वाच प्रविधि डेस्कले पहुँच र गोपनीयता सँगै हेर्छ।'),
+        p(
+          'डिजिटल सेवा विस्तार सकारात्मक छ। नागरिक वाच प्रविधि डेस्कले पहुँच र गोपनीयता सँगै हेर्छ।',
+        ),
         p('ग्रामीण इन्टरनेट अभावले असमानता बढाउँछ।'),
         p('फिसिङ चेतना अभियान चाहिन्छ।'),
         p('सरकारी एप अद्यावधिक र सरल हुनुपर्छ।'),
         h2('प्रयोगकर्ता अधिकार'),
-        list([
-          'सहमति स्पष्टता',
-          'उजुरी मार्ग',
-          'अफलाइन सेवा',
-        ]),
+        list(['सहमति स्पष्टता', 'उजुरी मार्ग', 'अफलाइन सेवा']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Online services save time; data security and offline options remain essential.'),
-      ],
+      bodyEn: [p('Online services save time; data security and offline options remain essential.')],
     }),
     base({
       id: 'art-ed-technology-2',
@@ -44,7 +40,7 @@ export function editionTechnology(): StoredArticle[] {
       deckEn: 'Easier payments still need clear fees and customer education.',
       publishedAt: isoDaysAgo(1, 8),
       updatedAt: isoDaysAgo(1, 8),
-      tagSlugs: ["budget-2083"],
+      tagSlugs: ['budget-2083'],
       reportingLocation: 'धनकुटा',
       province: 'koshi',
       bodyNe: [
@@ -53,16 +49,10 @@ export function editionTechnology(): StoredArticle[] {
         p('एजेन्ट नेटवर्क गुणस्तर मापनयोग्य बनाउनुपर्छ।'),
         p('नेटवर्क डाउन हुँदा वैकल्पिक प्रक्रिया चाहिन्छ।'),
         h2('विश्वासका सर्त'),
-        list([
-          'शुल्क देखिने',
-          'लेनदेन रसीद',
-          'ग्राहक सहयोग',
-        ]),
+        list(['शुल्क देखिने', 'लेनदेन रसीद', 'ग्राहक सहयोग']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Easier payments still need clear fees and customer education.'),
-      ],
+      bodyEn: [p('Easier payments still need clear fees and customer education.')],
     }),
     base({
       id: 'art-ed-technology-3',
@@ -75,7 +65,7 @@ export function editionTechnology(): StoredArticle[] {
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
       isFeatured: 'secondary',
-      tagSlugs: ["exclusive-report"],
+      tagSlugs: ['exclusive-report'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -84,16 +74,10 @@ export function editionTechnology(): StoredArticle[] {
         p('बैंक/सेवा प्रदायक अलर्ट पढ्ने बानी बसाल्नुहोस्।'),
         p('विद्यालयमा आधारभूत पाठ्यक्रम उपयोगी हुन्छ।'),
         h2('आजै गर्न सकिने'),
-        list([
-          'दुई चरणीय प्रमाणीकरण',
-          'अपरिचित लिंक नखोल्ने',
-          'सफ्टवेयर अद्यावधिक',
-        ]),
+        list(['दुई चरणीय प्रमाणीकरण', 'अपरिचित लिंक नखोल्ने', 'सफ्टवेयर अद्यावधिक']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Password habits, phishing caution and public Wi-Fi care cut fraud risk.'),
-      ],
+      bodyEn: [p('Password habits, phishing caution and public Wi-Fi care cut fraud risk.')],
     }),
     base({
       id: 'art-ed-technology-4',
@@ -105,7 +89,7 @@ export function editionTechnology(): StoredArticle[] {
       deckEn: 'Tools can speed work; accuracy checks and accountability stay human.',
       publishedAt: isoDaysAgo(3, 10),
       updatedAt: isoDaysAgo(3, 10),
-      tagSlugs: ["editor-pick"],
+      tagSlugs: ['editor-pick'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -114,16 +98,10 @@ export function editionTechnology(): StoredArticle[] {
         p('पाठकलाई प्रक्रिया बुझाउनु विश्वास हो।'),
         p('तालिम र नीति दुवै चाहिन्छ।'),
         h2('प्रयोग मापदण्ड'),
-        list([
-          'स्रोत प्रमाण',
-          'पारदर्शी खुलासा',
-          'सच्याइ प्रक्रिया',
-        ]),
+        list(['स्रोत प्रमाण', 'पारदर्शी खुलासा', 'सच्याइ प्रक्रिया']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Tools can speed work; accuracy checks and accountability stay human.'),
-      ],
+      bodyEn: [p('Tools can speed work; accuracy checks and accountability stay human.')],
     }),
     base({
       id: 'art-ed-technology-5',
@@ -135,7 +113,7 @@ export function editionTechnology(): StoredArticle[] {
       deckEn: 'Internet is basic infrastructure for remote learning and telemedicine.',
       publishedAt: isoDaysAgo(4, 6),
       updatedAt: isoDaysAgo(4, 6),
-      tagSlugs: ["climate"],
+      tagSlugs: ['climate'],
       reportingLocation: 'सोल्खुम्बु',
       province: 'koshi',
       bodyNe: [
@@ -144,16 +122,10 @@ export function editionTechnology(): StoredArticle[] {
         p('बिजुली आपूर्तिसँगै योजना बनाउनुपर्छ।'),
         p('स्थानीय प्राविधिक तालिम दिगोपन हो।'),
         h2('लगानी प्राथमिकता'),
-        list([
-          'विद्यालय कनेक्टिभिटी',
-          'स्वास्थ्य चौकी लिंक',
-          'मर्मत सम्झौता',
-        ]),
+        list(['विद्यालय कनेक्टिभिटी', 'स्वास्थ्य चौकी लिंक', 'मर्मत सम्झौता']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Internet is basic infrastructure for remote learning and telemedicine.'),
-      ],
-    })
+      bodyEn: [p('Internet is basic infrastructure for remote learning and telemedicine.')],
+    }),
   ]
 }

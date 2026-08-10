@@ -22,13 +22,19 @@ describe('publicShareImageUrl', () => {
 
   it('falls back when the hero is smaller than the OG minimum', () => {
     expect(
-      publicShareImageUrl('https://cdn.example/a.jpg', 'https://nagarikwatch.com', { width: 400, height: 200 }),
+      publicShareImageUrl('https://cdn.example/a.jpg', 'https://nagarikwatch.com', {
+        width: 400,
+        height: 200,
+      }),
     ).toBe('https://nagarikwatch.com/opengraph-image.png')
   })
 
   it('keeps the hero when dimensions meet the OG minimum', () => {
     expect(
-      publicShareImageUrl('https://cdn.example/a.jpg', 'https://nagarikwatch.com', { width: 1200, height: 630 }),
+      publicShareImageUrl('https://cdn.example/a.jpg', 'https://nagarikwatch.com', {
+        width: 1200,
+        height: 630,
+      }),
     ).toBe('https://cdn.example/a.jpg')
   })
 })

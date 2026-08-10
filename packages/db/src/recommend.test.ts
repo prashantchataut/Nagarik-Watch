@@ -6,10 +6,7 @@ const category = { id: 'cat-news', slug: 'news', nameNe: 'समाचार', n
 const authorA = { id: 'author-a', slug: 'a', name: 'A' }
 const authorB = { id: 'author-b', slug: 'b', name: 'B' }
 
-function story(
-  id: string,
-  overrides: Partial<RecommendableStory> = {},
-): RecommendableStory {
+function story(id: string, overrides: Partial<RecommendableStory> = {}): RecommendableStory {
   return {
     id,
     slug: id,
@@ -84,7 +81,13 @@ describe('recommend', () => {
   })
 
   it('retains category, topic and byline signals when the read story has left the catalog', () => {
-    const followedCategory = { ...category, id: 'cat-economy', slug: 'economy', nameNe: 'अर्थ', nameEn: 'Economy' }
+    const followedCategory = {
+      ...category,
+      id: 'cat-economy',
+      slug: 'economy',
+      nameNe: 'अर्थ',
+      nameEn: 'Economy',
+    }
     const result = recommend(
       [
         story('generic', { authors: [authorB] }),
@@ -95,16 +98,18 @@ describe('recommend', () => {
         }),
       ],
       {
-        history: [{
-          id: 'old-history',
-          userId: 'reader',
-          articleId: 'no-longer-in-catalog',
-          categorySlug: 'economy',
-          tagSlugs: ['banking'],
-          authorSlugs: ['a'],
-          readAt: '2026-07-13T09:00:00.000Z',
-          completed: true,
-        }],
+        history: [
+          {
+            id: 'old-history',
+            userId: 'reader',
+            articleId: 'no-longer-in-catalog',
+            categorySlug: 'economy',
+            tagSlugs: ['banking'],
+            authorSlugs: ['a'],
+            readAt: '2026-07-13T09:00:00.000Z',
+            completed: true,
+          },
+        ],
       },
       { now, limit: 2 },
     )
@@ -117,15 +122,30 @@ describe('recommend', () => {
     const economy = { ...category, id: 'economy', slug: 'economy', nameEn: 'Economy' }
     const sports = { ...category, id: 'sports', slug: 'sports', nameEn: 'Sports' }
     const result = recommend(
-      [
-        story('economy-next', { category: economy }),
-        story('sports-next', { category: sports }),
-      ],
+      [story('economy-next', { category: economy }), story('sports-next', { category: sports })],
       {
         history: [
-          { id: 'h1', userId: 'reader', articleId: 'old-a', categorySlug: 'politics', readAt: '2026-07-13T06:00:00Z' },
-          { id: 'h2', userId: 'reader', articleId: 'old-b', categorySlug: 'economy', readAt: '2026-07-13T07:00:00Z' },
-          { id: 'h3', userId: 'reader', articleId: 'old-c', categorySlug: 'politics', readAt: '2026-07-13T08:00:00Z' },
+          {
+            id: 'h1',
+            userId: 'reader',
+            articleId: 'old-a',
+            categorySlug: 'politics',
+            readAt: '2026-07-13T06:00:00Z',
+          },
+          {
+            id: 'h2',
+            userId: 'reader',
+            articleId: 'old-b',
+            categorySlug: 'economy',
+            readAt: '2026-07-13T07:00:00Z',
+          },
+          {
+            id: 'h3',
+            userId: 'reader',
+            articleId: 'old-c',
+            categorySlug: 'politics',
+            readAt: '2026-07-13T08:00:00Z',
+          },
         ],
       },
       {

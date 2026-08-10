@@ -59,13 +59,7 @@ export function ArticleToolsMenu({
     : en
       ? 'Reader view'
       : 'पढाइ दृश्य'
-  const listenLabel = speaking
-    ? en
-      ? 'Stop'
-      : 'रोक्नुहोस्'
-    : en
-      ? 'Listen'
-      : 'सुन्नुहोस्'
+  const listenLabel = speaking ? (en ? 'Stop' : 'रोक्नुहोस्') : en ? 'Listen' : 'सुन्नुहोस्'
 
   return (
     <div className="article-tools-bar" lang={lang}>

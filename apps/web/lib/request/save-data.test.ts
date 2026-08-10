@@ -8,9 +8,9 @@ describe('requestWantsSaveData', () => {
   })
 
   it('recognizes reduced-data client hints', () => {
-    expect(
-      requestWantsSaveData(new Headers({ 'Sec-CH-Prefers-Reduced-Data': 'reduce' })),
-    ).toBe(true)
+    expect(requestWantsSaveData(new Headers({ 'Sec-CH-Prefers-Reduced-Data': 'reduce' }))).toBe(
+      true,
+    )
     expect(
       requestWantsSaveData(new Headers({ 'Sec-CH-Prefers-Reduced-Data': 'no-preference' })),
     ).toBe(false)

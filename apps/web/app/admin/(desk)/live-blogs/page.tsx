@@ -12,7 +12,16 @@ import {
   type LiveBlogStatus,
 } from '@/lib/live-blog-admin'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { AdminCard, AdminEmptyState, AdminPageHeader, AdminButton, AdminInput, AdminTextarea, AdminSelect, AdminCallout } from '@/components/admin/primitives'
+import {
+  AdminCard,
+  AdminEmptyState,
+  AdminPageHeader,
+  AdminButton,
+  AdminInput,
+  AdminTextarea,
+  AdminSelect,
+  AdminCallout,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'लाइभ ब्लग',
@@ -72,9 +81,11 @@ async function addUpdate(formData: FormData) {
 async function changeStatus(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
-  if (!canPublish(session.newsroomRole)) throw new Error('यो भूमिकालाई लाइभ स्थिति बदल्न अनुमति छैन।')
+  if (!canPublish(session.newsroomRole))
+    throw new Error('यो भूमिकालाई लाइभ स्थिति बदल्न अनुमति छैन।')
   const nextStatus = String(formData.get('status') ?? 'scheduled') as LiveBlogStatus
-  if (!['scheduled', 'live', 'closed'].includes(nextStatus)) throw new Error('Invalid live-blog status')
+  if (!['scheduled', 'live', 'closed'].includes(nextStatus))
+    throw new Error('Invalid live-blog status')
   const blog = await setLiveBlogStatus(String(formData.get('id') ?? ''), nextStatus)
   if (!blog) throw new Error('Live blog not found')
   await recordAuditEvent({
@@ -102,25 +113,33 @@ export default async function LiveBlogsPage() {
   const session = await requireNewsroomSession()
   const blogs = await listLiveBlogs()
   const records = await Promise.all(
-    blogs.map(async (blog) => ({ blog, updates: (await getLiveBlogBySlug(blog.slug))?.updates ?? [] })),
+    blogs.map(async (blog) => ({
+      blog,
+      updates: (await getLiveBlogBySlug(blog.slug))?.updates ?? [],
+    })),
   )
   const editable = canEdit(session.newsroomRole)
   const publishable = canPublish(session.newsroomRole)
 
   return (
     <div>
-      <AdminPageHeader
-        subtitle="ब्रेकिङ घटनाका लागि सत्यापित, समयक्रमबद्ध रोलिङ अपडेट"
-      />
+      <AdminPageHeader subtitle="ब्रेकिङ घटनाका लागि सत्यापित, समयक्रमबद्ध रोलिङ अपडेट" />
 
       {editable ? (
         <AdminCard className="mb-6">
-          <h2 className="font-display text-h2 text-ink" lang="ne">नयाँ लाइभ ब्लग</h2>
+          <h2 className="font-display text-h2 text-ink" lang="ne">
+            नयाँ लाइभ ब्लग
+          </h2>
           <form action={createBlog} className="mt-4 grid gap-4 lg:grid-cols-2">
             <AdminInput label="नेपाली शीर्षक *" name="titleNe" required lang="ne" />
             <AdminInput label="English title" name="titleEn" lang="en" />
             <div className="lg:col-span-2">
-              <AdminInput label="Slug" name="slug" placeholder="auto-generated when blank" lang="en" />
+              <AdminInput
+                label="Slug"
+                name="slug"
+                placeholder="auto-generated when blank"
+                lang="en"
+              />
             </div>
             <AdminTextarea label="नेपाली सारांश" name="summaryNe" rows={3} lang="ne" />
             <AdminTextarea label="English summary" name="summaryEn" rows={3} lang="en" />
@@ -142,7 +161,8 @@ export default async function LiveBlogsPage() {
       ) : (
         <AdminCallout tone="neutral" className="mb-6">
           <p className="text-body text-ink-soft" lang="ne">
-            तपाईंको भूमिका हेर्न र अनुगमन गर्न मिल्छ; सिर्जना वा सम्पादनका लागि सम्पादकीय भूमिका आवश्यक छ।
+            तपाईंको भूमिका हेर्न र अनुगमन गर्न मिल्छ; सिर्जना वा सम्पादनका लागि सम्पादकीय भूमिका
+            आवश्यक छ।
           </p>
         </AdminCallout>
       )}
@@ -159,21 +179,40 @@ export default async function LiveBlogsPage() {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`admin-status admin-status--${blog.status === 'live' ? 'danger' : blog.status === 'closed' ? 'neutral' : 'attention'}`}>
-                      {blog.status === 'live' ? 'लाइभ' : blog.status === 'closed' ? 'समाप्त' : 'तालिकाबद्ध'}
+                    <span
+                      className={`admin-status admin-status--${blog.status === 'live' ? 'danger' : blog.status === 'closed' ? 'neutral' : 'attention'}`}
+                    >
+                      {blog.status === 'live'
+                        ? 'लाइभ'
+                        : blog.status === 'closed'
+                          ? 'समाप्त'
+                          : 'तालिकाबद्ध'}
                     </span>
                     <span className="text-caption text-mute">{updates.length} अपडेट</span>
                   </div>
-                  <h2 className="mt-2 font-display text-h2 text-ink" lang="ne">{blog.titleNe}</h2>
-                  {blog.titleEn ? <p className="mt-1 text-meta text-ink-soft" lang="en">{blog.titleEn}</p> : null}
-                  {blog.summaryNe ? <p className="mt-3 max-w-3xl text-body text-ink-soft" lang="ne">{blog.summaryNe}</p> : null}
+                  <h2 className="mt-2 font-display text-h2 text-ink" lang="ne">
+                    {blog.titleNe}
+                  </h2>
+                  {blog.titleEn ? (
+                    <p className="mt-1 text-meta text-ink-soft" lang="en">
+                      {blog.titleEn}
+                    </p>
+                  ) : null}
+                  {blog.summaryNe ? (
+                    <p className="mt-3 max-w-3xl text-body text-ink-soft" lang="ne">
+                      {blog.summaryNe}
+                    </p>
+                  ) : null}
                   <p className="mt-3 text-caption text-mute" lang="ne">
                     अपडेट: {formatDate(blog.updatedAt)} · slug: <code>{blog.slug}</code>
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {blog.status !== 'scheduled' ? (
-                    <Link href={`/live/${blog.slug}`} className="admin-button admin-button--secondary">
+                    <Link
+                      href={`/live/${blog.slug}`}
+                      className="admin-button admin-button--secondary"
+                    >
                       सार्वजनिक पृष्ठ ↗
                     </Link>
                   ) : null}
@@ -181,12 +220,30 @@ export default async function LiveBlogsPage() {
                     <form action={changeStatus} className="flex flex-wrap gap-2">
                       <input type="hidden" name="id" value={blog.id} />
                       {blog.status !== 'live' ? (
-                        <button name="status" value="live" className="admin-button admin-button--primary">लाइभ खोल्नुहोस्</button>
+                        <button
+                          name="status"
+                          value="live"
+                          className="admin-button admin-button--primary"
+                        >
+                          लाइभ खोल्नुहोस्
+                        </button>
                       ) : null}
                       {blog.status !== 'closed' ? (
-                        <button name="status" value="closed" className="admin-button admin-button--secondary">समाप्त गर्नुहोस्</button>
+                        <button
+                          name="status"
+                          value="closed"
+                          className="admin-button admin-button--secondary"
+                        >
+                          समाप्त गर्नुहोस्
+                        </button>
                       ) : (
-                        <button name="status" value="scheduled" className="admin-button admin-button--secondary">पुनः तालिकाबद्ध</button>
+                        <button
+                          name="status"
+                          value="scheduled"
+                          className="admin-button admin-button--secondary"
+                        >
+                          पुनः तालिकाबद्ध
+                        </button>
                       )}
                     </form>
                   ) : null}
@@ -195,14 +252,29 @@ export default async function LiveBlogsPage() {
 
               {editable && blog.status !== 'closed' ? (
                 <details className="mt-5 border-t border-rule pt-4">
-                  <summary className="cursor-pointer text-meta font-bold text-brand-strong" lang="ne">+ नयाँ अपडेट लेख्नुहोस्</summary>
+                  <summary
+                    className="cursor-pointer text-meta font-bold text-brand-strong"
+                    lang="ne"
+                  >
+                    + नयाँ अपडेट लेख्नुहोस्
+                  </summary>
                   <form action={addUpdate} className="mt-4 grid gap-3">
                     <input type="hidden" name="liveBlogId" value={blog.id} />
                     <input type="hidden" name="slug" value={blog.slug} />
-                    <AdminTextarea label="नेपाली अपडेट *" name="bodyNe" required rows={5} lang="ne" />
+                    <AdminTextarea
+                      label="नेपाली अपडेट *"
+                      name="bodyNe"
+                      required
+                      rows={5}
+                      lang="ne"
+                    />
                     <AdminTextarea label="English update" name="bodyEn" rows={4} lang="en" />
-                    <label className="flex items-center gap-2 text-caption font-semibold text-ink-soft" lang="ne">
-                      <input name="pinned" type="checkbox" className="size-4 accent-brand" /> मुख्य अपडेटका रूपमा पिन गर्नुहोस्
+                    <label
+                      className="flex items-center gap-2 text-caption font-semibold text-ink-soft"
+                      lang="ne"
+                    >
+                      <input name="pinned" type="checkbox" className="size-4 accent-brand" /> मुख्य
+                      अपडेटका रूपमा पिन गर्नुहोस्
                     </label>
                     <AdminButton type="submit">अपडेट प्रकाशित गर्नुहोस्</AdminButton>
                   </form>
@@ -214,9 +286,12 @@ export default async function LiveBlogsPage() {
                   {updates.slice(0, 5).map((update) => (
                     <li key={update.id} className="py-4">
                       <p className="text-caption font-semibold text-brand-strong">
-                        {update.pinned ? 'पिन गरिएको · ' : ''}{formatDate(update.createdAt)}
+                        {update.pinned ? 'पिन गरिएको · ' : ''}
+                        {formatDate(update.createdAt)}
                       </p>
-                      <p className="mt-1 whitespace-pre-line text-body text-ink" lang="ne">{update.bodyNe}</p>
+                      <p className="mt-1 whitespace-pre-line text-body text-ink" lang="ne">
+                        {update.bodyNe}
+                      </p>
                     </li>
                   ))}
                 </ol>

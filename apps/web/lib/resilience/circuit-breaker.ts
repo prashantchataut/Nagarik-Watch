@@ -83,19 +83,13 @@ function transitionExpiredCircuit(circuit: CircuitRecord, now = Date.now()): voi
   }
 }
 
-export function getCircuitState(
-  name: string,
-  options?: CircuitBreakerOptions,
-): CircuitState {
+export function getCircuitState(name: string, options?: CircuitBreakerOptions): CircuitState {
   const circuit = getOrCreateCircuit(name, options)
   transitionExpiredCircuit(circuit)
   return circuit.state
 }
 
-export function recordSuccess(
-  name: string,
-  options?: CircuitBreakerOptions,
-): CircuitState {
+export function recordSuccess(name: string, options?: CircuitBreakerOptions): CircuitState {
   const circuit = getOrCreateCircuit(name, options)
   transitionExpiredCircuit(circuit)
 
@@ -114,10 +108,7 @@ export function recordSuccess(
   return circuit.state
 }
 
-export function recordFailure(
-  name: string,
-  options?: CircuitBreakerOptions,
-): CircuitState {
+export function recordFailure(name: string, options?: CircuitBreakerOptions): CircuitState {
   const circuit = getOrCreateCircuit(name, options)
   transitionExpiredCircuit(circuit)
 

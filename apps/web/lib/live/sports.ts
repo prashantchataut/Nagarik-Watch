@@ -34,7 +34,13 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 }
 
 function unavailable<T>(source: string, error?: string): LiveDataEnvelope<T[]> {
-  return { status: error ? 'error' : 'empty', source, updatedAt: new Date().toISOString(), data: [], error }
+  return {
+    status: error ? 'error' : 'empty',
+    source,
+    updatedAt: new Date().toISOString(),
+    data: [],
+    error,
+  }
 }
 
 type FootballDataMatch = {
@@ -56,7 +62,8 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
   const apiKey = process.env.FOOTBALL_API_KEY
   if (!apiKey) {
     const manual = await getManualLiveRecord<FootballScore[]>('football')
-    if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
+    if (manual)
+      return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
     return unavailable<FootballScore>('Football provider is not configured')
   }
 
@@ -106,8 +113,12 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
     })
   } catch (error) {
     const manual = await getManualLiveRecord<FootballScore[]>('football')
-    if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return unavailable<FootballScore>('football-data.org', error instanceof Error ? error.message : 'Football fetch failed')
+    if (manual)
+      return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
+    return unavailable<FootballScore>(
+      'football-data.org',
+      error instanceof Error ? error.message : 'Football fetch failed',
+    )
   }
 }
 
@@ -133,7 +144,8 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
   const apiKey = process.env.CRICKET_API_KEY
   if (!apiKey) {
     const manual = await getManualLiveRecord<CricketScore[]>('cricket')
-    if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
+    if (manual)
+      return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
     return unavailable<CricketScore>('Cricket provider is not configured')
   }
 
@@ -181,8 +193,12 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
     })
   } catch (error) {
     const manual = await getManualLiveRecord<CricketScore[]>('cricket')
-    if (manual) return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return unavailable<CricketScore>('Configured cricket provider', error instanceof Error ? error.message : 'Cricket fetch failed')
+    if (manual)
+      return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
+    return unavailable<CricketScore>(
+      'Configured cricket provider',
+      error instanceof Error ? error.message : 'Cricket fetch failed',
+    )
   }
 }
 

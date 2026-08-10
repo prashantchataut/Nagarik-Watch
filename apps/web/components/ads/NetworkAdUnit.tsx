@@ -57,7 +57,12 @@ export function NetworkAdUnit({
     if (!Array.isArray(w.googletag.cmd)) w.googletag.cmd = []
     w.googletag.cmd.push(() => {
       const googletag = w.googletag as Googletag | undefined
-      if (!googletag?.defineSlot || !googletag.pubads || !googletag.enableServices || !googletag.display) {
+      if (
+        !googletag?.defineSlot ||
+        !googletag.pubads ||
+        !googletag.enableServices ||
+        !googletag.display
+      ) {
         return
       }
       const slot = googletag.defineSlot(gamPath.trim(), [width, height], id)

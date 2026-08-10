@@ -1,8 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import {
-  getInteractionMatrix,
-  matrixReaderCount,
-} from '@/lib/engagement/interaction-matrix'
+import { getInteractionMatrix, matrixReaderCount } from '@/lib/engagement/interaction-matrix'
 import { isCronAuthorized } from '@/lib/ops/cron-auth'
 import { recordCronHeartbeat } from '@/lib/ops/cron-heartbeat'
 

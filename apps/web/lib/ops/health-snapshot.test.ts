@@ -68,13 +68,21 @@ describe('getOpsHealthSnapshot', () => {
 
 describe('errorBudgetSnapshot', () => {
   it('flags being over budget when error rate exceeds the target', () => {
-    const result = errorBudgetSnapshot({ windowRequests: 100, errorCount: 5, targetErrorRate: 0.01 })
+    const result = errorBudgetSnapshot({
+      windowRequests: 100,
+      errorCount: 5,
+      targetErrorRate: 0.01,
+    })
     expect(result.errorRate).toBeCloseTo(0.05)
     expect(result.withinBudget).toBe(false)
   })
 
   it('flags within budget when error rate is at or below target', () => {
-    const result = errorBudgetSnapshot({ windowRequests: 1000, errorCount: 5, targetErrorRate: 0.01 })
+    const result = errorBudgetSnapshot({
+      windowRequests: 1000,
+      errorCount: 5,
+      targetErrorRate: 0.01,
+    })
     expect(result.withinBudget).toBe(true)
   })
 })

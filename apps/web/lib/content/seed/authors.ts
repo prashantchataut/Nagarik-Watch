@@ -13,7 +13,8 @@ export const authors: Author[] = [
     slug: 'nagarik-watch-desk',
     name: 'नागरिक वाच डेस्क',
     role: 'staff',
-    bioNe: 'नागरिक वाचको साझा समाचार कक्ष पहिचान। व्यक्तिगत रिपोर्टिङमा सम्बन्धित पत्रकारको वास्तविक बाइलाइन प्रयोग गरिन्छ।',
+    bioNe:
+      'नागरिक वाचको साझा समाचार कक्ष पहिचान। व्यक्तिगत रिपोर्टिङमा सम्बन्धित पत्रकारको वास्तविक बाइलाइन प्रयोग गरिन्छ।',
     bioEn:
       'The shared Nagarik Watch newsroom identity. Individually reported work must use the verified reporter byline.',
     email: 'newsroom@nagarikwatch.com',
@@ -58,8 +59,10 @@ export const authors: Author[] = [
     slug: 'reader-desk',
     name: 'पाठक डेस्क',
     role: 'contributor',
-    bioNe: 'सम्पादकीय परीक्षणपछि स्वीकार गरिएका पाठक सूचना, प्रश्न र सार्वजनिक सरोकारका सामग्री व्यवस्थापन गर्ने डेस्क।',
-    bioEn: 'The desk handling reader tips, questions and public-interest submissions after editorial review.',
+    bioNe:
+      'सम्पादकीय परीक्षणपछि स्वीकार गरिएका पाठक सूचना, प्रश्न र सार्वजनिक सरोकारका सामग्री व्यवस्थापन गर्ने डेस्क।',
+    bioEn:
+      'The desk handling reader tips, questions and public-interest submissions after editorial review.',
     email: 'readers@nagarikwatch.com',
     verified: true,
     isActive: true,
@@ -69,7 +72,8 @@ export const authors: Author[] = [
     slug: 'source-desk',
     name: 'स्रोत डेस्क',
     role: 'wire',
-    bioNe: 'बाह्य सार्वजनिक स्रोतका शीर्षक र मूल लिङ्कलाई स्पष्ट श्रेयसहित देखाउने डेस्क। यस पहिचानबाट मौलिक रिपोर्टिङ दाबी गरिँदैन।',
+    bioNe:
+      'बाह्य सार्वजनिक स्रोतका शीर्षक र मूल लिङ्कलाई स्पष्ट श्रेयसहित देखाउने डेस्क। यस पहिचानबाट मौलिक रिपोर्टिङ दाबी गरिँदैन।',
     bioEn:
       'The desk presenting externally sourced headlines and original links with explicit attribution. It never claims original reporting.',
     email: 'sources@nagarikwatch.com',

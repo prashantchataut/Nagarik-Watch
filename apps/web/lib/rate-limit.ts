@@ -43,8 +43,12 @@ async function ensureSchema(): Promise<Queryable | null> {
     `)
     // Legacy 0004 table: add token-bucket columns before any index on them.
     await pool.query(`ALTER TABLE nw_rate_limits ADD COLUMN IF NOT EXISTS tokens double precision`)
-    await pool.query(`ALTER TABLE nw_rate_limits ADD COLUMN IF NOT EXISTS capacity double precision`)
-    await pool.query(`ALTER TABLE nw_rate_limits ADD COLUMN IF NOT EXISTS refill_per_ms double precision`)
+    await pool.query(
+      `ALTER TABLE nw_rate_limits ADD COLUMN IF NOT EXISTS capacity double precision`,
+    )
+    await pool.query(
+      `ALTER TABLE nw_rate_limits ADD COLUMN IF NOT EXISTS refill_per_ms double precision`,
+    )
     await pool.query(
       `ALTER TABLE nw_rate_limits ADD COLUMN IF NOT EXISTS last_refill_at timestamptz DEFAULT now()`,
     )
@@ -59,13 +63,25 @@ async function ensureSchema(): Promise<Queryable | null> {
          OR refill_per_ms IS NULL
          OR last_refill_at IS NULL
     `)
-    await pool.query(`ALTER TABLE nw_rate_limits ALTER COLUMN tokens SET NOT NULL`).catch(() => undefined)
-    await pool.query(`ALTER TABLE nw_rate_limits ALTER COLUMN capacity SET NOT NULL`).catch(() => undefined)
-    await pool.query(`ALTER TABLE nw_rate_limits ALTER COLUMN refill_per_ms SET NOT NULL`).catch(() => undefined)
-    await pool.query(`ALTER TABLE nw_rate_limits ALTER COLUMN last_refill_at SET NOT NULL`).catch(() => undefined)
+    await pool
+      .query(`ALTER TABLE nw_rate_limits ALTER COLUMN tokens SET NOT NULL`)
+      .catch(() => undefined)
+    await pool
+      .query(`ALTER TABLE nw_rate_limits ALTER COLUMN capacity SET NOT NULL`)
+      .catch(() => undefined)
+    await pool
+      .query(`ALTER TABLE nw_rate_limits ALTER COLUMN refill_per_ms SET NOT NULL`)
+      .catch(() => undefined)
+    await pool
+      .query(`ALTER TABLE nw_rate_limits ALTER COLUMN last_refill_at SET NOT NULL`)
+      .catch(() => undefined)
     // Soften / drop legacy fixed-window columns so INSERTs no longer need them.
-    await pool.query(`ALTER TABLE nw_rate_limits ALTER COLUMN count DROP NOT NULL`).catch(() => undefined)
-    await pool.query(`ALTER TABLE nw_rate_limits ALTER COLUMN reset_at DROP NOT NULL`).catch(() => undefined)
+    await pool
+      .query(`ALTER TABLE nw_rate_limits ALTER COLUMN count DROP NOT NULL`)
+      .catch(() => undefined)
+    await pool
+      .query(`ALTER TABLE nw_rate_limits ALTER COLUMN reset_at DROP NOT NULL`)
+      .catch(() => undefined)
     await pool.query(`DROP INDEX IF EXISTS nw_rate_limits_reset_idx`)
     await pool.query(`ALTER TABLE nw_rate_limits DROP COLUMN IF EXISTS count`)
     await pool.query(`ALTER TABLE nw_rate_limits DROP COLUMN IF EXISTS reset_at`)
@@ -75,7 +91,12 @@ async function ensureSchema(): Promise<Queryable | null> {
   })
 }
 
-function refillMemoryBucket(bucket: Bucket, capacity: number, refillPerMs: number, now: number): number {
+function refillMemoryBucket(
+  bucket: Bucket,
+  capacity: number,
+  refillPerMs: number,
+  now: number,
+): number {
   const elapsedMs = Math.max(0, now - bucket.lastRefillAt)
   return Math.min(capacity, bucket.tokens + elapsedMs * refillPerMs)
 }
@@ -85,9 +106,7 @@ function memoryRateLimit(opts: RateLimitOptions): RateLimitResult {
   const now = Date.now()
   const refillPerMs = opts.max / Math.max(1, opts.windowMs)
   const existing = buckets.get(key)
-  const available = existing
-    ? refillMemoryBucket(existing, opts.max, refillPerMs, now)
-    : opts.max
+  const available = existing ? refillMemoryBucket(existing, opts.max, refillPerMs, now) : opts.max
 
   const ok = available >= 1
   const tokens = ok ? available - 1 : available
@@ -103,7 +122,10 @@ export async function rateLimit(opts: RateLimitOptions): Promise<RateLimitResult
   try {
     pool = await ensureSchema()
   } catch (error) {
-    console.error('[rate-limit] schema setup failed', error instanceof Error ? error.message : error)
+    console.error(
+      '[rate-limit] schema setup failed',
+      error instanceof Error ? error.message : error,
+    )
     pool = null
   }
 
@@ -156,7 +178,10 @@ export async function rateLimit(opts: RateLimitOptions): Promise<RateLimitResult
     const resetAt = Date.now() + Math.ceil(deficit / refillPerMs)
     return { ok: row.ok, remaining: Math.max(0, Math.floor(tokens)), resetAt }
   } catch (error) {
-    console.error('[rate-limit] postgres path failed', error instanceof Error ? error.message : error)
+    console.error(
+      '[rate-limit] postgres path failed',
+      error instanceof Error ? error.message : error,
+    )
     if (isProductionRuntime()) throw error
     return memoryRateLimit(opts)
   }
@@ -199,7 +224,9 @@ export async function enforceRateLimit(
     console.error('[rate-limit] enforce failed', error instanceof Error ? error.message : error)
     if (isProductionRuntime()) {
       return new Response(
-        JSON.stringify({ error: 'सेवा अस्थायी रूपमा उपलब्ध छैन। केही क्षणमा फेरि प्रयास गर्नुहोस्।' }),
+        JSON.stringify({
+          error: 'सेवा अस्थायी रूपमा उपलब्ध छैन। केही क्षणमा फेरि प्रयास गर्नुहोस्।',
+        }),
         {
           status: 503,
           headers: {

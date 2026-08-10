@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { attentionScore, isAttentiveImpression, summarizeAttention, ATTENTION_DWELL_CAP_MS } from './attention'
+import {
+  attentionScore,
+  isAttentiveImpression,
+  summarizeAttention,
+  ATTENTION_DWELL_CAP_MS,
+} from './attention'
 
 describe('attentionScore', () => {
   it('is zero for an unviewed, undwelt placement', () => {
@@ -11,8 +16,16 @@ describe('attentionScore', () => {
   })
 
   it('discounts hidden-tab dwell', () => {
-    const visible = attentionScore({ viewableRatio: 1, dwellMs: ATTENTION_DWELL_CAP_MS, tabVisible: true })
-    const hidden = attentionScore({ viewableRatio: 1, dwellMs: ATTENTION_DWELL_CAP_MS, tabVisible: false })
+    const visible = attentionScore({
+      viewableRatio: 1,
+      dwellMs: ATTENTION_DWELL_CAP_MS,
+      tabVisible: true,
+    })
+    const hidden = attentionScore({
+      viewableRatio: 1,
+      dwellMs: ATTENTION_DWELL_CAP_MS,
+      tabVisible: false,
+    })
     expect(hidden).toBeLessThan(visible)
     expect(hidden).toBeCloseTo(0.3)
   })

@@ -61,8 +61,14 @@ export default async function SeoPage() {
                   <span className="text-meta text-ink-soft">Apple News</span>
                 </div>
               </div>
-              {[...sample.amp.issues, ...sample.instantArticle.issues, ...sample.appleNews.issues].map((issue) => (
-                <p key={issue} className="text-caption text-mute">- {issue}</p>
+              {[
+                ...sample.amp.issues,
+                ...sample.instantArticle.issues,
+                ...sample.appleNews.issues,
+              ].map((issue) => (
+                <p key={issue} className="text-caption text-mute">
+                  - {issue}
+                </p>
               ))}
             </AdminCard>
           ))}

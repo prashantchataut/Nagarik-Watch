@@ -89,9 +89,7 @@ export function TagRow({
       aria-label={label}
       lang={lang}
     >
-      <span className="mr-2 text-meta font-semibold text-ink-soft">
-        {label}
-      </span>
+      <span className="mr-2 text-meta font-semibold text-ink-soft">{label}</span>
       {tags.map((tag) => {
         const name = locale === 'en' && tag.nameEn ? tag.nameEn : tag.nameNe
         return (

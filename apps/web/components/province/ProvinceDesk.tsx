@@ -45,10 +45,7 @@ export function ProvinceDesk({
           className="mt-4 grid gap-4 border-b border-rule pb-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(16rem,0.75fr)] xl:items-start xl:gap-5"
           aria-label={en ? 'Province lead' : 'प्रदेश मुख्य'}
         >
-          <InstrumentedStory
-            articleSlug={leadStory.slug}
-            articleCategory={leadStory.category.slug}
-          >
+          <InstrumentedStory articleSlug={leadStory.slug} articleCategory={leadStory.category.slug}>
             <Hero story={leadStory} locale={locale} />
           </InstrumentedStory>
           {sideStories.length > 0 ? (
@@ -73,11 +70,7 @@ export function ProvinceDesk({
           ) : null}
         </section>
       ) : (
-        <ProvinceEmpty
-          locale={locale}
-          province={province}
-          nationalFallback={nationalFallback}
-        />
+        <ProvinceEmpty locale={locale} province={province} nationalFallback={nationalFallback} />
       )}
 
       {moreStories.length > 0 ? (
@@ -91,10 +84,7 @@ export function ProvinceDesk({
           <ul className="mt-2 divide-y divide-rule">
             {moreStories.map((story) => (
               <li key={story.slug} className="py-2.5">
-                <InstrumentedStory
-                  articleSlug={story.slug}
-                  articleCategory={story.category.slug}
-                >
+                <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
                   <DenseStoryItem story={story} locale={locale} thumb="md" />
                 </InstrumentedStory>
               </li>
@@ -106,27 +96,21 @@ export function ProvinceDesk({
   )
 }
 
-function ProvinceSwitcher({
-  locale,
-  activeSlug,
-}: {
-  locale: Locale
-  activeSlug: string
-}) {
+function ProvinceSwitcher({ locale, activeSlug }: { locale: Locale; activeSlug: string }) {
   const en = locale === 'en'
   return (
     <nav
-      className="mt-5 border-y border-rule py-3"
+      className="mt-4 border-y border-rule py-2.5"
       aria-label={en ? 'All provinces' : 'सबै प्रदेश'}
     >
-      <ul className="flex flex-wrap gap-1.5">
+      <ul className="flex flex-wrap items-center gap-2">
         <li>
           <Link
             href={localizeHref(locale, '/province')}
-            className="inline-flex min-h-9 items-center border border-rule px-2.5 text-caption font-bold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
+            className="inline-flex min-h-8 items-center rounded-full border border-rule bg-surface-raised px-3 py-0.5 text-caption font-bold text-ink-soft transition-all hover:border-brand hover:text-brand-strong"
             lang={en ? 'en' : 'ne'}
           >
-            {en ? 'All' : 'सबै'}
+            {en ? 'All' : 'सबै प्रदेश'}
           </Link>
         </li>
         {PROVINCES.map((p) => {
@@ -137,8 +121,8 @@ function ProvinceSwitcher({
                 href={localizeHref(locale, `/province/${p.slug}`)}
                 className={
                   active
-                    ? 'inline-flex min-h-9 items-center border border-brand bg-brand px-2.5 text-caption font-bold text-paper'
-                    : 'inline-flex min-h-9 items-center border border-rule px-2.5 text-caption font-semibold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong'
+                    ? 'inline-flex min-h-8 items-center rounded-full border border-brand bg-brand px-3 py-0.5 text-caption font-bold text-paper shadow-sm'
+                    : 'inline-flex min-h-8 items-center rounded-full border border-rule bg-surface-raised px-3 py-0.5 text-caption font-semibold text-ink-soft transition-all hover:border-brand hover:bg-brand-tint hover:text-brand-strong'
                 }
                 lang={en ? 'en' : 'ne'}
                 aria-current={active ? 'page' : undefined}
@@ -170,9 +154,7 @@ function ProvinceEmpty({
     <section className="mt-6" lang={lang}>
       <div className="border border-rule bg-surface-raised px-4 py-5 sm:px-5">
         <p className="font-display text-body-lg font-extrabold text-ink">
-          {en
-            ? `No ${name}-tagged stories yet`
-            : `${name} ट्याग भएका समाचार अझै छैनन्`}
+          {en ? `No ${name}-tagged stories yet` : `${name} ट्याग भएका समाचार अझै छैनन्`}
         </p>
         <p className="mt-2 max-w-body text-meta leading-relaxed text-ink-soft">
           {en
@@ -192,10 +174,7 @@ function ProvinceEmpty({
           <ul className="mt-4 divide-y divide-rule border-y border-rule sm:grid sm:grid-cols-2 sm:divide-y-0">
             {nationalFallback.slice(0, 6).map((story) => (
               <li key={story.slug} className="py-3 sm:border-b sm:border-rule sm:px-2">
-                <InstrumentedStory
-                  articleSlug={story.slug}
-                  articleCategory={story.category.slug}
-                >
+                <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
                   <DenseStoryItem story={story} locale={locale} thumb="sm" showDeck={false} />
                 </InstrumentedStory>
               </li>
@@ -282,10 +261,7 @@ export function ProvinceIndex({
           <ul className="mt-2 divide-y divide-rule">
             {recent.slice(0, 9).map((story) => (
               <li key={story.slug} className="py-2.5">
-                <InstrumentedStory
-                  articleSlug={story.slug}
-                  articleCategory={story.category.slug}
-                >
+                <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
                   <DenseStoryItem story={story} locale={locale} thumb="sm" showDeck={false} />
                 </InstrumentedStory>
               </li>

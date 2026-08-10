@@ -4,7 +4,10 @@ import { PasswordResetForm } from '@/components/reader/PasswordResetForm'
 
 export const dynamic = 'force-static'
 
-export const metadata: Metadata = { title: 'Choose a new password', robots: { index: false, follow: false } }
+export const metadata: Metadata = {
+  title: 'Choose a new password',
+  robots: { index: false, follow: false },
+}
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: raw } = await params

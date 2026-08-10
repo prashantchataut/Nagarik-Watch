@@ -5,9 +5,7 @@ function defaultSellersJson(): string {
   return JSON.stringify(
     {
       version: '1.0',
-      ...(isPublicPublicationValue(PUBLICATION.email)
-        ? { contact_email: PUBLICATION.email }
-        : {}),
+      ...(isPublicPublicationValue(PUBLICATION.email) ? { contact_email: PUBLICATION.email } : {}),
       sellers: [],
     },
     null,

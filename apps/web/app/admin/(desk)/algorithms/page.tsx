@@ -28,7 +28,13 @@ import {
 import { buildStoryEngagementIndex, signalsForStory } from '@/lib/ranking-signals'
 import { getStories } from '@/lib/content'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
-import { AdminCard, AdminPageHeader, AdminButton, AdminMetric, OpsCheckBadge } from '@/components/admin/primitives'
+import {
+  AdminCard,
+  AdminPageHeader,
+  AdminButton,
+  AdminMetric,
+  OpsCheckBadge,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'Algorithms',
@@ -117,8 +123,7 @@ export default async function AlgorithmsPage() {
               : ' · not configured'}
           </li>
           <li>
-            Cron health:{' '}
-            <strong className="text-ink">{(cron?.health ?? 0).toFixed(2)}</strong>
+            Cron health: <strong className="text-ink">{(cron?.health ?? 0).toFixed(2)}</strong>
             {cron?.missed ? ' · missed window' : ''}
           </li>
           <li>
@@ -132,8 +137,7 @@ export default async function AlgorithmsPage() {
             </strong>
           </li>
           <li>
-            Cron last run:{' '}
-            <strong className="text-ink">{cron?.lastRunAt ?? 'never'}</strong>
+            Cron last run: <strong className="text-ink">{cron?.lastRunAt ?? 'never'}</strong>
           </li>
         </ul>
         <p className="mt-2 text-caption text-mute">Snapshot at {opsHealth.generatedAt}</p>
@@ -142,9 +146,9 @@ export default async function AlgorithmsPage() {
       <AdminCard className="mt-6 border-brand/30 bg-brand-tint/40">
         <h2 className="font-display text-h2 text-ink">Functional execution</h2>
         <p className="mt-2 text-meta text-ink-soft">
-          Server-side <code>runAllAlgorithms()</code> against dedicated registry handlers:{' '}
-          {okCount}/{numbering.maxNumber} passed. Mode mix: production {modeCounts.production},
-          local {modeCounts.local}, adapter-ready {modeCounts['adapter-ready']}, adapter-disabled{' '}
+          Server-side <code>runAllAlgorithms()</code> against dedicated registry handlers: {okCount}
+          /{numbering.maxNumber} passed. Mode mix: production {modeCounts.production}, local{' '}
+          {modeCounts.local}, adapter-ready {modeCounts['adapter-ready']}, adapter-disabled{' '}
           {modeCounts['adapter-disabled']}.
         </p>
         <p className="mt-2 text-meta text-ink-soft">

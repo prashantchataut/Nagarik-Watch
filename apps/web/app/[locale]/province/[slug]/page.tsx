@@ -49,7 +49,7 @@ export async function generateMetadata({
   const { locale, slug } = await params
   const loc = asLocale(locale)
   const province = resolveProvince(slug)
-  const title = loc === 'en' ? province?.nameEn ?? slug : province?.nameNe ?? slug
+  const title = loc === 'en' ? (province?.nameEn ?? slug) : (province?.nameNe ?? slug)
   return {
     title,
     alternates: { canonical: localizeHref(loc, `/province/${slug}`) },

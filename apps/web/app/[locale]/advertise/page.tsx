@@ -45,7 +45,9 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
       </header>
 
       <section className="mt-10 border-y border-rule py-8" aria-label={en ? 'Principles' : 'नियम'}>
-        <h2 className="font-display text-h2 text-ink">{en ? 'How we sell' : 'हामी कसरी बेच्छौं'}</h2>
+        <h2 className="font-display text-h2 text-ink">
+          {en ? 'How we sell' : 'हामी कसरी बेच्छौं'}
+        </h2>
         <ul className="mt-4 max-w-body space-y-4 text-body text-ink-soft">
           <li>
             <strong className="text-ink">{en ? 'Clear labels. ' : 'स्पष्ट लेबल। '}</strong>
@@ -76,9 +78,7 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
           <table className="w-full min-w-[36rem] border-collapse text-left text-meta">
             <thead>
               <tr className="border-b border-ink">
-                <th className="py-3 pr-4 font-semibold text-ink">
-                  {en ? 'Surface' : 'सतह'}
-                </th>
+                <th className="py-3 pr-4 font-semibold text-ink">{en ? 'Surface' : 'सतह'}</th>
                 <th className="py-3 pr-4 font-semibold text-ink">{en ? 'Size' : 'आकार'}</th>
                 <th className="py-3 font-semibold text-ink">{en ? 'Notes' : 'नोट'}</th>
               </tr>
@@ -86,13 +86,13 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
             <tbody>
               {featured.map((p) => (
                 <tr key={p.key} className="border-b border-rule">
-                  <td className="py-3 pr-4 text-ink">{en ? p.label : p.descriptionNe.split('।')[0] || p.label}</td>
+                  <td className="py-3 pr-4 text-ink">
+                    {en ? p.label : p.descriptionNe.split('।')[0] || p.label}
+                  </td>
                   <td className="py-3 pr-4 tabular-nums text-ink-soft">
                     {p.width}×{p.height}
                   </td>
-                  <td className="py-3 text-ink-soft">
-                    {en ? p.descriptionEn : p.descriptionNe}
-                  </td>
+                  <td className="py-3 text-ink-soft">{en ? p.descriptionEn : p.descriptionNe}</td>
                 </tr>
               ))}
             </tbody>

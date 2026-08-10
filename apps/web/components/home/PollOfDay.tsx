@@ -135,11 +135,7 @@ export function PollOfDay({
     <section className={className} aria-labelledby={questionId}>
       <div className="border border-rule bg-surface-raised px-4 py-4 sm:px-5 sm:py-5">
         <div>
-          <p
-            id={labelledBy}
-            className="text-meta font-extrabold text-brand-strong"
-            lang={lang}
-          >
+          <p id={labelledBy} className="text-meta font-extrabold text-brand-strong" lang={lang}>
             {heading}
           </p>
           <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
@@ -176,7 +172,10 @@ export function PollOfDay({
                     />
                   ) : null}
                   <span className="relative flex items-center justify-between gap-3">
-                    <span className="text-meta font-semibold leading-snug text-ink sm:text-body" lang={lang}>
+                    <span
+                      className="text-meta font-semibold leading-snug text-ink sm:text-body"
+                      lang={lang}
+                    >
                       {selected ? '✓ ' : ''}
                       {option.label}
                     </span>
@@ -192,7 +191,11 @@ export function PollOfDay({
           })}
         </ul>
 
-        <p className="mt-3 border-t border-rule pt-3 text-caption text-ink-soft" aria-live="polite" lang={lang}>
+        <p
+          className="mt-3 border-t border-rule pt-3 text-caption text-ink-soft"
+          aria-live="polite"
+          lang={lang}
+        >
           {error ||
             (myVote
               ? locale === 'en'

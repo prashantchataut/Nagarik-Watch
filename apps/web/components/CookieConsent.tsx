@@ -74,7 +74,8 @@ export function CookieConsent({
 
   useEffect(() => {
     if (!visible) return
-    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const previouslyFocused =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null
     initialFocusRef.current?.focus()
 
     function onKeyDown(event: KeyboardEvent) {
@@ -179,14 +180,18 @@ export function CookieConsent({
               <button
                 ref={initialFocusRef}
                 type="button"
-                onClick={() => decide({ personalization: false, analytics: false, advertising: false })}
+                onClick={() =>
+                  decide({ personalization: false, analytics: false, advertising: false })
+                }
                 className="inline-flex min-h-10 items-center justify-center rounded-sm border border-rule bg-surface px-2 text-caption font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong active:scale-[0.98] sm:min-h-11 sm:px-3 sm:text-meta"
               >
                 {en ? 'Essential only' : 'आवश्यक मात्र'}
               </button>
               <button
                 type="button"
-                onClick={() => decide({ personalization: true, analytics: true, advertising: true })}
+                onClick={() =>
+                  decide({ personalization: true, analytics: true, advertising: true })
+                }
                 className="inline-flex min-h-10 items-center justify-center rounded-sm border border-brand bg-brand px-2 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong active:scale-[0.98] sm:min-h-11 sm:px-3 sm:text-meta"
               >
                 {en ? 'Accept optional' : 'वैकल्पिक स्वीकार'}
@@ -311,9 +316,7 @@ function CategoryToggle({
         className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
       />
       <span>
-        <span className="block font-semibold text-ink">
-          {locale === 'en' ? titleEn : titleNe}
-        </span>
+        <span className="block font-semibold text-ink">{locale === 'en' ? titleEn : titleNe}</span>
         <span className="mt-0.5 block leading-snug text-caption">
           {locale === 'en' ? descEn : descNe}
         </span>

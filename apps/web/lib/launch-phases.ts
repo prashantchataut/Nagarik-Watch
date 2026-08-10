@@ -33,13 +33,7 @@ export type ResolvedLaunchPhase = Omit<LaunchPhase, 'items'> & {
   ready: boolean
 }
 
-export type LaunchStage =
-  | 'in-repo'
-  | 'topology'
-  | 'payload'
-  | 'soft'
-  | 'hard'
-  | 'live'
+export type LaunchStage = 'in-repo' | 'topology' | 'payload' | 'soft' | 'hard' | 'live'
 
 export type LaunchStatusSummary = {
   launchStatus: 'preview' | 'live'
@@ -117,7 +111,8 @@ export function getLaunchPhases(): LaunchPhase[] {
         {
           id: 'house-ads',
           label: 'House ads labeled (or ads off)',
-          detail: 'NEXT_PUBLIC_ADS_MODE=house with creatives, or explicit off for Option A soft launch.',
+          detail:
+            'NEXT_PUBLIC_ADS_MODE=house with creatives, or explicit off for Option A soft launch.',
           checkKeys: ['house-ads-soft', 'network-ads'],
         },
       ],
@@ -182,7 +177,8 @@ export function resolveLaunchPhases(checks: LaunchCheck[]): ResolvedLaunchPhase[
     const items: ResolvedLaunchPhaseItem[] = phase.items.map((item) => {
       if (item.id === 'gate') {
         const fails = checks.filter((check) => check.status === 'fail')
-        const launchLive = (process.env.NEXT_PUBLIC_LAUNCH_STATUS || 'preview').toLowerCase() === 'live'
+        const launchLive =
+          (process.env.NEXT_PUBLIC_LAUNCH_STATUS || 'preview').toLowerCase() === 'live'
         if (fails.length > 0) {
           return {
             ...item,
@@ -239,10 +235,7 @@ export function resolveLaunchPhases(checks: LaunchCheck[]): ResolvedLaunchPhase[
   })
 }
 
-export function getLaunchStatusSummary(
-  checks: LaunchCheck[],
-  score: number,
-): LaunchStatusSummary {
+export function getLaunchStatusSummary(checks: LaunchCheck[], score: number): LaunchStatusSummary {
   const [soft, hard] = resolveLaunchPhases(checks)
   if (!soft || !hard) {
     throw new Error('Expected soft and hard launch phases')

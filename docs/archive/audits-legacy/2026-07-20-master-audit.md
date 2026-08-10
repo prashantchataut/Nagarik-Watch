@@ -18,14 +18,14 @@ Nagarik Watch has a mature monorepo architecture, strong static audit tooling, a
 
 ## Verification run (2026-07-20)
 
-| Command | Result |
-|---|---|
-| `node scripts/verify-canonical-workspaces.mjs` | Pass (8 workspaces) |
-| `pnpm verify:static` | Pass |
-| `node scripts/route-matrix.mjs` | Pass (153 routes → `docs/audits/route-matrix.csv`) |
-| Git HEAD | `d5b6794` on `main` |
-| Live `/about`, `/privacy`, `/ethics` | 200 |
-| Live `/en/ne` | 404 (correct) |
+| Command                                        | Result                                             |
+| ---------------------------------------------- | -------------------------------------------------- |
+| `node scripts/verify-canonical-workspaces.mjs` | Pass (8 workspaces)                                |
+| `pnpm verify:static`                           | Pass                                               |
+| `node scripts/route-matrix.mjs`                | Pass (153 routes → `docs/audits/route-matrix.csv`) |
+| Git HEAD                                       | `d5b6794` on `main`                                |
+| Live `/about`, `/privacy`, `/ethics`           | 200                                                |
+| Live `/en/ne`                                  | 404 (correct)                                      |
 
 Pending on connected machine: full `pnpm test`, `pnpm build:web`, `pnpm build:admin`, `pnpm test:e2e`, Payload admin deploy verification.
 
@@ -33,18 +33,18 @@ Pending on connected machine: full `pnpm test`, `pnpm build:web`, `pnpm build:ad
 
 ## Evidence table
 
-| ID | Page/flow | Viewport | Evidence | Severity | User harm | Root cause | Required fix | Verification |
-|---|---|---|---|---|---|---|---|---|
-| A1 | Public homepage content | all | Live site shows starter seed stories; `resolveSource()` previously skipped Payload at build | P0 | Readers see demo inventory; CMS publishes may not appear | `CONTENT_SOURCE` not payload on Vercel; build bypass removed in this pass | Wire Payload env; deploy admin; contract tests | Publish in Payload → appears on reader ≤60s |
-| A2 | Footer publisher block | all | `PUBLICATION.*` defaults contain "pending verification" | P0 | Trust erosion if shown | Missing launch env vars | Set verified `NEXT_PUBLIC_*` or keep hidden via `isPublicPublicationValue` | Footer shows real DoIB only when configured |
-| A3 | Trust routes | all | `/about`, `/privacy`, `/ethics` return 200 | P1 | Was 404 | Fixed in prior pass | Add `e2e/routes-trust.spec.ts` | Playwright green |
-| A4 | Locale `/en/ne` | all | HTTP 404 | P1 | Was malformed URL | Middleware allowlist | e2e malformed path tests | Playwright green |
-| A5 | Notification desk copy | all | Previously exposed "provider configuration" | P1 | Implementation jargon on reader UI | NotificationCenter copy | Reader-safe messaging (fixed) | Public surface audit |
-| A6 | Homepage modules | desktop/mobile | Same lead in breaking + sections on live | P2 | Repetitive, unprofessional IA | No cross-module dedup | `dedupeHomepage()` (fixed) | Unit + e2e ticker test |
-| A7 | Dual admin | admin | Payload + web `/admin` | P2 | Editor confusion | ADR-014 by design | Redirect article CRUD to Payload (already implemented) | Manual admin audit |
-| A8 | CI topology | CI | `CONTENT_SOURCE=json` in Playwright | P1 | Production regressions undetected | E2E uses dev store | Optional payload-integration job | CI workflow |
-| A9 | Utility strip NEPSE/forex | desktop | Live shows unavailable | P2 | Incomplete utility product | Missing upstream adapter/keys | Normalize provider layer; hide when empty | Utility page audit |
-| A10 | Ad slots | all | Reserved sizes when mode on | P2 | Layout shift / placeholder feel | AdSlot min-heights | Collapse when `ads mode=off` | `audit:ads` + visual check |
+| ID  | Page/flow                 | Viewport       | Evidence                                                                                    | Severity | User harm                                                | Root cause                                                                | Required fix                                                               | Verification                                |
+| --- | ------------------------- | -------------- | ------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------- |
+| A1  | Public homepage content   | all            | Live site shows starter seed stories; `resolveSource()` previously skipped Payload at build | P0       | Readers see demo inventory; CMS publishes may not appear | `CONTENT_SOURCE` not payload on Vercel; build bypass removed in this pass | Wire Payload env; deploy admin; contract tests                             | Publish in Payload → appears on reader ≤60s |
+| A2  | Footer publisher block    | all            | `PUBLICATION.*` defaults contain "pending verification"                                     | P0       | Trust erosion if shown                                   | Missing launch env vars                                                   | Set verified `NEXT_PUBLIC_*` or keep hidden via `isPublicPublicationValue` | Footer shows real DoIB only when configured |
+| A3  | Trust routes              | all            | `/about`, `/privacy`, `/ethics` return 200                                                  | P1       | Was 404                                                  | Fixed in prior pass                                                       | Add `e2e/routes-trust.spec.ts`                                             | Playwright green                            |
+| A4  | Locale `/en/ne`           | all            | HTTP 404                                                                                    | P1       | Was malformed URL                                        | Middleware allowlist                                                      | e2e malformed path tests                                                   | Playwright green                            |
+| A5  | Notification desk copy    | all            | Previously exposed "provider configuration"                                                 | P1       | Implementation jargon on reader UI                       | NotificationCenter copy                                                   | Reader-safe messaging (fixed)                                              | Public surface audit                        |
+| A6  | Homepage modules          | desktop/mobile | Same lead in breaking + sections on live                                                    | P2       | Repetitive, unprofessional IA                            | No cross-module dedup                                                     | `dedupeHomepage()` (fixed)                                                 | Unit + e2e ticker test                      |
+| A7  | Dual admin                | admin          | Payload + web `/admin`                                                                      | P2       | Editor confusion                                         | ADR-014 by design                                                         | Redirect article CRUD to Payload (already implemented)                     | Manual admin audit                          |
+| A8  | CI topology               | CI             | `CONTENT_SOURCE=json` in Playwright                                                         | P1       | Production regressions undetected                        | E2E uses dev store                                                        | Optional payload-integration job                                           | CI workflow                                 |
+| A9  | Utility strip NEPSE/forex | desktop        | Live shows unavailable                                                                      | P2       | Incomplete utility product                               | Missing upstream adapter/keys                                             | Normalize provider layer; hide when empty                                  | Utility page audit                          |
+| A10 | Ad slots                  | all            | Reserved sizes when mode on                                                                 | P2       | Layout shift / placeholder feel                          | AdSlot min-heights                                                        | Collapse when `ads mode=off`                                               | `audit:ads` + visual check                  |
 
 ---
 
@@ -61,28 +61,28 @@ Pending on connected machine: full `pnpm test`, `pnpm build:web`, `pnpm build:ad
 
 ## Systems critique (summary)
 
-| Area | Status |
-|---|---|
+| Area          | Status                                                               |
+| ------------- | -------------------------------------------------------------------- |
 | Content model | Documented in `docs/content-model.md`; Payload canonical per ADR-014 |
-| CMS lifecycle | Payload workflow defined; web shadow store blocked when canonical |
-| Localization | ne root / en prefix; `swapLocale()` preserves path |
-| Search | Postgres FTS; Meilisearch planned |
-| Security | Launch gate, rate limits, origin checks present |
-| SEO | Sitemaps, JSON-LD components exist; validator pass pending |
-| Tests | Unit + e2e + a11y; payload integration missing |
-| Observability | Cron probes defined; full dashboards pending |
+| CMS lifecycle | Payload workflow defined; web shadow store blocked when canonical    |
+| Localization  | ne root / en prefix; `swapLocale()` preserves path                   |
+| Search        | Postgres FTS; Meilisearch planned                                    |
+| Security      | Launch gate, rate limits, origin checks present                      |
+| SEO           | Sitemaps, JSON-LD components exist; validator pass pending           |
+| Tests         | Unit + e2e + a11y; payload integration missing                       |
+| Observability | Cron probes defined; full dashboards pending                         |
 
 ---
 
 ## Competitor pattern study (abstract principles only)
 
-| Pattern | Onlinekhabar / Ratopati / eKantipur | Nagarik Watch response |
-|---|---|---|
-| Nav density | Many section links + utilities | Cap primary nav at 6–8; mega menu for rest |
-| Homepage | Lead + grids + trending sidebars | Lead package + latest rail + desk modules with dedup |
-| Article | Dense ads, social widgets | Calm measure, labeled ads, trust block first |
-| Utilities | Prominent market/weather strips | Show only when data healthy with source + freshness |
-| Trust footer | Registration, contact, policies | Hide unverified fields; link complete policy set |
+| Pattern      | Onlinekhabar / Ratopati / eKantipur | Nagarik Watch response                               |
+| ------------ | ----------------------------------- | ---------------------------------------------------- |
+| Nav density  | Many section links + utilities      | Cap primary nav at 6–8; mega menu for rest           |
+| Homepage     | Lead + grids + trending sidebars    | Lead package + latest rail + desk modules with dedup |
+| Article      | Dense ads, social widgets           | Calm measure, labeled ads, trust block first         |
+| Utilities    | Prominent market/weather strips     | Show only when data healthy with source + freshness  |
+| Trust footer | Registration, contact, policies     | Hide unverified fields; link complete policy set     |
 
 ---
 

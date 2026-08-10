@@ -21,7 +21,10 @@ export const LOCAL_EPAPER_CAPABILITIES: CapabilitySpec[] = [
         return fail('local', 'totalPages must be greater than zero to score replica coverage')
       }
       const score = replicaRenderScore(totalPages, renderedPages)
-      return okLocal(`replicaRenderCoverage=${score.toFixed(3)} rendered=${renderedPages}/${totalPages}`, { score })
+      return okLocal(
+        `replicaRenderCoverage=${score.toFixed(3)} rendered=${renderedPages}/${totalPages}`,
+        { score },
+      )
     },
   },
   {
@@ -32,7 +35,9 @@ export const LOCAL_EPAPER_CAPABILITIES: CapabilitySpec[] = [
       const tier = str(input, 'tier', 'digital')
       const requiredTier = str(input, 'requiredTier', 'digital')
       const ok = entitlementOk(tier, requiredTier)
-      return okLocal(`epaperEntitlementOk=${ok} tier=${tier} required=${requiredTier}`, { score: ok ? 1 : 0 })
+      return okLocal(`epaperEntitlementOk=${ok} tier=${tier} required=${requiredTier}`, {
+        score: ok ? 1 : 0,
+      })
     },
   },
   {
@@ -45,7 +50,10 @@ export const LOCAL_EPAPER_CAPABILITIES: CapabilitySpec[] = [
       const quotaMb = num(input, 'quotaMb', 200)
       const usedMb = num(input, 'usedMb', 0)
       const score = offlineCacheHealth(cachedPages, totalPages, quotaMb, usedMb)
-      return okLocal(`offlineEpaperCacheHealth=${score.toFixed(3)} cached=${cachedPages}/${totalPages}`, { score })
+      return okLocal(
+        `offlineEpaperCacheHealth=${score.toFixed(3)} cached=${cachedPages}/${totalPages}`,
+        { score },
+      )
     },
   },
   {
@@ -59,9 +67,12 @@ export const LOCAL_EPAPER_CAPABILITIES: CapabilitySpec[] = [
         return fail('local', 'no print or digital circulation data supplied to reconcile')
       }
       const variance = circulationVariance(printCopies, digitalEntitlements)
-      return okLocal(`circulationVariance=${variance.toFixed(3)} print=${printCopies} digital=${digitalEntitlements}`, {
-        score: variance,
-      })
+      return okLocal(
+        `circulationVariance=${variance.toFixed(3)} print=${printCopies} digital=${digitalEntitlements}`,
+        {
+          score: variance,
+        },
+      )
     },
   },
   {
@@ -72,7 +83,10 @@ export const LOCAL_EPAPER_CAPABILITIES: CapabilitySpec[] = [
       const deviceTier = str(input, 'deviceTier', 'mid') as 'low' | 'mid' | 'high'
       const measuredFlipMs = num(input, 'measuredFlipMs', 90)
       const score = pageFlipScore(deviceTier, measuredFlipMs)
-      return okLocal(`pageFlipScore=${score.toFixed(3)} device=${deviceTier} measured=${measuredFlipMs}ms`, { score })
+      return okLocal(
+        `pageFlipScore=${score.toFixed(3)} device=${deviceTier} measured=${measuredFlipMs}ms`,
+        { score },
+      )
     },
   },
 ]

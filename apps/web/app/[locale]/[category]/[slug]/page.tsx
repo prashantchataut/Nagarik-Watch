@@ -23,12 +23,12 @@ import { DocumentLang } from '@/components/DocumentLang'
 import { PrintButton } from '@/components/article/PrintButton'
 import { ReactionBar } from '@/components/article/ReactionBar'
 import { ShareBar } from '@/components/article/ShareBar'
+import { NextStoryNavigator } from '@/components/article/NextStoryNavigator'
 import { getSession } from '@/lib/auth/session'
 import { isPremiumSubscriber, isPublicMembershipEnabled } from '@/lib/membership'
 import { shouldShowPaywall } from '@/lib/paywall/decision'
 import { PUBLICATION, SITE_URL } from '@/lib/site'
 import { publicShareImageUrl } from '@/lib/seo/share-image'
-
 
 import { staticArticleParams } from '@/lib/static-export-params'
 
@@ -175,22 +175,23 @@ export default async function ArticlePage({
         siteUrl={SITE_URL}
         siteName={PUBLICATION.publisherName}
       />
-      <SpeakableJsonLd
-        url={canonical}
-        cssSelectors={['article h1', 'article .article-deck']}
-      />
+      <SpeakableJsonLd url={canonical} cssSelectors={['article h1', 'article .article-deck']} />
 
       <div className="mx-auto max-w-page px-3 pt-4 sm:px-4 sm:pt-5">
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:items-start lg:gap-x-8">
           <div className="min-w-0">
-            <header className="max-w-body border-b border-rule pb-5" lang={readingEnglish ? 'en' : 'ne'}>
+            <header
+              className="max-w-body border-b border-rule pb-5"
+              lang={readingEnglish ? 'en' : 'ne'}
+            >
               {englishMissing ? (
                 <p
                   className="mb-4 border border-rule bg-surface-raised px-3 py-2 text-meta text-ink-soft print:hidden"
                   lang="en"
                   role="status"
                 >
-                  An English translation is not available for this story yet. Showing the Nepali edition.{' '}
+                  An English translation is not available for this story yet. Showing the Nepali
+                  edition.{' '}
                   <Link
                     href={`/${category}/${slug}`}
                     className="font-bold text-brand-strong underline-offset-2 hover:underline"
@@ -208,11 +209,11 @@ export default async function ArticlePage({
                 ) : null}
                 <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
               </div>
-              <h1 className="mt-3 text-pretty font-display text-[clamp(1.85rem,4vw,2.85rem)] font-extrabold leading-[1.12] tracking-[-0.025em] text-ink">
+              <h1 className="mt-3 text-pretty font-display text-[clamp(2.05rem,4.5vw,3.25rem)] font-black leading-[1.12] tracking-[-0.025em] text-ink">
                 {title}
               </h1>
               {deck ? (
-                <p className="article-deck mt-2.5 max-w-[42rem] text-body leading-relaxed text-ink-soft sm:text-body-lg">
+                <p className="article-deck mt-3 max-w-[44rem] text-body leading-relaxed text-ink-soft sm:text-body-lg sm:leading-relaxed">
                   {deck}
                 </p>
               ) : null}
@@ -304,6 +305,19 @@ export default async function ArticlePage({
                 />
               </div>
               <ReadingProgress locale={readingLocale} targetId="article-reading-column" />
+              {deck ? (
+                <div className="my-5 rounded-lg border border-brand/30 bg-brand-tint/40 p-4 sm:p-5">
+                  <div className="flex items-center gap-2 font-display font-extrabold text-body text-brand-strong mb-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand text-paper text-xs">
+                      📌
+                    </span>
+                    <span>{readingEnglish ? 'Key Takeaways' : 'मुख्य बुँदाहरू'}</span>
+                  </div>
+                  <ul className="list-disc list-inside space-y-1.5 text-body text-ink leading-relaxed">
+                    <li>{deck}</li>
+                  </ul>
+                </div>
+              ) : null}
               <ArticleBody
                 blocks={openingBody}
                 locale={readingLocale}
@@ -327,11 +341,7 @@ export default async function ArticlePage({
                   suppressAds={!showAds}
                 />
               ) : null}
-              <ReactionBar
-                locale={readingLocale}
-                articleSlug={slug}
-                articleCategory={category}
-              />
+              <ReactionBar locale={readingLocale} articleSlug={slug} articleCategory={category} />
               <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-5 print:hidden">
                 <ShareBar
                   url={canonical}
@@ -380,6 +390,11 @@ export default async function ArticlePage({
                 tags={article.tags}
                 locale={readingLocale}
                 className="mt-8 border-t border-rule pt-6"
+              />
+              <NextStoryNavigator
+                nextStory={related[0]}
+                prevStory={related[1]}
+                locale={readingLocale}
               />
               <div className="print:hidden">
                 <CommentSection

@@ -91,9 +91,7 @@ function configurationCheck(contentSource: string, storage: string): Check {
 
 export async function GET() {
   const contentSource =
-    process.env.CONTENT_SOURCE?.trim() ||
-    process.env.PAYLOAD_CONTENT_SOURCE?.trim() ||
-    'json'
+    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'json'
   const checks: Record<string, Check> = {}
 
   checks.configuration = configurationCheck(contentSource, operationalStorageMode())

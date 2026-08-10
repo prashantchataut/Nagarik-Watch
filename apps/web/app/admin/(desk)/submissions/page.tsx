@@ -2,7 +2,15 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { assertNewsroomRole, COMMUNITY_MANAGER_ROLES } from '@/lib/admin-roles'
 import { asSubmissionStatus, listSubmissions, type SubmissionStatus } from '@/lib/submissions'
-import { AdminPageHeader, AdminEmptyState, AdminButton, AdminCard, AdminSelect, AdminFilterLink, AdminTable } from '@/components/admin/primitives'
+import {
+  AdminPageHeader,
+  AdminEmptyState,
+  AdminButton,
+  AdminCard,
+  AdminSelect,
+  AdminFilterLink,
+  AdminTable,
+} from '@/components/admin/primitives'
 import { SubmissionModerationActions } from '@/components/admin/SubmissionModerationActions'
 
 export const metadata: Metadata = {
@@ -24,7 +32,9 @@ function statusLabel(status: SubmissionStatus): string {
   return statusOptions.find((option) => option.value === status)?.label ?? status
 }
 
-function submissionStatusTone(status: SubmissionStatus): 'attention' | 'success' | 'danger' | 'neutral' {
+function submissionStatusTone(
+  status: SubmissionStatus,
+): 'attention' | 'success' | 'danger' | 'neutral' {
   if (status === 'new' || status === 'in_review') return 'attention'
   if (status === 'accepted') return 'success'
   if (status === 'rejected') return 'danger'
@@ -53,9 +63,7 @@ export default async function SubmissionsPage({
 
   return (
     <div>
-      <AdminPageHeader
-        subtitle="/submit-story बाट आएका समाचार टिप, PSA, प्रमाण र correction requests"
-      />
+      <AdminPageHeader subtitle="/submit-story बाट आएका समाचार टिप, PSA, प्रमाण र correction requests" />
 
       <AdminCard className="mb-5">
         <form className="flex flex-wrap items-end gap-3" method="get">
@@ -76,7 +84,10 @@ export default async function SubmissionsPage({
         </form>
         <div className="mt-4 flex flex-wrap gap-2">
           {statusOptions.map((option) => {
-            const href = option.value === 'all' ? '/admin/submissions' : `/admin/submissions?status=${option.value}`
+            const href =
+              option.value === 'all'
+                ? '/admin/submissions'
+                : `/admin/submissions?status=${option.value}`
             return (
               <AdminFilterLink key={option.value} href={href} active={selected === option.value}>
                 {option.label}
@@ -103,7 +114,9 @@ export default async function SubmissionsPage({
                 <th lang="ne">प्राप्त समय</th>
                 <th lang="ne">टिपकर्ता</th>
                 <th lang="ne">विषय</th>
-                <th className="hidden md:table-cell" lang="ne">विवरण</th>
+                <th className="hidden md:table-cell" lang="ne">
+                  विवरण
+                </th>
                 <th lang="ne">स्थिति</th>
                 <th lang="ne">कारबाही</th>
               </tr>
@@ -122,15 +135,21 @@ export default async function SubmissionsPage({
                       {submission.anonymous ? 'Anonymous' : submission.name || 'नाम छैन'}
                     </div>
                     {!submission.anonymous && submission.email ? (
-                      <div className="text-caption text-mute" lang="en">{submission.email}</div>
+                      <div className="text-caption text-mute" lang="en">
+                        {submission.email}
+                      </div>
                     ) : null}
                     {!submission.anonymous && submission.phone ? (
-                      <div className="text-caption text-mute" lang="en">{submission.phone}</div>
+                      <div className="text-caption text-mute" lang="en">
+                        {submission.phone}
+                      </div>
                     ) : null}
                   </td>
                   <td className="text-meta text-ink">
                     <div className="font-display font-semibold">{submission.headline}</div>
-                    <div className="mt-1 text-caption text-mute" lang="en">{submission.type}</div>
+                    <div className="mt-1 text-caption text-mute" lang="en">
+                      {submission.type}
+                    </div>
                     {submission.evidenceUrl ? (
                       <a
                         href={submission.evidenceUrl}
@@ -145,13 +164,19 @@ export default async function SubmissionsPage({
                   <td className="hidden max-w-md text-meta leading-relaxed text-ink-soft md:table-cell">
                     <span className="line-clamp-4">{submission.description}</span>
                     {submission.editorNote ? (
-                      <p className="mt-2 rounded-md bg-surface px-2 py-1 text-caption text-ink" lang="ne">
+                      <p
+                        className="mt-2 rounded-md bg-surface px-2 py-1 text-caption text-ink"
+                        lang="ne"
+                      >
                         Note: {submission.editorNote}
                       </p>
                     ) : null}
                   </td>
                   <td>
-                    <span className={`admin-status admin-status--${submissionStatusTone(submission.status)}`} lang="ne">
+                    <span
+                      className={`admin-status admin-status--${submissionStatusTone(submission.status)}`}
+                      lang="ne"
+                    >
                       {statusLabel(submission.status)}
                     </span>
                   </td>

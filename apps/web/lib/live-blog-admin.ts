@@ -2,7 +2,14 @@ import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { asSlug, cleanMultiline, cleanText, ensureOperationalSchema, toIso, type Queryable } from '@/lib/ops-db'
+import {
+  asSlug,
+  cleanMultiline,
+  cleanText,
+  ensureOperationalSchema,
+  toIso,
+  type Queryable,
+} from '@/lib/ops-db'
 
 export type LiveBlogStatus = 'scheduled' | 'live' | 'closed'
 
@@ -66,7 +73,9 @@ const LOCAL_STORE_PATH =
 let localWriteQueue = Promise.resolve()
 
 function isProductionRuntime(): boolean {
-  return process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE !== 'phase-production-build'
+  return (
+    process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE !== 'phase-production-build'
+  )
 }
 
 async function schema(): Promise<Queryable | null> {
@@ -296,9 +305,18 @@ export async function addLiveBlogUpdate(input: {
        (id, live_blog_id, body_ne, body_en, author_email, pinned)
        VALUES ($1,$2,$3,$4,$5,$6)
        RETURNING *`,
-      [update.id, update.liveBlogId, update.bodyNe, update.bodyEn ?? null, update.authorEmail, update.pinned],
+      [
+        update.id,
+        update.liveBlogId,
+        update.bodyNe,
+        update.bodyEn ?? null,
+        update.authorEmail,
+        update.pinned,
+      ],
     )
-    await pool.query('UPDATE nw_live_blogs SET updated_at = now() WHERE id = $1', [update.liveBlogId])
+    await pool.query('UPDATE nw_live_blogs SET updated_at = now() WHERE id = $1', [
+      update.liveBlogId,
+    ])
     const saved = result.rows[0]
     if (!saved) throw new Error('Live blog update was not persisted')
     return updateFromRow(saved)
@@ -340,7 +358,7 @@ export async function setLiveBlogStatus(
     const updated: LiveBlogRecord = {
       ...current,
       status: nextStatus,
-      startedAt: nextStatus === 'live' ? current.startedAt ?? now : current.startedAt,
+      startedAt: nextStatus === 'live' ? (current.startedAt ?? now) : current.startedAt,
       endedAt: nextStatus === 'closed' ? now : undefined,
       updatedAt: now,
     }

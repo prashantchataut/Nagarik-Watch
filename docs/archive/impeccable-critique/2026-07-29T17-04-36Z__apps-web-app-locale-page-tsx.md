@@ -2,6 +2,7 @@
 timestamp: 2026-07-29T17-04-36Z
 slug: apps-web-app-locale-page-tsx
 ---
+
 # Homepage critique — apps/web/app/[locale]/page.tsx
 
 **Mode:** Read (news portal scan)

@@ -25,11 +25,7 @@ import * as store from './json-store'
 import type { StoredArticle } from './json-store'
 import { placeholder } from '../seed/media'
 import { normalizeEditionHeroUrl } from './seed-edition/_helpers'
-import {
-  listContentAuthors,
-  listContentCategories,
-  listContentTags,
-} from '@/lib/taxonomy-admin'
+import { listContentAuthors, listContentCategories, listContentTags } from '@/lib/taxonomy-admin'
 import { isProductionRuntime } from '@/lib/ops-db'
 
 const PER_PAGE = 12
@@ -38,20 +34,14 @@ function allowSeedTaxonomyFallback(): boolean {
   return !isProductionRuntime()
 }
 
-function resolveCategory(
-  slug: string,
-  catalog?: TaxonomyCatalog,
-): Category | undefined {
+function resolveCategory(slug: string, catalog?: TaxonomyCatalog): Category | undefined {
   const fromCatalog = catalog?.categories.find((c) => c.slug === slug)
   if (fromCatalog) return fromCatalog
   if (!allowSeedTaxonomyFallback()) return undefined
   return categoryBySlug.get(slug)
 }
 
-function resolveAuthor(
-  idOrSlug: string,
-  catalog?: TaxonomyCatalog,
-): Author | undefined {
+function resolveAuthor(idOrSlug: string, catalog?: TaxonomyCatalog): Author | undefined {
   const pool = catalog?.authors ?? (allowSeedTaxonomyFallback() ? authors : [])
   return pool.find((au) => au.id === idOrSlug || au.slug === idOrSlug)
 }
@@ -75,8 +65,7 @@ function resolveHero(a: StoredArticle) {
   if (isProductionRuntime()) {
     return { url: '', alt: a.heroImageAlt ?? a.titleNe }
   }
-  const label =
-    (resolveCategory(a.categorySlug)?.nameNe ?? a.categorySlug).slice(0, 28)
+  const label = (resolveCategory(a.categorySlug)?.nameNe ?? a.categorySlug).slice(0, 28)
   const media = placeholder(a.slug, a.categorySlug, label, a.titleNe, {
     w: 1600,
     h: 900,
@@ -85,12 +74,10 @@ function resolveHero(a: StoredArticle) {
 }
 
 type TaxonomyCatalog = { authors: Author[]; tags: Tag[]; categories: Category[] }
-let taxonomyCache:
-  | {
-      expiresAt: number
-      value: TaxonomyCatalog
-    }
-  | null = null
+let taxonomyCache: {
+  expiresAt: number
+  value: TaxonomyCatalog
+} | null = null
 const TAXONOMY_CACHE_TTL_MS = 15_000
 
 function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): StoryCardData {
@@ -104,10 +91,7 @@ function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): St
     .map((id) => resolveAuthor(id, catalog))
     .filter((au): au is Author => Boolean(au))
   const heroResolved = resolveHero(a)
-  const heroImage =
-    heroResolved.url.trim().length > 0
-      ? heroResolved
-      : undefined
+  const heroImage = heroResolved.url.trim().length > 0 ? heroResolved : undefined
   const cardTags = a.tagSlugs
     .map((slug) => resolveTag(slug, catalog))
     .filter((t): t is Tag => Boolean(t))
@@ -136,7 +120,11 @@ function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): St
     exclusive: a.exclusive,
     editorPick: a.editorPick,
     dataStory: a.dataStory,
-    hasGallery: storyHasGallery({ hasGallery: a.bodyNe.filter((b) => b.type === 'image').length >= 2, bodyNe: a.bodyNe, heroImage }),
+    hasGallery: storyHasGallery({
+      hasGallery: a.bodyNe.filter((b) => b.type === 'image').length >= 2,
+      bodyNe: a.bodyNe,
+      heroImage,
+    }),
     hasVideo: storyHasVideo({ bodyNe: a.bodyNe }),
     factCheckStatus: a.factCheckStatus,
   } as StoryCardData
@@ -211,11 +199,11 @@ export function createStoreContentSource(): ContentSource {
       if (!lead) return null
       const sections: HomepageSection[] = data.sections.map((s) => {
         const cat = resolveCategory(s.categorySlug, catalog) ?? {
-            id: s.categorySlug,
-            slug: s.categorySlug,
-            nameNe: s.categorySlug,
-            nameEn: s.categorySlug,
-          }
+          id: s.categorySlug,
+          slug: s.categorySlug,
+          nameNe: s.categorySlug,
+          nameEn: s.categorySlug,
+        }
         return {
           category: cat,
           items: s.articles.map((a) => toCard(a, 'ne', catalog)),

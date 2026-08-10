@@ -86,14 +86,16 @@ function runSelfTest() {
     if (under.chunks[0].file.endsWith('small.js')) failures.push('chunks must sort largest-first')
 
     const over = checkBudget(work, 20 * KIB)
-    if (over.oversized.length !== 1) failures.push(`expected 1 oversized chunk at 20 KiB, saw ${over.oversized.length}`)
+    if (over.oversized.length !== 1)
+      failures.push(`expected 1 oversized chunk at 20 KiB, saw ${over.oversized.length}`)
     if (over.oversized[0] && !over.oversized[0].file.endsWith('large.js')) {
       failures.push('wrong chunk flagged as oversized')
     }
 
     // Gzip of highly-compressible content must be far smaller than raw.
     const gz = checkBudget(work, 20 * KIB, { gzip: true })
-    if (gz.oversized.length !== 0) failures.push('gzip sizing should keep repetitive fixtures under budget')
+    if (gz.oversized.length !== 0)
+      failures.push('gzip sizing should keep repetitive fixtures under budget')
   } finally {
     rmSync(work, { recursive: true, force: true })
   }
@@ -114,7 +116,8 @@ function main() {
   }
 
   const envMaxKb = Number(process.env.PERF_BUDGET_MAX_JS_KB)
-  const maxKb = args.maxKb ?? (Number.isFinite(envMaxKb) && envMaxKb > 0 ? envMaxKb : DEFAULT_MAX_KB)
+  const maxKb =
+    args.maxKb ?? (Number.isFinite(envMaxKb) && envMaxKb > 0 ? envMaxKb : DEFAULT_MAX_KB)
   const dir =
     args.dir ??
     process.env.PERF_BUDGET_DIR ??
@@ -148,13 +151,19 @@ function main() {
   for (const chunk of top) console.log(`- ${kb(chunk.size)} KiB  ${chunk.file}`)
 
   if (oversized.length) {
-    console.error(`\nPerformance budget FAILED: ${oversized.length} chunk(s) exceed ${maxKb} KiB (${label}):`)
+    console.error(
+      `\nPerformance budget FAILED: ${oversized.length} chunk(s) exceed ${maxKb} KiB (${label}):`,
+    )
     for (const chunk of oversized) console.error(`- ${kb(chunk.size)} KiB  ${chunk.file}`)
-    console.error('\nSplit the chunk, defer the dependency, or raise PERF_BUDGET_MAX_JS_KB deliberately.')
+    console.error(
+      '\nSplit the chunk, defer the dependency, or raise PERF_BUDGET_MAX_JS_KB deliberately.',
+    )
     process.exit(1)
   }
 
-  console.log(`\nPerformance budget passed: ${chunks.length} chunk(s) within ${maxKb} KiB (${label}).`)
+  console.log(
+    `\nPerformance budget passed: ${chunks.length} chunk(s) within ${maxKb} KiB (${label}).`,
+  )
 }
 
 // Only run the CLI when executed directly, not when imported for its exports.

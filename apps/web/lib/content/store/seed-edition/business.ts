@@ -9,31 +9,28 @@ export function editionBusiness(): StoredArticle[] {
       categorySlug: 'business',
       titleNe: 'थोक मुद्रास्फीति र इन्धन लागत: बजारमा चाप',
       titleEn: 'Wholesale inflation and fuel costs press the market',
-      deckNe: 'इन्धन र ढुवानी खर्च बढ्दा उत्पादन लागत उकालो लाग्छ। दशैंअघि खुद्रा मूल्य सर्ने जोखिम छ।',
+      deckNe:
+        'इन्धन र ढुवानी खर्च बढ्दा उत्पादन लागत उकालो लाग्छ। दशैंअघि खुद्रा मूल्य सर्ने जोखिम छ।',
       deckEn: 'Higher fuel and freight costs may feed into retail prices before Dashain.',
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["budget-2083"],
+      tagSlugs: ['budget-2083'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
-        p('थोक मूल्यको चापले खुद्रा बजार प्रभावित हुन सक्छ। नागरिक वाच आर्थिक डेस्कले इन्धन र ढुवानी श्रृंखला हेरेको छ।'),
+        p(
+          'थोक मूल्यको चापले खुद्रा बजार प्रभावित हुन सक्छ। नागरिक वाच आर्थिक डेस्कले इन्धन र ढुवानी श्रृंखला हेरेको छ।',
+        ),
         p('आयात निर्भर अर्थतन्त्र बाह्य झट्कामा छिट्टै प्रभावित हुन्छ।'),
         p('अनुगमन कमजोर भए अनावश्यक मूल्यवृद्धि मौलाउँछ।'),
         p('दीर्घकालमा ऊर्जा दक्षता र सार्वजनिक यातायात लगानी चाहिन्छ।'),
         h2('उपभोक्ताले बुझ्नुपर्ने कुरा'),
-        list([
-          'ढुवानी लागतको हिस्सा',
-          'बजार अनुगमनको नियमितता',
-          'ऊर्जा बचत उपाय',
-        ]),
+        list(['ढुवानी लागतको हिस्सा', 'बजार अनुगमनको नियमितता', 'ऊर्जा बचत उपाय']),
         quote('लागत बढ्दा पारदर्शी मूल्य छलफलले अफवाह रोक्छ।'),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Higher fuel and freight costs may feed into retail prices before Dashain.'),
-      ],
+      bodyEn: [p('Higher fuel and freight costs may feed into retail prices before Dashain.')],
     }),
     base({
       id: 'art-ed-business-2',
@@ -46,7 +43,7 @@ export function editionBusiness(): StoredArticle[] {
       publishedAt: isoDaysAgo(1, 8),
       updatedAt: isoDaysAgo(1, 8),
       isFeatured: 'featured',
-      tagSlugs: ["data-story"],
+      tagSlugs: ['data-story'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -55,16 +52,10 @@ export function editionBusiness(): StoredArticle[] {
         p('वित्तीय साक्षरताबिनाको हतारले घाटा बढाउँछ।'),
         p('साप्ताहिक सारमा मुख्य सूचक सरल भाषामा आउनेछ।'),
         h2('सावधान अभ्यास'),
-        list([
-          'जोखिम सीमा तोक्नु',
-          'ऋण लिएर कारोबार नगर्नु',
-          'वित्तीय विवरण पढ्नु',
-        ]),
+        list(['जोखिम सीमा तोक्नु', 'ऋण लिएर कारोबार नगर्नु', 'वित्तीय विवरण पढ्नु']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Watch liquidity, turnover and fundamentals rather than rumours.'),
-      ],
+      bodyEn: [p('Watch liquidity, turnover and fundamentals rather than rumours.')],
     }),
     base({
       id: 'art-ed-business-3',
@@ -72,29 +63,26 @@ export function editionBusiness(): StoredArticle[] {
       categorySlug: 'business',
       titleNe: 'विप्रेषण र साना व्यवसाय: तरलताको सम्बन्ध',
       titleEn: 'Remittances and small business liquidity',
-      deckNe: 'विप्रेषणले स्थानीय व्यापार चलायमान राख्छ। औपचारिक वित्तीय पहुँच बढ्दा उत्पादनशील प्रयोग बलियो हुन्छ।',
+      deckNe:
+        'विप्रेषणले स्थानीय व्यापार चलायमान राख्छ। औपचारिक वित्तीय पहुँच बढ्दा उत्पादनशील प्रयोग बलियो हुन्छ।',
       deckEn: 'Remittances keep local trade moving; formal finance can lift productive use.',
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
-      tagSlugs: ["labour-migration"],
+      tagSlugs: ['labour-migration'],
       reportingLocation: 'झापा',
       province: 'koshi',
       bodyNe: [
-        p('विप्रेषण अर्थतन्त्रको मेरुदण्ड हो। नागरिक वाच डेस्कले साना पसलमा तरलता प्रवाह अवलोकन गरेको छ।'),
+        p(
+          'विप्रेषण अर्थतन्त्रको मेरुदण्ड हो। नागरिक वाच डेस्कले साना पसलमा तरलता प्रवाह अवलोकन गरेको छ।',
+        ),
         p('नगद निर्भरताले जोखिम बढाउँछ।'),
         p('महिला उद्यमी पुँजी पहुँचमा थप अवरोध भोग्छन्।'),
         p('विप्रेषणलाई सीप र उद्यममा जोड्ने बहस आवश्यक छ।'),
         h2('उत्पादनशील प्रयोग'),
-        list([
-          'सहकारी पारदर्शिता',
-          'साना कर्जाको सरल प्रक्रिया',
-          'डिजिटल भुक्तानी',
-        ]),
+        list(['सहकारी पारदर्शिता', 'साना कर्जाको सरल प्रक्रिया', 'डिजिटल भुक्तानी']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Remittances keep local trade moving; formal finance can lift productive use.'),
-      ],
+      bodyEn: [p('Remittances keep local trade moving; formal finance can lift productive use.')],
     }),
     base({
       id: 'art-ed-business-4',
@@ -107,7 +95,7 @@ export function editionBusiness(): StoredArticle[] {
       publishedAt: isoDaysAgo(3, 10),
       updatedAt: isoDaysAgo(3, 10),
       isFeatured: 'secondary',
-      tagSlugs: ["climate"],
+      tagSlugs: ['climate'],
       reportingLocation: 'पोखरा',
       province: 'gandaki',
       bodyNe: [
@@ -116,16 +104,10 @@ export function editionBusiness(): StoredArticle[] {
         p('होमस्टेले आय विविधीकरण गर्छ।'),
         p('स्थानीय तहसँग संयुक्त सूचना उपयोगी हुन्छ।'),
         h2('व्यवसायिक सावधानी'),
-        list([
-          'मौसम अद्यावधिक दिनु',
-          'रद्द नीति स्पष्ट राख्नु',
-          'गाइड तालिम',
-        ]),
+        list(['मौसम अद्यावधिक दिनु', 'रद्द नीति स्पष्ट राख्नु', 'गाइड तालिम']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Domestic short trips can sustain hotels if safety information stays clear.'),
-      ],
+      bodyEn: [p('Domestic short trips can sustain hotels if safety information stays clear.')],
     }),
     base({
       id: 'art-ed-business-5',
@@ -137,7 +119,7 @@ export function editionBusiness(): StoredArticle[] {
       deckEn: 'Collateral and paperwork keep many small firms from bank credit.',
       publishedAt: isoDaysAgo(4, 6),
       updatedAt: isoDaysAgo(4, 6),
-      tagSlugs: ["budget-2083"],
+      tagSlugs: ['budget-2083'],
       reportingLocation: 'विराटनगर',
       province: 'koshi',
       bodyNe: [
@@ -146,16 +128,10 @@ export function editionBusiness(): StoredArticle[] {
         p('तालिमसँगै कर्जा जोड्नुपर्छ।'),
         p('शाखा स्तरको अनुभव मापन गर्नैपर्छ।'),
         h2('सुधार प्राथमिकता'),
-        list([
-          'एकद्वार चेकलिस्ट',
-          'महिला लक्षित उत्पादन',
-          'पुनर्भुक्तानी लचिलोपन',
-        ]),
+        list(['एकद्वार चेकलिस्ट', 'महिला लक्षित उत्पादन', 'पुनर्भुक्तानी लचिलोपन']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Collateral and paperwork keep many small firms from bank credit.'),
-      ],
-    })
+      bodyEn: [p('Collateral and paperwork keep many small firms from bank credit.')],
+    }),
   ]
 }

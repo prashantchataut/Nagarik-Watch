@@ -5,8 +5,26 @@ import { tokenSet } from './tokenize'
  * publish gate (PRODUCT.md). Extend both lists together to keep polarity
  * balanced.
  */
-export const POSITIVE_WORDS = ['सराहनीय', 'good', 'great', 'प्रभावकारी', 'सफल', 'success', 'राहत', 'welcome']
-export const NEGATIVE_WORDS = ['नराम्रो', 'bad', 'failure', 'असफल', 'क्षति', 'damage', 'खराब', 'crisis']
+export const POSITIVE_WORDS = [
+  'सराहनीय',
+  'good',
+  'great',
+  'प्रभावकारी',
+  'सफल',
+  'success',
+  'राहत',
+  'welcome',
+]
+export const NEGATIVE_WORDS = [
+  'नराम्रो',
+  'bad',
+  'failure',
+  'असफल',
+  'क्षति',
+  'damage',
+  'खराब',
+  'crisis',
+]
 
 export type SentimentResult = {
   polarity: number
@@ -34,8 +52,7 @@ export function analyzeSentiment(text: string): SentimentResult & {
   negativeHits: number
 } {
   const result = sentimentOf(text)
-  const label =
-    result.polarity > 0.2 ? 'positive' : result.polarity < -0.2 ? 'negative' : 'neutral'
+  const label = result.polarity > 0.2 ? 'positive' : result.polarity < -0.2 ? 'negative' : 'neutral'
   return {
     ...result,
     score: result.polarity,

@@ -29,6 +29,7 @@ export function ShareBar({
   const [copied, setCopied] = useState(false)
   const abs = resolveAbsolute(url)
   const compact = variant === 'compact'
+  const isEn = locale === 'en'
 
   function trackShare() {
     if (!articleSlug) return
@@ -52,57 +53,85 @@ export function ShareBar({
     }
   }
 
+  async function onNativeShare() {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title, url: abs })
+        trackShare()
+        return
+      } catch {
+        // User cancelled or unsupported
+      }
+    }
+    onCopy()
+  }
+
   const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(abs)}`
   const x = `https://twitter.com/intent/tweet?url=${encodeURIComponent(abs)}&text=${encodeURIComponent(title)}`
+  const whatsapp = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${title} ${abs}`)}`
 
   return (
     <div
-      className={cn(
-        compact ? 'flex flex-wrap items-center gap-2' : 'flex flex-wrap items-center gap-2',
-        className,
-      )}
+      className={cn('flex flex-wrap items-center gap-2', className)}
       role="group"
       aria-label={dict.shareLabel}
     >
-      {!compact ? (
-        <span
-          className="mr-1 text-meta font-semibold text-ink-soft"
-          lang={locale === 'en' ? 'en' : 'ne'}
-        >
-          {dict.shareLabel}
-        </span>
-      ) : null}
+      <span className="mr-1 text-caption font-extrabold text-ink-soft" lang={isEn ? 'en' : 'ne'}>
+        {isEn ? 'Share Story:' : 'सेयर गर्नुहोस्:'}
+      </span>
+
+      {/* Facebook */}
       <a
         href={fb}
         target="_blank"
         rel="noopener noreferrer"
-        className={compact ? 'article-share-pill' : 'article-action-link'}
+        className="inline-flex h-9 items-center gap-1.5 rounded bg-[#1877F2] px-3 text-caption font-bold text-white transition-opacity hover:opacity-90 active:scale-95"
         aria-label={dict.shareFacebook}
         onClick={trackShare}
-        lang={locale === 'en' ? 'en' : 'ne'}
       >
         <FacebookIcon />
-        {compact ? null : dict.shareFacebook}
+        {!compact ? <span>Facebook</span> : null}
       </a>
+
+      {/* X / Twitter */}
       <a
         href={x}
         target="_blank"
         rel="noopener noreferrer"
-        className={compact ? 'article-share-pill' : 'article-icon-action'}
+        className="inline-flex h-9 items-center gap-1.5 rounded bg-black px-3 text-caption font-bold text-white transition-opacity hover:opacity-90 active:scale-95 dark:bg-surface-raised dark:border dark:border-rule"
         aria-label={dict.shareTwitter}
         onClick={trackShare}
       >
         <XIcon />
+        {!compact ? <span>X</span> : null}
       </a>
+
+      {/* WhatsApp */}
+      <a
+        href={whatsapp}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex h-9 items-center gap-1.5 rounded bg-[#25D366] px-3 text-caption font-bold text-white transition-opacity hover:opacity-90 active:scale-95"
+        aria-label="Share on WhatsApp"
+        onClick={trackShare}
+      >
+        <WhatsAppIcon />
+        {!compact ? <span>WhatsApp</span> : null}
+      </a>
+
+      {/* Copy / Share Button */}
       <button
         type="button"
-        onClick={onCopy}
-        className={compact ? 'article-share-pill' : 'article-action-link'}
-        lang={locale === 'en' ? 'en' : 'ne'}
+        onClick={onNativeShare}
+        className="inline-flex h-9 items-center gap-1.5 rounded border border-rule bg-surface px-3 text-caption font-bold text-ink transition-all hover:border-brand hover:bg-brand-tint hover:text-brand-strong active:scale-95"
+        lang={isEn ? 'en' : 'ne'}
       >
         <LinkIcon />
-        {compact ? (copied ? dict.shareCopied : dict.shareCopyLink) : copied ? dict.shareCopied : dict.shareCopyLink}
+        <span>
+          {copied ? (isEn ? 'Copied!' : 'लिंक लिइयो!') : isEn ? 'Copy Link' : 'लिंक प्रतिलिपि'}
+        </span>
       </button>
+
       <span aria-live="polite" className="sr-only">
         {copied ? dict.shareCopied : ''}
       </span>
@@ -182,6 +211,21 @@ function XIcon() {
       focusable="false"
     >
       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  )
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M17.472 14.382c-.301-.15-1.782-.879-2.058-.98-.276-.1-.477-.15-.678.15-.2.3-.778.98-.954 1.18-.176.2-.351.226-.652.075-.301-.15-1.272-.469-2.423-1.496-.896-.799-1.5-1.787-1.677-2.088-.175-.3-.019-.463.132-.612.136-.135.301-.35.452-.525.15-.176.2-.3.301-.5.1-.2.05-.376-.025-.526-.076-.15-.678-1.634-.93-2.24-.245-.59-.493-.51-.678-.52l-.578-.01c-.2 0-.527.075-.803.376s-1.054 1.03-1.054 2.511 1.08 2.912 1.23 3.113c.15.201 2.124 3.243 5.145 4.548.719.31 1.28.496 1.718.636.722.23 1.378.197 1.9.12.58-.087 1.782-.728 2.033-1.431.251-.703.251-1.306.176-1.431-.076-.125-.276-.201-.577-.351zM12.04 21.75c-1.748 0-3.46-.46-4.966-1.332l-.356-.207-3.693.968.985-3.6-.228-.363a9.71 9.71 0 0 1-1.492-5.166c0-5.385 4.38-9.765 9.766-9.765a9.71 9.71 0 0 1 6.905 2.862 9.71 9.71 0 0 1 2.86 6.903c0 5.386-4.38 9.766-9.765 9.766z" />
     </svg>
   )
 }

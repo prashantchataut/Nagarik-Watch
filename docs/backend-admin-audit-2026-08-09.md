@@ -34,16 +34,16 @@ The other large contributors were:
 
 ## Incident map
 
-| Symptom | Root cause(s) found | Source resolution | Production action still required |
-|---|---|---|---|
-| Published stories missing | `noIndex` included in public access filter; dual `_status` + workflow gate; possible web/Payload content-source drift | Removed `noIndex` from public visibility; clarified publication gate; added publication-drift count; live source now fail-closed | Ensure web has `CONTENT_SOURCE=payload`; inspect CMS `/healthz` `publicationDrift`; republish drifted documents correctly |
-| Admin publish does not appear on frontend | Shadow-store writes could succeed while reader used Payload; revalidation incomplete/slow; source env split across deployments | Blocked local writes in canonical/live-misconfigured mode; redirects content editing to Payload; revalidation covers publish/update/unpublish and old+new paths | Set matching Payload URLs/secrets on both projects, redeploy both, verify webhook |
-| Image upload 502 | Mixed legacy uploader path; storage token/provider rejection; canonical Payload Blob token possibly absent | Better provider errors; production metadata fallback removed; Payload health reports storage readiness; docs corrected | Attach Vercel Blob to Payload project and confirm `BLOB_READ_WRITE_TOKEN`; use Payload Media in canonical mode |
-| Next image 400 | `imgs.search.brave.com` not an allowed Next Image remote origin; Blob host family also needed | Added exact Brave compatibility host and Vercel public Blob host pattern | Migrate Brave-proxy images into owned media, then remove the Brave compatibility allowlist |
-| Some WebP/AVIF uploads fail | Incorrect WebP magic-byte sniff; AVIF declared as allowed but not sniffed | Correct WebP RIFF/WEBP detection, AVIF `ftyp` detection, MIME mismatch validation + tests | Redeploy |
-| “Database not connected” | Pool cooldown/failure was interpreted as missing URL; admin/web TLS behavior differed | Accurate probe state/code/detail; Payload DB alias/TLS normalization aligned with web | Verify actual `DATABASE_URL`, network/TLS, DB capacity on both deployments |
-| ~10 second public loads | Anonymous session DB lookup; repeated Payload homepage calls; CMS timeout not bounded tightly | Cookie precheck bypasses Better Auth/DB for anonymous users; homepage article fetch consolidated; 4s bounded CMS reads | Redeploy, then measure cold/warm latency from production |
-| ~10 second admin load/login | Boot-account password repair in login request; optional dashboard analytics on critical path; DB/CMS failures wait | Login repair no longer blocking by default; analytics streams behind Suspense; admin bridge timeouts bounded | Redeploy; run explicit password repair only when rotating/recovering boot accounts |
+| Symptom                                   | Root cause(s) found                                                                                                            | Source resolution                                                                                                                                               | Production action still required                                                                                          |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Published stories missing                 | `noIndex` included in public access filter; dual `_status` + workflow gate; possible web/Payload content-source drift          | Removed `noIndex` from public visibility; clarified publication gate; added publication-drift count; live source now fail-closed                                | Ensure web has `CONTENT_SOURCE=payload`; inspect CMS `/healthz` `publicationDrift`; republish drifted documents correctly |
+| Admin publish does not appear on frontend | Shadow-store writes could succeed while reader used Payload; revalidation incomplete/slow; source env split across deployments | Blocked local writes in canonical/live-misconfigured mode; redirects content editing to Payload; revalidation covers publish/update/unpublish and old+new paths | Set matching Payload URLs/secrets on both projects, redeploy both, verify webhook                                         |
+| Image upload 502                          | Mixed legacy uploader path; storage token/provider rejection; canonical Payload Blob token possibly absent                     | Better provider errors; production metadata fallback removed; Payload health reports storage readiness; docs corrected                                          | Attach Vercel Blob to Payload project and confirm `BLOB_READ_WRITE_TOKEN`; use Payload Media in canonical mode            |
+| Next image 400                            | `imgs.search.brave.com` not an allowed Next Image remote origin; Blob host family also needed                                  | Added exact Brave compatibility host and Vercel public Blob host pattern                                                                                        | Migrate Brave-proxy images into owned media, then remove the Brave compatibility allowlist                                |
+| Some WebP/AVIF uploads fail               | Incorrect WebP magic-byte sniff; AVIF declared as allowed but not sniffed                                                      | Correct WebP RIFF/WEBP detection, AVIF `ftyp` detection, MIME mismatch validation + tests                                                                       | Redeploy                                                                                                                  |
+| “Database not connected”                  | Pool cooldown/failure was interpreted as missing URL; admin/web TLS behavior differed                                          | Accurate probe state/code/detail; Payload DB alias/TLS normalization aligned with web                                                                           | Verify actual `DATABASE_URL`, network/TLS, DB capacity on both deployments                                                |
+| ~10 second public loads                   | Anonymous session DB lookup; repeated Payload homepage calls; CMS timeout not bounded tightly                                  | Cookie precheck bypasses Better Auth/DB for anonymous users; homepage article fetch consolidated; 4s bounded CMS reads                                          | Redeploy, then measure cold/warm latency from production                                                                  |
+| ~10 second admin load/login               | Boot-account password repair in login request; optional dashboard analytics on critical path; DB/CMS failures wait             | Login repair no longer blocking by default; analytics streams behind Suspense; admin bridge timeouts bounded                                                    | Redeploy; run explicit password repair only when rotating/recovering boot accounts                                        |
 
 ## Critical and high-severity defects fixed
 
@@ -216,24 +216,24 @@ The launch gate should show a fresh `scheduled-publish` heartbeat before relying
 
 These are two deployments. Setting a variable on one does not configure the other.
 
-| Setting | Reader/web project | Payload CMS project | Requirement |
-|---|---:|---:|---|
-| `DATABASE_URL` | yes | yes | Same reachable managed Postgres unless intentionally separated with complete schema planning |
-| `CONTENT_SOURCE=payload` | **yes** | n/a | Mandatory for a declared live reader |
-| `PAYLOAD_PUBLIC_SERVER_URL` | CMS origin | self CMS origin | Must be HTTPS production CMS URL |
-| `PAYLOAD_ADMIN_URL` | CMS `/admin` | optional | Used for newsroom redirects |
-| `PAYLOAD_API_TOKEN` | yes for journalist bridge | token originates here | Least-privilege service account |
-| `PAYLOAD_SECRET` | no | **yes** | 32+ random chars |
-| `AUTH_SECRET` / `BETTER_AUTH_SECRET` | **yes** | no | 32+ random chars |
-| `REVALIDATE_SECRET` | **same value** | **same value** | 32+ random chars |
-| `NEXT_PUBLIC_SITE_URL` | reader origin | reader origin | Canonical public site |
-| `NEXT_PUBLIC_LAUNCH_STATUS=live` | yes when actually live | n/a | Turns config drift into a hard failure |
-| `BLOB_READ_WRITE_TOKEN` | only for legacy web uploader if used | **yes** | Canonical Payload Media requires it |
-| `PAYLOAD_DB_PUSH=false` | n/a | **yes** | Production uses migrations |
-| `CRON_SECRET` | **yes** | n/a | Must match GitHub Actions secret |
-| `NW_PAYLOAD_READ_TIMEOUT_MS` | recommended `4000` | n/a | Reader→CMS bound |
-| `NW_PAYLOAD_ADMIN_TIMEOUT_MS` | recommended `4000` | n/a | privileged bridge bound |
-| `NW_REVALIDATE_TIMEOUT_MS` | n/a | recommended `1500` | CMS→reader webhook bound |
+| Setting                              |                   Reader/web project |   Payload CMS project | Requirement                                                                                  |
+| ------------------------------------ | -----------------------------------: | --------------------: | -------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                       |                                  yes |                   yes | Same reachable managed Postgres unless intentionally separated with complete schema planning |
+| `CONTENT_SOURCE=payload`             |                              **yes** |                   n/a | Mandatory for a declared live reader                                                         |
+| `PAYLOAD_PUBLIC_SERVER_URL`          |                           CMS origin |       self CMS origin | Must be HTTPS production CMS URL                                                             |
+| `PAYLOAD_ADMIN_URL`                  |                         CMS `/admin` |              optional | Used for newsroom redirects                                                                  |
+| `PAYLOAD_API_TOKEN`                  |            yes for journalist bridge | token originates here | Least-privilege service account                                                              |
+| `PAYLOAD_SECRET`                     |                                   no |               **yes** | 32+ random chars                                                                             |
+| `AUTH_SECRET` / `BETTER_AUTH_SECRET` |                              **yes** |                    no | 32+ random chars                                                                             |
+| `REVALIDATE_SECRET`                  |                       **same value** |        **same value** | 32+ random chars                                                                             |
+| `NEXT_PUBLIC_SITE_URL`               |                        reader origin |         reader origin | Canonical public site                                                                        |
+| `NEXT_PUBLIC_LAUNCH_STATUS=live`     |               yes when actually live |                   n/a | Turns config drift into a hard failure                                                       |
+| `BLOB_READ_WRITE_TOKEN`              | only for legacy web uploader if used |               **yes** | Canonical Payload Media requires it                                                          |
+| `PAYLOAD_DB_PUSH=false`              |                                  n/a |               **yes** | Production uses migrations                                                                   |
+| `CRON_SECRET`                        |                              **yes** |                   n/a | Must match GitHub Actions secret                                                             |
+| `NW_PAYLOAD_READ_TIMEOUT_MS`         |                   recommended `4000` |                   n/a | Reader→CMS bound                                                                             |
+| `NW_PAYLOAD_ADMIN_TIMEOUT_MS`        |                   recommended `4000` |                   n/a | privileged bridge bound                                                                      |
+| `NW_REVALIDATE_TIMEOUT_MS`           |                                  n/a |    recommended `1500` | CMS→reader webhook bound                                                                     |
 
 ## Deployment order
 

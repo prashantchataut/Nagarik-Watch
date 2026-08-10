@@ -13,7 +13,10 @@ import {
 } from '@/lib/admin-roles'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
 
-export const metadata: Metadata = { title: 'Journalist tools', robots: { index: false, follow: false } }
+export const metadata: Metadata = {
+  title: 'Journalist tools',
+  robots: { index: false, follow: false },
+}
 export const dynamic = 'force-dynamic'
 
 const TEMPLATES = [
@@ -37,18 +40,31 @@ const TEMPLATES = [
   },
 ] as const
 
-export default async function JournalistToolsPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function JournalistToolsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
   const locale: Locale = asLocale((await params).locale)
   const ne = locale === 'ne'
   const session = await getNewsroomSession()
   if (!session) redirect(localizeHref(locale, '/journalist/login'))
-  if (ADMIN_BASE_ROLES.has(session.newsroomRole) && !JOURNALIST_DESK_ROLES.has(session.newsroomRole)) {
+  if (
+    ADMIN_BASE_ROLES.has(session.newsroomRole) &&
+    !JOURNALIST_DESK_ROLES.has(session.newsroomRole)
+  ) {
     redirect('/admin/dashboard')
   }
-  if (!JOURNALIST_DESK_ROLES.has(session.newsroomRole as NewsroomRole) && session.newsroomRole !== 'copy_editor' && session.newsroomRole !== 'fact_checker') {
+  if (
+    !JOURNALIST_DESK_ROLES.has(session.newsroomRole as NewsroomRole) &&
+    session.newsroomRole !== 'copy_editor' &&
+    session.newsroomRole !== 'fact_checker'
+  ) {
     redirect(`${localizeHref(locale, '/journalist/login')}?reason=not_staff`)
   }
-  const roleLabel = ne ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole] : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
+  const roleLabel = ne
+    ? NEWSROOM_ROLE_LABELS_NE[session.newsroomRole]
+    : NEWSROOM_ROLE_LABELS_EN[session.newsroomRole]
 
   return (
     <JournalistWorkspaceShell
@@ -94,12 +110,21 @@ export default async function JournalistToolsPage({ params }: { params: Promise<
             <h2>{ne ? 'डेस्क उपकरण' : 'Desk tools'}</h2>
             <ul>
               <li>
-                <Link href={localizeHref(locale, '/journalist/profile')} className="newsroom-inline-link">
+                <Link
+                  href={localizeHref(locale, '/journalist/profile')}
+                  className="newsroom-inline-link"
+                >
                   {ne ? 'सम्पादक प्राथमिकता' : 'Editor preferences'}
                 </Link>
               </li>
-              <li>{ne ? 'लेखन फारममा ढाँचा टूलबार (मोटो, लिंक, छवि…)' : 'Formatting toolbar in the draft form (bold, link, image…)'}</li>
-              <li>{ne ? 'मिडिया ग्यालरीबाट शरीर/हिरो छवि' : 'Body/hero images from the media gallery'}</li>
+              <li>
+                {ne
+                  ? 'लेखन फारममा ढाँचा टूलबार (मोटो, लिंक, छवि…)'
+                  : 'Formatting toolbar in the draft form (bold, link, image…)'}
+              </li>
+              <li>
+                {ne ? 'मिडिया ग्यालरीबाट शरीर/हिरो छवि' : 'Body/hero images from the media gallery'}
+              </li>
             </ul>
           </article>
 

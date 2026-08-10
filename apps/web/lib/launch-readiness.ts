@@ -75,16 +75,15 @@ function buildLaunchChecks(options?: {
   const launchMinimum = Number(value('LAUNCH_MIN_PUBLISHED_ARTICLES') || 30)
   const storageCredentialsPresent = Object.entries(process.env).some(
     ([name, current]) =>
-      /^(STORAGE_|S3_|BLOB_)/.test(name) &&
-      typeof current === 'string' &&
-      Boolean(current.trim()),
+      /^(STORAGE_|S3_|BLOB_)/.test(name) && typeof current === 'string' && Boolean(current.trim()),
   )
   const storageAdapterWired = isPayloadStorageWired()
   const blobUploadReady = Boolean(value('BLOB_READ_WRITE_TOKEN'))
   const objectStoragePublicBase = Boolean(
     value('STORAGE_PUBLIC_BASE_URL') || value('R2_PUBLIC_BASE_URL'),
   )
-  const webMediaUploadReady = blobUploadReady || (storageCredentialsPresent && objectStoragePublicBase)
+  const webMediaUploadReady =
+    blobUploadReady || (storageCredentialsPresent && objectStoragePublicBase)
   const pushConfigured = Boolean(
     value('NEXT_PUBLIC_WEB_PUSH_VAPID_KEY') &&
     value('WEB_PUSH_VAPID_PRIVATE_KEY') &&
@@ -281,7 +280,13 @@ function buildLaunchChecks(options?: {
       key: 'network-ads',
       label: 'Network advertising credentials',
       status:
-        adsMode !== 'network' ? 'pass' : isNetworkAdsReady() ? 'pass' : launchLive ? 'fail' : 'warn',
+        adsMode !== 'network'
+          ? 'pass'
+          : isNetworkAdsReady()
+            ? 'pass'
+            : launchLive
+              ? 'fail'
+              : 'warn',
       detail:
         adsMode !== 'network'
           ? adsMode === 'house'
@@ -422,7 +427,9 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
   if (volumeIdx >= 0) {
     const count = livePublished >= 0 ? livePublished : declared
     const source =
-      livePublished >= 0 ? 'from article store' : 'declared via PUBLISHED_ARTICLE_COUNT only (store unread)'
+      livePublished >= 0
+        ? 'from article store'
+        : 'declared via PUBLISHED_ARTICLE_COUNT only (store unread)'
     checks[volumeIdx] = {
       key: 'content-volume',
       label: 'Published content threshold',
@@ -439,8 +446,7 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
     const staleCount = ops.cron.filter((job) => job.state === 'stale').length
     const cronIdx = checks.findIndex((check) => check.key === 'notification-cron')
     if (cronIdx >= 0) {
-      const secretOk =
-        value('CRON_SECRET').length >= 32 && !looksUnverified(value('CRON_SECRET'))
+      const secretOk = value('CRON_SECRET').length >= 32 && !looksUnverified(value('CRON_SECRET'))
       let status: LaunchCheck['status'] = 'pass'
       let detail = 'CRON_SECRET set and scheduled-publish heartbeat is fresh'
       if (!secretOk) {

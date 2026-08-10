@@ -3,13 +3,10 @@
   "name": "nagarik-watch-app",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-07-20",
-  "compatibility_flags": [
-    "nodejs_compat",
-    "global_fetch_strictly_public"
-  ],
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   "workers_dev": true,
   "preview_urls": true,
@@ -22,6 +19,6 @@
     "NEWSROOM_SUPERADMIN_EMAIL": "owner@nagarikwatch.com",
     "NEWSROOM_SUPERADMIN_NAME": "Newsroom Owner",
     "NEWSROOM_ADMIN_EMAIL": "editor@nagarikwatch.com",
-    "NEWSROOM_ADMIN_NAME": "Newsroom Admin"
-  }
+    "NEWSROOM_ADMIN_NAME": "Newsroom Admin",
+  },
 }

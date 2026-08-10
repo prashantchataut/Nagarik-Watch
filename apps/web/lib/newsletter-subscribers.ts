@@ -1,5 +1,11 @@
 import 'server-only'
-import { cleanText, ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
+import {
+  cleanText,
+  ensureOperationalSchema,
+  requireOperationalPool,
+  toIso,
+  type Queryable,
+} from '@/lib/ops-db'
 
 export type NewsletterSubscriberStatus = 'pending' | 'confirmed' | 'unsubscribed'
 
@@ -34,8 +40,9 @@ type MemoryState = {
 const memory: MemoryState = { byEmail: new Map(), emailByToken: new Map() }
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return requireOperationalPool(await ensureOperationalSchema('newsletter-subscribers-v2', async (pool) => {
-    await pool.query(`
+  return requireOperationalPool(
+    await ensureOperationalSchema('newsletter-subscribers-v2', async (pool) => {
+      await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_newsletter_subscribers (
         email text PRIMARY KEY,
         token text UNIQUE,
@@ -46,22 +53,33 @@ async function ensureSchema(): Promise<Queryable | null> {
         updated_at timestamptz NOT NULL DEFAULT now()
       )
     `)
-    // Safe forward migration for databases created by the earlier conflicting
-    // admin and double-opt-in table definitions.
-    await pool.query(`ALTER TABLE nw_newsletter_subscribers ADD COLUMN IF NOT EXISTS token text`)
-    await pool.query(`ALTER TABLE nw_newsletter_subscribers ADD COLUMN IF NOT EXISTS source text NOT NULL DEFAULT 'site'`)
-    await pool.query(`ALTER TABLE nw_newsletter_subscribers ADD COLUMN IF NOT EXISTS confirmed_at timestamptz`)
-    await pool.query(`ALTER TABLE nw_newsletter_subscribers ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now()`)
-    await pool.query(`
+      // Safe forward migration for databases created by the earlier conflicting
+      // admin and double-opt-in table definitions.
+      await pool.query(`ALTER TABLE nw_newsletter_subscribers ADD COLUMN IF NOT EXISTS token text`)
+      await pool.query(
+        `ALTER TABLE nw_newsletter_subscribers ADD COLUMN IF NOT EXISTS source text NOT NULL DEFAULT 'site'`,
+      )
+      await pool.query(
+        `ALTER TABLE nw_newsletter_subscribers ADD COLUMN IF NOT EXISTS confirmed_at timestamptz`,
+      )
+      await pool.query(
+        `ALTER TABLE nw_newsletter_subscribers ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now()`,
+      )
+      await pool.query(`
       UPDATE nw_newsletter_subscribers
       SET status = 'confirmed',
           confirmed_at = COALESCE(confirmed_at, created_at),
           updated_at = now()
       WHERE status = 'active'
     `)
-    await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS nw_newsletter_token_idx ON nw_newsletter_subscribers(token) WHERE token IS NOT NULL`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS nw_newsletter_status_idx ON nw_newsletter_subscribers(status, created_at DESC)`)
-  }))
+      await pool.query(
+        `CREATE UNIQUE INDEX IF NOT EXISTS nw_newsletter_token_idx ON nw_newsletter_subscribers(token) WHERE token IS NOT NULL`,
+      )
+      await pool.query(
+        `CREATE INDEX IF NOT EXISTS nw_newsletter_status_idx ON nw_newsletter_subscribers(status, created_at DESC)`,
+      )
+    }),
+  )
 }
 
 function rowToSubscriber(row: SubscriberRow): NewsletterSubscriber {
@@ -96,7 +114,11 @@ export async function isConfirmedSubscriber(emailValue: string): Promise<boolean
   return memory.byEmail.get(email)?.status === 'confirmed'
 }
 
-export async function addPendingSubscriber(emailValue: string, token: string, source = 'site'): Promise<void> {
+export async function addPendingSubscriber(
+  emailValue: string,
+  token: string,
+  source = 'site',
+): Promise<void> {
   const email = validEmail(emailValue)
   if (!email) throw new Error('Invalid newsletter email.')
   const pool = await ensureSchema()
@@ -156,7 +178,8 @@ export async function getPendingSubscriber(token: string): Promise<PendingSubscr
     )
     const row = result.rows[0]
     if (!row?.token) return null
-    const createdAt = row.created_at instanceof Date ? row.created_at.getTime() : Date.parse(row.created_at)
+    const createdAt =
+      row.created_at instanceof Date ? row.created_at.getTime() : Date.parse(row.created_at)
     return { email: row.email, token: row.token, createdAt }
   }
 

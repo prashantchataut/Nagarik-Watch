@@ -1,6 +1,11 @@
 import type { CapabilitySpec } from '../types'
 import { num, str, clamp01, okLocal, okAdapter } from '../handlers/utils'
-import { zScoreAnomaly, utilizationScore, autoscaleHeadroom, rolloutRiskScore } from '../product/ops-health'
+import {
+  zScoreAnomaly,
+  utilizationScore,
+  autoscaleHeadroom,
+  rolloutRiskScore,
+} from '../product/ops-health'
 import { surfaceFor } from './surface'
 
 export const LOCAL_INFRASTRUCTURE_CAPABILITIES: CapabilitySpec[] = [
@@ -11,9 +16,13 @@ export const LOCAL_INFRASTRUCTURE_CAPABILITIES: CapabilitySpec[] = [
     run: (input) => {
       const primaryErrorRate = num(input, 'primaryErrorRate', 0.01)
       const shouldFailover = primaryErrorRate > 0.05
-      return okAdapter('adapter-disabled', `failoverDecision=${shouldFailover} primaryErrorRate=${primaryErrorRate} (single CDN configured)`, {
-        score: primaryErrorRate,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `failoverDecision=${shouldFailover} primaryErrorRate=${primaryErrorRate} (single CDN configured)`,
+        {
+          score: primaryErrorRate,
+        },
+      )
     },
   },
   {
@@ -24,9 +33,13 @@ export const LOCAL_INFRASTRUCTURE_CAPABILITIES: CapabilitySpec[] = [
       const resolutionMs = num(input, 'resolutionMs', 24)
       const budgetMs = num(input, 'budgetMs', 30)
       const score = resolutionMs <= budgetMs ? 1 : clamp01(budgetMs / resolutionMs)
-      return okAdapter('adapter-disabled', `dnsResolutionWithinBudget=${resolutionMs <= budgetMs} (single-region DNS, no anycast vendor)`, {
-        score,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `dnsResolutionWithinBudget=${resolutionMs <= budgetMs} (single-region DNS, no anycast vendor)`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -38,7 +51,10 @@ export const LOCAL_INFRASTRUCTURE_CAPABILITIES: CapabilitySpec[] = [
       const featureFlagsMatched = num(input, 'featureFlagsMatched', 3)
       const featureFlagsTotal = num(input, 'featureFlagsTotal', 4)
       const score = featureFlagsTotal > 0 ? clamp01(featureFlagsMatched / featureFlagsTotal) : 1
-      return okLocal(`edgeFlagsMatched=${featureFlagsMatched}/${featureFlagsTotal} locale=${locale}`, { score })
+      return okLocal(
+        `edgeFlagsMatched=${featureFlagsMatched}/${featureFlagsTotal} locale=${locale}`,
+        { score },
+      )
     },
   },
   {
@@ -50,7 +66,9 @@ export const LOCAL_INFRASTRUCTURE_CAPABILITIES: CapabilitySpec[] = [
       const max = num(input, 'max', 20)
       const forecast = num(input, 'forecast', 14)
       const headroom = autoscaleHeadroom(current, max, forecast)
-      return okLocal(`autoscaleHeadroom=${headroom.toFixed(3)} forecast=${forecast}/${max}`, { score: headroom })
+      return okLocal(`autoscaleHeadroom=${headroom.toFixed(3)} forecast=${forecast}/${max}`, {
+        score: headroom,
+      })
     },
   },
   {
@@ -94,9 +112,13 @@ export const LOCAL_INFRASTRUCTURE_CAPABILITIES: CapabilitySpec[] = [
       const syntheticP75 = num(input, 'syntheticP75Ms', 2100)
       const delta = Math.abs(rumP75 - syntheticP75)
       const agreement = clamp01(1 - delta / Math.max(rumP75, syntheticP75, 1))
-      return okAdapter('adapter-ready', `rumSyntheticAgreement=${agreement.toFixed(3)} delta=${delta}ms (local fusion; vendor RUM ready)`, {
-        score: agreement,
-      })
+      return okAdapter(
+        'adapter-ready',
+        `rumSyntheticAgreement=${agreement.toFixed(3)} delta=${delta}ms (local fusion; vendor RUM ready)`,
+        {
+          score: agreement,
+        },
+      )
     },
   },
   {

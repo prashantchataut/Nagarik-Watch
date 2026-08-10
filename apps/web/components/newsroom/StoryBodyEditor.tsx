@@ -2,15 +2,8 @@
 
 import { useId, useRef, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
-import {
-  insertAtCursor,
-  prefixLines,
-  wrapTextSelection,
-} from '@/lib/content/inline-marks'
-import {
-  MediaGalleryPicker,
-  type GalleryMediaItem,
-} from '@/components/newsroom/MediaGalleryPicker'
+import { insertAtCursor, prefixLines, wrapTextSelection } from '@/lib/content/inline-marks'
+import { MediaGalleryPicker, type GalleryMediaItem } from '@/components/newsroom/MediaGalleryPicker'
 
 type Props = {
   locale: Locale
@@ -70,7 +63,11 @@ export function StoryBodyEditor({
   const effectiveRows = density === 'compact' ? Math.max(12, rows - 6) : rows
 
   function applyTransform(
-    transform: (current: string, start: number, end: number) => {
+    transform: (
+      current: string,
+      start: number,
+      end: number,
+    ) => {
       next: string
       selectionStart: number
       selectionEnd: number
@@ -103,35 +100,18 @@ export function StoryBodyEditor({
         return
       case 'highlight':
         applyTransform((current, start, end) =>
-          wrapTextSelection(
-            current,
-            start,
-            end,
-            '==',
-            '==',
-            ne ? 'महत्त्वपूर्ण' : 'highlight',
-          ),
+          wrapTextSelection(current, start, end, '==', '==', ne ? 'महत्त्वपूर्ण' : 'highlight'),
         )
         return
       case 'link': {
-        const href = window.prompt(
-          ne ? 'लिंक URL (https://…)' : 'Link URL (https://…)',
-          'https://',
-        )
+        const href = window.prompt(ne ? 'लिंक URL (https://…)' : 'Link URL (https://…)', 'https://')
         if (!href || !/^https?:\/\//i.test(href.trim())) {
           setStatus(ne ? 'मान्य http(s) URL आवश्यक छ।' : 'A valid http(s) URL is required.')
           return
         }
         const safe = href.trim()
         applyTransform((current, start, end) =>
-          wrapTextSelection(
-            current,
-            start,
-            end,
-            '[',
-            `](${safe})`,
-            ne ? 'लिंक पाठ' : 'link text',
-          ),
+          wrapTextSelection(current, start, end, '[', `](${safe})`, ne ? 'लिंक पाठ' : 'link text'),
         )
         setStatus(null)
         return
@@ -214,7 +194,11 @@ export function StoryBodyEditor({
         </span>
       </div>
 
-      <div className="story-body-editor__toolbar" role="toolbar" aria-label={ne ? 'ढाँचा उपकरण' : 'Formatting tools'}>
+      <div
+        className="story-body-editor__toolbar"
+        role="toolbar"
+        aria-label={ne ? 'ढाँचा उपकरण' : 'Formatting tools'}
+      >
         {tools.map((tool) => (
           <button
             key={tool.id}

@@ -64,7 +64,10 @@ export function ReaderProfileClient({
   }
 
   return (
-    <div className="account-page account-page--wide mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5" lang={lang}>
+    <div
+      className="account-page account-page--wide mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5"
+      lang={lang}
+    >
       <HubIndexHeader
         title={english ? 'Account' : 'खाता'}
         lead={

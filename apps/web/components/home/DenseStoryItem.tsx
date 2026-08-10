@@ -33,7 +33,7 @@ function deckFor(story: StoryCardData, locale: Locale): string | undefined {
 }
 
 const thumbCols: Record<NonNullable<DenseStoryItemProps['thumb']>, string> = {
-  sm: 'grid-cols-[4.5rem_minmax(0,1fr)] sm:grid-cols-[5rem_minmax(0,1fr)]',
+  sm: 'grid-cols-[4.25rem_minmax(0,1fr)] sm:grid-cols-[4.75rem_minmax(0,1fr)]',
   md: 'grid-cols-[5.5rem_minmax(0,1fr)] sm:grid-cols-[6.5rem_minmax(0,1fr)]',
   lg: 'grid-cols-[7rem_minmax(0,1fr)] sm:grid-cols-[8.5rem_minmax(0,1fr)]',
 }
@@ -68,7 +68,7 @@ export function DenseStoryItem({
       {showThumb ? (
         <Link
           href={href}
-          className="relative aspect-[4/3] shrink-0 overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          className="relative aspect-[4/3] shrink-0 overflow-hidden rounded bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           tabIndex={-1}
           aria-hidden="true"
         >
@@ -77,7 +77,7 @@ export function DenseStoryItem({
             alt=""
             fill
             unoptimized={image!.url.startsWith('data:')}
-            sizes={thumb === 'lg' ? '120px' : '80px'}
+            sizes={thumb === 'lg' ? '140px' : '90px'}
             className="object-cover transition-transform duration-slow ease-out-quint group-hover:scale-[1.03]"
           />
         </Link>
@@ -85,7 +85,7 @@ export function DenseStoryItem({
 
       <div className="min-w-0">
         {showMeta ? (
-          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-caption">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[0.72rem]">
             <span className="font-bold text-brand-strong" lang={english ? 'en' : 'ne'}>
               {english && story.category.nameEn ? story.category.nameEn : story.category.nameNe}
             </span>
@@ -94,7 +94,7 @@ export function DenseStoryItem({
                 <span className="text-mute" aria-hidden="true">
                   ·
                 </span>
-                <Dateline iso={story.publishedAt} locale={locale} />
+                <Dateline iso={story.publishedAt} locale={locale} className="text-mute" />
               </>
             ) : null}
           </div>
@@ -102,7 +102,7 @@ export function DenseStoryItem({
 
         <h3
           className={`mt-0.5 font-display font-bold leading-snug text-ink ${
-            compact ? 'text-meta sm:text-body' : 'text-body sm:text-body-lg'
+            compact ? 'text-[0.92rem] sm:text-[0.98rem]' : 'text-body sm:text-body-lg'
           }`}
         >
           <Link
@@ -132,7 +132,7 @@ export function DenseStoryItem({
     return (
       <article className={`group flex items-start gap-2.5 ${className}`.trim()}>
         <span
-          className="mt-0.5 w-5 shrink-0 text-right font-display text-meta font-bold tabular-nums text-brand"
+          className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded bg-brand/12 text-[0.72rem] font-extrabold tabular-nums text-brand-strong border border-brand/25"
           aria-hidden="true"
         >
           {rankLabel}

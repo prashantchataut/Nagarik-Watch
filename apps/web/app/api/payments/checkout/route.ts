@@ -16,7 +16,10 @@ const PRICE_ENV = {
 
 export async function POST(request: NextRequest) {
   if (!isPublicMembershipEnabled()) {
-    return NextResponse.json({ error: 'Public membership checkout is not enabled.' }, { status: 404 })
+    return NextResponse.json(
+      { error: 'Public membership checkout is not enabled.' },
+      { status: 404 },
+    )
   }
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })

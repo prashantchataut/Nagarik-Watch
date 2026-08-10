@@ -55,4 +55,6 @@ resetArticlesJson()
 resetUploads()
 resetE2eAuth()
 resetPostgres()
-console.info('[db:reset:test] Done. Restart web dev server and sign in with NEWSROOM_* boot accounts.')
+console.info(
+  '[db:reset:test] Done. Restart web dev server and sign in with NEWSROOM_* boot accounts.',
+)

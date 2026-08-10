@@ -23,7 +23,14 @@ export async function generateMetadata({
     minLive: 2,
   })
   return {
-    title: locale === 'en' ? (live ? 'Trending' : 'Recent stories') : live ? 'अहिले चर्चामा' : 'हालसालैका समाचार',
+    title:
+      locale === 'en'
+        ? live
+          ? 'Trending'
+          : 'Recent stories'
+        : live
+          ? 'अहिले चर्चामा'
+          : 'हालसालैका समाचार',
     description: live
       ? locale === 'en'
         ? 'Stories receiving sustained reader attention on Nagarik Watch.'
@@ -35,11 +42,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function TrendingPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function TrendingPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const english = locale === 'en'
   const catalog = await getStories({ locale, perPage: 100 })
@@ -87,15 +90,26 @@ export default async function TrendingPage({
               {english ? 'No published stories are available.' : 'प्रकाशित सामग्री उपलब्ध छैन।'}
             </p>
           )}
-          <AdSlot locale={locale} placementKey="trending-inline" variant="inline" className="mt-6" />
+          <AdSlot
+            locale={locale}
+            placementKey="trending-inline"
+            variant="inline"
+            className="mt-6"
+          />
         </div>
 
         <aside className="hidden border border-rule bg-surface-raised px-3.5 py-3.5 xl:block">
-          <p className="font-display text-meta font-extrabold text-ink" lang={english ? 'en' : 'ne'}>
+          <p
+            className="font-display text-meta font-extrabold text-ink"
+            lang={english ? 'en' : 'ne'}
+          >
             {english ? 'How this list works' : 'यो सूची कसरी बन्छ'}
           </p>
           <span className="mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden="true" />
-          <p className="mt-2.5 text-caption leading-relaxed text-ink-soft" lang={english ? 'en' : 'ne'}>
+          <p
+            className="mt-2.5 text-caption leading-relaxed text-ink-soft"
+            lang={english ? 'en' : 'ne'}
+          >
             {hasLiveSignal
               ? english
                 ? 'Ranks combine recent opens and sustained reading. Fresh stories can rise quickly; older spikes cool off.'

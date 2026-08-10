@@ -4,10 +4,7 @@ import { getStories } from '@/lib/content'
 import { buildStoryEngagementIndex, signalsForStory } from '@/lib/ranking-signals'
 import { velocityScore, burstScore } from '@/lib/ranking'
 import { listAdminSettings, setAdminSetting } from '@/lib/admin-settings'
-import {
-  listArticlesForAdmin,
-  updateArticle,
-} from '@/lib/content/store/json-store'
+import { listArticlesForAdmin, updateArticle } from '@/lib/content/store/json-store'
 import { isPayloadCanonical } from '@/lib/content/payload-admin-client'
 import { revalidatePublishedArticle } from '@/lib/content/revalidate-published'
 
@@ -66,9 +63,7 @@ function boostReason(
 
   const sustained = dwell >= 40 || completion >= 0.35
   const hot =
-    burst > 0 ||
-    (recentViews >= 2 && sustained) ||
-    (hourly >= 3 && sustained && velocity >= 0.4)
+    burst > 0 || (recentViews >= 2 && sustained) || (hourly >= 3 && sustained && velocity >= 0.4)
 
   if (!hot || !sustained) return null
   return `velocity=${velocity.toFixed(2)} burst=${burst.toFixed(2)} dwell=${Math.round(dwell)}s views10m=${recentViews.toFixed(1)}`

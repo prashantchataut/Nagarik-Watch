@@ -23,7 +23,14 @@ export async function generateMetadata({
     minLive: 3,
   })
   return {
-    title: locale === 'en' ? (live ? 'Most read' : 'Recent stories') : live ? 'धेरै पढिएका' : 'हालसालैका समाचार',
+    title:
+      locale === 'en'
+        ? live
+          ? 'Most read'
+          : 'Recent stories'
+        : live
+          ? 'धेरै पढिएका'
+          : 'हालसालैका समाचार',
     description: live
       ? locale === 'en'
         ? 'The most-read Nagarik Watch reporting from the last seven days.'
@@ -35,11 +42,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function MostReadPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function MostReadPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const english = locale === 'en'
   const catalog = await getStories({ locale, perPage: 100 })
@@ -52,7 +55,15 @@ export default async function MostReadPage({
   return (
     <div className="mx-auto max-w-page px-3 py-6 sm:px-4 sm:py-8 lg:py-10">
       <HubIndexHeader
-        title={english ? (live ? 'Most read' : 'Recent stories') : live ? 'धेरै पढिएका' : 'हालसालैका समाचार'}
+        title={
+          english
+            ? live
+              ? 'Most read'
+              : 'Recent stories'
+            : live
+              ? 'धेरै पढिएका'
+              : 'हालसालैका समाचार'
+        }
         lead={
           live
             ? english
