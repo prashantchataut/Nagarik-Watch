@@ -29,12 +29,7 @@ export default async function VideoPage({ params }: { params: Promise<{ locale: 
       {videoStories.length > 0 ? (
         <section className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.9fr)]">
           <div className="min-w-0">
-            <StoryCard
-              story={videoStories[0]!}
-              locale={locale}
-              variant="featured"
-              priority
-            />
+            <StoryCard story={videoStories[0]!} locale={locale} variant="featured" priority />
           </div>
           <div className="grid gap-4 border-t border-rule pt-4 lg:border-t-0 lg:border-l lg:pl-5 lg:pt-0">
             {videoStories.slice(1).map((story) => (

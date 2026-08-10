@@ -21,12 +21,16 @@ function read(readAt: string, completed = true): ReadingHistoryRecord {
 describe('reader retention timing', () => {
   it('builds completion days and a streak without counting unfinished reads', () => {
     const now = new Date('2026-07-18T12:00:00')
-    const days = completedReadingDays([
-      read('2026-07-16T08:00:00'),
-      read('2026-07-17T08:00:00'),
-      read('2026-07-18T08:00:00'),
-      read('2026-07-18T09:00:00', false),
-    ], now, 4)
+    const days = completedReadingDays(
+      [
+        read('2026-07-16T08:00:00'),
+        read('2026-07-17T08:00:00'),
+        read('2026-07-18T08:00:00'),
+        read('2026-07-18T09:00:00', false),
+      ],
+      now,
+      4,
+    )
     expect(days.map((day) => day.completed)).toEqual([0, 1, 1, 1])
     expect(currentReadingStreak(days)).toBe(3)
   })

@@ -92,7 +92,11 @@ export function PatroShell({
               className="patro-chrome__brand"
               aria-label={en ? `${dict.siteName} calendar` : `${dict.siteName} पात्रो`}
             >
-              <Logo siteName={dict.siteName} tone="default" className="max-w-[10rem] sm:max-w-[13rem]" />
+              <Logo
+                siteName={dict.siteName}
+                tone="default"
+                className="max-w-[10rem] sm:max-w-[13rem]"
+              />
               <span className="patro-chrome__product" lang={lang}>
                 {en ? 'Patro' : 'पात्रो'}
               </span>
@@ -126,8 +130,8 @@ export function PatroShell({
           <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-2 px-3 py-4 sm:px-4">
             <p className="text-caption text-mute" lang={lang}>
               {en
-                ? `${dict.siteName} calendar — festivals, rates and date tools.`
-                : `${dict.siteName} पात्रो — पर्व, दर र मिति उपकरण।`}
+                ? `${dict.siteName} calendar: festivals, rates and date tools.`
+                : `${dict.siteName} पात्रो: पर्व, दर र मिति उपकरण।`}
             </p>
             <Link
               href={newsHref}
@@ -186,10 +190,7 @@ function isNavActive(pathname: string, item: (typeof PATRO_NAV)[number]): boolea
   if (item.path === '/utilities') return /\/utilities\/?$/.test(pathname)
   if (item.path === '/patro') {
     return (
-      pathname === '/patro' ||
-      pathname.endsWith('/patro') ||
-      pathname === '/' ||
-      pathname === '/en'
+      pathname === '/patro' || pathname.endsWith('/patro') || pathname === '/' || pathname === '/en'
     )
   }
   return item.match.some((m) => !m.startsWith('#') && pathname.includes(m))

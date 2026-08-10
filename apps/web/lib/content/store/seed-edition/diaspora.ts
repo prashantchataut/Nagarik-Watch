@@ -10,11 +10,12 @@ export function editionDiaspora(): StoredArticle[] {
       titleNe: 'खाडी श्रम अधिकार ब्रिफिङ: जान्नुपर्ने आधार',
       titleEn: 'Gulf labour rights briefing: basics to know',
       deckNe: 'करार, पासपोर्ट नियन्त्रण र उजुरी मार्गबारे स्पष्ट जानकारी जीवनरक्षा हो।',
-      deckEn: 'Clear knowledge of contracts, passport control and complaint routes is life protection.',
+      deckEn:
+        'Clear knowledge of contracts, passport control and complaint routes is life protection.',
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["labour-migration"],
+      tagSlugs: ['labour-migration'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -23,15 +24,13 @@ export function editionDiaspora(): StoredArticle[] {
         p('महिला कामदारका लागि थप सावधानी छन्।'),
         p('नेपाल फर्किएपछि सीप उपयोग योजना पनि चाहिन्छ।'),
         h2('जानकारी सूची'),
-        list([
-          'कानुनी करार',
-          'बीमा',
-          'हेल्पलाइन',
-        ]),
+        list(['कानुनी करार', 'बीमा', 'हेल्पलाइन']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
       bodyEn: [
-        p('Clear knowledge of contracts, passport control and complaint routes is life protection.'),
+        p(
+          'Clear knowledge of contracts, passport control and complaint routes is life protection.',
+        ),
       ],
     }),
     base({
@@ -44,7 +43,7 @@ export function editionDiaspora(): StoredArticle[] {
       deckEn: 'Leaving without language and skills prep is risky.',
       publishedAt: isoDaysAgo(1, 8),
       updatedAt: isoDaysAgo(1, 8),
-      tagSlugs: ["labour-migration"],
+      tagSlugs: ['labour-migration'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -53,16 +52,10 @@ export function editionDiaspora(): StoredArticle[] {
         p('कार्यस्थल दुर्घटना बीमा बुझ्नुपर्छ।'),
         p('फिर्तापछि रोजगारी योजना सुरुमै बनाउनुहोस्।'),
         h2('तयारी कदम'),
-        list([
-          'भाषा कक्षा',
-          'करार बुझाइ',
-          'पारिवारिक योजना',
-        ]),
+        list(['भाषा कक्षा', 'करार बुझाइ', 'पारिवारिक योजना']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Leaving without language and skills prep is risky.'),
-      ],
+      bodyEn: [p('Leaving without language and skills prep is risky.')],
     }),
     base({
       id: 'art-ed-diaspora-3',
@@ -75,7 +68,7 @@ export function editionDiaspora(): StoredArticle[] {
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
       isFeatured: 'secondary',
-      tagSlugs: ["data-story"],
+      tagSlugs: ['data-story'],
       reportingLocation: 'मोरङ',
       province: 'koshi',
       bodyNe: [
@@ -84,16 +77,10 @@ export function editionDiaspora(): StoredArticle[] {
         p('महिला निर्णायक भूमिकामा हुँदा बचत बलियो हुने उदाहरण छन्।'),
         p('वित्तीय साक्षरता कक्षा गाउँमै पुर्‍याउनुपर्छ।'),
         h2('बजेट सुझाव'),
-        list([
-          'आकस्मिक कोष',
-          'ऋण सावधानी',
-          'शिक्षा लगानी',
-        ]),
+        list(['आकस्मिक कोष', 'ऋण सावधानी', 'शिक्षा लगानी']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('When income is uncertain, spending priorities and saving rules matter.'),
-      ],
+      bodyEn: [p('When income is uncertain, spending priorities and saving rules matter.')],
     }),
     base({
       id: 'art-ed-diaspora-4',
@@ -105,7 +92,7 @@ export function editionDiaspora(): StoredArticle[] {
       deckEn: 'Documents, cost plans and mental preparation all matter.',
       publishedAt: isoDaysAgo(3, 10),
       updatedAt: isoDaysAgo(3, 10),
-      tagSlugs: ["labour-migration"],
+      tagSlugs: ['labour-migration'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -114,16 +101,10 @@ export function editionDiaspora(): StoredArticle[] {
         p('पारिवारिक ऋणको दबाब खुला छलफल हुनुपर्छ।'),
         p('फर्केर योगदान गर्ने योजना पनि सोचनीय छ।'),
         h2('चेकलिस्ट'),
-        list([
-          'आधिकारिक स्रोत',
-          'छात्रवृत्ति खोज',
-          'ठगी कन्सल्टेन्सीबाट बच्ने',
-        ]),
+        list(['आधिकारिक स्रोत', 'छात्रवृत्ति खोज', 'ठगी कन्सल्टेन्सीबाट बच्ने']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Documents, cost plans and mental preparation all matter.'),
-      ],
+      bodyEn: [p('Documents, cost plans and mental preparation all matter.')],
     }),
     base({
       id: 'art-ed-diaspora-5',
@@ -135,7 +116,7 @@ export function editionDiaspora(): StoredArticle[] {
       deckEn: 'Beyond festivals, associations orient newcomers and help in crises.',
       publishedAt: isoDaysAgo(4, 6),
       updatedAt: isoDaysAgo(4, 6),
-      tagSlugs: ["editor-pick"],
+      tagSlugs: ['editor-pick'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -144,16 +125,10 @@ export function editionDiaspora(): StoredArticle[] {
         p('नेपाली भाषा कक्षा बालबालिकाका लागि उपयोगी छ।'),
         p('नेपालसँग ज्ञान आदानप्रदान सम्भावना छ।'),
         h2('राम्रो अभ्यास'),
-        list([
-          'पारदर्शी लेखा',
-          'युवा समावेश',
-          'महिला समिति',
-        ]),
+        list(['पारदर्शी लेखा', 'युवा समावेश', 'महिला समिति']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Beyond festivals, associations orient newcomers and help in crises.'),
-      ],
-    })
+      bodyEn: [p('Beyond festivals, associations orient newcomers and help in crises.')],
+    }),
   ]
 }

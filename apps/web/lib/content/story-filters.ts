@@ -13,10 +13,7 @@ export function storyHasGallery(story: {
 }
 
 /** Detect video-desk eligibility. */
-export function storyHasVideo(story: {
-  hasVideo?: boolean
-  bodyNe?: ArticleBlock[]
-}): boolean {
+export function storyHasVideo(story: { hasVideo?: boolean; bodyNe?: ArticleBlock[] }): boolean {
   if (story.hasVideo) return true
   return (story.bodyNe ?? []).some(
     (b) => b.type === 'embed' && (b.provider === 'youtube' || /youtu|vimeo|video/i.test(b.url)),

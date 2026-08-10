@@ -11,15 +11,15 @@ The auth failure described in the handoff was real. `buildAuth()` awaited boot-a
 
 ### Recovery-grade score, not a score for the intact original repository
 
-| Area | Grade | Reason |
-|---|---:|---|
-| Archive integrity | **F** | Paths stripped, duplicate names overwrite, 70 source files absent |
-| Auth correctness after fixes | **B** | Fatal singleton/seeding issue fixed; live database smoke test still required |
-| Security posture | **C+** | Server RBAC and secret-length checks exist; no staff 2FA, email verification, distributed auth throttling, or complete reset flow |
-| Public UX | **C** | Good components exist, but public route sources are absent from the upload and cannot be verified |
-| Accessibility | **B-** | Mobile focus handling improved; full axe, keyboard, and screen-reader testing is blocked |
-| Newsroom operations | **B-** | Strong role/workflow scaffolding; dual admin surfaces and missing CRUD routes remain |
-| Launch readiness | **D** | Required legal, content, provider, deployment, and end-to-end checks are not green |
+| Area                         |  Grade | Reason                                                                                                                            |
+| ---------------------------- | -----: | --------------------------------------------------------------------------------------------------------------------------------- |
+| Archive integrity            |  **F** | Paths stripped, duplicate names overwrite, 70 source files absent                                                                 |
+| Auth correctness after fixes |  **B** | Fatal singleton/seeding issue fixed; live database smoke test still required                                                      |
+| Security posture             | **C+** | Server RBAC and secret-length checks exist; no staff 2FA, email verification, distributed auth throttling, or complete reset flow |
+| Public UX                    |  **C** | Good components exist, but public route sources are absent from the upload and cannot be verified                                 |
+| Accessibility                | **B-** | Mobile focus handling improved; full axe, keyboard, and screen-reader testing is blocked                                          |
+| Newsroom operations          | **B-** | Strong role/workflow scaffolding; dual admin surfaces and missing CRUD routes remain                                              |
+| Launch readiness             |  **D** | Required legal, content, provider, deployment, and end-to-end checks are not green                                                |
 
 ## Critical defects and disposition
 
@@ -179,7 +179,7 @@ Launch requires real publisher identity, editor-in-chief, registration, address,
 
 - `.env`
 - `apps/web/lib/auth/index.ts`
-- `apps/web/app/api/auth/[...all]/route.ts` *(restored)*
+- `apps/web/app/api/auth/[...all]/route.ts` _(restored)_
 - `apps/web/components/Masthead.tsx`
 - `apps/web/components/utilities/NepaliCalendar.tsx`
 - `apps/web/components/utilities/UtilityTools.tsx`
@@ -192,10 +192,10 @@ Launch requires real publisher identity, editor-in-chief, registration, address,
 - `apps/web/components/reader/ReaderSignupForm.tsx`
 - `apps/web/components/journalist/JournalistLoginForm.tsx`
 - `apps/web/lib/launch-readiness.ts`
-- `apps/web/app/[locale]/error.tsx` *(restored/recreated)*
-- `apps/web/app/admin/error.tsx` *(new)*
-- `apps/web/app/global-error.tsx` *(new)*
-- `scripts/verify-recovery.mjs` *(new)*
+- `apps/web/app/[locale]/error.tsx` _(restored/recreated)_
+- `apps/web/app/admin/error.tsx` _(new)_
+- `apps/web/app/global-error.tsx` _(new)_
+- `scripts/verify-recovery.mjs` _(new)_
 - recovery/audit documents and manifests
 
 ## Skill/checklist lenses applied

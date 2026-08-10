@@ -26,8 +26,7 @@ let schemaReady: Promise<void> | null = null
 let localWriteQueue = Promise.resolve()
 
 function isProductionRuntime(): boolean {
-  const isolatedE2e =
-    process.env.E2E_TEST === 'true' || process.env.E2E_NEWSROOM === 'true'
+  const isolatedE2e = process.env.E2E_TEST === 'true' || process.env.E2E_NEWSROOM === 'true'
   return (
     process.env.NODE_ENV === 'production' &&
     process.env.NEXT_PHASE !== 'phase-production-build' &&
@@ -52,14 +51,16 @@ async function ensureSchema(): Promise<Queryable | null> {
   if (!pool) return null
   if (!schemaReady) {
     schemaReady = pool
-      .query(`
+      .query(
+        `
         CREATE TABLE IF NOT EXISTS nw_live_manual (
           key text PRIMARY KEY,
           source text NOT NULL,
           data jsonb NOT NULL,
           updated_at timestamptz NOT NULL DEFAULT now()
         )
-      `)
+      `,
+      )
       .then(() => undefined)
   }
   await schemaReady

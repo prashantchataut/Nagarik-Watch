@@ -15,7 +15,9 @@ export async function GET() {
   const delayMinutes = embargoMinutes()
 
   const eligible = items.filter((item) =>
-    isPastEmbargo({ embargoUntil: new Date(Date.parse(item.publishedAt) + delayMinutes * 60_000).toISOString() }),
+    isPastEmbargo({
+      embargoUntil: new Date(Date.parse(item.publishedAt) + delayMinutes * 60_000).toISOString(),
+    }),
   )
 
   return Response.json({

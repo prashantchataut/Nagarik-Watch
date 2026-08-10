@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import type { StoryCardData } from '@nagarikwatch/db'
 import { asLocale } from '@/lib/i18n/locales'
-import { getHomepage, getNavCategories } from '@/lib/content'
+import { getHomepage, getNavCategories, getStories } from '@/lib/content'
 import { dedupeHomepage } from '@/lib/content/homepage-dedup'
 import { BreakingTicker } from '@/components/BreakingTicker'
 import { SectionBlock, type HomeSectionLayout } from '@/components/home/SectionBlock'
@@ -14,7 +14,8 @@ import { getActivePoll } from '@/lib/polls-admin'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 import { MostReadRail } from '@/components/home/MostReadRail'
 import { resolveMostReadStories } from '@/lib/content/most-read-stories'
-import { FrontPageLead } from '@/components/home/FrontPageLead'
+import { resolveTrendingStories } from '@/lib/content/trending-stories'
+import { PortalFeed } from '@/components/home/PortalFeed'
 import { HomeMidAd } from '@/components/home/HomeMidAd'
 import { HomeBillboardAd } from '@/components/home/HomeBillboardAd'
 
@@ -62,10 +63,48 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   ])
 
   if (!homepage) {
+    const fallbackPool = await getStories({ limit: 12, locale }).catch(() => null)
+    if (fallbackPool && fallbackPool.items.length > 0) {
+      const items = fallbackPool.items
+      const categories = await getNavCategories().catch(() => [])
+      const lead = items[0]!
+      const featured = items.slice(1, 5)
+      const secondary = items.slice(5, 9)
+      const breaking = items.filter((s) => s.isBreaking)
+      const sections = categories
+        .map((cat) => {
+          const catItems = items.filter((s) => s.category.slug === cat.slug)
+          return {
+            category: { id: cat.id, slug: cat.slug, nameNe: cat.nameNe, nameEn: cat.nameEn },
+            lead: catItems[0],
+            items: catItems.slice(1, 5),
+          }
+        })
+        .filter((s) => s.lead || s.items.length > 0)
+      return (
+        <HomePageWithData
+          locale={locale}
+          homepage={{ lead, featured, secondary, breaking, sections }}
+          activePoll={activePoll}
+        />
+      )
+    }
     const categories = await getNavCategories().catch(() => [])
     return <HomeEmptyEdition locale={locale} categories={categories} />
   }
 
+  return <HomePageWithData locale={locale} homepage={homepage} activePoll={activePoll} />
+}
+
+async function HomePageWithData({
+  locale,
+  homepage,
+  activePoll,
+}: {
+  locale: 'ne' | 'en'
+  homepage: NonNullable<Awaited<ReturnType<typeof getHomepage>>>
+  activePoll: Awaited<ReturnType<typeof getActivePoll>> | null
+}) {
   const edition = dedupeHomepage(homepage)
   const editionStories = [
     edition.lead,
@@ -74,9 +113,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ...edition.breaking,
     ...edition.sections.flatMap((section) => [section.lead, ...section.items]),
   ].filter((story): story is StoryCardData => Boolean(story))
-  const catalog = Array.from(
-    new Map(editionStories.map((story) => [story.id, story])).values(),
-  )
+  const catalog = Array.from(new Map(editionStories.map((story) => [story.id, story])).values())
 
   const frontPageStories: StoryCardData[] = []
   const frontPageIds = new Set<string>()
@@ -102,6 +139,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     windowDays: 7,
     minLive: 2,
   })
+  const { stories: trendingStories } = await resolveTrendingStories({
+    catalog,
+    limit: 6,
+  })
+  void trendingStories
 
   const today = new Date()
   const monthDay = `${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
@@ -147,7 +189,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
       <div className="mx-auto max-w-page px-3 pt-4 sm:px-4 sm:pt-5">
-        <FrontPageLead stories={frontPageStories} locale={locale} />
+        <PortalFeed stories={frontPageStories} locale={locale} />
 
         <div className="mt-5 xl:hidden">
           <LatestRail

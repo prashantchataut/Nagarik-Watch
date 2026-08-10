@@ -15,7 +15,11 @@ export function hreflangCoverage(locales: string[], provided: string[]): number 
   return covered / locales.length
 }
 
-export function ogPreviewScore(fields: { title?: string; image?: string; description?: string }): number {
+export function ogPreviewScore(fields: {
+  title?: string
+  image?: string
+  description?: string
+}): number {
   let score = 0
   if (fields.title && fields.title.length > 0) score += 0.34
   if (fields.image && /^https?:\/\//.test(fields.image)) score += 0.33
@@ -23,7 +27,12 @@ export function ogPreviewScore(fields: { title?: string; image?: string; descrip
   return Math.min(1, score)
 }
 
-export function rssItemHealth(item: { title?: string; link?: string; pubDate?: string; guid?: string }): number {
+export function rssItemHealth(item: {
+  title?: string
+  link?: string
+  pubDate?: string
+  guid?: string
+}): number {
   const fields = [item.title, item.link, item.pubDate, item.guid]
   const present = fields.filter((f) => Boolean(f)).length
   return present / fields.length
@@ -40,7 +49,11 @@ export function internalLinkAuthority(inboundLinks: number, outboundLinks: numbe
   return Math.max(0, Math.min(1, inboundLinks / total))
 }
 
-export function crawlBudgetScore(freshUrls: number, staleUrls: number, crawlRateLimit: number): number {
+export function crawlBudgetScore(
+  freshUrls: number,
+  staleUrls: number,
+  crawlRateLimit: number,
+): number {
   const demand = freshUrls + staleUrls * 0.2
   if (crawlRateLimit <= 0) return 0
   return Math.max(0, Math.min(1, crawlRateLimit / Math.max(1, demand)))

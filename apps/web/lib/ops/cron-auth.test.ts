@@ -26,7 +26,9 @@ describe('isCronAuthorized', () => {
     const secret = 'cron-secret-with-enough-length-32chars!!'
     process.env.CRON_SECRET = secret
     expect(isCronAuthorized(requestWithAuth(`Bearer ${secret}`))).toBe(true)
-    expect(isCronAuthorized(requestWithAuth('Bearer wrong-secret-with-enough-length-xxx'))).toBe(false)
+    expect(isCronAuthorized(requestWithAuth('Bearer wrong-secret-with-enough-length-xxx'))).toBe(
+      false,
+    )
     if (previous === undefined) delete process.env.CRON_SECRET
     else process.env.CRON_SECRET = previous
   })

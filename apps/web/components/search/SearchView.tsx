@@ -215,17 +215,17 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
             {locale === 'en' ? 'Suggestions' : 'सुझाव'}
           </h2>
           <ul className="mt-2 divide-y divide-rule border-y border-rule">
-          {suggestions.map((suggestion) => (
-            <li key={suggestion}>
-              <button
-                type="button"
-                onClick={() => setQuery(suggestion)}
-                className="block w-full py-3 text-left text-body font-semibold text-ink-soft transition hover:text-brand-strong"
-              >
-                {suggestion}
-              </button>
-            </li>
-          ))}
+            {suggestions.map((suggestion) => (
+              <li key={suggestion}>
+                <button
+                  type="button"
+                  onClick={() => setQuery(suggestion)}
+                  className="block w-full py-3 text-left text-body font-semibold text-ink-soft transition hover:text-brand-strong"
+                >
+                  {suggestion}
+                </button>
+              </li>
+            ))}
           </ul>
         </section>
       )}

@@ -14,25 +14,21 @@ export function editionSports(): StoredArticle[] {
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["nepal-cricket"],
+      tagSlugs: ['nepal-cricket'],
       reportingLocation: 'कीर्तिपुर',
       province: 'bagmati',
       bodyNe: [
-        p('राष्ट्रिय क्रिकेट शिविरले आशा जगाउँछ। नागरिक वाच खेलकुद डेस्कले पारदर्शिता र खेलाडी स्वास्थ्यलाई केन्द्रमा राखेको छ।'),
+        p(
+          'राष्ट्रिय क्रिकेट शिविरले आशा जगाउँछ। नागरिक वाच खेलकुद डेस्कले पारदर्शिता र खेलाडी स्वास्थ्यलाई केन्द्रमा राखेको छ।',
+        ),
         p('चोट लुकाएर खेलाउने दबाब दीर्घकालीन हानिकारक हुन्छ।'),
         p('घरेलु प्रतियोगितासँग जोडिएन भने शिविर एक्लो कार्यक्रम बन्छ।'),
         p('महिला र पुरुष दुवै संरचनामा समान लगानी बहस जरुरी छ।'),
         h2('शिविरका प्राथमिकता'),
-        list([
-          'फिटनेस मापदण्ड सार्वजनिक गर्नु',
-          'उमेर समूह मार्गचित्र',
-          'घरेलु लिगसँग तालमेल',
-        ]),
+        list(['फिटनेस मापदण्ड सार्वजनिक गर्नु', 'उमेर समूह मार्गचित्र', 'घरेलु लिगसँग तालमेल']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Camps should show selection pathways, injury management and youth routes.'),
-      ],
+      bodyEn: [p('Camps should show selection pathways, injury management and youth routes.')],
     }),
     base({
       id: 'art-ed-sports-2',
@@ -44,25 +40,21 @@ export function editionSports(): StoredArticle[] {
       deckEn: 'Results stay fragile until the school-to-national pathway is clear.',
       publishedAt: isoDaysAgo(1, 8),
       updatedAt: isoDaysAgo(1, 8),
-      tagSlugs: ["fifa-world-cup"],
+      tagSlugs: ['fifa-world-cup'],
       reportingLocation: 'ललितपुर',
       province: 'bagmati',
       bodyNe: [
-        p('महिला फुटबलमा उत्साह बढे पनि संरचना कमजोर छ। नागरिक वाच डेस्कले खेलाडी र प्रशिक्षकको अनुभव संकलन गरेको छ।'),
+        p(
+          'महिला फुटबलमा उत्साह बढे पनि संरचना कमजोर छ। नागरिक वाच डेस्कले खेलाडी र प्रशिक्षकको अनुभव संकलन गरेको छ।',
+        ),
         p('खेल मैदान र यातायात खर्च सानो देखिए पनि ठूलो अवरोध हो।'),
         p('मिडिया कभरेज समान नहुँदा प्रायोजक आकर्षण कम हुन्छ।'),
         p('युवा प्रतिभा छानबिनलाई जिल्ला तहसम्म पुर्‍याउनुपर्छ।'),
         h2('के चाहिन्छ'),
-        list([
-          'नियमित घरेलु लिग',
-          'कोचिङ तालिम',
-          'सुरक्षित प्रशिक्षण स्थल',
-        ]),
+        list(['नियमित घरेलु लिग', 'कोचिङ तालिम', 'सुरक्षित प्रशिक्षण स्थल']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Results stay fragile until the school-to-national pathway is clear.'),
-      ],
+      bodyEn: [p('Results stay fragile until the school-to-national pathway is clear.')],
     }),
     base({
       id: 'art-ed-sports-3',
@@ -70,29 +62,26 @@ export function editionSports(): StoredArticle[] {
       categorySlug: 'sports',
       titleNe: 'काठमाडौं रोड रेस: समुदायिक खेलको ऊर्जा',
       titleEn: 'Kathmandu road race energy for community sport',
-      deckNe: 'सहरका दौडले स्वास्थ्य र सामूहिकता बढाउँछ। ट्राफिक व्यवस्थापन र सुरक्षा योजना अनिवार्य छ।',
+      deckNe:
+        'सहरका दौडले स्वास्थ्य र सामूहिकता बढाउँछ। ट्राफिक व्यवस्थापन र सुरक्षा योजना अनिवार्य छ।',
       deckEn: 'City races build health and community if traffic and safety plans are solid.',
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
-      tagSlugs: ["editor-pick"],
+      tagSlugs: ['editor-pick'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
-        p('रोड रेसले नयाँ धावक तान्छ। नागरिक वाच डेस्कले आयोजना गुणस्तरलाई पाठक सुरक्षाका आधारमा हेर्छ।'),
+        p(
+          'रोड रेसले नयाँ धावक तान्छ। नागरिक वाच डेस्कले आयोजना गुणस्तरलाई पाठक सुरक्षाका आधारमा हेर्छ।',
+        ),
         p('मनसुन अघि/पछिको मौसम योजना छुट्टै चाहिन्छ।'),
         p('स्थानीय क्लब सहभागिताले दिगोपन बढाउँछ।'),
         p('फोहोर व्यवस्थापन पनि आयोजनाको हिस्सा हो।'),
         h2('आयोजक चेकलिस्ट'),
-        list([
-          'मेडिकल स्टेसन',
-          'पानी र छाया व्यवस्था',
-          'ट्राफिक सूचना अग्रिम',
-        ]),
+        list(['मेडिकल स्टेसन', 'पानी र छाया व्यवस्था', 'ट्राफिक सूचना अग्रिम']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('City races build health and community if traffic and safety plans are solid.'),
-      ],
+      bodyEn: [p('City races build health and community if traffic and safety plans are solid.')],
     }),
     base({
       id: 'art-ed-sports-4',
@@ -105,25 +94,21 @@ export function editionSports(): StoredArticle[] {
       publishedAt: isoDaysAgo(3, 10),
       updatedAt: isoDaysAgo(3, 10),
       isFeatured: 'secondary',
-      tagSlugs: ["budget-2083"],
+      tagSlugs: ['budget-2083'],
       reportingLocation: 'भक्तपुर',
       province: 'bagmati',
       bodyNe: [
-        p('विद्यालय खेलकुद भनेको प्रतियोगिता मात्र होइन। नागरिक वाच डेस्कले यसलाई स्वास्थ्य र अनुशासनसँग जोड्छ।'),
+        p(
+          'विद्यालय खेलकुद भनेको प्रतियोगिता मात्र होइन। नागरिक वाच डेस्कले यसलाई स्वास्थ्य र अनुशासनसँग जोड्छ।',
+        ),
         p('बजेट रेखामा खेल सामग्री प्राथमिकता नपर्दा मैदान खाली रहन्छ।'),
         p('अभिभावक र स्थानीय तहको साझेदारीले सानो लगानी पनि प्रभावशाली बनाउँछ।'),
         p('बालिका सहभागिता बढाउने विशेष योजना चाहिन्छ।'),
         h2('न्यूनतम मापदण्ड'),
-        list([
-          'सुरक्षित खेल मैदान',
-          'आधारभूत किट',
-          'वार्षिक प्रतियोगिता क्यालेन्डर',
-        ]),
+        list(['सुरक्षित खेल मैदान', 'आधारभूत किट', 'वार्षिक प्रतियोगिता क्यालेन्डर']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Missing teachers and basic gear weaken physical education.'),
-      ],
+      bodyEn: [p('Missing teachers and basic gear weaken physical education.')],
     }),
     base({
       id: 'art-ed-sports-5',
@@ -131,11 +116,12 @@ export function editionSports(): StoredArticle[] {
       categorySlug: 'sports',
       titleNe: 'मनसुन खेल पात्रो: रद्द होइन, पुनःतालिका',
       titleEn: 'Monsoon sports calendar: reschedule, do not abandon',
-      deckNe: 'वर्षायाममा खेल स्थगित हुनु सामान्य हो। स्पष्ट पुनःतालिका आए खेलाडी र दर्शक दुवै तयार हुन्छन्।',
+      deckNe:
+        'वर्षायाममा खेल स्थगित हुनु सामान्य हो। स्पष्ट पुनःतालिका आए खेलाडी र दर्शक दुवै तयार हुन्छन्।',
       deckEn: 'Rain delays are normal; clear rescheduling keeps athletes and fans ready.',
       publishedAt: isoDaysAgo(4, 6),
       updatedAt: isoDaysAgo(4, 6),
-      tagSlugs: ["nepal-cricket"],
+      tagSlugs: ['nepal-cricket'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -144,16 +130,10 @@ export function editionSports(): StoredArticle[] {
         p('इनडोर प्रशिक्षण निरन्तरताका लागि उपयोगी हुन्छ।'),
         p('प्रदेश स्तरीय प्रतियोगितामा मौसम बफर दिन राख्नुपर्छ।'),
         h2('सञ्चार सुधार'),
-        list([
-          'रद्द सूचना छिटो',
-          'टिकट फिर्ता नीति',
-          'इनडोर विकल्प',
-        ]),
+        list(['रद्द सूचना छिटो', 'टिकट फिर्ता नीति', 'इनडोर विकल्प']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Rain delays are normal; clear rescheduling keeps athletes and fans ready.'),
-      ],
-    })
+      bodyEn: [p('Rain delays are normal; clear rescheduling keeps athletes and fans ready.')],
+    }),
   ]
 }

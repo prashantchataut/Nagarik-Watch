@@ -3,7 +3,13 @@ import Link from 'next/link'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { listJournalistDraftMeta } from '@/lib/journalist-workspace'
 import { isPayloadCanonical, payloadCollectionAdminUrl } from '@/lib/content/payload-admin-client'
-import { AdminPageHeader, AdminCard, AdminEmptyState, AdminMetric, AdminTable } from '@/components/admin/primitives'
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminEmptyState,
+  AdminMetric,
+  AdminTable,
+} from '@/components/admin/primitives'
 import { JournalistFeedbackActions } from '@/components/admin/JournalistFeedbackActions'
 
 export const metadata: Metadata = {
@@ -17,20 +23,21 @@ export default async function AdminJournalistsPage() {
   await requireNewsroomSession()
   const drafts = await listJournalistDraftMeta().catch(() => [])
   const byReporter = new Map<string, number>()
-  for (const draft of drafts) byReporter.set(draft.reporterId, (byReporter.get(draft.reporterId) ?? 0) + 1)
+  for (const draft of drafts)
+    byReporter.set(draft.reporterId, (byReporter.get(draft.reporterId) ?? 0) + 1)
   const payloadCanonical = isPayloadCanonical()
 
   return (
     <div>
-      <AdminPageHeader
-        subtitle="पत्रकार डेस्कबाट आएका ड्राफ्ट handoff र सम्पादकीय प्रतिक्रिया"
-      />
+      <AdminPageHeader subtitle="पत्रकार डेस्कबाट आएका ड्राफ्ट handoff र सम्पादकीय प्रतिक्रिया" />
       <section className="admin-metric-grid mb-5" aria-label="Journalist handoff metrics">
         <AdminMetric value={byReporter.size} label="Reporter count" />
         <AdminMetric value={drafts.length} label="Draft handoffs" />
         <AdminCard className="!border-dashed">
           <p className="admin-metric__label">Boundary</p>
-          <p className="mt-1 text-meta text-ink-soft">Journalists submit from /journalist, not /admin.</p>
+          <p className="mt-1 text-meta text-ink-soft">
+            Journalists submit from /journalist, not /admin.
+          </p>
         </AdminCard>
       </section>
 

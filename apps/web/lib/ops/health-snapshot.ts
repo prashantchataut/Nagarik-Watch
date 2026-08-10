@@ -64,7 +64,14 @@ export type OpsHealthSnapshot = {
 function poolSnapshot(): PoolSnapshot {
   const stats = getPoolStats()
   if (!stats) {
-    return { configured: false, totalCount: 0, idleCount: 0, waitingCount: 0, max: 0, saturation: 0 }
+    return {
+      configured: false,
+      totalCount: 0,
+      idleCount: 0,
+      waitingCount: 0,
+      max: 0,
+      saturation: 0,
+    }
   }
   const active = stats.totalCount - stats.idleCount + stats.waitingCount
   return {
@@ -82,9 +89,9 @@ function cronSnapshots(heartbeats: CronHeartbeat[]): CronSnapshot[] {
   return EXPECTED_CRON_JOBS.map((expectation) => {
     const heartbeat = byJob.get(expectation.job)
     const ageMinutes = minutesSince(heartbeat)
-    const health = ageMinutes === null ? 0 : cronHealthScore(ageMinutes, expectation.intervalMinutes)
-    const state: CronRunState =
-      ageMinutes === null ? 'never' : health < 1 ? 'stale' : 'ok'
+    const health =
+      ageMinutes === null ? 0 : cronHealthScore(ageMinutes, expectation.intervalMinutes)
+    const state: CronRunState = ageMinutes === null ? 'never' : health < 1 ? 'stale' : 'ok'
     return {
       job: expectation.job,
       label: expectation.label,

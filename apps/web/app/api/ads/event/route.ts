@@ -52,7 +52,10 @@ function isAdEvent(value: unknown): value is {
   const record = value as Record<string, unknown>
   const attentionOk =
     record.attention === undefined ||
-    (typeof record.attention === 'number' && Number.isFinite(record.attention) && record.attention >= 0 && record.attention <= 1)
+    (typeof record.attention === 'number' &&
+      Number.isFinite(record.attention) &&
+      record.attention >= 0 &&
+      record.attention <= 1)
   return (
     typeof record.placementKey === 'string' &&
     record.placementKey in AD_PLACEMENTS &&

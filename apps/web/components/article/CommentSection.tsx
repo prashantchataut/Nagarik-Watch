@@ -342,7 +342,9 @@ export function CommentSection({
             </p>
           )}
           <label>
-            <span>{replyTo ? (ne ? 'जवाफ' : 'Reply') : ne ? 'तपाईंको टिप्पणी' : 'Your comment'}</span>
+            <span>
+              {replyTo ? (ne ? 'जवाफ' : 'Reply') : ne ? 'तपाईंको टिप्पणी' : 'Your comment'}
+            </span>
             <textarea
               name="bodyNe"
               required
@@ -360,7 +362,11 @@ export function CommentSection({
           </label>
           <TurnstileField siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
           <div className="comment-composer__footer">
-            <p>{ne ? 'सम्पादकीय स्वीकृतिपछि सार्वजनिक हुन्छ।' : 'Published after editorial moderation.'}</p>
+            <p>
+              {ne
+                ? 'सम्पादकीय स्वीकृतिपछि सार्वजनिक हुन्छ।'
+                : 'Published after editorial moderation.'}
+            </p>
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => setComposerOpen(false)} disabled={pending}>
                 {ne ? 'बन्द' : 'Close'}

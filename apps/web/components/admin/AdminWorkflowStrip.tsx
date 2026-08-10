@@ -65,11 +65,7 @@ export function AdminWorkflowStrip({ role }: { role: NewsroomRole }) {
   if (flows.length === 0) return null
 
   return (
-    <nav
-      className="admin-workflow-strip"
-      aria-label="सम्पादकीय प्रवाह"
-      lang="ne"
-    >
+    <nav className="admin-workflow-strip" aria-label="सम्पादकीय प्रवाह" lang="ne">
       <p className="admin-workflow-strip__label">कार्य प्रवाह</p>
       <ul className="admin-workflow-strip__list">
         {flows.map((flow) => (

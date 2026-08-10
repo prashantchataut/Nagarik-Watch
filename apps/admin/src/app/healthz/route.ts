@@ -14,7 +14,11 @@ function databaseFailureDetail(error: unknown): { code: string; detail: string }
   const message = error instanceof Error ? error.message : String(error)
 
   if (code === 'ENOTFOUND') {
-    return { code, detail: 'Postgres DNS lookup failed. Check the database hostname and provider network status.' }
+    return {
+      code,
+      detail:
+        'Postgres DNS lookup failed. Check the database hostname and provider network status.',
+    }
   }
   if (code === '28P01' || /password authentication failed/i.test(message)) {
     return { code: code || 'AUTH', detail: 'Postgres rejected the configured username/password.' }
@@ -23,10 +27,16 @@ function databaseFailureDetail(error: unknown): { code: string; detail: string }
     return { code: code || 'CAPACITY', detail: 'Postgres connection capacity is exhausted.' }
   }
   if (/self-signed certificate|certificate|tls|ssl/i.test(message)) {
-    return { code: code || 'SSL', detail: 'Postgres TLS negotiation failed. Check provider CA/sslmode settings.' }
+    return {
+      code: code || 'SSL',
+      detail: 'Postgres TLS negotiation failed. Check provider CA/sslmode settings.',
+    }
   }
   if (code === 'ECONNREFUSED' || code === 'ETIMEDOUT') {
-    return { code, detail: `Postgres connection failed (${code}). Check network access and provider availability.` }
+    return {
+      code,
+      detail: `Postgres connection failed (${code}). Check network access and provider availability.`,
+    }
   }
   return {
     code: code || 'CONNECT',

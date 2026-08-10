@@ -51,7 +51,11 @@ test.describe('trust and policy routes', () => {
 
   test('homepage does not repeat lead story in breaking ticker', async ({ page }) => {
     await page.goto('/')
-    const leadHref = await page.locator('section[aria-label="Front page"], section[aria-label="मुख्य पृष्ठ"]').locator('a[href*="/"]').first().getAttribute('href')
+    const leadHref = await page
+      .locator('section[aria-label="Front page"], section[aria-label="मुख्य पृष्ठ"]')
+      .locator('a[href*="/"]')
+      .first()
+      .getAttribute('href')
     if (!leadHref) return
     const tickerLinks = page.locator('[aria-label="ब्रेकिङ"], [aria-label="Breaking"]').locator('a')
     const count = await tickerLinks.count()

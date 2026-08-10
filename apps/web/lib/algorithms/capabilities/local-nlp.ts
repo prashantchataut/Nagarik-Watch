@@ -20,7 +20,8 @@ import { surfaceFor } from './surface'
  */
 function extractEntities(text: string): { type: string; token: string }[] {
   return extractGazetteerEntities(text).map((entity) => ({
-    type: entity.type === 'organization' ? 'org' : entity.type === 'person' ? 'person_title' : 'place',
+    type:
+      entity.type === 'organization' ? 'org' : entity.type === 'person' ? 'person_title' : 'place',
     token: entity.matched,
   }))
 }
@@ -81,7 +82,10 @@ export const LOCAL_NLP_CAPABILITIES: CapabilitySpec[] = [
       const text = str(input, 'text', '')
       if (!text) return fail('local', 'text is required for topic classification')
       const { topic, score } = classifyTopic(text)
-      return okLocal(`keywordTopic=${topic} score=${score.toFixed(3)}`, { score, outputs: { topic } })
+      return okLocal(`keywordTopic=${topic} score=${score.toFixed(3)}`, {
+        score,
+        outputs: { topic },
+      })
     },
   },
   {
@@ -117,9 +121,13 @@ export const LOCAL_NLP_CAPABILITIES: CapabilitySpec[] = [
     mode: 'local',
     run: (input) => {
       const documents = (input.documents as string[]) ?? []
-      if (documents.length === 0) return fail('local', 'documents array is required for topic modeling')
+      if (documents.length === 0)
+        return fail('local', 'documents array is required for topic modeling')
       const topics = ldaLite(documents)
-      return okLocal(`ldaLite topics=${topics.length}`, { score: topics.length, outputs: { topics } })
+      return okLocal(`ldaLite topics=${topics.length}`, {
+        score: topics.length,
+        outputs: { topics },
+      })
     },
   },
   {
@@ -143,11 +151,16 @@ export const LOCAL_NLP_CAPABILITIES: CapabilitySpec[] = [
     run: (input) => {
       const query = str(input, 'query', '')
       const text = str(input, 'text', '')
-      if (!query || !text) return fail('adapter-disabled', 'query and text are required for semantic search')
+      if (!query || !text)
+        return fail('adapter-disabled', 'query and text are required for semantic search')
       const score = cosineSimilarity(embed(query), embed(text))
-      return okAdapter('adapter-disabled', `localSemanticCosine=${score.toFixed(3)} (no vector-DB vendor configured)`, {
-        score,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `localSemanticCosine=${score.toFixed(3)} (no vector-DB vendor configured)`,
+        {
+          score,
+        },
+      )
     },
   },
 ]

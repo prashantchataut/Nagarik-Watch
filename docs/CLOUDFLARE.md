@@ -19,12 +19,12 @@ Nagarik Watch's public Next.js app (`apps/web`) can deploy to **Cloudflare Worke
 
 ## Free-tier limits to know
 
-| Limit | Workers Free | Impact |
-|-------|--------------|--------|
-| Worker gzip size | 3 MiB | Slim build + `--minify` required |
-| CPU per request | 10 ms | Favor cached/static pages; heavy SSR may timeout |
-| Requests | 100k/day | Fine for launch/preview |
-| KV / R2 | Free tiers exist | ISR cache + media |
+| Limit            | Workers Free     | Impact                                           |
+| ---------------- | ---------------- | ------------------------------------------------ |
+| Worker gzip size | 3 MiB            | Slim build + `--minify` required                 |
+| CPU per request  | 10 ms            | Favor cached/static pages; heavy SSR may timeout |
+| Requests         | 100k/day         | Fine for launch/preview                          |
+| KV / R2          | Free tiers exist | ISR cache + media                                |
 
 ## Architecture
 
@@ -63,10 +63,10 @@ Vars in `wrangler.jsonc`: `CONTENT_SOURCE=json`, `NEXT_PUBLIC_LAUNCH_STATUS=prev
 
 Your dashboard is using **Workers Builds**, not classic Pages upload.
 
-| Setting | Set to exactly this |
-|---------|---------------------|
-| Build command | `pnpm build` |
-| Deploy command | `pnpm run deploy` |
+| Setting        | Set to exactly this     |
+| -------------- | ----------------------- |
+| Build command  | `pnpm build`            |
+| Deploy command | `pnpm run deploy`       |
 | Root directory | `/` (empty / repo root) |
 
 `pnpm run deploy` runs `wrangler deploy --no-autoconfig` against root `wrangler.jsonc` (static assets from `apps/web/out`).
@@ -77,11 +77,11 @@ Do **not** leave Deploy as `npx wrangler deploy` unless you are on a commit that
 
 ### Classic Pages (optional alternative)
 
-| Setting | Value |
-|---------|--------|
-| Build command | `pnpm build` |
-| Build output directory | `apps/web/out` |
-| Deploy command | *(leave empty)* |
+| Setting                | Value           |
+| ---------------------- | --------------- |
+| Build command          | `pnpm build`    |
+| Build output directory | `apps/web/out`  |
+| Deploy command         | _(leave empty)_ |
 
 Set `NEXT_PUBLIC_SITE_URL` in project env. Without it, the build falls back to `CF_PAGES_URL` or `https://nagarik-watch.pages.dev`.
 

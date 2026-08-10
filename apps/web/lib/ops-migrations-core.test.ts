@@ -11,10 +11,7 @@ describe('planOpsMigrations', () => {
       ],
       ['0001_core_operational'],
     )
-    expect(plan.migrations.map((item) => item.id)).toEqual([
-      '0001_core_operational',
-      '0002_more',
-    ])
+    expect(plan.migrations.map((item) => item.id)).toEqual(['0001_core_operational', '0002_more'])
     expect(plan.pending.map((item) => item.id)).toEqual(['0002_more'])
   })
 

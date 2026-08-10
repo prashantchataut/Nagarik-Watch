@@ -24,11 +24,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function ColumnsPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function ColumnsPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const en = locale === 'en'
   const [authors, stories] = await Promise.all([

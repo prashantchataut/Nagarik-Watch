@@ -34,7 +34,9 @@ describe('civicWeightFor', () => {
 
   it('boosts breaking stories', () => {
     const base = civicWeightFor(story('s1', 'sports', '2026-07-18T00:00:00Z'))
-    const breaking = civicWeightFor(story('s2', 'sports', '2026-07-18T00:00:00Z', { isBreaking: true }))
+    const breaking = civicWeightFor(
+      story('s2', 'sports', '2026-07-18T00:00:00Z', { isBreaking: true }),
+    )
     expect(breaking).toBeGreaterThan(base)
   })
 })

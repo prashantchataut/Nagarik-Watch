@@ -1,35 +1,96 @@
 import { cn } from '@nagarikwatch/ui'
 import Link from 'next/link'
 
-export function AdminCard({ className, children, as = 'section' }: { className?: string; children: React.ReactNode; as?: 'section' | 'div' | 'article' }) {
+export function AdminCard({
+  className,
+  children,
+  as = 'section',
+}: {
+  className?: string
+  children: React.ReactNode
+  as?: 'section' | 'div' | 'article'
+}) {
   const Comp = as
   return <Comp className={cn('admin-panel', className)}>{children}</Comp>
 }
 
 /** Page toolbar below shell breadcrumb. Shell owns the visible page title. */
-export function AdminPageHeader({ subtitle, eyebrow, action }: { subtitle?: string; eyebrow?: string; action?: React.ReactNode }) {
+export function AdminPageHeader({
+  subtitle,
+  eyebrow,
+  action,
+}: {
+  subtitle?: string
+  eyebrow?: string
+  action?: React.ReactNode
+}) {
   if (!subtitle && !eyebrow && !action) return null
   return (
     <header className="admin-page-header">
       <div className="min-w-0">
-        {eyebrow ? <p className="admin-eyebrow" lang="ne">{eyebrow}</p> : null}
-        {subtitle ? <p className="admin-page-subtitle" lang="ne">{subtitle}</p> : null}
+        {eyebrow ? (
+          <p className="admin-eyebrow" lang="ne">
+            {eyebrow}
+          </p>
+        ) : null}
+        {subtitle ? (
+          <p className="admin-page-subtitle" lang="ne">
+            {subtitle}
+          </p>
+        ) : null}
       </div>
       {action ? <div className="shrink-0 admin-page-header__action">{action}</div> : null}
     </header>
   )
 }
 
-export function AdminButton({ href, onClick, variant = 'primary', type = 'button', disabled, className, title, target, rel, children }: {
-  href?: string; onClick?: () => void; variant?: 'primary' | 'secondary' | 'ghost' | 'danger'; type?: 'button' | 'submit'; disabled?: boolean; className?: string; title?: string; target?: string; rel?: string; children: React.ReactNode
+export function AdminButton({
+  href,
+  onClick,
+  variant = 'primary',
+  type = 'button',
+  disabled,
+  className,
+  title,
+  target,
+  rel,
+  children,
+}: {
+  href?: string
+  onClick?: () => void
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
+  type?: 'button' | 'submit'
+  disabled?: boolean
+  className?: string
+  title?: string
+  target?: string
+  rel?: string
+  children: React.ReactNode
 }) {
   const cls = cn('admin-button', `admin-button--${variant}`, className)
-  if (href) return <Link href={href} className={cls} title={title} target={target} rel={rel}>{children}</Link>
-  return <button type={type} onClick={onClick} disabled={disabled} className={cls} title={title}>{children}</button>
+  if (href)
+    return (
+      <Link href={href} className={cls} title={title} target={target} rel={rel}>
+        {children}
+      </Link>
+    )
+  return (
+    <button type={type} onClick={onClick} disabled={disabled} className={cls} title={title}>
+      {children}
+    </button>
+  )
 }
 
-export function AdminFilterLink({ href, active, children, className }: {
-  href: string; active?: boolean; children: React.ReactNode; className?: string
+export function AdminFilterLink({
+  href,
+  active,
+  children,
+  className,
+}: {
+  href: string
+  active?: boolean
+  children: React.ReactNode
+  className?: string
 }) {
   return (
     <Link
@@ -42,11 +103,24 @@ export function AdminFilterLink({ href, active, children, className }: {
   )
 }
 
-export function AdminCallout({ tone = 'neutral', className, children }: {
-  tone?: 'neutral' | 'attention' | 'danger'; className?: string; children: React.ReactNode
+export function AdminCallout({
+  tone = 'neutral',
+  className,
+  children,
+}: {
+  tone?: 'neutral' | 'attention' | 'danger'
+  className?: string
+  children: React.ReactNode
 }) {
   return (
-    <div className={cn('admin-callout', tone === 'attention' && 'admin-callout--attention', tone === 'danger' && 'admin-callout--danger', className)}>
+    <div
+      className={cn(
+        'admin-callout',
+        tone === 'attention' && 'admin-callout--attention',
+        tone === 'danger' && 'admin-callout--danger',
+        className,
+      )}
+    >
       {children}
     </div>
   )
@@ -221,14 +295,46 @@ export function AdminSelect({
 }
 
 export function StatusBadge({ status }: { status: string }) {
-  const tone = status === 'published' ? 'success' : status === 'retracted' ? 'danger' : status === 'scheduled' || status === 'ready' ? 'attention' : 'neutral'
-  const labels: Record<string,string> = { published:'प्रकाशित',draft:'ड्राफ्ट',submitted:'पेश',fact_check:'तथ्य-जाँच',copy_edit:'कपी',seo_review:'एसइओ',legal_review:'कानुन',ready:'तयार',scheduled:'तालिका',archived:'अभिलेख',retracted:'फिर्ता',idea:'विचार',assigned:'सौंपिएको',updated:'अपडेट' }
-  return <span className={`admin-status admin-status--${tone}`} lang="ne">{labels[status] ?? status}</span>
+  const tone =
+    status === 'published'
+      ? 'success'
+      : status === 'retracted'
+        ? 'danger'
+        : status === 'scheduled' || status === 'ready'
+          ? 'attention'
+          : 'neutral'
+  const labels: Record<string, string> = {
+    published: 'प्रकाशित',
+    draft: 'ड्राफ्ट',
+    submitted: 'पेश',
+    fact_check: 'तथ्य-जाँच',
+    copy_edit: 'कपी',
+    seo_review: 'एसइओ',
+    legal_review: 'कानुन',
+    ready: 'तयार',
+    scheduled: 'तालिका',
+    archived: 'अभिलेख',
+    retracted: 'फिर्ता',
+    idea: 'विचार',
+    assigned: 'सौंपिएको',
+    updated: 'अपडेट',
+  }
+  return (
+    <span className={`admin-status admin-status--${tone}`} lang="ne">
+      {labels[status] ?? status}
+    </span>
+  )
 }
 
 export function OpsCheckBadge({ status }: { status: 'pass' | 'warn' | 'fail' | string }) {
   const tone =
-    status === 'pass' ? 'success' : status === 'warn' ? 'attention' : status === 'fail' ? 'danger' : 'neutral'
+    status === 'pass'
+      ? 'success'
+      : status === 'warn'
+        ? 'attention'
+        : status === 'fail'
+          ? 'danger'
+          : 'neutral'
   const labels: Record<string, string> = {
     pass: 'ठीक',
     warn: 'सावधान',
@@ -242,7 +348,15 @@ export function OpsCheckBadge({ status }: { status: 'pass' | 'warn' | 'fail' | s
   )
 }
 
-export function AdminEmptyState({ title, body, action }: { title: string; body: string; action?: React.ReactNode }) {
+export function AdminEmptyState({
+  title,
+  body,
+  action,
+}: {
+  title: string
+  body: string
+  action?: React.ReactNode
+}) {
   return (
     <section className="admin-empty" aria-live="polite">
       <div className="admin-empty-mark" aria-hidden="true">
@@ -252,7 +366,10 @@ export function AdminEmptyState({ title, body, action }: { title: string; body: 
         {title}
       </h2>
       <span className="mx-auto mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden="true" />
-      <p className="mx-auto mt-2.5 max-w-xl text-meta leading-relaxed text-ink-soft sm:text-body" lang="ne">
+      <p
+        className="mx-auto mt-2.5 max-w-xl text-meta leading-relaxed text-ink-soft sm:text-body"
+        lang="ne"
+      >
         {body}
       </p>
       {action ? <div className="mt-5">{action}</div> : null}

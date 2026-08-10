@@ -13,7 +13,10 @@ import {
 } from './ops-migrations-core'
 
 export type MigrationQueryable = {
-  query: (sql: string, params?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>>; rowCount: number | null }>
+  query: (
+    sql: string,
+    params?: unknown[],
+  ) => Promise<{ rows: Array<Record<string, unknown>>; rowCount: number | null }>
 }
 
 const PACKAGE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')

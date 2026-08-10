@@ -3,7 +3,11 @@ import { sentimentOf } from './sentiment'
 
 describe('sentimentOf', () => {
   it('is neutral (0) when no lexicon words appear', () => {
-    expect(sentimentOf('काठमाडौंमा सडक मर्मत सुरु भयो')).toEqual({ polarity: 0, positive: 0, negative: 0 })
+    expect(sentimentOf('काठमाडौंमा सडक मर्मत सुरु भयो')).toEqual({
+      polarity: 0,
+      positive: 0,
+      negative: 0,
+    })
   })
 
   it('scores positive text above zero', () => {

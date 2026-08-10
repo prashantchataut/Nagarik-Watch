@@ -184,10 +184,10 @@ export async function toggleCommentVote(input: {
         [input.commentId],
       )
     } else {
-      await pool.query(
-        `INSERT INTO nw_comment_votes (comment_id, visitor_hash) VALUES ($1,$2)`,
-        [input.commentId, visitorHash],
-      )
+      await pool.query(`INSERT INTO nw_comment_votes (comment_id, visitor_hash) VALUES ($1,$2)`, [
+        input.commentId,
+        visitorHash,
+      ])
       await pool.query(`UPDATE nw_comments SET upvote_count = upvote_count + 1 WHERE id=$1`, [
         input.commentId,
       ])

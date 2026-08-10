@@ -178,7 +178,10 @@ export default async function ArchivePage({
           ))}
         </ul>
       ) : (
-        <div className="mt-8 border-y border-rule bg-brand-tint/35 px-4 py-10 text-body-lg text-ink-soft" lang={lang}>
+        <div
+          className="mt-8 border-y border-rule bg-brand-tint/35 px-4 py-10 text-body-lg text-ink-soft"
+          lang={lang}
+        >
           <p className="font-display text-h2 text-ink">
             {locale === 'en' ? 'No matching stories' : 'मिल्ने समाचार छैन'}
           </p>

@@ -6,11 +6,11 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   "vars": {
     "CONTENT_SOURCE": "json",
     "NEXT_PUBLIC_LAUNCH_STATUS": "preview",
-    "NEXT_PUBLIC_SITE_URL": "https://nagarik-watch.pages.dev"
-  }
+    "NEXT_PUBLIC_SITE_URL": "https://nagarik-watch.pages.dev",
+  },
 }

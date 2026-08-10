@@ -47,8 +47,12 @@ export function noveltyOf(story: StoryCardData, now = new Date()): number {
 export function affinityMatchOf(story: StoryCardData, affinity?: ReaderAffinity | null): number {
   if (!affinity) return 0
   const categoryWeight = affinity.categories.get(story.category.slug) ?? 0
-  const topicWeight = story.tags?.reduce((sum, tag) => sum + (affinity.topics.get(tag.slug) ?? 0), 0) ?? 0
-  const authorWeight = story.authors.reduce((sum, author) => sum + (affinity.authors.get(author.slug) ?? 0), 0)
+  const topicWeight =
+    story.tags?.reduce((sum, tag) => sum + (affinity.topics.get(tag.slug) ?? 0), 0) ?? 0
+  const authorWeight = story.authors.reduce(
+    (sum, author) => sum + (affinity.authors.get(author.slug) ?? 0),
+    0,
+  )
   const raw = categoryWeight + topicWeight * 0.5 + authorWeight * 0.5
   return Math.max(0, Math.min(1, raw / 10))
 }

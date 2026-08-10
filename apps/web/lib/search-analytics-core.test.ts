@@ -22,4 +22,3 @@ describe('search analytics privacy', () => {
     expect(validSearchResultCount(99_999)).toBe(10_000)
   })
 })
-

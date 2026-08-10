@@ -111,9 +111,7 @@ describe('fetchAggregatedFeed', () => {
     const newest = sorted[0]
     const oldest = sorted[sorted.length - 1]
     expect(
-      newest &&
-        oldest &&
-        (newest.sourcePublishedAt ?? '') >= (oldest.sourcePublishedAt ?? ''),
+      newest && oldest && (newest.sourcePublishedAt ?? '') >= (oldest.sourcePublishedAt ?? ''),
     ).toBe(true)
   })
 })

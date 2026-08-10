@@ -75,7 +75,12 @@ export default async function CategoryPage({
           <div className="mt-4">
             <CategoryDesk stories={result.items} locale={locale} />
           </div>
-          <AdSlot locale={locale} placementKey="category-inline" variant="inline" className="mt-4" />
+          <AdSlot
+            locale={locale}
+            placementKey="category-inline"
+            variant="inline"
+            className="mt-4"
+          />
           <Pagination
             page={result.page}
             totalPages={result.totalPages}

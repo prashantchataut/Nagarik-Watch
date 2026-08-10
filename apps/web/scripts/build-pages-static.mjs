@@ -19,7 +19,6 @@ const appDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const middlewarePath = path.join(appDir, 'middleware.ts')
 const middlewareBak = path.join(appDir, 'middleware.ts.pages-bak')
 const outDir = path.join(appDir, 'out')
-const stashRoot = path.join(appDir, '.pages-build-bak')
 const stashed = []
 
 function stashPath(fromRelative, toRelative) {
@@ -166,13 +165,9 @@ try {
     process.env.CF_PAGES_URL?.trim() ||
     'https://nagarikwatch.com'
   const cmsAdminUrl =
-    process.env.NEXT_PUBLIC_CMS_ADMIN_URL?.trim() ||
-    process.env.PAYLOAD_ADMIN_URL?.trim() ||
-    ''
+    process.env.NEXT_PUBLIC_CMS_ADMIN_URL?.trim() || process.env.PAYLOAD_ADMIN_URL?.trim() || ''
   const adminAppUrl =
-    process.env.NEXT_PUBLIC_ADMIN_APP_URL?.trim() ||
-    process.env.ADMIN_APP_URL?.trim() ||
-    ''
+    process.env.NEXT_PUBLIC_ADMIN_APP_URL?.trim() || process.env.ADMIN_APP_URL?.trim() || ''
   mkdirSync(path.join(outDir, 'admin'), { recursive: true })
   writeFileSync(
     path.join(outDir, 'admin', 'index.html'),

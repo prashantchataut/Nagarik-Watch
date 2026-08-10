@@ -5,7 +5,12 @@ import { assertNewsroomRole, MEDIA_MANAGER_ROLES, canEdit } from '@/lib/admin-ro
 import { createMediaItem, listMediaItems } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { enforceRateLimit } from '@/lib/rate-limit'
-import { isPayloadCanonical, payloadCollectionAdminUrl, payloadAdminUrlIfConfigured, shouldBlockLocalContentWrites } from '@/lib/content/payload-admin-client'
+import {
+  isPayloadCanonical,
+  payloadCollectionAdminUrl,
+  payloadAdminUrlIfConfigured,
+  shouldBlockLocalContentWrites,
+} from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,7 +23,7 @@ function blockedMediaResponse() {
         : 'Live deployment content authority is misconfigured. Local media writes are blocked.',
       cmsUrl: canonical
         ? payloadCollectionAdminUrl('media')
-        : payloadAdminUrlIfConfigured('/collections/media') ?? undefined,
+        : (payloadAdminUrlIfConfigured('/collections/media') ?? undefined),
       configurationHint: canonical
         ? undefined
         : 'Set CONTENT_SOURCE=payload and PAYLOAD_PUBLIC_SERVER_URL on the web deployment.',

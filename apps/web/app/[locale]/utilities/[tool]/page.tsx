@@ -71,11 +71,7 @@ export default async function UtilityToolPage({
   else if (tool === 'currency') {
     const forex = await getRealForex(locale)
     content = (
-      <DynamicCurrencyConverter
-        locale={locale}
-        rates={forex.data ?? []}
-        source={forex.source}
-      />
+      <DynamicCurrencyConverter locale={locale} rates={forex.data ?? []} source={forex.source} />
     )
   } else if (tool === 'age-calculator') content = <DynamicAgeCalculator locale={locale} />
   else content = <DynamicUnitConverter locale={locale} />

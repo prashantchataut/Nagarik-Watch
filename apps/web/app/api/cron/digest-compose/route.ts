@@ -33,8 +33,11 @@ async function run(request: NextRequest) {
     if (!engagement) return 0
     const sa = signalsForStory(a, engagement)
     const sb = signalsForStory(b, engagement)
-    return (sb.viewsPerHour ?? 0) + (sb.dwellTimeSeconds ?? 0) / 60 -
+    return (
+      (sb.viewsPerHour ?? 0) +
+      (sb.dwellTimeSeconds ?? 0) / 60 -
       ((sa.viewsPerHour ?? 0) + (sa.dwellTimeSeconds ?? 0) / 60)
+    )
   })
 
   const pool = affinityBoosted.length > 0 ? affinityBoosted : items
@@ -115,7 +118,9 @@ async function run(request: NextRequest) {
           : 'queued-or-failed'
         : 'email-adapter-disabled'
       : 'draft-saved-for-review',
-    detail: sendNow ? delivery.detail ?? email.detail : 'Set DIGEST_SEND_NOW=true to auto-send after draft.',
+    detail: sendNow
+      ? (delivery.detail ?? email.detail)
+      : 'Set DIGEST_SEND_NOW=true to auto-send after draft.',
     top,
   })
 }

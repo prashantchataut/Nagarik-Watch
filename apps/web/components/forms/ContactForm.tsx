@@ -59,16 +59,34 @@ export function ContactForm({ locale }: { locale: Locale }) {
   return (
     <form onSubmit={submit} className="grid gap-4" noValidate lang={english ? 'en' : 'ne'}>
       <div className="absolute -left-[10000px]" aria-hidden="true">
-        <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
+        <label>
+          Website
+          <input name="website" tabIndex={-1} autoComplete="off" />
+        </label>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="text-meta font-semibold text-ink">
           {english ? 'Name' : 'नाम'} *
-          <input name="name" required maxLength={120} autoComplete="name" disabled={pending} className={field} />
+          <input
+            name="name"
+            required
+            maxLength={120}
+            autoComplete="name"
+            disabled={pending}
+            className={field}
+          />
         </label>
         <label className="text-meta font-semibold text-ink">
           {english ? 'Email' : 'इमेल'} *
-          <input name="email" type="email" required maxLength={254} autoComplete="email" disabled={pending} className={field} />
+          <input
+            name="email"
+            type="email"
+            required
+            maxLength={254}
+            autoComplete="email"
+            disabled={pending}
+            className={field}
+          />
         </label>
       </div>
       <label className="text-meta font-semibold text-ink">
@@ -77,7 +95,14 @@ export function ContactForm({ locale }: { locale: Locale }) {
       </label>
       <label className="text-meta font-semibold text-ink">
         {english ? 'Message' : 'सन्देश'} *
-        <textarea name="message" required rows={7} maxLength={5000} disabled={pending} className={field} />
+        <textarea
+          name="message"
+          required
+          rows={7}
+          maxLength={5000}
+          disabled={pending}
+          className={field}
+        />
       </label>
       <TurnstileField siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
       {message ? (
@@ -94,8 +119,12 @@ export function ContactForm({ locale }: { locale: Locale }) {
         className="inline-flex h-11 min-w-[11rem] w-fit items-center justify-center rounded-md bg-brand px-6 text-body font-bold text-paper hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint focus:ring-offset-2 disabled:cursor-wait disabled:opacity-60"
       >
         {pending
-          ? english ? 'Sending...' : 'पठाउँदै...'
-          : english ? 'Send to newsroom' : 'न्युजरुममा पठाउनुहोस्'}
+          ? english
+            ? 'Sending...'
+            : 'पठाउँदै...'
+          : english
+            ? 'Send to newsroom'
+            : 'न्युजरुममा पठाउनुहोस्'}
       </button>
       <p className="text-caption leading-relaxed text-mute">
         {english

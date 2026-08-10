@@ -21,10 +21,18 @@ export default async function PrivacyPage({ params }: { params: Promise<Params> 
 
   return (
     <div className="mx-auto max-w-page px-4 py-10">
-      <InfoPageHeader kicker={dict.privacyKicker} title={dict.footerPrivacy} lead={dict.privacyLead} lang={lang} />
+      <InfoPageHeader
+        kicker={dict.privacyKicker}
+        title={dict.footerPrivacy}
+        lead={dict.privacyLead}
+        lang={lang}
+      />
 
       <div className="mt-10 space-y-10">
-        <InfoSection heading={english ? 'Cookies and browser storage' : 'कुकी र ब्राउजर भण्डारण'} lang={lang}>
+        <InfoSection
+          heading={english ? 'Cookies and browser storage' : 'कुकी र ब्राउजर भण्डारण'}
+          lang={lang}
+        >
           {english
             ? 'Essential storage keeps login and language working. Optional personalisation and analytics run only after you consent. Full detail and controls are on the cookie policy page.'
             : 'आवश्यक भण्डारणले लगइन र भाषा चलाउँछ। वैकल्पिक व्यक्तिगत सिफारिस र एनालिटिक्स सहमतिपछि मात्र चल्छ। विस्तृत नियन्त्रण कुकी नीति पृष्ठमा छ।'}{' '}

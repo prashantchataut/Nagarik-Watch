@@ -7,7 +7,7 @@ import { LiveDeskShell } from '@/components/public/LiveDeskShell'
 import { isPublicMembershipEnabled } from '@/lib/membership'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({
   params,
@@ -53,7 +53,10 @@ export default async function EpaperPage({ params }: { params: Promise<{ locale:
               : 'डिजिटल प्रतिलिपि अझै प्रकाशित भएको छैन। यसबीच ताजा समाचार पढ्नुहोस् वा न्युजलेटर अभिलेख हेर्नुहोस्।'}
           </p>
           <div className="mt-6 flex flex-wrap gap-4">
-            <Link href={localizeHref(locale, '/latest')} className="text-meta font-bold text-brand-strong">
+            <Link
+              href={localizeHref(locale, '/latest')}
+              className="text-meta font-bold text-brand-strong"
+            >
               {en ? 'Latest news' : 'ताजा समाचार'}
             </Link>
             <Link

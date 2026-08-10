@@ -2,16 +2,17 @@ import { put } from '@vercel/blob'
 import { NextResponse, type NextRequest } from 'next/server'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import {
-  canEdit,
-  CONTRIBUTOR_ROLES,
-  MEDIA_MANAGER_ROLES,
-} from '@/lib/admin-roles'
+import { canEdit, CONTRIBUTOR_ROLES, MEDIA_MANAGER_ROLES } from '@/lib/admin-roles'
 import { createMediaItem } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { validateImageUpload } from '@/lib/storage/media-validation'
-import { isPayloadCanonical, payloadCollectionAdminUrl, payloadAdminUrlIfConfigured, shouldBlockLocalContentWrites } from '@/lib/content/payload-admin-client'
+import {
+  isPayloadCanonical,
+  payloadCollectionAdminUrl,
+  payloadAdminUrlIfConfigured,
+  shouldBlockLocalContentWrites,
+} from '@/lib/content/payload-admin-client'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -25,7 +26,7 @@ function blockedUploadResponse() {
         : 'Live deployment content authority is misconfigured. Local media uploads are blocked.',
       cmsUrl: canonical
         ? payloadCollectionAdminUrl('media')
-        : payloadAdminUrlIfConfigured('/collections/media') ?? undefined,
+        : (payloadAdminUrlIfConfigured('/collections/media') ?? undefined),
       configurationHint: canonical
         ? undefined
         : 'Set CONTENT_SOURCE=payload and PAYLOAD_PUBLIC_SERVER_URL on the web deployment.',
@@ -52,10 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
   }
   const role = session.newsroomRole
-  const mayUpload =
-    canEdit(role) ||
-    MEDIA_MANAGER_ROLES.has(role) ||
-    CONTRIBUTOR_ROLES.has(role)
+  const mayUpload = canEdit(role) || MEDIA_MANAGER_ROLES.has(role) || CONTRIBUTOR_ROLES.has(role)
   if (!mayUpload) {
     return NextResponse.json({ error: 'अनुमति छैन।' }, { status: 403 })
   }
@@ -85,7 +83,10 @@ export async function POST(request: NextRequest) {
 
   const alt =
     String(form.get('alt') ?? '').trim() ||
-    file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').slice(0, 240) ||
+    file.name
+      .replace(/\.[^.]+$/, '')
+      .replace(/[_-]+/g, ' ')
+      .slice(0, 240) ||
     'Article image'
   const caption = String(form.get('caption') ?? '').trim() || undefined
   const credit = String(form.get('credit') ?? '').trim() || undefined
@@ -163,7 +164,11 @@ export async function POST(request: NextRequest) {
           ? 'Media storage credentials are invalid or belong to a different deployment. Reconnect Vercel Blob to the web project (or use Payload Media in canonical mode).'
           : 'The configured media provider rejected the upload.',
         detail: detail.slice(0, 300),
-        provider: token ? 'vercel-blob' : process.env.CF_WORKERS === '1' ? 'cloudflare-r2' : 'unknown',
+        provider: token
+          ? 'vercel-blob'
+          : process.env.CF_WORKERS === '1'
+            ? 'cloudflare-r2'
+            : 'unknown',
       },
       { status: storageConfigurationError ? 503 : 502 },
     )

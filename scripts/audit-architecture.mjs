@@ -51,12 +51,14 @@ for (const base of publicRoots) {
   }
 }
 
-
 const payloadSource = readFileSync(join(root, 'apps/web/lib/content/payload-source.ts'), 'utf8')
 if (!/\/api\/\$\{collection\}/.test(payloadSource) || !/payloadServerUrl\(\)/.test(payloadSource)) {
   failures.push('Payload content source is not using the separate CMS REST boundary.')
 }
-if (/@payload-config|getPayload\(/.test(payloadSource) || existsSync(join(root, 'apps/web/payload-config.d.ts'))) {
+if (
+  /@payload-config|getPayload\(/.test(payloadSource) ||
+  existsSync(join(root, 'apps/web/payload-config.d.ts'))
+) {
   failures.push('Web app still contains the impossible cross-deployment Payload Local API shim.')
 }
 
@@ -73,13 +75,27 @@ if (!/Rate limit store unavailable/.test(rateLimit)) {
   failures.push('Production rate limiting must fail closed when Postgres is unavailable.')
 }
 
-const contentResolve = readFileSync(join(root, 'apps/web/lib/content/resolve-content-source.ts'), 'utf8')
-if (!/isPayloadSourceMisconfigured/.test(contentResolve) || !/Refusing to fall back/.test(contentResolve)) {
-  failures.push('Content source must fail closed when Payload is misconfigured (no silent desk fallthrough).')
+const contentResolve = readFileSync(
+  join(root, 'apps/web/lib/content/resolve-content-source.ts'),
+  'utf8',
+)
+if (
+  !/isPayloadSourceMisconfigured/.test(contentResolve) ||
+  !/Refusing to fall back/.test(contentResolve)
+) {
+  failures.push(
+    'Content source must fail closed when Payload is misconfigured (no silent desk fallthrough).',
+  )
 }
 
-const payloadAdminClient = readFileSync(join(root, 'apps/web/lib/content/payload-admin-client.ts'), 'utf8')
-if (!/users API-Key/.test(payloadAdminClient) || !/assertLocalContentAdmin/.test(payloadAdminClient)) {
+const payloadAdminClient = readFileSync(
+  join(root, 'apps/web/lib/content/payload-admin-client.ts'),
+  'utf8',
+)
+if (
+  !/users API-Key/.test(payloadAdminClient) ||
+  !/assertLocalContentAdmin/.test(payloadAdminClient)
+) {
   failures.push('Payload journalist bridge or shadow-store production guard is missing.')
 }
 
@@ -91,7 +107,9 @@ if (!/AUTH_SECRET.*required in production/.test(auth)) {
   failures.push('Auth secret production hard-fail is missing.')
 }
 if (!/storage:\s*'database'/.test(auth) || !/ipAddressHeaders/.test(auth)) {
-  failures.push('Better Auth rate limits are not using database storage and trusted proxy IP headers.')
+  failures.push(
+    'Better Auth rate limits are not using database storage and trusted proxy IP headers.',
+  )
 }
 
 const middleware = readFileSync(join(root, 'apps/web/middleware.ts'), 'utf8')

@@ -6,7 +6,11 @@
  */
 import 'server-only'
 import { getArticleBySlug, getStories } from '@/lib/content'
-import { validateAmpHtml, validateAppleNewsFormat, validateInstantArticle } from '@/lib/syndication/validators'
+import {
+  validateAmpHtml,
+  validateAppleNewsFormat,
+  validateInstantArticle,
+} from '@/lib/syndication/validators'
 
 export type SyndicationReadinessSample = {
   slug: string
@@ -28,7 +32,11 @@ export async function sampleSyndicationReadiness(limit = 3): Promise<Syndication
         slug: item.slug,
         title: item.titleNe,
         amp: validateAmpHtml({ hasCanonical, hasHeroImage }),
-        instantArticle: validateInstantArticle({ title: item.titleNe, bodyBlockCount, hasCanonical }),
+        instantArticle: validateInstantArticle({
+          title: item.titleNe,
+          bodyBlockCount,
+          hasCanonical,
+        }),
         appleNews: validateAppleNewsFormat({
           hasIdentifier: Boolean(item.slug),
           hasTitle: Boolean(item.titleNe),

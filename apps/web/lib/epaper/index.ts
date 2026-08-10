@@ -40,7 +40,11 @@ export function epaperEnabled(): boolean {
 function isValidPage(value: unknown): value is ReplicaPage {
   if (!value || typeof value !== 'object') return false
   const page = value as Record<string, unknown>
-  return typeof page.pageNumber === 'number' && typeof page.imageUrl === 'string' && page.imageUrl.length > 0
+  return (
+    typeof page.pageNumber === 'number' &&
+    typeof page.imageUrl === 'string' &&
+    page.imageUrl.length > 0
+  )
 }
 
 function isValidEdition(value: unknown): value is ReplicaEdition {
@@ -113,7 +117,12 @@ export type OfflineCachePolicyResult = {
 
 /** Save-Data / reduced-data requests cap how many replica pages we proactively cache offline. */
 export function offlineCachePolicy(input: OfflineCachePolicyInput): OfflineCachePolicyResult {
-  const healthScore = offlineCacheHealth(input.cachedPages, input.totalPages, input.quotaMb, input.usedMb)
+  const healthScore = offlineCacheHealth(
+    input.cachedPages,
+    input.totalPages,
+    input.quotaMb,
+    input.usedMb,
+  )
   const maxCachedPages = input.saveData ? Math.min(input.totalPages, 5) : input.totalPages
   return {
     shouldCacheMore: !input.saveData && input.cachedPages < maxCachedPages && healthScore < 1,

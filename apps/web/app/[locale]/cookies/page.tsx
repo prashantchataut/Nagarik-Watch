@@ -11,65 +11,65 @@ type Params = { locale: string }
 
 function cookieSections(networkAds: boolean) {
   return [
-  {
-    id: 'what-we-use',
-    titleNe: 'हामी के प्रयोग गर्छौं',
-    titleEn: 'What we use',
-    bodyNe: networkAds
-      ? 'कुकी र स्थानीय भण्डारणले भाषा, थिम, लगइन सेसन र अनुमति दिएपछि मात्र पढाइ रुचि, एनालिटिक्स र विज्ञापन मापन सम्झन्छ। नेटवर्क विज्ञापन मोड सक्रिय हुँदा विज्ञापन सहमतिपछि मात्र प्रकाशकको AdSense/GAM स्क्रिप्ट लोड हुन्छ। हामी डाटा बेच्दैनौं।'
-      : 'कुकी र स्थानीय भण्डारणले भाषा, थिम, लगइन सेसन र अनुमति दिएपछि मात्र पढाइ रुचि, एनालिटिक्स र घरको विज्ञापन मापन सम्झन्छ। हामी डाटा बेच्दैनौं वा तेस्रो-पक्ष विज्ञापन ट्र्याकर लोड गर्दैनौं।',
-    bodyEn: networkAds
-      ? 'Cookies and local storage remember language, theme, login session and, only with permission, reading interests, analytics and advertising measurement. When network ads mode is on, publisher AdSense or GAM scripts load only after advertising consent. We do not sell data.'
-      : 'Cookies and local storage remember language, theme, login session and, only with permission, reading interests, analytics and first-party house-ad measurement. We do not sell data or load third-party advertising trackers.',
-  },
-  {
-    id: 'essential',
-    titleNe: 'आवश्यक',
-    titleEn: 'Essential',
-    bodyNe:
-      'सुरक्षा र आधारभूत सञ्चालनका लागि आवश्यक: Better Auth सेसन कुकी, भाषा, थिम, र CSRF/same-site सुरक्षा। यी बन्द गर्न सकिँदैन।',
-    bodyEn:
-      'Required for security and basic operation: Better Auth session cookies, locale preference, theme, and CSRF/same-site protections. These cannot be turned off.',
-  },
-  {
-    id: 'personalization',
-    titleNe: 'व्यक्तिगत (वैकल्पिक)',
-    titleEn: 'Personalisation (optional)',
-    bodyNe:
-      'अनुमति दिएमा यो ब्राउजरमा सुरक्षित लेख, जारी राख्ने प्रगति र सिफारिसका लागि रुचि सङ्केत राखिन्छ। बन्द गर्दा त्यो स्थानीय डाटा मेटिन्छ।',
-    bodyEn:
-      'If you allow it, this browser stores saved stories, continue-reading progress, and interest signals for recommendations. Turning it off clears that local data.',
-  },
-  {
-    id: 'analytics',
-    titleNe: 'एनालिटिक्स (वैकल्पिक)',
-    titleEn: 'Analytics (optional)',
-    bodyNe:
-      'अनुमतिपछि मात्र Plausible लोड हुन्छ, र यसले विज्ञापन प्रोफाइलबिना भिजिट गणना गर्छ। सोही सहमतिले र्‍याङ्किङका लागि गोप्य कथा इम्प्रेसन घटना अनुमति दिन सक्छ।',
-    bodyEn:
-      'With permission we load Plausible, a privacy-friendly analytics script that counts visits without advertising profiles. The same consent can allow anonymous story impression events used for ranking.',
-  },
-  {
-    id: 'advertising',
-    titleNe: 'विज्ञापन मापन (वैकल्पिक)',
-    titleEn: 'Advertising measurement (optional)',
-    bodyNe: networkAds
-      ? 'घर विज्ञापन मापन (दृश्य/क्लिक) र, नेटवर्क मोडमा, सहमतिपछि मात्र AdSense वा Google Ad Manager स्क्रिप्ट। Meta पिक्सेल छैन, डाटा बिक्री छैन।'
-      : 'नागरिक वाचका आफ्नै घर विज्ञापन मात्र मापन (दृश्य/क्लिक)। Meta/Google पिक्सेल छैन, क्रस-साइट प्रोफाइल छैन, डाटा बिक्री छैन।',
-    bodyEn: networkAds
-      ? 'Measures house ad views/clicks and, in network mode, loads AdSense or Google Ad Manager scripts only after consent. No Meta pixels and no sale of data.'
-      : 'Only measures our own house ad placements (views/clicks). No Meta/Google ad pixels, no cross-site profiles, no sale of data.',
-  },
-  {
-    id: 'duration',
-    titleNe: 'कति समय',
-    titleEn: 'How long',
-    bodyNe:
-      'सहमति र रोजाइ कुकी अधिकतम १२ महिनासम्म रहन्छन्। सेसन कुकी साइन आउट वा ब्राउजर सेसन सकिएपछि सकिन्छ। कोटी फेरिएपछि एक पटक फेरि सोधिन्छ।',
-    bodyEn:
-      'Consent and preference cookies last up to 12 months. Session cookies end when you sign out or the browser session ends. When we change cookie categories, we ask again once.',
-  },
-] as const
+    {
+      id: 'what-we-use',
+      titleNe: 'हामी के प्रयोग गर्छौं',
+      titleEn: 'What we use',
+      bodyNe: networkAds
+        ? 'कुकी र स्थानीय भण्डारणले भाषा, थिम, लगइन सेसन र अनुमति दिएपछि मात्र पढाइ रुचि, एनालिटिक्स र विज्ञापन मापन सम्झन्छ। नेटवर्क विज्ञापन मोड सक्रिय हुँदा विज्ञापन सहमतिपछि मात्र प्रकाशकको AdSense/GAM स्क्रिप्ट लोड हुन्छ। हामी डाटा बेच्दैनौं।'
+        : 'कुकी र स्थानीय भण्डारणले भाषा, थिम, लगइन सेसन र अनुमति दिएपछि मात्र पढाइ रुचि, एनालिटिक्स र घरको विज्ञापन मापन सम्झन्छ। हामी डाटा बेच्दैनौं वा तेस्रो-पक्ष विज्ञापन ट्र्याकर लोड गर्दैनौं।',
+      bodyEn: networkAds
+        ? 'Cookies and local storage remember language, theme, login session and, only with permission, reading interests, analytics and advertising measurement. When network ads mode is on, publisher AdSense or GAM scripts load only after advertising consent. We do not sell data.'
+        : 'Cookies and local storage remember language, theme, login session and, only with permission, reading interests, analytics and first-party house-ad measurement. We do not sell data or load third-party advertising trackers.',
+    },
+    {
+      id: 'essential',
+      titleNe: 'आवश्यक',
+      titleEn: 'Essential',
+      bodyNe:
+        'सुरक्षा र आधारभूत सञ्चालनका लागि आवश्यक: Better Auth सेसन कुकी, भाषा, थिम, र CSRF/same-site सुरक्षा। यी बन्द गर्न सकिँदैन।',
+      bodyEn:
+        'Required for security and basic operation: Better Auth session cookies, locale preference, theme, and CSRF/same-site protections. These cannot be turned off.',
+    },
+    {
+      id: 'personalization',
+      titleNe: 'व्यक्तिगत (वैकल्पिक)',
+      titleEn: 'Personalisation (optional)',
+      bodyNe:
+        'अनुमति दिएमा यो ब्राउजरमा सुरक्षित लेख, जारी राख्ने प्रगति र सिफारिसका लागि रुचि सङ्केत राखिन्छ। बन्द गर्दा त्यो स्थानीय डाटा मेटिन्छ।',
+      bodyEn:
+        'If you allow it, this browser stores saved stories, continue-reading progress, and interest signals for recommendations. Turning it off clears that local data.',
+    },
+    {
+      id: 'analytics',
+      titleNe: 'एनालिटिक्स (वैकल्पिक)',
+      titleEn: 'Analytics (optional)',
+      bodyNe:
+        'अनुमतिपछि मात्र Plausible लोड हुन्छ, र यसले विज्ञापन प्रोफाइलबिना भिजिट गणना गर्छ। सोही सहमतिले र्‍याङ्किङका लागि गोप्य कथा इम्प्रेसन घटना अनुमति दिन सक्छ।',
+      bodyEn:
+        'With permission we load Plausible, a privacy-friendly analytics script that counts visits without advertising profiles. The same consent can allow anonymous story impression events used for ranking.',
+    },
+    {
+      id: 'advertising',
+      titleNe: 'विज्ञापन मापन (वैकल्पिक)',
+      titleEn: 'Advertising measurement (optional)',
+      bodyNe: networkAds
+        ? 'घर विज्ञापन मापन (दृश्य/क्लिक) र, नेटवर्क मोडमा, सहमतिपछि मात्र AdSense वा Google Ad Manager स्क्रिप्ट। Meta पिक्सेल छैन, डाटा बिक्री छैन।'
+        : 'नागरिक वाचका आफ्नै घर विज्ञापन मात्र मापन (दृश्य/क्लिक)। Meta/Google पिक्सेल छैन, क्रस-साइट प्रोफाइल छैन, डाटा बिक्री छैन।',
+      bodyEn: networkAds
+        ? 'Measures house ad views/clicks and, in network mode, loads AdSense or Google Ad Manager scripts only after consent. No Meta pixels and no sale of data.'
+        : 'Only measures our own house ad placements (views/clicks). No Meta/Google ad pixels, no cross-site profiles, no sale of data.',
+    },
+    {
+      id: 'duration',
+      titleNe: 'कति समय',
+      titleEn: 'How long',
+      bodyNe:
+        'सहमति र रोजाइ कुकी अधिकतम १२ महिनासम्म रहन्छन्। सेसन कुकी साइन आउट वा ब्राउजर सेसन सकिएपछि सकिन्छ। कोटी फेरिएपछि एक पटक फेरि सोधिन्छ।',
+      bodyEn:
+        'Consent and preference cookies last up to 12 months. Session cookies end when you sign out or the browser session ends. When we change cookie categories, we ask again once.',
+    },
+  ] as const
 }
 
 export default async function CookiesPage({ params }: { params: Promise<Params> }) {
@@ -107,7 +107,10 @@ export default async function CookiesPage({ params }: { params: Promise<Params> 
               <h2 className="font-display text-h2 font-bold text-ink" lang={lang}>
                 {english ? section.titleEn : section.titleNe}
               </h2>
-              <p className="mt-3 text-body leading-relaxed text-ink-soft sm:text-body-lg" lang={lang}>
+              <p
+                className="mt-3 text-body leading-relaxed text-ink-soft sm:text-body-lg"
+                lang={lang}
+              >
                 {english ? section.bodyEn : section.bodyNe}
               </p>
             </section>

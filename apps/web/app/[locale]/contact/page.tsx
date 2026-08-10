@@ -18,7 +18,12 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
 
   return (
     <div className="mx-auto max-w-page px-4 py-10">
-      <InfoPageHeader kicker={dict.contactKicker} title={dict.footerContact} lead={dict.contactLead} lang={lang} />
+      <InfoPageHeader
+        kicker={dict.contactKicker}
+        title={dict.footerContact}
+        lead={dict.contactLead}
+        lang={lang}
+      />
 
       <div className="mt-10 space-y-10">
         <InfoSection heading={dict.contactTipHeading} lang={lang}>
@@ -38,7 +43,9 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
             ? 'Messages are stored for newsroom review. Sending a message does not guarantee publication or an immediate reply.'
             : 'सन्देश न्युजरुम समीक्षाका लागि सुरक्षित हुन्छ। सन्देश पठाउँदैमा प्रकाशन वा तत्काल जवाफ सुनिश्चित हुँदैन।'}
         </p>
-        <div className="mt-6"><ContactForm locale={locale} /></div>
+        <div className="mt-6">
+          <ContactForm locale={locale} />
+        </div>
       </section>
 
       {publicEmail ? (

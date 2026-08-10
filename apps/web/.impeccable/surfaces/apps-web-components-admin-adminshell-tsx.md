@@ -1,14 +1,14 @@
 ---
 version: 1
-slug: "apps-web-components-admin-adminshell-tsx"
-primary_target: "apps/web/components/admin/AdminShell.tsx"
+slug: 'apps-web-components-admin-adminshell-tsx'
+primary_target: 'apps/web/components/admin/AdminShell.tsx'
 related_targets:
-  - "apps/web/components/admin/primitives.tsx"
-  - "apps/web/components/admin/AdminWorkflowStrip.tsx"
-  - "apps/web/app/admin/(desk)/dashboard/page.tsx"
-  - "apps/web/app/admin/(desk)/seo/page.tsx"
-  - "apps/web/app/admin/(desk)/roles/page.tsx"
-  - "apps/web/components/journalist/JournalistWorkspaceShell.tsx"
+  - 'apps/web/components/admin/primitives.tsx'
+  - 'apps/web/components/admin/AdminWorkflowStrip.tsx'
+  - 'apps/web/app/admin/(desk)/dashboard/page.tsx'
+  - 'apps/web/app/admin/(desk)/seo/page.tsx'
+  - 'apps/web/app/admin/(desk)/roles/page.tsx'
+  - 'apps/web/components/journalist/JournalistWorkspaceShell.tsx'
 ---
 
 # Surface brief: Admin + reporter desks

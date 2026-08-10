@@ -37,9 +37,7 @@ async function recoverFromStaleBuild() {
     if ('caches' in window) {
       const keys = await caches.keys()
       await Promise.all(
-        keys
-          .filter((key) => key.startsWith('nagarik-watch-'))
-          .map((key) => caches.delete(key)),
+        keys.filter((key) => key.startsWith('nagarik-watch-')).map((key) => caches.delete(key)),
       )
     }
   } catch {

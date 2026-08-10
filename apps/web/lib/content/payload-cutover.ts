@@ -108,9 +108,10 @@ export function getPayloadCutoverChecklist(): {
       key: 'media',
       label: 'Durable media storage',
       ok: Boolean(blob || storageBase),
-      detail: blob || storageBase
-        ? 'Blob or R2 public base configured'
-        : 'Configure BLOB_READ_WRITE_TOKEN or R2 + STORAGE_PUBLIC_BASE_URL',
+      detail:
+        blob || storageBase
+          ? 'Blob or R2 public base configured'
+          : 'Configure BLOB_READ_WRITE_TOKEN or R2 + STORAGE_PUBLIC_BASE_URL',
     },
     {
       key: 'corpus-migrate',

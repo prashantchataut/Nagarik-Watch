@@ -11,12 +11,17 @@ export async function POST(request: NextRequest) {
   const limited = await enforceRateLimit(request, 'accept-newsroom-invite', 10, 60_000)
   if (limited) return limited
   const session = await getSession()
-  if (!session) return Response.json({ error: 'Sign in before accepting the invitation.' }, { status: 401 })
-  const body = await request.json().catch(() => ({})) as { token?: unknown }
+  if (!session)
+    return Response.json({ error: 'Sign in before accepting the invitation.' }, { status: 401 })
+  const body = (await request.json().catch(() => ({}))) as { token?: unknown }
   const result = await acceptNewsroomInvite({ token: body.token, email: session.email })
   if (!result.ok) {
-    const status = result.reason === 'email_mismatch' ? 403 : result.reason === 'account_missing' ? 409 : 400
+    const status =
+      result.reason === 'email_mismatch' ? 403 : result.reason === 'account_missing' ? 409 : 400
     return Response.json({ error: result.reason }, { status })
   }
-  return Response.json({ ok: true, role: result.role }, { headers: { 'cache-control': 'no-store' } })
+  return Response.json(
+    { ok: true, role: result.role },
+    { headers: { 'cache-control': 'no-store' } },
+  )
 }

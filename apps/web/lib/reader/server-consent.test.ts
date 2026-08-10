@@ -9,8 +9,7 @@ import {
 function requestWithConsentCookie(value: string | null): NextRequest {
   return {
     cookies: {
-      get: (name: string) =>
-        name === 'nw_consent' && value != null ? { name, value } : undefined,
+      get: (name: string) => (name === 'nw_consent' && value != null ? { name, value } : undefined),
     },
   } as NextRequest
 }

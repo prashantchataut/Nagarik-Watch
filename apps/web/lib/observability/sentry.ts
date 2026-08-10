@@ -36,7 +36,11 @@ export function captureException(error: unknown, context?: Record<string, unknow
       sentry: state,
       error:
         error instanceof Error
-          ? { name: error.name, message: error.message, digest: (error as { digest?: string }).digest }
+          ? {
+              name: error.name,
+              message: error.message,
+              digest: (error as { digest?: string }).digest,
+            }
           : String(error),
       context,
     }),

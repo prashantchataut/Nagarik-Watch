@@ -5,12 +5,12 @@
 **Production origin = Vercel (full Next.js Node app).**  
 Cloudflare provides DNS, CDN, and WAF in front of Vercel.
 
-| What | Where |
-|------|--------|
-| Public reader + `/api` + auth + engagement | **Vercel** |
-| Payload CMS | **Vercel** (or sibling project) at `PAYLOAD_PUBLIC_SERVER_URL` |
-| Edge / DNS | **Cloudflare** proxied to Vercel |
-| Cloudflare Pages `out` | Preview/mirror **only** — **not** launch origin |
+| What                                       | Where                                                          |
+| ------------------------------------------ | -------------------------------------------------------------- |
+| Public reader + `/api` + auth + engagement | **Vercel**                                                     |
+| Payload CMS                                | **Vercel** (or sibling project) at `PAYLOAD_PUBLIC_SERVER_URL` |
+| Edge / DNS                                 | **Cloudflare** proxied to Vercel                               |
+| Cloudflare Pages `out`                     | Preview/mirror **only** — **not** launch origin                |
 
 Static Pages export (`pnpm deploy:web:static` / `build-pages-static.mjs`) **strips** `app/api`
 and `app/admin`. Auth, comments, polls, reading, contact, and cron do not work there.
@@ -56,8 +56,8 @@ Follow `docs/launch-runbook.md` for soft → hard launch.
 pnpm deploy:web:static
 ```
 
-- Public HTML/CSS: on Pages  
-- `/admin`, `/api`, login, engagement: **unavailable**  
+- Public HTML/CSS: on Pages
+- `/admin`, `/api`, login, engagement: **unavailable**
 - Use for design/content previews — **never** as the declared live product origin
 
 ## Option C — Everything on Cloudflare Workers (Paid)
@@ -67,14 +67,14 @@ See historical notes in deploy scripts; prefer Option A unless you intentionally
 
 ## Current reference URLs
 
-- Vercel (full app — launch candidate): https://nagarik-watch.vercel.app  
-- Cloudflare Pages (static preview): https://nagarik-watch.pages.dev  
+- Vercel (full app — launch candidate): https://nagarik-watch.vercel.app
+- Cloudflare Pages (static preview): https://nagarik-watch.pages.dev
 - Cloudflare Worker full app: not the default launch target
 
 ## Scripts
 
-| Command | Result |
-|---------|--------|
-| Vercel Git deploy / `vercel --prod` | Full Node app (launch origin) |
-| `pnpm deploy:web:static` | Static Pages preview only |
-| `pnpm deploy:web:cf` | Full Worker (Paid / size constraints) |
+| Command                             | Result                                |
+| ----------------------------------- | ------------------------------------- |
+| Vercel Git deploy / `vercel --prod` | Full Node app (launch origin)         |
+| `pnpm deploy:web:static`            | Static Pages preview only             |
+| `pnpm deploy:web:cf`                | Full Worker (Paid / size constraints) |

@@ -218,8 +218,9 @@ export async function listContentAuthors(): Promise<Author[]> {
 }
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return requireOperationalPool(await ensureOperationalSchema('taxonomy-admin', async (pool) => {
-    await pool.query(`
+  return requireOperationalPool(
+    await ensureOperationalSchema('taxonomy-admin', async (pool) => {
+      await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_taxonomy_terms (
         id text PRIMARY KEY,
         kind text NOT NULL,
@@ -236,8 +237,11 @@ async function ensureSchema(): Promise<Queryable | null> {
         UNIQUE(kind, slug)
       )
     `)
-    await pool.query(`CREATE INDEX IF NOT EXISTS nw_taxonomy_terms_kind_idx ON nw_taxonomy_terms(kind, status, sort_order)`)
-  }))
+      await pool.query(
+        `CREATE INDEX IF NOT EXISTS nw_taxonomy_terms_kind_idx ON nw_taxonomy_terms(kind, status, sort_order)`,
+      )
+    }),
+  )
 }
 
 function id(kind: TaxonomyKind, slug: string): string {
@@ -338,7 +342,18 @@ export async function upsertTaxonomyTerm(input: {
          metadata = EXCLUDED.metadata,
          updated_at = now()
        RETURNING *`,
-      [term.id, term.kind, term.slug, term.nameNe, term.nameEn, term.descriptionNe ?? null, term.descriptionEn ?? null, term.status, term.sortOrder, JSON.stringify(term.metadata)],
+      [
+        term.id,
+        term.kind,
+        term.slug,
+        term.nameNe,
+        term.nameEn,
+        term.descriptionNe ?? null,
+        term.descriptionEn ?? null,
+        term.status,
+        term.sortOrder,
+        JSON.stringify(term.metadata),
+      ],
     )
     return rowToTerm(result.rows[0]!)
   }
@@ -365,6 +380,10 @@ export async function archiveTaxonomyTerm(kind: TaxonomyKind, slug: string): Pro
   if (isProductionRuntime()) return false
   const term = memory.get(`${kind}:${slug}`)
   if (!term) return false
-  memory.set(`${kind}:${slug}`, { ...term, status: 'archived', updatedAt: new Date().toISOString() })
+  memory.set(`${kind}:${slug}`, {
+    ...term,
+    status: 'archived',
+    updatedAt: new Date().toISOString(),
+  })
   return true
 }

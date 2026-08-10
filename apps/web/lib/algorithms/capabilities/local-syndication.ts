@@ -17,9 +17,13 @@ export const LOCAL_SYNDICATION_CAPABILITIES: CapabilitySpec[] = [
       const hasTitle = Boolean(input.hasTitle ?? true)
       const hasComponents = Boolean(input.hasComponents ?? true)
       const score = checklistScore([hasIdentifier, hasTitle, hasComponents])
-      return okAdapter('adapter-disabled', `anfStructureValid=${score === 1} (no Apple News API vendor configured)`, {
-        score,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `anfStructureValid=${score === 1} (no Apple News API vendor configured)`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -43,8 +47,14 @@ export const LOCAL_SYNDICATION_CAPABILITIES: CapabilitySpec[] = [
       const sitemapAgeHours = num(input, 'sitemapAgeHours', 2)
       const hasNewsArticleSchema = Boolean(input.hasNewsArticleSchema ?? true)
       const hasLargeImage = Boolean(input.hasLargeImage ?? true)
-      const score = clamp01((sitemapAgeHours <= 12 ? 1 : 0.3) * 0.4 + (hasNewsArticleSchema ? 0.3 : 0) + (hasLargeImage ? 0.3 : 0))
-      return okLocal(`googleNewsEligibility=${score.toFixed(3)} sitemapAge=${sitemapAgeHours}h`, { score })
+      const score = clamp01(
+        (sitemapAgeHours <= 12 ? 1 : 0.3) * 0.4 +
+          (hasNewsArticleSchema ? 0.3 : 0) +
+          (hasLargeImage ? 0.3 : 0),
+      )
+      return okLocal(`googleNewsEligibility=${score.toFixed(3)} sitemapAge=${sitemapAgeHours}h`, {
+        score,
+      })
     },
   },
   {
@@ -53,7 +63,9 @@ export const LOCAL_SYNDICATION_CAPABILITIES: CapabilitySpec[] = [
     mode: 'local',
     run: (input) => {
       const ourTags = new Set((input.tags as string[]) ?? ['politics', 'kathmandu', 'flood'])
-      const partnerInterests = new Set((input.partnerInterests as string[]) ?? ['politics', 'south-asia', 'disaster'])
+      const partnerInterests = new Set(
+        (input.partnerInterests as string[]) ?? ['politics', 'south-asia', 'disaster'],
+      )
       const score = jaccard(ourTags, partnerInterests)
       return okLocal(`partnerMatch=${score.toFixed(3)}`, { score })
     },
@@ -70,7 +82,9 @@ export const LOCAL_SYNDICATION_CAPABILITIES: CapabilitySpec[] = [
       }
       const checks = Object.values(platformChecks)
       const score = checklistScore(checks)
-      return okLocal(`platformComplianceRatio=${score.toFixed(3)} platforms=${checks.length}`, { score })
+      return okLocal(`platformComplianceRatio=${score.toFixed(3)} platforms=${checks.length}`, {
+        score,
+      })
     },
   },
   {
@@ -93,10 +107,14 @@ export const LOCAL_SYNDICATION_CAPABILITIES: CapabilitySpec[] = [
     run: (input) => {
       const expectedRevenue = num(input, 'expectedRevenue', 500)
       const reportedRevenue = num(input, 'reportedRevenue', 480)
-      const variance = expectedRevenue > 0 ? Math.abs(expectedRevenue - reportedRevenue) / expectedRevenue : 0
-      return okLocal(`revenueVariance=${variance.toFixed(3)} expected=${expectedRevenue} reported=${reportedRevenue}`, {
-        score: variance,
-      })
+      const variance =
+        expectedRevenue > 0 ? Math.abs(expectedRevenue - reportedRevenue) / expectedRevenue : 0
+      return okLocal(
+        `revenueVariance=${variance.toFixed(3)} expected=${expectedRevenue} reported=${reportedRevenue}`,
+        {
+          score: variance,
+        },
+      )
     },
   },
   {
@@ -108,9 +126,12 @@ export const LOCAL_SYNDICATION_CAPABILITIES: CapabilitySpec[] = [
       const windowStartHour = num(input, 'windowStartHour', 6)
       const windowEndHour = num(input, 'windowEndHour', 22)
       const withinWindow = hour >= windowStartHour && hour < windowEndHour
-      return okLocal(`withinReleaseWindow=${withinWindow} hour=${hour} window=${windowStartHour}-${windowEndHour}`, {
-        score: withinWindow ? 1 : 0,
-      })
+      return okLocal(
+        `withinReleaseWindow=${withinWindow} hour=${hour} window=${windowStartHour}-${windowEndHour}`,
+        {
+          score: withinWindow ? 1 : 0,
+        },
+      )
     },
   },
   {
@@ -144,7 +165,11 @@ export const LOCAL_SYNDICATION_CAPABILITIES: CapabilitySpec[] = [
       const uptimeRatio = num(input, 'uptimeRatio', 0.98)
       const errorRate = num(input, 'partnerErrorRate', 0.02)
       const latencyMs = num(input, 'partnerLatencyMs', 300)
-      const score = clamp01(uptimeRatio * 0.5 + (1 - clamp01(errorRate * 10)) * 0.3 + clamp01(1 - latencyMs / 1000) * 0.2)
+      const score = clamp01(
+        uptimeRatio * 0.5 +
+          (1 - clamp01(errorRate * 10)) * 0.3 +
+          clamp01(1 - latencyMs / 1000) * 0.2,
+      )
       return okLocal(`partnerHealth=${score.toFixed(3)} uptime=${uptimeRatio}`, { score })
     },
   },

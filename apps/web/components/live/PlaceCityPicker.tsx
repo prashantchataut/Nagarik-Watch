@@ -3,11 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { LIVE_PLACES, type LivePlace } from '@/lib/live/places'
-import {
-  detectPlaceFromGeolocation,
-  readLocalPlace,
-  writeLocalPlace,
-} from '@/lib/reader/place'
+import { detectPlaceFromGeolocation, readLocalPlace, writeLocalPlace } from '@/lib/reader/place'
 
 type PlaceCityPickerProps = {
   locale: Locale
@@ -89,7 +85,9 @@ export function PlaceCityPicker({
         aria-haspopup="listbox"
       >
         <span>{label}</span>
-        <span className="text-ink-soft" aria-hidden>▾</span>
+        <span className="text-ink-soft" aria-hidden>
+          ▾
+        </span>
       </button>
 
       {open ? (
@@ -116,12 +114,8 @@ export function PlaceCityPicker({
                 ? 'Use my location'
                 : 'मेरो स्थान प्रयोग गर्नुहोस्'}
           </button>
-          {detectError ? (
-            <p className="mb-2 text-caption text-ink-soft">{detectError}</p>
-          ) : null}
-          <p className="mb-2 text-caption text-ink-soft">
-            {en ? 'Nepal cities' : 'नेपालका सहर'}
-          </p>
+          {detectError ? <p className="mb-2 text-caption text-ink-soft">{detectError}</p> : null}
+          <p className="mb-2 text-caption text-ink-soft">{en ? 'Nepal cities' : 'नेपालका सहर'}</p>
           <ul className="grid grid-cols-2 gap-1 sm:grid-cols-3">
             {LIVE_PLACES.map((item) => {
               const active = item.slug === place.slug

@@ -1,10 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  CircuitOpenError,
-  execCircuit,
-  getCircuitState,
-  resetCircuit,
-} from './circuit-breaker'
+import { CircuitOpenError, execCircuit, getCircuitState, resetCircuit } from './circuit-breaker'
 
 const options = {
   failureThreshold: 2,

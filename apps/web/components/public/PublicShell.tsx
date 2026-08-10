@@ -83,20 +83,23 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
       <div className="hidden md:block">
         <Suspense
           fallback={
-            <div
-              className="h-9 border-b border-rule bg-surface-raised"
-              aria-hidden="true"
-            />
+            <div className="h-9 border-b border-rule bg-surface-raised" aria-hidden="true" />
           }
         >
           <UtilityStrip locale={locale} />
         </Suspense>
       </div>
-      <main id="main" className="min-h-[55vh] pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0">
+      <main
+        id="main"
+        className="min-h-[55vh] pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0"
+      >
         {children}
       </main>
       <Footer locale={locale} navCategories={navCategories} />
-      <BottomChrome locale={locale} accountHref={account?.profileHref ?? localizeHref(locale, '/auth/login')} />
+      <BottomChrome
+        locale={locale}
+        accountHref={account?.profileHref ?? localizeHref(locale, '/auth/login')}
+      />
       <SaveDataBoot />
       <PwaBoot />
       <RumBoot />

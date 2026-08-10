@@ -163,9 +163,7 @@ export function recommendForReader(
     maxPerSource: 2,
     fatigueWindowHours: 48,
     collaborative:
-      interactions && readerCount > 0
-        ? { enabled: true, interactions, minReaders: 25 }
-        : undefined,
+      interactions && readerCount > 0 ? { enabled: true, interactions, minReaders: 25 } : undefined,
   })
 
   const affinity = buildAffinity(bookmarks, history, catalog, preferences)

@@ -18,12 +18,7 @@ type Props = {
   caption: string
   credit: string
   library: HeroMediaLibraryItem[]
-  onChange: (next: {
-    url?: string
-    alt?: string
-    caption?: string
-    credit?: string
-  }) => void
+  onChange: (next: { url?: string; alt?: string; caption?: string; credit?: string }) => void
 }
 
 /**
@@ -73,9 +68,7 @@ export function HeroMediaField({ url, alt, caption, credit, library, onChange }:
               credit,
             })
           }
-          setUploadError(
-            String(data?.error ?? 'अपलोड असफल। URL टाँस्न वा Blob कन्फिगर गर्नुहोस्।'),
-          )
+          setUploadError(String(data?.error ?? 'अपलोड असफल। URL टाँस्न वा Blob कन्फिगर गर्नुहोस्।'))
           return
         }
         const item = data as HeroMediaLibraryItem
@@ -98,13 +91,7 @@ export function HeroMediaField({ url, alt, caption, credit, library, onChange }:
 
       <div className="relative aspect-[16/10] overflow-hidden rounded-md border border-rule bg-surface">
         {url ? (
-          <Image
-            src={url}
-            alt={alt || 'Hero preview'}
-            fill
-            unoptimized
-            className="object-cover"
-          />
+          <Image src={url} alt={alt || 'Hero preview'} fill unoptimized className="object-cover" />
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-2 px-4 text-center">
             <p className="text-meta font-semibold text-ink" lang="ne">
@@ -126,11 +113,7 @@ export function HeroMediaField({ url, alt, caption, credit, library, onChange }:
         >
           <span lang="ne">{pending ? 'अपलोड हुँदै…' : 'फाइल अपलोड'}</span>
         </AdminButton>
-        <AdminButton
-          type="button"
-          variant="ghost"
-          onClick={() => setPickerOpen((o) => !o)}
-        >
+        <AdminButton type="button" variant="ghost" onClick={() => setPickerOpen((o) => !o)}>
           <span lang="ne">{pickerOpen ? 'पुस्तकालय बन्द' : 'पुस्तकालय'}</span>
         </AdminButton>
         {url ? (

@@ -1,5 +1,10 @@
 import 'server-only'
-import { ensureOperationalSchema, requireOperationalPool, type Queryable, toIso } from '@/lib/ops-db'
+import {
+  ensureOperationalSchema,
+  requireOperationalPool,
+  type Queryable,
+  toIso,
+} from '@/lib/ops-db'
 
 export type ReaderPreferences = {
   categories: string[]
@@ -42,7 +47,14 @@ function ownerKey(fingerprint: string, userId?: string) {
 
 function cleanList(value: unknown, max = 50): string[] {
   if (!Array.isArray(value)) return []
-  return [...new Set(value.map(String).map((item) => item.trim().toLowerCase()).filter(Boolean))]
+  return [
+    ...new Set(
+      value
+        .map(String)
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ]
     .filter((item) => item.length <= 100)
     .slice(0, max)
 }
@@ -50,7 +62,12 @@ function cleanList(value: unknown, max = 50): string[] {
 function timeZone(value: unknown): string {
   const candidate = String(value ?? '').trim()
   if (!candidate || candidate.length > 80) return 'Asia/Kathmandu'
-  try { new Intl.DateTimeFormat('en-US', { timeZone: candidate }).format(new Date()) ; return candidate } catch { return 'Asia/Kathmandu' }
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: candidate }).format(new Date())
+    return candidate
+  } catch {
+    return 'Asia/Kathmandu'
+  }
 }
 
 function hour(value: unknown): number | null {
@@ -139,7 +156,10 @@ function rowToPreferences(row: PreferenceRow): ReaderPreferences {
   }
 }
 
-export async function getReaderPreferences(fingerprint: string, userId?: string): Promise<ReaderPreferences> {
+export async function getReaderPreferences(
+  fingerprint: string,
+  userId?: string,
+): Promise<ReaderPreferences> {
   const key = ownerKey(fingerprint, userId)
   const pool = await operationalPool()
   if (pool) {
@@ -196,7 +216,10 @@ export async function saveReaderPreferences(
   return next
 }
 
-export async function mergeAnonymousPreferences(fingerprint: string, userId: string): Promise<void> {
+export async function mergeAnonymousPreferences(
+  fingerprint: string,
+  userId: string,
+): Promise<void> {
   if (!fingerprint.trim()) return
   const anonymous = await getReaderPreferences(fingerprint)
   const account = await getReaderPreferences('', userId)
@@ -213,16 +236,27 @@ export async function mergeAnonymousPreferences(fingerprint: string, userId: str
     followedAuthors: account.followedAuthors && anonymous.followedAuthors,
     dailyDigest: account.dailyDigest || anonymous.dailyDigest,
     browserAlerts: account.browserAlerts || anonymous.browserAlerts,
-    timeZone: Date.parse(anonymous.updatedAt) > Date.parse(account.updatedAt) ? anonymous.timeZone : account.timeZone,
+    timeZone:
+      Date.parse(anonymous.updatedAt) > Date.parse(account.updatedAt)
+        ? anonymous.timeZone
+        : account.timeZone,
   })
 }
 
-export function sanitizeReaderPreferenceInput(body: Record<string, unknown>): Partial<ReaderPreferences> {
+export function sanitizeReaderPreferenceInput(
+  body: Record<string, unknown>,
+): Partial<ReaderPreferences> {
   const output: Partial<ReaderPreferences> = {}
   for (const key of ['categories', 'tags', 'authors', 'provinces'] as const) {
     if (key in body) output[key] = cleanList(body[key])
   }
-  for (const key of ['breaking', 'followedTopics', 'followedAuthors', 'dailyDigest', 'browserAlerts'] as const) {
+  for (const key of [
+    'breaking',
+    'followedTopics',
+    'followedAuthors',
+    'dailyDigest',
+    'browserAlerts',
+  ] as const) {
     if (key in body) output[key] = Boolean(body[key])
   }
   if ('quietStart' in body) output.quietStart = hour(body.quietStart)

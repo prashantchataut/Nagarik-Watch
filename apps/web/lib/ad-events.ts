@@ -26,7 +26,10 @@ type SummaryRow = {
   avg_attention: string | number | null
 }
 
-const memory = new Map<string, { impressions: number; clicks: number; attentionTotal: number; attentionSamples: number }>()
+const memory = new Map<
+  string,
+  { impressions: number; clicks: number; attentionTotal: number; attentionSamples: number }
+>()
 let schemaReady: Promise<void> | null = null
 
 async function getPool(): Promise<Queryable | null> {
@@ -57,7 +60,9 @@ async function ensureSchema(): Promise<Queryable | null> {
             created_at timestamptz NOT NULL DEFAULT now()
           )
         `)
-        await pool.query(`ALTER TABLE nw_ad_events ADD COLUMN IF NOT EXISTS attention double precision`)
+        await pool.query(
+          `ALTER TABLE nw_ad_events ADD COLUMN IF NOT EXISTS attention double precision`,
+        )
         await pool.query(
           `CREATE INDEX IF NOT EXISTS nw_ad_events_placement_idx ON nw_ad_events(placement_key, created_at DESC)`,
         )
@@ -90,7 +95,12 @@ export async function recordAdEvent(input: {
     )
     return
   }
-  const current = memory.get(input.placementKey) ?? { impressions: 0, clicks: 0, attentionTotal: 0, attentionSamples: 0 }
+  const current = memory.get(input.placementKey) ?? {
+    impressions: 0,
+    clicks: 0,
+    attentionTotal: 0,
+    attentionSamples: 0,
+  }
   if (input.event === 'impression') current.impressions += 1
   if (input.event === 'click') current.clicks += 1
   if (attention !== null) {

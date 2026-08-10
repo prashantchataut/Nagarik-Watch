@@ -70,7 +70,10 @@ export default async function PhotoGalleryPage({
 
   return (
     <article className="mx-auto max-w-page px-4 pb-16 pt-10">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <HubIndexHeader
         title={title}
         lead={

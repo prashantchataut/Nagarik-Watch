@@ -1,14 +1,8 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Locale } from '@nagarikwatch/db'
-import {
-  adToBs,
-  bsToAd,
-  formatBsFull,
-  preetiToUnicode,
-  unicodeToPreeti,
-} from '@nagarikwatch/db'
+import { adToBs, bsToAd, formatBsFull, preetiToUnicode, unicodeToPreeti } from '@nagarikwatch/db'
 
 type ForexRate = {
   iso3: string
@@ -45,15 +39,7 @@ function ToolWorkspace({
   )
 }
 
-function Field({
-  label,
-  children,
-  hint,
-}: {
-  label: string
-  children: ReactNode
-  hint?: string
-}) {
+function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
   return (
     <label className="grid gap-1.5">
       <span className="text-meta font-bold text-ink-soft">{label}</span>
@@ -155,7 +141,12 @@ export function DateConverterTool({ locale }: { locale: Locale }) {
     >
       <FormRow>
         <Field label={en ? 'Gregorian date (AD)' : 'इस्वी संवत् मिति (AD)'}>
-          <input type="date" className={fieldInputClass} value={ad} onChange={(event) => setAd(event.target.value)} />
+          <input
+            type="date"
+            className={fieldInputClass}
+            value={ad}
+            onChange={(event) => setAd(event.target.value)}
+          />
         </Field>
         <Result
           label={en ? 'Bikram Sambat' : 'विक्रम संवत्'}
@@ -223,55 +214,90 @@ export function PreetiUnicodeTool({ locale }: { locale: Locale }) {
     window.setTimeout(() => setCopyState('idle'), 1800)
   }
 
+  function clear() {
+    setPreeti('')
+    setUnicode('')
+  }
+
+  function loadSample() {
+    const sample = "g]kfn ;'Gb/ b]z xf] ."
+    setPreeti(sample)
+    setUnicode(preetiToUnicode(sample))
+  }
+
   const copyLabel =
     copyState === 'copied'
       ? en
-        ? 'Copied'
-        : 'प्रति लिइयो'
+        ? 'Copied to Clipboard!'
+        : 'युनिकोड प्रतिलिपि गरियो!'
       : copyState === 'failed'
         ? en
-          ? 'Copy failed'
+          ? 'Copy Failed'
           : 'प्रति लिन सकिएन'
         : en
           ? 'Copy Unicode'
-          : 'युनिकोड प्रति लिनुहोस्'
+          : 'युनिकोड प्रतिलिपि गर्नुहोस्'
 
   return (
     <ToolWorkspace
       locale={locale}
       summary={
         en
-          ? 'Conversion runs in your browser. Text is not uploaded or stored.'
-          : 'रूपान्तरण तपाईंको ब्राउजरमै हुन्छ। पाठ अपलोड वा भण्डारण हुँदैन।'
+          ? 'Real-time bidirectional Preeti to Unicode converter. Conversion runs entirely in your browser.'
+          : 'प्रिती फन्टबाट नेपाली युनिकोडमा तत्काल रूपान्तरण। पाठ पूर्णतया तपाईंको ब्राउजरमै प्रोसेस हुन्छ।'
       }
     >
       <div className="grid gap-4 lg:grid-cols-2">
-        <Field label="Preeti">
+        <Field
+          label={en ? 'Preeti Font Text' : 'प्रिती फन्ट पाठ (Preeti)'}
+          hint={`${preeti.length} ${en ? 'characters' : 'अक्षर'}`}
+        >
           <textarea
-            className={`${fieldInputClass} min-h-[13rem] resize-y leading-relaxed`}
+            className={`${fieldInputClass} min-h-[14rem] resize-y leading-relaxed font-mono`}
             value={preeti}
             onChange={(event) => {
               const next = event.target.value
               setPreeti(next)
               setUnicode(preetiToUnicode(next))
             }}
-            placeholder="g]kfn"
+            placeholder="g]kfn ;'Gb/ b]z xf] ."
           />
         </Field>
-        <Field label={en ? 'Unicode Nepali' : 'युनिकोड नेपाली'}>
+
+        <Field
+          label={en ? 'Unicode Nepali Text' : 'युनिकोड नेपाली (Unicode)'}
+          hint={`${unicode.length} ${en ? 'characters' : 'अक्षर'}`}
+        >
           <textarea
-            className={`${fieldInputClass} min-h-[13rem] resize-y leading-relaxed`}
+            className={`${fieldInputClass} min-h-[14rem] resize-y leading-relaxed font-devanagari text-lg`}
             value={unicode}
             onChange={(event) => {
               const next = event.target.value
               setUnicode(next)
               setPreeti(unicodeToPreeti(next))
             }}
-            placeholder="नेपाल"
+            placeholder="नेपाल सुन्दर देश हो।"
           />
         </Field>
       </div>
-      <PrimaryButton onClick={copy}>{copyLabel}</PrimaryButton>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <PrimaryButton onClick={copy}>{copyLabel}</PrimaryButton>
+        <button
+          type="button"
+          onClick={clear}
+          className="inline-flex min-h-11 items-center justify-center rounded-md border border-rule bg-surface px-4 text-meta font-bold text-ink transition-colors hover:border-brand hover:text-brand-strong"
+        >
+          {en ? 'Clear' : 'खाली गर्नुहोस्'}
+        </button>
+        <button
+          type="button"
+          onClick={loadSample}
+          className="inline-flex min-h-11 items-center justify-center rounded-md border border-dashed border-rule px-4 text-caption font-bold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
+        >
+          {en ? 'Load sample text' : 'नमूना पाठ लोड गर्नुहोस्'}
+        </button>
+      </div>
     </ToolWorkspace>
   )
 }
@@ -288,9 +314,7 @@ export function CurrencyConverterTool({
   const en = locale === 'en'
   const [iso, setIso] = useState('USD')
   const [amount, setAmount] = useState('100')
-  const [direction, setDirection] = useState<'foreign-to-npr' | 'npr-to-foreign'>(
-    'foreign-to-npr',
-  )
+  const [direction, setDirection] = useState<'foreign-to-npr' | 'npr-to-foreign'>('foreign-to-npr')
   const rate = rates.find((item) => item.iso3 === iso) ?? rates[0]
 
   useEffect(() => {
@@ -302,10 +326,9 @@ export function CurrencyConverterTool({
     const number = Number(amount)
     if (!Number.isFinite(number)) return ''
     const mid = (rate.buy + rate.sell) / 2
-    return (direction === 'foreign-to-npr' ? number * mid : number / mid).toLocaleString(
-      'en-US',
-      { maximumFractionDigits: 2 },
-    )
+    return (direction === 'foreign-to-npr' ? number * mid : number / mid).toLocaleString('en-US', {
+      maximumFractionDigits: 2,
+    })
   }, [rate, amount, direction])
 
   const summary = source
@@ -329,7 +352,11 @@ export function CurrencyConverterTool({
               </legend>
               <div className="grid gap-3 sm:grid-cols-3">
                 <Field label={en ? 'Currency' : 'मुद्रा'}>
-                  <select className={fieldInputClass} value={iso} onChange={(event) => setIso(event.target.value)}>
+                  <select
+                    className={fieldInputClass}
+                    value={iso}
+                    onChange={(event) => setIso(event.target.value)}
+                  >
                     {rates.map((item) => (
                       <option key={item.iso3} value={item.iso3}>
                         {item.iso3} ({item.name})
@@ -530,14 +557,22 @@ export function UnitConverterTool({ locale }: { locale: Locale }) {
               </select>
             </Field>
             <Field label={en ? 'From' : 'बाट'}>
-              <select className={fieldInputClass} value={from} onChange={(event) => setFrom(event.target.value)}>
+              <select
+                className={fieldInputClass}
+                value={from}
+                onChange={(event) => setFrom(event.target.value)}
+              >
                 {keys.map((key) => (
                   <option key={key}>{key}</option>
                 ))}
               </select>
             </Field>
             <Field label={en ? 'To' : 'मा'}>
-              <select className={fieldInputClass} value={to} onChange={(event) => setTo(event.target.value)}>
+              <select
+                className={fieldInputClass}
+                value={to}
+                onChange={(event) => setTo(event.target.value)}
+              >
                 {keys.map((key) => (
                   <option key={key}>{key}</option>
                 ))}

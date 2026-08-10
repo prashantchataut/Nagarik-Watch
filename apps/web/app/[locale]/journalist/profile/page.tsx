@@ -3,17 +3,28 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import type { Locale } from '@nagarikwatch/db'
 import { getNewsroomSession } from '@/lib/auth/session'
-import { CONTRIBUTOR_ROLES, NEWSROOM_ROLE_LABELS_EN, NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
+import {
+  CONTRIBUTOR_ROLES,
+  NEWSROOM_ROLE_LABELS_EN,
+  NEWSROOM_ROLE_LABELS_NE,
+} from '@/lib/admin-roles'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getEditorPreferences } from '@/lib/editor-preferences'
 import { getNavCategories } from '@/lib/content'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
 import { EditorPreferencesForm } from '@/components/newsroom/EditorPreferencesForm'
 
-export const metadata: Metadata = { title: 'Journalist profile', robots: { index: false, follow: false } }
+export const metadata: Metadata = {
+  title: 'Journalist profile',
+  robots: { index: false, follow: false },
+}
 export const dynamic = 'force-dynamic'
 
-export default async function JournalistProfilePage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function JournalistProfilePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
   const locale: Locale = asLocale((await params).locale)
   const ne = locale === 'ne'
   const session = await getNewsroomSession()

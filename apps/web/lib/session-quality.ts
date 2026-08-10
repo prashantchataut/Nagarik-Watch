@@ -5,10 +5,7 @@ import {
   type BookmarkVelocityStat,
   type MostReadStat,
 } from '@/lib/engagement/store'
-import {
-  getRankingEventStats,
-  type RankingEventStat,
-} from '@/lib/engagement/ranking-events'
+import { getRankingEventStats, type RankingEventStat } from '@/lib/engagement/ranking-events'
 
 export type SessionQualityRow = {
   articleSlug: string
@@ -104,7 +101,10 @@ export function aggregateSessionQuality(
         weightedDenominator,
       qualityScore:
         stories.reduce((sum, row) => sum + row.qualityScore * Math.max(1, row.readers), 0) /
-        Math.max(1, stories.reduce((sum, row) => sum + Math.max(1, row.readers), 0)),
+        Math.max(
+          1,
+          stories.reduce((sum, row) => sum + Math.max(1, row.readers), 0),
+        ),
     },
     stories,
   }

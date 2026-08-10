@@ -24,12 +24,25 @@ describe('collaborative filtering baselines', () => {
   })
 
   it('orders k nearest interest vectors by cosine similarity', () => {
-    const interest = new Map([['politics', 1], ['economy', 1]])
-    const result = knnRecommend(interest, [
-      { id: 'exact', vector: new Map([['politics', 1], ['economy', 1]]) },
-      { id: 'partial', vector: new Map([['politics', 1]]) },
-      { id: 'unrelated', vector: new Map([['sports', 1]]) },
-    ], 2)
+    const interest = new Map([
+      ['politics', 1],
+      ['economy', 1],
+    ])
+    const result = knnRecommend(
+      interest,
+      [
+        {
+          id: 'exact',
+          vector: new Map([
+            ['politics', 1],
+            ['economy', 1],
+          ]),
+        },
+        { id: 'partial', vector: new Map([['politics', 1]]) },
+        { id: 'unrelated', vector: new Map([['sports', 1]]) },
+      ],
+      2,
+    )
 
     expect(result.map((item) => item.id)).toEqual(['exact', 'partial'])
     expect(result[0]!.similarity).toBeCloseTo(1)

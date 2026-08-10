@@ -31,7 +31,9 @@ export function NewsletterInline({ locale }: { locale: Locale }) {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
-    const turnstileToken = new FormData(e.currentTarget as HTMLFormElement).get('cf-turnstile-response')
+    const turnstileToken = new FormData(e.currentTarget as HTMLFormElement).get(
+      'cf-turnstile-response',
+    )
     const trimmed = email.trim()
     const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)
     if (!ok) {

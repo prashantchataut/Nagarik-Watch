@@ -10,7 +10,9 @@ export async function isUserDisabledById(userId: string): Promise<boolean> {
   const pool = await ensureOperationalSchema('auth-disabled-check-v1', async (db) => {
     for (const table of ['"user"', 'user']) {
       try {
-        await db.query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS disabled boolean NOT NULL DEFAULT false`)
+        await db.query(
+          `ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS disabled boolean NOT NULL DEFAULT false`,
+        )
         break
       } catch {
         // Quoting differs by adapter.

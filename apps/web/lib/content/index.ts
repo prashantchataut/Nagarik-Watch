@@ -9,10 +9,7 @@ import type {
   Tag,
 } from '@nagarikwatch/db'
 import type { ContentSource, StoryListOptions } from './source'
-import {
-  contentSourceFingerprint,
-  resolveContentSource,
-} from './resolve-content-source'
+import { contentSourceFingerprint, resolveContentSource } from './resolve-content-source'
 
 let cached: { key: string; source: Promise<ContentSource> } | null = null
 

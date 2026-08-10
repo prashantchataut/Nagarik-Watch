@@ -18,8 +18,10 @@ function fingerprint(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const fp = fingerprint(request)
   const session = await getSession().catch(() => null)
-  if (!session && !fp) return NextResponse.json({ error: 'Reader identity required.' }, { status: 400 })
-  if (fp.length > 160) return NextResponse.json({ error: 'Invalid reader identifier.' }, { status: 400 })
+  if (!session && !fp)
+    return NextResponse.json({ error: 'Reader identity required.' }, { status: 400 })
+  if (fp.length > 160)
+    return NextResponse.json({ error: 'Invalid reader identifier.' }, { status: 400 })
   if (session && fp) await mergeAnonymousPreferences(fp, session.userId)
   return NextResponse.json({ preferences: await getReaderPreferences(fp, session?.userId) })
 }

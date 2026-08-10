@@ -73,7 +73,12 @@ export function JournalistFeedbackActions({
           नोट सुरक्षित
         </button>
         {initialFeedback ? (
-          <button type="button" onClick={() => send('clear')} disabled={pending} aria-busy={pending}>
+          <button
+            type="button"
+            onClick={() => send('clear')}
+            disabled={pending}
+            aria-busy={pending}
+          >
             हटाउनुहोस्
           </button>
         ) : null}

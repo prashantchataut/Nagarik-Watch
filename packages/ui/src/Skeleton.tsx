@@ -47,7 +47,13 @@ export function StoryGridSkeleton({
 /** Dense thumb + headline row (sidebar / “more” lists). */
 export function DenseStoryRowSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('grid grid-cols-[4.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[5rem_minmax(0,1fr)]', className)} aria-hidden="true">
+    <div
+      className={cn(
+        'grid grid-cols-[4.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[5rem_minmax(0,1fr)]',
+        className,
+      )}
+      aria-hidden="true"
+    >
       <div className={cn(shimmerBase, 'aspect-[4/3] rounded-sm')} />
       <div className="min-w-0 space-y-2">
         <div className={cn(shimmerBase, 'h-3 w-16 rounded-sm')} />
@@ -80,7 +86,11 @@ export function MegaStoryBlockSkeleton({ className }: { className?: string }) {
 /** Homepage A1 soft-nav: 2–3 mega blocks + thin desk hint. */
 export function HomeFeedSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('mx-auto max-w-page space-y-8 px-3 py-4 sm:px-4 sm:py-5', className)} aria-busy="true" aria-live="polite">
+    <div
+      className={cn('mx-auto max-w-page space-y-8 px-3 py-4 sm:px-4 sm:py-5', className)}
+      aria-busy="true"
+      aria-live="polite"
+    >
       <MegaStoryBlockSkeleton />
       <div className="border-t border-rule pt-8">
         <MegaStoryBlockSkeleton />
@@ -157,7 +167,12 @@ export function ArticleBodySkeleton({ className }: { className?: string }) {
 /** पात्रो desk: today banner + sidebar widgets + month grid + tiles. */
 export function PatroDeskSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('grid gap-5', className)} aria-busy="true" aria-live="polite" aria-hidden="true">
+    <div
+      className={cn('grid gap-5', className)}
+      aria-busy="true"
+      aria-live="polite"
+      aria-hidden="true"
+    >
       <div className="flex items-center gap-4 border-b border-rule pb-4">
         <div className={cn(shimmerBase, 'h-[5.25rem] w-[5.25rem] shrink-0 rounded-full')} />
         <div className="min-w-0 flex-1 space-y-2">

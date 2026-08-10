@@ -6,11 +6,27 @@ import { useState, useTransition } from 'react'
 import type { FormEvent } from 'react'
 import { PasswordField } from '@/components/forms/PasswordField'
 
-export function PasswordResetForm({ locale, token, invalidToken, next }: { locale: 'ne' | 'en'; token: string | null; invalidToken: boolean; next?: string | null }) {
+export function PasswordResetForm({
+  locale,
+  token,
+  invalidToken,
+  next,
+}: {
+  locale: 'ne' | 'en'
+  token: string | null
+  invalidToken: boolean
+  next?: string | null
+}) {
   const ne = locale === 'ne'
   const router = useRouter()
   const [pending, startTransition] = useTransition()
-  const [error, setError] = useState<string | null>(invalidToken ? (ne ? 'यो लिंक मान्य छैन वा म्याद सकिएको छ।' : 'This link is invalid or has expired.') : null)
+  const [error, setError] = useState<string | null>(
+    invalidToken
+      ? ne
+        ? 'यो लिंक मान्य छैन वा म्याद सकिएको छ।'
+        : 'This link is invalid or has expired.'
+      : null,
+  )
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -23,7 +39,9 @@ export function PasswordResetForm({ locale, token, invalidToken, next }: { local
       return
     }
     if (newPassword.length < 8) {
-      setError(ne ? 'पासवर्ड कम्तीमा ८ अक्षरको हुनुपर्छ।' : 'Password must be at least 8 characters.')
+      setError(
+        ne ? 'पासवर्ड कम्तीमा ८ अक्षरको हुनुपर्छ।' : 'Password must be at least 8 characters.',
+      )
       return
     }
     if (newPassword !== confirmation) {
@@ -46,7 +64,11 @@ export function PasswordResetForm({ locale, token, invalidToken, next }: { local
         router.replace(`${destination}${destination.includes('?') ? '&' : '?'}reset=success`)
         router.refresh()
       } catch {
-        setError(ne ? 'लिंकको म्याद सकिएको हुन सक्छ। नयाँ लिंक माग्नुहोस्।' : 'The link may have expired. Request a new one.')
+        setError(
+          ne
+            ? 'लिंकको म्याद सकिएको हुन सक्छ। नयाँ लिंक माग्नुहोस्।'
+            : 'The link may have expired. Request a new one.',
+        )
       }
     })
   }
@@ -54,8 +76,16 @@ export function PasswordResetForm({ locale, token, invalidToken, next }: { local
   if (!token || invalidToken) {
     return (
       <div className="grid gap-4" lang={ne ? 'ne' : 'en'}>
-        <div role="alert" className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong">{error}</div>
-        <Link href={ne ? '/auth/forgot-password' : '/en/auth/forgot-password'} className="inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong">
+        <div
+          role="alert"
+          className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+        >
+          {error}
+        </div>
+        <Link
+          href={ne ? '/auth/forgot-password' : '/en/auth/forgot-password'}
+          className="inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong"
+        >
           {ne ? 'नयाँ लिंक माग्नुहोस्' : 'Request a new link'}
         </Link>
       </div>
@@ -64,15 +94,51 @@ export function PasswordResetForm({ locale, token, invalidToken, next }: { local
 
   return (
     <form onSubmit={onSubmit} className="grid gap-4" noValidate>
-      {error && <div role="alert" className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong" lang={ne ? 'ne' : 'en'}>{error}</div>}
+      {error && (
+        <div
+          role="alert"
+          className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+          lang={ne ? 'ne' : 'en'}
+        >
+          {error}
+        </div>
+      )}
       <div lang={ne ? 'ne' : 'en'}>
-        <PasswordField name="newPassword" label={ne ? 'नयाँ पासवर्ड' : 'New password'} autoComplete="new-password" required disabled={pending} showLabel={ne ? 'देखाउनुहोस्' : 'Show'} hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'} />
+        <PasswordField
+          name="newPassword"
+          label={ne ? 'नयाँ पासवर्ड' : 'New password'}
+          autoComplete="new-password"
+          required
+          disabled={pending}
+          showLabel={ne ? 'देखाउनुहोस्' : 'Show'}
+          hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'}
+        />
       </div>
       <div lang={ne ? 'ne' : 'en'}>
-        <PasswordField name="confirmation" label={ne ? 'नयाँ पासवर्ड फेरि लेख्नुहोस्' : 'Confirm new password'} autoComplete="new-password" required disabled={pending} showLabel={ne ? 'देखाउनुहोस्' : 'Show'} hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'} />
+        <PasswordField
+          name="confirmation"
+          label={ne ? 'नयाँ पासवर्ड फेरि लेख्नुहोस्' : 'Confirm new password'}
+          autoComplete="new-password"
+          required
+          disabled={pending}
+          showLabel={ne ? 'देखाउनुहोस्' : 'Show'}
+          hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'}
+        />
       </div>
-      <button type="submit" disabled={pending} className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60">
-        <span lang={ne ? 'ne' : 'en'}>{pending ? (ne ? 'परिवर्तन हुँदै…' : 'Updating…') : (ne ? 'पासवर्ड परिवर्तन गर्नुहोस्' : 'Update password')}</span>
+      <button
+        type="submit"
+        disabled={pending}
+        className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <span lang={ne ? 'ne' : 'en'}>
+          {pending
+            ? ne
+              ? 'परिवर्तन हुँदै…'
+              : 'Updating…'
+            : ne
+              ? 'पासवर्ड परिवर्तन गर्नुहोस्'
+              : 'Update password'}
+        </span>
       </button>
     </form>
   )
@@ -82,7 +148,9 @@ function safeNext(value: string | null | undefined): string | null {
   if (!value || !value.startsWith('/') || value.startsWith('//')) return null
   try {
     const url = new URL(value, 'https://nagarikwatch.local')
-    return url.origin === 'https://nagarikwatch.local' ? `${url.pathname}${url.search}${url.hash}` : null
+    return url.origin === 'https://nagarikwatch.local'
+      ? `${url.pathname}${url.search}${url.hash}`
+      : null
   } catch {
     return null
   }

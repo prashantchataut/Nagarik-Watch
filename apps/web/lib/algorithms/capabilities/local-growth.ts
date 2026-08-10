@@ -2,13 +2,22 @@ import type { CapabilitySpec } from '../types'
 import { num, clamp01, okLocal } from '../handlers/utils'
 import { surfaceFor } from './surface'
 
-function churnRisk(daysSinceLastVisit: number, sessions30d: number, priorSessions30d: number): number {
+function churnRisk(
+  daysSinceLastVisit: number,
+  sessions30d: number,
+  priorSessions30d: number,
+): number {
   const recencyRisk = clamp01(daysSinceLastVisit / 30)
-  const declineRisk = priorSessions30d > 0 ? clamp01(1 - sessions30d / priorSessions30d) : sessions30d === 0 ? 1 : 0
+  const declineRisk =
+    priorSessions30d > 0 ? clamp01(1 - sessions30d / priorSessions30d) : sessions30d === 0 ? 1 : 0
   return clamp01(recencyRisk * 0.6 + declineRisk * 0.4)
 }
 
-function predictedLtv(avgSessionMinutes: number, sessionsPerMonth: number, monthsRetained: number): number {
+function predictedLtv(
+  avgSessionMinutes: number,
+  sessionsPerMonth: number,
+  monthsRetained: number,
+): number {
   const monthlyValue = avgSessionMinutes * 0.02 * sessionsPerMonth
   return Math.max(0, monthlyValue * monthsRetained)
 }
@@ -35,7 +44,9 @@ export const LOCAL_GROWTH_CAPABILITIES: CapabilitySpec[] = [
       const sessionsPerMonth = num(input, 'sessionsPerMonth', 10)
       const monthsRetained = num(input, 'monthsRetained', 6)
       const score = predictedLtv(avgSessionMinutes, sessionsPerMonth, monthsRetained)
-      return okLocal(`ltvEstimate=${score.toFixed(2)} sessionsPerMonth=${sessionsPerMonth}`, { score })
+      return okLocal(`ltvEstimate=${score.toFixed(2)} sessionsPerMonth=${sessionsPerMonth}`, {
+        score,
+      })
     },
   },
 ]

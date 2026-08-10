@@ -5,10 +5,15 @@
  * seed unless ALLOW_STARTER_SEED=true. Never holds scraped third-party copy.
  */
 import 'server-only'
-import { promises as fs } from 'node:fs'
+import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { ArticleBlock, Locale, WorkflowStage } from '@nagarikwatch/db'
-import { ensureOperationalSchema, isProductionRuntime, runSchemaStatements, type Queryable } from '@/lib/ops-db'
+import {
+  ensureOperationalSchema,
+  isProductionRuntime,
+  runSchemaStatements,
+  type Queryable,
+} from '@/lib/ops-db'
 import { buildOriginalStarterArticles } from './seed-original'
 import { normalizeEditionHeroUrl } from './seed-edition/_helpers'
 import type { NewsroomRole } from '@/lib/admin-roles'
@@ -17,7 +22,15 @@ import {
   isPublicWorkflowStage,
 } from '@/lib/editorial/workflow-transitions'
 
-const DATA_DIR = path.resolve(process.cwd(), 'data')
+function resolveDataDir(): string {
+  const inApp = path.resolve(process.cwd(), 'apps/web/data')
+  if (existsSync(inApp)) return inApp
+  const inCwd = path.resolve(process.cwd(), 'data')
+  if (existsSync(inCwd)) return inCwd
+  return inCwd
+}
+
+const DATA_DIR = resolveDataDir()
 const STORE_FILE = path.join(DATA_DIR, 'articles.json')
 const PUBLIC_WORKFLOW_STAGES: readonly WorkflowStage[] = ['published', 'updated']
 const SCHEMA_KEY = 'nw-articles-v1'
@@ -93,7 +106,9 @@ export type StoredArticle = {
 }
 
 /** ADR-007: public English only when englishStatus is published (never titleEn presence alone). */
-export function articleHasPublicEnglish(article: Pick<StoredArticle, 'englishStatus' | 'hasEnglish'>): boolean {
+export function articleHasPublicEnglish(
+  article: Pick<StoredArticle, 'englishStatus' | 'hasEnglish'>,
+): boolean {
   if (article.englishStatus) return article.englishStatus === 'published'
   // Legacy rows without englishStatus: do not expose EN (fail closed).
   return false
@@ -299,7 +314,9 @@ async function refreshEditionArticles(
 async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
   const result = await pool.query<{ document: unknown }>(`SELECT document FROM nw_articles`)
   const rawArticles = withoutLegacyStarters(
-    result.rows.map((row) => parseDocument(row.document)).filter((a): a is StoredArticle => Boolean(a)),
+    result.rows
+      .map((row) => parseDocument(row.document))
+      .filter((a): a is StoredArticle => Boolean(a)),
   )
 
   if (rawArticles.length === 0) {
@@ -359,9 +376,7 @@ async function writeToPostgres(pool: Queryable, store: StoreShape): Promise<void
   }
 }
 
-type StoreMutation =
-  | { type: 'upsert'; article: StoredArticle }
-  | { type: 'delete'; id: string }
+type StoreMutation = { type: 'upsert'; article: StoredArticle } | { type: 'delete'; id: string }
 
 async function applyStoreMutation(pool: Queryable, mutation: StoreMutation): Promise<void> {
   if (mutation.type === 'delete') {
@@ -721,7 +736,9 @@ export async function getHomepageData(): Promise<{
     .slice(0, 8)
 
   const reserved = new Set(
-    [leadId, ...featured.map((a) => a.id), ...secondary.map((a) => a.id)].filter(Boolean) as string[],
+    [leadId, ...featured.map((a) => a.id), ...secondary.map((a) => a.id)].filter(
+      Boolean,
+    ) as string[],
   )
 
   if (featured.length < 4) {
@@ -740,7 +757,9 @@ export async function getHomepageData(): Promise<{
   }
 
   if (secondary.length < 5) {
-    const fill = published.filter((a) => a.id !== leadId && !reserved.has(a.id)).slice(0, 8 - secondary.length)
+    const fill = published
+      .filter((a) => a.id !== leadId && !reserved.has(a.id))
+      .slice(0, 8 - secondary.length)
     for (const article of fill) {
       reserved.add(article.id)
       secondary.push(article)
@@ -809,100 +828,99 @@ export async function createArticle(input: {
   factCheckStatus?: StoredArticle['factCheckStatus']
 }): Promise<StoredArticle> {
   return withArticleMutation(async () => {
-  const store = await read()
-  const dup = store.articles.find(
-    (a) => a.categorySlug === input.categorySlug && a.slug === input.slug,
-  )
-  if (dup) throw new Error('स्लग पहिले नै अवस्थित छ। अर्को स्लग राख्नुहोस्।')
+    const store = await read()
+    const dup = store.articles.find(
+      (a) => a.categorySlug === input.categorySlug && a.slug === input.slug,
+    )
+    if (dup) throw new Error('स्लग पहिले नै अवस्थित छ। अर्को स्लग राख्नुहोस्।')
 
-  const now_iso = now()
-  const stage = input.workflowStage ?? 'draft'
-  if (stage === 'scheduled') {
-    if (!input.publishedAt || !Number.isFinite(Date.parse(input.publishedAt))) {
-      throw new Error('तालिकाबद्ध प्रकाशनका लागि मान्य भविष्यको मिति आवश्यक छ।')
+    const now_iso = now()
+    const stage = input.workflowStage ?? 'draft'
+    if (stage === 'scheduled') {
+      if (!input.publishedAt || !Number.isFinite(Date.parse(input.publishedAt))) {
+        throw new Error('तालिकाबद्ध प्रकाशनका लागि मान्य भविष्यको मिति आवश्यक छ।')
+      }
+      if (Date.parse(input.publishedAt) <= Date.now()) {
+        throw new Error('तालिका मिति भविष्यमा हुनुपर्छ।')
+      }
     }
-    if (Date.parse(input.publishedAt) <= Date.now()) {
-      throw new Error('तालिका मिति भविष्यमा हुनुपर्छ।')
-    }
-  }
-  const publishAt =
-    stage === 'scheduled'
-      ? new Date(input.publishedAt!).toISOString()
-      : stage === 'published' || stage === 'updated'
-        ? now_iso
-        : input.publishedAt && Number.isFinite(Date.parse(input.publishedAt))
-          ? new Date(input.publishedAt).toISOString()
-          : now_iso
-  const englishStatus = normalizeEnglishStatus(input.englishStatus)
-  assertEnglishPublicationReady({
-    englishStatus,
-    titleEn: input.titleEn,
-    bodyEn: input.bodyEn,
-  })
-  const sourceType = input.sourceType ?? 'original'
-  assertSourceAttribution({
-    sourceType,
-    sourceName: input.sourceName,
-    sourceUrl: input.sourceUrl,
-  })
+    const publishAt =
+      stage === 'scheduled'
+        ? new Date(input.publishedAt!).toISOString()
+        : stage === 'published' || stage === 'updated'
+          ? now_iso
+          : input.publishedAt && Number.isFinite(Date.parse(input.publishedAt))
+            ? new Date(input.publishedAt).toISOString()
+            : now_iso
+    const englishStatus = normalizeEnglishStatus(input.englishStatus)
+    assertEnglishPublicationReady({
+      englishStatus,
+      titleEn: input.titleEn,
+      bodyEn: input.bodyEn,
+    })
+    const sourceType = input.sourceType ?? 'original'
+    assertSourceAttribution({
+      sourceType,
+      sourceName: input.sourceName,
+      sourceUrl: input.sourceUrl,
+    })
 
-  const article: StoredArticle = {
-    id: genId(),
-    slug: input.slug,
-    categorySlug: input.categorySlug,
-    titleNe: input.titleNe,
-    titleEn: input.titleEn,
-    deckNe: input.deckNe,
-    deckEn: input.deckEn,
-    homepageTeaserNe: input.homepageTeaserNe,
-    socialCopyNe: input.socialCopyNe,
-    reportingLocation: input.reportingLocation,
-    sourceNote: input.sourceNote,
-    editorPitch: input.editorPitch,
-    mediaReferenceUrl: input.mediaReferenceUrl,
-    bodyNe: input.bodyNe,
-    bodyEn: input.bodyEn,
-    heroImageUrl: input.heroImageUrl,
-    heroImageAlt: input.heroImageAlt,
-    heroCaptionNe: input.heroCaptionNe,
-    heroCredit: input.heroCredit,
-    authorIds: input.authorIds,
-    tagSlugs: input.tagSlugs,
-    publishedAt: publishAt,
-    updatedAt: now_iso,
-    isBreaking: input.isBreaking ?? false,
-    isFeatured: input.isFeatured ?? 'none',
-    featuredExpiresAt: input.featuredExpiresAt,
-    workflowStage: stage,
-    sourceType,
-    sourceName: input.sourceName,
-    sourceUrl: input.sourceUrl,
-    seoTitleNe: input.seoTitleNe,
-    seoDescriptionNe: input.seoDescriptionNe,
-    noIndex: input.noIndex ?? !PUBLIC_WORKFLOW_STAGES.includes(stage),
-    includeInNewsSitemap:
-      input.includeInNewsSitemap ?? PUBLIC_WORKFLOW_STAGES.includes(stage),
-    aiSummary: input.aiSummary,
-    premium: input.premium ?? false,
-    commentsEnabled: input.commentsEnabled ?? false,
-    locale: input.locale ?? 'ne',
-    englishStatus,
-    hasEnglish: englishStatus === 'published',
-    readingMinutes: estimateReadingMinutes(input.bodyNe),
-    createdBy: input.createdBy,
-    updatedBy: input.createdBy,
-    province: input.province,
-    district: input.district,
-    exclusive: input.exclusive,
-    editorPick: input.editorPick,
-    dataStory: input.dataStory,
-    factCheckStatus: input.factCheckStatus,
-  }
-  await writeUnlocked(
-    { ...store, articles: [...store.articles, article] },
-    { type: 'upsert', article },
-  )
-  return article
+    const article: StoredArticle = {
+      id: genId(),
+      slug: input.slug,
+      categorySlug: input.categorySlug,
+      titleNe: input.titleNe,
+      titleEn: input.titleEn,
+      deckNe: input.deckNe,
+      deckEn: input.deckEn,
+      homepageTeaserNe: input.homepageTeaserNe,
+      socialCopyNe: input.socialCopyNe,
+      reportingLocation: input.reportingLocation,
+      sourceNote: input.sourceNote,
+      editorPitch: input.editorPitch,
+      mediaReferenceUrl: input.mediaReferenceUrl,
+      bodyNe: input.bodyNe,
+      bodyEn: input.bodyEn,
+      heroImageUrl: input.heroImageUrl,
+      heroImageAlt: input.heroImageAlt,
+      heroCaptionNe: input.heroCaptionNe,
+      heroCredit: input.heroCredit,
+      authorIds: input.authorIds,
+      tagSlugs: input.tagSlugs,
+      publishedAt: publishAt,
+      updatedAt: now_iso,
+      isBreaking: input.isBreaking ?? false,
+      isFeatured: input.isFeatured ?? 'none',
+      featuredExpiresAt: input.featuredExpiresAt,
+      workflowStage: stage,
+      sourceType,
+      sourceName: input.sourceName,
+      sourceUrl: input.sourceUrl,
+      seoTitleNe: input.seoTitleNe,
+      seoDescriptionNe: input.seoDescriptionNe,
+      noIndex: input.noIndex ?? !PUBLIC_WORKFLOW_STAGES.includes(stage),
+      includeInNewsSitemap: input.includeInNewsSitemap ?? PUBLIC_WORKFLOW_STAGES.includes(stage),
+      aiSummary: input.aiSummary,
+      premium: input.premium ?? false,
+      commentsEnabled: input.commentsEnabled ?? false,
+      locale: input.locale ?? 'ne',
+      englishStatus,
+      hasEnglish: englishStatus === 'published',
+      readingMinutes: estimateReadingMinutes(input.bodyNe),
+      createdBy: input.createdBy,
+      updatedBy: input.createdBy,
+      province: input.province,
+      district: input.district,
+      exclusive: input.exclusive,
+      editorPick: input.editorPick,
+      dataStory: input.dataStory,
+      factCheckStatus: input.factCheckStatus,
+    }
+    await writeUnlocked(
+      { ...store, articles: [...store.articles, article] },
+      { type: 'upsert', article },
+    )
+    return article
   })
 }
 
@@ -913,122 +931,111 @@ export async function updateArticle(
   actorRole?: NewsroomRole,
 ): Promise<StoredArticle | null> {
   return withArticleMutation(async () => {
-  const store = await read()
-  const idx = store.articles.findIndex((a) => a.id === id)
-  if (idx === -1) return null
-  const existing = store.articles[idx]!
-  const nextStage = patch.workflowStage ?? existing.workflowStage
-  const nextSlug = patch.slug ?? existing.slug
-  const nextCategory = patch.categorySlug ?? existing.categorySlug
+    const store = await read()
+    const idx = store.articles.findIndex((a) => a.id === id)
+    if (idx === -1) return null
+    const existing = store.articles[idx]!
+    const nextStage = patch.workflowStage ?? existing.workflowStage
+    const nextSlug = patch.slug ?? existing.slug
+    const nextCategory = patch.categorySlug ?? existing.categorySlug
 
-  if (
-    (patch.slug !== undefined && patch.slug !== existing.slug) ||
-    (patch.categorySlug !== undefined && patch.categorySlug !== existing.categorySlug)
-  ) {
-    const dup = store.articles.find(
-      (a) => a.id !== id && a.categorySlug === nextCategory && a.slug === nextSlug,
-    )
-    if (dup) throw new Error('स्लग पहिले नै अवस्थित छ। अर्को स्लग राख्नुहोस्।')
-  }
+    if (
+      (patch.slug !== undefined && patch.slug !== existing.slug) ||
+      (patch.categorySlug !== undefined && patch.categorySlug !== existing.categorySlug)
+    ) {
+      const dup = store.articles.find(
+        (a) => a.id !== id && a.categorySlug === nextCategory && a.slug === nextSlug,
+      )
+      if (dup) throw new Error('स्लग पहिले नै अवस्थित छ। अर्को स्लग राख्नुहोस्।')
+    }
 
-  if (actorRole && patch.workflowStage && patch.workflowStage !== existing.workflowStage) {
-    assertWorkflowTransition({
-      role: actorRole,
-      from: existing.workflowStage,
-      to: patch.workflowStage,
+    if (actorRole && patch.workflowStage && patch.workflowStage !== existing.workflowStage) {
+      assertWorkflowTransition({
+        role: actorRole,
+        from: existing.workflowStage,
+        to: patch.workflowStage,
+      })
+    }
+
+    if (nextStage === 'scheduled') {
+      const at = patch.publishedAt ?? existing.publishedAt
+      if (!at || !Number.isFinite(Date.parse(at))) {
+        throw new Error('तालिकाबद्ध प्रकाशनका लागि मान्य भविष्यको मिति आवश्यक छ।')
+      }
+      // Allow existing future schedules; only reject when newly setting a past time.
+      if (patch.publishedAt && Date.parse(patch.publishedAt) <= Date.now()) {
+        throw new Error('तालिका मिति भविष्यमा हुनुपर्छ।')
+      }
+    }
+
+    const now_iso = now()
+    const firstPublish =
+      patch.workflowStage === 'published' && !isPublicWorkflowStage(existing.workflowStage)
+    const republish =
+      patch.workflowStage === 'published' && isPublicWorkflowStage(existing.workflowStage)
+    const unpublish =
+      patch.workflowStage !== undefined &&
+      !isPublicWorkflowStage(patch.workflowStage) &&
+      isPublicWorkflowStage(existing.workflowStage)
+
+    const nextEnglishStatus = normalizeEnglishStatus(patch.englishStatus ?? existing.englishStatus)
+    assertEnglishPublicationReady({
+      englishStatus: nextEnglishStatus,
+      titleEn: patch.titleEn ?? existing.titleEn,
+      bodyEn: patch.bodyEn ?? existing.bodyEn,
     })
-  }
+    const nextSourceType = patch.sourceType ?? existing.sourceType
+    assertSourceAttribution({
+      sourceType: nextSourceType,
+      sourceName: patch.sourceName ?? existing.sourceName,
+      sourceUrl: patch.sourceUrl ?? existing.sourceUrl,
+    })
 
-  if (nextStage === 'scheduled') {
-    const at = patch.publishedAt ?? existing.publishedAt
-    if (!at || !Number.isFinite(Date.parse(at))) {
-      throw new Error('तालिकाबद्ध प्रकाशनका लागि मान्य भविष्यको मिति आवश्यक छ।')
-    }
-    // Allow existing future schedules; only reject when newly setting a past time.
-    if (patch.publishedAt && Date.parse(patch.publishedAt) <= Date.now()) {
-      throw new Error('तालिका मिति भविष्यमा हुनुपर्छ।')
-    }
-  }
-
-  const now_iso = now()
-  const firstPublish =
-    patch.workflowStage === 'published' && !isPublicWorkflowStage(existing.workflowStage)
-  const republish =
-    patch.workflowStage === 'published' && isPublicWorkflowStage(existing.workflowStage)
-  const unpublish =
-    patch.workflowStage !== undefined &&
-    !isPublicWorkflowStage(patch.workflowStage) &&
-    isPublicWorkflowStage(existing.workflowStage)
-
-  const nextEnglishStatus = normalizeEnglishStatus(
-    patch.englishStatus ?? existing.englishStatus,
-  )
-  assertEnglishPublicationReady({
-    englishStatus: nextEnglishStatus,
-    titleEn: patch.titleEn ?? existing.titleEn,
-    bodyEn: patch.bodyEn ?? existing.bodyEn,
-  })
-  const nextSourceType = patch.sourceType ?? existing.sourceType
-  assertSourceAttribution({
-    sourceType: nextSourceType,
-    sourceName: patch.sourceName ?? existing.sourceName,
-    sourceUrl: patch.sourceUrl ?? existing.sourceUrl,
-  })
-
-  const updated: StoredArticle = {
-    ...existing,
-    ...patch,
-    sourceType: nextSourceType,
-    id: existing.id,
-    createdBy: existing.createdBy,
-    updatedAt: now_iso,
-    updatedBy,
-    workflowStage: nextStage,
-    publishedAt: firstPublish
-      ? now_iso
-      : republish
-        ? existing.publishedAt
-        : unpublish
+    const updated: StoredArticle = {
+      ...existing,
+      ...patch,
+      sourceType: nextSourceType,
+      id: existing.id,
+      createdBy: existing.createdBy,
+      updatedAt: now_iso,
+      updatedBy,
+      workflowStage: nextStage,
+      publishedAt: firstPublish
+        ? now_iso
+        : republish
           ? existing.publishedAt
-          : patch.publishedAt ?? existing.publishedAt,
-    noIndex:
-      patch.noIndex ??
-      (firstPublish || republish
-        ? false
-        : unpublish
-          ? true
-          : existing.noIndex),
-    includeInNewsSitemap:
-      patch.includeInNewsSitemap ??
-      (firstPublish || republish
-        ? true
-        : unpublish
-          ? false
-          : existing.includeInNewsSitemap),
-    englishStatus: nextEnglishStatus,
-    hasEnglish: nextEnglishStatus === 'published',
-    readingMinutes: estimateReadingMinutes(patch.bodyNe ?? existing.bodyNe),
-  }
-  const articles = [...store.articles]
-  articles[idx] = updated
-  await writeUnlocked({ ...store, articles }, { type: 'upsert', article: updated })
+          : unpublish
+            ? existing.publishedAt
+            : (patch.publishedAt ?? existing.publishedAt),
+      noIndex:
+        patch.noIndex ?? (firstPublish || republish ? false : unpublish ? true : existing.noIndex),
+      includeInNewsSitemap:
+        patch.includeInNewsSitemap ??
+        (firstPublish || republish ? true : unpublish ? false : existing.includeInNewsSitemap),
+      englishStatus: nextEnglishStatus,
+      hasEnglish: nextEnglishStatus === 'published',
+      readingMinutes: estimateReadingMinutes(patch.bodyNe ?? existing.bodyNe),
+    }
+    const articles = [...store.articles]
+    articles[idx] = updated
+    await writeUnlocked({ ...store, articles }, { type: 'upsert', article: updated })
 
-  const slugChanged =
-    (patch.slug !== undefined && patch.slug !== existing.slug) ||
-    (patch.categorySlug !== undefined && patch.categorySlug !== existing.categorySlug)
-  if (slugChanged) {
-    const { recordSlugRedirect } = await import('@/lib/content/slug-redirects')
-    await recordSlugRedirect({
-      fromCategory: existing.categorySlug,
-      fromSlug: existing.slug,
-      toCategory: updated.categorySlug,
-      toSlug: updated.slug,
-    }).catch((error) => {
-      console.error('[slug-redirect]', error instanceof Error ? error.message : error)
-    })
-  }
+    const slugChanged =
+      (patch.slug !== undefined && patch.slug !== existing.slug) ||
+      (patch.categorySlug !== undefined && patch.categorySlug !== existing.categorySlug)
+    if (slugChanged) {
+      const { recordSlugRedirect } = await import('@/lib/content/slug-redirects')
+      await recordSlugRedirect({
+        fromCategory: existing.categorySlug,
+        fromSlug: existing.slug,
+        toCategory: updated.categorySlug,
+        toSlug: updated.slug,
+      }).catch((error) => {
+        console.error('[slug-redirect]', error instanceof Error ? error.message : error)
+      })
+    }
 
-  return updated
+    return updated
   })
 }
 
@@ -1054,7 +1061,8 @@ export async function getArticleCounts(): Promise<{
   const store = await read()
   return {
     total: store.articles.length,
-    published: store.articles.filter((a) => PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage)).length,
+    published: store.articles.filter((a) => PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage))
+      .length,
     drafts: store.articles.filter((a) => !PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage)).length,
     breaking: store.articles.filter(
       (a) => a.isBreaking && PUBLIC_WORKFLOW_STAGES.includes(a.workflowStage),

@@ -1,11 +1,11 @@
 ---
 version: 1
-slug: "apps-web-components-masthead-tsx"
-primary_target: "apps/web/components/Masthead.tsx"
+slug: 'apps-web-components-masthead-tsx'
+primary_target: 'apps/web/components/Masthead.tsx'
 related_targets:
-  - "apps/web/components/Logo.tsx"
-  - "apps/web/components/TopicsStrip.tsx"
-  - "apps/web/components/MobileNav.tsx"
+  - 'apps/web/components/Logo.tsx'
+  - 'apps/web/components/TopicsStrip.tsx'
+  - 'apps/web/components/MobileNav.tsx'
 ---
 
 # Surface brief: Masthead

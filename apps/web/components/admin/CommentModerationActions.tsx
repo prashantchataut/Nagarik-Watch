@@ -6,11 +6,12 @@ import { AdminButton } from '@/components/admin/primitives'
 
 type CommentStatus = 'pending' | 'approved' | 'rejected' | 'flagged'
 
-const ACTIONS: { status: CommentStatus; label: string; variant: 'primary' | 'danger' | 'ghost' }[] = [
-  { status: 'approved', label: 'स्वीकृत', variant: 'primary' },
-  { status: 'rejected', label: 'अस्वीकृत', variant: 'danger' },
-  { status: 'flagged', label: 'फ्ल्याग', variant: 'ghost' },
-]
+const ACTIONS: { status: CommentStatus; label: string; variant: 'primary' | 'danger' | 'ghost' }[] =
+  [
+    { status: 'approved', label: 'स्वीकृत', variant: 'primary' },
+    { status: 'rejected', label: 'अस्वीकृत', variant: 'danger' },
+    { status: 'flagged', label: 'फ्ल्याग', variant: 'ghost' },
+  ]
 
 export function CommentModerationActions({ commentId }: { commentId: string }) {
   const router = useRouter()

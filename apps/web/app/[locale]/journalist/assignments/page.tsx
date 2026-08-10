@@ -3,7 +3,11 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import type { Locale } from '@nagarikwatch/db'
 import { getNewsroomSession } from '@/lib/auth/session'
-import { CONTRIBUTOR_ROLES, NEWSROOM_ROLE_LABELS_EN, NEWSROOM_ROLE_LABELS_NE } from '@/lib/admin-roles'
+import {
+  CONTRIBUTOR_ROLES,
+  NEWSROOM_ROLE_LABELS_EN,
+  NEWSROOM_ROLE_LABELS_NE,
+} from '@/lib/admin-roles'
 import { listJournalistDraftMeta } from '@/lib/journalist-workspace'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
@@ -34,7 +38,9 @@ export default async function JournalistAssignmentsPage({
   const sorted = [...drafts].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
   const grouped = {
     revision: drafts.filter((item) => item.revisionRequestedAt),
-    review: drafts.filter((item) => item.workflowStage === 'submitted' && !item.revisionRequestedAt),
+    review: drafts.filter(
+      (item) => item.workflowStage === 'submitted' && !item.revisionRequestedAt,
+    ),
     draft: drafts.filter((item) => item.workflowStage !== 'submitted' && !item.revisionRequestedAt),
   }
 
@@ -113,9 +119,7 @@ export default async function JournalistAssignmentsPage({
                   </small>
                 </div>
                 {draft.articleId ? (
-                  <Link
-                    href={localizeHref(locale, `/journalist/articles/${draft.articleId}/edit`)}
-                  >
+                  <Link href={localizeHref(locale, `/journalist/articles/${draft.articleId}/edit`)}>
                     {ne ? 'खोल्नुहोस्' : 'Open'}
                   </Link>
                 ) : (

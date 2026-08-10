@@ -17,8 +17,7 @@ function pgliteDataDir(): string {
 export async function createDialect(): Promise<Dialect> {
   if (cached) return cached
 
-  const isolatedReaderE2e =
-    process.env.E2E_TEST === 'true' && process.env.E2E_NEWSROOM !== 'true'
+  const isolatedReaderE2e = process.env.E2E_TEST === 'true' && process.env.E2E_NEWSROOM !== 'true'
   if (process.env.NEXT_PHASE === 'phase-production-build' || isolatedReaderE2e) {
     const { PGlite } = await import('@electric-sql/pglite')
     // Argument-less create() is an in-memory DB. Avoid "memory://" — on some
@@ -65,8 +64,7 @@ export async function getAuthPgliteQueryable(): Promise<{
     ) => {
       const result = await cachedPglite!.query(text, params)
       const rows = result.rows as T[]
-      const affected =
-        typeof result.affectedRows === 'number' ? result.affectedRows : rows.length
+      const affected = typeof result.affectedRows === 'number' ? result.affectedRows : rows.length
       return { rows, rowCount: affected }
     },
   }

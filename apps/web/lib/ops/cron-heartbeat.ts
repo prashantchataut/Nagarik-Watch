@@ -75,14 +75,20 @@ export async function getCronHeartbeats(): Promise<CronHeartbeat[]> {
     const result = await pool.query<{ job: string; last_run_at: string | Date }>(
       `SELECT job, last_run_at FROM nw_cron_heartbeats`,
     )
-    return result.rows.map((row) => ({ job: row.job, lastRunAt: new Date(row.last_run_at).toISOString() }))
+    return result.rows.map((row) => ({
+      job: row.job,
+      lastRunAt: new Date(row.last_run_at).toISOString(),
+    }))
   }
   const entries = await readLocal()
   return Object.entries(entries).map(([job, lastRunAt]) => ({ job, lastRunAt }))
 }
 
 /** Minutes since a job's last recorded heartbeat, or null if it has never run. */
-export function minutesSince(heartbeat: CronHeartbeat | undefined, now: Date = new Date()): number | null {
+export function minutesSince(
+  heartbeat: CronHeartbeat | undefined,
+  now: Date = new Date(),
+): number | null {
   if (!heartbeat) return null
   return Math.max(0, (now.getTime() - Date.parse(heartbeat.lastRunAt)) / 60_000)
 }

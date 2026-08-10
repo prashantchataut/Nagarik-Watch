@@ -12,9 +12,7 @@ type InfoPageHeaderProps = {
 export function InfoPageHeader({ kicker, title, lead, lang }: InfoPageHeaderProps) {
   return (
     <header className="border-b border-rule pb-3 sm:pb-4" lang={lang}>
-      {kicker ? (
-        <p className="mb-1 text-meta font-extrabold text-brand-strong">{kicker}</p>
-      ) : null}
+      {kicker ? <p className="mb-1 text-meta font-extrabold text-brand-strong">{kicker}</p> : null}
       <h1 className="font-display text-[clamp(1.4rem,3.2vw,2rem)] font-extrabold leading-tight tracking-tight text-ink">
         {title}
       </h1>

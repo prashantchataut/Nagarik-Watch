@@ -105,7 +105,10 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
                 className="h-10 w-10 shrink-0"
               />
               <span className="flex flex-col leading-none">
-                <span className="font-display text-[1.35rem] font-extrabold text-on-chrome sm:text-h3" lang="ne">
+                <span
+                  className="font-display text-[1.35rem] font-extrabold text-on-chrome sm:text-h3"
+                  lang="ne"
+                >
                   {dict.siteName}
                 </span>
                 <span className="mt-1 text-caption font-semibold text-brand" lang="en">
@@ -192,7 +195,10 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
             <p className="font-display text-body font-extrabold text-on-chrome" lang={lang}>
               {locale === 'en' ? 'Contact' : 'सम्पर्क'}
             </p>
-            <address className="mt-2.5 not-italic text-meta leading-relaxed text-on-chrome-soft" lang={lang}>
+            <address
+              className="mt-2.5 not-italic text-meta leading-relaxed text-on-chrome-soft"
+              lang={lang}
+            >
               <p className="font-semibold text-on-chrome">{PUBLICATION.publisherName}</p>
               {isPublicPublicationValue(PUBLICATION.address) ? (
                 <p className="mt-1">{PUBLICATION.address}</p>

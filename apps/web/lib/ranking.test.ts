@@ -53,8 +53,9 @@ describe('ranking', () => {
 
   it('computes a bounded heuristic virality score from measured velocity', () => {
     expect(viralityScore({ shareVelocity: 0, commentVelocity: 0 })).toBe(0)
-    expect(viralityScore({ shareVelocity: 8, commentVelocity: 2 }))
-      .toBeGreaterThan(viralityScore({ shareVelocity: 2, commentVelocity: 2 }))
+    expect(viralityScore({ shareVelocity: 8, commentVelocity: 2 })).toBeGreaterThan(
+      viralityScore({ shareVelocity: 2, commentVelocity: 2 }),
+    )
     expect(viralityScore({ shareVelocity: 100, commentVelocity: 100 })).toBeLessThan(1)
   })
 

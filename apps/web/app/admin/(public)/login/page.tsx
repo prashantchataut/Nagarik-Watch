@@ -30,10 +30,7 @@ export default async function AdminLoginPage({
     // the response. Operators can explicitly request a blocking repair when
     // rotating an env password by setting AUTH_BOOT_REPAIR_ON_LOGIN=true for
     // one deployment/request window.
-    if (
-      process.env.NODE_ENV !== 'production' ||
-      process.env.AUTH_BOOT_REPAIR_ON_LOGIN === 'true'
-    ) {
+    if (process.env.NODE_ENV !== 'production' || process.env.AUTH_BOOT_REPAIR_ON_LOGIN === 'true') {
       await ensureNewsroomBootAccounts(
         auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
         { forcePassword: process.env.AUTH_BOOT_REPAIR_ON_LOGIN === 'true' },
@@ -53,10 +50,7 @@ export default async function AdminLoginPage({
   if (session) redirect('/admin/dashboard')
 
   const showBootHint =
-    process.env.NODE_ENV !== 'production' &&
-    authReady &&
-    boot.configured &&
-    boot.emails.length > 0
+    process.env.NODE_ENV !== 'production' && authReady && boot.configured && boot.emails.length > 0
 
   return (
     <StaffAuthShell
@@ -79,7 +73,8 @@ export default async function AdminLoginPage({
         <aside className="newsroom-login-form__error" role="status">
           <strong>लगइन सेवा अफलाइन।</strong>
           <span className="mt-1.5 block">
-            {databaseProbe?.detail ?? 'DATABASE_URL र NEWSROOM_* env जाँच्नुहोस्, त्यसपछि पृष्ठ रिफ्रेस गर्नुहोस्।'}
+            {databaseProbe?.detail ??
+              'DATABASE_URL र NEWSROOM_* env जाँच्नुहोस्, त्यसपछि पृष्ठ रिफ्रेस गर्नुहोस्।'}
           </span>
         </aside>
       ) : null}
@@ -87,9 +82,7 @@ export default async function AdminLoginPage({
       {authReady && !bootFailed && boot.lastError ? (
         <aside className="newsroom-login-form__error" role="status">
           <strong>खाता मर्मत अधुरो।</strong>
-          <span className="mt-1.5 block">
-            NEWSROOM_SUPERADMIN_EMAIL / PASSWORD जाँच्नुहोस्।
-          </span>
+          <span className="mt-1.5 block">NEWSROOM_SUPERADMIN_EMAIL / PASSWORD जाँच्नुहोस्।</span>
         </aside>
       ) : null}
 

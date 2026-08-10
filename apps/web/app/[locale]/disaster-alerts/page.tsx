@@ -46,7 +46,10 @@ export default async function DisasterAlertsPage({
       <section aria-labelledby="current-alerts-heading">
         <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-rule pb-3">
           <div>
-            <h2 id="current-alerts-heading" className="font-display text-h2 font-extrabold text-ink">
+            <h2
+              id="current-alerts-heading"
+              className="font-display text-h2 font-extrabold text-ink"
+            >
               {en ? 'Current notices' : 'हालका सूचना'}
             </h2>
             <p className="mt-1 text-caption text-mute">
@@ -62,7 +65,10 @@ export default async function DisasterAlertsPage({
         {alerts.data.length ? (
           <ul className="divide-y divide-rule">
             {alerts.data.map((alert, index) => (
-              <li key={alert.id ?? index} className="grid gap-2 py-5 sm:grid-cols-[minmax(0,1fr)_auto]">
+              <li
+                key={alert.id ?? index}
+                className="grid gap-2 py-5 sm:grid-cols-[minmax(0,1fr)_auto]"
+              >
                 <div>
                   <p className="text-caption font-bold uppercase tracking-wide text-brand-strong">
                     {String(alert.severity)}

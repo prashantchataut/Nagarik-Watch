@@ -20,12 +20,36 @@ export const NEPAL_CIVIC_GAZETTEER: readonly GazetteerEntry[] = [
   { canonical: 'ललितपुर', type: 'place', aliases: ['ललितपुर', 'पाटन', 'Lalitpur', 'Patan'] },
   { canonical: 'पोखरा', type: 'place', aliases: ['पोखरा', 'Pokhara'] },
   { canonical: 'मधेश प्रदेश', type: 'place', aliases: ['मधेश प्रदेश', 'Madhesh Province'] },
-  { canonical: 'नेपाल सरकार', type: 'organization', aliases: ['नेपाल सरकार', 'Government of Nepal'] },
-  { canonical: 'निर्वाचन आयोग', type: 'organization', aliases: ['निर्वाचन आयोग', 'Election Commission Nepal'] },
-  { canonical: 'नेपाल राष्ट्र बैंक', type: 'organization', aliases: ['नेपाल राष्ट्र बैंक', 'Nepal Rastra Bank'] },
-  { canonical: 'सर्वोच्च अदालत', type: 'organization', aliases: ['सर्वोच्च अदालत', 'Supreme Court of Nepal'] },
-  { canonical: 'रामचन्द्र पौडेल', type: 'person', aliases: ['रामचन्द्र पौडेल', 'Ram Chandra Paudel'] },
-  { canonical: 'केपी शर्मा ओली', type: 'person', aliases: ['केपी शर्मा ओली', 'के.पी. शर्मा ओली', 'KP Sharma Oli'] },
+  {
+    canonical: 'नेपाल सरकार',
+    type: 'organization',
+    aliases: ['नेपाल सरकार', 'Government of Nepal'],
+  },
+  {
+    canonical: 'निर्वाचन आयोग',
+    type: 'organization',
+    aliases: ['निर्वाचन आयोग', 'Election Commission Nepal'],
+  },
+  {
+    canonical: 'नेपाल राष्ट्र बैंक',
+    type: 'organization',
+    aliases: ['नेपाल राष्ट्र बैंक', 'Nepal Rastra Bank'],
+  },
+  {
+    canonical: 'सर्वोच्च अदालत',
+    type: 'organization',
+    aliases: ['सर्वोच्च अदालत', 'Supreme Court of Nepal'],
+  },
+  {
+    canonical: 'रामचन्द्र पौडेल',
+    type: 'person',
+    aliases: ['रामचन्द्र पौडेल', 'Ram Chandra Paudel'],
+  },
+  {
+    canonical: 'केपी शर्मा ओली',
+    type: 'person',
+    aliases: ['केपी शर्मा ओली', 'के.पी. शर्मा ओली', 'KP Sharma Oli'],
+  },
 ] as const
 
 const INDEX = NEPAL_CIVIC_GAZETTEER.flatMap((entry) =>

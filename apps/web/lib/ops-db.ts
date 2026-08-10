@@ -17,8 +17,7 @@ export type Queryable = {
 const readySchemas = new Map<string, Promise<void>>()
 
 export function isProductionRuntime(): boolean {
-  const isolatedE2e =
-    process.env.E2E_TEST === 'true' || process.env.E2E_NEWSROOM === 'true'
+  const isolatedE2e = process.env.E2E_TEST === 'true' || process.env.E2E_NEWSROOM === 'true'
   return (
     process.env.NODE_ENV === 'production' &&
     process.env.NEXT_PHASE !== 'phase-production-build' &&
@@ -28,10 +27,7 @@ export function isProductionRuntime(): boolean {
 
 export function operationalStorageMode(): 'postgres' | 'pglite' | 'memory' {
   if (resolveDatabaseUrl()) return 'postgres'
-  if (
-    process.env.E2E_NEWSROOM === 'true' ||
-    process.env.ALLOW_PGLITE_AUTH === 'true'
-  ) {
+  if (process.env.E2E_NEWSROOM === 'true' || process.env.ALLOW_PGLITE_AUTH === 'true') {
     return 'pglite'
   }
   return 'memory'
@@ -79,9 +75,7 @@ export async function getOperationalPool(): Promise<Queryable | null> {
  */
 export function requireOperationalPool(pool: Queryable | null): Queryable | null {
   if (!pool && isProductionRuntime()) {
-    console.error(
-      '[ops-db] Postgres unavailable for operational storage; continuing without pool',
-    )
+    console.error('[ops-db] Postgres unavailable for operational storage; continuing without pool')
   }
   return pool
 }

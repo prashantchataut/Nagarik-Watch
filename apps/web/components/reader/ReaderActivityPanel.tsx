@@ -52,21 +52,32 @@ function mergeHistory(device: ReadingHistoryRecord[], account: ReadingHistoryRec
   for (const item of [...device, ...account]) {
     const identity = `${item.categorySlug}:${item.slug}`
     const previous = map.get(identity)
-    map.set(identity, previous ? {
-      ...previous,
-      ...item,
-      scrollDepth: Math.max(previous.scrollDepth, item.scrollDepth),
-      dwellSeconds: Math.max(previous.dwellSeconds, item.dwellSeconds),
-      sessions: Math.max(previous.sessions, item.sessions),
-      completed: previous.completed || item.completed,
-      firstReadAt: [previous.firstReadAt, item.firstReadAt].sort()[0]!,
-      readAt: [previous.readAt, item.readAt].sort().at(-1)!,
-    } : item)
+    map.set(
+      identity,
+      previous
+        ? {
+            ...previous,
+            ...item,
+            scrollDepth: Math.max(previous.scrollDepth, item.scrollDepth),
+            dwellSeconds: Math.max(previous.dwellSeconds, item.dwellSeconds),
+            sessions: Math.max(previous.sessions, item.sessions),
+            completed: previous.completed || item.completed,
+            firstReadAt: [previous.firstReadAt, item.firstReadAt].sort()[0]!,
+            readAt: [previous.readAt, item.readAt].sort().at(-1)!,
+          }
+        : item,
+    )
   }
   return [...map.values()].sort((a, b) => b.readAt.localeCompare(a.readAt))
 }
 
-export function ReaderActivityPanel({ locale, catalog = [] }: { locale: Locale; catalog?: StoryCardData[] }) {
+export function ReaderActivityPanel({
+  locale,
+  catalog = [],
+}: {
+  locale: Locale
+  catalog?: StoryCardData[]
+}) {
   const [history, setHistory] = useState<ReadingHistoryRecord[]>([])
   const [bookmarks, setBookmarks] = useState<BookmarkRecord[]>([])
   const [syncState, setSyncState] = useState<'loading' | 'synced' | 'device'>('loading')
@@ -76,10 +87,12 @@ export function ReaderActivityPanel({ locale, catalog = [] }: { locale: Locale; 
   useEffect(() => {
     let cancelled = false
     const refreshLocal = () => {
-      setHistory((current) => mergeHistory(
-        safeParseArray<ReadingHistoryRecord>(localStorage.getItem(READER_HISTORY_KEY)),
-        current,
-      ))
+      setHistory((current) =>
+        mergeHistory(
+          safeParseArray<ReadingHistoryRecord>(localStorage.getItem(READER_HISTORY_KEY)),
+          current,
+        ),
+      )
       setBookmarks(safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY)))
     }
     refreshLocal()
@@ -92,7 +105,10 @@ export function ReaderActivityPanel({ locale, catalog = [] }: { locale: Locale; 
       .then((body) => {
         if (cancelled) return
         const local = safeParseArray<ReadingHistoryRecord>(localStorage.getItem(READER_HISTORY_KEY))
-        const merged = mergeHistory(local, (body.history ?? []).map((item) => fromApi(item, locale)))
+        const merged = mergeHistory(
+          local,
+          (body.history ?? []).map((item) => fromApi(item, locale)),
+        )
         setHistory(merged)
         localStorage.setItem(READER_HISTORY_KEY, JSON.stringify(merged))
         setSyncState('synced')
@@ -133,9 +149,12 @@ export function ReaderActivityPanel({ locale, catalog = [] }: { locale: Locale; 
     window.dispatchEvent(new Event('nw-reader-state-change'))
     startTransition(async () => {
       try {
-        const response = await fetch(`/api/reading?fingerprint=${encodeURIComponent(fingerprint)}`, {
-          method: 'DELETE',
-        })
+        const response = await fetch(
+          `/api/reading?fingerprint=${encodeURIComponent(fingerprint)}`,
+          {
+            method: 'DELETE',
+          },
+        )
         if (!response.ok) throw new Error(`Clear history failed: ${response.status}`)
         setSyncState('synced')
       } catch {
@@ -150,8 +169,12 @@ export function ReaderActivityPanel({ locale, catalog = [] }: { locale: Locale; 
     <section className="reader-ledger" lang={english ? 'en' : 'ne'}>
       <header className="reader-ledger__header">
         <div>
-          <p className="editorial-kicker" lang="en">Reader record</p>
-          <h2 className="reader-ledger__title">{english ? 'Your reading trail' : 'तपाईंको पढाइ यात्रा'}</h2>
+          <p className="editorial-kicker" lang="en">
+            Reader record
+          </p>
+          <h2 className="reader-ledger__title">
+            {english ? 'Your reading trail' : 'तपाईंको पढाइ यात्रा'}
+          </h2>
           <p className="reader-ledger__dek">
             {english
               ? 'Continue where you stopped. Signed-in activity follows your account; device activity remains private to this browser until it syncs.'
@@ -160,10 +183,16 @@ export function ReaderActivityPanel({ locale, catalog = [] }: { locale: Locale; 
         </div>
         <span className="reader-ledger__sync" data-state={syncState} role="status">
           {syncState === 'loading'
-            ? english ? 'Checking sync' : 'सिङ्क जाँचिँदै'
+            ? english
+              ? 'Checking sync'
+              : 'सिङ्क जाँचिँदै'
             : syncState === 'synced'
-              ? english ? 'Account synced' : 'खातामा सिङ्क भयो'
-              : english ? 'Device only' : 'यो उपकरणमा मात्र'}
+              ? english
+                ? 'Account synced'
+                : 'खातामा सिङ्क भयो'
+              : english
+                ? 'Device only'
+                : 'यो उपकरणमा मात्र'}
         </span>
       </header>
 
@@ -198,10 +227,25 @@ export function ReaderActivityPanel({ locale, catalog = [] }: { locale: Locale; 
       ) : null}
 
       <dl className="reader-ledger__stats">
-        <div><dt>{english ? 'Stories opened' : 'खोलिएका समाचार'}</dt><dd>{history.length}</dd></div>
-        <div><dt>{english ? 'Finished' : 'पूरा पढिएका'}</dt><dd>{completed}</dd></div>
-        <div><dt>{english ? 'Time reading' : 'पढाइ समय'}</dt><dd>{totalMinutes}<small>{english ? ' min' : ' मिनेट'}</small></dd></div>
-        <div><dt>{english ? 'Saved' : 'सुरक्षित'}</dt><dd>{bookmarks.length}</dd></div>
+        <div>
+          <dt>{english ? 'Stories opened' : 'खोलिएका समाचार'}</dt>
+          <dd>{history.length}</dd>
+        </div>
+        <div>
+          <dt>{english ? 'Finished' : 'पूरा पढिएका'}</dt>
+          <dd>{completed}</dd>
+        </div>
+        <div>
+          <dt>{english ? 'Time reading' : 'पढाइ समय'}</dt>
+          <dd>
+            {totalMinutes}
+            <small>{english ? ' min' : ' मिनेट'}</small>
+          </dd>
+        </div>
+        <div>
+          <dt>{english ? 'Saved' : 'सुरक्षित'}</dt>
+          <dd>{bookmarks.length}</dd>
+        </div>
         <div>
           <dt>{english ? 'Loyalty' : 'निष्ठा'}</dt>
           <dd data-loyalty-tier={loyalty.tier}>
@@ -216,19 +260,34 @@ export function ReaderActivityPanel({ locale, catalog = [] }: { locale: Locale; 
           </dd>
         </div>
       </dl>
-      <div className="reader-ledger__calendar" aria-label={english ? 'Completed reading days' : 'पूरा पढाइ भएका दिन'}>
+      <div
+        className="reader-ledger__calendar"
+        aria-label={english ? 'Completed reading days' : 'पूरा पढाइ भएका दिन'}
+      >
         <div>
           <strong>{english ? 'Recent reading days' : 'हालका पढाइ दिन'}</strong>
           <span>
             {streak > 0
-              ? english ? `${streak} consecutive day${streak === 1 ? '' : 's'}` : `${streak} दिन लगातार`
-              : english ? 'No current run  -  read whenever it suits you' : 'हाल निरन्तरता छैन  -  आफूलाई मिल्दा पढ्नुहोस्'}
+              ? english
+                ? `${streak} consecutive day${streak === 1 ? '' : 's'}`
+                : `${streak} दिन लगातार`
+              : english
+                ? 'No current run  -  read whenever it suits you'
+                : 'हाल निरन्तरता छैन  -  आफूलाई मिल्दा पढ्नुहोस्'}
           </span>
         </div>
         <ol>
           {readingDays.map((day) => (
-            <li key={day.date} data-read={day.completed > 0} title={`${day.date}: ${day.completed}`}>
-              <span>{new Date(`${day.date}T12:00:00`).toLocaleDateString(english ? 'en-GB' : 'ne-NP', { weekday: 'narrow' })}</span>
+            <li
+              key={day.date}
+              data-read={day.completed > 0}
+              title={`${day.date}: ${day.completed}`}
+            >
+              <span>
+                {new Date(`${day.date}T12:00:00`).toLocaleDateString(english ? 'en-GB' : 'ne-NP', {
+                  weekday: 'narrow',
+                })}
+              </span>
               <i aria-hidden="true" />
             </li>
           ))}
@@ -239,25 +298,48 @@ export function ReaderActivityPanel({ locale, catalog = [] }: { locale: Locale; 
         <ol className="reader-ledger__list">
           {recent.map((item, index) => (
             <li key={item.articleId}>
-              <span className="reader-ledger__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <span className="reader-ledger__index" aria-hidden="true">
+                {String(index + 1).padStart(2, '0')}
+              </span>
               <div>
                 <a href={item.href}>{item.title}</a>
-                <p>{item.scrollDepth}% · {Math.max(1, Math.round(item.dwellSeconds / 60))} {english ? 'min' : 'मिनेट'} · {new Date(item.readAt).toLocaleString(english ? 'en-GB' : 'ne-NP')}</p>
+                <p>
+                  {item.scrollDepth}% · {Math.max(1, Math.round(item.dwellSeconds / 60))}{' '}
+                  {english ? 'min' : 'मिनेट'} ·{' '}
+                  {new Date(item.readAt).toLocaleString(english ? 'en-GB' : 'ne-NP')}
+                </p>
               </div>
-              <span className="reader-ledger__progress" aria-label={`${item.scrollDepth}%`}><i style={{ width: `${item.scrollDepth}%` }} /></span>
+              <span className="reader-ledger__progress" aria-label={`${item.scrollDepth}%`}>
+                <i style={{ width: `${item.scrollDepth}%` }} />
+              </span>
             </li>
           ))}
         </ol>
       ) : (
         <div className="reader-ledger__empty">
           <strong>{english ? 'No reading history yet' : 'अहिलेसम्म पढाइ इतिहास छैन'}</strong>
-          <p>{english ? 'Open a story and your progress will appear here after you allow personalization.' : 'व्यक्तिगत अनुभव अनुमति दिएपछि पढ्न थालेका समाचार यहाँ देखिन्छन्।'}</p>
+          <p>
+            {english
+              ? 'Open a story and your progress will appear here after you allow personalization.'
+              : 'व्यक्तिगत अनुभव अनुमति दिएपछि पढ्न थालेका समाचार यहाँ देखिन्छन्।'}
+          </p>
         </div>
       )}
 
       {history.length ? (
-        <button type="button" onClick={clearHistory} disabled={pending} className="text-action reader-ledger__clear">
-          {pending ? (english ? 'Clearing…' : 'हटाइँदै…') : (english ? 'Clear reading history' : 'पढाइ इतिहास हटाउनुहोस्')}
+        <button
+          type="button"
+          onClick={clearHistory}
+          disabled={pending}
+          className="text-action reader-ledger__clear"
+        >
+          {pending
+            ? english
+              ? 'Clearing…'
+              : 'हटाइँदै…'
+            : english
+              ? 'Clear reading history'
+              : 'पढाइ इतिहास हटाउनुहोस्'}
         </button>
       ) : null}
     </section>

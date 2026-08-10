@@ -86,7 +86,12 @@ const NAV_GROUPS: {
       { label: 'मिडिया', href: '/admin/media', icon: 'media', roles: MEDIA_MANAGER_ROLES },
       { label: 'लाइभ ब्लग', href: '/admin/live-blogs', icon: 'live', roles: EDITOR_ROLES },
       { label: 'पत्रकार डेस्क', href: '/admin/journalists', icon: 'author', roles: EDITOR_ROLES },
-      { label: 'सम्पादक सेटिङ', href: '/admin/editor-preferences', icon: 'settings', roles: EDITOR_ROLES },
+      {
+        label: 'सम्पादक सेटिङ',
+        href: '/admin/editor-preferences',
+        icon: 'settings',
+        roles: EDITOR_ROLES,
+      },
       {
         label: 'टिप्पणी',
         href: '/admin/comments',
@@ -145,7 +150,12 @@ const NAV_GROUPS: {
         icon: 'signal',
         roles: ANALYTICS_ROLES,
       },
-      { label: 'खोज विश्लेषण', href: '/admin/search-analytics', icon: 'seo', roles: ANALYTICS_ROLES },
+      {
+        label: 'खोज विश्लेषण',
+        href: '/admin/search-analytics',
+        icon: 'seo',
+        roles: ANALYTICS_ROLES,
+      },
     ],
   },
   {
@@ -197,8 +207,7 @@ const PREVIEW_HIDDEN_HREFS = new Set([
 const ADMIN_FULL_NAV =
   (process.env.NEXT_PUBLIC_ADMIN_FULL_NAV || '').toLowerCase() === '1' ||
   (process.env.NEXT_PUBLIC_ADMIN_FULL_NAV || '').toLowerCase() === 'true'
-const LAUNCH_LIVE =
-  (process.env.NEXT_PUBLIC_LAUNCH_STATUS || 'preview').toLowerCase() === 'live'
+const LAUNCH_LIVE = (process.env.NEXT_PUBLIC_LAUNCH_STATUS || 'preview').toLowerCase() === 'live'
 
 function showAdminNavHref(href: string) {
   if (ADMIN_FULL_NAV || LAUNCH_LIVE) return true
@@ -348,7 +357,12 @@ export function AdminShell({
       </div>
 
       {drawerOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Newsroom navigation">
+        <div
+          className="fixed inset-0 z-50 lg:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Newsroom navigation"
+        >
           <button
             type="button"
             className="absolute inset-0 bg-ink/45"

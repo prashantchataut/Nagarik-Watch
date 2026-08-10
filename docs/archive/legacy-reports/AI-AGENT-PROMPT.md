@@ -3,6 +3,7 @@
 ## Mission
 
 Fix the build, auth, and admin-page issues so that:
+
 1. `pnpm --filter @nagarikwatch/web... build` passes on Vercel (static generation)
 2. `/api/auth/sign-in/email` does NOT return 500 — admin credentials work
 3. Admin pages (`/admin`, `/admin/login`) render and function correctly
@@ -22,6 +23,7 @@ if (process.env.NEXT_PHASE === 'phase-production-build') return null
 ```
 
 **Files already fixed:**
+
 - `apps/web/lib/live/manual.ts`
 - `apps/web/lib/auth/auth-pool.ts`
 - `apps/web/lib/ops-db.ts`
@@ -35,6 +37,7 @@ if (process.env.NEXT_PHASE === 'phase-production-build') return null
 - `apps/web/lib/content/payload-source.ts`
 
 The build now passes clean in local testing with `DATABASE_URL=postgresql://nonexistent-host-fake:5432/db`:
+
 ```
 ✓ Generating static pages (116/116)
 ```
@@ -64,18 +67,24 @@ async function seedOne(auth, emailKey, passwordKey, role, displayName) {
 
   try {
     // signUp may fail — DB unreachable, account exists, etc. Silently caught.
-    await auth.api.signUpEmail({ body: { email, password, name: email.split('@')[0], displayName } })
+    await auth.api.signUpEmail({
+      body: { email, password, name: email.split('@')[0], displayName },
+    })
   } catch {
     // Account already exists, or DB unreachable — carry on
   }
 
-  await assignBootRole(email, role, displayName)  // ← NOT wrapped in try/catch!
+  await assignBootRole(email, role, displayName) // ← NOT wrapped in try/catch!
 }
 
 async function assignBootRole(email, role, displayName) {
   const dialect = await createDialect()
   const db = new Kysely<{ user: Record<string, unknown> }>({ dialect })
-  await db.updateTable('user').set({ role, displayName }).where('email', '=', email).executeTakeFirst()
+  await db
+    .updateTable('user')
+    .set({ role, displayName })
+    .where('email', '=', email)
+    .executeTakeFirst()
 }
 ```
 
@@ -86,7 +95,7 @@ let authPromise: Promise<AuthInstance> | null = null
 
 export function getAuth(): Promise<AuthInstance> {
   if (!authPromise) authPromise = buildAuth()
-  return authPromise  // ← once rejected, stays rejected forever
+  return authPromise // ← once rejected, stays rejected forever
 }
 ```
 
@@ -95,6 +104,7 @@ Every future call to `getAuth()` returns the same rejected promise → `await ge
 ### Fix Required
 
 **Option A (minimal):** Wrap `assignBootRole()` in try/catch in `seedOne()`:
+
 ```typescript
 try {
   await assignBootRole(email, role, displayName)
@@ -104,15 +114,16 @@ try {
 ```
 
 **Option B (robust):** Fire `seedBootAccounts()` as fire-and-forget AFTER returning the auth instance, so seeding failure never blocks auth initialization:
+
 ```typescript
 async function buildAuth(): Promise<AuthInstance> {
   const dialect = await createDialect()
   const auth = betterAuth({ ... })
-  
+
   // Don't await — fire and forget. If seeding fails, admin login won't work
   // but reader sign-up/sign-in still will (they get 'reader' role by default).
   seedBootAccounts(auth).catch(err => console.error('[auth] seed failed:', err))
-  
+
   return auth
 }
 ```
@@ -122,11 +133,13 @@ async function buildAuth(): Promise<AuthInstance> {
 ## 2. No Local Postgres Running
 
 The `.env` file has:
+
 ```
 DATABASE_URL="postgresql://nagarik:nagarik_dev@localhost:5432/nagarik_watch"
 ```
 
 There's a `docker-compose.yml` to start Postgres:
+
 ```yaml
 services:
   postgres:
@@ -144,6 +157,7 @@ services:
 ## 3. Duplicate `NEXT_PUBLIC_SITE_URL` in `.env`
 
 **File: `.env`** — lines 23 and 86 both define `NEXT_PUBLIC_SITE_URL`:
+
 ```
 Line 23: NEXT_PUBLIC_SITE_URL="https://nagarikwatch.com"
 Line 86: NEXT_PUBLIC_SITE_URL="http://localhost:3000"
@@ -154,6 +168,7 @@ Line 86 overwrites line 23. Remove the duplicate on line 23 (or line 86, keeping
 ## 4. Admin Page Build Status
 
 In the build output:
+
 ```
 ├ ƒ /admin                         227 B         102 kB
 ├ ƒ /admin/login                 2.22 kB         113 kB
@@ -166,25 +181,27 @@ The `/admin` and `/admin/login` pages compile and build. They're marked as `ƒ (
 ## Files to Modify
 
 ### Primary
-| File | Issue | Fix |
-|------|-------|-----|
+
+| File                         | Issue                                                                              | Fix                                                  |
+| ---------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------- |
 | `apps/web/lib/auth/index.ts` | `assignBootRole()` not wrapped in try/catch, `seedBootAccounts()` blocks auth init | Wrap in try/catch OR fire seeding as fire-and-forget |
-| `.env` (root) | Duplicate `NEXT_PUBLIC_SITE_URL`, possibly wrong DB URL | Clean up duplicates |
+| `.env` (root)                | Duplicate `NEXT_PUBLIC_SITE_URL`, possibly wrong DB URL                            | Clean up duplicates                                  |
 
 ### Verify Only (already fixed, but confirm no regression)
-| File | Guard Added |
-|------|-------------|
-| `apps/web/lib/live/manual.ts` | `NEXT_PHASE` check in `getPool()` |
-| `apps/web/lib/auth/auth-pool.ts` | `NEXT_PHASE` → PGlite fallback in `createDialect()` |
-| `apps/web/lib/ops-db.ts` | `NEXT_PHASE` check in `getOperationalPool()` |
-| `apps/web/lib/ad-events.ts` | `NEXT_PHASE` check + try/catch in `ensureSchema()` |
-| `apps/web/lib/engagement/store.ts` | `NEXT_PHASE` check in `getPool()` |
-| `apps/web/lib/submissions.ts` | `NEXT_PHASE` check in `getPool()` |
-| `apps/web/lib/journalist-workspace.ts` | `NEXT_PHASE` check in `getPool()` |
-| `apps/web/app/api/newsletter/store.ts` | `NEXT_PHASE` check in `getPool()` |
-| `apps/web/lib/house-ads.ts` | `NEXT_PHASE` check + existing try/catch |
-| `apps/web/lib/content/index.ts` | try/catch + JSON store fallback in `resolveSource()` |
-| `apps/web/lib/content/payload-source.ts` | Eager `getPayload()`, cached `_payload` |
+
+| File                                     | Guard Added                                          |
+| ---------------------------------------- | ---------------------------------------------------- |
+| `apps/web/lib/live/manual.ts`            | `NEXT_PHASE` check in `getPool()`                    |
+| `apps/web/lib/auth/auth-pool.ts`         | `NEXT_PHASE` → PGlite fallback in `createDialect()`  |
+| `apps/web/lib/ops-db.ts`                 | `NEXT_PHASE` check in `getOperationalPool()`         |
+| `apps/web/lib/ad-events.ts`              | `NEXT_PHASE` check + try/catch in `ensureSchema()`   |
+| `apps/web/lib/engagement/store.ts`       | `NEXT_PHASE` check in `getPool()`                    |
+| `apps/web/lib/submissions.ts`            | `NEXT_PHASE` check in `getPool()`                    |
+| `apps/web/lib/journalist-workspace.ts`   | `NEXT_PHASE` check in `getPool()`                    |
+| `apps/web/app/api/newsletter/store.ts`   | `NEXT_PHASE` check in `getPool()`                    |
+| `apps/web/lib/house-ads.ts`              | `NEXT_PHASE` check + existing try/catch              |
+| `apps/web/lib/content/index.ts`          | try/catch + JSON store fallback in `resolveSource()` |
+| `apps/web/lib/content/payload-source.ts` | Eager `getPayload()`, cached `_payload`              |
 
 ---
 

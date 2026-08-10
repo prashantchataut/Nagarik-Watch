@@ -1,6 +1,11 @@
 import 'server-only'
 import { randomUUID } from 'node:crypto'
-import { ensureOperationalSchema, requireOperationalPool, type Queryable, toIso } from '@/lib/ops-db'
+import {
+  ensureOperationalSchema,
+  requireOperationalPool,
+  type Queryable,
+  toIso,
+} from '@/lib/ops-db'
 
 export type NotificationEvent = {
   id: string
@@ -53,7 +58,14 @@ const memoryReceipts = new Map<string, NotificationReceipt>()
 
 function cleanList(value: unknown): string[] {
   if (!Array.isArray(value)) return []
-  return [...new Set(value.map(String).map((item) => item.trim().toLowerCase()).filter(Boolean))].slice(0, 50)
+  return [
+    ...new Set(
+      value
+        .map(String)
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ].slice(0, 50)
 }
 
 function ownerKey(fingerprint: string, userId?: string) {
@@ -110,7 +122,10 @@ function rowToEvent(row: EventRow): NotificationEvent {
     authorSlugs: cleanList(row.author_slugs),
     tagSlugs: cleanList(row.tag_slugs),
     isBreaking: row.is_breaking,
-    notificationMode: row.notification_mode === 'breaking' || row.notification_mode === 'followers' ? row.notification_mode : 'none',
+    notificationMode:
+      row.notification_mode === 'breaking' || row.notification_mode === 'followers'
+        ? row.notification_mode
+        : 'none',
     notificationTagSlugs: cleanList(row.notification_tag_slugs),
     publishedAt: toIso(row.published_at),
     updatedAt: toIso(row.updated_at),
@@ -130,7 +145,10 @@ export async function recordNotificationEvent(
     titleEn: input.titleEn?.trim().slice(0, 240) || undefined,
     authorSlugs: cleanList(input.authorSlugs),
     tagSlugs: cleanList(input.tagSlugs),
-    notificationMode: input.notificationMode === 'breaking' || input.notificationMode === 'followers' ? input.notificationMode : 'none',
+    notificationMode:
+      input.notificationMode === 'breaking' || input.notificationMode === 'followers'
+        ? input.notificationMode
+        : 'none',
     notificationTagSlugs: cleanList(input.notificationTagSlugs),
     publishedAt: new Date(input.publishedAt).toISOString(),
     updatedAt: new Date().toISOString(),
@@ -150,15 +168,26 @@ export async function recordNotificationEvent(
         notification_tag_slugs=excluded.notification_tag_slugs,updated_at=now()
       RETURNING *`,
       [
-        event.id,event.articleId,event.articleSlug,event.categorySlug,event.titleNe,event.titleEn ?? null,
-        JSON.stringify(event.authorSlugs),JSON.stringify(event.tagSlugs),event.isBreaking,event.notificationMode,
-        JSON.stringify(event.notificationTagSlugs),event.publishedAt,
+        event.id,
+        event.articleId,
+        event.articleSlug,
+        event.categorySlug,
+        event.titleNe,
+        event.titleEn ?? null,
+        JSON.stringify(event.authorSlugs),
+        JSON.stringify(event.tagSlugs),
+        event.isBreaking,
+        event.notificationMode,
+        JSON.stringify(event.notificationTagSlugs),
+        event.publishedAt,
       ],
     )
     return rowToEvent(result.rows[0]!)
   }
   const key = `${event.articleId}:${event.publishedAt}`
-  const existing = [...memoryEvents.values()].find((item) => `${item.articleId}:${item.publishedAt}` === key)
+  const existing = [...memoryEvents.values()].find(
+    (item) => `${item.articleId}:${item.publishedAt}` === key,
+  )
   if (existing) {
     const updated = { ...existing, ...event, id: existing.id }
     memoryEvents.set(existing.id, updated)
@@ -181,7 +210,10 @@ export async function listNotificationEvents(limit = 50, days = 7): Promise<Noti
   }
   return [...memoryEvents.values()]
     .filter((event) => event.publishedAt >= cutoff)
-    .sort((a, b) => Number(b.isBreaking) - Number(a.isBreaking) || b.publishedAt.localeCompare(a.publishedAt))
+    .sort(
+      (a, b) =>
+        Number(b.isBreaking) - Number(a.isBreaking) || b.publishedAt.localeCompare(a.publishedAt),
+    )
     .slice(0, safeLimit)
 }
 
@@ -196,15 +228,24 @@ export async function getNotificationReceipts(
       `SELECT event_id,seen_at,read_at,dismissed_at FROM nw_notification_receipts WHERE owner_key=$1`,
       [owner],
     )
-    return new Map(result.rows.map((row) => [row.event_id, {
-      eventId: row.event_id,
-      seenAt: row.seen_at ? toIso(row.seen_at) : undefined,
-      readAt: row.read_at ? toIso(row.read_at) : undefined,
-      dismissedAt: row.dismissed_at ? toIso(row.dismissed_at) : undefined,
-    }]))
+    return new Map(
+      result.rows.map((row) => [
+        row.event_id,
+        {
+          eventId: row.event_id,
+          seenAt: row.seen_at ? toIso(row.seen_at) : undefined,
+          readAt: row.read_at ? toIso(row.read_at) : undefined,
+          dismissedAt: row.dismissed_at ? toIso(row.dismissed_at) : undefined,
+        },
+      ]),
+    )
   }
   const prefix = `${owner}:`
-  return new Map([...memoryReceipts.entries()].filter(([key]) => key.startsWith(prefix)).map(([, value]) => [value.eventId, value]))
+  return new Map(
+    [...memoryReceipts.entries()]
+      .filter(([key]) => key.startsWith(prefix))
+      .map(([, value]) => [value.eventId, value]),
+  )
 }
 
 export async function updateNotificationReceipts(
@@ -239,7 +280,7 @@ export async function updateNotificationReceipts(
     const now = new Date().toISOString()
     memoryReceipts.set(key, {
       ...current,
-      seenAt: action === 'seen' ? current.seenAt ?? now : current.seenAt,
+      seenAt: action === 'seen' ? (current.seenAt ?? now) : current.seenAt,
       readAt: action === 'read' ? now : current.readAt,
       dismissedAt: action === 'dismiss' ? now : current.dismissedAt,
     })

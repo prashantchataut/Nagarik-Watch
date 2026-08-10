@@ -38,7 +38,6 @@ export function safeParseArray<T>(raw: string | null): T[] {
   }
 }
 
-
 export function setBookmark(
   records: BookmarkRecord[],
   story: StoryCardData,
@@ -57,7 +56,9 @@ export function toggleBookmark(
   story: StoryCardData,
   now = new Date(),
 ): BookmarkRecord[] {
-  const existing = records.some((record) => record.articleId === story.id || record.story.slug === story.slug)
+  const existing = records.some(
+    (record) => record.articleId === story.id || record.story.slug === story.slug,
+  )
   return setBookmark(records, story, !existing, now)
 }
 

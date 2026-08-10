@@ -5,7 +5,12 @@
  * revenue or delivery data is fabricated here.
  */
 
-export const PARTNER_LICENSE_TAGS = ['all-rights', 'partner-limited', 'wire', 'cc-attribution'] as const
+export const PARTNER_LICENSE_TAGS = [
+  'all-rights',
+  'partner-limited',
+  'wire',
+  'cc-attribution',
+] as const
 export type PartnerLicenseTag = (typeof PARTNER_LICENSE_TAGS)[number]
 
 export function isKnownLicenseTag(value: string): value is PartnerLicenseTag {
@@ -13,7 +18,10 @@ export function isKnownLicenseTag(value: string): value is PartnerLicenseTag {
 }
 
 /** Default license for syndicated items until a story is explicitly tagged otherwise. */
-export function licenseTagFor(input: { isWireCopy?: boolean; partnerLimited?: boolean }): PartnerLicenseTag {
+export function licenseTagFor(input: {
+  isWireCopy?: boolean
+  partnerLimited?: boolean
+}): PartnerLicenseTag {
   if (input.isWireCopy) return 'wire'
   if (input.partnerLimited) return 'partner-limited'
   return 'all-rights'
@@ -44,7 +52,8 @@ const PARTNER_TOKEN_MIN_LENGTH = 24
  */
 export function checkPartnerTokenShape(token: string | null | undefined): PartnerTokenCheck {
   if (!token) return { ok: false, reason: 'missing token' }
-  if (!token.startsWith(PARTNER_TOKEN_PREFIX)) return { ok: false, reason: 'unexpected token prefix' }
+  if (!token.startsWith(PARTNER_TOKEN_PREFIX))
+    return { ok: false, reason: 'unexpected token prefix' }
   if (token.length < PARTNER_TOKEN_MIN_LENGTH) return { ok: false, reason: 'token too short' }
   return { ok: true }
 }

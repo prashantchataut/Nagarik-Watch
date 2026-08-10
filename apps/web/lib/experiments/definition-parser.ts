@@ -7,8 +7,12 @@ function cleanVariants(value: unknown): ExperimentVariant[] {
   for (const candidate of value) {
     if (!candidate || typeof candidate !== 'object') continue
     const row = candidate as Record<string, unknown>
-    const id = String(row.id ?? '').trim().slice(0, 80)
-    const label = String(row.label ?? id).trim().slice(0, 120)
+    const id = String(row.id ?? '')
+      .trim()
+      .slice(0, 80)
+    const label = String(row.label ?? id)
+      .trim()
+      .slice(0, 120)
     const weight = Number(row.weight)
     if (!id || seen.has(id) || !Number.isFinite(weight) || weight <= 0) continue
     seen.add(id)
@@ -32,24 +36,26 @@ export function parseExperimentDefinitions(raw: string | undefined): ExperimentD
   for (const candidate of parsed) {
     if (!candidate || typeof candidate !== 'object') continue
     const row = candidate as Record<string, unknown>
-    const id = String(row.id ?? '').trim().slice(0, 80)
+    const id = String(row.id ?? '')
+      .trim()
+      .slice(0, 80)
     const variants = cleanVariants(row.variants)
     const status = row.status
     if (
       !id ||
       seen.has(id) ||
       variants.length < 2 ||
-      (status !== 'draft' &&
-        status !== 'active' &&
-        status !== 'paused' &&
-        status !== 'completed')
+      (status !== 'draft' && status !== 'active' && status !== 'paused' && status !== 'completed')
     ) {
       continue
     }
     seen.add(id)
     definitions.push({
       id,
-      label: String(row.label ?? id).trim().slice(0, 140) || id,
+      label:
+        String(row.label ?? id)
+          .trim()
+          .slice(0, 140) || id,
       status,
       variants,
       primaryMetric: String(row.primaryMetric ?? 'conversion')
@@ -59,12 +65,8 @@ export function parseExperimentDefinitions(raw: string | undefined): ExperimentD
         20,
         Math.min(1_000_000, Math.floor(Number(row.minimumExposuresPerVariant) || 200)),
       ),
-      winnerProbability: Math.max(
-        0.8,
-        Math.min(0.999, Number(row.winnerProbability) || 0.95),
-      ),
+      winnerProbability: Math.max(0.8, Math.min(0.999, Number(row.winnerProbability) || 0.95)),
     })
   }
   return definitions.slice(0, 30)
 }
-

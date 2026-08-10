@@ -236,10 +236,12 @@ export async function createSubmission(input: {
   return submission
 }
 
-export async function listSubmissions(opts: {
-  status?: SubmissionStatus
-  limit?: number
-} = {}): Promise<ReaderSubmission[]> {
+export async function listSubmissions(
+  opts: {
+    status?: SubmissionStatus
+    limit?: number
+  } = {},
+): Promise<ReaderSubmission[]> {
   const limit = Math.max(1, Math.min(500, opts.limit ?? 100))
   const cacheKey = `${opts.status ?? 'all'}:${limit}`
   const cached = submissionsListCache.get(cacheKey)

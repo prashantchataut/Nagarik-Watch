@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type { StoryCardData } from '@nagarikwatch/db'
-import { bookmarkStaleness, isStaleBookmark, rankSavedForLater, savedEmptyState, staleSavesCount } from './saves'
+import {
+  bookmarkStaleness,
+  isStaleBookmark,
+  rankSavedForLater,
+  savedEmptyState,
+  staleSavesCount,
+} from './saves'
 import type { BookmarkRecord } from './state'
 
 function story(id: string, readingMinutes?: number): StoryCardData {
@@ -52,9 +58,12 @@ describe('savedEmptyState', () => {
   it('reports all-stale only when every save is past the threshold', () => {
     const now = new Date('2026-07-18T12:00:00Z')
     expect(savedEmptyState([bookmark('a', '2026-05-01T00:00:00Z')], now)).toBe('all-stale')
-    expect(savedEmptyState([bookmark('a', '2026-05-01T00:00:00Z'), bookmark('b', '2026-07-18T00:00:00Z')], now)).toBe(
-      'has-fresh',
-    )
+    expect(
+      savedEmptyState(
+        [bookmark('a', '2026-05-01T00:00:00Z'), bookmark('b', '2026-07-18T00:00:00Z')],
+        now,
+      ),
+    ).toBe('has-fresh')
   })
 })
 

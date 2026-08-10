@@ -35,9 +35,7 @@ async function ensureArticlesReadable(pool: Queryable): Promise<boolean> {
 
 export async function getCutoverStatus(): Promise<CutoverStatus> {
   const contentSource =
-    process.env.CONTENT_SOURCE?.trim() ||
-    process.env.PAYLOAD_CONTENT_SOURCE?.trim() ||
-    'json'
+    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'json'
   const checklist = getPayloadCutoverChecklist()
   const migrationMarkedComplete =
     process.env.DESK_TO_PAYLOAD_MIGRATED?.trim().toLowerCase() === 'true' ||
@@ -65,9 +63,7 @@ export async function getCutoverStatus(): Promise<CutoverStatus> {
           document JSONB NOT NULL
         )
       `)
-      await p.query(
-        `CREATE UNIQUE INDEX IF NOT EXISTS nw_articles_slug_idx ON nw_articles(slug)`,
-      )
+      await p.query(`CREATE UNIQUE INDEX IF NOT EXISTS nw_articles_slug_idx ON nw_articles(slug)`)
     })
     desk.tablePresent = await ensureArticlesReadable(pool)
     if (desk.tablePresent) {
@@ -99,7 +95,9 @@ export async function getCutoverStatus(): Promise<CutoverStatus> {
     nextSteps.push('Payload is already canonical. Publish only in Payload CMS.')
   } else {
     if (!checklist.ready) {
-      nextSteps.push('Complete Payload cutover checklist gates on this page (URL, token, secret, revalidate, media).')
+      nextSteps.push(
+        'Complete Payload cutover checklist gates on this page (URL, token, secret, revalidate, media).',
+      )
     }
     if (desk.published > 0 && !migrationMarkedComplete) {
       nextSteps.push(
@@ -110,10 +108,14 @@ export async function getCutoverStatus(): Promise<CutoverStatus> {
       )
     }
     if (checklist.ready && (migrationMarkedComplete || desk.published === 0)) {
-      nextSteps.push('Staging: set CONTENT_SOURCE=payload, prove publish → public ≤60s, then redeploy.')
+      nextSteps.push(
+        'Staging: set CONTENT_SOURCE=payload, prove publish → public ≤60s, then redeploy.',
+      )
     }
     if (desk.published === 0) {
-      nextSteps.push('Publish real soft-desk stories before cutover, or accept an empty Payload corpus.')
+      nextSteps.push(
+        'Publish real soft-desk stories before cutover, or accept an empty Payload corpus.',
+      )
     }
   }
 

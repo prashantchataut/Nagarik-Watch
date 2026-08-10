@@ -13,7 +13,11 @@ import {
   type EditorPreferences,
 } from '@/lib/editor-preferences-types'
 
-export type { EditorDensity, EditorLocalePref, EditorPreferences } from '@/lib/editor-preferences-types'
+export type {
+  EditorDensity,
+  EditorLocalePref,
+  EditorPreferences,
+} from '@/lib/editor-preferences-types'
 
 type Row = {
   user_id: string
@@ -119,8 +123,7 @@ export async function upsertEditorPreferences(
       input.autosaveSeconds !== undefined
         ? normalizeAutosave(input.autosaveSeconds)
         : current.autosaveSeconds,
-    density:
-      input.density !== undefined ? normalizeDensity(input.density) : current.density,
+    density: input.density !== undefined ? normalizeDensity(input.density) : current.density,
     showFormattingHints:
       input.showFormattingHints !== undefined
         ? Boolean(input.showFormattingHints)

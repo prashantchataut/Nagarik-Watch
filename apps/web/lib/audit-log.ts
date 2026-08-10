@@ -1,6 +1,11 @@
 import 'server-only'
 import type { NewsroomSession } from '@/lib/auth/session'
-import { ensureOperationalSchema, requireOperationalPool, toIso, type Queryable } from '@/lib/ops-db'
+import {
+  ensureOperationalSchema,
+  requireOperationalPool,
+  toIso,
+  type Queryable,
+} from '@/lib/ops-db'
 
 export type AuditAction =
   | 'create'
@@ -48,8 +53,9 @@ type Row = {
 const memory: AuditEvent[] = []
 
 async function ensureSchema(): Promise<Queryable | null> {
-  return requireOperationalPool(await ensureOperationalSchema('audit-log', async (pool) => {
-    await pool.query(`
+  return requireOperationalPool(
+    await ensureOperationalSchema('audit-log', async (pool) => {
+      await pool.query(`
       CREATE TABLE IF NOT EXISTS nw_audit_events (
         id text PRIMARY KEY,
         actor_id text NOT NULL,
@@ -63,9 +69,14 @@ async function ensureSchema(): Promise<Queryable | null> {
         created_at timestamptz NOT NULL DEFAULT now()
       )
     `)
-    await pool.query(`CREATE INDEX IF NOT EXISTS nw_audit_events_created_idx ON nw_audit_events(created_at DESC)`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS nw_audit_events_target_idx ON nw_audit_events(target_type, target_id, created_at DESC)`)
-  }))
+      await pool.query(
+        `CREATE INDEX IF NOT EXISTS nw_audit_events_created_idx ON nw_audit_events(created_at DESC)`,
+      )
+      await pool.query(
+        `CREATE INDEX IF NOT EXISTS nw_audit_events_target_idx ON nw_audit_events(target_type, target_id, created_at DESC)`,
+      )
+    }),
+  )
 }
 
 function id(): string {
@@ -113,7 +124,17 @@ export async function recordAuditEvent(input: {
       `INSERT INTO nw_audit_events (id, actor_id, actor_email, actor_role, action, target_type, target_id, summary, meta)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb)
        RETURNING *`,
-      [event.id, event.actorId, event.actorEmail, event.actorRole, event.action, event.targetType, event.targetId, event.summary, JSON.stringify(event.meta)],
+      [
+        event.id,
+        event.actorId,
+        event.actorEmail,
+        event.actorRole,
+        event.action,
+        event.targetType,
+        event.targetId,
+        event.summary,
+        JSON.stringify(event.meta),
+      ],
     )
     return rowToEvent(result.rows[0]!)
   }
@@ -124,7 +145,10 @@ export async function recordAuditEvent(input: {
 export async function listAuditEvents(limit = 100): Promise<AuditEvent[]> {
   const pool = await ensureSchema()
   if (pool) {
-    const result = await pool.query<Row>(`SELECT * FROM nw_audit_events ORDER BY created_at DESC LIMIT $1`, [limit])
+    const result = await pool.query<Row>(
+      `SELECT * FROM nw_audit_events ORDER BY created_at DESC LIMIT $1`,
+      [limit],
+    )
     return result.rows.map(rowToEvent)
   }
   return memory.slice(0, limit)

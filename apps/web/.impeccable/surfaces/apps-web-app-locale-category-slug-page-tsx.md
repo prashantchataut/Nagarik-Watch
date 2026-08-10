@@ -1,11 +1,11 @@
 ---
 version: 1
-slug: "apps-web-app-locale-category-slug-page-tsx"
-primary_target: "apps/web/app/[locale]/[category]/[slug]/page.tsx"
+slug: 'apps-web-app-locale-category-slug-page-tsx'
+primary_target: 'apps/web/app/[locale]/[category]/[slug]/page.tsx'
 related_targets:
-  - "apps/web/components/article/ArticleBody.tsx"
-  - "apps/web/components/reader/ReaderArticleControls.tsx"
-  - "apps/web/components/article/RelatedStories.tsx"
+  - 'apps/web/components/article/ArticleBody.tsx'
+  - 'apps/web/components/reader/ReaderArticleControls.tsx'
+  - 'apps/web/components/article/RelatedStories.tsx'
 ---
 
 # Surface brief: Article page

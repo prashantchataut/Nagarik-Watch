@@ -1,11 +1,7 @@
 'use client'
 
 import { useEffect, useRef, type RefObject } from 'react'
-import {
-  CONSENT_EVENT,
-  hasAnalyticsConsent,
-  hasPersonalizationConsent,
-} from '@/lib/reader/consent'
+import { CONSENT_EVENT, hasAnalyticsConsent, hasPersonalizationConsent } from '@/lib/reader/consent'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
 
 function canTrackRanking(): boolean {
@@ -42,7 +38,9 @@ export function RankingImpression({
 
       observer = new IntersectionObserver(
         (entries) => {
-          const hit = entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.4)
+          const hit = entries.some(
+            (entry) => entry.isIntersecting && entry.intersectionRatio >= 0.4,
+          )
           if (!hit || sent.current) return
           sent.current = true
           observer?.disconnect()

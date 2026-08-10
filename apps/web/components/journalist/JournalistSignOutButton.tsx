@@ -21,7 +21,13 @@ export function JournalistSignOutButton({ locale }: { locale: Locale }) {
         router.replace(localizeHref(locale, '/journalist/login'))
         router.refresh()
       } catch (cause) {
-        setError(cause instanceof Error ? cause.message : ne ? 'साइन आउट गर्न सकिएन।' : 'Could not sign out.')
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : ne
+              ? 'साइन आउट गर्न सकिएन।'
+              : 'Could not sign out.',
+        )
       }
     })
   }

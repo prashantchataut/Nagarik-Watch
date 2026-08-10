@@ -6,7 +6,11 @@ import { AdminButton } from '@/components/admin/primitives'
 
 type SubmissionStatus = 'new' | 'in_review' | 'accepted' | 'rejected'
 
-const ACTIONS: { status: SubmissionStatus; label: string; variant: 'primary' | 'secondary' | 'danger' }[] = [
+const ACTIONS: {
+  status: SubmissionStatus
+  label: string
+  variant: 'primary' | 'secondary' | 'danger'
+}[] = [
   { status: 'in_review', label: 'Review', variant: 'secondary' },
   { status: 'accepted', label: 'Accept', variant: 'primary' },
   { status: 'rejected', label: 'Reject', variant: 'danger' },

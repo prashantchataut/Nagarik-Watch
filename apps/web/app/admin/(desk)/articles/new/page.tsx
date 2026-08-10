@@ -9,7 +9,11 @@ import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/Cms
 import { AdminPageHeader } from '@/components/admin/primitives'
 import { ArticleEditorClient } from '@/components/admin/ArticleEditorClient'
 import { listMediaItems } from '@/lib/media-library'
-import { isPayloadCanonical, isPayloadSourceMisconfigured, payloadAdminUrl } from '@/lib/content/payload-admin-client'
+import {
+  isPayloadCanonical,
+  isPayloadSourceMisconfigured,
+  payloadAdminUrl,
+} from '@/lib/content/payload-admin-client'
 
 export const metadata: Metadata = {
   title: 'नयाँ समाचार',
@@ -35,7 +39,10 @@ export default async function NewArticlePage() {
             नयाँ लेख Payload CMS बाट बनाउनुहोस् ताकि प्रकाशित सामग्री सीधै पाठक-साइटमा देखियोस्।
           </p>
           <p className="mt-2 text-caption text-ink-soft">
-            <a href={payloadAdminUrl()} className="text-brand-strong underline-offset-2 hover:underline">
+            <a
+              href={payloadAdminUrl()}
+              className="text-brand-strong underline-offset-2 hover:underline"
+            >
               {payloadAdminUrl()}
             </a>
           </p>
@@ -45,7 +52,11 @@ export default async function NewArticlePage() {
   }
 
   const [categoriesResult, tagsResult, authorsResult, mediaLibrary] = await Promise.all([
-    safeAdminLoad('new-categories', () => getNavCategories(), seedCategories.filter((c) => c.showInNav)),
+    safeAdminLoad(
+      'new-categories',
+      () => getNavCategories(),
+      seedCategories.filter((c) => c.showInNav),
+    ),
     safeAdminLoad('new-tags', () => getTags(), []),
     safeAdminLoad('new-authors', () => getAuthors(), []),
     listMediaItems({ limit: 60 }).catch(() => []),

@@ -4,13 +4,13 @@ Safety branch: `rebuild/2026-07-20-audit-backup` (created from `main` @ d5b6794)
 
 ## Commands
 
-| Command | Result | Notes |
-|---|---|---|
-| `pnpm install --frozen-lockfile` | Pass | Node v24.11.0 (repo expects 22.x) |
-| `pnpm verify:static` | Pass | Launch gate skipped (not live) |
-| `pnpm test` | Pass | 258 tests |
-| `pnpm typecheck` | Fail → fixed | homepage-dedup lead type |
-| `node scripts/route-matrix.mjs` | Pass | 153 routes |
+| Command                          | Result       | Notes                             |
+| -------------------------------- | ------------ | --------------------------------- |
+| `pnpm install --frozen-lockfile` | Pass         | Node v24.11.0 (repo expects 22.x) |
+| `pnpm verify:static`             | Pass         | Launch gate skipped (not live)    |
+| `pnpm test`                      | Pass         | 258 tests                         |
+| `pnpm typecheck`                 | Fail → fixed | homepage-dedup lead type          |
+| `node scripts/route-matrix.mjs`  | Pass         | 153 routes                        |
 
 ## Rollback
 

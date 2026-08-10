@@ -1,15 +1,15 @@
 ---
 version: 1
-slug: "apps-web-components-auth-staffauthshell-tsx"
-primary_target: "apps/web/components/auth/StaffAuthShell.tsx"
+slug: 'apps-web-components-auth-staffauthshell-tsx'
+primary_target: 'apps/web/components/auth/StaffAuthShell.tsx'
 related_targets:
-  - "apps/web/components/auth/ReaderAuthShell.tsx"
-  - "apps/web/components/auth/AuthChrome.tsx"
-  - "apps/web/components/auth/AcceptNewsroomInvite.tsx"
-  - "apps/web/app/admin/(public)/login/page.tsx"
-  - "apps/web/app/admin/(public)/page.tsx"
-  - "apps/web/app/[locale]/journalist/login/page.tsx"
-  - "apps/web/app/[locale]/auth/mfa/setup/page.tsx"
+  - 'apps/web/components/auth/ReaderAuthShell.tsx'
+  - 'apps/web/components/auth/AuthChrome.tsx'
+  - 'apps/web/components/auth/AcceptNewsroomInvite.tsx'
+  - 'apps/web/app/admin/(public)/login/page.tsx'
+  - 'apps/web/app/admin/(public)/page.tsx'
+  - 'apps/web/app/[locale]/journalist/login/page.tsx'
+  - 'apps/web/app/[locale]/auth/mfa/setup/page.tsx'
 ---
 
 # Surface brief: Auth shells (reader + staff)

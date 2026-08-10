@@ -20,7 +20,12 @@ function read(readAt: string, completed = true): ReadingHistoryRecord {
 
 describe('computeStreak', () => {
   it('returns zeros for empty or all-unfinished history', () => {
-    expect(computeStreak([])).toEqual({ current: 0, longest: 0, lastCompletedDate: null, totalDays: 0 })
+    expect(computeStreak([])).toEqual({
+      current: 0,
+      longest: 0,
+      lastCompletedDate: null,
+      totalDays: 0,
+    })
     expect(computeStreak([read('2026-07-18T08:00:00', false)])).toEqual({
       current: 0,
       longest: 0,
@@ -32,11 +37,7 @@ describe('computeStreak', () => {
   it('counts a consecutive run ending today', () => {
     const now = new Date('2026-07-18T20:00:00')
     const summary = computeStreak(
-      [
-        read('2026-07-16T08:00:00'),
-        read('2026-07-17T08:00:00'),
-        read('2026-07-18T08:00:00'),
-      ],
+      [read('2026-07-16T08:00:00'), read('2026-07-17T08:00:00'), read('2026-07-18T08:00:00')],
       now,
     )
     expect(summary.current).toBe(3)

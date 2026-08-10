@@ -93,9 +93,9 @@ describe('isCacheControlAllowed', () => {
     expect(isCacheControlAllowed(null)).toBe(true)
     expect(isCacheControlAllowed(undefined)).toBe(true)
     expect(isCacheControlAllowed('')).toBe(true)
-    expect(isCacheControlAllowed('public, max-age=0, s-maxage=300, stale-while-revalidate=86400')).toBe(
-      true,
-    )
+    expect(
+      isCacheControlAllowed('public, max-age=0, s-maxage=300, stale-while-revalidate=86400'),
+    ).toBe(true)
     expect(isCacheControlAllowed('max-age=60, no-cache')).toBe(true)
   })
 

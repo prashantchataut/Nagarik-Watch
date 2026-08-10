@@ -53,16 +53,15 @@ export async function AdSlot({
   const mediaKitHref = localizeHref(locale, '/advertise')
   const resolvedVariant = variant ?? resolveVariant(placement.size)
 
-  let creative: HouseAdCreative | null =
-    houseAd?.active
-      ? {
-          title: houseAd.title,
-          body: houseAd.body,
-          cta: houseAd.cta,
-          href: houseAd.href,
-          imageUrl: houseAd.imageUrl,
-        }
-      : null
+  let creative: HouseAdCreative | null = houseAd?.active
+    ? {
+        title: houseAd.title,
+        body: houseAd.body,
+        cta: houseAd.cta,
+        href: houseAd.href,
+        imageUrl: houseAd.imageUrl,
+      }
+    : null
   let experimentId: string | undefined
 
   if (houseAd?.active && houseAd.abEnabled && houseAd.challenger) {

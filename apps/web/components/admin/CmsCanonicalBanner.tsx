@@ -7,20 +7,17 @@ import {
 } from '@/lib/content/payload-admin-client'
 
 /** Honest banner when CONTENT_SOURCE=payload — local desk article writes are blocked. */
-export function CmsCanonicalBanner({
-  collection = 'articles',
-}: {
-  collection?: string
-}) {
+export function CmsCanonicalBanner({ collection = 'articles' }: { collection?: string }) {
   if (isPayloadSourceMisconfigured()) {
     return (
       <AdminCallout tone="danger" className="mb-4">
         <p className="text-meta font-semibold text-ink" lang="ne">
-          Live content authority configuration मिलेको छैन। सार्वजनिक साइटलाई Payload CMS सँग
-          स्पष्ट रूपमा जोड्नुपर्छ; shadow-store प्रकाशन सुरक्षा कारणले बन्द गरिएको छ।
+          Live content authority configuration मिलेको छैन। सार्वजनिक साइटलाई Payload CMS सँग स्पष्ट
+          रूपमा जोड्नुपर्छ; shadow-store प्रकाशन सुरक्षा कारणले बन्द गरिएको छ।
         </p>
         <p className="mt-1 text-caption text-ink-soft" lang="en">
-          Set CONTENT_SOURCE=payload and PAYLOAD_PUBLIC_SERVER_URL on the web deployment, then redeploy.
+          Set CONTENT_SOURCE=payload and PAYLOAD_PUBLIC_SERVER_URL on the web deployment, then
+          redeploy.
         </p>
       </AdminCallout>
     )
@@ -62,7 +59,10 @@ export function AdminLoadErrorBanner({
         {message.slice(0, 280)}
       </p>
       <p className="mt-2 text-caption text-ink-soft" lang="ne">
-        <Link href={href} className="font-semibold text-brand-strong underline-offset-2 hover:underline">
+        <Link
+          href={href}
+          className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+        >
           Launch जाँच
         </Link>{' '}
         मा DATABASE_URL र CONTENT_SOURCE हेर्नुहोस्।

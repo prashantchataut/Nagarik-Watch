@@ -41,12 +41,7 @@ export function sniffImageMime(buffer: Buffer): string | null {
   // AVIF is an ISO BMFF file. The major brand is commonly `avif`/`avis`,
   // while some encoders use a generic major brand and list AVIF as a
   // compatible brand shortly after `ftyp`.
-  if (
-    buffer[4] === 0x66 &&
-    buffer[5] === 0x74 &&
-    buffer[6] === 0x79 &&
-    buffer[7] === 0x70
-  ) {
+  if (buffer[4] === 0x66 && buffer[5] === 0x74 && buffer[6] === 0x79 && buffer[7] === 0x70) {
     const brandWindow = buffer.subarray(8, Math.min(buffer.length, 40)).toString('ascii')
     if (brandWindow.includes('avif') || brandWindow.includes('avis')) return 'image/avif'
   }

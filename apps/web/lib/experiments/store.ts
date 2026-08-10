@@ -41,9 +41,7 @@ async function ensureTable(pool: Queryable): Promise<void> {
 
 function hashSecret(): string {
   const configured =
-    process.env.EXPERIMENT_HASH_SECRET ??
-    process.env.AUTH_SECRET ??
-    process.env.BETTER_AUTH_SECRET
+    process.env.EXPERIMENT_HASH_SECRET ?? process.env.AUTH_SECRET ?? process.env.BETTER_AUTH_SECRET
   if (configured?.trim()) return configured
   if (isProductionRuntime()) {
     throw new Error('EXPERIMENT_HASH_SECRET or AUTH_SECRET is required in production.')
@@ -174,4 +172,3 @@ export async function listExperimentAnalyses(): Promise<
     })),
   )
 }
-

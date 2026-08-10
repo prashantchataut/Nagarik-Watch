@@ -20,11 +20,25 @@ export const UTILITY_LINKS = [
     noteEn: 'Bikram Sambat and Gregorian',
   },
   {
-    path: '/utilities/preeti-unicode',
+    path: '/preeti-unicode',
     ne: 'प्रिती युनिकोड',
     en: 'Preeti Unicode',
     noteNe: 'पुरानो फन्टबाट युनिकोड',
     noteEn: 'Legacy font to Unicode',
+  },
+  {
+    path: '/market',
+    ne: 'सेयर बजार र सुनचाँदी',
+    en: 'Markets & Gold',
+    noteNe: 'NEPSE, सुनचाँदी र विनिमय दर',
+    noteEn: 'NEPSE, Bullion and Forex',
+  },
+  {
+    path: '/rashifal',
+    ne: 'दैनिक राशिफल',
+    en: 'Daily Horoscope',
+    noteNe: '१२ राशिको दैनिक भविष्यवाणी',
+    noteEn: '12-Zodiac sign forecasts',
   },
   {
     path: '/utilities/currency',

@@ -35,15 +35,16 @@ export default async function RolesPage() {
   await requireNewsroomSession()
   return (
     <div>
-      <AdminPageHeader
-        subtitle="पाठक, पत्रकार र एडमिन पहुँच अलग राखिएको छ — Assign roles from Users"
-      />
+      <AdminPageHeader subtitle="पाठक, पत्रकार र एडमिन पहुँच अलग राखिएको छ — Assign roles from Users" />
 
       <AdminCard className="mb-5">
         <p className="text-body text-ink" lang="ne">
           पत्रकार workspace <code className="text-meta">/journalist</code> मा रहन्छ। Admin panel
           editorial, moderation, analytics, ads र system settings का लागि मात्र हो। नयाँ भूमिका दिन{' '}
-          <Link href="/admin/users" className="font-bold text-brand-strong underline-offset-2 hover:underline">
+          <Link
+            href="/admin/users"
+            className="font-bold text-brand-strong underline-offset-2 hover:underline"
+          >
             Users
           </Link>{' '}
           बाट निमन्त्रणा पठाउनुहोस् वा अवस्थित खाता अपडेट गर्नुहोस्।
@@ -97,7 +98,11 @@ export default async function RolesPage() {
                   </td>
                   {checks.map(([label, fn]) => (
                     <td key={label}>
-                      <span className={fn(role) ? 'admin-status admin-status--success' : 'text-caption text-mute'}>
+                      <span
+                        className={
+                          fn(role) ? 'admin-status admin-status--success' : 'text-caption text-mute'
+                        }
+                      >
                         {fn(role) ? 'Yes' : '—'}
                       </span>
                     </td>

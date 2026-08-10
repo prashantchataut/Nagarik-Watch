@@ -39,7 +39,10 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
     setSupported(ok)
     if (ok) setPermission(Notification.permission)
     if (ok && 'serviceWorker' in navigator && 'PushManager' in window) {
-      navigator.serviceWorker.ready.then((registration) => registration.pushManager.getSubscription()).then((subscription) => setPushRegistered(Boolean(subscription))).catch(() => undefined)
+      navigator.serviceWorker.ready
+        .then((registration) => registration.pushManager.getSubscription())
+        .then((subscription) => setPushRegistered(Boolean(subscription)))
+        .catch(() => undefined)
     }
   }, [])
 
@@ -48,15 +51,28 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
     async function refresh(showBrowserAlert = false) {
       const fingerprint = getOrCreateReaderId()
       try {
-        const response = await fetch(`/api/notifications?locale=${locale}&fingerprint=${encodeURIComponent(fingerprint)}`, { cache: 'no-store' })
+        const response = await fetch(
+          `/api/notifications?locale=${locale}&fingerprint=${encodeURIComponent(fingerprint)}`,
+          { cache: 'no-store' },
+        )
         if (!response.ok) throw new Error(`Notification request failed: ${response.status}`)
-        const body = await response.json() as { alerts?: AlertItem[]; unread?: number; preferences?: ReaderPreferences }
+        const body = (await response.json()) as {
+          alerts?: AlertItem[]
+          unread?: number
+          preferences?: ReaderPreferences
+        }
         if (cancelled) return
         const nextAlerts = body.alerts ?? []
         const unseen = nextAlerts.filter((item) => !item.seen).slice(0, 8)
-        setAlerts(unseen.length
-          ? nextAlerts.map((item) => unseen.some((candidate) => candidate.id === item.id) ? { ...item, seen: true } : item)
-          : nextAlerts)
+        setAlerts(
+          unseen.length
+            ? nextAlerts.map((item) =>
+                unseen.some((candidate) => candidate.id === item.id)
+                  ? { ...item, seen: true }
+                  : item,
+              )
+            : nextAlerts,
+        )
         setUnread(Number(body.unread ?? 0))
         if (body.preferences) {
           setPreferences(body.preferences)
@@ -67,9 +83,17 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
           await fetch('/api/notifications', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ fingerprint, action: 'seen', eventIds: unseen.map((item) => item.id) }),
+            body: JSON.stringify({
+              fingerprint,
+              action: 'seen',
+              eventIds: unseen.map((item) => item.id),
+            }),
           }).catch(() => undefined)
-          if (showBrowserAlert && Notification.permission === 'granted' && body.preferences?.browserAlerts) {
+          if (
+            showBrowserAlert &&
+            Notification.permission === 'granted' &&
+            body.preferences?.browserAlerts
+          ) {
             await showNotification(unseen[0]!, locale)
           }
         }
@@ -106,13 +130,20 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
       try {
         const registration = await navigator.serviceWorker.ready
         const existing = await registration.pushManager.getSubscription()
-        const subscription = existing ?? await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: decodeVapidKey(pushPublicKey),
-        })
+        const subscription =
+          existing ??
+          (await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: decodeVapidKey(pushPublicKey),
+          }))
         const response = await fetch('/api/notifications/subscription', {
-          method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ fingerprint: getOrCreateReaderId(), locale, subscription: subscription.toJSON() }),
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            fingerprint: getOrCreateReaderId(),
+            locale,
+            subscription: subscription.toJSON(),
+          }),
         })
         if (!response.ok) throw new Error(`Push registration failed: ${response.status}`)
         registered = true
@@ -136,8 +167,12 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
         const subscription = await registration.pushManager.getSubscription()
         if (subscription) {
           await fetch('/api/notifications/subscription', {
-            method: 'DELETE', headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ fingerprint: getOrCreateReaderId(), endpoint: subscription.endpoint }),
+            method: 'DELETE',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              fingerprint: getOrCreateReaderId(),
+              endpoint: subscription.endpoint,
+            }),
           }).catch(() => undefined)
           await subscription.unsubscribe()
         }
@@ -161,25 +196,44 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
   }
 
   async function openAlert(alert: AlertItem) {
-    setAlerts((current) => current.map((item) => item.id === alert.id ? { ...item, read: true } : item))
+    setAlerts((current) =>
+      current.map((item) => (item.id === alert.id ? { ...item, read: true } : item)),
+    )
     setUnread((value) => Math.max(0, value - (alert.read ? 0 : 1)))
     await fetch('/api/notifications', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ fingerprint: getOrCreateReaderId(), action: 'read', eventIds: [alert.id] }),
+      body: JSON.stringify({
+        fingerprint: getOrCreateReaderId(),
+        action: 'read',
+        eventIds: [alert.id],
+      }),
       keepalive: true,
     }).catch(() => undefined)
     window.location.assign(safeAlertPath(alert.url))
   }
 
   return (
-    <aside className={`notification-desk ${className ?? ''}`} aria-labelledby="notification-desk-title" lang={english ? 'en' : 'ne'}>
+    <aside
+      className={`notification-desk ${className ?? ''}`}
+      aria-labelledby="notification-desk-title"
+      lang={english ? 'en' : 'ne'}
+    >
       <header className="notification-desk__header">
         <div>
-          <p className="editorial-kicker" lang="en">Alert desk</p>
-          <h2 id="notification-desk-title">{english ? 'News worth interrupting you for' : 'तपाईंलाई रोक्न लायक सूचना'}</h2>
+          <p className="editorial-kicker" lang="en">
+            Alert desk
+          </p>
+          <h2 id="notification-desk-title">
+            {english ? 'News worth interrupting you for' : 'तपाईंलाई रोक्न लायक सूचना'}
+          </h2>
         </div>
-        <span className="notification-desk__count" aria-label={english ? `${unread} unread alerts` : `${unread} नपढिएका सूचना`}>{unread}</span>
+        <span
+          className="notification-desk__count"
+          aria-label={english ? `${unread} unread alerts` : `${unread} नपढिएका सूचना`}
+        >
+          {unread}
+        </span>
       </header>
       <p className="notification-desk__dek">
         {english
@@ -190,16 +244,45 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
       <div className="notification-desk__permission">
         <div>
           <strong>{english ? 'Browser alerts' : 'ब्राउजर सूचना'}</strong>
-          <small>{!supported ? (english ? 'Not supported in this browser' : 'यो ब्राउजरमा उपलब्ध छैन') : pushRegistered ? (english ? 'Background alerts are on' : 'पृष्ठभूमि सूचना सक्रिय छ') : pushPublicKey ? (english ? `Permission: ${permission}` : `अनुमति: ${permission}`) : (english ? 'Alerts work while the site is open. Background alerts are not set up yet.' : 'साइट खुला हुँदा सूचना देखिन्छ। पृष्ठभूमि सूचना अहिले उपलब्ध छैन।')}</small>
+          <small>
+            {!supported
+              ? english
+                ? 'Not supported in this browser'
+                : 'यो ब्राउजरमा उपलब्ध छैन'
+              : pushRegistered
+                ? english
+                  ? 'Background alerts are on'
+                  : 'पृष्ठभूमि सूचना सक्रिय छ'
+                : pushPublicKey
+                  ? english
+                    ? `Permission: ${permission}`
+                    : `अनुमति: ${permission}`
+                  : english
+                    ? 'Alerts work while the site is open. Background alerts are not set up yet.'
+                    : 'साइट खुला हुँदा सूचना देखिन्छ। पृष्ठभूमि सूचना अहिले उपलब्ध छैन।'}
+          </small>
         </div>
         {preferences?.browserAlerts ? (
-          <button type="button" onClick={disableBrowserAlerts} className="text-action">{english ? 'Turn off' : 'बन्द गर्नुहोस्'}</button>
+          <button type="button" onClick={disableBrowserAlerts} className="text-action">
+            {english ? 'Turn off' : 'बन्द गर्नुहोस्'}
+          </button>
         ) : (
-          <button type="button" onClick={enableBrowserAlerts} disabled={!supported || permission === 'denied'} className="text-action">{english ? 'Enable' : 'खोल्नुहोस्'}</button>
+          <button
+            type="button"
+            onClick={enableBrowserAlerts}
+            disabled={!supported || permission === 'denied'}
+            className="text-action"
+          >
+            {english ? 'Enable' : 'खोल्नुहोस्'}
+          </button>
         )}
       </div>
       {showPrimer ? (
-        <div className="notification-desk__primer" role="group" aria-labelledby="notification-primer-title">
+        <div
+          className="notification-desk__primer"
+          role="group"
+          aria-labelledby="notification-primer-title"
+        >
           <strong id="notification-primer-title">
             {english ? 'Choose before the browser asks' : 'ब्राउजरले सोध्नुअघि आफैँ छनोट गर्नुहोस्'}
           </strong>
@@ -209,7 +292,11 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
               : 'ब्रेकिङ समाचार र पछ्याइएका विषयका अपडेट चाहनुहुन्छ भने मात्र अनुमति दिनुहोस्। यहाँबाट जुनसुकै बेला बन्द गर्न सक्नुहुन्छ।'}
           </p>
           <div>
-            <button type="button" className="text-action" onClick={() => void enableBrowserAlerts()}>
+            <button
+              type="button"
+              className="text-action"
+              onClick={() => void enableBrowserAlerts()}
+            >
               {english ? 'Continue to browser choice' : 'ब्राउजर छनोटमा जानुहोस्'}
             </button>
             <button type="button" onClick={() => setShowPrimer(false)}>
@@ -220,10 +307,16 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
       ) : null}
 
       {status === 'error' ? (
-        <p className="notification-desk__state" role="status">{english ? 'Alerts could not refresh. Your preferences remain saved.' : 'सूचना ताजा गर्न सकिएन। तपाईंका छनोट सुरक्षित छन्।'}</p>
+        <p className="notification-desk__state" role="status">
+          {english
+            ? 'Alerts could not refresh. Your preferences remain saved.'
+            : 'सूचना ताजा गर्न सकिएन। तपाईंका छनोट सुरक्षित छन्।'}
+        </p>
       ) : null}
       {status === 'loading' ? (
-        <p className="notification-desk__state" role="status">{english ? 'Checking your alert desk…' : 'तपाईंको सूचना डेस्क जाँचिँदै…'}</p>
+        <p className="notification-desk__state" role="status">
+          {english ? 'Checking your alert desk…' : 'तपाईंको सूचना डेस्क जाँचिँदै…'}
+        </p>
       ) : null}
 
       {alerts.length ? (
@@ -231,9 +324,24 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
           {alerts.slice(0, 6).map((alert) => (
             <li key={alert.id} data-read={alert.read}>
               <button type="button" onClick={() => void openAlert(alert)}>
-                <span className="notification-desk__reason">{alert.reason === 'breaking' ? (english ? 'Breaking' : 'ब्रेकिङ') : alert.reason === 'follow' ? (english ? 'You follow this' : 'तपाईंले पछ्याएको') : (english ? 'Digest' : 'सार')}</span>
+                <span className="notification-desk__reason">
+                  {alert.reason === 'breaking'
+                    ? english
+                      ? 'Breaking'
+                      : 'ब्रेकिङ'
+                    : alert.reason === 'follow'
+                      ? english
+                        ? 'You follow this'
+                        : 'तपाईंले पछ्याएको'
+                      : english
+                        ? 'Digest'
+                        : 'सार'}
+                </span>
                 <strong>{alert.title}</strong>
-                <small>{new Date(alert.publishedAt).toLocaleString(english ? 'en-GB' : 'ne-NP')} · {Math.round(alert.score)}</small>
+                <small>
+                  {new Date(alert.publishedAt).toLocaleString(english ? 'en-GB' : 'ne-NP')} ·{' '}
+                  {Math.round(alert.score)}
+                </small>
               </button>
             </li>
           ))}
@@ -241,13 +349,16 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
       ) : status === 'ready' ? (
         <div className="notification-desk__empty">
           <strong>{english ? 'No eligible alerts right now' : 'अहिले योग्य सूचना छैन'}</strong>
-          <p>{english ? 'Follow desks, topics or journalists to make this feed useful.' : 'यो सूची उपयोगी बनाउन विभाग, विषय वा पत्रकार पछ्याउनुहोस्।'}</p>
+          <p>
+            {english
+              ? 'Follow desks, topics or journalists to make this feed useful.'
+              : 'यो सूची उपयोगी बनाउन विभाग, विषय वा पत्रकार पछ्याउनुहोस्।'}
+          </p>
         </div>
       ) : null}
     </aside>
   )
 }
-
 
 function safeAlertPath(value: string) {
   try {
@@ -262,9 +373,14 @@ function safeAlertPath(value: string) {
 }
 
 async function showNotification(item: AlertItem, locale: Locale) {
-  const title = item.reason === 'breaking'
-    ? locale === 'en' ? 'Nagarik Watch breaking' : 'नागरिक वाच ब्रेकिङ'
-    : locale === 'en' ? 'From your Nagarik Watch desk' : 'तपाईंको नागरिक वाच डेस्कबाट'
+  const title =
+    item.reason === 'breaking'
+      ? locale === 'en'
+        ? 'Nagarik Watch breaking'
+        : 'नागरिक वाच ब्रेकिङ'
+      : locale === 'en'
+        ? 'From your Nagarik Watch desk'
+        : 'तपाईंको नागरिक वाच डेस्कबाट'
   const options: NotificationOptions = {
     body: item.title,
     tag: item.id,
@@ -279,12 +395,13 @@ async function showNotification(item: AlertItem, locale: Locale) {
       return
     } catch {}
   }
-  try { new Notification(title, options) } catch {}
+  try {
+    new Notification(title, options)
+  } catch {}
 }
 
-
 function decodeVapidKey(value: string): BufferSource {
-  const padding = '='.repeat((4 - value.length % 4) % 4)
+  const padding = '='.repeat((4 - (value.length % 4)) % 4)
   const base64 = (value + padding).replace(/-/g, '+').replace(/_/g, '/')
   const raw = atob(base64)
   const bytes = new Uint8Array(raw.length)

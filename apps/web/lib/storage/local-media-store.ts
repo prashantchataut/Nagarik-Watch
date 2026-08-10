@@ -68,7 +68,9 @@ export async function saveLocalMediaFile(input: {
   requestOrigin?: string
 }): Promise<LocalMediaSaveResult> {
   if (!localMediaAllowed()) {
-    throw new Error('Local filesystem media is disabled in this environment. Configure BLOB_READ_WRITE_TOKEN.')
+    throw new Error(
+      'Local filesystem media is disabled in this environment. Configure BLOB_READ_WRITE_TOKEN.',
+    )
   }
 
   const dir = path.join(uploadRoot(), NEWSROOM_DIR)

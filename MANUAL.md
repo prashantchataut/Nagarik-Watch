@@ -6,11 +6,11 @@ preview environment, seed stories, or manual fallback values as live reporting.*
 
 ## 1. Runtime topology / चल्ने संरचना
 
-| Surface | Responsibility | Production source |
-|---|---|---|
-| `apps/web` | Public portal, reader accounts, journalist desk, operations admin | Payload REST + Postgres operational tables |
-| `apps/admin` | Editorial CMS, media, taxonomy, revisions, publishing | Payload + Postgres + object storage |
-| Local JSON/PGlite files | Developer convenience only | Never accepted by live launch gate |
+| Surface                 | Responsibility                                                    | Production source                          |
+| ----------------------- | ----------------------------------------------------------------- | ------------------------------------------ |
+| `apps/web`              | Public portal, reader accounts, journalist desk, operations admin | Payload REST + Postgres operational tables |
+| `apps/admin`            | Editorial CMS, media, taxonomy, revisions, publishing             | Payload + Postgres + object storage        |
+| Local JSON/PGlite files | Developer convenience only                                        | Never accepted by live launch gate         |
 
 Payload is the sole production content authority. When `CONTENT_SOURCE=payload`, content
 editing links in `/admin/*` redirect to Payload and direct shadow-store mutations return a

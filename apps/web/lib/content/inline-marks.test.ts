@@ -1,14 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import {
-  hasInlineMarks,
-  parseInlineMarks,
-  prefixLines,
-  wrapTextSelection,
-} from './inline-marks'
+import { hasInlineMarks, parseInlineMarks, prefixLines, wrapTextSelection } from './inline-marks'
 
 describe('inline marks', () => {
   it('parses bold italic highlight and links', () => {
-    const marks = parseInlineMarks('यो **मोटो** र *तिर्खा* र ==महत्त्वपूर्ण== र [लिंक](https://example.com) हो।')
+    const marks = parseInlineMarks(
+      'यो **मोटो** र *तिर्खा* र ==महत्त्वपूर्ण== र [लिंक](https://example.com) हो।',
+    )
     expect(marks.some((m) => m.type === 'bold')).toBe(true)
     expect(marks.some((m) => m.type === 'italic')).toBe(true)
     expect(marks.some((m) => m.type === 'highlight')).toBe(true)

@@ -51,7 +51,12 @@ function categoryVoice(categorySlug: string): string {
   return voices[categorySlug] ?? 'समाचार डेस्क'
 }
 
-function backgroundParagraphs(ctx: ExpandCtx, topic: string, deck: string, place: string): ArticleBlock[] {
+function backgroundParagraphs(
+  ctx: ExpandCtx,
+  topic: string,
+  deck: string,
+  place: string,
+): ArticleBlock[] {
   const openers: Record<string, readonly string[]> = {
     politics: [
       `${place} — ${topic} विषयमा संघ र प्रदेश दुवै तहमा छलफल तीव्र भएका छन्। ${deck} नागरिक वाच ${categoryVoice(ctx.categorySlug)}का अनुसार यो मुद्दाले आगामी साता संसदीय र प्रदेशसभा कार्यसूचीमा पनि स्थान पाउन सक्छ।`,

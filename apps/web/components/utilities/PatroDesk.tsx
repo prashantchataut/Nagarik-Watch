@@ -65,7 +65,10 @@ export function PatroDesk({
   const today = useMemo(() => adToBs(new Date()), [])
   const upcoming = useMemo(() => upcomingCalendarEvents(today, 7), [today])
   const holidays = useMemo(
-    () => upcomingCalendarEvents(today, 12).filter((e) => e.holiday).slice(0, 6),
+    () =>
+      upcomingCalendarEvents(today, 12)
+        .filter((e) => e.holiday)
+        .slice(0, 6),
     [today],
   )
   const monthName = en ? BS_MONTHS_EN[today.month - 1] : BS_MONTHS[today.month - 1]
@@ -240,9 +243,7 @@ export function PatroDesk({
                     {usd.iso3} → NPR
                     {usd.unit && usd.unit !== '1' && usd.unit !== 'NPR' ? ` (${usd.unit})` : ''}
                   </dt>
-                  <dd className="tabular-nums">
-                    {localizeNumber(usd.sell.toFixed(2), locale)}
-                  </dd>
+                  <dd className="tabular-nums">{localizeNumber(usd.sell.toFixed(2), locale)}</dd>
                 </div>
               </dl>
             ) : (
@@ -299,9 +300,18 @@ export function PatroDesk({
                 <Link href={story.href} className="patro-news__item">
                   {story.thumb ? (
                     // eslint-disable-next-line @next/next/no-img-element -- CMS thumbs vary by host
-                    <img src={story.thumb} alt="" className="patro-news__thumb" width={72} height={72} />
+                    <img
+                      src={story.thumb}
+                      alt=""
+                      className="patro-news__thumb"
+                      width={72}
+                      height={72}
+                    />
                   ) : (
-                    <span className="patro-news__thumb patro-news__thumb--empty" aria-hidden="true" />
+                    <span
+                      className="patro-news__thumb patro-news__thumb--empty"
+                      aria-hidden="true"
+                    />
                   )}
                   <span className="patro-news__title">{story.title}</span>
                 </Link>

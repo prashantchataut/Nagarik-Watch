@@ -9,7 +9,11 @@ const DEFAULT_READING_MINUTES = 6
  * `story.readingMinutes`) and by lighter saved-list projections that carry a
  * flat `readingMinutes` instead of a full `StoryCardData`.
  */
-export type SaveLike = { savedAt: string; readingMinutes?: number; story?: { readingMinutes?: number } }
+export type SaveLike = {
+  savedAt: string
+  readingMinutes?: number
+  story?: { readingMinutes?: number }
+}
 
 function clamp01(value: number): number {
   if (!Number.isFinite(value)) return 0
@@ -48,13 +52,17 @@ export type SaveUrgency<T extends SaveLike> = {
  * fresher saves surface first, same weighting as the `save-later-ranking`
  * heuristic (readingMinutes/freshness), computed from the real bookmark.
  */
-export function rankSavedForLater<T extends SaveLike>(bookmarks: T[], now = new Date()): SaveUrgency<T>[] {
+export function rankSavedForLater<T extends SaveLike>(
+  bookmarks: T[],
+  now = new Date(),
+): SaveUrgency<T>[] {
   return bookmarks
     .map((bookmark) => {
       const ageDays = bookmarkAgeDays(bookmark, now)
       const staleness = clamp01(ageDays / DEFAULT_STALE_DAYS)
       const freshness = 1 - staleness
-      const remainingMinutes = bookmark.readingMinutes ?? bookmark.story?.readingMinutes ?? DEFAULT_READING_MINUTES
+      const remainingMinutes =
+        bookmark.readingMinutes ?? bookmark.story?.readingMinutes ?? DEFAULT_READING_MINUTES
       const score = clamp01((1 - Math.min(1, remainingMinutes / 20)) * 0.5 + freshness * 0.5)
       return { bookmark, score, ageDays, stale: ageDays >= DEFAULT_STALE_DAYS }
     })
@@ -64,7 +72,10 @@ export function rankSavedForLater<T extends SaveLike>(bookmarks: T[], now = new 
 export type SavedEmptyState = 'empty' | 'all-stale' | 'has-fresh'
 
 /** Which empty/attention state the saved page should show — never fabricated, derived from real saves. */
-export function savedEmptyState<T extends SaveLike>(bookmarks: T[], now = new Date()): SavedEmptyState {
+export function savedEmptyState<T extends SaveLike>(
+  bookmarks: T[],
+  now = new Date(),
+): SavedEmptyState {
   if (bookmarks.length === 0) return 'empty'
   return bookmarks.every((bookmark) => isStaleBookmark(bookmark, now)) ? 'all-stale' : 'has-fresh'
 }

@@ -38,7 +38,11 @@ export function listRegisteredIds(): string[] {
  * handler's declared mode (mapping 'heuristic' -> 'local'), otherwise
  * 'local'.
  */
-function resolveMode(id: string, legacyMode?: string, preferredMode?: AlgorithmMode): AlgorithmMode {
+function resolveMode(
+  id: string,
+  legacyMode?: string,
+  preferredMode?: AlgorithmMode,
+): AlgorithmMode {
   if (ADAPTER_DISABLED_IDS.has(id)) return 'adapter-disabled'
   if (ADAPTER_READY_IDS.has(id)) return 'adapter-ready'
   if (legacyMode === 'production') return 'production'
@@ -78,12 +82,22 @@ export function wrapLegacyHandler(
 }
 
 for (const [id, handler] of Object.entries(CORE_HANDLERS)) {
-  registerCapability(id, surfaceFor(id), resolveMode(id, 'production'), wrapLegacyHandler(id, handler, 'production'))
+  registerCapability(
+    id,
+    surfaceFor(id),
+    resolveMode(id, 'production'),
+    wrapLegacyHandler(id, handler, 'production'),
+  )
 }
 
 for (const [id, handler] of Object.entries(HEURISTIC_HANDLERS)) {
   if (!CAPABILITY_REGISTRY.has(id)) {
-    registerCapability(id, surfaceFor(id), resolveMode(id, 'heuristic'), wrapLegacyHandler(id, handler, 'local'))
+    registerCapability(
+      id,
+      surfaceFor(id),
+      resolveMode(id, 'heuristic'),
+      wrapLegacyHandler(id, handler, 'local'),
+    )
   }
 }
 

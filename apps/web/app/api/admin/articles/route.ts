@@ -7,7 +7,11 @@ import { canCreate, canPublish } from '@/lib/admin-roles'
 import { blocksFromShorthand } from '@/lib/content/blocks'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { revalidatePublishedArticle, publicArticlePath, isPubliclyVisibleStage } from '@/lib/content/revalidate-published'
+import {
+  revalidatePublishedArticle,
+  publicArticlePath,
+  isPubliclyVisibleStage,
+} from '@/lib/content/revalidate-published'
 import {
   isPayloadCanonical,
   payloadAdminUrlIfConfigured,

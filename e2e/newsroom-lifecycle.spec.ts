@@ -14,19 +14,16 @@ async function signInWithApi(
 ) {
   let lastBody = ''
   for (let attempt = 0; attempt < 30; attempt += 1) {
-    const ok = await page.evaluate(
-      async ({ email, password }) => {
-        const res = await fetch('/api/auth/sign-in/email', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ email, password }),
-        })
-        if (res.ok) return true
-        return res.text()
-      },
-      creds,
-    )
+    const ok = await page.evaluate(async ({ email, password }) => {
+      const res = await fetch('/api/auth/sign-in/email', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      })
+      if (res.ok) return true
+      return res.text()
+    }, creds)
     if (ok === true) return
     lastBody = typeof ok === 'string' ? ok : 'unknown sign-in failure'
     if (/INVALID_EMAIL_OR_PASSWORD|User not found/i.test(lastBody)) {
@@ -44,9 +41,14 @@ async function reporterLogin(page: import('@playwright/test').Page) {
   await signInWithApi(page, REPORTER)
 }
 
-async function adminLogin(page: import('@playwright/test').Page, creds: { email: string; password: string }) {
+async function adminLogin(
+  page: import('@playwright/test').Page,
+  creds: { email: string; password: string },
+) {
   await page.goto('/admin/login')
-  await page.getByRole('button', { name: 'Sign in' }).waitFor({ state: 'visible', timeout: 120_000 })
+  await page
+    .getByRole('button', { name: 'Sign in' })
+    .waitFor({ state: 'visible', timeout: 120_000 })
   await signInWithApi(page, creds)
 }
 
@@ -67,11 +69,12 @@ test.describe.serial('newsroom editorial lifecycle', () => {
     await page.getByLabel(/URL slug/i).fill(`e2e-${runId}`)
     await page.getByLabel(/Story body|समाचार सामग्री/i).fill('यो परीक्षण समाचार हो। '.repeat(20))
 
-    await page.getByPlaceholder(/जिल्ला, पालिका|District, municipality/i).fill('Kathmandu', { force: true })
-    await page.getByPlaceholder(/कोसँग कुरा|Who was interviewed/i).fill(
-      'Interview with municipal official; documents reviewed on site.',
-      { force: true },
-    )
+    await page
+      .getByPlaceholder(/जिल्ला, पालिका|District, municipality/i)
+      .fill('Kathmandu', { force: true })
+    await page
+      .getByPlaceholder(/कोसँग कुरा|Who was interviewed/i)
+      .fill('Interview with municipal official; documents reviewed on site.', { force: true })
 
     mkdirSync(resolve('e2e/fixtures'), { recursive: true })
     const fixture = resolve('e2e/fixtures/tiny.png')
@@ -116,7 +119,10 @@ test.describe.serial('newsroom editorial lifecycle', () => {
         })
         const body = await res.json().catch(() => ({}))
         if (!res.ok) throw new Error(JSON.stringify(body))
-        return body as { meta?: { articleId?: string; reporterId?: string }; article?: { id?: string } }
+        return body as {
+          meta?: { articleId?: string; reporterId?: string }
+          article?: { id?: string }
+        }
       },
       {
         titleNe: `E2E परीक्षण ${runId}`,

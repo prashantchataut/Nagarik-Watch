@@ -13,7 +13,11 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const composeFile = resolve(root, 'docker-compose.yml')
 
 function run(command, args) {
-  const result = spawnSync(command, args, { cwd: root, stdio: 'inherit', shell: process.platform === 'win32' })
+  const result = spawnSync(command, args, {
+    cwd: root,
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  })
   if (result.status !== 0) process.exit(result.status ?? 1)
 }
 
@@ -67,4 +71,3 @@ console.info(`
 
 Media uploads without BLOB_READ_WRITE_TOKEN persist under apps/web/.data/uploads/
 `)
-

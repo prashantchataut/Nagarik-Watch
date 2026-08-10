@@ -11,11 +11,7 @@ type TodayInHistoryProps = {
 }
 
 /** Compact anniversary / archive list for the homepage. */
-export function TodayInHistory({
-  locale,
-  stories,
-  mode = 'anniversary',
-}: TodayInHistoryProps) {
+export function TodayInHistory({ locale, stories, mode = 'anniversary' }: TodayInHistoryProps) {
   if (stories.length === 0) return null
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'

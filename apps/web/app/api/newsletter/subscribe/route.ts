@@ -31,7 +31,9 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const email = String(body.email ?? '').trim().toLowerCase()
+  const email = String(body.email ?? '')
+    .trim()
+    .toLowerCase()
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: 'मान्य इमेल भर्नुहोस्।' }, { status: 400 })
   }
@@ -71,7 +73,9 @@ export async function POST(request: NextRequest) {
       message: provider.ready
         ? 'पुष्टि इमेल पठाइयो। आफ्नो इनबक्स जाँच्नुहोस्।'
         : 'Development mode: subscription is pending until the confirmation link is opened.',
-      ...(process.env.NODE_ENV !== 'production' && !provider.ready ? { developmentConfirmUrl: confirmUrl } : {}),
+      ...(process.env.NODE_ENV !== 'production' && !provider.ready
+        ? { developmentConfirmUrl: confirmUrl }
+        : {}),
     },
     { status: 202 },
   )

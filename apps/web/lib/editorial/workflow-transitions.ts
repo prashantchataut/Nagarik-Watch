@@ -1,10 +1,6 @@
 import type { WorkflowStage } from '@nagarikwatch/db'
 import type { NewsroomRole } from '@/lib/admin-roles'
-import {
-  CONTRIBUTOR_ROLES,
-  EDITOR_ROLES,
-  PUBLISHER_ROLES,
-} from '@/lib/admin-roles'
+import { CONTRIBUTOR_ROLES, EDITOR_ROLES, PUBLISHER_ROLES } from '@/lib/admin-roles'
 
 export type WorkflowActor = 'reporter' | 'editor' | 'publisher' | 'system'
 
@@ -19,7 +15,11 @@ const EDITOR_REVIEW_STAGES: ReadonlySet<WorkflowStage> = new Set([
 ])
 const PUBLIC_STAGES: ReadonlySet<WorkflowStage> = new Set(['published', 'updated'])
 const TERMINAL_STAGES: ReadonlySet<WorkflowStage> = new Set(['archived', 'retracted'])
-const PUBLISHER_ONLY_STAGES: ReadonlySet<WorkflowStage> = new Set(['scheduled', 'published', 'updated'])
+const PUBLISHER_ONLY_STAGES: ReadonlySet<WorkflowStage> = new Set([
+  'scheduled',
+  'published',
+  'updated',
+])
 
 /** Allowed transitions keyed by from-stage. */
 const TRANSITIONS: Readonly<Record<WorkflowStage, readonly WorkflowStage[]>> = {
@@ -37,7 +37,15 @@ const TRANSITIONS: Readonly<Record<WorkflowStage, readonly WorkflowStage[]>> = {
     'published',
     'archived',
   ],
-  fact_check: ['copy_edit', 'seo_review', 'legal_review', 'ready', 'draft', 'submitted', 'archived'],
+  fact_check: [
+    'copy_edit',
+    'seo_review',
+    'legal_review',
+    'ready',
+    'draft',
+    'submitted',
+    'archived',
+  ],
   copy_edit: ['seo_review', 'legal_review', 'ready', 'draft', 'submitted', 'archived'],
   seo_review: ['legal_review', 'ready', 'draft', 'submitted', 'archived'],
   legal_review: ['ready', 'draft', 'submitted', 'archived'],

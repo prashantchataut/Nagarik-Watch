@@ -23,7 +23,10 @@ function walk(dir) {
       if (!s.includes("export const dynamic = 'force-static'")) continue
       fs.writeFileSync(
         p,
-        s.replace(/export const dynamic = 'force-static'/g, "export const dynamic = 'force-dynamic'"),
+        s.replace(
+          /export const dynamic = 'force-static'/g,
+          "export const dynamic = 'force-dynamic'",
+        ),
       )
       updated++
     }

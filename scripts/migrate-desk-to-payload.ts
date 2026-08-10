@@ -196,9 +196,7 @@ async function upsertArticle(article: DeskArticle): Promise<'created' | 'updated
     bodyNe: Array.isArray(article.bodyNe) ? article.bodyNe : [],
     bodyEn: Array.isArray(article.bodyEn) ? article.bodyEn : undefined,
     category: categoryId.startsWith('dry-run-') ? undefined : categoryId,
-    tags: tagIds
-      .filter((id) => !String(id).startsWith('dry-run-'))
-      .map((id) => ({ tag: id })),
+    tags: tagIds.filter((id) => !String(id).startsWith('dry-run-')).map((id) => ({ tag: id })),
     authors: authorIds
       .filter((id) => !String(id).startsWith('dry-run-'))
       .map((id) => ({ author: id })),
@@ -235,10 +233,13 @@ async function upsertArticle(article: DeskArticle): Promise<'created' | 'updated
   }
 
   if (existing) {
-    await payloadJson(`/api/articles/${encodeURIComponent(String(existing.id))}?draft=${status === 'draft'}`, {
-      method: 'PATCH',
-      body: JSON.stringify(body),
-    })
+    await payloadJson(
+      `/api/articles/${encodeURIComponent(String(existing.id))}?draft=${status === 'draft'}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      },
+    )
     return 'updated'
   }
 
@@ -259,9 +260,7 @@ async function loadDeskArticles(): Promise<DeskArticle[]> {
     const articles: DeskArticle[] = []
     for (const row of result.rows) {
       const doc =
-        typeof row.document === 'string'
-          ? (JSON.parse(row.document) as DeskArticle)
-          : row.document
+        typeof row.document === 'string' ? (JSON.parse(row.document) as DeskArticle) : row.document
       if (!doc?.slug || !doc?.categorySlug || !doc?.titleNe) continue
       articles.push(doc)
     }

@@ -21,7 +21,10 @@ export const LOCAL_DISTRIBUTION_CAPABILITIES: CapabilitySpec[] = [
       const staleUrls = num(input, 'staleUrls', 200)
       const crawlRateLimit = num(input, 'crawlRateLimit', 60)
       const score = crawlBudgetScore(freshUrls, staleUrls, crawlRateLimit)
-      return okLocal(`crawlBudgetCoverage=${score.toFixed(3)} fresh=${freshUrls} stale=${staleUrls}`, { score })
+      return okLocal(
+        `crawlBudgetCoverage=${score.toFixed(3)} fresh=${freshUrls} stale=${staleUrls}`,
+        { score },
+      )
     },
   },
   {
@@ -54,9 +57,12 @@ export const LOCAL_DISTRIBUTION_CAPABILITIES: CapabilitySpec[] = [
       const inboundLinks = num(input, 'inboundLinks', 8)
       const outboundLinks = num(input, 'outboundLinks', 3)
       const score = internalLinkAuthority(inboundLinks, outboundLinks)
-      return okLocal(`internalLinkAuthority=${score.toFixed(3)} inbound=${inboundLinks} outbound=${outboundLinks}`, {
-        score,
-      })
+      return okLocal(
+        `internalLinkAuthority=${score.toFixed(3)} inbound=${inboundLinks} outbound=${outboundLinks}`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -74,7 +80,8 @@ export const LOCAL_DISTRIBUTION_CAPABILITIES: CapabilitySpec[] = [
     surface: surfaceFor('rss-atom-optimization'),
     mode: 'local',
     run: (input) => {
-      const item = (input.rssItem as { title?: string; link?: string; pubDate?: string; guid?: string }) ?? {}
+      const item =
+        (input.rssItem as { title?: string; link?: string; pubDate?: string; guid?: string }) ?? {}
       const score = rssItemHealth(item)
       return okLocal(`rssItemHealth=${score.toFixed(3)}`, { score })
     },
@@ -111,7 +118,9 @@ export const LOCAL_DISTRIBUTION_CAPABILITIES: CapabilitySpec[] = [
       const imageWidth = num(input, 'ogImageWidth', 1200)
       const imageHeight = num(input, 'ogImageHeight', 630)
       const aspectOk = Math.abs(imageWidth / Math.max(1, imageHeight) - 16 / 9) < 0.35
-      return okLocal(`messagingPreviewAspectOk=${aspectOk} ${imageWidth}x${imageHeight}`, { score: aspectOk ? 1 : 0 })
+      return okLocal(`messagingPreviewAspectOk=${aspectOk} ${imageWidth}x${imageHeight}`, {
+        score: aspectOk ? 1 : 0,
+      })
     },
   },
   {
@@ -122,10 +131,15 @@ export const LOCAL_DISTRIBUTION_CAPABILITIES: CapabilitySpec[] = [
       const candidateStories = num(input, 'candidateStories', 12)
       const slots = num(input, 'newsletterSlots', 6)
       const diversityScore = num(input, 'categoryDiversity', 0.7)
-      const score = clamp01(Math.min(1, candidateStories / Math.max(1, slots * 1.5)) * 0.5 + diversityScore * 0.5)
-      return okLocal(`newsletterCurationScore=${score.toFixed(3)} candidates=${candidateStories} slots=${slots}`, {
-        score,
-      })
+      const score = clamp01(
+        Math.min(1, candidateStories / Math.max(1, slots * 1.5)) * 0.5 + diversityScore * 0.5,
+      )
+      return okLocal(
+        `newsletterCurationScore=${score.toFixed(3)} candidates=${candidateStories} slots=${slots}`,
+        {
+          score,
+        },
+      )
     },
   },
 ]

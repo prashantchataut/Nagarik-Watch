@@ -1,17 +1,13 @@
 import path from 'node:path'
+import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
-import securityHeaders from './lib/security/baseline-headers.json' with { type: 'json' }
-
-/**
- * apps/web Next.js config (plain ESM — avoids next.config.ts + TypeScript 7 breakage).
- *  - transpilePackages: workspace packages ship TypeScript source.
- *  - images: allow only the editorial media origins configured at build time.
- *  - security headers: baseline protection on every response.
- */
 
 const configDir = path.dirname(fileURLToPath(import.meta.url))
 const monorepoRoot = path.join(configDir, '../..')
+const securityHeaders = JSON.parse(
+  fs.readFileSync(path.join(configDir, 'lib/security/baseline-headers.json'), 'utf8'),
+)
 
 function configuredRemotePattern(value) {
   if (!value) return null
@@ -69,7 +65,11 @@ const remotePatterns = configuredPatterns.filter(
 
 if (process.env.NODE_ENV !== 'production' || process.env.E2E_NEWSROOM === 'true') {
   for (const hostname of ['localhost', '127.0.0.1']) {
-    if (!remotePatterns.some((pattern) => pattern.hostname === hostname && pattern.protocol === 'http')) {
+    if (
+      !remotePatterns.some(
+        (pattern) => pattern.hostname === hostname && pattern.protocol === 'http',
+      )
+    ) {
       remotePatterns.push({ protocol: 'http', hostname, pathname: '/**' })
     }
   }

@@ -62,16 +62,16 @@ article. Do not spray cosmetic edits across the whole tree in one pass.
 
 ## Where to edit (homepage)
 
-| Concern | Primary paths |
-|---------|----------------|
-| Composition | `apps/web/app/[locale]/page.tsx` |
-| Latest rail | `apps/web/components/home/LatestRail.tsx` |
-| Section headers | `packages/ui/src/SectionHeader.tsx` |
-| Story cards | `packages/ui/src/StoryCard.tsx` |
-| Polls | `apps/web/components/home/PollOfDay.tsx`, `apps/web/lib/polls-admin.ts` |
-| Live reference | `apps/web/components/live/UtilityStrip.tsx`, `HomeLiveBoard.tsx` |
-| Tokens / kickers | `apps/web/app/globals.css`, `packages/ui` tokens |
-| Fonts | `apps/web/app/fonts.ts` |
+| Concern          | Primary paths                                                           |
+| ---------------- | ----------------------------------------------------------------------- |
+| Composition      | `apps/web/app/[locale]/page.tsx`                                        |
+| Latest rail      | `apps/web/components/home/LatestRail.tsx`                               |
+| Section headers  | `packages/ui/src/SectionHeader.tsx`                                     |
+| Story cards      | `packages/ui/src/StoryCard.tsx`                                         |
+| Polls            | `apps/web/components/home/PollOfDay.tsx`, `apps/web/lib/polls-admin.ts` |
+| Live reference   | `apps/web/components/live/UtilityStrip.tsx`, `HomeLiveBoard.tsx`        |
+| Tokens / kickers | `apps/web/app/globals.css`, `packages/ui` tokens                        |
+| Fonts            | `apps/web/app/fonts.ts`                                                 |
 
 ## Verification
 

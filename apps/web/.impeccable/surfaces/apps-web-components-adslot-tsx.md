@@ -1,9 +1,9 @@
 ---
 version: 1
-slug: "apps-web-components-adslot-tsx"
-primary_target: "apps/web/components/AdSlot.tsx"
+slug: 'apps-web-components-adslot-tsx'
+primary_target: 'apps/web/components/AdSlot.tsx'
 related_targets:
-  - "packages/ui/src/SponsoredBadge.tsx"
+  - 'packages/ui/src/SponsoredBadge.tsx'
 ---
 
 # Surface brief: Ad slots

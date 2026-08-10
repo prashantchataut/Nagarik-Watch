@@ -1,4 +1,18 @@
-const STOPWORDS = new Set(['छ', 'र', 'का', 'की', 'को', 'मा', 'the', 'a', 'an', 'is', 'of', 'and', 'to'])
+const STOPWORDS = new Set([
+  'छ',
+  'र',
+  'का',
+  'की',
+  'को',
+  'मा',
+  'the',
+  'a',
+  'an',
+  'is',
+  'of',
+  'and',
+  'to',
+])
 
 export type ExtractedKeyword = {
   term: string

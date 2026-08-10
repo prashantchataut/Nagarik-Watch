@@ -26,7 +26,8 @@ const BASE_FIXTURE: Record<string, unknown> = {
   requestUrl: 'https://nagarikwatch.com/ne/politics/kathmandu-flood',
   ogTitle: 'Kathmandu flood risk rises after overnight rain',
   ogImage: 'https://cdn.nagarikwatch.com/og/kathmandu-flood.jpg',
-  ogDescription: 'Local authorities warn of flood risk in low-lying Kathmandu areas after overnight rain.',
+  ogDescription:
+    'Local authorities warn of flood risk in low-lying Kathmandu areas after overnight rain.',
   tags: ['politics', 'kathmandu', 'flood', 'disaster'],
   history: ['politics', 'politics', 'sports', 'politics', 'business', 'politics'],
   dayNumbers: [1, 2, 3, 5, 6, 7],
@@ -130,8 +131,12 @@ export function defaultFixtureFor(id: string): Record<string, unknown> {
     'topic-classification': { text: BASE_FIXTURE.text },
     'sentiment-analysis': { text: 'सरकारको राहत प्रतिक्रिया प्रभावकारी र सराहनीय छ' },
     'keyword-extraction': { text: BASE_FIXTURE.text },
-    'topic-modeling-lda': { documents: [BASE_FIXTURE.text, BASE_FIXTURE.other, 'खेलकुद प्रतियोगिता सम्पन्न भयो'] },
-    clustering: { documents: [BASE_FIXTURE.text, BASE_FIXTURE.other, 'खेलकुद प्रतियोगिता सम्पन्न भयो'] },
+    'topic-modeling-lda': {
+      documents: [BASE_FIXTURE.text, BASE_FIXTURE.other, 'खेलकुद प्रतियोगिता सम्पन्न भयो'],
+    },
+    clustering: {
+      documents: [BASE_FIXTURE.text, BASE_FIXTURE.other, 'खेलकुद प्रतियोगिता सम्पन्न भयो'],
+    },
   }
   return { ...BASE_FIXTURE, ...(overrides[id] ?? {}) }
 }

@@ -26,7 +26,8 @@ export async function GET(request: NextRequest) {
     if (fingerprint.length > 160) {
       return NextResponse.json({ error: 'Invalid reader identifier.' }, { status: 400 })
     }
-    if (session && fingerprint) await mergeAnonymousReading(fingerprint, session.userId).catch(() => undefined)
+    if (session && fingerprint)
+      await mergeAnonymousReading(fingerprint, session.userId).catch(() => undefined)
     return NextResponse.json({ history: await getReadingHistory(fingerprint, session?.userId) })
   } catch (error) {
     console.error('[reading:GET]', error)
@@ -77,7 +78,10 @@ export async function POST(request: NextRequest) {
   try {
     article = await getPublicArticleIdentity(articleCategory, articleSlug)
   } catch {
-    return NextResponse.json({ error: 'Content service is temporarily unavailable.' }, { status: 503 })
+    return NextResponse.json(
+      { error: 'Content service is temporarily unavailable.' },
+      { status: 503 },
+    )
   }
   if (!article) return NextResponse.json({ error: 'Article not found.' }, { status: 404 })
 

@@ -36,13 +36,23 @@ export type JournalistDraftRevision = {
 }
 
 function text(value: unknown, max: number): string | undefined {
-  const result = String(value ?? '').replace(/\r\n/g, '\n').trim().slice(0, max)
+  const result = String(value ?? '')
+    .replace(/\r\n/g, '\n')
+    .trim()
+    .slice(0, max)
   return result || undefined
 }
 
 function tags(value: unknown): string[] {
   if (!Array.isArray(value)) return []
-  return [...new Set(value.map(String).map((item) => item.trim().toLowerCase()).filter(Boolean))]
+  return [
+    ...new Set(
+      value
+        .map(String)
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ]
     .sort()
     .slice(0, 40)
 }
@@ -51,7 +61,9 @@ function notificationMode(value: unknown): JournalistDraftSnapshot['notification
   return value === 'breaking' || value === 'followers' ? value : 'none'
 }
 
-export function normalizeJournalistDraftSnapshot(input: Partial<JournalistDraftSnapshot>): JournalistDraftSnapshot {
+export function normalizeJournalistDraftSnapshot(
+  input: Partial<JournalistDraftSnapshot>,
+): JournalistDraftSnapshot {
   return {
     titleNe: text(input.titleNe, 240) ?? '',
     titleEn: text(input.titleEn, 240),

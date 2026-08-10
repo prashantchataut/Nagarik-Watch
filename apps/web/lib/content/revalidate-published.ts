@@ -2,10 +2,7 @@ import 'server-only'
 import { revalidatePath } from 'next/cache'
 import { LOCALES } from '@/lib/i18n/locales'
 import { invalidateArticleStoreCache } from '@/lib/content/store/json-store'
-import {
-  isPubliclyVisibleStage,
-  publicArticlePath,
-} from '@/lib/content/article-visibility'
+import { isPubliclyVisibleStage, publicArticlePath } from '@/lib/content/article-visibility'
 
 export { isPubliclyVisibleStage, publicArticlePath }
 

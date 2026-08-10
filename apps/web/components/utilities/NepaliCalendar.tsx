@@ -142,9 +142,7 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
       })
     : ''
 
-  const selectedBsLabel = selected
-    ? formatBsFull({ year, month, day: selected.day }, locale)
-    : ''
+  const selectedBsLabel = selected ? formatBsFull({ year, month, day: selected.day }, locale) : ''
 
   return (
     <section className="calendar-workspace" lang={en ? 'en' : 'ne'}>
@@ -165,7 +163,11 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
         </div>
 
         <div className="calendar-nav">
-          <div className="calendar-actions" role="group" aria-label={en ? 'Change year' : 'वर्ष परिवर्तन'}>
+          <div
+            className="calendar-actions"
+            role="group"
+            aria-label={en ? 'Change year' : 'वर्ष परिवर्तन'}
+          >
             <button
               type="button"
               className="calendar-nav-btn"
@@ -188,7 +190,11 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
               »
             </button>
           </div>
-          <div className="calendar-actions" role="group" aria-label={en ? 'Change month' : 'महिना परिवर्तन'}>
+          <div
+            className="calendar-actions"
+            role="group"
+            aria-label={en ? 'Change month' : 'महिना परिवर्तन'}
+          >
             <button
               type="button"
               className="calendar-nav-btn"
@@ -296,16 +302,16 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
             <div className="calendar-selection" aria-live="polite">
               <p className="calendar-selection__kicker">{en ? 'Selected day' : 'छानिएको दिन'}</p>
               <p className="calendar-selection__date">{selectedBsLabel}</p>
-              {selectedAdLabel ? (
-                <p className="calendar-selection__ad">{selectedAdLabel}</p>
-              ) : null}
+              {selectedAdLabel ? <p className="calendar-selection__ad">{selectedAdLabel}</p> : null}
               {selected.events.length > 0 ? (
                 <ul>
                   {selected.events.map((e, i) => (
                     <li key={`${e.nameEn}-${i}`}>
                       <span>{en ? e.nameEn : e.nameNe}</span>
                       {e.holiday ? (
-                        <em className="calendar-badge">{en ? 'Public holiday' : 'सार्वजनिक बिदा'}</em>
+                        <em className="calendar-badge">
+                          {en ? 'Public holiday' : 'सार्वजनिक बिदा'}
+                        </em>
                       ) : null}
                     </li>
                   ))}
@@ -324,7 +330,10 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
               <span className="calendar-agenda__rule" aria-hidden="true" />
               <ul>
                 {holidaysThisMonth.map((e, i) => (
-                  <li key={`${e.day}-${e.nameEn}-${i}`} className={e.holiday ? 'is-holiday' : undefined}>
+                  <li
+                    key={`${e.day}-${e.nameEn}-${i}`}
+                    className={e.holiday ? 'is-holiday' : undefined}
+                  >
                     <button
                       type="button"
                       className="calendar-agenda__day"

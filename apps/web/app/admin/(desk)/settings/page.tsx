@@ -4,7 +4,13 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { assertNewsroomRole, SETTINGS_MANAGER_ROLES } from '@/lib/admin-roles'
 import { listAdminSettings, setAdminSetting } from '@/lib/admin-settings'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { AdminPageHeader, AdminCard, AdminButton, AdminInput, AdminTextarea } from '@/components/admin/primitives'
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminButton,
+  AdminInput,
+  AdminTextarea,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'सेटिङ',
@@ -23,7 +29,13 @@ async function saveSetting(formData: FormData) {
     label: formData.get('label'),
     group: formData.get('group'),
   })
-  await recordAuditEvent({ session, action: 'settings_change', targetType: 'setting', targetId: setting.key, summary: `Setting updated: ${setting.key}` })
+  await recordAuditEvent({
+    session,
+    action: 'settings_change',
+    targetType: 'setting',
+    targetId: setting.key,
+    summary: `Setting updated: ${setting.key}`,
+  })
   revalidatePath('/admin/settings')
 }
 
@@ -43,17 +55,32 @@ export default async function SettingsPage() {
         <p className="text-body text-ink" lang="ne">
           सार्वजनिक फुटरका कानूनी विवरण (DoIB, सम्पादक) env बाट आउँछन्। यहाँको
           <code className="mx-1 text-ink">moderation.bannedWords</code>
-          मात्र टिप्पणी मोडरेशनमा तुरुन्त लागू हुन्छ। बाँकी identity/contact/social
-          सेटिङहरू आन्तरिक सन्दर्भका लागि हुन्, सार्वजनिक पृष्ठमा स्वतः देखिँदैनन्।
+          मात्र टिप्पणी मोडरेशनमा तुरुन्त लागू हुन्छ। बाँकी identity/contact/social सेटिङहरू आन्तरिक
+          सन्दर्भका लागि हुन्, सार्वजनिक पृष्ठमा स्वतः देखिँदैनन्।
         </p>
       </AdminCard>
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.4fr]">
         <AdminCard>
-          <h2 className="font-display text-h2 text-ink" lang="ne">सेटिङ थप्नुहोस्</h2>
+          <h2 className="font-display text-h2 text-ink" lang="ne">
+            सेटिङ थप्नुहोस्
+          </h2>
           <form action={saveSetting} className="mt-4 grid gap-3">
-            <AdminInput id="setting-new-key" label="Key" name="key" required placeholder="publication.taglineNe" lang="en" />
+            <AdminInput
+              id="setting-new-key"
+              label="Key"
+              name="key"
+              required
+              placeholder="publication.taglineNe"
+              lang="en"
+            />
             <AdminInput id="setting-new-label" label="Label" name="label" required lang="en" />
-            <AdminInput id="setting-new-group" label="Group" name="group" defaultValue="identity" lang="en" />
+            <AdminInput
+              id="setting-new-group"
+              label="Group"
+              name="group"
+              defaultValue="identity"
+              lang="en"
+            />
             <AdminTextarea id="setting-new-value" label="Value" name="value" rows={5} />
             <AdminButton type="submit">Save setting</AdminButton>
           </form>
@@ -61,10 +88,16 @@ export default async function SettingsPage() {
         <div className="grid gap-5">
           {Object.entries(groups).map(([group, items]) => (
             <AdminCard key={group}>
-              <h2 className="font-display text-h2 capitalize text-ink" lang="en">{group}</h2>
+              <h2 className="font-display text-h2 capitalize text-ink" lang="en">
+                {group}
+              </h2>
               <div className="mt-4 grid gap-3">
                 {items.map((setting) => (
-                  <form key={setting.key} action={saveSetting} className="rounded-lg border border-rule bg-surface p-4">
+                  <form
+                    key={setting.key}
+                    action={saveSetting}
+                    className="rounded-lg border border-rule bg-surface p-4"
+                  >
                     <input type="hidden" name="key" value={setting.key} />
                     <input type="hidden" name="label" value={setting.label} />
                     <input type="hidden" name="group" value={setting.group} />
@@ -82,8 +115,14 @@ export default async function SettingsPage() {
                       lang="en"
                     />
                     <div className="mt-3 flex items-center justify-between gap-3">
-                      <code className="text-caption text-mute" lang="en">{setting.key}</code>
-                      <AdminButton type="submit" variant="secondary" className="!min-h-9 !px-3 !text-caption">
+                      <code className="text-caption text-mute" lang="en">
+                        {setting.key}
+                      </code>
+                      <AdminButton
+                        type="submit"
+                        variant="secondary"
+                        className="!min-h-9 !px-3 !text-caption"
+                      >
                         Update
                       </AdminButton>
                     </div>

@@ -217,7 +217,9 @@ export function FrontPageLead({ stories, locale }: { stories: StoryCardData[]; l
                         href={storyHref(story, locale)}
                         className="transition-colors duration-fast ease-out-quint hover:text-brand-strong"
                       >
-                        <span className="line-clamp-3 lg:line-clamp-2">{storyTitle(story, locale)}</span>
+                        <span className="line-clamp-3 lg:line-clamp-2">
+                          {storyTitle(story, locale)}
+                        </span>
                       </Link>
                     </h3>
                   </article>

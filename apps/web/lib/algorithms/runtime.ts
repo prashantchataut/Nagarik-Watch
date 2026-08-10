@@ -25,10 +25,7 @@ export type AlgorithmRunResult = {
   reason?: string
 }
 
-export function runAlgorithm(
-  id: string,
-  input: Record<string, unknown> = {},
-): AlgorithmRunResult {
+export function runAlgorithm(id: string, input: Record<string, unknown> = {}): AlgorithmRunResult {
   const started = Date.now()
   const entry = ALGORITHM_CATALOG.find((item) => item.id === id)
   const number = entry?.number ?? 0

@@ -73,7 +73,9 @@ async function ensureSchema(): Promise<Queryable | null> {
             updated_at timestamptz NOT NULL DEFAULT now()
           )
         `)
-        await pool.query(`ALTER TABLE nw_house_ads ADD COLUMN IF NOT EXISTS ab_enabled boolean NOT NULL DEFAULT false`)
+        await pool.query(
+          `ALTER TABLE nw_house_ads ADD COLUMN IF NOT EXISTS ab_enabled boolean NOT NULL DEFAULT false`,
+        )
         await pool.query(`ALTER TABLE nw_house_ads ADD COLUMN IF NOT EXISTS challenger_json text`)
       })()
     }
@@ -100,7 +102,10 @@ function parseChallenger(raw: string | null | undefined): HouseAdCreative | unde
       body: body.slice(0, 260),
       cta: cta.slice(0, 60),
       href: href.slice(0, 500),
-      imageUrl: String(parsed.imageUrl ?? '').trim().slice(0, 500) || undefined,
+      imageUrl:
+        String(parsed.imageUrl ?? '')
+          .trim()
+          .slice(0, 500) || undefined,
     }
   } catch {
     return undefined

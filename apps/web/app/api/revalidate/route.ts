@@ -28,7 +28,12 @@ type RevalidateMessage = {
   tagSlugs?: string[]
 }
 
-function validSignature(body: string, timestamp: string, received: string, secret: string): boolean {
+function validSignature(
+  body: string,
+  timestamp: string,
+  received: string,
+  secret: string,
+): boolean {
   if (!/^\d{13}$/.test(timestamp) || !/^[a-f0-9]{64}$/i.test(received)) return false
   const sentAt = Number(timestamp)
   if (!Number.isFinite(sentAt) || Math.abs(Date.now() - sentAt) > MAX_CLOCK_SKEW_MS) return false
@@ -36,7 +41,10 @@ function validSignature(body: string, timestamp: string, received: string, secre
   const expected = createHmac('sha256', secret).update(`${timestamp}.${body}`).digest('hex')
   const expectedBuffer = Buffer.from(expected, 'hex')
   const receivedBuffer = Buffer.from(received, 'hex')
-  return expectedBuffer.length === receivedBuffer.length && timingSafeEqual(expectedBuffer, receivedBuffer)
+  return (
+    expectedBuffer.length === receivedBuffer.length &&
+    timingSafeEqual(expectedBuffer, receivedBuffer)
+  )
 }
 
 function cleanSegment(value: unknown): string {

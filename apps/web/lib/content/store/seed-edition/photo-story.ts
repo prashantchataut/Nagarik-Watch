@@ -14,7 +14,7 @@ export function editionPhotoStory(): StoredArticle[] {
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["climate"],
+      tagSlugs: ['climate'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -23,16 +23,10 @@ export function editionPhotoStory(): StoredArticle[] {
         p('पाठकलाई लाग्न सक्छ यो सामान्य दृश्य हो, तर यो शहरको जीवन रेखा हो।'),
         p('क्याप्सनमा नाम र अनुमति सम्मान गरिएको छ।'),
         h2('दृश्य नोट'),
-        list([
-          'तारपोल र पानी',
-          'बिहानको आपूर्ति',
-          'महिला विक्रेता',
-        ]),
+        list(['तारपोल र पानी', 'बिहानको आपूर्ति', 'महिला विक्रेता']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Shops stay open in the rain; traders and customers persist in the frame.'),
-      ],
+      bodyEn: [p('Shops stay open in the rain; traders and customers persist in the frame.')],
     }),
     base({
       id: 'art-ed-photo-story-2',
@@ -44,7 +38,7 @@ export function editionPhotoStory(): StoredArticle[] {
       deckEn: 'Hands clearing landslide debris; public service inside risk.',
       publishedAt: isoDaysAgo(1, 8),
       updatedAt: isoDaysAgo(1, 8),
-      tagSlugs: ["climate"],
+      tagSlugs: ['climate'],
       reportingLocation: 'धादिङ',
       province: 'bagmati',
       bodyNe: [
@@ -53,16 +47,10 @@ export function editionPhotoStory(): StoredArticle[] {
         p('समुदाय चिया र पानी लिएर आएको दृश्य पनि छ।'),
         p('यो कथा श्रमिक सम्मानको हो।'),
         h2('श्रृंखला जोड'),
-        list([
-          'मेसिन र मजदुर',
-          'सुरक्षा गियर',
-          'रातको बत्ती',
-        ]),
+        list(['मेसिन र मजदुर', 'सुरक्षा गियर', 'रातको बत्ती']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Hands clearing landslide debris; public service inside risk.'),
-      ],
+      bodyEn: [p('Hands clearing landslide debris; public service inside risk.')],
     }),
     base({
       id: 'art-ed-photo-story-3',
@@ -84,16 +72,10 @@ export function editionPhotoStory(): StoredArticle[] {
         p('पाठक आफ्नै सहर चिन्हन्।'),
         p('कुनै नाटकीय अतिरञ्जना छैन।'),
         h2('समय रेखांकन'),
-        list([
-          'चिया पसल',
-          'अखबार पाठक',
-          'विद्यालय जाने बच्चा',
-        ]),
+        list(['चिया पसल', 'अखबार पाठक', 'विद्यालय जाने बच्चा']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('From temples to bus parks, the city waking.'),
-      ],
+      bodyEn: [p('From temples to bus parks, the city waking.')],
     }),
     base({
       id: 'art-ed-photo-story-4',
@@ -105,7 +87,7 @@ export function editionPhotoStory(): StoredArticle[] {
       deckEn: 'Hands picking leaves in hill weather; a labour visual story.',
       publishedAt: isoDaysAgo(3, 10),
       updatedAt: isoDaysAgo(3, 10),
-      tagSlugs: ["labour-migration"],
+      tagSlugs: ['labour-migration'],
       reportingLocation: 'इलाम',
       province: 'koshi',
       bodyNe: [
@@ -114,16 +96,10 @@ export function editionPhotoStory(): StoredArticle[] {
         p('ज्याला र मौसम दुवै चुनौती हुन्।'),
         p('कथा उपभोग मात्र होइन सम्मान माग्छ।'),
         h2('दृश्य तत्व'),
-        list([
-          'टोकरी',
-          'हिम/कुहिरो',
-          'सामुदायिक बास',
-        ]),
+        list(['टोकरी', 'हिम/कुहिरो', 'सामुदायिक बास']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Hands picking leaves in hill weather; a labour visual story.'),
-      ],
+      bodyEn: [p('Hands picking leaves in hill weather; a labour visual story.')],
     }),
     base({
       id: 'art-ed-photo-story-5',
@@ -135,7 +111,7 @@ export function editionPhotoStory(): StoredArticle[] {
       deckEn: 'Yards shrinking toward the river; a warning before disaster.',
       publishedAt: isoDaysAgo(4, 6),
       updatedAt: isoDaysAgo(4, 6),
-      tagSlugs: ["climate"],
+      tagSlugs: ['climate'],
       reportingLocation: 'बारा',
       province: 'madhesh',
       bodyNe: [
@@ -144,16 +120,10 @@ export function editionPhotoStory(): StoredArticle[] {
         p('नीति ढिलाइ दृश्यमै देखिन्छ।'),
         p('यो कथा पूर्वतयारीको अपील हो।'),
         h2('फ्रेममा जोखिम'),
-        list([
-          'बालुवा थुप्रो',
-          'स्थानान्तरण छलफल',
-          'बालबालिका खेल',
-        ]),
+        list(['बालुवा थुप्रो', 'स्थानान्तरण छलफल', 'बालबालिका खेल']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Yards shrinking toward the river; a warning before disaster.'),
-      ],
-    })
+      bodyEn: [p('Yards shrinking toward the river; a warning before disaster.')],
+    }),
   ]
 }

@@ -71,7 +71,12 @@ export function coReadRecommend(
     if (score > 0) output.push({ itemId: candidateId, score, supportingItems })
   }
   return output
-    .sort((a, b) => b.score - a.score || b.supportingItems - a.supportingItems || a.itemId.localeCompare(b.itemId))
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        b.supportingItems - a.supportingItems ||
+        a.itemId.localeCompare(b.itemId),
+    )
     .slice(0, Math.max(1, options.limit ?? 10))
 }
 

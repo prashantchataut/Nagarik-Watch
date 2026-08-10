@@ -58,7 +58,7 @@ export function EditorPreferencesForm({
         <h2>{ne ? 'सम्पादक प्राथमिकता' : 'Editor preferences'}</h2>
         <p>
           {ne
-            ? 'यी सेटिङहरू तपाईंको न्युजरुम खातासँग जोडिन्छन् — पत्रकार डेस्क र एडमिन सम्पादक दुवैमा।'
+            ? 'यी सेटिङहरू तपाईंको न्युजरुम खातासँग जोडिन्छन्, पत्रकार डेस्क र एडमिन सम्पादक दुवैमा।'
             : 'These settings follow your newsroom account across the journalist desk and admin editor.'}
         </p>
       </header>
@@ -153,7 +153,13 @@ export function EditorPreferencesForm({
 
       <div className="editor-prefs__actions">
         <button type="button" onClick={save} disabled={pending}>
-          {pending ? (ne ? 'सुरक्षित हुँदै…' : 'Saving…') : ne ? 'सुरक्षित गर्नुहोस्' : 'Save preferences'}
+          {pending
+            ? ne
+              ? 'सुरक्षित हुँदै…'
+              : 'Saving…'
+            : ne
+              ? 'सुरक्षित गर्नुहोस्'
+              : 'Save preferences'}
         </button>
         {status ? <p role="status">{status}</p> : null}
       </div>

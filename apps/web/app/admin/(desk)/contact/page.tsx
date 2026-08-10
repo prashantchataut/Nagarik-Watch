@@ -52,9 +52,7 @@ export default async function ContactInboxPage() {
 
   return (
     <div>
-      <AdminPageHeader
-        subtitle={`${unread} नपढिएका · पाठक सुझाव, सुधार र सामान्य सम्पर्क`}
-      />
+      <AdminPageHeader subtitle={`${unread} नपढिएका · पाठक सुझाव, सुधार र सामान्य सम्पर्क`} />
       {messages.length === 0 ? (
         <AdminEmptyState
           title="कुनै सम्पर्क सन्देश छैन"
@@ -67,24 +65,63 @@ export default async function ContactInboxPage() {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`admin-status admin-status--${message.status === 'unread' ? 'attention' : message.status === 'resolved' ? 'success' : 'neutral'}`}>
-                      {message.status === 'unread' ? 'नपढिएको' : message.status === 'resolved' ? 'समाधान' : 'समीक्षामा'}
+                    <span
+                      className={`admin-status admin-status--${message.status === 'unread' ? 'attention' : message.status === 'resolved' ? 'success' : 'neutral'}`}
+                    >
+                      {message.status === 'unread'
+                        ? 'नपढिएको'
+                        : message.status === 'resolved'
+                          ? 'समाधान'
+                          : 'समीक्षामा'}
                     </span>
-                    <time dateTime={message.createdAt} className="text-caption text-mute">{formatDate(message.createdAt)}</time>
+                    <time dateTime={message.createdAt} className="text-caption text-mute">
+                      {formatDate(message.createdAt)}
+                    </time>
                   </div>
                   <h2 className="mt-2 font-display text-h2 text-ink">{message.subject}</h2>
                   <p className="mt-1 text-meta text-ink-soft">
-                    {message.name} · <a href={`mailto:${message.email}`} className="text-brand-strong hover:underline">{message.email}</a>
+                    {message.name} ·{' '}
+                    <a
+                      href={`mailto:${message.email}`}
+                      className="text-brand-strong hover:underline"
+                    >
+                      {message.email}
+                    </a>
                   </p>
                 </div>
                 <form action={updateStatus} className="flex flex-wrap gap-2">
                   <input type="hidden" name="id" value={message.id} />
-                  <button name="status" value="in_review" className="admin-button admin-button--secondary">समीक्षामा</button>
-                  <button name="status" value="resolved" className="admin-button admin-button--primary">समाधान</button>
-                  {message.status !== 'unread' ? <button name="status" value="unread" className="admin-button admin-button--ghost">नपढिएको</button> : null}
+                  <button
+                    name="status"
+                    value="in_review"
+                    className="admin-button admin-button--secondary"
+                  >
+                    समीक्षामा
+                  </button>
+                  <button
+                    name="status"
+                    value="resolved"
+                    className="admin-button admin-button--primary"
+                  >
+                    समाधान
+                  </button>
+                  {message.status !== 'unread' ? (
+                    <button
+                      name="status"
+                      value="unread"
+                      className="admin-button admin-button--ghost"
+                    >
+                      नपढिएको
+                    </button>
+                  ) : null}
                 </form>
               </div>
-              <p className="mt-4 whitespace-pre-line border-t border-rule pt-4 text-body leading-relaxed text-ink" lang={message.locale}>{message.message}</p>
+              <p
+                className="mt-4 whitespace-pre-line border-t border-rule pt-4 text-body leading-relaxed text-ink"
+                lang={message.locale}
+              >
+                {message.message}
+              </p>
             </AdminCard>
           ))}
         </div>

@@ -2,11 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
-import {
-  READER_BOOKMARKS_KEY,
-  safeParseArray,
-  type BookmarkRecord,
-} from '@/lib/reader/state'
+import { READER_BOOKMARKS_KEY, safeParseArray, type BookmarkRecord } from '@/lib/reader/state'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
 import { rankSavedForLater, savedEmptyState } from '@/lib/reader/saves'
@@ -31,15 +27,17 @@ type ApiBookmark = {
 }
 
 function localItems(): SavedItem[] {
-  return safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY)).map((record) => ({
-    slug: record.story.slug,
-    category: record.story.category.slug,
-    titleNe: record.story.titleNe,
-    titleEn: record.story.titleEn,
-    savedAt: record.savedAt,
-    source: 'device',
-    readingMinutes: record.story.readingMinutes,
-  }))
+  return safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY)).map(
+    (record) => ({
+      slug: record.story.slug,
+      category: record.story.category.slug,
+      titleNe: record.story.titleNe,
+      titleEn: record.story.titleEn,
+      savedAt: record.savedAt,
+      source: 'device',
+      readingMinutes: record.story.readingMinutes,
+    }),
+  )
 }
 
 function mergeItems(local: SavedItem[], account: SavedItem[]): SavedItem[] {
@@ -52,7 +50,8 @@ function mergeItems(local: SavedItem[], account: SavedItem[]): SavedItem[] {
         ? {
             ...previous,
             ...item,
-            source: previous.source === 'account' || item.source === 'account' ? 'account' : 'device',
+            source:
+              previous.source === 'account' || item.source === 'account' ? 'account' : 'device',
           }
         : item,
     )
@@ -113,7 +112,10 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
     return ne ? `${stories.length} सुरक्षित कथा` : `${stories.length} saved stories`
   }, [ne, ready, stories.length])
 
-  const orderedStories = useMemo(() => rankSavedForLater(stories).map((item) => item.bookmark), [stories])
+  const orderedStories = useMemo(
+    () => rankSavedForLater(stories).map((item) => item.bookmark),
+    [stories],
+  )
   const emptyState = useMemo(() => savedEmptyState(stories), [stories])
 
   function removeStory(item: SavedItem) {
@@ -191,7 +193,10 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
         {countLabel}
       </p>
 
-      <nav className="mt-4 flex flex-wrap gap-4" aria-label={ne ? 'सुरक्षित समाचार लिंक' : 'Saved story links'}>
+      <nav
+        className="mt-4 flex flex-wrap gap-4"
+        aria-label={ne ? 'सुरक्षित समाचार लिंक' : 'Saved story links'}
+      >
         <Link
           href={localizeHref(locale, '/reader-corner')}
           className="inline-flex items-center border-b border-rule pb-1 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
@@ -209,11 +214,15 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
       <section className="mt-6 border-y border-rule bg-surface-raised px-4 py-5">
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <p className="text-caption font-semibold text-mute">{ne ? 'सूची प्रकार' : 'List type'}</p>
+            <p className="text-caption font-semibold text-mute">
+              {ne ? 'सूची प्रकार' : 'List type'}
+            </p>
             <p className="mt-1 font-display text-h3 text-ink">{ne ? 'फेरि पढ्न' : 'Read later'}</p>
           </div>
           <div>
-            <p className="text-caption font-semibold text-mute">{ne ? 'उपकरण स्थिति' : 'Device status'}</p>
+            <p className="text-caption font-semibold text-mute">
+              {ne ? 'उपकरण स्थिति' : 'Device status'}
+            </p>
             <p className="mt-1 text-body text-ink-soft">
               {ne
                 ? 'स्थानीय सुरक्षित सूची तुरुन्तै काम गर्छ, खाता सिङ्क उपलब्ध हुँदा त्यो पनि जोडिन्छ।'
@@ -221,7 +230,9 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
             </p>
           </div>
           <div>
-            <p className="text-caption font-semibold text-mute">{ne ? 'सम्बन्धित ठाउँ' : 'Related areas'}</p>
+            <p className="text-caption font-semibold text-mute">
+              {ne ? 'सम्बन्धित ठाउँ' : 'Related areas'}
+            </p>
             <p className="mt-1 text-body text-ink-soft">
               {ne
                 ? 'पढाइ इतिहास र सिफारिसका लागि पढाइ डेस्क हेर्नुहोस्।'
@@ -232,7 +243,11 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
       </section>
 
       {syncError ? (
-        <p role="status" className="mt-3 border border-rule bg-surface-raised px-3 py-2 text-meta text-ink-soft" lang={ne ? 'ne' : 'en'}>
+        <p
+          role="status"
+          className="mt-3 border border-rule bg-surface-raised px-3 py-2 text-meta text-ink-soft"
+          lang={ne ? 'ne' : 'en'}
+        >
           {ne
             ? 'खाता सिंक अहिले उपलब्ध छैन; उपकरणको सूची काम गर्छ।'
             : 'Account sync is unavailable; the device list still works.'}

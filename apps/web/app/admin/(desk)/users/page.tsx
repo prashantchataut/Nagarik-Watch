@@ -21,7 +21,15 @@ import {
 } from '@/lib/newsroom-users'
 import { roleGroupsForAssignable } from '@/lib/admin-role-groups'
 import { recordAuditEvent } from '@/lib/audit-log'
-import { AdminPageHeader, AdminCard, AdminButton, AdminFilterLink, AdminInput, AdminCallout, AdminTable } from '@/components/admin/primitives'
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminButton,
+  AdminFilterLink,
+  AdminInput,
+  AdminCallout,
+  AdminTable,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'प्रयोगकर्ता',
@@ -42,7 +50,8 @@ function accountKindTone(kind: AccountKind): 'success' | 'attention' | 'neutral'
 async function inviteUser(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
-  if (!['admin', 'super_admin'].includes(session.newsroomRole)) redirect('/admin/users?result=denied')
+  if (!['admin', 'super_admin'].includes(session.newsroomRole))
+    redirect('/admin/users?result=denied')
   let invite: Awaited<ReturnType<typeof createNewsroomInvite>> = null
   try {
     invite = await createNewsroomInvite({
@@ -70,7 +79,8 @@ async function inviteUser(formData: FormData) {
 async function revokeInvite(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
-  if (!['admin', 'super_admin'].includes(session.newsroomRole)) redirect('/admin/users?result=denied')
+  if (!['admin', 'super_admin'].includes(session.newsroomRole))
+    redirect('/admin/users?result=denied')
   const id = String(formData.get('id') ?? '')
   const ok = await revokeNewsroomInvite(id)
   if (ok) {
@@ -89,7 +99,8 @@ async function revokeInvite(formData: FormData) {
 async function promoteUser(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
-  if (!['admin', 'super_admin'].includes(session.newsroomRole)) redirect('/admin/users?result=denied')
+  if (!['admin', 'super_admin'].includes(session.newsroomRole))
+    redirect('/admin/users?result=denied')
   const email = String(formData.get('email') ?? '')
   const role = String(formData.get('role') ?? '')
   const ok = await updateNewsroomUserRole({
@@ -114,7 +125,8 @@ async function promoteUser(formData: FormData) {
 async function toggleDisabled(formData: FormData) {
   'use server'
   const session = await requireNewsroomSession()
-  if (!['admin', 'super_admin'].includes(session.newsroomRole)) redirect('/admin/users?result=denied')
+  if (!['admin', 'super_admin'].includes(session.newsroomRole))
+    redirect('/admin/users?result=denied')
   const email = String(formData.get('email') ?? '')
   const disabled = String(formData.get('disabled') ?? '') === 'true'
   const ok = await setNewsroomUserDisabled({
@@ -139,7 +151,8 @@ async function toggleDisabled(formData: FormData) {
 const notices: Record<string, string> = {
   sent: 'निमन्त्रणा इमेल पठाइयो। लिंक सात दिनसम्म मान्य हुन्छ।',
   invalid: 'इमेल, भूमिका वा निमन्त्रणा मान्य भएन।',
-  delivery_failed: 'इमेल पठाउन सकिएन। प्रदायक सेटिङ जाँच्नुहोस्; अधुरो निमन्त्रणा निष्क्रिय गरिएको छ।',
+  delivery_failed:
+    'इमेल पठाउन सकिएन। प्रदायक सेटिङ जाँच्नुहोस्; अधुरो निमन्त्रणा निष्क्रिय गरिएको छ।',
   revoked: 'निमन्त्रणा रद्द गरियो।',
   updated: 'प्रयोगकर्ताको भूमिका अद्यावधिक भयो।',
   disabled: 'खाता निष्क्रिय गरियो। लगइन अवरुद्ध छ।',
@@ -164,7 +177,12 @@ function matchesScope(user: NewsroomUserRecord, scope: Scope): boolean {
 }
 
 function parseScope(value: string | undefined): Scope {
-  if (value === 'readers' || value === 'journalists' || value === 'newsroom' || value === 'disabled') {
+  if (
+    value === 'readers' ||
+    value === 'journalists' ||
+    value === 'newsroom' ||
+    value === 'disabled'
+  ) {
     return value
   }
   return 'all'
@@ -196,12 +214,17 @@ export default async function UsersPage({
   const filtered = users.filter((user) => {
     if (!matchesScope(user, scope)) return false
     if (!q) return true
-    return user.email.toLowerCase().includes(q) || user.name.toLowerCase().includes(q) || user.role.includes(q)
+    return (
+      user.email.toLowerCase().includes(q) ||
+      user.name.toLowerCase().includes(q) ||
+      user.role.includes(q)
+    )
   })
   const counts = {
     all: users.length,
     readers: users.filter((u) => !u.disabled && resolveAccountKind(u.role) === 'reader').length,
-    journalists: users.filter((u) => !u.disabled && resolveAccountKind(u.role) === 'journalist').length,
+    journalists: users.filter((u) => !u.disabled && resolveAccountKind(u.role) === 'journalist')
+      .length,
     newsroom: users.filter((u) => {
       if (u.disabled) return false
       const kind = resolveAccountKind(u.role)
@@ -219,15 +242,19 @@ export default async function UsersPage({
 
   return (
     <div>
-      <AdminPageHeader
-        subtitle="पाठक, पत्रकार र न्यूजरुम खाता पहिचान, भूमिका र निष्क्रियता व्यवस्थापन"
-      />
+      <AdminPageHeader subtitle="पाठक, पत्रकार र न्यूजरुम खाता पहिचान, भूमिका र निष्क्रियता व्यवस्थापन" />
       {notice ? (
         <AdminCallout
-          tone={['sent', 'revoked', 'updated', 'disabled', 'enabled'].includes(query.result ?? '') ? 'neutral' : 'attention'}
+          tone={
+            ['sent', 'revoked', 'updated', 'disabled', 'enabled'].includes(query.result ?? '')
+              ? 'neutral'
+              : 'attention'
+          }
           className="mb-5"
         >
-          <p className="text-meta font-semibold text-ink" lang="ne">{notice}</p>
+          <p className="text-meta font-semibold text-ink" lang="ne">
+            {notice}
+          </p>
         </AdminCallout>
       ) : null}
 
@@ -237,9 +264,13 @@ export default async function UsersPage({
             भूमिका निमन्त्रणा
           </h2>
           <p className="mt-1 text-meta text-mute" lang="ne">
-            इमेलमा लिंक पठाइन्छ। स्वीकृत भएपछि मात्र भूमिका लागू हुन्छ। /admin/roles मा पूर्ण अधिकार तालिका हेर्नुहोस्।
+            इमेलमा लिंक पठाइन्छ। स्वीकृत भएपछि मात्र भूमिका लागू हुन्छ। /admin/roles मा पूर्ण अधिकार
+            तालिका हेर्नुहोस्।
           </p>
-          <form action={inviteUser} className="mt-4 grid gap-3 lg:grid-cols-[1fr_260px_auto] lg:items-end">
+          <form
+            action={inviteUser}
+            className="mt-4 grid gap-3 lg:grid-cols-[1fr_260px_auto] lg:items-end"
+          >
             <AdminInput label="Email" name="email" type="email" required lang="en" />
             <label className="admin-field">
               <span className="admin-field-label" lang="en">
@@ -272,7 +303,8 @@ export default async function UsersPage({
             ))}
           </div>
           <p className="mt-3 text-caption text-mute" lang="ne">
-            लिंक एकपटक प्रयोग हुने, इमेलसँग बाँधिएको र सात दिनमा समाप्त हुने हुन्छ। इमेल प्रदायक तयार नभए निमन्त्रणा सक्रिय हुँदैन।
+            लिंक एकपटक प्रयोग हुने, इमेलसँग बाँधिएको र सात दिनमा समाप्त हुने हुन्छ। इमेल प्रदायक
+            तयार नभए निमन्त्रणा सक्रिय हुँदैन।
           </p>
         </AdminCard>
       ) : null}
@@ -309,20 +341,21 @@ export default async function UsersPage({
         <AdminCard>
           <h2 className="admin-section-title">Accounts ({filtered.length})</h2>
           <div className="mt-4">
-          <AdminTable>
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Account</th>
-                <th>Role</th>
-                <th>Manage</th>
-              </tr>
-            </thead>
-            <tbody>
+            <AdminTable>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Account</th>
+                  <th>Role</th>
+                  <th>Manage</th>
+                </tr>
+              </thead>
+              <tbody>
                 {filtered.map((user) => {
                   const kind = resolveAccountKind(user.role)
                   const protectedTarget =
-                    session.newsroomRole !== 'super_admin' && ['admin', 'super_admin'].includes(user.role)
+                    session.newsroomRole !== 'super_admin' &&
+                    ['admin', 'super_admin'].includes(user.role)
                   const self = user.email.toLowerCase() === session.email.toLowerCase()
                   const manageable = canManage && !protectedTarget && !self
                   return (
@@ -332,7 +365,10 @@ export default async function UsersPage({
                         <p className="text-caption text-mute">{user.email}</p>
                       </td>
                       <td>
-                        <span className={`admin-status admin-status--${accountKindTone(kind)}`} lang="ne">
+                        <span
+                          className={`admin-status admin-status--${accountKindTone(kind)}`}
+                          lang="ne"
+                        >
                           {accountKindLabel(kind, 'ne')}
                         </span>
                         {user.disabled ? (
@@ -365,13 +401,21 @@ export default async function UsersPage({
                                   </optgroup>
                                 ))}
                               </select>
-                              <AdminButton type="submit" variant="secondary" className="!min-h-9 !px-2 !text-caption">
+                              <AdminButton
+                                type="submit"
+                                variant="secondary"
+                                className="!min-h-9 !px-2 !text-caption"
+                              >
                                 Save
                               </AdminButton>
                             </form>
                             <form action={toggleDisabled}>
                               <input type="hidden" name="email" value={user.email} />
-                              <input type="hidden" name="disabled" value={user.disabled ? 'false' : 'true'} />
+                              <input
+                                type="hidden"
+                                name="disabled"
+                                value={user.disabled ? 'false' : 'true'}
+                              />
                               <AdminButton
                                 type="submit"
                                 variant={user.disabled ? 'secondary' : 'danger'}
@@ -389,7 +433,7 @@ export default async function UsersPage({
                   )
                 })}
               </tbody>
-          </AdminTable>
+            </AdminTable>
           </div>
           {filtered.length === 0 ? (
             <p className="p-5 text-center text-meta text-mute" lang="ne">
@@ -405,13 +449,17 @@ export default async function UsersPage({
                 <div key={invite.id} className="rounded-lg border border-rule bg-surface p-3">
                   <p className="font-semibold text-ink">{invite.email}</p>
                   <p className="text-caption text-mute" lang="ne">
-                    {NEWSROOM_ROLE_LABELS_NE[invite.role] ?? invite.role} · {invite.status} · expires{' '}
-                    {new Date(invite.expiresAt).toLocaleDateString('en-CA')}
+                    {NEWSROOM_ROLE_LABELS_NE[invite.role] ?? invite.role} · {invite.status} ·
+                    expires {new Date(invite.expiresAt).toLocaleDateString('en-CA')}
                   </p>
                   {invite.status === 'pending' && canManage ? (
                     <form action={revokeInvite} className="mt-2">
                       <input type="hidden" name="id" value={invite.id} />
-                      <AdminButton type="submit" variant="danger" className="!min-h-9 !px-2 !text-caption">
+                      <AdminButton
+                        type="submit"
+                        variant="danger"
+                        className="!min-h-9 !px-2 !text-caption"
+                      >
                         Revoke
                       </AdminButton>
                     </form>
@@ -419,7 +467,9 @@ export default async function UsersPage({
                 </div>
               ))
             ) : (
-              <p className="rounded-lg border border-dashed border-rule p-5 text-center text-meta text-mute">No invitations.</p>
+              <p className="rounded-lg border border-dashed border-rule p-5 text-center text-meta text-mute">
+                No invitations.
+              </p>
             )}
           </div>
         </AdminCard>

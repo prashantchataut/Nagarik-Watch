@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type { StoryCardData } from '@nagarikwatch/db'
-import { safeParseArray, setBookmark, toggleBookmark, upsertHistory, recentUnfinished } from './state'
+import {
+  safeParseArray,
+  setBookmark,
+  toggleBookmark,
+  upsertHistory,
+  recentUnfinished,
+} from './state'
 
 const story: StoryCardData = {
   id: 'a1',

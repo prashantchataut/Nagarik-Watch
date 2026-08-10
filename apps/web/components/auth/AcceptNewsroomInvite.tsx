@@ -34,10 +34,16 @@ export function AcceptNewsroomInvite({
             ? 'निमन्त्रणा स्वीकार गर्न, निमन्त्रणा आएको यही इमेल प्रयोग गरेर खाता बनाउनुहोस् वा लगइन गर्नुहोस्।'
             : 'Sign up or sign in with the same email that received the invitation.'}
         </p>
-        <Link href={`${ne ? '' : '/en'}/auth/signup?next=${encodeURIComponent(next)}`} className={btnPrimary}>
+        <Link
+          href={`${ne ? '' : '/en'}/auth/signup?next=${encodeURIComponent(next)}`}
+          className={btnPrimary}
+        >
           {ne ? 'खाता बनाउनुहोस्' : 'Create account'}
         </Link>
-        <Link href={`${ne ? '' : '/en'}/auth/login?next=${encodeURIComponent(next)}`} className={btnGhost}>
+        <Link
+          href={`${ne ? '' : '/en'}/auth/login?next=${encodeURIComponent(next)}`}
+          className={btnGhost}
+        >
           {ne ? 'लगइन गर्नुहोस्' : 'Sign in'}
         </Link>
       </div>
@@ -82,7 +88,9 @@ export function AcceptNewsroomInvite({
         )
       } catch {
         setStatus('error')
-        setMessage(ne ? 'नेटवर्क त्रुटि। फेरि प्रयास गर्नुहोस्।' : 'Network error. Please try again.')
+        setMessage(
+          ne ? 'नेटवर्क त्रुटि। फेरि प्रयास गर्नुहोस्।' : 'Network error. Please try again.',
+        )
       }
     })
   }

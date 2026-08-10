@@ -34,7 +34,9 @@ export const LOCAL_RETENTION_CAPABILITIES: CapabilitySpec[] = [
       const sessionCount = num(input, 'sessionCount', 3)
       const dismissedRecently = Boolean(input.dismissedRecently)
       const score = dismissedRecently ? 0 : clamp01(sessionCount / 5)
-      return okLocal(`installPromptReadiness=${score.toFixed(3)} sessions=${sessionCount}`, { score })
+      return okLocal(`installPromptReadiness=${score.toFixed(3)} sessions=${sessionCount}`, {
+        score,
+      })
     },
   },
   {
@@ -45,7 +47,10 @@ export const LOCAL_RETENTION_CAPABILITIES: CapabilitySpec[] = [
       const cachedArticles = num(input, 'cachedArticles', 12)
       const targetCache = num(input, 'targetCache', 20)
       const score = clamp01(cachedArticles / Math.max(1, targetCache))
-      return okLocal(`offlineCacheCoverage=${score.toFixed(3)} cached=${cachedArticles}/${targetCache}`, { score })
+      return okLocal(
+        `offlineCacheCoverage=${score.toFixed(3)} cached=${cachedArticles}/${targetCache}`,
+        { score },
+      )
     },
   },
   {
@@ -79,9 +84,12 @@ export const LOCAL_RETENTION_CAPABILITIES: CapabilitySpec[] = [
       const ariaLabelsPresent = Boolean(input.ariaLabelsPresent ?? true)
       const checks = [altTextPresent, contrastRatio >= 4.5, ariaLabelsPresent]
       const score = checks.filter(Boolean).length / checks.length
-      return okLocal(`a11yChecksPassed=${checks.filter(Boolean).length}/${checks.length} contrast=${contrastRatio}`, {
-        score,
-      })
+      return okLocal(
+        `a11yChecksPassed=${checks.filter(Boolean).length}/${checks.length} contrast=${contrastRatio}`,
+        {
+          score,
+        },
+      )
     },
   },
   {
@@ -92,9 +100,13 @@ export const LOCAL_RETENTION_CAPABILITIES: CapabilitySpec[] = [
       const sessionsBeforeAsk = num(input, 'sessionsBeforeAsk', 3)
       const engagementScore = num(input, 'engagementScore', 0.6)
       const readiness = clamp01(sessionsBeforeAsk / 5) * 0.5 + engagementScore * 0.5
-      return okAdapter('adapter-ready', `pushPrimingReadiness=${readiness.toFixed(3)} (local gate; provider ready)`, {
-        score: readiness,
-      })
+      return okAdapter(
+        'adapter-ready',
+        `pushPrimingReadiness=${readiness.toFixed(3)} (local gate; provider ready)`,
+        {
+          score: readiness,
+        },
+      )
     },
   },
   {
@@ -114,11 +126,19 @@ export const LOCAL_RETENTION_CAPABILITIES: CapabilitySpec[] = [
     mode: 'local',
     run: (input) => {
       const selectedTopics = (input.selectedTopics as string[]) ?? ['politics', 'business']
-      const availableTopics = (input.availableTopics as string[]) ?? ['politics', 'sports', 'business', 'disaster']
+      const availableTopics = (input.availableTopics as string[]) ?? [
+        'politics',
+        'sports',
+        'business',
+        'disaster',
+      ]
       const score = availableTopics.length > 0 ? selectedTopics.length / availableTopics.length : 0
-      return okLocal(`onboardingTopicCoverage=${score.toFixed(3)} selected=${selectedTopics.length}`, {
-        score: clamp01(score),
-      })
+      return okLocal(
+        `onboardingTopicCoverage=${score.toFixed(3)} selected=${selectedTopics.length}`,
+        {
+          score: clamp01(score),
+        },
+      )
     },
   },
   {
@@ -141,7 +161,10 @@ export const LOCAL_RETENTION_CAPABILITIES: CapabilitySpec[] = [
       const lifetimeReads = num(input, 'lifetimeReads', 40)
       const tier = lifetimeReads >= 200 ? 'gold' : lifetimeReads >= 50 ? 'silver' : 'bronze'
       const score = lifetimeReads >= 200 ? 1 : lifetimeReads >= 50 ? 0.6 : 0.3
-      return okLocal(`loyaltyTier=${tier} lifetimeReads=${lifetimeReads}`, { score, outputs: { tier } })
+      return okLocal(`loyaltyTier=${tier} lifetimeReads=${lifetimeReads}`, {
+        score,
+        outputs: { tier },
+      })
     },
   },
   {
@@ -153,9 +176,13 @@ export const LOCAL_RETENTION_CAPABILITIES: CapabilitySpec[] = [
       const isAnomalous = Boolean(input.isAnomalous)
       const baseSampleRate = num(input, 'baseSampleRate', 0.02)
       const rate = hadError || isAnomalous ? 1 : baseSampleRate
-      return okAdapter('adapter-disabled', `replaySampleRate=${rate.toFixed(3)} (no replay vendor configured)`, {
-        score: rate,
-      })
+      return okAdapter(
+        'adapter-disabled',
+        `replaySampleRate=${rate.toFixed(3)} (no replay vendor configured)`,
+        {
+          score: rate,
+        },
+      )
     },
   },
   {
@@ -166,7 +193,10 @@ export const LOCAL_RETENTION_CAPABILITIES: CapabilitySpec[] = [
       const responseMs = num(input, 'responseMs', 80)
       const budgetMs = num(input, 'budgetMs', 100)
       const score = responseMs <= budgetMs ? 1 : clamp01(budgetMs / responseMs)
-      return okLocal(`microInteractionWithinBudget=${responseMs <= budgetMs} responseMs=${responseMs}`, { score })
+      return okLocal(
+        `microInteractionWithinBudget=${responseMs <= budgetMs} responseMs=${responseMs}`,
+        { score },
+      )
     },
   },
   {
@@ -176,9 +206,13 @@ export const LOCAL_RETENTION_CAPABILITIES: CapabilitySpec[] = [
     run: (input) => {
       const viewportWidth = num(input, 'viewportWidth', 390)
       const preferredFontScale = num(input, 'preferredFontScale', 1)
-      const recommendedScale = viewportWidth < 400 ? Math.max(1, preferredFontScale) : preferredFontScale
+      const recommendedScale =
+        viewportWidth < 400 ? Math.max(1, preferredFontScale) : preferredFontScale
       const score = clamp01(recommendedScale / 1.5)
-      return okLocal(`recommendedFontScale=${recommendedScale.toFixed(2)} viewport=${viewportWidth}`, { score })
+      return okLocal(
+        `recommendedFontScale=${recommendedScale.toFixed(2)} viewport=${viewportWidth}`,
+        { score },
+      )
     },
   },
   {
@@ -190,10 +224,13 @@ export const LOCAL_RETENTION_CAPABILITIES: CapabilitySpec[] = [
       const effectiveType = str(input, 'effectiveType', '4g')
       const lowBandwidth = saveDataHeader || effectiveType === '2g' || effectiveType === 'slow-2g'
       const assetTier = lowBandwidth ? 'low' : 'standard'
-      return okLocal(`assetTier=${assetTier} saveData=${saveDataHeader} effectiveType=${effectiveType}`, {
-        score: lowBandwidth ? 1 : 0,
-        outputs: { assetTier },
-      })
+      return okLocal(
+        `assetTier=${assetTier} saveData=${saveDataHeader} effectiveType=${effectiveType}`,
+        {
+          score: lowBandwidth ? 1 : 0,
+          outputs: { assetTier },
+        },
+      )
     },
   },
   {
@@ -205,7 +242,10 @@ export const LOCAL_RETENTION_CAPABILITIES: CapabilitySpec[] = [
       const hoursAgo = num(input, 'hoursAgo', 4)
       const shouldRestore = scrollDepth >= 10 && scrollDepth <= 95 && hoursAgo <= 72
       const score = shouldRestore ? clamp01(1 - hoursAgo / 72) : 0
-      return okLocal(`shouldRestore=${shouldRestore} scrollDepth=${scrollDepth} hoursAgo=${hoursAgo}`, { score })
+      return okLocal(
+        `shouldRestore=${shouldRestore} scrollDepth=${scrollDepth} hoursAgo=${hoursAgo}`,
+        { score },
+      )
     },
   },
 ]

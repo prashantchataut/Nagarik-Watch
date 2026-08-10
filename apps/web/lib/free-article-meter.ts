@@ -1,7 +1,11 @@
 export const FREE_ARTICLE_SESSION_LIMIT = 5
 export const FREE_ARTICLE_METER_KEY = 'nw:membership:session-articles'
 
-export function addArticleToSessionMeter(raw: string | null, articleKey: string, limit = FREE_ARTICLE_SESSION_LIMIT) {
+export function addArticleToSessionMeter(
+  raw: string | null,
+  articleKey: string,
+  limit = FREE_ARTICLE_SESSION_LIMIT,
+) {
   let current: string[] = []
   try {
     const parsed: unknown = JSON.parse(raw ?? '[]')

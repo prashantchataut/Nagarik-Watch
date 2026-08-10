@@ -16,7 +16,7 @@ type MegaStoryBlockProps = {
 
 /**
  * A1 portal-feed lead: centered category pill → display headline → deck → byline → image.
- * Civic Crimson portal grammar; dense Devanagari reading, not SaaS hero chrome.
+ * Civic Crimson portal grammar; dense Devanagari reading matching OnlineKhabar and Ratopati.
  */
 export function MegaStoryBlock({
   story,
@@ -33,22 +33,26 @@ export function MegaStoryBlock({
   const image = story.heroImage
   const unoptimized = Boolean(image?.url?.startsWith('data:'))
   const showPhoto = Boolean(image?.url) && !unoptimized
-  const titleClass =
-    size === 'lead'
-      ? 'text-[clamp(1.7rem,4.4vw,3.35rem)] leading-[1.12]'
-      : 'text-[clamp(1.4rem,3.4vw,2.45rem)] leading-[1.15]'
+  const isLead = size === 'lead'
+
+  const titleClass = isLead
+    ? 'text-[clamp(2.1rem,4.8vw,3.75rem)] font-black leading-[1.12] tracking-[-0.025em]'
+    : 'text-[clamp(1.6rem,3.6vw,2.75rem)] font-extrabold leading-[1.15] tracking-[-0.02em]'
 
   return (
     <article className={`mega-story group text-center ${className}`.trim()}>
-      <div className="mx-auto flex max-w-[42rem] flex-col items-center">
-        <CategoryLabel
-          category={story.category}
-          locale={locale}
-          as="span"
-          className="mb-2 !mx-auto"
-        />
-        <h2
-          className={`text-pretty font-display font-extrabold tracking-[-0.02em] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong ${titleClass}`}
+      <div className="mx-auto flex max-w-[50rem] flex-col items-center px-2">
+        <div className="mb-2.5 inline-flex items-center justify-center">
+          <CategoryLabel
+            category={story.category}
+            locale={locale}
+            as="span"
+            className="!mx-auto px-2.5 py-0.5 rounded-full bg-brand-tint text-brand-strong font-bold text-caption tracking-wider"
+          />
+        </div>
+
+        <h1
+          className={`text-pretty font-display text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong ${titleClass}`}
           lang={titleLang}
         >
           <Link
@@ -57,16 +61,18 @@ export function MegaStoryBlock({
           >
             {title}
           </Link>
-        </h2>
+        </h1>
+
         {deck ? (
           <p
-            className="mt-2.5 max-w-[36rem] text-pretty text-body leading-relaxed text-ink-soft line-clamp-2 sm:text-body-lg"
+            className="mt-3 max-w-[44rem] text-pretty text-body leading-relaxed text-ink-soft line-clamp-2 sm:text-body-lg sm:leading-relaxed"
             lang={titleLang}
           >
             {deck}
           </p>
         ) : null}
-        <div className="mt-2.5 flex justify-center">
+
+        <div className="mt-3 flex items-center justify-center gap-2">
           <Byline authors={story.authors} locale={locale} publishedAt={story.publishedAt} />
         </div>
       </div>
@@ -74,21 +80,23 @@ export function MegaStoryBlock({
       {showPhoto ? (
         <Link
           href={href}
-          className={`relative mt-3.5 block overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:mt-4 ${
-            size === 'lead' ? 'aspect-[16/10] sm:aspect-[16/9]' : 'aspect-[16/10] sm:aspect-[2/1]'
+          className={`relative mt-4 block overflow-hidden rounded-md bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:mt-5 ${
+            isLead ? 'aspect-[16/10] sm:aspect-[16/9]' : 'aspect-[16/10] sm:aspect-[2/1]'
           }`}
+          tabIndex={-1}
+          aria-hidden="true"
         >
           <Image
             src={image!.url}
             alt={image!.alt}
             fill
             priority={priority}
-            sizes="(min-width: 1280px) 1120px, 100vw"
-            className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.012]"
+            sizes="(min-width: 1280px) 1140px, (min-width: 1024px) 90vw, 100vw"
+            className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.015]"
           />
         </Link>
       ) : (
-        <div className="mx-auto mt-3.5 h-px w-14 bg-rule sm:mt-4" aria-hidden="true" />
+        <div className="mx-auto mt-4 h-px w-16 bg-rule sm:mt-5" aria-hidden="true" />
       )}
     </article>
   )

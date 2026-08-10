@@ -14,7 +14,7 @@ export function editionLiterature(): StoredArticle[] {
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["editor-pick"],
+      tagSlugs: ['editor-pick'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -23,16 +23,10 @@ export function editionLiterature(): StoredArticle[] {
         p('विद्यालय पुस्तकालयमा कविता खण्ड चाहिन्छ।'),
         p('अनुवादले पहुँच फराकिलो बनाउँछ।'),
         h2('पढ्दा ध्यान दिनुहोस्'),
-        list([
-          'भाषा प्रयोग',
-          'सामाजिक सन्दर्भ',
-          'पाठ समूह छलफल',
-        ]),
+        list(['भाषा प्रयोग', 'सामाजिक सन्दर्भ', 'पाठ समूह छलफल']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Young poetry raises questions of city, migration and identity.'),
-      ],
+      bodyEn: [p('Young poetry raises questions of city, migration and identity.')],
     }),
     base({
       id: 'art-ed-literature-2',
@@ -53,16 +47,10 @@ export function editionLiterature(): StoredArticle[] {
         p('महिला लेखक पुनःपठन आवश्यक छ।'),
         p('सार्वजनिक पुस्तकालय साझेदार हुन सक्छन्।'),
         h2('संरक्षणका काम'),
-        list([
-          'सटीक टिप्पणी',
-          'सुलभ संस्करण',
-          'डिजिटल अभिलेख',
-        ]),
+        list(['सटीक टिप्पणी', 'सुलभ संस्करण', 'डिजिटल अभिलेख']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Edited translations keep literary heritage alive for new readers.'),
-      ],
+      bodyEn: [p('Edited translations keep literary heritage alive for new readers.')],
     }),
     base({
       id: 'art-ed-literature-3',
@@ -75,7 +63,7 @@ export function editionLiterature(): StoredArticle[] {
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
       isFeatured: 'secondary',
-      tagSlugs: ["editor-pick"],
+      tagSlugs: ['editor-pick'],
       reportingLocation: 'पोखरा',
       province: 'gandaki',
       bodyNe: [
@@ -84,16 +72,10 @@ export function editionLiterature(): StoredArticle[] {
         p('स्थानीय भाषा सत्रले विविधता देखाउँछ।'),
         p('पुस्तक बिक्री र लेखक रोजीरोटी जोडिनुपर्छ।'),
         h2('पहुँच सुधार'),
-        list([
-          'निःशुल्क सत्र',
-          'सांकेतिक भाषा/उपशीर्षक',
-          'प्रदेश भ्रमण',
-        ]),
+        list(['निःशुल्क सत्र', 'सांकेतिक भाषा/उपशीर्षक', 'प्रदेश भ्रमण']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Festivals must platform new writers, not only big names.'),
-      ],
+      bodyEn: [p('Festivals must platform new writers, not only big names.')],
     }),
     base({
       id: 'art-ed-literature-4',
@@ -105,7 +87,7 @@ export function editionLiterature(): StoredArticle[] {
       deckEn: 'Pleasure reading strengthens language and thought.',
       publishedAt: isoDaysAgo(3, 10),
       updatedAt: isoDaysAgo(3, 10),
-      tagSlugs: ["budget-2083"],
+      tagSlugs: ['budget-2083'],
       reportingLocation: 'कास्की',
       province: 'gandaki',
       bodyNe: [
@@ -114,16 +96,10 @@ export function editionLiterature(): StoredArticle[] {
         p('बाल साहित्य विविधता चाहिन्छ।'),
         p('शिक्षक तालिमले फरक पार्छ।'),
         h2('विद्यालय कदम'),
-        list([
-          'पुस्तक कुना',
-          'साप्ताहिक पठन समय',
-          'अभिभावक सहभागिता',
-        ]),
+        list(['पुस्तक कुना', 'साप्ताहिक पठन समय', 'अभिभावक सहभागिता']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Pleasure reading strengthens language and thought.'),
-      ],
+      bodyEn: [p('Pleasure reading strengthens language and thought.')],
     }),
     base({
       id: 'art-ed-literature-5',
@@ -135,7 +111,7 @@ export function editionLiterature(): StoredArticle[] {
       deckEn: 'Migration experience adds new geographies to Nepali literature.',
       publishedAt: isoDaysAgo(4, 6),
       updatedAt: isoDaysAgo(4, 6),
-      tagSlugs: ["labour-migration"],
+      tagSlugs: ['labour-migration'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -144,16 +120,10 @@ export function editionLiterature(): StoredArticle[] {
         p('अनलाइन पत्रिकाले ठाउँ दिएका छन्।'),
         p('पाठक क्लबले संवाद जीवित राख्छ।'),
         h2('सम्पादकीय चासो'),
-        list([
-          'भाषा मिश्रण',
-          'घरको स्मृति',
-          'पहचान द्वन्द्व',
-        ]),
+        list(['भाषा मिश्रण', 'घरको स्मृति', 'पहचान द्वन्द्व']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Migration experience adds new geographies to Nepali literature.'),
-      ],
-    })
+      bodyEn: [p('Migration experience adds new geographies to Nepali literature.')],
+    }),
   ]
 }

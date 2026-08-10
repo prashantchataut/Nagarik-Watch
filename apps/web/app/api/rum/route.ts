@@ -29,7 +29,13 @@ export async function POST(request: NextRequest) {
   const name = String(body.name ?? '')
   const value = Number(body.value)
   const path = String(body.path ?? '')
-  if (!ALLOWED_METRICS.has(name) || !Number.isFinite(value) || value < 0 || path.length > 500 || !path.startsWith('/')) {
+  if (
+    !ALLOWED_METRICS.has(name) ||
+    !Number.isFinite(value) ||
+    value < 0 ||
+    path.length > 500 ||
+    !path.startsWith('/')
+  ) {
     return NextResponse.json({ error: 'Invalid RUM metric.' }, { status: 400 })
   }
 

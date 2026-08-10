@@ -61,9 +61,7 @@ export function ReaderSubmissionForm({ locale }: Props) {
         setAnonymous(false)
         setState({
           type: 'ok',
-          message: ne
-            ? `टिप प्राप्त भयो। Ref: ${body.id}`
-            : `Submission received. Ref: ${body.id}`,
+          message: ne ? `टिप प्राप्त भयो। Ref: ${body.id}` : `Submission received. Ref: ${body.id}`,
         })
       } catch {
         setState({ type: 'error', message: ne ? 'नेटवर्क त्रुटि।' : 'Network error.' })
@@ -72,7 +70,11 @@ export function ReaderSubmissionForm({ locale }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="mt-6 grid gap-4 rounded-xl border border-rule bg-surface p-5" noValidate>
+    <form
+      onSubmit={submit}
+      className="mt-6 grid gap-4 rounded-xl border border-rule bg-surface p-5"
+      noValidate
+    >
       {state ? (
         <div
           role="status"
@@ -89,37 +91,64 @@ export function ReaderSubmissionForm({ locale }: Props) {
       <div className="grid gap-4 md:grid-cols-2">
         <label className="grid gap-1.5 text-meta font-semibold text-ink">
           {ne ? 'सबमिसन प्रकार' : 'Submission type'}
-          <select name="type" className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink">
+          <select
+            name="type"
+            className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink"
+          >
             <option value="tip">{ne ? 'समाचार टिप' : 'News tip'}</option>
             <option value="document">{ne ? 'कागजात' : 'Document'}</option>
             <option value="photo">{ne ? 'फोटो' : 'Photo'}</option>
             <option value="video">{ne ? 'भिडियो' : 'Video'}</option>
-            <option value="psa">{ne ? 'सार्वजनिक सूचना / PSA' : 'Public service notice / PSA'}</option>
+            <option value="psa">
+              {ne ? 'सार्वजनिक सूचना / PSA' : 'Public service notice / PSA'}
+            </option>
             <option value="correction">{ne ? 'सच्च्याउने अनुरोध' : 'Correction request'}</option>
             <option value="other">{ne ? 'अन्य' : 'Other'}</option>
           </select>
         </label>
         <label className="grid gap-1.5 text-meta font-semibold text-ink">
           {ne ? 'शीर्षक' : 'Headline'}
-          <input name="headline" required maxLength={160} className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink" />
+          <input
+            name="headline"
+            required
+            maxLength={160}
+            className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink"
+          />
         </label>
       </div>
 
       <label className="grid gap-1.5 text-meta font-semibold text-ink">
         {ne ? 'तपाईंले के देख्नुभयो?' : 'What should the newsroom know?'}
-        <textarea name="description" required maxLength={5000} className="min-h-44 rounded-md border border-rule bg-surface px-3 py-3 text-body text-ink" />
+        <textarea
+          name="description"
+          required
+          maxLength={5000}
+          className="min-h-44 rounded-md border border-rule bg-surface px-3 py-3 text-body text-ink"
+        />
       </label>
 
       <label className="grid gap-1.5 text-meta font-semibold text-ink">
         {ne ? 'प्रमाण लिंक / फाइल लोकेसन' : 'Evidence link / file location'}
-        <input name="evidenceUrl" type="url" placeholder="https://…" className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink" />
+        <input
+          name="evidenceUrl"
+          type="url"
+          placeholder="https://…"
+          className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink"
+        />
         <span className="text-caption font-normal text-mute">
-          {ne ? 'संवेदनशील प्रमाण भए सम्पादकले सुरक्षित माध्यमबाट सम्पर्क गर्नेछन्।' : 'For sensitive evidence, editors will follow up through a safer channel.'}
+          {ne
+            ? 'संवेदनशील प्रमाण भए सम्पादकले सुरक्षित माध्यमबाट सम्पर्क गर्नेछन्।'
+            : 'For sensitive evidence, editors will follow up through a safer channel.'}
         </span>
       </label>
 
       <label className="flex items-start gap-3 rounded-lg border border-rule bg-surface-raised p-3 text-meta font-semibold text-ink">
-        <input type="checkbox" className="mt-1" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
+        <input
+          type="checkbox"
+          className="mt-1"
+          checked={anonymous}
+          onChange={(event) => setAnonymous(event.target.checked)}
+        />
         <span>{ne ? 'म नाम सार्वजनिक गर्न चाहन्न।' : 'I want to stay anonymous publicly.'}</span>
       </label>
 
@@ -127,15 +156,25 @@ export function ReaderSubmissionForm({ locale }: Props) {
         <div className="grid gap-4 md:grid-cols-3">
           <label className="grid gap-1.5 text-meta font-semibold text-ink">
             {ne ? 'नाम' : 'Name'}
-            <input name="name" className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink" />
+            <input
+              name="name"
+              className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink"
+            />
           </label>
           <label className="grid gap-1.5 text-meta font-semibold text-ink">
             {ne ? 'इमेल' : 'Email'}
-            <input name="email" type="email" className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink" />
+            <input
+              name="email"
+              type="email"
+              className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink"
+            />
           </label>
           <label className="grid gap-1.5 text-meta font-semibold text-ink">
             {ne ? 'फोन' : 'Phone'}
-            <input name="phone" className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink" />
+            <input
+              name="phone"
+              className="rounded-md border border-rule bg-surface px-3 py-2.5 text-body text-ink"
+            />
           </label>
         </div>
       ) : null}
@@ -151,8 +190,18 @@ export function ReaderSubmissionForm({ locale }: Props) {
 
       <TurnstileField siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
 
-      <button type="submit" disabled={pending} className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:opacity-60">
-        {pending ? (ne ? 'पठाउँदै…' : 'Submitting…') : ne ? 'न्यूजरुममा पठाउनुहोस्' : 'Send to newsroom'}
+      <button
+        type="submit"
+        disabled={pending}
+        className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:opacity-60"
+      >
+        {pending
+          ? ne
+            ? 'पठाउँदै…'
+            : 'Submitting…'
+          : ne
+            ? 'न्यूजरुममा पठाउनुहोस्'
+            : 'Send to newsroom'}
       </button>
     </form>
   )

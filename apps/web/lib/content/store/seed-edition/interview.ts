@@ -14,20 +14,18 @@ export function editionInterview(): StoredArticle[] {
       publishedAt: isoDaysAgo(0, 7),
       updatedAt: isoDaysAgo(0, 7),
       isFeatured: 'lead',
-      tagSlugs: ["exclusive-report"],
+      tagSlugs: ['exclusive-report'],
       reportingLocation: 'हेटौंडा',
       province: 'bagmati',
       bodyNe: [
-        p('नागरिक वाच डेस्कले प्रदेश योजना अधिकृतसँग सेवा प्राथमिकताबारे कुराकानी गरेको छ। नाम र विवरण गोपनीयताका लागि सामान्यीकृत छ।'),
+        p(
+          'नागरिक वाच डेस्कले प्रदेश योजना अधिकृतसँग सेवा प्राथमिकताबारे कुराकानी गरेको छ। नाम र विवरण गोपनीयताका लागि सामान्यीकृत छ।',
+        ),
         p('उनीहरूका अनुसार वडास्तर डाटा बिना योजना हावामा बन्छ।'),
         p('महिला र युवा सहभागिता बैठकमा देखिनुपर्छ।'),
         p('पारदर्शिताले राजनीतिक दबाब पनि व्यवस्थापन गर्छ।'),
         h2('मुख्य अंश'),
-        list([
-          'प्राथमिकता छनोट',
-          'नागरिक सुनुवाइ',
-          'सूचक सार्वजनिक',
-        ]),
+        list(['प्राथमिकता छनोट', 'नागरिक सुनुवाइ', 'सूचक सार्वजनिक']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
       bodyEn: [
@@ -44,7 +42,7 @@ export function editionInterview(): StoredArticle[] {
       deckEn: 'Simpler credit processes would let more women expand businesses.',
       publishedAt: isoDaysAgo(1, 8),
       updatedAt: isoDaysAgo(1, 8),
-      tagSlugs: ["labour-migration"],
+      tagSlugs: ['labour-migration'],
       reportingLocation: 'बुटवल',
       province: 'lumbini',
       bodyNe: [
@@ -53,16 +51,10 @@ export function editionInterview(): StoredArticle[] {
         p('डिजिटल भुक्तानीले ग्राहक आधार बढाएको अनुभव छ।'),
         p('स्थानीय मेला नियमित हुनुपर्ने माग राखियो।'),
         h2('उनीहरूको जोड'),
-        list([
-          'धितो विकल्प',
-          'बजार लिंक',
-          'तालिम',
-        ]),
+        list(['धितो विकल्प', 'बजार लिंक', 'तालिम']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Simpler credit processes would let more women expand businesses.'),
-      ],
+      bodyEn: [p('Simpler credit processes would let more women expand businesses.')],
     }),
     base({
       id: 'art-ed-interview-3',
@@ -75,7 +67,7 @@ export function editionInterview(): StoredArticle[] {
       publishedAt: isoDaysAgo(2, 9),
       updatedAt: isoDaysAgo(2, 9),
       isFeatured: 'secondary',
-      tagSlugs: ["nepal-cricket"],
+      tagSlugs: ['nepal-cricket'],
       reportingLocation: 'कीर्तिपुर',
       province: 'bagmati',
       bodyNe: [
@@ -84,16 +76,10 @@ export function editionInterview(): StoredArticle[] {
         p('विद्यालय क्रिकेटले आधार दिन्छ।'),
         p('महिला क्रिकेटमा मैदान पहुँच सुधार्न आग्रह गरियो।'),
         h2('प्रशिक्षक दृष्टिकोण'),
-        list([
-          'आधारभूत सीप',
-          'अभिभावक अपेक्षा',
-          'चोट रोकथाम',
-        ]),
+        list(['आधारभूत सीप', 'अभिभावक अपेक्षा', 'चोट रोकथाम']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Talent selection needs transparency and long-term fitness focus.'),
-      ],
+      bodyEn: [p('Talent selection needs transparency and long-term fitness focus.')],
     }),
     base({
       id: 'art-ed-interview-4',
@@ -105,7 +91,7 @@ export function editionInterview(): StoredArticle[] {
       deckEn: 'They stress open data makes local planning more precise.',
       publishedAt: isoDaysAgo(3, 10),
       updatedAt: isoDaysAgo(3, 10),
-      tagSlugs: ["climate"],
+      tagSlugs: ['climate'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -114,16 +100,10 @@ export function editionInterview(): StoredArticle[] {
         p('कृषक अनुभवलाई डाटासँग जोड्नुपर्छ।'),
         p('नीति ढिलाइले अनुकूलन खर्च बढाउँछ।'),
         h2('वैज्ञानिक सन्देश'),
-        list([
-          'पूर्वसूचना',
-          'भू-उपयोग',
-          'समुदाय विज्ञान',
-        ]),
+        list(['पूर्वसूचना', 'भू-उपयोग', 'समुदाय विज्ञान']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('They stress open data makes local planning more precise.'),
-      ],
+      bodyEn: [p('They stress open data makes local planning more precise.')],
     }),
     base({
       id: 'art-ed-interview-5',
@@ -135,7 +115,7 @@ export function editionInterview(): StoredArticle[] {
       deckEn: 'Crisis information and legal-advice networks can protect lives.',
       publishedAt: isoDaysAgo(4, 6),
       updatedAt: isoDaysAgo(4, 6),
-      tagSlugs: ["labour-migration"],
+      tagSlugs: ['labour-migration'],
       reportingLocation: 'काठमाडौं',
       province: 'bagmati',
       bodyNe: [
@@ -144,16 +124,10 @@ export function editionInterview(): StoredArticle[] {
         p('महिला हेल्पडेस्क अलग आवश्यक छ।'),
         p('नेपालमा परिवार परामर्श पनि जोड्नुपर्ने बताइयो।'),
         h2('संगठन अभ्यास'),
-        list([
-          'स्वयंसेवक तालिम',
-          'पारदर्शी कोष',
-          'दूतावास समन्वय',
-        ]),
+        list(['स्वयंसेवक तालिम', 'पारदर्शी कोष', 'दूतावास समन्वय']),
         p('नागरिक वाच डेस्कले यस विषयलाई निरन्तर अनुगमन गरी पाठकमैत्री सार अद्यावधिक गर्नेछ।'),
       ],
-      bodyEn: [
-        p('Crisis information and legal-advice networks can protect lives.'),
-      ],
-    })
+      bodyEn: [p('Crisis information and legal-advice networks can protect lives.')],
+    }),
   ]
 }

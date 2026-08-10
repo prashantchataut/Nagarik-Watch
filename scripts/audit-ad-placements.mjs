@@ -69,16 +69,24 @@ for (const file of sourceFiles) {
   const text = readFileSync(file, 'utf8')
   const slotCount = (text.match(/<AdSlot\b/g) ?? []).length
   if (slotCount > MAX_STATIC_SLOTS_PER_FILE) {
-    failures.push(`${file}: ${slotCount} static ad slots exceeds the maximum of ${MAX_STATIC_SLOTS_PER_FILE}`)
+    failures.push(
+      `${file}: ${slotCount} static ad slots exceeds the maximum of ${MAX_STATIC_SLOTS_PER_FILE}`,
+    )
   }
   if (slotCount > 0 && !file.endsWith(join('components', 'AdSlot.tsx'))) {
     const contentUnits = Math.max(
       1,
-      (text.match(/<(?:article|StoryCard|ArticleBody|p)\b/g) ?? []).length,
+      (
+        text.match(
+          /<(?:article|StoryCard|ArticleBody|CategoryDesk|RankedStoryList|PublicHubPage|p)\b/g,
+        ) ?? []
+      ).length,
     )
     const density = slotCount / contentUnits
     if (density > MAX_ADS_PER_CONTENT_UNIT) {
-      failures.push(`${file}: ad density ${density.toFixed(2)} exceeds ${MAX_ADS_PER_CONTENT_UNIT} slots per content unit`)
+      failures.push(
+        `${file}: ad density ${density.toFixed(2)} exceeds ${MAX_ADS_PER_CONTENT_UNIT} slots per content unit`,
+      )
     }
   }
   for (const key of keys) {
@@ -93,9 +101,13 @@ for (const file of sourceFiles) {
 
 const articleBodyFile = join(root, 'apps/web/components/article/ArticleBody.tsx')
 const articleBodyText = readFileSync(articleBodyFile, 'utf8')
-const paragraphThreshold = Number(articleBodyText.match(/const AD_AFTER_PARAGRAPH\s*=\s*(\d+)/)?.[1] ?? 0)
+const paragraphThreshold = Number(
+  articleBodyText.match(/const AD_AFTER_PARAGRAPH\s*=\s*(\d+)/)?.[1] ?? 0,
+)
 if (paragraphThreshold < MIN_PARAGRAPHS_BEFORE_INLINE_AD) {
-  failures.push(`Article inline ads require at least ${MIN_PARAGRAPHS_BEFORE_INLINE_AD} paragraphs; found ${paragraphThreshold}`)
+  failures.push(
+    `Article inline ads require at least ${MIN_PARAGRAPHS_BEFORE_INLINE_AD} paragraphs; found ${paragraphThreshold}`,
+  )
 }
 
 for (const key of requiredRendered) {
@@ -110,4 +122,6 @@ if (failures.length) {
   process.exit(1)
 }
 
-console.log(`Ad placement audit passed (${keys.length} placements, ${used.size} rendered; max ${MAX_STATIC_SLOTS_PER_FILE} slots/file).`)
+console.log(
+  `Ad placement audit passed (${keys.length} placements, ${used.size} rendered; max ${MAX_STATIC_SLOTS_PER_FILE} slots/file).`,
+)

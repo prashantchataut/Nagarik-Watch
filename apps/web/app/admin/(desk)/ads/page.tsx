@@ -7,7 +7,15 @@ import { getAdEventSummary } from '@/lib/ad-events'
 import { listHouseAds, upsertHouseAd } from '@/lib/house-ads'
 import { promoteHouseAdWinners } from '@/lib/ads/house-ad-promote'
 import { deliveryCoverage, fillRateAnomaly } from '@/lib/ads/yield-local'
-import { AdminPageHeader, AdminCard, AdminButton, AdminInput, AdminSelect, AdminMetric, AdminTable } from '@/components/admin/primitives'
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminButton,
+  AdminInput,
+  AdminSelect,
+  AdminMetric,
+  AdminTable,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'विज्ञापन',
@@ -102,9 +110,7 @@ export default async function AdsPage({
 
   return (
     <div>
-      <AdminPageHeader
-        subtitle="house ads, placement inventory, 30-day impression/click reporting"
-      />
+      <AdminPageHeader subtitle="house ads, placement inventory, 30-day impression/click reporting" />
 
       {params.saved === '1' ? (
         <p
@@ -145,20 +151,28 @@ export default async function AdsPage({
         <AdminCard>
           <p className="text-body text-ink" lang="ne">
             हालको delivery mode:{' '}
-            <code className="font-mono text-ink-soft" lang="en">{adMode}</code>। स्थिति:{' '}
+            <code className="font-mono text-ink-soft" lang="en">
+              {adMode}
+            </code>
+            । स्थिति:{' '}
             <span
               className={`admin-status ${adMode !== 'network' || networkReady ? 'admin-status--success' : 'admin-status--neutral'}`}
               lang="ne"
             >
-              {adMode !== 'network' || networkReady ? 'delivery तयार' : 'delivery credential प्रतीक्षामा'}
+              {adMode !== 'network' || networkReady
+                ? 'delivery तयार'
+                : 'delivery credential प्रतीक्षामा'}
             </span>
           </p>
           <p className="mt-2 text-meta text-ink-soft" lang="ne">
-            Public pages reserved ad slots राख्छन्। House mode मा तलको creative सक्रिय भए reader-facing ad देखिन्छ। Network mode मा provider container जोडिन्छ।
+            Public pages reserved ad slots राख्छन्। House mode मा तलको creative सक्रिय भए
+            reader-facing ad देखिन्छ। Network mode मा provider container जोडिन्छ।
           </p>
         </AdminCard>
         <AdminCard>
-          <p className="admin-section-title" lang="en">30-day events</p>
+          <p className="admin-section-title" lang="en">
+            30-day events
+          </p>
           <div className="admin-metric-grid mt-3">
             <AdminMetric
               value={summaries.reduce((sum, item) => sum + item.impressions, 0)}
@@ -173,16 +187,20 @@ export default async function AdsPage({
         </AdminCard>
       </div>
 
-      <AdminCard className={`mb-5 ${coverageAnomaly.anomalous ? 'admin-callout admin-callout--danger' : ''}`}>
+      <AdminCard
+        className={`mb-5 ${coverageAnomaly.anomalous ? 'admin-callout admin-callout--danger' : ''}`}
+      >
         <p className="text-meta font-bold text-brand-strong" lang="ne">
           वितरण कभरेज
         </p>
         <p className="mt-1 text-body text-ink" lang="en">
-          {deliveringPlacements}/{placements.length} slots have an active house ad or ready network delivery ({(coverage * 100).toFixed(0)}%).
+          {deliveringPlacements}/{placements.length} slots have an active house ad or ready network
+          delivery ({(coverage * 100).toFixed(0)}%).
         </p>
         {coverageAnomaly.anomalous ? (
           <p className="mt-1 text-meta font-semibold text-red-700" lang="en">
-            Coverage is {(coverageAnomaly.drop * 100).toFixed(0)} points below the fully-wired baseline — configure more house ads or a network.
+            Coverage is {(coverageAnomaly.drop * 100).toFixed(0)} points below the fully-wired
+            baseline — configure more house ads or a network.
           </p>
         ) : (
           <p className="mt-1 text-meta text-ink-soft" lang="en">
@@ -192,9 +210,12 @@ export default async function AdsPage({
       </AdminCard>
 
       <AdminCard className="mb-6">
-        <h2 className="font-display text-h2 text-ink" lang="ne">House ad creative</h2>
+        <h2 className="font-display text-h2 text-ink" lang="ne">
+          House ad creative
+        </h2>
         <p className="mt-2 max-w-body text-meta text-ink-soft" lang="ne">
-          Payment/ad-network नजोडिए पनि खाली placeholder देखाउने होइन। House ad राखेर sponsorship, membership वा media-kit CTA चलाउनुहोस्।
+          Payment/ad-network नजोडिए पनि खाली placeholder देखाउने होइन। House ad राखेर sponsorship,
+          membership वा media-kit CTA चलाउनुहोस्।
         </p>
         <form action={saveHouseAd} className="mt-4 grid gap-3 lg:grid-cols-6">
           <div className="lg:col-span-2">
@@ -203,7 +224,10 @@ export default async function AdsPage({
               name="placementKey"
               lang="en"
               defaultValue={houseAds[0]?.placementKey ?? placements[0]?.key}
-              options={placements.map((placement) => ({ value: placement.key, label: placement.key }))}
+              options={placements.map((placement) => ({
+                value: placement.key,
+                label: placement.key,
+              }))}
             />
           </div>
           <div className="lg:col-span-2">
@@ -211,14 +235,18 @@ export default async function AdsPage({
               label="Title"
               name="title"
               lang="en"
-              defaultValue={houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.title}
+              defaultValue={
+                houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.title
+              }
             />
           </div>
           <AdminInput
             label="CTA"
             name="cta"
             lang="en"
-            defaultValue={houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.cta}
+            defaultValue={
+              houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.cta
+            }
           />
           <label className="flex items-center gap-2 pt-6 text-meta font-semibold text-ink-soft">
             <input
@@ -226,7 +254,8 @@ export default async function AdsPage({
               type="checkbox"
               className="size-4 accent-brand"
               defaultChecked={
-                houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.active ?? false
+                houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
+                  ?.active ?? false
               }
             />{' '}
             Active
@@ -236,7 +265,9 @@ export default async function AdsPage({
               label="Body"
               name="body"
               lang="en"
-              defaultValue={houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.body}
+              defaultValue={
+                houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.body
+              }
             />
           </div>
           <div className="lg:col-span-2">
@@ -245,14 +276,18 @@ export default async function AdsPage({
               name="href"
               placeholder="/advertise"
               lang="en"
-              defaultValue={houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.href}
+              defaultValue={
+                houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.href
+              }
             />
           </div>
           <AdminInput
             label="Image URL"
             name="imageUrl"
             lang="en"
-            defaultValue={houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.imageUrl}
+            defaultValue={
+              houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.imageUrl
+            }
           />
           <div className="lg:col-span-6 rounded-md border border-rule bg-surface px-3 py-3">
             <label className="flex items-center gap-2 text-meta font-semibold text-ink">
@@ -334,9 +369,14 @@ export default async function AdsPage({
 
       <div className="grid gap-5">
         {Object.entries(grouped).map(([surface, items]) => (
-          <section key={surface} className="overflow-hidden rounded-lg border border-rule bg-surface-raised">
+          <section
+            key={surface}
+            className="overflow-hidden rounded-lg border border-rule bg-surface-raised"
+          >
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rule bg-surface px-4 py-3">
-              <h2 className="font-display text-h2 text-ink" lang="en">{surface}</h2>
+              <h2 className="font-display text-h2 text-ink" lang="en">
+                {surface}
+              </h2>
               <span className="admin-status admin-status--neutral" lang="en">
                 {items.length} slot{items.length === 1 ? '' : 's'}
               </span>
@@ -358,14 +398,27 @@ export default async function AdsPage({
                     const summary = summaryByPlacement.get(p.key)
                     return (
                       <tr key={p.key}>
-                        <td className="align-top font-semibold text-ink" lang="en">{p.label}</td>
-                        <td className="align-top">
-                          <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-ink-soft" lang="en">{p.key}</code>
+                        <td className="align-top font-semibold text-ink" lang="en">
+                          {p.label}
                         </td>
-                        <td className="align-top text-meta text-ink-soft" lang="en">{p.width}×{p.height}</td>
+                        <td className="align-top">
+                          <code
+                            className="rounded bg-surface px-1.5 py-0.5 font-mono text-caption text-ink-soft"
+                            lang="en"
+                          >
+                            {p.key}
+                          </code>
+                        </td>
+                        <td className="align-top text-meta text-ink-soft" lang="en">
+                          {p.width}×{p.height}
+                        </td>
                         <td className="align-top text-meta text-ink-soft">
                           {house ? (
-                            <span className={house.active ? 'font-semibold text-brand-strong' : 'text-mute'}>
+                            <span
+                              className={
+                                house.active ? 'font-semibold text-brand-strong' : 'text-mute'
+                              }
+                            >
                               {house.active ? 'Active' : 'Saved/off'} · {house.title}
                             </span>
                           ) : (

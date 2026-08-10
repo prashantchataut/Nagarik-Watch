@@ -61,8 +61,10 @@ export function ReaderArticleControls({
   const [historySyncFailed, setHistorySyncFailed] = useState(false)
   const [meter, setMeter] = useState<{ count: number; limit: number } | null>(null)
   const [showFeedback, setShowFeedback] = useState(false)
-  const [readingSessionId] = useState(() =>
-    globalThis.crypto?.randomUUID?.() ?? `read-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  const [readingSessionId] = useState(
+    () =>
+      globalThis.crypto?.randomUUID?.() ??
+      `read-${Date.now()}-${Math.random().toString(36).slice(2)}`,
   )
   const english = locale === 'en'
   const lang = english ? 'en' : 'ne'
@@ -132,8 +134,7 @@ export function ReaderArticleControls({
     /** Active attention only: visible tab + article body in view. */
     let activeMs = 0
     let bodyInView = true
-    let segmentStarted: number | null =
-      document.visibilityState === 'visible' ? Date.now() : null
+    let segmentStarted: number | null = document.visibilityState === 'visible' ? Date.now() : null
     const authorSlugs = authorSlugsKey ? authorSlugsKey.split('|') : []
     const tagSlugs = tagSlugsKey ? tagSlugsKey.split('|') : []
 
@@ -286,14 +287,28 @@ export function ReaderArticleControls({
       window.clearInterval(interval)
       recordThrottled.cancel()
     }
-  }, [authorSlugsKey, href, readingMinutes, readingSessionId, story.category.slug, story.id, story.slug, story.titleNe, tagSlugsKey, title])
+  }, [
+    authorSlugsKey,
+    href,
+    readingMinutes,
+    readingSessionId,
+    story.category.slug,
+    story.id,
+    story.slug,
+    story.titleNe,
+    tagSlugsKey,
+    title,
+  ])
 
   const remaining = useMemo(
     () => remainingReadingMinutes(readingMinutes, scrollDepth),
     [readingMinutes, scrollDepth],
   )
 
-  function pickVoice(voices: SpeechSynthesisVoice[], preferNe: boolean): SpeechSynthesisVoice | null {
+  function pickVoice(
+    voices: SpeechSynthesisVoice[],
+    preferNe: boolean,
+  ): SpeechSynthesisVoice | null {
     if (!voices.length) return null
     const ranked = preferNe
       ? [
@@ -327,9 +342,7 @@ export function ReaderArticleControls({
     const text = [title, ...bodies].filter(Boolean).join('. ').replace(/\s+/g, ' ').trim()
     if (!text) {
       setSpeechHint(
-        english
-          ? 'No article text was found to read aloud.'
-          : 'सुनाउन मिल्ने लेख पाठ भेटिएन।',
+        english ? 'No article text was found to read aloud.' : 'सुनाउन मिल्ने लेख पाठ भेटिएन।',
       )
       return
     }
@@ -354,17 +367,13 @@ export function ReaderArticleControls({
           setSpeechHint(null)
         }
       } else if (preferNe) {
-        setSpeechHint(
-          'नेपाली आवाज यस उपकरणमा छैन। ब्राउजर/OS मा भाषा प्याक थप्नुहोस्।',
-        )
+        setSpeechHint('नेपाली आवाज यस उपकरणमा छैन। ब्राउजर/OS मा भाषा प्याक थप्नुहोस्।')
       }
       utterance.onend = () => setSpeaking(false)
       utterance.onerror = () => {
         setSpeaking(false)
         setSpeechHint(
-          english
-            ? 'Audio playback failed in this browser.'
-            : 'यो ब्राउजरमा आवाज बजाउन सकिएन।',
+          english ? 'Audio playback failed in this browser.' : 'यो ब्राउजरमा आवाज बजाउन सकिएन।',
         )
       }
       setSpeaking(true)
@@ -390,7 +399,11 @@ export function ReaderArticleControls({
   }
 
   return (
-    <div className="article-utility-bar" lang={lang} aria-label={locale === 'en' ? 'Article reading tools' : 'समाचार पढाइ उपकरण'}>
+    <div
+      className="article-utility-bar"
+      lang={lang}
+      aria-label={locale === 'en' ? 'Article reading tools' : 'समाचार पढाइ उपकरण'}
+    >
       <ExperimentExposure experimentId={ARTICLE_COMPLETION_EXPERIMENT_ID} />
       <ArticleToolsMenu
         story={story}
@@ -423,7 +436,9 @@ export function ReaderArticleControls({
           </span>
         ) : null}
         {!personalized ? (
-          <span className="hidden md:inline">{locale === 'en' ? 'History off' : 'इतिहास बन्द'}</span>
+          <span className="hidden md:inline">
+            {locale === 'en' ? 'History off' : 'इतिहास बन्द'}
+          </span>
         ) : null}
       </div>
       {showFeedback ? (

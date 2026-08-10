@@ -8,13 +8,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
  * Thin progress bar pinned to the viewport top. When `targetId` is set, progress tracks
  * that column instead of the full page so related stories and footer do not inflate the bar.
  */
-export function ReadingProgress({
-  locale,
-  targetId,
-}: {
-  locale: Locale
-  targetId?: string
-}) {
+export function ReadingProgress({ locale, targetId }: { locale: Locale; targetId?: string }) {
   const dict = getDictionary(locale)
   const fillRef = useRef<HTMLDivElement>(null)
   const [value, setValue] = useState(0)

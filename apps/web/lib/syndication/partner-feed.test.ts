@@ -27,7 +27,8 @@ describe('truncateForFeed', () => {
   })
 
   it('truncates at a word boundary with an ellipsis', () => {
-    const long = 'Flood warning issued for the Koshi river basin after heavy monsoon rainfall overnight'
+    const long =
+      'Flood warning issued for the Koshi river basin after heavy monsoon rainfall overnight'
     const truncated = truncateForFeed(long, 40)
     expect(truncated.length).toBeLessThanOrEqual(41)
     expect(truncated.endsWith('…')).toBe(true)

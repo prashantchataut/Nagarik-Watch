@@ -23,17 +23,16 @@ export function ProvinceHub({ locale, className }: { locale: Locale; className?:
       >
         <ul className="flex min-w-max items-center sm:min-w-0 sm:grid sm:grid-cols-4 lg:grid-cols-7">
           {PROVINCES.map((province, index) => (
-            <li
-              key={province.slug}
-              className={index > 0 ? 'border-l border-rule' : ''}
-            >
+            <li key={province.slug} className={index > 0 ? 'border-l border-rule' : ''}>
               <Link
                 href={localizeHref(locale, `/province/${province.slug}`)}
                 className="flex min-h-11 min-w-[8rem] items-center justify-between gap-3 px-3 py-2.5 font-display text-meta font-bold text-ink transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong sm:min-w-0 sm:text-body"
                 lang={lang}
               >
                 <span>{english ? province.nameEn : province.nameNe}</span>
-                <span className="text-mute" aria-hidden="true">→</span>
+                <span className="text-mute" aria-hidden="true">
+                  →
+                </span>
               </Link>
             </li>
           ))}

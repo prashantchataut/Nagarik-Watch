@@ -195,8 +195,7 @@ export function analyzeExperiment(
   const enoughData = variants.every(
     (variant) => variant.exposures >= Math.max(1, definition.minimumExposuresPerVariant),
   )
-  const hasWinner =
-    enoughData && (best?.probabilityBest ?? 0) >= definition.winnerProbability
+  const hasWinner = enoughData && (best?.probabilityBest ?? 0) >= definition.winnerProbability
 
   return {
     variants,
@@ -218,7 +217,10 @@ export function sequentialZTest(
 ): SequentialTestResult {
   const controlExposures = Math.max(0, Math.floor(control.exposures))
   const treatmentExposures = Math.max(0, Math.floor(treatment.exposures))
-  const controlConversions = Math.min(controlExposures, Math.max(0, Math.floor(control.conversions)))
+  const controlConversions = Math.min(
+    controlExposures,
+    Math.max(0, Math.floor(control.conversions)),
+  )
   const treatmentConversions = Math.min(
     treatmentExposures,
     Math.max(0, Math.floor(treatment.conversions)),
@@ -229,7 +231,9 @@ export function sequentialZTest(
     (controlConversions + treatmentConversions) / Math.max(1, controlExposures + treatmentExposures)
   const standardError =
     Math.sqrt(
-      pooled * (1 - pooled) * (1 / Math.max(1, controlExposures) + 1 / Math.max(1, treatmentExposures)),
+      pooled *
+        (1 - pooled) *
+        (1 / Math.max(1, controlExposures) + 1 / Math.max(1, treatmentExposures)),
     ) || 1
   const z = (rateTreatment - rateControl) / standardError
   const decisive = controlExposures > 0 && treatmentExposures > 0 && Math.abs(z) >= zThreshold
@@ -279,4 +283,3 @@ export function analyzeWithModes(
 
   return { ...bayesian, sequential }
 }
-

@@ -36,7 +36,12 @@ describe('scoreOnboardingTopics', () => {
   })
 
   it('marks the top few as recommended', () => {
-    const categories = [category('politics', 1), category('sports', 2), category('world', 3), category('opinion', 4)]
+    const categories = [
+      category('politics', 1),
+      category('sports', 2),
+      category('world', 3),
+      category('opinion', 4),
+    ]
     const scored = scoreOnboardingTopics(categories, [story('p1', 'politics')])
     expect(scored.filter((item) => item.recommended)).toHaveLength(4 > 3 ? 3 : categories.length)
   })
@@ -53,7 +58,9 @@ describe('onboardingCoverage', () => {
   })
 
   it('computes the selected fraction of available topics', () => {
-    expect(onboardingCoverage(['politics', 'sports'], ['politics', 'sports', 'world', 'business'])).toBe(0.5)
+    expect(
+      onboardingCoverage(['politics', 'sports'], ['politics', 'sports', 'world', 'business']),
+    ).toBe(0.5)
   })
 
   it('ignores selections outside the available set', () => {

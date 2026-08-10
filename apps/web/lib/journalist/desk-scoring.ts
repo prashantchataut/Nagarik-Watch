@@ -66,7 +66,10 @@ export function scoreDraft(input: DeskDraftInput) {
   const caption = captionQuality(input.caption ?? '')
   const citations = citationCoverage(input.claims ?? 0, input.citations ?? 0)
   const slug = resolveSlug(input.slug ?? 'draft', Boolean(input.slugTaken))
-  const revision = revisionSimilarity(input.previousText ?? '', input.currentText ?? input.deck ?? '')
+  const revision = revisionSimilarity(
+    input.previousText ?? '',
+    input.currentText ?? input.deck ?? '',
+  )
   return {
     deck,
     caption,

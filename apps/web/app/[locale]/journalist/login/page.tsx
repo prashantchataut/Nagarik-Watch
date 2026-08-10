@@ -7,11 +7,7 @@ import { StaffAuthShell } from '@/components/auth/StaffAuthShell'
 import { getAuth } from '@/lib/auth'
 import { ensureNewsroomBootAccounts } from '@/lib/auth/boot-accounts'
 import { getSession } from '@/lib/auth/session'
-import {
-  ADMIN_BASE_ROLES,
-  JOURNALIST_DESK_ROLES,
-  type NewsroomRole,
-} from '@/lib/admin-roles'
+import { ADMIN_BASE_ROLES, JOURNALIST_DESK_ROLES, type NewsroomRole } from '@/lib/admin-roles'
 import { redirect } from 'next/navigation'
 import { accountKindLabel, resolveAccountKind, roleDisplayLabel } from '@/lib/account-identity'
 
@@ -65,8 +61,18 @@ export default async function JournalistLoginPage({
   const kind = session ? resolveAccountKind(session.role) : null
 
   const points = ne
-    ? ['शीर्षक, शरीर, ट्याग', 'स्रोत र प्रमाण नोट', 'ढाँचा र चेकलिस्ट', 'स्वतः सुरक्षित, त्यसपछि समीक्षा']
-    : ['Headline, body, tags', 'Source and evidence notes', 'Frames and checklist', 'Autosave, then review']
+    ? [
+        'शीर्षक, शरीर, ट्याग',
+        'स्रोत र प्रमाण नोट',
+        'ढाँचा र चेकलिस्ट',
+        'स्वतः सुरक्षित, त्यसपछि समीक्षा',
+      ]
+    : [
+        'Headline, body, tags',
+        'Source and evidence notes',
+        'Frames and checklist',
+        'Autosave, then review',
+      ]
 
   return (
     <StaffAuthShell

@@ -78,13 +78,25 @@ describe('checkEntitlement', () => {
 
 describe('offlineCachePolicy', () => {
   it('caps cached pages and disables further caching under save-data', () => {
-    const result = offlineCachePolicy({ totalPages: 20, cachedPages: 20, quotaMb: 100, usedMb: 10, saveData: true })
+    const result = offlineCachePolicy({
+      totalPages: 20,
+      cachedPages: 20,
+      quotaMb: 100,
+      usedMb: 10,
+      saveData: true,
+    })
     expect(result.maxCachedPages).toBe(5)
     expect(result.shouldCacheMore).toBe(false)
   })
 
   it('allows caching more pages when health is below 1 and save-data is off', () => {
-    const result = offlineCachePolicy({ totalPages: 20, cachedPages: 2, quotaMb: 100, usedMb: 10, saveData: false })
+    const result = offlineCachePolicy({
+      totalPages: 20,
+      cachedPages: 2,
+      quotaMb: 100,
+      usedMb: 10,
+      saveData: false,
+    })
     expect(result.shouldCacheMore).toBe(true)
     expect(result.maxCachedPages).toBe(20)
   })

@@ -17,9 +17,7 @@ const SKIP_DIRS = new Set(['node_modules', '.next', 'admin', 'journalist'])
 const EXT = /\.(tsx?|jsx?|css)$/
 
 function stripComments(source) {
-  return source
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/(^|[^:])\/\/.*$/gm, '$1')
+  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1')
 }
 
 function walk(dir, out = []) {

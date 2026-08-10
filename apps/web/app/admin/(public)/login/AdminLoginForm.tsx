@@ -102,7 +102,9 @@ export function AdminLoginForm({
             return
           }
           if (res.status === 403) {
-            setError(message || 'लगइन अस्वीकृत भयो। www.nagarikwatch.com बाट फेरि प्रयास गर्नुहोस्।')
+            setError(
+              message || 'लगइन अस्वीकृत भयो। www.nagarikwatch.com बाट फेरि प्रयास गर्नुहोस्।',
+            )
             return
           }
           if (res.status === 401 || /not found|invalid password|INVALID/i.test(message + code)) {
@@ -128,7 +130,13 @@ export function AdminLoginForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="newsroom-login-form" noValidate autoComplete="on" lang="ne">
+    <form
+      onSubmit={onSubmit}
+      className="newsroom-login-form"
+      noValidate
+      autoComplete="on"
+      lang="ne"
+    >
       {resetComplete ? (
         <div role="status" className="newsroom-login-form__ok">
           पासवर्ड अद्यावधिक भयो। नयाँ पासवर्डले साइन इन गर्नुहोस्।
@@ -187,11 +195,7 @@ export function AdminLoginForm({
         </label>
       )}
 
-      <AdminButton
-        type="submit"
-        disabled={pending || !databaseOnline}
-        className="w-full"
-      >
+      <AdminButton type="submit" disabled={pending || !databaseOnline} className="w-full">
         {pending ? 'जाँच हुँदै…' : requiresTotp ? 'कोड पुष्टि' : 'साइन इन'}
       </AdminButton>
     </form>

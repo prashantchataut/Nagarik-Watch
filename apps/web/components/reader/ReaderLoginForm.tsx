@@ -14,7 +14,17 @@ import { authClientErrorMessage } from '@/lib/auth/client-errors'
  * bookmarks + history), and the "forgot password" link points at the
  * reader-facing recovery flow backed by Better Auth and the configured email provider.
  */
-export function ReaderLoginForm({ locale, next, notice, googleEnabled = false }: { locale: 'ne' | 'en'; next?: string | null; notice?: 'reset' | 'invite' | null; googleEnabled?: boolean }) {
+export function ReaderLoginForm({
+  locale,
+  next,
+  notice,
+  googleEnabled = false,
+}: {
+  locale: 'ne' | 'en'
+  next?: string | null
+  notice?: 'reset' | 'invite' | null
+  googleEnabled?: boolean
+}) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -59,10 +69,18 @@ export function ReaderLoginForm({ locale, next, notice, googleEnabled = false }:
   return (
     <form onSubmit={onSubmit} className="grid gap-4" noValidate>
       {notice ? (
-        <div role="status" className="rounded-md border border-rule bg-surface-raised px-4 py-3 text-meta font-semibold text-ink" lang={ne ? 'ne' : 'en'}>
+        <div
+          role="status"
+          className="rounded-md border border-rule bg-surface-raised px-4 py-3 text-meta font-semibold text-ink"
+          lang={ne ? 'ne' : 'en'}
+        >
           {notice === 'reset'
-            ? (ne ? 'पासवर्ड परिवर्तन भयो। नयाँ पासवर्ड प्रयोग गरेर लगइन गर्नुहोस्।' : 'Password updated. Sign in with your new password.')
-            : (ne ? 'न्युजरुम निमन्त्रणा स्वीकार भयो। भूमिका सक्रिय गर्न फेरि लगइन गर्नुहोस्।' : 'Newsroom invitation accepted. Sign in again to activate your role.')}
+            ? ne
+              ? 'पासवर्ड परिवर्तन भयो। नयाँ पासवर्ड प्रयोग गरेर लगइन गर्नुहोस्।'
+              : 'Password updated. Sign in with your new password.'
+            : ne
+              ? 'न्युजरुम निमन्त्रणा स्वीकार भयो। भूमिका सक्रिय गर्न फेरि लगइन गर्नुहोस्।'
+              : 'Newsroom invitation accepted. Sign in again to activate your role.'}
         </div>
       ) : null}
       {error && (
@@ -128,7 +146,10 @@ export function ReaderLoginForm({ locale, next, notice, googleEnabled = false }:
         </Link>
       </div>
       <p className="text-center text-caption text-mute" lang={ne ? 'ne' : 'en'}>
-        <Link href={ne ? '/saved/' : '/en/saved/'} className="font-semibold text-brand-strong underline-offset-2 hover:underline">
+        <Link
+          href={ne ? '/saved/' : '/en/saved/'}
+          className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+        >
           {ne ? 'उपकरणमा सुरक्षित समाचार' : 'Saved stories on this device'}
         </Link>
       </p>
@@ -140,7 +161,9 @@ function safeNext(value: string | null | undefined): string | null {
   if (!value || !value.startsWith('/') || value.startsWith('//')) return null
   try {
     const url = new URL(value, 'https://nagarikwatch.local')
-    return url.origin === 'https://nagarikwatch.local' ? `${url.pathname}${url.search}${url.hash}` : null
+    return url.origin === 'https://nagarikwatch.local'
+      ? `${url.pathname}${url.search}${url.hash}`
+      : null
   } catch {
     return null
   }

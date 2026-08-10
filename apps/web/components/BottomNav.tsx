@@ -7,7 +7,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
 import { patroEntryHref } from '@/lib/calendar-host'
 
-/** Portal mobile IA: Home / Latest / Search / Calendar / Account. */
+/** Portal mobile IA: Home / Latest / Calendar (Patro) / Search / Account. */
 type BottomNavProps = {
   locale: Locale
   /** Logged-in profile or login path from PublicShell. */
@@ -18,6 +18,7 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
   const dict = getDictionary(locale)
   const pathname = usePathname() ?? '/'
   const lang = locale === 'en' ? 'en' : 'ne'
+  const isEn = locale === 'en'
   const resolvedAccountHref = accountHref ?? localizeHref(locale, '/auth/login')
 
   const items = [
@@ -32,14 +33,14 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
       match: (p: string) => p.endsWith('/latest'),
     },
     {
-      key: 'search' as const,
-      href: localizeHref(locale, '/search'),
-      match: (p: string) => p.includes('/search'),
-    },
-    {
       key: 'patro' as const,
       href: patroEntryHref(locale),
       match: (p: string) => p.includes('/patro') || p.includes('/utilities/calendar'),
+    },
+    {
+      key: 'search' as const,
+      href: localizeHref(locale, '/search'),
+      match: (p: string) => p.includes('/search'),
     },
     {
       key: 'account' as const,
@@ -55,34 +56,46 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
 
   const labels: Record<(typeof items)[number]['key'], string> = {
     home: dict.home,
-    latest: dict.navLatest,
-    search: dict.search,
-    patro: locale === 'en' ? 'Calendar' : 'पात्रो',
-    account: locale === 'en' ? 'Account' : 'खाता',
+    latest: isEn ? 'Latest' : 'ताजा',
+    patro: isEn ? 'Calendar' : 'पात्रो',
+    search: isEn ? 'Search' : 'खोज',
+    account: isEn ? 'Account' : 'खाता',
   }
 
   return (
     <nav
       aria-label={dict.bottomNavAria}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-surface/98 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_8px_rgba(0,0,0,0.06)] lg:hidden"
     >
       <ul className="mx-auto flex max-w-page items-stretch justify-around">
         {items.map((item) => {
           const active = item.match(pathname)
+          const isPatro = item.key === 'patro'
           const className = `flex h-14 w-full cursor-pointer flex-col items-center justify-center gap-0.5 text-[0.6875rem] transition-colors duration-fast ease-out-quint ${
             active
-              ? 'font-bold text-brand-strong'
-              : 'font-medium text-ink-soft hover:text-brand-strong'
+              ? 'font-extrabold text-brand-strong'
+              : 'font-semibold text-ink-soft hover:text-brand-strong'
           }`
 
           return (
             <li key={item.key} className="relative flex-1">
               {active ? (
-                <span className="absolute inset-x-3 top-0 h-0.5 bg-brand" aria-hidden="true" />
+                <span
+                  className="absolute inset-x-3 top-0 h-0.5 bg-brand-strong"
+                  aria-hidden="true"
+                />
               ) : null}
-              <Link href={item.href} aria-current={active ? 'page' : undefined} className={className}>
-                <Icon name={item.key} active={active} />
-                <span lang={lang}>{labels[item.key]}</span>
+              <Link
+                href={item.href}
+                aria-current={active ? 'page' : undefined}
+                className={className}
+              >
+                <div className={isPatro && !active ? 'text-brand' : ''}>
+                  <Icon name={item.key} active={active} />
+                </div>
+                <span lang={lang} className={active ? 'text-brand-strong' : 'text-ink-soft'}>
+                  {labels[item.key]}
+                </span>
               </Link>
             </li>
           )
@@ -99,16 +112,16 @@ function Icon({
   name,
   active,
 }: {
-  name: 'home' | 'latest' | 'search' | 'patro' | 'account'
+  name: 'home' | 'latest' | 'patro' | 'search' | 'account'
   active: boolean
 }) {
   const common = {
-    width: 22,
-    height: 22,
+    width: 20,
+    height: 20,
     viewBox: '0 0 24 24',
     fill: 'none',
     stroke: 'currentColor',
-    strokeWidth: active ? 2.2 : 1.8,
+    strokeWidth: active ? 2.3 : 1.8,
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
     'aria-hidden': true,
@@ -128,13 +141,6 @@ function Icon({
           <circle cx="12" cy="12" r="9" />
         </svg>
       )
-    case 'search':
-      return (
-        <svg {...common}>
-          <circle cx="11" cy="11" r="7" />
-          <path d="m21 21-4.3-4.3" />
-        </svg>
-      )
     case 'patro':
       return (
         <svg {...common}>
@@ -142,6 +148,13 @@ function Icon({
           <path d="M8 3.5v3" />
           <path d="M16 3.5v3" />
           <path d="M3.5 10h17" />
+        </svg>
+      )
+    case 'search':
+      return (
+        <svg {...common}>
+          <circle cx="11" cy="11" r="7" />
+          <path d="m21 21-4.3-4.3" />
         </svg>
       )
     case 'account':

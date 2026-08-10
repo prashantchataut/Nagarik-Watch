@@ -37,7 +37,9 @@ export async function POST(request: NextRequest) {
 
   await recordRankingEvent({
     articleSlug,
-    articleCategory: String(body.articleCategory ?? '').trim().slice(0, 80),
+    articleCategory: String(body.articleCategory ?? '')
+      .trim()
+      .slice(0, 80),
     type,
   })
 

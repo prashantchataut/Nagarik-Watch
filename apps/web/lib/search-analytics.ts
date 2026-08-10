@@ -169,8 +169,5 @@ export async function getSearchAnalyticsSummary(days = 30): Promise<SearchAnalyt
       })),
     )
   }
-  return aggregate(
-    (await readLocal()).filter((event) => Date.parse(event.at) >= cutoff.getTime()),
-  )
+  return aggregate((await readLocal()).filter((event) => Date.parse(event.at) >= cutoff.getTime()))
 }
-

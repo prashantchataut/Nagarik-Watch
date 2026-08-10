@@ -45,9 +45,7 @@ export type NewsroomSession = ReaderSession & {
  */
 export function hasBetterAuthSessionCookie(cookieHeader: string | null): boolean {
   if (!cookieHeader) return false
-  return /(?:^|;\s*)(?:__Secure-)?better-auth\.(?:session_token|session_data)=/i.test(
-    cookieHeader,
-  )
+  return /(?:^|;\s*)(?:__Secure-)?better-auth\.(?:session_token|session_data)=/i.test(cookieHeader)
 }
 
 const NEWSROOM_ROLES: ReadonlySet<NewsroomRole> = new Set<NewsroomRole>([

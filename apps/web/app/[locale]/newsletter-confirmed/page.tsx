@@ -32,12 +32,15 @@ export default async function NewsletterConfirmedPage({ params }: { params: Prom
         <p className="text-meta font-semibold text-brand-strong" lang="ne">
           न्यूजलेटर
         </p>
-        <h1 className="mt-2 font-display text-[clamp(1.8rem,4vw,2.6rem)] leading-tight text-ink" lang="ne">
+        <h1
+          className="mt-2 font-display text-[clamp(1.8rem,4vw,2.6rem)] leading-tight text-ink"
+          lang="ne"
+        >
           सदस्यता पुष्टि भयो
         </h1>
         <p className="mt-3 max-w-md text-body text-ink-soft" lang="ne">
-          तपाईं अब नागरिक वाचको न्यूजलेटरमा आवद्ध हुनुभयो। दैनिक डाइजेस्ट र आवश्यक अपडेटहरू
-          तपाईंको इनबक्समा पठाइनेछन्।
+          तपाईं अब नागरिक वाचको न्यूजलेटरमा आवद्ध हुनुभयो। दैनिक डाइजेस्ट र आवश्यक अपडेटहरू तपाईंको
+          इनबक्समा पठाइनेछन्।
         </p>
         <p className="mt-4 max-w-md text-body text-ink-soft" lang="en">
           Your subscription is now active. Daily digests and major updates will arrive in your

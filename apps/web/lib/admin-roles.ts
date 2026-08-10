@@ -179,19 +179,15 @@ export const NEWSLETTER_MANAGER_ROLES: ReadonlySet<NewsroomRole> = new Set([
   'super_admin',
 ])
 
-export function assertNewsroomRole(
-  role: NewsroomRole,
-  allowed: ReadonlySet<NewsroomRole>,
-): void {
+export function assertNewsroomRole(role: NewsroomRole, allowed: ReadonlySet<NewsroomRole>): void {
   if (!allowed.has(role)) throw new Error('Permission denied for this newsroom role.')
 }
 
 export function canCreate(role: NewsroomRole): boolean {
   return CONTRIBUTOR_ROLES.has(role)
 }
-/** Anyone who can create on the desk must also be able to update after first save. */
 export function canEdit(role: NewsroomRole): boolean {
-  return EDITOR_ROLES.has(role) || canCreate(role)
+  return EDITOR_ROLES.has(role)
 }
 export function canPublish(role: NewsroomRole): boolean {
   return PUBLISHER_ROLES.has(role)
@@ -235,12 +231,81 @@ export const ADMIN_PATH_ROLE_RULES: ReadonlyArray<{
   { prefix: '/admin/users', roles: USER_MANAGER_ROLES },
   { prefix: '/admin/roles', roles: USER_MANAGER_ROLES },
   { prefix: '/admin/audit-log', roles: USER_MANAGER_ROLES },
-  { prefix: '/admin/algorithms', roles: new Set<NewsroomRole>(['analyst', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
-  { prefix: '/admin/experiments', roles: new Set<NewsroomRole>(['analyst', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
-  { prefix: '/admin/session-quality', roles: new Set<NewsroomRole>(['analyst', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
-  { prefix: '/admin/search-analytics', roles: new Set<NewsroomRole>(['analyst', 'seo_manager', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
-  { prefix: '/admin/journalists', roles: new Set<NewsroomRole>(['reviewer', 'assistant_editor', 'sub_editor', 'section_editor', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
-  { prefix: '/admin/live', roles: new Set<NewsroomRole>(['viewer', 'reviewer', 'analyst', 'moderator', 'ad_manager', 'seo_manager', 'managing_editor', 'editor_in_chief', 'publisher', 'admin', 'super_admin']) },
+  {
+    prefix: '/admin/algorithms',
+    roles: new Set<NewsroomRole>([
+      'analyst',
+      'managing_editor',
+      'editor_in_chief',
+      'publisher',
+      'admin',
+      'super_admin',
+    ]),
+  },
+  {
+    prefix: '/admin/experiments',
+    roles: new Set<NewsroomRole>([
+      'analyst',
+      'managing_editor',
+      'editor_in_chief',
+      'publisher',
+      'admin',
+      'super_admin',
+    ]),
+  },
+  {
+    prefix: '/admin/session-quality',
+    roles: new Set<NewsroomRole>([
+      'analyst',
+      'managing_editor',
+      'editor_in_chief',
+      'publisher',
+      'admin',
+      'super_admin',
+    ]),
+  },
+  {
+    prefix: '/admin/search-analytics',
+    roles: new Set<NewsroomRole>([
+      'analyst',
+      'seo_manager',
+      'managing_editor',
+      'editor_in_chief',
+      'publisher',
+      'admin',
+      'super_admin',
+    ]),
+  },
+  {
+    prefix: '/admin/journalists',
+    roles: new Set<NewsroomRole>([
+      'reviewer',
+      'assistant_editor',
+      'sub_editor',
+      'section_editor',
+      'managing_editor',
+      'editor_in_chief',
+      'publisher',
+      'admin',
+      'super_admin',
+    ]),
+  },
+  {
+    prefix: '/admin/live',
+    roles: new Set<NewsroomRole>([
+      'viewer',
+      'reviewer',
+      'analyst',
+      'moderator',
+      'ad_manager',
+      'seo_manager',
+      'managing_editor',
+      'editor_in_chief',
+      'publisher',
+      'admin',
+      'super_admin',
+    ]),
+  },
   { prefix: '/admin/comments', roles: COMMENT_MODERATOR_ROLES },
   { prefix: '/admin/contact', roles: COMMUNITY_MANAGER_ROLES },
   { prefix: '/admin/submissions', roles: COMMUNITY_MANAGER_ROLES },

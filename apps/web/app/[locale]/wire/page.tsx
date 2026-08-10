@@ -8,11 +8,7 @@ export const metadata: Metadata = {
 }
 
 /** External wire digest retired — readers stay on Nagarik Watch content. */
-export default async function WireDigestPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function WireDigestPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   redirect(localizeHref(locale, '/latest'))
 }

@@ -768,7 +768,9 @@ export async function recordReading(input: ReadingInput) {
   const sameSession = previous?.sessionId === input.sessionId
   const previousLastSessionSeconds = previous?.lastSessionSeconds ?? previous?.dwellSeconds ?? 0
   const previousTotal = previous?.dwellSeconds ?? 0
-  const sessionSeconds = sameSession ? Math.max(previousLastSessionSeconds, safeSeconds) : safeSeconds
+  const sessionSeconds = sameSession
+    ? Math.max(previousLastSessionSeconds, safeSeconds)
+    : safeSeconds
   const dwellSeconds = sameSession
     ? Math.max(0, previousTotal - previousLastSessionSeconds) + sessionSeconds
     : previousTotal + sessionSeconds
@@ -1140,7 +1142,10 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
           if (sample) samples.push(sample)
         }
       } catch (error) {
-        console.error('[trending] sample query failed', error instanceof Error ? error.message : error)
+        console.error(
+          '[trending] sample query failed',
+          error instanceof Error ? error.message : error,
+        )
       }
     }
 

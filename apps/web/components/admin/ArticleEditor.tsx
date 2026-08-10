@@ -7,10 +7,7 @@ import type { Author, Category, Tag } from '@nagarikwatch/db'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import { canPublish, canEdit, canDelete } from '@/lib/admin-roles'
 import { AdminInput, AdminTextarea, AdminSelect, AdminButton } from '@/components/admin/primitives'
-import {
-  HeroMediaField,
-  type HeroMediaLibraryItem,
-} from '@/components/admin/HeroMediaField'
+import { HeroMediaField, type HeroMediaLibraryItem } from '@/components/admin/HeroMediaField'
 import { StoryBodyEditor } from '@/components/newsroom/StoryBodyEditor'
 import type { EditorPreferences } from '@/lib/editor-preferences-types'
 import { PROVINCES } from '@/lib/site'
@@ -106,7 +103,10 @@ const SOURCE_TYPES = [
   { value: 'wire', label: 'वायर' },
 ]
 
-function mapSaveError(status: number, err: { error?: string; message?: string; cmsUrl?: string }): string {
+function mapSaveError(
+  status: number,
+  err: { error?: string; message?: string; cmsUrl?: string },
+): string {
   const base = err.error ?? err.message ?? 'सुरक्षित गर्न सकिएन'
   if (status === 503 && /BLOB|R2|storage|DATABASE_URL|Postgres/i.test(base)) {
     return `${base} — /admin/launch मा भण्डारण र DATABASE_URL जाँच गर्नुहोस्।`
@@ -234,7 +234,12 @@ export function ArticleEditor({
           const heroImageAlt = read('heroImageAlt', draft.heroImageAlt) || undefined
           const publishedAtRaw = read('publishedAt', draft.publishedAt)
 
-          if (!read('titleNe', draft.titleNe) || !read('category', draft.category) || !draft.bodyNe.trim() || !read('slug', draft.slug)) {
+          if (
+            !read('titleNe', draft.titleNe) ||
+            !read('category', draft.category) ||
+            !draft.bodyNe.trim() ||
+            !read('slug', draft.slug)
+          ) {
             throw new Error('शीर्षक, विभाग, स्लग र मूल भाग अनिवार्य छन्।')
           }
           if (workflowStage === 'published' || workflowStage === 'updated') {
@@ -287,12 +292,11 @@ export function ArticleEditor({
               return Number.isFinite(parsed) ? new Date(parsed).toISOString() : undefined
             })(),
             publishedAt:
-              workflowStage === 'scheduled'
-                ? new Date(publishedAtRaw).toISOString()
-                : undefined,
+              workflowStage === 'scheduled' ? new Date(publishedAtRaw).toISOString() : undefined,
             seoTitleNe: read('seoTitle', draft.seoTitle) || undefined,
             seoDescriptionNe: read('seoDescription', draft.seoDescription) || undefined,
-            noIndex: workflowStage === 'published' || workflowStage === 'updated' ? false : draft.noIndex,
+            noIndex:
+              workflowStage === 'published' || workflowStage === 'updated' ? false : draft.noIndex,
             includeInNewsSitemap: workflowStage === 'published' || workflowStage === 'updated',
             aiSummary: read('aiSummary', draft.aiSummary) || undefined,
             premium: draft.premium,

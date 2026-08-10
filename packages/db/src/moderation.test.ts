@@ -62,11 +62,7 @@ describe('moderation scoring', () => {
     })
 
     expect(risky.score).toBeGreaterThan(ordinary.score)
-    expect(risky.flags).toEqual([
-      'high_reject_rate',
-      'high_link_density',
-      'posting_burst',
-    ])
+    expect(risky.flags).toEqual(['high_reject_rate', 'high_link_density', 'posting_burst'])
   })
 
   it('discounts sparse reject history', () => {

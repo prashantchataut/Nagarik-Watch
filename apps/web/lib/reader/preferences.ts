@@ -5,7 +5,14 @@ export const READER_PREFERENCES_EVENT = 'nw-reader-preferences-change'
 
 function list(value: unknown): string[] {
   if (!Array.isArray(value)) return []
-  return [...new Set(value.map(String).map((item) => item.trim().toLowerCase()).filter(Boolean))].slice(0, 50)
+  return [
+    ...new Set(
+      value
+        .map(String)
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ].slice(0, 50)
 }
 
 function hour(value: unknown, fallback: number | null): number | null {
@@ -29,7 +36,10 @@ function normalize(value: unknown): ReaderPreferences | null {
     browserAlerts: Boolean(input.browserAlerts),
     quietStart: hour(input.quietStart, 22),
     quietEnd: hour(input.quietEnd, 7),
-    timeZone: typeof input.timeZone === 'string' && input.timeZone.trim() ? input.timeZone.trim() : 'Asia/Kathmandu',
+    timeZone:
+      typeof input.timeZone === 'string' && input.timeZone.trim()
+        ? input.timeZone.trim()
+        : 'Asia/Kathmandu',
     updatedAt: typeof input.updatedAt === 'string' ? input.updatedAt : new Date(0).toISOString(),
   }
 }
@@ -39,7 +49,9 @@ export function readLocalReaderPreferences(): ReaderPreferences | null {
   try {
     const current = normalize(JSON.parse(localStorage.getItem(READER_PREFERENCES_KEY) ?? 'null'))
     if (current) return current
-    const legacy = normalize(JSON.parse(localStorage.getItem('nagarik-watch:reader-preferences:v1') ?? 'null'))
+    const legacy = normalize(
+      JSON.parse(localStorage.getItem('nagarik-watch:reader-preferences:v1') ?? 'null'),
+    )
     if (legacy) writeLocalReaderPreferences(legacy)
     return legacy
   } catch {

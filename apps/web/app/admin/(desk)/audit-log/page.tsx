@@ -1,7 +1,12 @@
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { listAuditEvents } from '@/lib/audit-log'
-import { AdminPageHeader, AdminCard, AdminEmptyState, AdminTable } from '@/components/admin/primitives'
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminEmptyState,
+  AdminTable,
+} from '@/components/admin/primitives'
 
 export const metadata: Metadata = {
   title: 'अडिट लग',
@@ -21,15 +26,31 @@ export default async function AuditLogPage() {
         {events.length ? (
           <AdminTable>
             <thead>
-              <tr><th>Time</th><th>Actor</th><th>Action</th><th>Target</th><th>Summary</th></tr>
+              <tr>
+                <th>Time</th>
+                <th>Actor</th>
+                <th>Action</th>
+                <th>Target</th>
+                <th>Summary</th>
+              </tr>
             </thead>
             <tbody>
               {events.map((event) => (
                 <tr key={event.id}>
-                  <td className="text-caption text-mute" lang="en">{new Date(event.createdAt).toLocaleString()}</td>
-                  <td className="text-meta text-ink-soft" lang="en">{event.actorEmail}<br /><span className="text-caption text-mute">{event.actorRole}</span></td>
-                  <td><span className="admin-status admin-status--neutral">{event.action}</span></td>
-                  <td className="font-mono text-caption text-ink-soft">{event.targetType}:{event.targetId}</td>
+                  <td className="text-caption text-mute" lang="en">
+                    {new Date(event.createdAt).toLocaleString()}
+                  </td>
+                  <td className="text-meta text-ink-soft" lang="en">
+                    {event.actorEmail}
+                    <br />
+                    <span className="text-caption text-mute">{event.actorRole}</span>
+                  </td>
+                  <td>
+                    <span className="admin-status admin-status--neutral">{event.action}</span>
+                  </td>
+                  <td className="font-mono text-caption text-ink-soft">
+                    {event.targetType}:{event.targetId}
+                  </td>
                   <td className="text-meta text-ink">{event.summary}</td>
                 </tr>
               ))}

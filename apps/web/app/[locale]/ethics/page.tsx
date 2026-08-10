@@ -19,7 +19,12 @@ export default async function EthicsPage({ params }: { params: Promise<Params> }
 
   return (
     <div className="mx-auto max-w-page px-4 py-10">
-      <InfoPageHeader kicker={dict.ethicsKicker} title={dict.footerEthics} lead={dict.ethicsLead} lang={lang} />
+      <InfoPageHeader
+        kicker={dict.ethicsKicker}
+        title={dict.footerEthics}
+        lead={dict.ethicsLead}
+        lang={lang}
+      />
 
       <div className="mt-10 space-y-10">
         <InfoSection heading={dict.ethicsAccuracyHeading} lang={lang}>
