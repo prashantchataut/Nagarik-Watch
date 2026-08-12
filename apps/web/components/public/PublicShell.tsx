@@ -23,10 +23,10 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { HtmlLangSync } from '@/components/HtmlLangSync'
 import { AdSlot } from '@/components/AdSlot'
 import { UtilityStrip } from '@/components/live/UtilityStrip'
-import type { TopicChip } from '@/components/TopicsStrip'
+import type { TopicLink } from '@/components/TopicsLinks'
 import { PUBLICATION } from '@/lib/site'
 
-function buildTopicChips(locale: Locale, tags: Awaited<ReturnType<typeof getTags>>): TopicChip[] {
+function buildTopicLinks(locale: Locale, tags: Awaited<ReturnType<typeof getTags>>): TopicLink[] {
   // Phase 0: strip shows live tags / topics, not hub synonyms of bottom nav.
   return tags.slice(0, 12).map((tag) => ({
     href: localizeHref(locale, `/tag/${tag.slug}`),
@@ -42,7 +42,8 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
     getTags().catch(() => []),
     getSession().catch(() => null),
   ])
-  const topics = buildTopicChips(locale, tags)
+  const topics = buildTopicLinks(locale, tags)
+  const adMode = getAdMode()
   const account = session
     ? (() => {
         const kind: AccountKind = resolveAccountKind(session.role)
@@ -99,6 +100,7 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
       <BottomChrome
         locale={locale}
         accountHref={account?.profileHref ?? localizeHref(locale, '/auth/login')}
+        adsOn={adMode !== 'off'}
       />
       <SaveDataBoot />
       <PwaBoot />
@@ -108,7 +110,7 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
         src={process.env.NEXT_PUBLIC_PLAUSIBLE_SRC || 'https://plausible.io/js/script.js'}
       />
       <NetworkAdScripts
-        mode={getAdMode()}
+        mode={adMode}
         network={getAdNetworkKind()}
         adsenseClient={process.env.NEXT_PUBLIC_ADSENSE_CLIENT}
         gamNetworkCode={getGamNetworkCode() || undefined}

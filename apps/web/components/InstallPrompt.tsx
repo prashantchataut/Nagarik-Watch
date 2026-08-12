@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { IconClose } from '@/components/icons/PortalIcons'
 
 type InstallChoice = { outcome: 'accepted' | 'dismissed'; platform: string }
 
@@ -112,7 +113,11 @@ export function InstallPrompt() {
   if (!visible) return null
 
   return (
-    <aside className="install-prompt" role="dialog" aria-labelledby="install-prompt-title">
+    <aside
+      className="install-prompt"
+      role="region"
+      aria-labelledby="install-prompt-title"
+    >
       <div>
         <strong id="install-prompt-title">
           {english
@@ -126,18 +131,27 @@ export function InstallPrompt() {
         </p>
       </div>
       <div className="install-prompt__actions">
-        <button type="button" className="text-action" onClick={() => void install()}>
+        <button
+          type="button"
+          className="inline-flex min-h-11 items-center justify-center border border-brand bg-brand px-3 text-caption font-extrabold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          onClick={() => void install()}
+        >
           {english ? 'Install' : 'स्थापना'}
         </button>
-        <button type="button" onClick={() => postpone(7, SNOOZE_UNTIL_KEY)}>
+        <button
+          type="button"
+          className="inline-flex min-h-11 items-center justify-center px-2 text-caption font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          onClick={() => postpone(7, SNOOZE_UNTIL_KEY)}
+        >
           {english ? 'Maybe later' : 'पछि सम्झाउनुहोस्'}
         </button>
         <button
           type="button"
+          className="inline-flex h-11 w-11 items-center justify-center border border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           aria-label={english ? 'Dismiss install suggestion' : 'स्थापना सुझाव बन्द गर्नुहोस्'}
           onClick={() => postpone(30, DISMISSED_UNTIL_KEY)}
         >
-          ×
+          <IconClose width={18} height={18} />
         </button>
       </div>
     </aside>

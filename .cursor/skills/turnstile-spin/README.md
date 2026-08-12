@@ -1,45 +1,196 @@
-# turnstile-spin (skill)
+# turnstile-siteverify (Worker template)
 
-End-to-end setup skill for Cloudflare Turnstile. Loads when an agent is asked to add Turnstile, set up CAPTCHA, or protect a form from bots.
+The managed siteverify Worker template that ships inside the [Turnstile Spin](https://developers.cloudflare.com/turnstile/spin/) skill. The Spin agent deploys this template into the user's Cloudflare account as the backend for `siteverify` token validation.
 
-This is a mirror of the canonical docs page at [`developers.cloudflare.com/turnstile/spin`](https://developers.cloudflare.com/turnstile/spin/). If the two disagree, the docs page wins.
+You are reading this either because the Spin skill copied it into your project directory, or because you navigated to `cloudflare/skills/skills/turnstile-spin/templates/worker/` directly.
 
-## Layout
+## Manual deploy
 
-| File                              | Purpose                                                                |
-| --------------------------------- | ---------------------------------------------------------------------- |
-| `SKILL.md`                        | Main wizard instructions for the agent                                 |
-| `references/vanilla-html.md`      | Code snippet for static / vanilla HTML projects                        |
-| `references/nextjs-app.md`        | Code snippet for Next.js App Router projects                           |
-| `references/nextjs-pages.md`      | Code snippet for Next.js Pages Router projects                         |
-| `references/astro.md`             | Code snippet for Astro projects                                        |
-| `references/sveltekit.md`         | Code snippet for SvelteKit projects                                    |
-| `references/hugo.md`              | Code snippet for Hugo projects                                         |
-| `tests/validation.md`             | Validation cases matching the MVP rows in the PRD                      |
-
-## How agents load it
-
-Agents that load skill bundles from `github.com/cloudflare/skills` will pick this up automatically. For agents that load skills out of a local directory:
+If you have this directory on disk and want to deploy it yourself:
 
 ```sh
-# Claude Code
-mkdir -p .claude/skills/turnstile-spin && \
-  curl -sSL https://developers.cloudflare.com/turnstile/spin.md \
-  -o .claude/skills/turnstile-spin/SKILL.md
+npm install
 
-# Or, install the whole skills bundle into a global location
-git clone https://github.com/cloudflare/skills ~/.config/cloudflare-skills
-ln -s ~/.config/cloudflare-skills/turnstile-spin ~/.claude/skills/turnstile-spin
+# Set your Turnstile secret as a Worker secret (never commit this).
+npx wrangler secret put TURNSTILE_SECRET_KEY
+
+# Deploy.
+npx wrangler deploy
 ```
 
-For other agents, see the table in [`SKILL.md`](./SKILL.md#step-8--persist-the-skill).
+Wrangler prints the deployed URL. Point your frontend's form `action` (or `fetch` target) at it. Confirm the integration with a curl:
 
-## Sync with the docs page
+```sh
+curl -sf https://<your-worker-url>/health
+# {"ok":true,"version":"1.0.0"}
+```
 
-The canonical source of truth is `src/content/docs/turnstile/spin/index.mdx` in the `cloudflare-docs` repo. This skill mirrors that content with the JSX stripped out. CI keeps them in sync on each docs release; if you are hand-editing, mirror your change to both places.
+## Endpoints
+
+| Method | Path           | Purpose                                                                |
+| ------ | -------------- | ---------------------------------------------------------------------- |
+| POST   | `/`            | Siteverify proxy. Accepts JSON or form-encoded body.                   |
+| POST   | `/siteverify`  | Alias of `POST /`.                                                     |
+| GET    | `/health`      | Health check. Returns `{"ok": true, "version": "..."}`.                |
+| GET    | `/`            | Same as `/health`.                                                     |
+
+### Request
+
+JSON body:
+
+```json
+{
+	"token": "TURNSTILE_TOKEN_FROM_WIDGET",
+	"remoteip": "1.2.3.4",
+	"idempotency_key": "optional-uuid"
+}
+```
+
+Form-encoded body:
+
+```
+token=...&remoteip=1.2.3.4
+```
+
+`cf-turnstile-response` is accepted as an alias for `token` in both body types, so a `<form>` posting directly to the Worker works without any client-side JavaScript.
+
+### Response
+
+```json
+{
+	"success": true,
+	"challenge_ts": "2026-05-29T12:00:00Z",
+	"hostname": "example.com",
+	"action": "turnstile-spin-v1",
+	"error-codes": [],
+	"_worker": {
+		"duration_ms": 87,
+		"worker_version": "1.0.0"
+	}
+}
+```
+
+On validation failure, `success` is `false` and `error-codes` lists the reasons. The HTTP status is `200` regardless of validation outcome (callers should check `response.success`). On Worker-level failures, the HTTP status reflects the error class (400 for bad input, 415 for unsupported content type, 500 for missing secret, 502/504 for upstream issues).
+
+#### Error codes
+
+| Code                       | Meaning                                                             |
+| -------------------------- | ------------------------------------------------------------------- |
+| `missing-input-secret`     | `TURNSTILE_SECRET_KEY` not set                                      |
+| `invalid-input-secret`     | Secret rejected by upstream                                         |
+| `missing-token`            | No token in the request body                                        |
+| `invalid-input-response`   | Token rejected by upstream                                          |
+| `timeout-or-duplicate`     | Token expired (>5min) or already validated                          |
+| `invalid-content-type`     | Body content-type was not JSON or form-encoded                      |
+| `upstream-unreachable`     | Could not reach `challenges.cloudflare.com`                         |
+| `upstream-timeout`         | Upstream took longer than 5 seconds                                 |
+| `hostname-mismatch`        | `EXPECTED_HOSTNAME` is set and the response hostname did not match  |
+| `bad-request`              | Generic catch-all for malformed input                               |
+| `internal-error`           | Unhandled error in the Worker                                       |
+
+## Configuration
+
+| Variable                | Type    | Default   | Purpose                                                             |
+| ----------------------- | ------- | --------- | ------------------------------------------------------------------- |
+| `TURNSTILE_SECRET_KEY`  | secret  | (required)| Widget secret. Set via `wrangler secret put TURNSTILE_SECRET_KEY`.  |
+| `ALLOWED_ORIGIN`        | var     | `*`       | CORS allowed origin. Lock down to your customer-facing domain.      |
+| `EXPECTED_HOSTNAME`     | var     | (unset)   | If set, reject siteverify responses where `hostname` differs.       |
+| `LOG_LEVEL`             | var     | `info`    | One of `debug`, `info`, `warn`, `error`. Filters structured logs.   |
+
+Set vars in `wrangler.toml` (`[vars]` block) or via `wrangler deploy --var KEY:value`. Secrets only via `wrangler secret put`.
+
+## Frontend snippet
+
+The minimum HTML that works against this Worker:
+
+```html
+<script
+	src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+	async
+	defer
+></script>
+
+<form action="https://YOUR_WORKER_URL/" method="POST">
+	<input name="email" type="email" required />
+	<div
+		class="cf-turnstile"
+		data-sitekey="YOUR_SITEKEY"
+		data-action="turnstile-spin-v1"
+	></div>
+	<button type="submit">Submit</button>
+</form>
+```
+
+The `data-action="turnstile-spin-v1"` attribute is the Spin telemetry marker. Cloudflare uses it to measure activation rates for Spin-deployed widgets. It is account-level and aggregate; no PII. See [the docs page](https://developers.cloudflare.com/turnstile/spin/#telemetry-marker).
+
+For React, SvelteKit, Astro, Hugo, and other framework examples, see [`developers.cloudflare.com/turnstile/spin`](https://developers.cloudflare.com/turnstile/spin/#code-examples).
+
+## Production hardening
+
+After the first deploy, before pointing real traffic:
+
+| Step                                                           | Why                                                                 |
+| -------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Set `ALLOWED_ORIGIN` to your real domain in `wrangler.toml`    | Locks CORS so other sites cannot proxy through your Worker          |
+| Set `EXPECTED_HOSTNAME` if your widget is single-domain        | Defends against cross-site token replay                             |
+| Configure Workers Observability alerts on error rate > 1%      | Catches upstream outages or secret-misconfig events                 |
+| Rotate `TURNSTILE_SECRET_KEY` periodically                     | Standard secret hygiene                                             |
+| Add a [Workers rate limit](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/) if abuse warrants | Defends the Worker itself                       |
+
+## Testing
+
+```sh
+npm test                   # unit tests, mocks fetch
+npm run test:integration   # hits real siteverify with test secrets
+npm run typecheck
+npm run openapi:lint
+```
+
+Cloudflare's documented test secrets:
+
+| Secret                                  | Behavior                                  |
+| --------------------------------------- | ----------------------------------------- |
+| `1x0000000000000000000000000000000AA`   | Always succeeds                           |
+| `2x0000000000000000000000000000000AA`   | Always fails                              |
+| `3x0000000000000000000000000000000AA`   | Returns `timeout-or-duplicate`            |
+
+## Project layout
+
+```
+src/
+├── index.ts          # Fetch handler, routing, CORS, body parsing
+├── validate.ts       # siteverify call with retry + timeout
+├── observability.ts  # Structured log emission
+├── errors.ts         # SiteverifyError + response shaping
+└── types.ts          # Request/response types, error codes
+test/
+├── unit.test.ts          # Mocked siteverify
+├── integration.test.ts   # Real network, test secrets
+├── deploy.test.ts        # Deploy-to-clean-account speed assertion
+└── validation.test.ts    # Validation surface (health, hostname, structured errors)
+public/
+└── post-deploy.html  # Post-deploy form for the Deploy button path
+openapi.yaml          # OpenAPI 3.1 spec
+wrangler.toml         # Worker config
+```
+
+## Contributing
+
+Two rules:
+
+1. Keep the request/response contract stable. Customers will deploy this Worker as-is.
+2. Do not add features that require additional secrets or external services. The point is "drop in, set one secret, you are done."
+
+PRs welcome.
+
+## License
+
+MIT. See [LICENSE](./LICENSE).
 
 ## Related
 
-- [Canonical docs page](https://developers.cloudflare.com/turnstile/spin/)
-- [`cloudflare/turnstile-siteverify`](https://github.com/cloudflare/turnstile-siteverify) — the managed Worker that this skill deploys
-- [`cloudflare/skills`](https://github.com/cloudflare/skills) — root index for all Cloudflare agent skills
+- [Turnstile Spin docs](https://developers.cloudflare.com/turnstile/spin/): the canonical setup flow
+- [Cloudflare Turnstile docs](https://developers.cloudflare.com/turnstile/): product overview
+- [Server-side validation reference](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/): siteverify API
+- [Cloudflare Skills repo](https://github.com/cloudflare/skills): agent skill bundles including `turnstile-spin/`
+- [Pages Plugin for Turnstile](https://developers.cloudflare.com/pages/functions/plugins/turnstile/): for sites hosted on Cloudflare Pages

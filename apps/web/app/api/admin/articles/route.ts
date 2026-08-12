@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import { createArticle } from '@/lib/content/store/json-store'
+import { updateArticle, deleteArticle, getArticleById } from '@/lib/content/store/json-store'
 import type { StoredArticle } from '@/lib/content/store/json-store'
-import { canCreate, canPublish } from '@/lib/admin-roles'
+import { canEdit, canDelete, canPublish } from '@/lib/admin-roles'
+import type { ArticleBlock } from '@nagarikwatch/db'
 import { blocksFromShorthand } from '@/lib/content/blocks'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { recordAuditEvent } from '@/lib/audit-log'
@@ -54,26 +55,39 @@ const WORKFLOW_STAGES: StoredArticle['workflowStage'][] = [
   'retracted',
 ]
 
-function asWorkflowStage(value: unknown): StoredArticle['workflowStage'] {
-  const stage = String(value ?? 'draft')
-  return WORKFLOW_STAGES.includes(stage as StoredArticle['workflowStage'])
-    ? (stage as StoredArticle['workflowStage'])
-    : 'draft'
+function isWorkflowStage(value: unknown): value is StoredArticle['workflowStage'] {
+  return (
+    typeof value === 'string' && WORKFLOW_STAGES.includes(value as StoredArticle['workflowStage'])
+  )
 }
 
-/**
- * POST /api/admin/articles — create a new article. Editors and above can
- * create; only publishers can set workflowStage to 'published'.
- *
- * Body matches the editor contract. bodyNe/bodyEn may arrive as the editor's
- * markdown-shorthand and are converted to ArticleBlock[] before persistence.
- */
-export async function POST(request: NextRequest) {
+/** GET /api/admin/articles/[id] — fetch a single article for the editor. */
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const limited = await enforceRateLimit(request, 'admin-article-read', 120, 60_000)
+  if (limited) return limited
+  try {
+    await requireNewsroomSession()
+  } catch {
+    return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
+  }
+  const { id } = await params
+  try {
+    const article = await getArticleById(id)
+    if (!article) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
+    return NextResponse.json(article)
+  } catch (err) {
+    console.error('[admin/articles] get failed', err)
+    return NextResponse.json({ error: 'Article lookup failed.' }, { status: 503 })
+  }
+}
+
+/** PUT /api/admin/articles/[id] — update an article. Editors+ can update. */
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
   if (shouldBlockLocalContentWrites()) return payloadCanonicalBlockedResponse()
-  const limited = await enforceRateLimit(request, 'admin-article-create', 20, 60_000)
+  const limited = await enforceRateLimit(request, 'admin-article-update', 40, 60_000)
   if (limited) return limited
 
   let session
@@ -82,10 +96,10 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
   }
-  if (!canCreate(session.newsroomRole)) {
-    return NextResponse.json({ error: 'अनुमति छैन।' }, { status: 403 })
+  if (!canEdit(session.newsroomRole)) {
+    return NextResponse.json({ error: 'सम्पादन अनुमति छैन।' }, { status: 403 })
   }
-
+  const { id } = await params
   let body: Record<string, unknown>
   try {
     body = await request.json()
@@ -93,123 +107,144 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const slug = String(body.slug ?? '').trim()
-  const categorySlug = String(body.categorySlug ?? '').trim()
-  const titleNe = String(body.titleNe ?? '').trim()
-
-  if (!slug || !categorySlug || !titleNe) {
-    return NextResponse.json({ error: 'आवश्यक क्षेत्रहरू भर्नुहोस्।' }, { status: 400 })
+  const requestedStage = isWorkflowStage(body.workflowStage) ? body.workflowStage : undefined
+  if (body.workflowStage !== undefined && !requestedStage) {
+    return NextResponse.json({ error: 'Invalid workflow stage' }, { status: 400 })
   }
-
-  const requestedStage = asWorkflowStage(body.workflowStage)
-  const isPublishing = requestedStage === 'published' || requestedStage === 'updated'
-  if (isPublishing && !canPublish(session.newsroomRole)) {
+  if (requestedStage === 'published' && !canPublish(session.newsroomRole)) {
     return NextResponse.json({ error: 'प्रकाशन अनुमति छैन।' }, { status: 403 })
   }
   if (requestedStage === 'scheduled' && !canPublish(session.newsroomRole)) {
     return NextResponse.json({ error: 'तालिका अनुमति छैन।' }, { status: 403 })
   }
-  const authorIds = Array.isArray(body.authorIds) ? body.authorIds.map(String) : []
-  if (isPublishing && authorIds.length === 0) {
-    return NextResponse.json({ error: 'प्रकाशन अघि कम्तीमा एक लेखक छान्नुहोस्।' }, { status: 400 })
-  }
-  const heroImageUrl = body.heroImageUrl ? String(body.heroImageUrl) : undefined
-  const heroImageAlt = body.heroImageAlt ? String(body.heroImageAlt) : undefined
-  if (isPublishing && heroImageUrl && !heroImageAlt) {
-    return NextResponse.json({ error: 'हीरो तस्बिरको alt पाठ अनिवार्य छ।' }, { status: 400 })
+  if (requestedStage === 'published' || requestedStage === 'updated') {
+    const authorIds = Array.isArray(body.authorIds) ? body.authorIds.map(String) : null
+    if (authorIds && authorIds.length === 0) {
+      return NextResponse.json(
+        { error: 'प्रकाशन अघि कम्तीमा एक लेखक छान्नुहोस्।' },
+        { status: 400 },
+      )
+    }
+    const heroUrl = body.heroImageUrl !== undefined ? String(body.heroImageUrl ?? '').trim() : null
+    const heroAlt = body.heroImageAlt !== undefined ? String(body.heroImageAlt ?? '').trim() : null
+    if (heroUrl && !heroAlt) {
+      return NextResponse.json({ error: 'हीरो तस्बिरको alt पाठ अनिवार्य छ।' }, { status: 400 })
+    }
   }
 
   try {
-    const article = await createArticle({
-      slug,
-      categorySlug,
-      titleNe,
-      titleEn: body.titleEn ? String(body.titleEn) : undefined,
-      deckNe: body.deckNe ? String(body.deckNe) : undefined,
-      deckEn: body.deckEn ? String(body.deckEn) : undefined,
-      bodyNe: blocksFromShorthand(body.bodyNe, titleNe),
-      bodyEn: body.bodyEn ? blocksFromShorthand(body.bodyEn) : undefined,
-      heroImageUrl,
-      heroImageAlt,
-      heroCaptionNe: body.heroCaptionNe ? String(body.heroCaptionNe) : undefined,
-      heroCredit: body.heroCredit ? String(body.heroCredit) : undefined,
-      authorIds,
-      tagSlugs: Array.isArray(body.tagSlugs) ? body.tagSlugs.map(String) : [],
-      isBreaking: Boolean(body.isBreaking),
-      isFeatured: (body.isFeatured as 'lead' | 'featured' | 'secondary' | 'none') ?? 'none',
-      featuredExpiresAt: body.featuredExpiresAt
-        ? new Date(String(body.featuredExpiresAt)).toISOString()
-        : undefined,
-      workflowStage: requestedStage,
-      publishedAt:
-        requestedStage === 'scheduled' && body.publishedAt
-          ? new Date(String(body.publishedAt)).toISOString()
-          : undefined,
-      sourceType: (body.sourceType as 'original' | 'aggregated' | 'wire') ?? 'original',
-      sourceName: body.sourceName ? String(body.sourceName) : undefined,
-      sourceUrl: body.sourceUrl ? String(body.sourceUrl) : undefined,
-      seoTitleNe: body.seoTitleNe ? String(body.seoTitleNe) : undefined,
-      seoDescriptionNe: body.seoDescriptionNe ? String(body.seoDescriptionNe) : undefined,
-      noIndex: body.noIndex === undefined ? !isPublishing : Boolean(body.noIndex),
-      includeInNewsSitemap:
-        body.includeInNewsSitemap === undefined
-          ? isPublishing
-          : body.includeInNewsSitemap !== false,
-      aiSummary: body.aiSummary ? String(body.aiSummary) : undefined,
-      premium: Boolean(body.premium),
-      commentsEnabled: body.commentsEnabled === true,
-      locale: body.locale === 'en' ? 'en' : 'ne',
-      createdBy: session.userId,
-      province: body.province ? String(body.province) : undefined,
-    })
-    if (requestedStage === 'published') {
+    const patch: Record<string, unknown> = { ...body }
+    if (requestedStage === 'published' || requestedStage === 'updated') {
+      if (body.noIndex === undefined) patch.noIndex = false
+      if (body.includeInNewsSitemap === undefined) patch.includeInNewsSitemap = true
+    } else if (requestedStage) {
+      if (body.noIndex === undefined) patch.noIndex = true
+      if (body.includeInNewsSitemap === undefined) patch.includeInNewsSitemap = false
+    }
+    if (body.bodyNe !== undefined) {
+      patch.bodyNe = blocksFromShorthand(body.bodyNe, String(body.titleNe ?? '')) as ArticleBlock[]
+    }
+    if (body.bodyEn !== undefined) {
+      const bodyEn = blocksFromShorthand(body.bodyEn)
+      patch.bodyEn = bodyEn.length > 0 ? bodyEn : undefined
+    }
+
+    const updated = await updateArticle(
+      id,
+      patch as Parameters<typeof updateArticle>[1],
+      session.userId,
+      session.newsroomRole,
+    )
+    if (!updated) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
+    if (requestedStage === 'published' || requestedStage === 'updated') {
       revalidatePublishedArticle({
-        categorySlug: article.categorySlug,
-        slug: article.slug,
-        tagSlugs: article.tagSlugs,
+        categorySlug: updated.categorySlug,
+        slug: updated.slug,
+        tagSlugs: updated.tagSlugs,
       })
       try {
         await recordAuditEvent({
           session,
           action: 'publish',
           targetType: 'article',
-          targetId: article.id,
-          summary: `Article published: ${article.titleNe}`,
-          meta: { slug: article.slug, workflowStage: requestedStage },
+          targetId: updated.id,
+          summary: `Article published: ${updated.titleNe}`,
+          meta: { slug: updated.slug, workflowStage: requestedStage },
         })
       } catch (auditError) {
-        console.error('[admin/articles] audit after create-publish failed', auditError)
+        console.error('[admin/articles] audit after publish failed', auditError)
       }
+    } else {
+      // Stage may have left public visibility; still bust caches for the URL.
+      revalidatePublishedArticle({
+        categorySlug: updated.categorySlug,
+        slug: updated.slug,
+        tagSlugs: updated.tagSlugs,
+      })
     }
-    const publicPath = publicArticlePath(article.categorySlug, article.slug)
-    const visibility = isPubliclyVisibleStage(article.workflowStage) ? 'public' : 'draft'
-    return NextResponse.json(
-      {
-        ...article,
-        publicPath,
-        visibility,
-        visibilityHint:
-          visibility === 'public'
-            ? 'सार्वजनिक साइटमा देखिनुपर्छ (ताजा / विभाग / लेख URL)।'
-            : 'ड्राफ्ट मात्र सुरक्षित भयो। सार्वजनिक गर्न "प्रकाशित गर्नुहोस्" थिच्नुहोस्।',
-      },
-      { status: 201 },
-    )
+    const publicPath = publicArticlePath(updated.categorySlug, updated.slug)
+    const visibility = isPubliclyVisibleStage(updated.workflowStage) ? 'public' : 'draft'
+    return NextResponse.json({
+      ...updated,
+      publicPath,
+      visibility,
+      visibilityHint:
+        visibility === 'public'
+          ? 'सार्वजनिक साइटमा देखिनुपर्छ (ताजा / विभाग / लेख URL)।'
+          : 'ड्राफ्ट मात्र सुरक्षित भयो। सार्वजनिक गर्न "प्रकाशित गर्नुहोस्" थिच्नुहोस्।',
+    })
   } catch (err) {
-    console.error('[admin/articles] create failed', err)
+    console.error('[admin/articles] update failed', err)
     const msg = err instanceof Error ? err.message : 'सुरक्षित गर्न सकिएन।'
-    if (msg.includes('स्लग पहिले नै अवस्थित')) {
-      return NextResponse.json({ error: msg }, { status: 409 })
+    if (msg.includes('स्लग पहिले नै अवस्थित') || /unique|duplicate key/i.test(msg)) {
+      return NextResponse.json(
+        { error: msg.includes('स्लग') ? msg : 'स्लग पहिले नै अवस्थित छ।' },
+        { status: 409 },
+      )
     }
     if (/DATABASE_URL|Postgres|production/i.test(msg)) {
       return NextResponse.json({ error: msg }, { status: 503 })
     }
-    if (/unique|duplicate key/i.test(msg)) {
-      return NextResponse.json(
-        { error: 'स्लग पहिले नै अवस्थित छ। अर्को स्लग राख्नुहोस्।' },
-        { status: 409 },
-      )
-    }
     return NextResponse.json({ error: msg }, { status: 500 })
+  }
+}
+
+/** DELETE /api/admin/articles/[id] — delete an article. Super admin only. */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  if (!isTrustedWriteRequest(request)) {
+    return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
+  }
+  if (shouldBlockLocalContentWrites()) return payloadCanonicalBlockedResponse()
+  const limited = await enforceRateLimit(request, 'admin-article-delete', 10, 60_000)
+  if (limited) return limited
+
+  let session
+  try {
+    session = await requireNewsroomSession()
+  } catch {
+    return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
+  }
+  if (!canDelete(session.newsroomRole)) {
+    return NextResponse.json({ error: 'मेटाउन अनुमति छैन। केवल मुख्य एडमिन।' }, { status: 403 })
+  }
+  const { id } = await params
+  try {
+    const existing = await getArticleById(id)
+    if (!existing) return NextResponse.json({ error: 'भेटिएन।' }, { status: 404 })
+    const ok = await deleteArticle(id)
+    if (ok && isPubliclyVisibleStage(existing.workflowStage)) {
+      revalidatePublishedArticle({
+        categorySlug: existing.categorySlug,
+        slug: existing.slug,
+        tagSlugs: existing.tagSlugs,
+      })
+    }
+    return NextResponse.json({ ok, deletedId: id, deletedBy: session.userId })
+  } catch (err) {
+    console.error('[admin/articles] delete failed', err)
+    return NextResponse.json({ error: 'मेटाउन सकिएन।' }, { status: 503 })
   }
 }

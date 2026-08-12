@@ -27,31 +27,29 @@ export function LatestRail({
 
   return (
     <aside className={className} aria-labelledby={headingId}>
-      <div className="flex items-center justify-between gap-3 border-b-2 border-brand pb-2">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75" />
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-strong" />
-          </span>
+      <div className="flex items-end justify-between gap-3 border-b border-rule pb-2">
+        <div className="min-w-0">
           <h2
             id={headingId}
-            className="text-pretty font-display text-h3 font-black text-ink"
+            className="text-pretty font-display text-h3 font-extrabold text-ink"
             lang={english ? 'en' : 'ne'}
           >
-            {english ? 'Live Updates' : 'ताजा अपडेट'}
+            {english ? 'Latest' : 'ताजा अपडेट'}
           </h2>
+          <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
         </div>
         <Link
           href={localizeHref(locale, '/latest')}
-          className="shrink-0 text-caption font-bold text-brand-strong transition-colors duration-fast ease-out-quint hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          className="mb-0.5 shrink-0 text-caption font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           lang={english ? 'en' : 'ne'}
         >
-          {english ? 'All updates →' : 'सबै ताजा →'}
+          {english ? 'All updates' : 'सबै ताजा'}
+          <span aria-hidden="true"> →</span>
         </Link>
       </div>
 
       {compact ? (
-        <ol className="mt-1 divide-y divide-rule">
+        <ol className="divide-y divide-rule border-b border-rule">
           {items.map((story) => (
             <li key={story.id} className="py-2.5">
               <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
@@ -69,26 +67,25 @@ export function LatestRail({
           ))}
         </ol>
       ) : (
-        <div className="mt-1">
+        <div>
           <div className="py-3">
             <InstrumentedStory articleSlug={lead.slug} articleCategory={lead.category.slug}>
               <DenseStoryItem story={lead} locale={locale} showDeck showDateline thumb="lg" />
             </InstrumentedStory>
           </div>
           {briefs.length > 0 ? (
-            <ol className="grid border-t border-rule sm:grid-cols-2 lg:grid-cols-4">
-              {briefs.map((story, index) => (
-                <li
-                  key={story.id}
-                  className={`min-w-0 py-2.5 ${index % 2 === 1 ? 'border-l border-rule pl-3 sm:pl-4' : 'pr-3 sm:pr-4'} ${index >= 2 ? 'border-t border-rule lg:border-t-0' : ''} ${index > 0 ? 'lg:border-l lg:border-rule lg:pl-4' : ''}`}
-                >
+            <ol className="divide-y divide-rule border-y border-rule">
+              {briefs.map((story) => (
+                <li key={story.id} className="py-2.5">
                   <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
                     <DenseStoryItem
                       story={story}
                       locale={locale}
+                      compact
                       showDeck={false}
                       showThumb={false}
                       showDateline
+                      showMeta
                     />
                   </InstrumentedStory>
                 </li>

@@ -141,30 +141,34 @@ function VoiceStory({
 }) {
   const author = story.authors[0]
   const authorName = author?.name || (story.byline ? story.byline : '')
+  const fallbackAuthor = locale === 'en' ? 'Editorial column' : 'स्तम्भकार'
 
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-      <article
-        className={`min-w-0 rounded-md border border-rule bg-surface p-3.5 sm:p-4 ${featured ? 'border-brand/40 shadow-sm' : ''}`}
-      >
-        <div className="flex items-center gap-3 mb-2.5">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand/10 text-brand-strong font-display font-extrabold text-sm border border-brand/30">
-            {authorName ? authorName.slice(0, 2) : 'वि'}
-          </div>
-          <div className="min-w-0 leading-tight">
-            <p className="font-bold text-body text-ink truncate">
-              {authorName || (locale === 'en' ? 'Editorial Column' : 'स्तम्भकार')}
+      <article className="min-w-0">
+        <div className="flex items-center gap-3">
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-surface-raised font-display text-caption font-extrabold text-brand-strong"
+            aria-hidden="true"
+          >
+            {(authorName || fallbackAuthor).slice(0, 2)}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-meta font-bold text-ink">
+              {authorName || fallbackAuthor}
             </p>
-            <p className="text-[0.72rem] text-mute">
-              {locale === 'en' ? 'Opinion & Analysis' : 'विचार / टिप्पणी'}
+            <p className="text-caption text-mute">
+              {locale === 'en' ? 'Opinion and analysis' : 'विचार / टिप्पणी'}
             </p>
           </div>
         </div>
 
         <h3
-          className={`text-pretty font-display font-bold leading-snug text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong ${
-            featured ? 'text-h2 sm:text-[1.5rem]' : 'text-body sm:text-body-lg'
-          }`}
+          className={
+            featured
+              ? 'mt-3 text-pretty font-display text-h2 font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong sm:text-[1.7rem]'
+              : 'mt-2.5 text-pretty font-display text-body-lg font-bold leading-snug text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong'
+          }
           lang={langFor(story, locale)}
         >
           <Link href={hrefFor(story, locale)}>{titleFor(story, locale)}</Link>
@@ -172,12 +176,14 @@ function VoiceStory({
 
         {deckFor(story, locale) ? (
           <p
-            className={`mt-2 text-pretty text-body leading-relaxed text-ink-soft italic ${
-              featured ? 'line-clamp-3' : 'line-clamp-2 text-caption sm:text-meta'
-            }`}
+            className={
+              featured
+                ? 'mt-2 line-clamp-3 text-body leading-relaxed text-ink-soft'
+                : 'mt-1.5 line-clamp-2 text-meta leading-relaxed text-ink-soft'
+            }
             lang={langFor(story, locale)}
           >
-            "{deckFor(story, locale)}"
+            {deckFor(story, locale)}
           </p>
         ) : null}
       </article>
@@ -322,17 +328,19 @@ function VoicesDesk({ items, locale }: { items: StoryCardData[]; locale: Locale 
   const rest = items.slice(1, 4)
 
   return (
-    <div className="rounded-lg bg-brand-tint/35 border border-brand/20 p-4 sm:p-5">
+    <div className="bg-brand-tint/35 px-3 py-4 sm:px-5 sm:py-5">
       <div
-        className={`grid gap-4 ${rest.length ? 'lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-5' : ''}`}
+        className={`grid gap-5 ${
+          rest.length ? 'lg:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)] lg:gap-6' : ''
+        }`}
       >
-        <div>
-          <VoiceStory story={lead} locale={locale} featured />
-        </div>
+        <VoiceStory story={lead} locale={locale} featured />
         {rest.length ? (
-          <div className="flex flex-col gap-3">
+          <div className="divide-y divide-rule border-t border-rule lg:border-l lg:border-t-0 lg:pl-5">
             {rest.map((story) => (
-              <VoiceStory key={story.id} story={story} locale={locale} />
+              <div key={story.id} className="py-3 first:pt-0">
+                <VoiceStory story={story} locale={locale} />
+              </div>
             ))}
           </div>
         ) : null}

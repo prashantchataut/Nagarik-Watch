@@ -1,76 +1,83 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { getNewsroomSession } from '@/lib/auth/session'
-import { CONTRIBUTOR_ROLES } from '@/lib/admin-roles'
-import { createArticle } from '@/lib/content/store/json-store'
-import { blocksFromShorthand } from '@/lib/content/blocks'
+import { CONTRIBUTOR_ROLES, JOURNALIST_DESK_ROLES } from '@/lib/admin-roles'
+import {
+  assertWorkflowTransition,
+  reporterMayEditDraft,
+} from '@/lib/editorial/workflow-transitions'
+import { blocksFromShorthand, shorthandFromBlocks } from '@/lib/content/blocks'
+import { findArticleForAdmin, updateArticle } from '@/lib/content/store/json-store'
+import {
+  getPayloadJournalistDraft,
+  isPayloadCanonical,
+  updatePayloadJournalistDraft,
+} from '@/lib/content/payload-admin-client'
 import {
   appendJournalistDraftRevision,
-  listJournalistDraftMeta,
+  getJournalistDraftMeta,
   saveJournalistDraftMeta,
 } from '@/lib/journalist-workspace'
-import {
-  createPayloadJournalistDraft,
-  ensurePayloadAuthorForEmail,
-  isPayloadCanonical,
-} from '@/lib/content/payload-admin-client'
 import { enforceRateLimit } from '@/lib/rate-limit'
+import { isTrustedWriteRequest } from '@/lib/security/origin'
+import { recordAuditEvent } from '@/lib/audit-log'
 
 export const dynamic = 'force-dynamic'
 
-function asWorkflowStage(value: unknown): 'draft' | 'submitted' {
-  return value === 'submitted' ? 'submitted' : 'draft'
+async function context(id: string) {
+  const session = await getNewsroomSession()
+  if (!session || !CONTRIBUTOR_ROLES.has(session.newsroomRole)) return { session: null, meta: null }
+  return { session, meta: await getJournalistDraftMeta(id, session.userId) }
 }
 
-function cleanTags(value: unknown): string[] {
+function tags(value: unknown): string[] {
   const items = Array.isArray(value) ? value.map(String) : String(value ?? '').split(',')
-  return [...new Set(items.map((tag) => tag.trim().toLowerCase()).filter(Boolean))].slice(0, 30)
+  return [...new Set(items.map((item) => item.trim().toLowerCase()).filter(Boolean))].slice(0, 30)
 }
 
-function notificationMode(value: unknown): 'none' | 'breaking' | 'followers' {
+function mode(value: unknown): 'none' | 'breaking' | 'followers' {
   return value === 'breaking' || value === 'followers' ? value : 'none'
 }
 
-function handoffNotes(body: Record<string, unknown>): string | undefined {
-  const notes = [
-    String(body.sourceNote ?? '').trim() ? `Source note: ${String(body.sourceNote).trim()}` : '',
-    String(body.reportingLocation ?? '').trim()
-      ? `Reporting location: ${String(body.reportingLocation).trim()}`
-      : '',
-    String(body.heroImageUrl ?? '').trim()
-      ? `Hero image candidate: ${String(body.heroImageUrl).trim()}`
-      : '',
-    String(body.customHomepageText ?? '').trim()
-      ? `Homepage text: ${String(body.customHomepageText).trim()}`
-      : '',
-    String(body.customSocialText ?? '').trim()
-      ? `Social text: ${String(body.customSocialText).trim()}`
-      : '',
-    notificationMode(body.notificationMode) !== 'none'
-      ? `Notification recommendation: ${notificationMode(body.notificationMode)}`
-      : '',
-  ].filter(Boolean)
-  return notes.length ? notes.join('\n\n') : undefined
-}
-
-async function writerSession() {
-  const session = await getNewsroomSession()
-  return session && CONTRIBUTOR_ROLES.has(session.newsroomRole) ? session : null
-}
-
-export async function GET() {
-  const session = await writerSession()
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const id = decodeURIComponent((await params).id)
+  const { session, meta } = await context(id)
   if (!session) return NextResponse.json({ error: 'Journalist access required.' }, { status: 403 })
-  return NextResponse.json({ drafts: await listJournalistDraftMeta(session.userId) })
+  if (!meta) return NextResponse.json({ error: 'Draft not found.' }, { status: 404 })
+
+  try {
+    if (isPayloadCanonical()) {
+      if (!meta.articleId)
+        return NextResponse.json(
+          { error: 'This legacy draft is not linked to Payload.' },
+          { status: 409 },
+        )
+      const draft = await getPayloadJournalistDraft(meta.articleId)
+      return NextResponse.json({
+        draft: { ...draft, bodyText: shorthandFromBlocks(draft.bodyNe), meta },
+      })
+    }
+    const article = await findArticleForAdmin(meta.articleId || meta.articleSlug)
+    if (!article) return NextResponse.json({ error: 'Draft not found.' }, { status: 404 })
+    return NextResponse.json({
+      draft: { ...article, bodyText: shorthandFromBlocks(article.bodyNe), meta },
+    })
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Could not load draft.' },
+      { status: 502 },
+    )
+  }
 }
 
-export async function POST(request: NextRequest) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!isTrustedWriteRequest(request))
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
-  const limited = await enforceRateLimit(request, 'journalist-draft-create', 12, 60_000)
+  const limited = await enforceRateLimit(request, 'journalist-draft-update', 30, 60_000)
   if (limited) return limited
-  const session = await writerSession()
+  const id = decodeURIComponent((await params).id)
+  const { session, meta } = await context(id)
   if (!session) return NextResponse.json({ error: 'Journalist access required.' }, { status: 403 })
+  if (!meta) return NextResponse.json({ error: 'Draft not found.' }, { status: 404 })
 
   let body: Record<string, unknown>
   try {
@@ -78,107 +85,128 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
-
   const titleNe = String(body.titleNe ?? '').trim()
-  const slug = String(body.slug ?? '').trim()
   const categorySlug = String(body.categorySlug ?? '').trim()
-  const bodyNe = String(body.bodyNe ?? '').trim()
-  if (!titleNe || !slug || !categorySlug || !bodyNe) {
+  const bodyText = String(body.bodyNe ?? '').trim()
+  const workflowStage = body.workflowStage === 'submitted' ? 'submitted' : 'draft'
+  if (!titleNe || !categorySlug || !bodyText)
+    return NextResponse.json({ error: 'Title, category and body are required.' }, { status: 400 })
+
+  const articleId = meta.articleId || id
+  const existingArticle = isPayloadCanonical() ? null : await findArticleForAdmin(articleId)
+  const currentStage = existingArticle?.workflowStage ?? meta.workflowStage ?? 'draft'
+
+  const isReporter = JOURNALIST_DESK_ROLES.has(session.newsroomRole)
+  if (
+    isReporter &&
+    !reporterMayEditDraft(currentStage as import('@nagarikwatch/db').WorkflowStage)
+  ) {
     return NextResponse.json(
-      { error: 'Title, slug, category and body are required.' },
-      { status: 400 },
+      { error: 'This draft is in review and cannot be edited.' },
+      { status: 409 },
     )
   }
+  if (workflowStage !== currentStage) {
+    try {
+      assertWorkflowTransition({
+        role: session.newsroomRole,
+        from: currentStage as Parameters<typeof assertWorkflowTransition>[0]['from'],
+        to: workflowStage as Parameters<typeof assertWorkflowTransition>[0]['to'],
+      })
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : 'Invalid workflow transition.' },
+        { status: 403 },
+      )
+    }
+  }
+  const tagSlugs = tags(body.tagSlugs)
+  const requestedNotificationTags = tags(body.notificationTags)
+  const notificationTags = requestedNotificationTags.length
+    ? requestedNotificationTags.filter((slug) => tagSlugs.includes(slug))
+    : tagSlugs
+  const internalNotes =
+    [
+      body.sourceNote ? `Source note: ${String(body.sourceNote).trim()}` : '',
+      body.reportingLocation ? `Reporting location: ${String(body.reportingLocation).trim()}` : '',
+      body.customHomepageText ? `Homepage text: ${String(body.customHomepageText).trim()}` : '',
+      body.customSocialText ? `Social text: ${String(body.customSocialText).trim()}` : '',
+      mode(body.notificationMode) !== 'none'
+        ? `Notification recommendation: ${mode(body.notificationMode)}`
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n\n') || undefined
 
   try {
-    const workflowStage = asWorkflowStage(body.workflowStage)
-    const tagSlugs = cleanTags(body.tagSlugs ?? body.tags)
-    const requestedNotificationTags = cleanTags(body.notificationTags)
-    const notificationTags = requestedNotificationTags.length
-      ? requestedNotificationTags.filter((slug) => tagSlugs.includes(slug))
-      : tagSlugs
-    const bodyBlocks = blocksFromShorthand(bodyNe, titleNe)
-    const editorPitch = String(body.editorPitch ?? '').trim() || undefined
-    if (isPayloadCanonical()) {
-      await ensurePayloadAuthorForEmail({
-        email: session.email,
-        name: session.email.split('@')[0],
-        role: 'contributor',
-      })
-    }
     const article = isPayloadCanonical()
-      ? await createPayloadJournalistDraft({
-          reporterEmail: session.email,
+      ? await updatePayloadJournalistDraft(articleId, {
           titleNe,
           titleEn: String(body.titleEn ?? '').trim() || undefined,
-          slug,
+          slug: meta.articleSlug,
           categorySlug,
           deckNe: String(body.deckNe ?? '').trim() || undefined,
-          bodyNe: bodyBlocks,
+          bodyNe: blocksFromShorthand(bodyText, titleNe),
           tagSlugs,
           workflowStage,
-          editorPitch,
+          editorPitch: String(body.editorPitch ?? '').trim() || undefined,
           homepageTeaserNe: String(body.customHomepageText ?? '').trim() || undefined,
           socialCopyNe: String(body.customSocialText ?? '').trim() || undefined,
           reportingLocation: String(body.reportingLocation ?? '').trim() || undefined,
           sourceNote: String(body.sourceNote ?? '').trim() || undefined,
           mediaReferenceUrl: String(body.heroImageUrl ?? '').trim() || undefined,
-          internalNotes: handoffNotes(body),
+          internalNotes,
           locale: body.locale === 'en' ? 'en' : 'ne',
-          notificationMode: notificationMode(body.notificationMode),
+          notificationMode: mode(body.notificationMode),
           notificationTagSlugs: notificationTags,
         })
-      : await createArticle({
-          slug,
-          categorySlug,
-          titleNe,
-          titleEn: String(body.titleEn ?? '').trim() || undefined,
-          deckNe: String(body.deckNe ?? '').trim() || undefined,
-          homepageTeaserNe: String(body.customHomepageText ?? '').trim() || undefined,
-          socialCopyNe: String(body.customSocialText ?? '').trim() || undefined,
-          reportingLocation: String(body.reportingLocation ?? '').trim() || undefined,
-          sourceNote: String(body.sourceNote ?? '').trim() || undefined,
-          editorPitch,
-          mediaReferenceUrl: String(body.heroImageUrl ?? '').trim() || undefined,
-          bodyNe: bodyBlocks,
-          heroImageUrl: String(body.heroImageUrl ?? '').trim() || undefined,
-          heroImageAlt: String(body.heroImageAlt ?? '').trim() || titleNe,
-          authorIds: [],
-          tagSlugs,
-          workflowStage,
-          sourceType: 'original',
-          noIndex: true,
-          includeInNewsSitemap: false,
-          premium: false,
-          commentsEnabled: true,
-          locale: body.locale === 'en' ? 'en' : 'ne',
-          createdBy: session.userId,
-          province: String(body.province ?? '').trim() || undefined,
-          district: String(body.district ?? '').trim() || undefined,
-          exclusive: body.exclusive === true,
-          editorPick: body.editorPick === true,
-        })
-
-    const meta = await saveJournalistDraftMeta({
-      articleId: String(article.id),
-      articleSlug: slug,
+      : await updateArticle(
+          articleId,
+          {
+            titleNe,
+            titleEn: String(body.titleEn ?? '').trim() || undefined,
+            categorySlug,
+            deckNe: String(body.deckNe ?? '').trim() || undefined,
+            bodyNe: blocksFromShorthand(bodyText, titleNe),
+            homepageTeaserNe: String(body.customHomepageText ?? '').trim() || undefined,
+            socialCopyNe: String(body.customSocialText ?? '').trim() || undefined,
+            reportingLocation: String(body.reportingLocation ?? '').trim() || undefined,
+            sourceNote: String(body.sourceNote ?? '').trim() || undefined,
+            editorPitch: String(body.editorPitch ?? '').trim() || undefined,
+            mediaReferenceUrl: String(body.heroImageUrl ?? '').trim() || undefined,
+            heroImageUrl: String(body.heroImageUrl ?? '').trim() || undefined,
+            tagSlugs,
+            workflowStage,
+            province: String(body.province ?? '').trim() || undefined,
+            district: String(body.district ?? '').trim() || undefined,
+            exclusive: body.exclusive === true,
+            editorPick: body.editorPick === true,
+          },
+          session.userId,
+          session.newsroomRole,
+        )
+    if (!article) return NextResponse.json({ error: 'Draft not found.' }, { status: 404 })
+    const nextMeta = await saveJournalistDraftMeta({
+      ...meta,
+      articleId,
+      articleSlug: meta.articleSlug,
       titleNe,
       categorySlug,
       workflowStage,
       reporterId: session.userId,
       reportingLocation: String(body.reportingLocation ?? '').trim() || undefined,
       sourceNote: String(body.sourceNote ?? '').trim() || undefined,
-      editorPitch,
+      editorPitch: String(body.editorPitch ?? '').trim() || undefined,
       mediaReferenceUrl: String(body.heroImageUrl ?? '').trim() || undefined,
       customHomepageText: String(body.customHomepageText ?? '').trim() || undefined,
       customSocialText: String(body.customSocialText ?? '').trim() || undefined,
-      notificationMode: notificationMode(body.notificationMode),
+      notificationMode: mode(body.notificationMode),
       notificationTags,
     })
     await appendJournalistDraftRevision({
-      articleId: meta.articleId,
-      articleSlug: meta.articleSlug,
-      reporterId: meta.reporterId,
+      articleId: nextMeta.articleId,
+      articleSlug: nextMeta.articleSlug,
+      reporterId: nextMeta.reporterId,
       actorId: session.userId,
       actorRole: session.newsroomRole,
       action: workflowStage === 'submitted' ? 'submitted' : 'saved',
@@ -186,26 +214,35 @@ export async function POST(request: NextRequest) {
       snapshot: {
         titleNe,
         titleEn: String(body.titleEn ?? ''),
-        slug,
+        slug: nextMeta.articleSlug,
         categorySlug,
         deckNe: String(body.deckNe ?? ''),
-        bodyNe,
+        bodyNe: bodyText,
         tagSlugs,
         reportingLocation: String(body.reportingLocation ?? ''),
         sourceNote: String(body.sourceNote ?? ''),
-        editorPitch,
+        editorPitch: String(body.editorPitch ?? ''),
         mediaReferenceUrl: String(body.heroImageUrl ?? ''),
         customHomepageText: String(body.customHomepageText ?? ''),
         customSocialText: String(body.customSocialText ?? ''),
-        notificationMode: notificationMode(body.notificationMode),
+        notificationMode: mode(body.notificationMode),
         notificationTags,
       },
     })
-
-    return NextResponse.json({ article, meta }, { status: 201 })
+    if (workflowStage === 'submitted') {
+      await recordAuditEvent({
+        session,
+        action: 'status_change',
+        targetType: 'journalist_draft',
+        targetId: nextMeta.articleId || nextMeta.articleSlug,
+        summary: `Journalist draft submitted: ${titleNe}`,
+        meta: { reporterId: session.userId, workflowStage },
+      })
+    }
+    return NextResponse.json({ article, meta: nextMeta })
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Could not save article.' },
+      { error: error instanceof Error ? error.message : 'Could not update draft.' },
       { status: 400 },
     )
   }

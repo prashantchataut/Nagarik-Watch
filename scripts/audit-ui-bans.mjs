@@ -64,6 +64,30 @@ for (const file of files) {
   }
 }
 
+// Homepage hierarchy invariants. These encode the August 9 design decision so the
+// opening package cannot silently drift back to stacked mega-heroes or multiple H1s.
+const homePagePath = join(ROOT, 'apps/web/app/[locale]/page.tsx')
+const leadPackagePath = join(ROOT, 'apps/web/components/home/LeadPackage.tsx')
+
+try {
+  const homePage = stripComments(readFileSync(homePagePath, 'utf8'))
+  if (!/LeadPackage/.test(homePage) || /PortalFeed|MegaStoryBlock/.test(homePage)) {
+    findings.push({ ban: 'homepage-opening-hierarchy', file: relative(ROOT, homePagePath) })
+  }
+} catch {
+  findings.push({ ban: 'homepage-opening-missing', file: relative(ROOT, homePagePath) })
+}
+
+try {
+  const leadPackage = stripComments(readFileSync(leadPackagePath, 'utf8'))
+  const h1Count = leadPackage.match(/<h1\b/g)?.length ?? 0
+  if (h1Count !== 1) {
+    findings.push({ ban: 'homepage-h1-count', file: relative(ROOT, leadPackagePath) })
+  }
+} catch {
+  findings.push({ ban: 'homepage-lead-package-missing', file: relative(ROOT, leadPackagePath) })
+}
+
 if (findings.length) {
   console.error('UI ban audit failed:')
   for (const row of findings) {

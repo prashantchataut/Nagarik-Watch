@@ -1,6 +1,5 @@
-import { HomeFeedSkeleton } from '@nagarikwatch/ui'
+import { JournalistQueueSkeleton } from '@/components/journalist/JournalistQueueSkeleton'
 
-/** Locale soft-nav: A1 mega-feed bones (not SaaS pulse bars). */
-export default function LocaleLoading() {
-  return <HomeFeedSkeleton />
+export default function JournalistDashboardLoading() {
+  return <JournalistQueueSkeleton rows={4} label="Loading desk" />
 }

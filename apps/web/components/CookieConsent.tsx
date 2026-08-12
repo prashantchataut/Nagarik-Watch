@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useEffect, useId, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
+import { OverlayDialog } from '@/components/overlays/OverlayDialog'
+import { IconClose } from '@/components/icons/PortalIcons'
 import { localizeHref } from '@/lib/i18n/locales'
 import {
   CONSENT_OPEN_EVENT,
@@ -14,102 +16,55 @@ import {
 } from '@/lib/reader/consent'
 import { getAdModeClient } from '@/lib/ads-client'
 
-/**
- * Compact cookie strip for pitch / mid-Android: no first-visit scrim,
- * sits above BottomNav (and sticky ad when ads are on). Customize keeps a
- * capped panel so the tab bar stays tappable.
- */
-export function CookieConsent({
-  locale,
-  adsElevated = false,
-}: {
-  locale: Locale
-  /** When mobile sticky ads are on, lift the strip above that slot. */
-  adsElevated?: boolean
-}) {
-  const dialogRef = useRef<HTMLElement>(null)
-  const initialFocusRef = useRef<HTMLButtonElement>(null)
-  const [visible, setVisible] = useState(false)
-  const [customize, setCustomize] = useState(false)
-  const [hadChoice, setHadChoice] = useState(false)
+type PreferencesSource = 'banner' | 'settings'
+
+export function CookieConsent({ locale }: { locale: Locale }) {
+  const [bannerVisible, setBannerVisible] = useState(false)
+  const [preferencesOpen, setPreferencesOpen] = useState(false)
+  const [preferencesSource, setPreferencesSource] = useState<PreferencesSource>('banner')
   const [personalization, setPersonalization] = useState(false)
   const [analytics, setAnalytics] = useState(false)
   const [advertising, setAdvertising] = useState(false)
+  const dialogId = useId()
+  const titleId = useId()
+  const descriptionId = useId()
   const lang = locale === 'en' ? 'en' : 'ne'
   const en = locale === 'en'
-  const showScrim = customize || hadChoice
-  const bottomOffset = adsElevated
-    ? 'bottom-[calc(3.5rem+5.75rem+env(safe-area-inset-bottom))]'
-    : 'bottom-[calc(3.5rem+env(safe-area-inset-bottom))]'
 
   useEffect(() => {
-    const choice = readConsent()
-    if (!choice) {
-      setVisible(true)
-      setHadChoice(false)
-    } else {
-      // Refresh cookie so /api/reading and /api/ranking-events see the grant.
-      ensureConsentCookie()
-      setHadChoice(true)
+    function applyChoice(choice: ConsentChoice) {
       setPersonalization(choice.personalization)
       setAnalytics(choice.analytics)
       setAdvertising(choice.advertising)
     }
 
+    const choice = readConsent()
+    if (!choice) {
+      setBannerVisible(true)
+    } else {
+      ensureConsentCookie()
+      applyChoice(choice)
+    }
+
     function onOpen(event: Event) {
       const detail = (event as CustomEvent<{ mode?: string }>).detail
       const existing = readConsent()
-      if (existing) {
-        setPersonalization(existing.personalization)
-        setAnalytics(existing.analytics)
-        setAdvertising(existing.advertising)
-        setHadChoice(true)
+      if (existing) applyChoice(existing)
+
+      if (detail?.mode === 'banner') {
+        setPreferencesOpen(false)
+        setBannerVisible(true)
+        return
       }
-      setCustomize(detail?.mode !== 'banner')
-      setVisible(true)
+
+      setPreferencesSource(existing ? 'settings' : 'banner')
+      setBannerVisible(!existing)
+      setPreferencesOpen(true)
     }
+
     window.addEventListener(CONSENT_OPEN_EVENT, onOpen)
     return () => window.removeEventListener(CONSENT_OPEN_EVENT, onOpen)
   }, [])
-
-  useEffect(() => {
-    if (!visible) return
-    const previouslyFocused =
-      document.activeElement instanceof HTMLElement ? document.activeElement : null
-    initialFocusRef.current?.focus()
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape' && hadChoice) {
-        event.preventDefault()
-        setVisible(false)
-        return
-      }
-      if (event.key !== 'Tab' || !customize) return
-
-      const focusable = Array.from(
-        dialogRef.current?.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ) ?? [],
-      ).filter((element) => !element.hasAttribute('hidden'))
-      if (!focusable.length) return
-
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault()
-        last?.focus()
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault()
-        first?.focus()
-      }
-    }
-
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-      previouslyFocused?.focus()
-    }
-  }, [visible, hadChoice, customize])
 
   function decide(next: Pick<ConsentChoice, 'personalization' | 'analytics' | 'advertising'>) {
     writeConsent({
@@ -120,70 +75,60 @@ export function CookieConsent({
       decidedAt: new Date().toISOString(),
       version: CONSENT_POLICY_VERSION,
     })
-    setHadChoice(true)
-    setVisible(false)
-    setCustomize(false)
+    setPreferencesSource('settings')
+    setPreferencesOpen(false)
+    setBannerVisible(false)
   }
 
-  function dismissIfAllowed() {
-    if (hadChoice) setVisible(false)
+  function openPreferences() {
+    setPreferencesSource('banner')
+    setPreferencesOpen(true)
   }
 
-  if (!visible) return null
+  function closePreferences() {
+    setPreferencesOpen(false)
+    setBannerVisible(preferencesSource === 'banner')
+  }
 
   return (
     <>
-      {showScrim ? (
-        <button
-          type="button"
-          aria-hidden="true"
-          tabIndex={-1}
-          className="fixed inset-0 z-40 bg-scrim/70"
-          onClick={dismissIfAllowed}
-        />
-      ) : null}
-      <section
-        ref={dialogRef}
-        className={`fixed inset-x-0 z-50 max-h-[min(42vh,22rem)] overflow-y-auto border-t border-rule bg-surface shadow-overlay sm:inset-x-auto sm:bottom-6 sm:left-6 sm:right-auto sm:max-h-[min(70vh,28rem)] sm:w-[min(26rem,calc(100vw-1.5rem))] sm:rounded-lg sm:border ${bottomOffset} sm:!bottom-6`}
-        role="dialog"
-        aria-modal={customize ? 'true' : 'false'}
-        aria-labelledby="cookie-consent-title"
-        aria-describedby="cookie-consent-body"
-        lang={lang}
-        data-cookie-banner={!customize ? 'compact' : 'customize'}
-      >
-        {!customize ? (
-          <div className="flex flex-col gap-2 px-3 py-2.5 sm:block sm:px-5 sm:py-4">
-            <div className="min-w-0 sm:mb-3">
-              <h2
-                id="cookie-consent-title"
-                className="font-display text-meta font-extrabold text-ink sm:text-h3"
+      {bannerVisible ? (
+        <section
+          className="nw-cookie-banner fixed inset-x-0 z-[35] border-t border-rule bg-surface shadow-overlay sm:inset-x-auto sm:left-6 sm:w-[min(28rem,calc(100vw-3rem))] sm:border"
+          role="region"
+          aria-labelledby={`${dialogId}-banner-title`}
+          aria-describedby={`${dialogId}-banner-body`}
+          lang={lang}
+          data-cookie-banner="compact"
+        >
+          <div className="px-3 py-3 sm:px-5 sm:py-4">
+            <h2
+              id={`${dialogId}-banner-title`}
+              className="font-display text-meta font-extrabold text-ink sm:text-h3"
+            >
+              {en ? 'Cookie choices' : 'कुकी छनोट'}
+            </h2>
+            <p
+              id={`${dialogId}-banner-body`}
+              className="mt-1 text-caption leading-relaxed text-ink-soft sm:mt-2 sm:text-meta"
+            >
+              {en
+                ? 'Essential cookies keep sign-in working. Optional cookies help recommendations and measurement.'
+                : 'आवश्यक कुकीले लगइन चलाउँछ। वैकल्पिक कुकी सिफारिस र मापनका लागि।'}{' '}
+              <Link
+                href={localizeHref(locale, '/cookies')}
+                className="font-semibold text-brand-strong underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
-                {en ? 'Cookie choices' : 'कुकी छनोट'}
-              </h2>
-              <p
-                id="cookie-consent-body"
-                className="mt-0.5 line-clamp-1 text-caption leading-snug text-ink-soft sm:mt-2 sm:line-clamp-none sm:text-meta sm:leading-relaxed"
-              >
-                {en
-                  ? 'Essential cookies keep sign-in working. Optional cookies help recommendations and measurement.'
-                  : 'आवश्यक कुकीले लगइन चलाउँछ। वैकल्पिक कुकी सिफारिस र मापनका लागि।'}{' '}
-                <Link
-                  href={localizeHref(locale, '/cookies')}
-                  className="font-semibold text-brand-strong underline-offset-2 hover:underline"
-                >
-                  {en ? 'Policy' : 'नीति'}
-                </Link>
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
+                {en ? 'Policy' : 'नीति'}
+              </Link>
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
               <button
-                ref={initialFocusRef}
                 type="button"
                 onClick={() =>
                   decide({ personalization: false, analytics: false, advertising: false })
                 }
-                className="inline-flex min-h-10 items-center justify-center rounded-sm border border-rule bg-surface px-2 text-caption font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong active:scale-[0.98] sm:min-h-11 sm:px-3 sm:text-meta"
+                className="inline-flex min-h-11 items-center justify-center border border-rule bg-surface px-2 text-caption font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:px-3 sm:text-meta"
               >
                 {en ? 'Essential only' : 'आवश्यक मात्र'}
               </button>
@@ -192,100 +137,123 @@ export function CookieConsent({
                 onClick={() =>
                   decide({ personalization: true, analytics: true, advertising: true })
                 }
-                className="inline-flex min-h-10 items-center justify-center rounded-sm border border-brand bg-brand px-2 text-caption font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong active:scale-[0.98] sm:min-h-11 sm:px-3 sm:text-meta"
+                className="inline-flex min-h-11 items-center justify-center border border-brand bg-brand px-2 text-caption font-extrabold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:px-3 sm:text-meta"
               >
                 {en ? 'Accept optional' : 'वैकल्पिक स्वीकार'}
               </button>
             </div>
             <button
               type="button"
-              onClick={() => setCustomize(true)}
-              className="inline-flex min-h-8 w-full items-center justify-center text-caption font-semibold text-brand-strong underline-offset-2 hover:underline sm:min-h-10 sm:text-meta"
+              onClick={openPreferences}
+              className="mt-1 inline-flex min-h-11 w-full items-center justify-center text-caption font-semibold text-brand-strong underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:text-meta"
             >
               {en ? 'Customize' : 'अनुकूलन'}
             </button>
           </div>
-        ) : (
-          <>
-            <div className="px-3 py-2.5 sm:px-5 sm:py-4">
-              <h2
-                id="cookie-consent-title"
-                className="font-display text-meta font-extrabold text-ink sm:text-h3"
-              >
+        </section>
+      ) : null}
+
+      <OverlayDialog
+        id={dialogId}
+        open={preferencesOpen}
+        onClose={closePreferences}
+        labelledBy={titleId}
+        describedBy={descriptionId}
+        variant="preferences"
+        className="nw-cookie-preferences"
+      >
+        <div className="flex max-h-[min(84dvh,40rem)] flex-col" lang={lang}>
+          <div className="flex items-start justify-between gap-4 border-b border-rule px-4 py-4 sm:px-5">
+            <div className="min-w-0">
+              <h2 id={titleId} className="font-display text-h2 font-extrabold text-ink">
                 {en ? 'Cookie choices' : 'कुकी छनोट'}
               </h2>
-              <p
-                id="cookie-consent-body"
-                className="mt-1 text-caption leading-snug text-ink-soft sm:text-meta sm:leading-relaxed"
-              >
+              <p id={descriptionId} className="mt-1 text-meta leading-relaxed text-ink-soft">
                 {en
                   ? 'Essential cookies keep sign-in and language working. Choose optional categories below.'
                   : 'आवश्यक कुकीले लगइन र भाषा चलाउँछ। तल वैकल्पिक वर्ग छान्नुहोस्।'}{' '}
                 <Link
                   href={localizeHref(locale, '/cookies')}
-                  className="font-semibold text-brand-strong underline-offset-2 hover:underline"
+                  onClick={closePreferences}
+                  className="font-semibold text-brand-strong underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
                   {en ? 'Cookie policy' : 'कुकी नीति'}
                 </Link>
               </p>
             </div>
-            <div className="grid gap-2 border-t border-rule px-3 py-3 sm:px-5">
-              <CategoryToggle
-                locale={locale}
-                titleEn="Personalisation"
-                titleNe="व्यक्तिगत"
-                descEn="Saved stories, interests, continue reading"
-                descNe="सुरक्षित लेख, रुचि, जारी पढाइ"
-                checked={personalization}
-                onChange={setPersonalization}
-              />
-              <CategoryToggle
-                locale={locale}
-                titleEn="Analytics"
-                titleNe="एनालिटिक्स"
-                descEn="Privacy-friendly visit counts"
-                descNe="गोपनीयता-मैत्री भिजिट गणना"
-                checked={analytics}
-                onChange={setAnalytics}
-              />
-              <CategoryToggle
-                locale={locale}
-                titleEn="Advertising"
-                titleNe="विज्ञापन"
-                descEn={
-                  getAdModeClient() === 'network'
-                    ? 'House measurement; AdSense/GAM only with consent'
-                    : 'House-ad views and clicks only'
-                }
-                descNe={
-                  getAdModeClient() === 'network'
-                    ? 'घर मापन; सहमतिपछि मात्र AdSense/GAM'
-                    : 'घरको विज्ञापन दृश्य/क्लिक मात्र'
-                }
-                checked={advertising}
-                onChange={setAdvertising}
-              />
-            </div>
-            <div className="grid gap-2 border-t border-rule px-3 py-3 sm:px-5 sm:py-4">
-              <button
-                ref={initialFocusRef}
-                type="button"
-                onClick={() => decide({ personalization, analytics, advertising })}
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-sm border border-brand bg-brand px-4 text-meta font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong active:scale-[0.98]"
-              >
-                {en ? 'Save choices' : 'छनोट सुरक्षित गर्नुहोस्'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setCustomize(false)}
-                className="inline-flex min-h-10 w-full items-center justify-center text-meta font-semibold text-ink-soft hover:text-brand-strong"
-              >
-                {en ? 'Back' : 'पछाडि'}
-              </button>
-            </div>
-          </>
-        )}
-      </section>
+            <button
+              type="button"
+              onClick={closePreferences}
+              aria-label={en ? 'Close cookie preferences' : 'कुकी छनोट बन्द गर्नुहोस्'}
+              autoFocus
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center border border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            >
+              <IconClose width={19} height={19} />
+            </button>
+          </div>
+
+          <div className="grid flex-1 gap-2 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">
+            <CategoryToggle
+              locale={locale}
+              titleEn="Personalisation"
+              titleNe="व्यक्तिगत"
+              descEn="Saved stories, interests, continue reading"
+              descNe="सुरक्षित लेख, रुचि, जारी पढाइ"
+              checked={personalization}
+              onChange={setPersonalization}
+            />
+            <CategoryToggle
+              locale={locale}
+              titleEn="Analytics"
+              titleNe="एनालिटिक्स"
+              descEn="Privacy-friendly visit counts"
+              descNe="गोपनीयता-मैत्री भिजिट गणना"
+              checked={analytics}
+              onChange={setAnalytics}
+            />
+            <CategoryToggle
+              locale={locale}
+              titleEn="Advertising"
+              titleNe="विज्ञापन"
+              descEn={
+                getAdModeClient() === 'network'
+                  ? 'House measurement; AdSense/GAM only with consent'
+                  : 'House-ad views and clicks only'
+              }
+              descNe={
+                getAdModeClient() === 'network'
+                  ? 'घर मापन; सहमतिपछि मात्र AdSense/GAM'
+                  : 'घरको विज्ञापन दृश्य/क्लिक मात्र'
+              }
+              checked={advertising}
+              onChange={setAdvertising}
+            />
+          </div>
+
+          <div className="grid gap-2 border-t border-rule px-4 py-4 sm:grid-cols-[1fr_auto] sm:px-5">
+            <button
+              type="button"
+              onClick={() => decide({ personalization, analytics, advertising })}
+              className="inline-flex min-h-11 w-full items-center justify-center border border-brand bg-brand px-4 text-meta font-extrabold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            >
+              {en ? 'Save choices' : 'छनोट सुरक्षित गर्नुहोस्'}
+            </button>
+            <button
+              type="button"
+              onClick={closePreferences}
+              className="inline-flex min-h-11 items-center justify-center px-3 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            >
+              {preferencesSource === 'banner'
+                ? en
+                  ? 'Back'
+                  : 'पछाडि'
+                : en
+                  ? 'Cancel'
+                  : 'रद्द गर्नुहोस्'}
+            </button>
+          </div>
+        </div>
+      </OverlayDialog>
     </>
   )
 }
@@ -308,16 +276,16 @@ function CategoryToggle({
   onChange: (value: boolean) => void
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-sm border border-rule bg-surface-raised px-3 py-2.5 text-meta text-ink-soft transition-colors duration-fast ease-out-quint has-[:checked]:border-brand has-[:checked]:bg-brand-tint/40">
+    <label className="flex min-h-16 cursor-pointer items-start gap-3 border border-rule bg-surface-raised px-3 py-3 text-meta text-ink-soft transition-colors duration-fast ease-out-quint has-[:checked]:border-brand has-[:checked]:bg-brand-tint/40">
       <input
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.currentTarget.checked)}
-        className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
+        className="mt-0.5 h-5 w-5 shrink-0 accent-brand"
       />
       <span>
         <span className="block font-semibold text-ink">{locale === 'en' ? titleEn : titleNe}</span>
-        <span className="mt-0.5 block leading-snug text-caption">
+        <span className="mt-0.5 block text-caption leading-snug">
           {locale === 'en' ? descEn : descNe}
         </span>
       </span>

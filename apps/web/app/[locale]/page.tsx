@@ -14,8 +14,7 @@ import { getActivePoll } from '@/lib/polls-admin'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 import { MostReadRail } from '@/components/home/MostReadRail'
 import { resolveMostReadStories } from '@/lib/content/most-read-stories'
-import { resolveTrendingStories } from '@/lib/content/trending-stories'
-import { PortalFeed } from '@/components/home/PortalFeed'
+import { LeadPackage } from '@/components/home/LeadPackage'
 import { HomeMidAd } from '@/components/home/HomeMidAd'
 import { HomeBillboardAd } from '@/components/home/HomeBillboardAd'
 
@@ -139,11 +138,6 @@ async function HomePageWithData({
     windowDays: 7,
     minLive: 2,
   })
-  const { stories: trendingStories } = await resolveTrendingStories({
-    catalog,
-    limit: 6,
-  })
-  void trendingStories
 
   const today = new Date()
   const monthDay = `${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
@@ -189,11 +183,11 @@ async function HomePageWithData({
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
       <div className="mx-auto max-w-page px-3 pt-4 sm:px-4 sm:pt-5">
-        <PortalFeed stories={frontPageStories} locale={locale} />
+        <LeadPackage stories={frontPageStories} locale={locale} />
 
         <div className="mt-5 xl:hidden">
           <LatestRail
-            stories={latest.slice(0, 4)}
+            stories={latest}
             locale={locale}
             headingId="latest-rail-title-mobile"
           />
@@ -231,6 +225,15 @@ async function HomePageWithData({
                 layout={SECTION_LAYOUT_BY_SLUG[section.category.slug] ?? 'news-desk'}
               />
             ))}
+
+            <div className="xl:hidden">
+              <MostReadRail
+                stories={mostRead}
+                locale={locale}
+                headingId="most-read-title-mobile"
+                live={mostReadLive}
+              />
+            </div>
           </div>
 
           <aside className="hidden min-w-0 xl:block">
@@ -255,13 +258,13 @@ async function HomePageWithData({
       </div>
 
       <div className="mx-auto max-w-page px-3 pb-8 sm:px-4 lg:pb-10">
-        <HomeBillboardAd locale={locale} className="mt-6" />
         <HomeClosingDesk
           locale={locale}
           historyStories={historyStories}
           historyMode={historyMode}
           photoOfDay={photoOfDay}
         />
+        <HomeBillboardAd locale={locale} className="mt-6" />
       </div>
     </div>
   )

@@ -1,91 +1,46 @@
-# vercel-optimize
+# Support Topics
 
-Optimize cost and performance for supported projects on Vercel.
+Support topics are small, candidate-scoped investigation guardrails injected into sub-agent briefs.
 
-This skill uses Vercel metrics to find high-impact improvements in your app. Every recommendation is backed by observed data, scoped code evidence, and version-aware docs.
+They are not recommendations, gates, scanners, or broad documentation. A topic tells the investigator what evidence to check, what false positives to avoid, and when to abstain for one class of candidate.
 
-[![skills.sh](https://skills.sh/b/vercel-labs/agent-skills)](https://skills.sh/vercel-labs/agent-skills)
+## Add A Topic
 
-## Install
+Add one file: `references/support-topics/<id>.md`.
 
-Install just this skill:
+The filename must match the `id`. Frontmatter uses a strict subset of YAML: one `key: value` per line, arrays as JSON arrays.
 
-```bash
-npx skills add vercel-labs/agent-skills --skill vercel-optimize
+```md
+---
+id: cdn-cache-auth-safety
+title: CDN cache auth safety
+status: active
+candidateKinds: ["uncached_route", "cache_header_gap"]
+frameworks: ["*"]
+priority: 90
+citations: ["https://vercel.com/docs/caching/cdn-cache"]
+maxBriefChars: 900
+---
+
+## Investigation Brief
+...
+
+## Evidence To Check
+...
+
+## Do Not Recommend When
+...
+
+## Verification
+...
 ```
 
-Manual install: copy `skills/vercel-optimize` into `.agents/skills/vercel-optimize` and reference `SKILL.md` from your project `AGENTS.md`.
+## Rules
 
-## Requirements
-
-- Node.js 20+
-- Vercel CLI with `vercel metrics`, `vercel usage`, `vercel contract`, and `vercel api` support (`npm i -g vercel@latest`). The skill enforces v53+ as its compatibility floor.
-- Authenticated Vercel CLI session (`vercel login`)
-- Linked Vercel project directory (`vercel link`) for route metrics. `VERCEL_PROJECT_ID` can resolve project config, but it does not replace directory linkage for `vercel metrics`. The project must resolve to a CLI-safe team or personal scope so `vercel metrics`, `vercel usage`, and `vercel contract` all run against the same account.
-- Observability Plus for metric-backed route ranking
-- Code-backed recommendation coverage is strongest for Next.js and SvelteKit, supported for Nuxt route mapping with generic checks, and limited for Astro. Hono, Remix, and unknown frameworks pause up front.
-
-If route-level metrics are unavailable, the skill pauses before scanner-only mode. Scanner-only can catch traffic-independent code issues, but it cannot rank hot routes or prove cost impact.
-
-## Use
-
-From the Vercel project directory, ask your coding agent:
-
-```text
-optimize this Vercel project
-```
-
-The agent should collect metrics first. If it starts by reading source files or guessing from `vercel.json`, the skill was not loaded correctly.
-
-## Roadmap
-
-| Attribute | Status |
-|---|---|
-| Route-level Vercel Function invocations, duration, TTFB, and cold starts | Supported |
-| Vercel Function CPU, memory, and GB-hours | Supported |
-| Request volume, cache hit rate, HTTP status, and method distribution | Supported |
-| Fast Data Transfer and bot traffic patterns | Supported |
-| ISR reads, writes, and over-revalidation | Supported |
-| Routing Middleware volume and duration | Supported |
-| External API latency, volume, and transfer bytes | Supported |
-| Core Web Vitals from Speed Insights | Supported |
-| Image Optimization usage, source hosts, and source bytes | Supported |
-| Build Minutes fan-out | Supported |
-| Usage spikes by billing service | Supported |
-| Bot Protection and BotID configuration | Supported |
-| Fluid Compute configuration and compute signals | Supported |
-| Region pinning and project configuration mismatches | Supported |
-| Observability Events cost attribution | Supported |
-| Route-to-file recommendations for Next.js and SvelteKit | Supported |
-| Nuxt route mapping with generic/platform checks | Supported |
-| Generic route mapping and platform checks for Astro | Supported |
-| Hono route-to-file mapping | Planned |
-| Remix route-to-file mapping | Planned |
-| AI Gateway usage and cost optimization | Planned |
-| Sandbox usage and cost optimization | Planned |
-| Blob, Edge Config, Runtime Cache, Workflows, Queues, Flags, and Microfrontends billing dimensions | Planned |
-
-## What You Get
-
-- Ranked recommendations tied to observed Vercel metrics
-- Specific route and file references when source changes are justified
-- Before/after code for ready recommendations
-- Citations from a curated, version-aware documentation allow-list
-- Held-back findings when evidence is real but not strong enough for a recommendation
-- A concise final message plus a full Markdown report
-
-## Trust Model
-
-- Metrics come first. Code investigation starts only after signals are collected.
-- Gates are deterministic JavaScript thresholds. No LLM decides whether a metric qualifies.
-- Citations are allow-listed. Unknown URLs and version-mismatched framework docs are stripped.
-- Project config contradictions are rejected. For example, the verifier blocks "enable Fluid Compute" when Fluid Compute is already on.
-- Cost impact uses magnitude framing, not invented exact savings.
-
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md). New gates, scanners, playbooks, citations, and sanitizers need fixture coverage in `packages/vercel-optimize-tests`.
-
-## License
-
-MIT
+- Every active topic must cite only URLs or skill-rule refs already present in `references/docs-library.json`.
+- Use `candidateKinds` to keep the topic narrow. Use `"*"` only for workflow/protocol topics that truly apply to every candidate.
+- Use optional `metrics` only when a topic applies to a specific candidate metric, such as `["LCP"]`, `["INP"]`, or `["CLS"]` for Core Web Vitals.
+- Use optional `routePatterns` as JavaScript regex source strings when a topic should appear only for specific candidate routes, such as `["(^|/)404$"]`.
+- Keep the body below `maxBriefChars`; the brief renderer caps selected topics before they reach the sub-agent.
+- Put URLs in frontmatter only. Topic bodies should describe checks and guardrails, not cite new sources.
+- Do not include internal repository paths, service names, pricing tables, exact savings claims, or framework APIs without version gating.

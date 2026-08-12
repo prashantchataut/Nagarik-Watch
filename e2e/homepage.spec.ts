@@ -17,10 +17,13 @@ test.describe('homepage', () => {
       '#main',
     )
 
-    // Main landmark exists and is not empty (server-rendered, no client fetch).
+    // Main landmark exists and the homepage has one unambiguous editorial thesis.
     const main = page.locator('#main')
     await expect(main).toBeVisible()
-    await expect(main.locator('h1, h2').first()).toBeVisible()
+    const leadPackage = main.locator('[data-home-lead-package]')
+    await expect(leadPackage).toBeVisible()
+    await expect(main.locator('h1')).toHaveCount(1)
+    await expect(leadPackage.locator('[data-home-role="lead"]')).toBeVisible()
 
     // Footer carries the copyright + registration column (legal norm for Nepali news).
     await expect(page.getByRole('contentinfo')).toBeVisible()

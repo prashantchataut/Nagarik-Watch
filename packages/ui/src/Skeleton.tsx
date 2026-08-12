@@ -65,45 +65,82 @@ export function DenseStoryRowSkeleton({ className }: { className?: string }) {
 }
 
 /**
- * A1 portal-feed bone: centered pill → headline lines → byline → 16:9 image plane.
- * Matches MegaStoryBlock geometry for homepage soft-nav.
+ * Homepage lead package bone: dominant 8/4 lead/support composition with a compact pulse.
+ * Matches the production opening so soft navigation holds the same geometry and avoids CLS.
  */
-export function MegaStoryBlockSkeleton({ className }: { className?: string }) {
+export function LeadPackageSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('text-center', className)} aria-hidden="true">
-      <div className="mx-auto flex max-w-[46rem] flex-col items-center">
-        <div className={cn(shimmerBase, 'mb-2.5 h-6 w-24 rounded-sm')} />
-        <div className={cn(shimmerBase, 'mb-2 h-8 w-full max-w-xl rounded-sm sm:h-10')} />
-        <div className={cn(shimmerBase, 'mb-2 h-8 w-[88%] max-w-lg rounded-sm sm:h-10')} />
-        <div className={cn(shimmerBase, 'h-8 w-[70%] max-w-md rounded-sm sm:h-9')} />
-        <div className={cn(shimmerBase, 'mt-3 h-4 w-40 rounded-sm')} />
+    <div className={cn('border-b border-rule pb-5 sm:pb-6 lg:pb-7', className)} aria-hidden="true">
+      <div className="grid gap-5 sm:gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] lg:gap-7 xl:gap-8">
+        <div className="min-w-0">
+          <div className={cn(shimmerBase, 'h-3 w-20 rounded-sm')} />
+          <div className={cn(shimmerBase, 'mt-2 h-8 w-full rounded-sm sm:h-10')} />
+          <div className={cn(shimmerBase, 'mt-2 h-8 w-[82%] rounded-sm sm:h-10')} />
+          <div className={cn(shimmerBase, 'mt-3 h-4 w-full max-w-2xl rounded-sm')} />
+          <div className={cn(shimmerBase, 'mt-2 h-4 w-[72%] max-w-xl rounded-sm')} />
+          <div className={cn(shimmerBase, 'mt-3 h-4 w-44 rounded-sm')} />
+          <div className={cn(shimmerBase, 'mt-3.5 aspect-[16/10] w-full sm:mt-4 sm:aspect-[16/9]')} />
+        </div>
+
+        <div className="min-w-0 border-t border-rule pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0 xl:pl-7">
+          <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-3 sm:grid-cols-[9rem_minmax(0,1fr)] lg:block">
+            <div className={cn(shimmerBase, 'aspect-[4/3] lg:aspect-[16/10]')} />
+            <div className="min-w-0 lg:mt-3">
+              <div className={cn(shimmerBase, 'h-3 w-16 rounded-sm')} />
+              <div className={cn(shimmerBase, 'mt-2 h-5 w-full rounded-sm')} />
+              <div className={cn(shimmerBase, 'mt-2 h-5 w-4/5 rounded-sm')} />
+              <div className={cn(shimmerBase, 'mt-2 h-3 w-28 rounded-sm')} />
+            </div>
+          </div>
+          <div className="mt-4 divide-y divide-rule border-t border-rule">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="space-y-2 py-3">
+                <div className={cn(shimmerBase, 'h-3 w-20 rounded-sm')} />
+                <div className={cn(shimmerBase, 'h-4 w-full rounded-sm')} />
+                <div className={cn(shimmerBase, 'h-4 w-4/5 rounded-sm')} />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      <div className={cn(shimmerBase, 'mt-4 aspect-[16/10] w-full sm:mt-5 sm:aspect-[16/9]')} />
+
+      <div className="mt-4 divide-y divide-rule border-t border-rule lg:grid lg:grid-cols-4 lg:divide-x lg:divide-y-0 lg:divide-rule">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="space-y-2 py-2.5 lg:px-4 lg:py-3">
+            <div className={cn(shimmerBase, 'h-3 w-16 rounded-sm')} />
+            <div className={cn(shimmerBase, 'h-4 w-full rounded-sm')} />
+            <div className={cn(shimmerBase, 'h-4 w-3/4 rounded-sm')} />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
 
-/** Homepage A1 soft-nav: 2–3 mega blocks + thin desk hint. */
+/** Homepage soft-nav skeleton: opening lead package + first desk hint. */
 export function HomeFeedSkeleton({ className }: { className?: string }) {
   return (
     <div
-      className={cn('mx-auto max-w-page space-y-8 px-3 py-4 sm:px-4 sm:py-5', className)}
+      className={cn('mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5', className)}
       aria-busy="true"
       aria-live="polite"
     >
-      <MegaStoryBlockSkeleton />
-      <div className="border-t border-rule pt-8">
-        <MegaStoryBlockSkeleton />
-      </div>
-      <div className="border-t border-rule pt-8">
-        <MegaStoryBlockSkeleton />
-      </div>
-      <div className="border-t border-rule pt-6">
-        <div className={cn(shimmerBase, 'mb-3 h-5 w-32 rounded-sm')} />
-        <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <DenseStoryRowSkeleton key={i} className="border-b border-rule sm:px-2" />
-          ))}
+      <LeadPackageSkeleton />
+      <div className="mt-5 border-b border-rule pb-5 sm:mt-6 sm:pb-6">
+        <div className="mb-4 flex items-end justify-between border-b border-rule pb-2">
+          <div>
+            <div className={cn(shimmerBase, 'h-6 w-28 rounded-sm')} />
+            <div className={cn(shimmerBase, 'mt-1.5 h-0.5 w-12')} />
+          </div>
+          <div className={cn(shimmerBase, 'h-4 w-16 rounded-sm')} />
+        </div>
+        <div className="grid gap-4 md:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)] md:gap-5">
+          <StoryCardSkeleton variant="featured" />
+          <div className="divide-y divide-rule md:border-l md:border-rule md:pl-5">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <DenseStoryRowSkeleton key={i} />
+            ))}
+          </div>
         </div>
       </div>
     </div>

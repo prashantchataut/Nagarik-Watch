@@ -11,7 +11,7 @@ export {
   StoryCardSkeleton,
   StoryGridSkeleton,
   DenseStoryRowSkeleton,
-  MegaStoryBlockSkeleton,
+  LeadPackageSkeleton,
   HomeFeedSkeleton,
   CategoryDeskSkeleton,
   ArticleBodySkeleton,

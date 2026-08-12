@@ -1,9 +1,19 @@
-import { redirect } from 'next/navigation'
+/* THIS FILE IS GENERATED FROM THE PAYLOAD TEMPLATE. */
+/* IT CAN BE REGENERATED VIA `payload generate:importmap` IF NEEDED. */
+import type { Metadata } from 'next'
+import config from '@payload-config'
+import { RootPage, generatePageMetadata } from '@payloadcms/next/views'
+import { importMap } from './importMap'
 
-/**
- * Root of apps/admin redirects to the Payload dashboard. The admin UI itself is mounted
- * under /(payload)/admin by Payload's App-Router integration.
- */
-export default function IndexPage() {
-  redirect('/admin')
+type Args = {
+  params: Promise<{ segments: string[] }>
+  searchParams: Promise<{ [key: string]: string | string[] }>
 }
+
+export const generateMetadata = ({ params, searchParams }: Args): Promise<Metadata> =>
+  generatePageMetadata({ config, params, searchParams })
+
+const Page = ({ params, searchParams }: Args) =>
+  RootPage({ config, importMap, params, searchParams })
+
+export default Page
