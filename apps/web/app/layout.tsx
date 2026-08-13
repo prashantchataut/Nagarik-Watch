@@ -1,8 +1,49 @@
+import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { headers } from 'next/headers'
+import './globals.css'
+import { fontVariables } from './fonts'
+import { isStaticPagesExport } from '@/lib/build-mode'
+import { SITE_URL } from '@/lib/site'
 
-/** Journalist desk requires live sessions and API routes on every request. */
-export const dynamic = 'force-dynamic'
+const themeBootScript = `(() => {
+  try {
+    const stored = localStorage.getItem('nw-theme');
+    const theme = stored === 'dark' || stored === 'light' ? stored : 'light';
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+  } catch {
+    document.documentElement.dataset.theme = 'light';
+    document.documentElement.style.colorScheme = 'light';
+  }
+})();`
 
-export default function JournalistLayout({ children }: { children: ReactNode }) {
-  return children
+export const metadata: Metadata = {
+  title: { default: 'नागरिक वाच | Nagarik Watch', template: '%s | Nagarik Watch' },
+  description:
+    'नेपालको स्वतन्त्र समाचार, सार्वजनिक सरोकार र डिजिटल पात्रो। Independent Nepali news and public service portal.',
+  metadataBase: new URL(SITE_URL),
+  manifest: '/manifest.webmanifest',
+}
+
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  let lang: 'ne' | 'en' = 'ne'
+  if (!isStaticPagesExport) {
+    const headerStore = await headers()
+    lang = headerStore.get('x-locale') === 'en' ? 'en' : 'ne'
+  }
+  return (
+    <html lang={lang} className={fontVariables} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
+      <body className="min-h-screen bg-surface font-sans text-ink antialiased">{children}</body>
+    </html>
+  )
 }
