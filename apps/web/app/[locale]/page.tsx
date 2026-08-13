@@ -205,7 +205,7 @@ async function HomePageWithData({
             ))}
 
             <HomeMidAd locale={locale} />
-            <ProvinceHub locale={locale} />
+            <ProvinceHub locale={locale} stories={catalog} />
 
             {activePoll ? (
               <div className="xl:hidden">

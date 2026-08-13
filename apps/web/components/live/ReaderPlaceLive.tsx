@@ -108,7 +108,9 @@ export function ReaderPlaceLive({ locale, variant = 'board' }: ReaderPlaceLivePr
       <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
         <span className="inline-flex items-center gap-1.5 text-caption text-ink">
           {loading ? (
-            <span className="text-ink-soft">{en ? 'Weather…' : 'मौसम…'}</span>
+            <span className="text-ink-soft" aria-live="polite">
+              {en ? 'Loading weather' : 'मौसम लोड हुँदै'}
+            </span>
           ) : error ? (
             <span className="text-ink-soft">{error}</span>
           ) : (
@@ -136,8 +138,8 @@ export function ReaderPlaceLive({ locale, variant = 'board' }: ReaderPlaceLivePr
             {en ? 'Local weather' : 'स्थानीय मौसम'}
           </p>
           {loading ? (
-            <p className="mt-2 text-body-sm text-ink-soft">
-              {en ? 'Loading weather…' : 'मौसम लोड हुँदै…'}
+            <p className="mt-2 text-body-sm text-ink-soft" aria-live="polite">
+              {en ? 'Loading weather' : 'मौसम लोड हुँदै'}
             </p>
           ) : error ? (
             <p className="mt-2 text-body-sm text-ink-soft">{error}</p>
