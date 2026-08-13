@@ -98,7 +98,7 @@ function asCategoryRef(c: CategoryField) {
   const nameEn =
     nameEnRaw && nameEnRaw.toLowerCase() !== slug.toLowerCase()
       ? nameEnRaw
-      : seeded?.nameEn?.trim() || nameEnRaw || undefined
+      : seeded?.nameEn?.trim() || nameEnRaw || ''
   return {
     id: String(c?.id ?? ''),
     slug,
