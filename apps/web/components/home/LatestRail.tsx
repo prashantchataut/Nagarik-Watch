@@ -57,7 +57,7 @@ export function LatestRail({
                   story={story}
                   locale={locale}
                   compact
-                  showDeck={false}
+                  showDeck
                   showDateline
                   showMeta
                   thumb="sm"
@@ -82,10 +82,10 @@ export function LatestRail({
                       story={story}
                       locale={locale}
                       compact
-                      showDeck={false}
-                      showThumb={false}
+                      showDeck
                       showDateline
                       showMeta
+                      thumb="sm"
                     />
                   </InstrumentedStory>
                 </li>

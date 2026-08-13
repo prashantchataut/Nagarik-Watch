@@ -68,14 +68,25 @@ function PrimaryLead({ story, locale }: { story: StoryCardData; locale: Locale }
   const title = titleFor(story, locale)
   const deck = deckFor(story, locale)
   const titleLang = langFor(story, locale)
+  const photo = hasPhoto(story)
 
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
       <article className="group min-w-0" data-home-role="lead">
-        <div className={!hasPhoto(story) ? 'border-t-2 border-brand pt-3' : ''}>
+        {photo ? (
+          <StoryMedia
+            story={story}
+            locale={locale}
+            priority
+            sizes="(min-width: 1280px) 820px, (min-width: 1024px) 64vw, 100vw"
+            className="aspect-[16/10] sm:aspect-[16/9]"
+          />
+        ) : null}
+
+        <div className={photo ? 'mt-3 sm:mt-3.5' : 'border-t-2 border-brand pt-3'}>
           <CategoryLabel category={story.category} locale={locale} as="span" />
           <h1
-            className="mt-1.5 max-w-[18ch] text-pretty font-display text-[2rem] font-black leading-[1.14] text-ink sm:text-[2.55rem] sm:leading-[1.12] lg:text-[3.1rem] xl:text-[3.25rem]"
+            className="mt-1.5 text-pretty font-display text-[1.85rem] font-black leading-[1.18] text-ink sm:text-[2.35rem] sm:leading-[1.14] lg:text-[2.85rem] xl:text-[3rem]"
             lang={titleLang}
           >
             <Link
@@ -88,7 +99,7 @@ function PrimaryLead({ story, locale }: { story: StoryCardData; locale: Locale }
 
           {deck ? (
             <p
-              className="mt-2.5 max-w-[48rem] text-pretty text-body leading-relaxed text-ink-soft sm:text-body-lg sm:leading-relaxed"
+              className="mt-2 max-w-[42rem] text-pretty text-body leading-relaxed text-ink-soft line-clamp-3 sm:mt-2.5 sm:text-body-lg sm:leading-relaxed"
               lang={titleLang}
             >
               {deck}
@@ -99,17 +110,9 @@ function PrimaryLead({ story, locale }: { story: StoryCardData; locale: Locale }
             authors={story.authors}
             locale={locale}
             publishedAt={story.publishedAt}
-            className="mt-2.5"
+            className="mt-2 sm:mt-2.5"
           />
         </div>
-
-        <StoryMedia
-          story={story}
-          locale={locale}
-          priority
-          sizes="(min-width: 1280px) 820px, (min-width: 1024px) 64vw, 100vw"
-          className="mt-3.5 aspect-[16/10] sm:mt-4 sm:aspect-[16/9]"
-        />
       </article>
     </InstrumentedStory>
   )
@@ -124,22 +127,26 @@ function SupportLead({ story, locale }: { story: StoryCardData; locale: Locale }
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
       <article
-        className={`group min-w-0 ${photo ? 'grid grid-cols-[7.5rem_minmax(0,1fr)] gap-3 sm:grid-cols-[9rem_minmax(0,1fr)] lg:block' : 'border-t-2 border-brand pt-3 lg:border-t-0 lg:pt-0'}`}
+        className={`group min-w-0 ${
+          photo
+            ? 'grid grid-cols-[6.5rem_minmax(0,1fr)] gap-2.5 sm:grid-cols-[7.5rem_minmax(0,1fr)] lg:grid-cols-1'
+            : ''
+        }`}
         data-home-role="support"
       >
         {photo ? (
           <StoryMedia
             story={story}
             locale={locale}
-            sizes="(min-width: 1024px) 360px, 144px"
+            sizes="(min-width: 1024px) 360px, 120px"
             className="aspect-[4/3] lg:aspect-[16/10]"
           />
         ) : null}
 
-        <div className={photo ? 'min-w-0 lg:mt-3' : 'min-w-0'}>
+        <div className={photo ? 'min-w-0 lg:mt-2.5' : 'min-w-0'}>
           <CategoryLabel category={story.category} locale={locale} as="span" />
           <h2
-            className="mt-1 text-pretty font-display text-h3 font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong sm:text-h2 lg:text-[1.65rem]"
+            className="mt-1 text-pretty font-display text-h3 font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong sm:text-[1.35rem] lg:text-[1.5rem]"
             lang={titleLang}
           >
             <Link
@@ -151,13 +158,13 @@ function SupportLead({ story, locale }: { story: StoryCardData; locale: Locale }
           </h2>
           {deck ? (
             <p
-              className="mt-1.5 line-clamp-2 text-caption leading-relaxed text-ink-soft sm:text-meta lg:text-body"
+              className="mt-1 line-clamp-2 text-caption leading-relaxed text-ink-soft sm:text-meta"
               lang={titleLang}
             >
               {deck}
             </p>
           ) : null}
-          <div className="mt-2 text-caption text-mute">
+          <div className="mt-1.5 text-caption text-mute">
             <Dateline iso={story.publishedAt} locale={locale} />
           </div>
         </div>
@@ -166,25 +173,9 @@ function SupportLead({ story, locale }: { story: StoryCardData; locale: Locale }
   )
 }
 
-function SupportBrief({ story, locale }: { story: StoryCardData; locale: Locale }) {
-  return (
-    <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-      <DenseStoryItem
-        story={story}
-        locale={locale}
-        showThumb={false}
-        showDeck={false}
-        showMeta
-        showDateline
-        className="py-3"
-      />
-    </InstrumentedStory>
-  )
-}
-
 /**
  * Homepage opening hierarchy: one editorial thesis, then distinct support roles.
- * The package intentionally yields 5-8 choices without repeating H1-scale treatment.
+ * Packed left/right desk, never stacked centered mega voids.
  */
 export function LeadPackage({ stories, locale }: LeadPackageProps) {
   if (stories.length === 0) return null
@@ -198,26 +189,43 @@ export function LeadPackage({ stories, locale }: LeadPackageProps) {
 
   return (
     <section
-      className="border-b border-rule pb-5 sm:pb-6 lg:pb-7"
+      className="border-b border-rule pb-4 sm:pb-5 lg:pb-6"
       aria-label={english ? 'Top stories' : 'मुख्य समाचार'}
       data-home-lead-package
     >
       <div
-        className={`grid gap-5 sm:gap-6 ${
+        className={`grid gap-4 sm:gap-5 ${
           hasSupportColumn
-            ? 'lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] lg:gap-7 xl:gap-8'
+            ? 'lg:grid-cols-[minmax(0,1.55fr)_minmax(17rem,1fr)] lg:items-start lg:gap-6 xl:gap-7'
             : ''
         }`}
       >
         <PrimaryLead story={lead} locale={locale} />
 
         {hasSupportColumn ? (
-          <div className="min-w-0 border-t border-rule pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0 xl:pl-7">
+          <div className="min-w-0 border-t border-rule pt-3.5 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0 xl:pl-6">
             {support ? <SupportLead story={support} locale={locale} /> : null}
             {briefs.length > 0 ? (
-              <div className={`${support ? 'mt-4 border-t border-rule' : ''} divide-y divide-rule`}>
+              <div
+                className={`${support ? 'mt-3 border-t border-rule pt-1' : ''} divide-y divide-rule`}
+              >
                 {briefs.map((story) => (
-                  <SupportBrief key={story.id} story={story} locale={locale} />
+                  <div key={story.id} className="py-2.5">
+                    <InstrumentedStory
+                      articleSlug={story.slug}
+                      articleCategory={story.category.slug}
+                    >
+                      <DenseStoryItem
+                        story={story}
+                        locale={locale}
+                        compact
+                        showDeck={false}
+                        showMeta
+                        showDateline
+                        thumb="sm"
+                      />
+                    </InstrumentedStory>
+                  </div>
                 ))}
               </div>
             ) : null}
@@ -226,23 +234,27 @@ export function LeadPackage({ stories, locale }: LeadPackageProps) {
       </div>
 
       {pulse.length > 0 ? (
-        <div className="mt-4 border-t border-rule pt-1 sm:mt-5">
+        <div className="mt-3.5 border-t border-rule pt-1 sm:mt-4">
           <h2 className="sr-only">{english ? 'More top stories' : 'थप मुख्य समाचार'}</h2>
-          <ol className="divide-y divide-rule lg:grid lg:grid-cols-4 lg:divide-x lg:divide-y-0 lg:divide-rule">
+          <ol className="grid divide-y divide-rule sm:grid-cols-2 sm:divide-x sm:divide-y-0 sm:divide-rule lg:grid-cols-4">
             {pulse.map((story, index) => (
               <li
                 key={story.id}
-                className={`min-w-0 py-2.5 lg:px-4 lg:py-3 ${index === 0 ? 'lg:pl-0' : ''} ${index === pulse.length - 1 ? 'lg:pr-0' : ''}`}
+                className={`min-w-0 py-2.5 sm:px-3.5 sm:py-3 ${index % 2 === 0 ? 'sm:pl-0' : ''} ${
+                  index % 2 === 1 ? 'sm:pr-0 lg:pr-3.5' : ''
+                } ${index === 0 ? 'lg:pl-0' : ''} ${index === pulse.length - 1 ? 'lg:pr-0' : ''} ${
+                  index >= 2 ? 'sm:border-t sm:border-rule lg:border-t-0' : ''
+                }`}
               >
                 <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
                   <DenseStoryItem
                     story={story}
                     locale={locale}
                     compact
-                    showThumb={false}
                     showDeck={false}
                     showMeta
                     showDateline
+                    thumb="sm"
                   />
                 </InstrumentedStory>
               </li>

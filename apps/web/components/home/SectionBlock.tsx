@@ -239,14 +239,40 @@ function NewsDesk({ items, locale }: { items: StoryCardData[]; locale: Locale })
   const lead = items[0]!
   const secondary = items[1]
   const briefs = items.slice(2, 5)
+  const leadHasPhoto = hasPhoto(lead)
+
+  // Photo-less leads must not stretch into empty featured cells.
+  if (!leadHasPhoto) {
+    return (
+      <div className="grid gap-3 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] md:gap-5">
+        <div className="min-w-0 space-y-3">
+          <RankedCard story={lead} locale={locale} variant="text-led" />
+          {secondary ? (
+            <div className="border-t border-rule pt-3">
+              <SmallPhotoStory story={secondary} locale={locale} />
+            </div>
+          ) : null}
+        </div>
+        {briefs.length > 0 ? (
+          <div className="min-w-0 divide-y divide-rule border-t border-rule pt-1 md:border-l md:border-t-0 md:pl-5 md:pt-0">
+            {briefs.map((story) => (
+              <div key={story.id} className="py-2.5 first:pt-0">
+                <TextBrief story={story} locale={locale} deck className="min-w-0" />
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    )
+  }
 
   return (
-    <div className="grid gap-4 md:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)] md:gap-5">
-      <RankedCard story={lead} locale={locale} variant={hasPhoto(lead) ? 'featured' : 'text-led'} />
-      <div className="min-w-0 md:border-l md:border-rule md:pl-5 space-y-3">
+    <div className="grid gap-4 md:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)] md:items-start md:gap-5">
+      <RankedCard story={lead} locale={locale} variant="featured" />
+      <div className="min-w-0 space-y-3 md:border-l md:border-rule md:pl-5">
         {secondary ? <SmallPhotoStory story={secondary} locale={locale} /> : null}
         {briefs.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-rule pt-3">
+          <div className="grid grid-cols-1 gap-3 border-t border-rule pt-3 sm:grid-cols-2">
             {briefs.map((story) => (
               <TextBrief key={story.id} story={story} locale={locale} deck className="min-w-0" />
             ))}
@@ -264,14 +290,16 @@ function SplitDesk({ items, locale }: { items: StoryCardData[]; locale: Locale }
 
   return (
     <div>
-      <div className={`grid gap-4 ${second ? 'md:grid-cols-2 md:gap-5' : ''}`}>
+      <div
+        className={`grid items-start gap-4 ${second ? 'md:grid-cols-2 md:gap-5' : ''}`}
+      >
         <RankedCard
           story={first}
           locale={locale}
           variant={hasPhoto(first) ? 'featured' : 'text-led'}
         />
         {second ? (
-          <div className="border-t border-rule pt-4 md:border-l md:border-t-0 md:pl-5 md:pt-0">
+          <div className="border-t border-rule pt-3.5 md:border-l md:border-t-0 md:pl-5 md:pt-0">
             <RankedCard
               story={second}
               locale={locale}
@@ -281,9 +309,9 @@ function SplitDesk({ items, locale }: { items: StoryCardData[]; locale: Locale }
         ) : null}
       </div>
       {rest.length > 0 ? (
-        <div className="mt-4 grid gap-3 border-t border-rule pt-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-3.5 grid gap-3 border-t border-rule pt-3 sm:grid-cols-2 lg:grid-cols-3">
           {rest.map((story) => (
-            <div key={story.id} className="py-1">
+            <div key={story.id} className="min-w-0">
               <TextBrief story={story} locale={locale} deck />
             </div>
           ))}

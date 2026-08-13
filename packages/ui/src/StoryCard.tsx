@@ -118,7 +118,7 @@ export function StoryCard({
   // A brand-tinted category bar sits above the headline for visual anchoring.
   if (layout === 'text-led') {
     return (
-      <article className={cn('group relative flex flex-col', className)}>
+      <article className={cn('group relative', className)}>
         <div className="mb-1.5 flex flex-wrap items-center gap-2">
           <CategoryLabel category={story.category} locale={locale} as="span" />
           <MembershipMarker story={story} locale={locale} />
@@ -134,7 +134,7 @@ export function StoryCard({
             {deck}
           </p>
         )}
-        <div className="mt-auto pt-3">
+        <div className="mt-2.5">
           <Byline authors={story.authors} locale={locale} publishedAt={story.publishedAt} />
         </div>
       </article>

@@ -271,13 +271,15 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
             </DrawerSection>
 
             <DrawerSection label={en ? 'About Nagarik Watch' : 'नागरिक वाचबारे'} lang={lang}>
-              {[
-                ['/about', en ? 'About' : 'हाम्रोबारे'],
-                ['/editorial-policy', en ? 'Editorial policy' : 'सम्पादकीय नीति'],
-                ['/corrections-policy', en ? 'Corrections' : 'सच्याइ नीति'],
-                ['/contact', en ? 'Contact' : 'सम्पर्क'],
-                ['/privacy', en ? 'Privacy' : 'गोपनीयता'],
-              ].map(([path, label]) => (
+              {(
+                [
+                  ['/about', en ? 'About' : 'हाम्रोबारे'],
+                  ['/editorial-policy', en ? 'Editorial policy' : 'सम्पादकीय नीति'],
+                  ['/corrections-policy', en ? 'Corrections' : 'सच्याइ नीति'],
+                  ['/contact', en ? 'Contact' : 'सम्पर्क'],
+                  ['/privacy', en ? 'Privacy' : 'गोपनीयता'],
+                ] as const
+              ).map(([path, label]) => (
                 <li key={path}>
                   <Link
                     href={localizeHref(locale, path)}
