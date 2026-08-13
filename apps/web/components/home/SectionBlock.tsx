@@ -4,6 +4,7 @@ import type { ComponentProps } from 'react'
 import type { HomepageSection, Locale, StoryCardData } from '@nagarikwatch/db'
 import { StoryCard, SectionHeader } from '@nagarikwatch/ui'
 import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
+import { displayCategoryName } from '@/lib/content/category-display'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
 
@@ -203,8 +204,7 @@ export function SectionBlock({
   layout?: HomeSectionLayout
 }) {
   const dict = getDictionary(locale)
-  const name =
-    locale === 'en' && section.category.nameEn ? section.category.nameEn : section.category.nameNe
+  const name = displayCategoryName(section.category, locale)
   const titleLang = locale === 'en' && section.category.nameEn ? 'en' : 'ne'
   const sectionHref = localizeHref(locale, `/${section.category.slug}`)
   const items = section.lead ? [section.lead, ...section.items] : section.items
@@ -332,16 +332,26 @@ function PhotoDesk({ items, locale }: { items: StoryCardData[]; locale: Locale }
 
   return (
     <div>
-      <div className="grid gap-4 md:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] md:gap-5">
+      <div
+        className={`grid gap-4 md:gap-5 ${
+          side.length > 0 ? 'md:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]' : ''
+        }`}
+      >
         <RankedCard story={lead} locale={locale} variant="featured" />
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-1 md:gap-4">
-          {side.map((story) => (
-            <RankedCard key={story.id} story={story} locale={locale} variant="default" />
-          ))}
-        </div>
+        {side.length > 0 ? (
+          <div
+            className={`grid gap-3 md:gap-4 ${
+              side.length > 1 ? 'grid-cols-2 md:grid-cols-1' : 'grid-cols-1'
+            }`}
+          >
+            {side.map((story) => (
+              <RankedCard key={story.id} story={story} locale={locale} variant="default" />
+            ))}
+          </div>
+        ) : null}
       </div>
       {rest.length > 0 ? (
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-rule pt-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 border-t border-rule pt-3 sm:grid-cols-2">
           {rest.map((story) => (
             <TextBrief key={story.id} story={story} locale={locale} deck />
           ))}
@@ -382,10 +392,14 @@ function CompactDesk({ items, locale }: { items: StoryCardData[]; locale: Locale
   const rest = items.slice(1, 5)
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-5">
+    <div
+      className={`grid gap-4 ${
+        rest.length > 0 ? 'lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-5' : ''
+      }`}
+    >
       <SmallPhotoStory story={lead} locale={locale} />
       {rest.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-rule pt-3 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+        <div className="grid grid-cols-1 gap-3 border-t border-rule pt-3 sm:grid-cols-2 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
           {rest.map((story) => (
             <TextBrief key={story.id} story={story} locale={locale} deck />
           ))}

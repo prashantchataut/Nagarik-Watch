@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
 import { Dateline } from '@nagarikwatch/ui'
+import { displayCategoryName } from '@/lib/content/category-display'
 import { localizeHref } from '@/lib/i18n/locales'
 
 export type DenseStoryItemProps = {
@@ -87,7 +88,7 @@ export function DenseStoryItem({
         {showMeta ? (
           <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[0.72rem]">
             <span className="font-bold text-brand-strong" lang={english ? 'en' : 'ne'}>
-              {english && story.category.nameEn ? story.category.nameEn : story.category.nameNe}
+              {displayCategoryName(story.category, locale)}
             </span>
             {showDateline ? (
               <>

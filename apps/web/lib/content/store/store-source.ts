@@ -84,8 +84,8 @@ function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): St
   const cat = resolveCategory(a.categorySlug, catalog) ?? {
     id: a.categorySlug,
     slug: a.categorySlug,
-    nameNe: a.categorySlug,
-    nameEn: a.categorySlug,
+    nameNe: categoryBySlug.get(a.categorySlug)?.nameNe ?? a.categorySlug,
+    nameEn: categoryBySlug.get(a.categorySlug)?.nameEn ?? a.categorySlug,
   }
   const cardAuthors = a.authorIds
     .map((id) => resolveAuthor(id, catalog))
@@ -201,8 +201,8 @@ export function createStoreContentSource(): ContentSource {
         const cat = resolveCategory(s.categorySlug, catalog) ?? {
           id: s.categorySlug,
           slug: s.categorySlug,
-          nameNe: s.categorySlug,
-          nameEn: s.categorySlug,
+          nameNe: categoryBySlug.get(s.categorySlug)?.nameNe ?? s.categorySlug,
+          nameEn: categoryBySlug.get(s.categorySlug)?.nameEn ?? s.categorySlug,
         }
         return {
           category: cat,

@@ -133,7 +133,7 @@ async function HomePageWithData({
     .slice(0, 8)
   const { stories: mostRead, live: mostReadLive } = await resolveMostReadStories({
     catalog,
-    excludeIds: new Set(),
+    excludeIds: aboveFoldExclude,
     limit: 6,
     windowDays: 7,
     minLive: 2,

@@ -22,6 +22,7 @@ import type {
 } from '@nagarikwatch/db'
 import type { ContentSource, StoryListOptions } from './source'
 import { payloadServerUrl } from './payload-admin-client'
+import { categoryBySlug } from '@/lib/content/seed/categories'
 
 const PER_PAGE = 12
 
@@ -86,11 +87,23 @@ function asCategory(c: CategoryField): Category {
 }
 
 function asCategoryRef(c: CategoryField) {
+  const slug = String(c?.slug ?? '')
+  const seeded = categoryBySlug.get(slug)
+  const nameNeRaw = String(c?.nameNe ?? '').trim()
+  const nameEnRaw = String(c?.nameEn ?? '').trim()
+  const nameNe =
+    nameNeRaw && nameNeRaw.toLowerCase() !== slug.toLowerCase()
+      ? nameNeRaw
+      : seeded?.nameNe?.trim() || nameNeRaw || slug
+  const nameEn =
+    nameEnRaw && nameEnRaw.toLowerCase() !== slug.toLowerCase()
+      ? nameEnRaw
+      : seeded?.nameEn?.trim() || nameEnRaw || undefined
   return {
     id: String(c?.id ?? ''),
-    slug: String(c?.slug ?? ''),
-    nameNe: String(c?.nameNe ?? ''),
-    nameEn: String(c?.nameEn ?? ''),
+    slug,
+    nameNe,
+    nameEn,
   }
 }
 
