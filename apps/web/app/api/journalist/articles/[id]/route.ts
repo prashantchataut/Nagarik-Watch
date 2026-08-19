@@ -10,6 +10,7 @@ import { findArticleForAdmin, updateArticle } from '@/lib/content/store/json-sto
 import {
   getPayloadJournalistDraft,
   isPayloadCanonical,
+  PayloadJournalistEditBlockedError,
   updatePayloadJournalistDraft,
 } from '@/lib/content/payload-admin-client'
 import {
@@ -93,14 +94,31 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: 'Title, category and body are required.' }, { status: 400 })
 
   const articleId = meta.articleId || id
-  const existingArticle = isPayloadCanonical() ? null : await findArticleForAdmin(articleId)
-  const currentStage = existingArticle?.workflowStage ?? meta.workflowStage ?? 'draft'
+  let currentStage: import('@nagarikwatch/db').WorkflowStage =
+    (meta.workflowStage as import('@nagarikwatch/db').WorkflowStage) || 'draft'
+  if (isPayloadCanonical()) {
+    if (!meta.articleId) {
+      return NextResponse.json(
+        { error: 'This legacy draft is not linked to Payload.' },
+        { status: 409 },
+      )
+    }
+    try {
+      const live = await getPayloadJournalistDraft(meta.articleId)
+      currentStage = live.workflowStage as import('@nagarikwatch/db').WorkflowStage
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : 'Could not load Payload draft.' },
+        { status: 502 },
+      )
+    }
+  } else {
+    const existingArticle = await findArticleForAdmin(articleId)
+    currentStage = (existingArticle?.workflowStage ?? meta.workflowStage ?? 'draft') as import('@nagarikwatch/db').WorkflowStage
+  }
 
   const isReporter = JOURNALIST_DESK_ROLES.has(session.newsroomRole)
-  if (
-    isReporter &&
-    !reporterMayEditDraft(currentStage as import('@nagarikwatch/db').WorkflowStage)
-  ) {
+  if (isReporter && !reporterMayEditDraft(currentStage)) {
     return NextResponse.json(
       { error: 'This draft is in review and cannot be edited.' },
       { status: 409 },
@@ -110,8 +128,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     try {
       assertWorkflowTransition({
         role: session.newsroomRole,
-        from: currentStage as Parameters<typeof assertWorkflowTransition>[0]['from'],
-        to: workflowStage as Parameters<typeof assertWorkflowTransition>[0]['to'],
+        from: currentStage,
+        to: workflowStage,
       })
     } catch (error) {
       return NextResponse.json(
@@ -141,6 +159,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   try {
     const article = isPayloadCanonical()
       ? await updatePayloadJournalistDraft(articleId, {
+          reporterEmail: session.email,
           titleNe,
           titleEn: String(body.titleEn ?? '').trim() || undefined,
           slug: meta.articleSlug,
@@ -192,7 +211,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       articleSlug: meta.articleSlug,
       titleNe,
       categorySlug,
-      workflowStage,
+      workflowStage: isPayloadCanonical()
+        ? String((article as { workflowStage?: string }).workflowStage ?? workflowStage)
+        : workflowStage,
       reporterId: session.userId,
       reportingLocation: String(body.reportingLocation ?? '').trim() || undefined,
       sourceNote: String(body.sourceNote ?? '').trim() || undefined,
@@ -241,6 +262,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
     return NextResponse.json({ article, meta: nextMeta })
   } catch (error) {
+    if (error instanceof PayloadJournalistEditBlockedError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Could not update draft.' },
       { status: 400 },

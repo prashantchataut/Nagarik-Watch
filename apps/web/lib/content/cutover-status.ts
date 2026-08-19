@@ -4,7 +4,7 @@
  * Does not flip CONTENT_SOURCE.
  */
 import 'server-only'
-import { getOperationalPool, ensureOperationalSchema, type Queryable } from '@/lib/ops-db'
+import { getOperationalPool, type Queryable } from '@/lib/ops-db'
 import { getPayloadCutoverChecklist } from '@/lib/content/payload-cutover'
 import { isPayloadCanonical } from '@/lib/content/payload-admin-client'
 
@@ -51,20 +51,6 @@ export async function getCutoverStatus(): Promise<CutoverStatus> {
 
   const pool = await getOperationalPool()
   if (pool) {
-    await ensureOperationalSchema('cutover-status-articles', async (p) => {
-      await p.query(`
-        CREATE TABLE IF NOT EXISTS nw_articles (
-          id TEXT PRIMARY KEY,
-          slug TEXT NOT NULL,
-          category_slug TEXT NOT NULL,
-          workflow_stage TEXT NOT NULL,
-          published_at TIMESTAMPTZ,
-          updated_at TIMESTAMPTZ NOT NULL,
-          document JSONB NOT NULL
-        )
-      `)
-      await p.query(`CREATE UNIQUE INDEX IF NOT EXISTS nw_articles_slug_idx ON nw_articles(slug)`)
-    })
     desk.tablePresent = await ensureArticlesReadable(pool)
     if (desk.tablePresent) {
       const totals = await pool.query<{

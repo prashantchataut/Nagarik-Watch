@@ -5,6 +5,7 @@ import { assertNewsroomRole, MEDIA_MANAGER_ROLES, canEdit } from '@/lib/admin-ro
 import { createMediaItem, listMediaItems } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { enforceRateLimit } from '@/lib/rate-limit'
+import { isAllowedMediaLibraryUrl } from '@/lib/storage/media-url-allowlist'
 import {
   isPayloadCanonical,
   payloadCollectionAdminUrl,
@@ -62,8 +63,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
+  const url = String(body.url ?? '').trim()
+  if (!isAllowedMediaLibraryUrl(url)) {
+    return NextResponse.json(
+      { error: 'Media URL must be https (or http://localhost in non-production).' },
+      { status: 400 },
+    )
+  }
+
   const item = await createMediaItem({
-    url: body.url,
+    url,
     alt: body.alt,
     caption: body.caption,
     credit: body.credit,

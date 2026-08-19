@@ -11,6 +11,7 @@ vi.mock('@/lib/pg-pool', () => ({
 
 vi.mock('@/lib/ops/cron-heartbeat', () => ({
   getCronHeartbeats: mockGetCronHeartbeats,
+  getCronRunHistory: vi.fn(async () => []),
   minutesSince: (heartbeat: { lastRunAt: string } | undefined, now: Date = new Date()) =>
     heartbeat ? Math.max(0, (now.getTime() - Date.parse(heartbeat.lastRunAt)) / 60_000) : null,
 }))

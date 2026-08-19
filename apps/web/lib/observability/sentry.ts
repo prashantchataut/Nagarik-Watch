@@ -1,6 +1,7 @@
 /**
- * Thin Sentry boundary. No SDK dependency until SENTRY_DSN is set and
- * @sentry/nextjs is installed. Callers stay honest: disabled when unset.
+ * Sentry boundary. Ready only after @sentry/nextjs initializes with a DSN.
+ * Audience analytics stay consent-gated elsewhere; this SDK does not set
+ * advertising cookies or send pageview beacons.
  */
 
 export type SentryState = {
@@ -9,8 +10,18 @@ export type SentryState = {
   detail: string
 }
 
+let sdkInitialized = false
+
+export function sentryDsn(): string {
+  return process.env.SENTRY_DSN?.trim() || process.env.NEXT_PUBLIC_SENTRY_DSN?.trim() || ''
+}
+
+export function markSentrySdkInitialized(): void {
+  sdkInitialized = true
+}
+
 export function getSentryState(): SentryState {
-  const dsn = process.env.SENTRY_DSN?.trim() || process.env.NEXT_PUBLIC_SENTRY_DSN?.trim()
+  const dsn = sentryDsn()
   if (!dsn) {
     return {
       ready: false,
@@ -18,16 +29,21 @@ export function getSentryState(): SentryState {
       detail: 'SENTRY_DSN unset. Errors log to console only.',
     }
   }
-  // DSN alone is not a live SDK. Never report ready until @sentry/nextjs is installed and initialized.
+  if (!sdkInitialized) {
+    return {
+      ready: false,
+      dsnConfigured: true,
+      detail: 'SENTRY_DSN is set but the Sentry SDK has not initialized in this process yet.',
+    }
+  }
   return {
-    ready: false,
+    ready: true,
     dsnConfigured: true,
-    detail:
-      'SENTRY_DSN is set but @sentry/nextjs is not wired. Errors still log to console only — do not treat launch probes as Sentry-backed.',
+    detail: 'Sentry SDK initialized and receiving server exceptions.',
   }
 }
 
-/** Capture a client/server exception without requiring the Sentry package. */
+/** Capture a client/server exception without breaking the request path. */
 export function captureException(error: unknown, context?: Record<string, unknown>): void {
   const state = getSentryState()
   console.error(
@@ -45,4 +61,10 @@ export function captureException(error: unknown, context?: Record<string, unknow
       context,
     }),
   )
+  if (!state.ready) return
+  void import('@sentry/nextjs')
+    .then((Sentry) => {
+      Sentry.captureException(error, { extra: context })
+    })
+    .catch(() => undefined)
 }

@@ -19,7 +19,7 @@ export function LatestRail({
   compact = false,
   headingId = 'latest-rail-title',
 }: LatestRailProps) {
-  const items = stories.slice(0, compact ? 6 : 5)
+  const items = stories.slice(0, compact ? 8 : 6)
   if (items.length === 0) return null
   const english = locale === 'en'
   const lead = items[0]!
@@ -57,7 +57,7 @@ export function LatestRail({
                   story={story}
                   locale={locale}
                   compact
-                  showDeck
+                  showDeck={false}
                   showDateline
                   showMeta
                   thumb="sm"
@@ -78,15 +78,15 @@ export function LatestRail({
               {briefs.map((story) => (
                 <li key={story.id} className="py-2.5">
                   <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-                    <DenseStoryItem
-                      story={story}
-                      locale={locale}
-                      compact
-                      showDeck
-                      showDateline
-                      showMeta
-                      thumb="sm"
-                    />
+              <DenseStoryItem
+                story={story}
+                locale={locale}
+                compact
+                showDeck={false}
+                showDateline
+                showMeta
+                thumb="sm"
+              />
                   </InstrumentedStory>
                 </li>
               ))}

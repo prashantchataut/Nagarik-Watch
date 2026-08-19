@@ -1,6 +1,6 @@
 /**
  * DEPRECATED — DO NOT MOUNT ON HOMEPAGE.
- * Live reference lives only in UtilityStrip (one band; no strip + card-grid duplicate).
+ * Live reference lives only in MastheadReference (one band; no strip + card-grid duplicate).
  */
 import type { Locale } from '@nagarikwatch/db'
 import { LiveWidget } from '@nagarikwatch/ui'

@@ -22,17 +22,28 @@ import { localizeHref } from '@/lib/i18n/locales'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { HtmlLangSync } from '@/components/HtmlLangSync'
 import { AdSlot } from '@/components/AdSlot'
-import { UtilityStrip } from '@/components/live/UtilityStrip'
+import { MastheadReference } from '@/components/live/MastheadReference'
 import type { TopicLink } from '@/components/TopicsLinks'
 import { PUBLICATION } from '@/lib/site'
 
-function buildTopicLinks(locale: Locale, tags: Awaited<ReturnType<typeof getTags>>): TopicLink[] {
-  // Phase 0: strip shows live tags / topics, not hub synonyms of bottom nav.
-  return tags.slice(0, 12).map((tag) => ({
-    href: localizeHref(locale, `/tag/${tag.slug}`),
-    label: locale === 'en' && tag.nameEn ? tag.nameEn : tag.nameNe,
-    lang: locale === 'en' && tag.nameEn ? 'en' : 'ne',
-  }))
+/** Hub routes that already live in the primary nav; a tag echo of them is noise. */
+const HUB_SLUGS = new Set(['fact-check', 'province', 'latest', 'home'])
+
+function buildTopicLinks(
+  locale: Locale,
+  tags: Awaited<ReturnType<typeof getTags>>,
+  navCategories: Awaited<ReturnType<typeof getNavCategories>>,
+): TopicLink[] {
+  // The trending band shows live tags, not synonyms of links one row above it.
+  const taken = new Set([...HUB_SLUGS, ...navCategories.map((category) => category.slug)])
+  return tags
+    .filter((tag) => !taken.has(tag.slug))
+    .slice(0, 12)
+    .map((tag) => ({
+      href: localizeHref(locale, `/tag/${tag.slug}`),
+      label: locale === 'en' && tag.nameEn ? tag.nameEn : tag.nameNe,
+      lang: locale === 'en' && tag.nameEn ? 'en' : 'ne',
+    }))
 }
 
 export async function PublicShell({ locale, children }: { locale: Locale; children: ReactNode }) {
@@ -42,7 +53,7 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
     getTags().catch(() => []),
     getSession().catch(() => null),
   ])
-  const topics = buildTopicLinks(locale, tags)
+  const topics = buildTopicLinks(locale, tags, navCategories)
   const adMode = getAdMode()
   const account = session
     ? (() => {
@@ -80,16 +91,12 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
             />
           </Suspense>
         }
+        reference={
+          <Suspense fallback={null}>
+            <MastheadReference locale={locale} />
+          </Suspense>
+        }
       />
-      <div className="hidden md:block">
-        <Suspense
-          fallback={
-            <div className="h-9 border-b border-rule bg-surface-raised" aria-hidden="true" />
-          }
-        >
-          <UtilityStrip locale={locale} />
-        </Suspense>
-      </div>
       <main
         id="main"
         className="min-h-[55vh] pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0"

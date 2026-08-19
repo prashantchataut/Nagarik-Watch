@@ -11,7 +11,7 @@ import { DEFAULT_LIVE_PLACE_SLUG, resolveLivePlace } from '@/lib/live/places'
 
 type ReaderPlaceLiveProps = {
   locale: Locale
-  variant?: 'strip' | 'board'
+  variant?: 'strip' | 'board' | 'chrome'
 }
 
 type WeatherPayload = {
@@ -102,6 +102,39 @@ export function ReaderPlaceLive({ locale, variant = 'board' }: ReaderPlaceLivePr
 
   const placeLabel = en ? place.placeEn : place.placeNe
   const showReference = !chosen && variant === 'board'
+
+  if (variant === 'chrome') {
+    return (
+      <div className="flex min-w-0 items-center gap-x-2">
+        <span className="inline-flex min-w-0 items-center gap-1.5 text-caption">
+          {loading ? (
+            <span className="truncate text-on-chrome-soft" aria-live="polite">
+              {en ? 'Loading weather' : 'मौसम लोड हुँदै'}
+            </span>
+          ) : error ? (
+            <span className="truncate text-on-chrome-soft">{error}</span>
+          ) : (
+            <>
+              <span className="font-bold tabular-nums text-on-chrome">{tempC}°C</span>
+              {/* Place name is the picker label; repeating it here is noise. */}
+              {typeof aqi === 'number' ? (
+                <span className="hidden text-on-chrome-soft xl:inline">
+                  {en ? 'AQI' : 'वायु'} {aqi}
+                </span>
+              ) : null}
+            </>
+          )}
+        </span>
+        <PlaceCityPicker
+          locale={locale}
+          place={place}
+          onPlaceChange={onPlaceChange}
+          compact
+          tone="chrome"
+        />
+      </div>
+    )
+  }
 
   if (variant === 'strip') {
     return (

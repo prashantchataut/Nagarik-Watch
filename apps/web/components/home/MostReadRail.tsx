@@ -63,7 +63,7 @@ export function MostReadRail({
                 locale={locale}
                 rank={toNeDigits(index + 1, locale)}
                 showMeta
-                showDeck
+                showDeck={false}
                 thumb="sm"
                 compact
               />

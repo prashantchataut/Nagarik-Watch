@@ -82,6 +82,13 @@ function validateAtBoot() {
     // while preserving DATABASE_URL as the canonical validated key.
     DATABASE_URL,
   })
+  const isProd = process.env.NODE_ENV === 'production'
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim()
+  if (isProd && !blobToken) {
+    throw new Error(
+      'BLOB_READ_WRITE_TOKEN is required in production so Payload Media uploads land on durable Vercel Blob storage.',
+    )
+  }
 }
 
 /**
@@ -129,7 +136,8 @@ export default buildConfig({
   upload: {
     abortOnLimit: true,
     limits: {
-      fileSize: 10 * 1024 * 1024,
+      // Align with apps/web MAX_MEDIA_BYTES (8MB). Vercel desk Blob path stays at 4MB.
+      fileSize: 8 * 1024 * 1024,
     },
   },
   // Validate env once the server actually boots — never during `next build`.

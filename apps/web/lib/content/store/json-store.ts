@@ -8,12 +8,14 @@ import 'server-only'
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { ArticleBlock, Locale, WorkflowStage } from '@nagarikwatch/db'
+import { resolveDatabaseUrl } from '@/lib/db-url'
 import {
   ensureOperationalSchema,
   isProductionRuntime,
   runSchemaStatements,
   type Queryable,
 } from '@/lib/ops-db'
+import { resolveArticleStoreFallback } from './article-store-fallback'
 import { buildOriginalStarterArticles } from './seed-original'
 import { normalizeEditionHeroUrl } from './seed-edition/_helpers'
 import type { NewsroomRole } from '@/lib/admin-roles'
@@ -151,6 +153,7 @@ type StoreShape = {
 
 let cache: StoreShape | null = null
 let cacheAt = 0
+let lastKnownGood: StoreShape | null = null
 let writeLock: Promise<void> = Promise.resolve()
 
 /** Short TTL so serverless instances pick up desk publishes without a redeploy.
@@ -167,6 +170,7 @@ export function invalidateArticleStoreCache(): void {
 function rememberCache(store: StoreShape): StoreShape {
   cache = store
   cacheAt = Date.now()
+  if (store.articles.length > 0) lastKnownGood = store
   return store
 }
 
@@ -438,13 +442,23 @@ async function read(): Promise<StoreShape> {
     try {
       return rememberCache(await readFromPostgres(pool))
     } catch (error) {
-      // Pool exhaustion / connect timeouts must not take down the public site.
-      // Prefer cached/file inventory so readers still get the edition.
       console.error(
-        '[json-store] readFromPostgres failed; falling back to file/empty',
+        '[json-store] readFromPostgres failed; using last-known-good or degraded empty',
         error instanceof Error ? error.message : error,
       )
     }
+  }
+  const fallback = resolveArticleStoreFallback({
+    production: isProductionRuntime(),
+    postgresConfigured: Boolean(resolveDatabaseUrl()),
+    hasLastKnownGood: Boolean(lastKnownGood && lastKnownGood.articles.length > 0),
+  })
+  if (fallback === 'stale-cache' && lastKnownGood) return lastKnownGood
+  if (fallback === 'degraded-empty') {
+    console.error(
+      '[json-store] Postgres unavailable in production; serving empty public inventory (file fallback disabled)',
+    )
+    return { articles: [], version: 1 }
   }
   return rememberCache(await readFromFile())
 }

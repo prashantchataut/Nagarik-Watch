@@ -365,7 +365,12 @@ both themes. This stops light mode reading as an inverted portal., -
 
 - Do opinion/columns use a serif for editorial distinction, or stay in the system sans?
 - Final masthead wordmark treatment (Devanagari-primary lockup vs bilingual stacked).
-- ~~Live reference: keep a single compact strip, or fold weather into the masthead?~~ **Resolved 2026-07-26:** one compact Markets strip under masthead/topics (UtilityStrip), not mid-page.
+- ~~Live reference: keep a single compact strip, or fold weather into the masthead?~~
+  **Resolved 2026-07-26:** one compact Markets strip under masthead/topics (UtilityStrip).
+  **Revised 2026-08-14:** folded into the masthead row (`MastheadReference`). Measured at
+  1280px the standalone strip carried ~190px of content across a 1264px band while the
+  masthead row held a 590px void, so the band read as an unfinished page. One band, one
+  weather fetch, and the void now carries the date, weather and NEPSE.
 
 ## Decision log
 

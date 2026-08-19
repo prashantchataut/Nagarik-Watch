@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm --filter @nagarikwatch/admin build",
+  "buildCommand": "cd ../.. && pnpm --filter @nagarikwatch/admin generate:importmap && pnpm --filter @nagarikwatch/admin build",
   "devCommand": "pnpm --filter @nagarikwatch/admin dev",
-  "installCommand": "node ../../scripts/verify-canonical-workspaces.mjs && pnpm install --frozen-lockfile",
+  "installCommand": "cd ../.. && node scripts/verify-canonical-workspaces.mjs && pnpm install --frozen-lockfile",
   "framework": "nextjs",
   "outputDirectory": ".next",
   "github": {

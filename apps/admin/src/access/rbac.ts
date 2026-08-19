@@ -158,7 +158,7 @@ export const publishedOrNewsroom: Access = ({ req }) => {
   if (hasAnyRole(req.user, newsroomInternalRoles)) return true
   const conditions: Where[] = [
     { _status: { equals: 'published' } },
-    { workflowStage: { in: ['scheduled', 'published', 'updated'] } },
+    { workflowStage: { in: ['published', 'updated'] } },
     { publishAt: { less_than_equal: new Date().toISOString() } },
   ]
   return {

@@ -118,4 +118,15 @@ describe('Payload content source contract', () => {
     expect(homepage?.lead.category.slug).toBe('politics')
     expect(homepage?.featured.length).toBeGreaterThan(0)
   })
+
+  it('queries only published/updated stages for readers (scheduled stays cron-gated)', async () => {
+    const { createPayloadContentSource } = await import('./payload-source')
+    await createPayloadContentSource()
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>
+    const articleCalls = fetchMock.mock.calls
+      .map((call) => String(call[0]))
+      .filter((url) => url.includes('/api/articles'))
+    expect(articleCalls.some((url) => url.includes('published'))).toBe(true)
+    expect(articleCalls.every((url) => !decodeURIComponent(url).includes('scheduled'))).toBe(true)
+  })
 })

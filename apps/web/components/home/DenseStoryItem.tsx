@@ -69,7 +69,7 @@ export function DenseStoryItem({
       {showThumb ? (
         <Link
           href={href}
-          className="relative aspect-[4/3] shrink-0 overflow-hidden rounded bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          className="relative aspect-[3/2] shrink-0 overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           tabIndex={-1}
           aria-hidden="true"
         >

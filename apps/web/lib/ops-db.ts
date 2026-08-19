@@ -80,6 +80,14 @@ export function requireOperationalPool(pool: Queryable | null): Queryable | null
   return pool
 }
 
+/**
+ * Production schema is applied with `pnpm migrate:ops` before deploy.
+ * Live request paths must not CREATE TABLE / ALTER TABLE.
+ */
+export function shouldApplyLivePathDdl(): boolean {
+  return !isProductionRuntime()
+}
+
 export async function ensureOperationalSchema(
   key: string,
   setup: (pool: Queryable) => Promise<void>,
@@ -87,6 +95,7 @@ export async function ensureOperationalSchema(
   try {
     const pool = await getOperationalPool()
     if (!pool) return null
+    if (!shouldApplyLivePathDdl()) return pool
     if (!readySchemas.has(key)) {
       readySchemas.set(
         key,

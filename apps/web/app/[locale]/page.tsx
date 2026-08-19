@@ -130,7 +130,7 @@ async function HomePageWithData({
   const latest = [...catalog]
     .filter((story) => !aboveFoldExclude.has(story.id))
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
-    .slice(0, 8)
+    .slice(0, 10)
   const { stories: mostRead, live: mostReadLive } = await resolveMostReadStories({
     catalog,
     excludeIds: aboveFoldExclude,
@@ -182,19 +182,20 @@ async function HomePageWithData({
     <div className="home-edition">
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
-      <div className="mx-auto max-w-page px-3 pt-4 sm:px-4 sm:pt-5">
-        <LeadPackage stories={frontPageStories} locale={locale} />
+      <div className="mx-auto max-w-page px-3 pb-8 pt-3 sm:px-4 sm:pt-4 lg:pb-10">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(16.75rem,18.5rem)] lg:items-start lg:gap-6">
+          <div className="min-w-0 space-y-5">
+            <LeadPackage stories={frontPageStories} locale={locale} />
 
-        <div className="mt-5 xl:hidden">
-          <LatestRail
-            stories={latest}
-            locale={locale}
-            headingId="latest-rail-title-mobile"
-          />
-        </div>
+            <div className="lg:hidden">
+              <LatestRail
+                stories={latest}
+                locale={locale}
+                compact
+                headingId="latest-rail-title-mobile"
+              />
+            </div>
 
-        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(17.5rem,0.31fr)] xl:items-start xl:gap-7">
-          <div className="min-w-0 space-y-5 sm:space-y-6">
             {firstDesks.map((section) => (
               <SectionBlock
                 key={section.category.slug}
@@ -208,7 +209,7 @@ async function HomePageWithData({
             <ProvinceHub locale={locale} stories={catalog} />
 
             {activePoll ? (
-              <div className="xl:hidden">
+              <div className="lg:hidden">
                 <PollOfDay
                   locale={locale}
                   poll={activePoll}
@@ -226,7 +227,7 @@ async function HomePageWithData({
               />
             ))}
 
-            <div className="xl:hidden">
+            <div className="lg:hidden">
               <MostReadRail
                 stories={mostRead}
                 locale={locale}
@@ -236,8 +237,8 @@ async function HomePageWithData({
             </div>
           </div>
 
-          <aside className="hidden min-w-0 xl:block">
-            <div className="sticky top-24 space-y-6">
+          <aside className="hidden min-w-0 lg:block">
+            <div className="sticky top-24 space-y-5">
               <LatestRail stories={latest} locale={locale} compact headingId="latest-rail-title" />
               <MostReadRail
                 stories={mostRead}
@@ -255,16 +256,14 @@ async function HomePageWithData({
             </div>
           </aside>
         </div>
-      </div>
 
-      <div className="mx-auto max-w-page px-3 pb-8 sm:px-4 lg:pb-10">
         <HomeClosingDesk
           locale={locale}
           historyStories={historyStories}
           historyMode={historyMode}
           photoOfDay={photoOfDay}
         />
-        <HomeBillboardAd locale={locale} className="mt-6" />
+        <HomeBillboardAd locale={locale} className="mt-5" />
       </div>
     </div>
   )

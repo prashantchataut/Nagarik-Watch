@@ -39,6 +39,13 @@ describe('launch readiness topology gates', () => {
     expect(check?.status).toBe('warn')
   })
 
+  it('surfaces partner-feed and submission-salt checks', () => {
+    const keys = getLaunchChecks().map((item) => item.key)
+    expect(keys).toEqual(
+      expect.arrayContaining(['partner-feed-tokens', 'submission-ip-salt', 'auth-auto-migrate']),
+    )
+  })
+
   it('passes abuse-captcha when Turnstile keys are set', () => {
     process.env.CAPTCHA_PROVIDER = 'turnstile'
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = 'site-key-example'

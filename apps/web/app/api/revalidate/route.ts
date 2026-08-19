@@ -1,14 +1,12 @@
-import { createHmac, timingSafeEqual } from 'node:crypto'
 import { after } from 'next/server'
 import { NextResponse, type NextRequest } from 'next/server'
 import { recordNotificationEvent } from '@/lib/notifications/store'
 import { deliverPushEvent } from '@/lib/notifications/subscriptions'
 import { revalidatePublishedArticle } from '@/lib/content/revalidate-published'
+import { isValidRevalidateSignature } from '@/lib/security/revalidate-signature'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
-
-const MAX_CLOCK_SKEW_MS = 5 * 60 * 1000
 
 type RevalidateMessage = {
   event?: string
@@ -26,25 +24,6 @@ type RevalidateMessage = {
   publishedAt?: string
   authorSlugs?: string[]
   tagSlugs?: string[]
-}
-
-function validSignature(
-  body: string,
-  timestamp: string,
-  received: string,
-  secret: string,
-): boolean {
-  if (!/^\d{13}$/.test(timestamp) || !/^[a-f0-9]{64}$/i.test(received)) return false
-  const sentAt = Number(timestamp)
-  if (!Number.isFinite(sentAt) || Math.abs(Date.now() - sentAt) > MAX_CLOCK_SKEW_MS) return false
-
-  const expected = createHmac('sha256', secret).update(`${timestamp}.${body}`).digest('hex')
-  const expectedBuffer = Buffer.from(expected, 'hex')
-  const receivedBuffer = Buffer.from(received, 'hex')
-  return (
-    expectedBuffer.length === receivedBuffer.length &&
-    timingSafeEqual(expectedBuffer, receivedBuffer)
-  )
 }
 
 function cleanSegment(value: unknown): string {
@@ -65,7 +44,7 @@ export async function POST(request: NextRequest) {
   const signature = request.headers.get('x-nw-signature') ?? ''
   const rawBody = await request.text()
 
-  if (!validSignature(rawBody, timestamp, signature, secret)) {
+  if (!isValidRevalidateSignature(rawBody, timestamp, signature, secret)) {
     return NextResponse.json({ error: 'Invalid or expired signature.' }, { status: 401 })
   }
 
@@ -76,7 +55,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON.' }, { status: 400 })
   }
 
-  if (message.event !== 'article.changed') {
+  if (message.event !== 'article.changed' && message.event !== 'article.deleted') {
     return NextResponse.json({ error: 'Unsupported event.' }, { status: 400 })
   }
 

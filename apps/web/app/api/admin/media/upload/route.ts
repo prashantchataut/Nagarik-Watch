@@ -109,6 +109,7 @@ export async function POST(request: NextRequest) {
   }
 
   let blobUrl: string
+  let storageProvider: 'r2' | 'vercel-blob' | 'local' = 'local'
   try {
     const { saveR2MediaFile } = await import('@/lib/storage/r2-media-store')
     const r2 = await saveR2MediaFile({
@@ -118,6 +119,7 @@ export async function POST(request: NextRequest) {
     })
     if (r2) {
       blobUrl = r2.url
+      storageProvider = 'r2'
     } else if (token) {
       const pathname = `newsroom/${Date.now().toString(36)}-${safeName}`
       const blob = await put(pathname, buffer, {
@@ -127,6 +129,7 @@ export async function POST(request: NextRequest) {
         addRandomSuffix: true,
       })
       blobUrl = blob.url
+      storageProvider = 'vercel-blob'
     } else if (
       process.env.VERCEL ||
       process.env.AWS_LAMBDA_FUNCTION_NAME ||
@@ -150,6 +153,7 @@ export async function POST(request: NextRequest) {
         requestOrigin,
       })
       blobUrl = saved.url
+      storageProvider = 'local'
     }
   } catch (error) {
     console.error('[media] upload failed', error)
@@ -174,6 +178,24 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  async function rollbackOrphanObject() {
+    try {
+      if (storageProvider === 'vercel-blob' && token) {
+        const { del } = await import('@vercel/blob')
+        await del(blobUrl, { token })
+      }
+      // R2/local orphans are best-effort; log for operators.
+      if (storageProvider !== 'vercel-blob') {
+        console.error('[media] orphan object after library persist failure', {
+          url: blobUrl,
+          provider: storageProvider,
+        })
+      }
+    } catch (rollbackError) {
+      console.error('[media] orphan rollback failed', rollbackError)
+    }
+  }
+
   try {
     const item = await createMediaItem({
       url: blobUrl,
@@ -182,6 +204,7 @@ export async function POST(request: NextRequest) {
       credit,
     })
     if (!item) {
+      await rollbackOrphanObject()
       return NextResponse.json(
         { error: 'Uploaded, but media library row failed.', url: blobUrl, alt },
         { status: 500 },
@@ -199,6 +222,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(item, { status: 201 })
   } catch (error) {
     console.error('[media] library persist failed', error)
+    await rollbackOrphanObject()
     return NextResponse.json(
       {
         error: 'Uploaded, but media library row failed.',

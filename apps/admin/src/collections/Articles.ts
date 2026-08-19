@@ -1,4 +1,15 @@
 import type { CollectionConfig } from 'payload'
+import type { WorkflowStage } from '@nagarikwatch/db'
+import {
+  assertEnglishPublicationReady,
+  assertPublishableHero,
+  canActorTransition,
+  isAllowedWorkflowTransition,
+  isPublicControlStage,
+  isValidHttpUrl,
+  reviewTimestampFieldForStage,
+  type WorkflowActor,
+} from '@nagarikwatch/db'
 import {
   assignedArticleOrEditorialManager,
   editorialManagerRoles,
@@ -11,31 +22,10 @@ import {
   rolesFromUser,
   withRoles,
 } from '../access/rbac'
-import { revalidatePublishedArticle } from '../hooks/revalidate'
-
-type WorkflowStage =
-  | 'idea'
-  | 'assigned'
-  | 'draft'
-  | 'submitted'
-  | 'fact_check'
-  | 'copy_edit'
-  | 'seo_review'
-  | 'legal_review'
-  | 'ready'
-  | 'scheduled'
-  | 'published'
-  | 'updated'
-  | 'archived'
-  | 'retracted'
-
-const publicControlStages = new Set<WorkflowStage>([
-  'scheduled',
-  'published',
-  'updated',
-  'archived',
-  'retracted',
-])
+import {
+  revalidatePublishedArticle,
+  revalidateDeletedArticle,
+} from '../hooks/revalidate'
 
 const allowedBlockTypes = new Set([
   'paragraph',
@@ -52,6 +42,22 @@ function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {}
 }
 
+function workflowActorForPayloadUser(user: unknown): WorkflowActor | null {
+  if (hasAnyRole(user, publishingRoles)) return 'publisher'
+  const roles = rolesFromUser(user)
+  if (
+    hasAnyRole(user, editorialManagerRoles) ||
+    roles.has('reviewer') ||
+    roles.has('fact_checker') ||
+    roles.has('copy_editor') ||
+    roles.has('seo_manager')
+  ) {
+    return 'editor'
+  }
+  if (hasAnyRole(user, newsroomContributorRoles)) return 'reporter'
+  return null
+}
+
 function canReadInternalField({ req }: { req: { user?: unknown } }): boolean {
   return hasAnyRole(req.user, newsroomInternalRoles)
 }
@@ -64,17 +70,7 @@ function canPublishField({ req }: { req: { user?: unknown } }): boolean {
   return hasAnyRole(req.user, publishingRoles)
 }
 
-function isValidHttpUrl(value: unknown): boolean {
-  if (typeof value !== 'string' || !value.trim()) return false
-  try {
-    const url = new URL(value)
-    return url.protocol === 'https:' || url.protocol === 'http:'
-  } catch {
-    return false
-  }
-}
-
-function validateArticleBlocks(value: unknown): string | null {
+function validateArticleBlocks(value: unknown, opts?: { requireImageMedia?: boolean }): string | null {
   if (!Array.isArray(value) || value.length === 0) return 'bodyNe must contain at least one block.'
 
   for (const [index, rawBlock] of value.entries()) {
@@ -93,6 +89,19 @@ function validateArticleBlocks(value: unknown): string | null {
     }
     if (type === 'embed' && !isValidHttpUrl(block.url)) {
       return `bodyNe block ${index + 1} requires a valid http(s) embed URL.`
+    }
+    if (type === 'image') {
+      const hasMedia = Boolean(block.media)
+      const hasUrl = isValidHttpUrl(block.url)
+      if (opts?.requireImageMedia && !hasMedia) {
+        return `bodyNe block ${index + 1} requires a Payload media upload before publication.`
+      }
+      if (!hasMedia && !hasUrl) {
+        return `bodyNe block ${index + 1} requires media or a valid http(s) image URL.`
+      }
+      if (!String(block.alt ?? '').trim()) {
+        return `bodyNe block ${index + 1} requires alt text.`
+      }
     }
     if (type === 'adSlot' && !String(block.placementKey ?? '').trim()) {
       return `bodyNe block ${index + 1} requires placementKey.`
@@ -118,7 +127,7 @@ function articleText(value: unknown): string {
 
 function canUseWorkflowStage(user: unknown, stage: WorkflowStage): boolean {
   if (hasAnyRole(user, publishingRoles)) return true
-  if (publicControlStages.has(stage)) return false
+  if (isPublicControlStage(stage)) return false
   if (hasAnyRole(user, editorialManagerRoles)) return true
 
   const roles = rolesFromUser(user)
@@ -286,7 +295,7 @@ export const Articles: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description:
-          'Editorial stage only. To make a story public, use Payload’s Publish action as well. Public visibility requires document status Published, a public workflow stage, and publishAt not in the future.',
+          'Editorial stage only. Public readers only see published/updated stages after Payload Publish (and after cron promotes scheduled). Use Publish together with a non-future publishAt.',
       },
     },
     {
@@ -339,6 +348,47 @@ export const Articles: CollectionConfig = {
       type: 'textarea',
       access: { read: canReadInternalField },
       admin: { position: 'sidebar' },
+    },
+    {
+      name: 'readerRevalidateStatus',
+      type: 'select',
+      defaultValue: 'pending',
+      options: [
+        { label: 'Pending', value: 'pending' },
+        { label: 'OK', value: 'ok' },
+        { label: 'Failed', value: 'failed' },
+        { label: 'Skipped', value: 'skipped' },
+      ],
+      access: {
+        read: canReadInternalField,
+        create: () => false,
+        update: () => false,
+      },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Last signed reader cache bust outcome.',
+      },
+    },
+    {
+      name: 'readerRevalidateAt',
+      type: 'date',
+      access: {
+        read: canReadInternalField,
+        create: () => false,
+        update: () => false,
+      },
+      admin: { position: 'sidebar', readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+    },
+    {
+      name: 'readerRevalidateError',
+      type: 'textarea',
+      access: {
+        read: canReadInternalField,
+        create: () => false,
+        update: () => false,
+      },
+      admin: { position: 'sidebar', readOnly: true },
     },
     {
       name: 'category',
@@ -728,6 +778,9 @@ export const Articles: CollectionConfig = {
         const full = { ...original, ...data }
         const stage = String(full.workflowStage ?? 'idea') as WorkflowStage
         const status = String(full._status ?? 'draft')
+        const originalStage = String(original.workflowStage ?? stage) as WorkflowStage
+        const publishing =
+          status === 'published' && stage !== 'archived' && stage !== 'retracted'
 
         if (operation === 'create' && req.user && !Array.isArray(data.assignedTo)) {
           data.assignedTo = [req.user.id]
@@ -741,21 +794,48 @@ export const Articles: CollectionConfig = {
           }
         }
 
-        const bodyError = validateArticleBlocks(full.bodyNe)
+        const bodyError = validateArticleBlocks(full.bodyNe, {
+          requireImageMedia: publishing,
+        })
         if (bodyError) throw new Error(bodyError)
 
         if (status === 'published' && /^\[(?:डेमो|demo)\]/i.test(String(full.titleNe ?? ''))) {
           throw new Error('Development demo articles cannot be published.')
         }
 
-        const originalStage = String(original.workflowStage ?? stage) as WorkflowStage
+        assertEnglishPublicationReady({
+          englishStatus: full.englishStatus as string | undefined,
+          titleEn: full.titleEn as string | undefined,
+          bodyEn: full.bodyEn,
+        })
+
+        if (publishing) {
+          assertPublishableHero({
+            status,
+            workflowStage: stage,
+            heroImage: full.heroImage,
+          })
+        }
+
+        if (operation === 'update' && originalStage !== stage) {
+          if (!isAllowedWorkflowTransition(originalStage, stage)) {
+            throw new Error(`Invalid workflow transition: ${originalStage} → ${stage}`)
+          }
+        }
+
         if (req.user) {
           if (!canUseWorkflowStage(req.user, stage)) {
             throw new Error(`Your newsroom role cannot move an article to the “${stage}” stage.`)
           }
+          if (operation === 'update' && originalStage !== stage) {
+            const actor = workflowActorForPayloadUser(req.user)
+            if (!actor || !canActorTransition(actor, originalStage, stage)) {
+              throw new Error(`Invalid workflow transition: ${originalStage} → ${stage}`)
+            }
+          }
           if (
             operation === 'update' &&
-            publicControlStages.has(originalStage) &&
+            isPublicControlStage(originalStage) &&
             !hasAnyRole(req.user, publishingRoles)
           ) {
             throw new Error(
@@ -765,7 +845,7 @@ export const Articles: CollectionConfig = {
           if (status === 'published' && !hasAnyRole(req.user, publishingRoles)) {
             throw new Error('Only publishing roles can publish an article.')
           }
-        } else if (status === 'published' || publicControlStages.has(stage)) {
+        } else if (status === 'published' || isPublicControlStage(stage)) {
           throw new Error('Publishing requires an authenticated publishing account.')
         }
 
@@ -794,6 +874,7 @@ export const Articles: CollectionConfig = {
 
         const status = String(full._status ?? 'draft')
         const requestedStage = String(full.workflowStage ?? 'idea') as WorkflowStage
+        const originalStage = String(original.workflowStage ?? requestedStage) as WorkflowStage
         if (status === 'published') {
           const publishAt = String(full.publishAt || new Date().toISOString())
           const isFuture = Date.parse(publishAt) > Date.now()
@@ -813,15 +894,24 @@ export const Articles: CollectionConfig = {
             normalized.noIndex = false
             normalized.includeInNewsSitemap = normalized.includeInNewsSitemap !== false
           }
-        } else if (!publicControlStages.has(requestedStage)) {
+        } else if (!isPublicControlStage(requestedStage)) {
           normalized.noIndex = true
           normalized.includeInNewsSitemap = false
           normalized.featuredState = 'none'
+        }
+
+        const nextStage = String(normalized.workflowStage ?? requestedStage) as WorkflowStage
+        if (nextStage !== originalStage) {
+          const stamp = reviewTimestampFieldForStage(nextStage)
+          if (stamp && !normalized[stamp]) {
+            normalized[stamp] = new Date().toISOString()
+          }
         }
 
         return normalized
       },
     ],
     afterChange: [revalidatePublishedArticle],
+    afterDelete: [revalidateDeletedArticle],
   },
 }

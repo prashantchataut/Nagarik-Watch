@@ -70,6 +70,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   } catch {
     return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
   }
+  // After Payload cutover, shadow nw_articles reads are not authoritative.
+  if (shouldBlockLocalContentWrites()) return payloadCanonicalBlockedResponse()
   const { id } = await params
   try {
     const article = await getArticleById(id)

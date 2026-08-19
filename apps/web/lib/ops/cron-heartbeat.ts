@@ -58,6 +58,17 @@ export async function recordCronHeartbeat(job: string): Promise<void> {
        ON CONFLICT (job) DO UPDATE SET last_run_at = NOW()`,
       [key],
     )
+    await pool
+      .query(`INSERT INTO nw_cron_run_history (job, run_at) VALUES ($1, NOW())`, [key])
+      .catch((error) => {
+        console.error(
+          '[cron-heartbeat] history insert skipped',
+          error instanceof Error ? error.message : error,
+        )
+      })
+    await pool
+      .query(`DELETE FROM nw_cron_run_history WHERE run_at < NOW() - INTERVAL '7 days'`)
+      .catch(() => undefined)
     return
   }
   if (isProductionRuntime()) {
@@ -82,6 +93,22 @@ export async function getCronHeartbeats(): Promise<CronHeartbeat[]> {
   }
   const entries = await readLocal()
   return Object.entries(entries).map(([job, lastRunAt]) => ({ job, lastRunAt }))
+}
+
+export async function getCronRunHistory(job: string): Promise<string[]> {
+  const key = job.trim()
+  if (!key) return []
+  const pool = await getPool()
+  if (!pool) return []
+  try {
+    const result = await pool.query<{ run_at: string | Date }>(
+      `SELECT run_at FROM nw_cron_run_history WHERE job = $1 ORDER BY run_at DESC LIMIT 2000`,
+      [key],
+    )
+    return result.rows.map((row) => new Date(row.run_at).toISOString())
+  } catch {
+    return []
+  }
 }
 
 /** Minutes since a job's last recorded heartbeat, or null if it has never run. */

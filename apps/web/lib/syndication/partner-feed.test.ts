@@ -5,6 +5,8 @@ import {
   isKnownLicenseTag,
   isPastEmbargo,
   licenseTagFor,
+  parsePartnerFeedTokens,
+  presentedPartnerToken,
   truncateForFeed,
 } from './partner-feed'
 
@@ -51,6 +53,20 @@ describe('checkPartnerTokenShape', () => {
 
   it('accepts a well-shaped token', () => {
     expect(checkPartnerTokenShape('nw_partner_abcdefghijklmnop').ok).toBe(true)
+  })
+})
+
+describe('parsePartnerFeedTokens / presentedPartnerToken', () => {
+  it('splits comma or whitespace configured tokens', () => {
+    expect(parsePartnerFeedTokens('nw_partner_aaaaaaaaaaaaaaaa, nw_partner_bbbbbbbbbbbbbbbb')).toEqual(
+      ['nw_partner_aaaaaaaaaaaaaaaa', 'nw_partner_bbbbbbbbbbbbbbbb'],
+    )
+  })
+
+  it('prefers the Authorization bearer over a query token', () => {
+    expect(presentedPartnerToken('Bearer nw_partner_from_header_ok', 'nw_partner_from_query')).toBe(
+      'nw_partner_from_header_ok',
+    )
   })
 })
 

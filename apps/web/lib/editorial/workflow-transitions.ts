@@ -1,61 +1,16 @@
 import type { WorkflowStage } from '@nagarikwatch/db'
+import {
+  canActorTransition as canActorTransitionCore,
+  editorReviewStages as editorReviewStagesCore,
+  isPublicWorkflowStage as isPublicWorkflowStageCore,
+  isTerminalWorkflowStage as isTerminalWorkflowStageCore,
+  reporterMayEditDraft as reporterMayEditDraftCore,
+  type WorkflowActor,
+} from '@nagarikwatch/db'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import { CONTRIBUTOR_ROLES, EDITOR_ROLES, PUBLISHER_ROLES } from '@/lib/admin-roles'
 
-export type WorkflowActor = 'reporter' | 'editor' | 'publisher' | 'system'
-
-const REPORTER_STAGES: ReadonlySet<WorkflowStage> = new Set(['idea', 'assigned', 'draft'])
-const EDITOR_REVIEW_STAGES: ReadonlySet<WorkflowStage> = new Set([
-  'submitted',
-  'fact_check',
-  'copy_edit',
-  'seo_review',
-  'legal_review',
-  'ready',
-])
-const PUBLIC_STAGES: ReadonlySet<WorkflowStage> = new Set(['published', 'updated'])
-const TERMINAL_STAGES: ReadonlySet<WorkflowStage> = new Set(['archived', 'retracted'])
-const PUBLISHER_ONLY_STAGES: ReadonlySet<WorkflowStage> = new Set([
-  'scheduled',
-  'published',
-  'updated',
-])
-
-/** Allowed transitions keyed by from-stage. */
-const TRANSITIONS: Readonly<Record<WorkflowStage, readonly WorkflowStage[]>> = {
-  idea: ['assigned', 'draft'],
-  assigned: ['draft', 'submitted'],
-  draft: ['submitted', 'draft', 'ready', 'scheduled', 'published'],
-  submitted: [
-    'draft',
-    'fact_check',
-    'copy_edit',
-    'seo_review',
-    'legal_review',
-    'ready',
-    'scheduled',
-    'published',
-    'archived',
-  ],
-  fact_check: [
-    'copy_edit',
-    'seo_review',
-    'legal_review',
-    'ready',
-    'draft',
-    'submitted',
-    'archived',
-  ],
-  copy_edit: ['seo_review', 'legal_review', 'ready', 'draft', 'submitted', 'archived'],
-  seo_review: ['legal_review', 'ready', 'draft', 'submitted', 'archived'],
-  legal_review: ['ready', 'draft', 'submitted', 'archived'],
-  ready: ['scheduled', 'published', 'draft', 'submitted', 'archived'],
-  scheduled: ['published', 'ready', 'draft', 'archived'],
-  published: ['updated', 'archived', 'retracted', 'draft'],
-  updated: ['published', 'updated', 'archived', 'retracted', 'draft'],
-  archived: ['draft'],
-  retracted: ['draft', 'archived'],
-}
+export type { WorkflowActor }
 
 export function workflowActorForRole(role: NewsroomRole): WorkflowActor | null {
   if (PUBLISHER_ROLES.has(role) || role === 'admin' || role === 'super_admin') return 'publisher'
@@ -69,28 +24,7 @@ export function canActorTransition(
   from: WorkflowStage,
   to: WorkflowStage,
 ): boolean {
-  if (from === to) return true
-  const allowed = TRANSITIONS[from]
-  if (!allowed?.includes(to)) return false
-
-  if (actor === 'reporter') {
-    if (to === 'submitted' && REPORTER_STAGES.has(from)) return true
-    if (to === 'draft' && (from === 'draft' || from === 'submitted')) return true
-    return REPORTER_STAGES.has(from) && REPORTER_STAGES.has(to)
-  }
-
-  if (actor === 'editor') {
-    if (to === 'draft' && from === 'submitted') return true
-    if (PUBLISHER_ONLY_STAGES.has(to)) return false
-    return true
-  }
-
-  if (actor === 'publisher') return true
-  if (actor === 'system') {
-    return from === 'scheduled' && to === 'published'
-  }
-
-  return false
+  return canActorTransitionCore(actor, from, to)
 }
 
 export function assertWorkflowTransition(input: {
@@ -106,17 +40,17 @@ export function assertWorkflowTransition(input: {
 }
 
 export function reporterMayEditDraft(stage: WorkflowStage): boolean {
-  return REPORTER_STAGES.has(stage)
+  return reporterMayEditDraftCore(stage)
 }
 
 export function isPublicWorkflowStage(stage: WorkflowStage): boolean {
-  return PUBLIC_STAGES.has(stage)
+  return isPublicWorkflowStageCore(stage)
 }
 
 export function isTerminalWorkflowStage(stage: WorkflowStage): boolean {
-  return TERMINAL_STAGES.has(stage)
+  return isTerminalWorkflowStageCore(stage)
 }
 
 export function editorReviewStages(): ReadonlySet<WorkflowStage> {
-  return EDITOR_REVIEW_STAGES
+  return editorReviewStagesCore()
 }

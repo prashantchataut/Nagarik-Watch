@@ -1,0 +1,479 @@
+{
+  "desktop-1280": {
+    "vw": 1280,
+    "chrome": {
+      "sel": ".nw-masthead__chrome",
+      "top": 0,
+      "height": 76,
+      "width": 1280
+    },
+    "primary": {
+      "sel": ".nw-masthead__primary",
+      "top": 76,
+      "height": 45,
+      "width": 1280
+    },
+    "topics": {
+      "sel": ".nw-masthead__topics",
+      "top": 121,
+      "height": 37,
+      "width": 1280
+    },
+    "mainTop": 158,
+    "headlineTop": 204,
+    "logoOverflow": -76,
+    "navItems": [
+      {
+        "label": "गृहपृष्ठ",
+        "visible": true,
+        "left": 16,
+        "right": 102
+      },
+      {
+        "label": "ताजा",
+        "visible": true,
+        "left": 102,
+        "right": 160
+      },
+      {
+        "label": "राजनीति",
+        "visible": true,
+        "left": 160,
+        "right": 240
+      },
+      {
+        "label": "समाज",
+        "visible": true,
+        "left": 240,
+        "right": 306
+      },
+      {
+        "label": "बजार",
+        "visible": true,
+        "left": 306,
+        "right": 368
+      },
+      {
+        "label": "खेलकुद",
+        "visible": true,
+        "left": 368,
+        "right": 445
+      },
+      {
+        "label": "मनोरञ्जन",
+        "visible": true,
+        "left": 445,
+        "right": 528
+      },
+      {
+        "label": "विश्व",
+        "visible": true,
+        "left": 528,
+        "right": 580
+      },
+      {
+        "label": "विचार",
+        "visible": true,
+        "left": 580,
+        "right": 644
+      },
+      {
+        "label": "साहित्य",
+        "visible": true,
+        "left": 644,
+        "right": 716
+      },
+      {
+        "label": "प्रविधि",
+        "visible": true,
+        "left": 716,
+        "right": 781
+      },
+      {
+        "label": "स्वास्थ्य",
+        "visible": false,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "label": "शिक्षा",
+        "visible": false,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "label": "अन्तर्वार्ता",
+        "visible": false,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "label": "फोटो फिचर",
+        "visible": false,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "label": "भिडियो",
+        "visible": false,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "label": "प्रदेश",
+        "visible": true,
+        "left": 781,
+        "right": 841
+      },
+      {
+        "label": "तथ्य-जाँच",
+        "visible": true,
+        "left": 841,
+        "right": 928
+      },
+      {
+        "label": "थप▾",
+        "visible": true,
+        "left": 928,
+        "right": 993
+      }
+    ],
+    "navOverflow": {
+      "scrollWidth": 1248,
+      "clientWidth": 1248,
+      "overflowPx": 0
+    },
+    "stripGone": true,
+    "hasMastheadRef": true,
+    "topicLabels": [
+      "जलवायु",
+      "डाटा कथा",
+      "नेपाली क्रिकेट",
+      "परीक्षा नतिजा",
+      "पाठक सामग्री",
+      "फिफा विश्वकप",
+      "बजेट २०८३",
+      "भिडियो रिपोर्ट",
+      "भूराजनीति",
+      "विशेष रिपोर्ट"
+    ]
+  },
+  "desktop-1440": {
+    "vw": 1440,
+    "chrome": {
+      "sel": ".nw-masthead__chrome",
+      "top": 0,
+      "height": 76,
+      "width": 1440
+    },
+    "primary": {
+      "sel": ".nw-masthead__primary",
+      "top": 76,
+      "height": 45,
+      "width": 1440
+    },
+    "topics": {
+      "sel": ".nw-masthead__topics",
+      "top": 121,
+      "height": 37,
+      "width": 1440
+    },
+    "mainTop": 158,
+    "headlineTop": 204,
+    "logoOverflow": -76,
+    "navItems": [
+      {
+        "label": "गृहपृष्ठ",
+        "visible": true,
+        "left": 96,
+        "right": 182
+      },
+      {
+        "label": "ताजा",
+        "visible": true,
+        "left": 182,
+        "right": 240
+      },
+      {
+        "label": "राजनीति",
+        "visible": true,
+        "left": 240,
+        "right": 320
+      },
+      {
+        "label": "समाज",
+        "visible": true,
+        "left": 320,
+        "right": 386
+      },
+      {
+        "label": "बजार",
+        "visible": true,
+        "left": 386,
+        "right": 448
+      },
+      {
+        "label": "खेलकुद",
+        "visible": true,
+        "left": 448,
+        "right": 525
+      },
+      {
+        "label": "मनोरञ्जन",
+        "visible": true,
+        "left": 525,
+        "right": 608
+      },
+      {
+        "label": "विश्व",
+        "visible": true,
+        "left": 608,
+        "right": 660
+      },
+      {
+        "label": "विचार",
+        "visible": true,
+        "left": 660,
+        "right": 724
+      },
+      {
+        "label": "साहित्य",
+        "visible": true,
+        "left": 724,
+        "right": 796
+      },
+      {
+        "label": "प्रविधि",
+        "visible": true,
+        "left": 796,
+        "right": 861
+      },
+      {
+        "label": "स्वास्थ्य",
+        "visible": false,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "label": "शिक्षा",
+        "visible": false,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "label": "अन्तर्वार्ता",
+        "visible": false,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "label": "फोटो फिचर",
+        "visible": false,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "label": "भिडियो",
+        "visible": false,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "label": "प्रदेश",
+        "visible": true,
+        "left": 861,
+        "right": 921
+      },
+      {
+        "label": "तथ्य-जाँच",
+        "visible": true,
+        "left": 921,
+        "right": 1008
+      },
+      {
+        "label": "थप▾",
+        "visible": true,
+        "left": 1008,
+        "right": 1073
+      }
+    ],
+    "navOverflow": {
+      "scrollWidth": 1248,
+      "clientWidth": 1248,
+      "overflowPx": 0
+    },
+    "stripGone": true,
+    "hasMastheadRef": true,
+    "topicLabels": [
+      "जलवायु",
+      "डाटा कथा",
+      "नेपाली क्रिकेट",
+      "परीक्षा नतिजा",
+      "पाठक सामग्री",
+      "फिफा विश्वकप",
+      "बजेट २०८३",
+      "भिडियो रिपोर्ट",
+      "भूराजनीति",
+      "विशेष रिपोर्ट"
+    ]
+  },
+  "mobile-390": {
+    "vw": 390,
+    "chrome": {
+      "sel": ".nw-masthead__chrome",
+      "top": 0,
+      "height": 57,
+      "width": 390
+    },
+    "primary": {
+      "sel": ".nw-masthead__primary",
+      "top": 57,
+      "height": 45,
+      "width": 390
+    },
+    "topics": {
+      "sel": ".nw-masthead__topics",
+      "top": 0,
+      "height": 0,
+      "width": 0
+    },
+    "mainTop": 102,
+    "headlineTop": 400,
+    "logoOverflow": -13,
+    "navItems": [
+      {
+        "label": "गृहपृष्ठ",
+        "visible": true,
+        "left": 8,
+        "right": 32
+      },
+      {
+        "label": "ताजा",
+        "visible": true,
+        "left": 32,
+        "right": 81
+      },
+      {
+        "label": "राजनीति",
+        "visible": true,
+        "left": 81,
+        "right": 148
+      },
+      {
+        "label": "समाज",
+        "visible": true,
+        "left": 148,
+        "right": 204
+      },
+      {
+        "label": "बजार",
+        "visible": true,
+        "left": 204,
+        "right": 255
+      },
+      {
+        "label": "खेलकुद",
+        "visible": true,
+        "left": 255,
+        "right": 319
+      },
+      {
+        "label": "मनोरञ्जन",
+        "visible": true,
+        "left": 319,
+        "right": 388
+      },
+      {
+        "label": "विश्व",
+        "visible": true,
+        "left": 388,
+        "right": 432
+      },
+      {
+        "label": "विचार",
+        "visible": true,
+        "left": 432,
+        "right": 485
+      },
+      {
+        "label": "साहित्य",
+        "visible": true,
+        "left": 485,
+        "right": 546
+      },
+      {
+        "label": "प्रविधि",
+        "visible": true,
+        "left": 546,
+        "right": 601
+      },
+      {
+        "label": "स्वास्थ्य",
+        "visible": true,
+        "left": 601,
+        "right": 661
+      },
+      {
+        "label": "शिक्षा",
+        "visible": true,
+        "left": 661,
+        "right": 713
+      },
+      {
+        "label": "अन्तर्वार्ता",
+        "visible": true,
+        "left": 713,
+        "right": 782
+      },
+      {
+        "label": "फोटो फिचर",
+        "visible": true,
+        "left": 782,
+        "right": 865
+      },
+      {
+        "label": "भिडियो",
+        "visible": true,
+        "left": 865,
+        "right": 926
+      },
+      {
+        "label": "प्रदेश",
+        "visible": true,
+        "left": 926,
+        "right": 976
+      },
+      {
+        "label": "तथ्य-जाँच",
+        "visible": true,
+        "left": 976,
+        "right": 1048
+      },
+      {
+        "label": "थप▾",
+        "visible": false,
+        "left": 0,
+        "right": 0
+      }
+    ],
+    "navOverflow": {
+      "scrollWidth": 1040,
+      "clientWidth": 374,
+      "overflowPx": 666
+    },
+    "stripGone": true,
+    "hasMastheadRef": true,
+    "topicLabels": [
+      "जलवायु",
+      "डाटा कथा",
+      "नेपाली क्रिकेट",
+      "परीक्षा नतिजा",
+      "पाठक सामग्री",
+      "फिफा विश्वकप",
+      "बजेट २०८३",
+      "भिडियो रिपोर्ट",
+      "भूराजनीति",
+      "विशेष रिपोर्ट"
+    ]
+  }
+}

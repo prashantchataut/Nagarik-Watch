@@ -96,6 +96,7 @@ export function postgresPoolConfig(
     idleTimeoutMillis: 10_000,
     connectionTimeoutMillis: 2_000,
     allowExitOnIdle: true,
+    application_name: 'nagarik-watch-web',
     ...rest,
   }
 }

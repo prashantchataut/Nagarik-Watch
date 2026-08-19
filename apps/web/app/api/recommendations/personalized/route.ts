@@ -8,6 +8,7 @@ import { getReaderPreferences } from '@/lib/reader/preferences-store'
 import { getInteractionMatrix } from '@/lib/engagement/interaction-matrix'
 import { recommendForReader } from '@/lib/reader/personalize'
 import type { BookmarkRecord, ReadingHistoryRecord } from '@/lib/reader/state'
+import { enforceRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,6 +19,8 @@ export const dynamic = 'force-dynamic'
  * final ranked stories, keeping collaborative filtering server-only.
  */
 export async function GET(request: NextRequest) {
+  const limited = await enforceRateLimit(request, 'recs-personalized', 20, 60_000)
+  if (limited) return limited
   const fingerprint = request.nextUrl.searchParams.get('fingerprint')?.trim() ?? ''
   const session = await getSession().catch(() => null)
   if (!session && !fingerprint) return NextResponse.json({ recommendations: [] })

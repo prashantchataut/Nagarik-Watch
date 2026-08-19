@@ -1,0 +1,389 @@
+{
+  "desktop-1280": {
+    "vw": 1280,
+    "vh": 900,
+    "chromeStack": [
+      {
+        "sel": ".nw-masthead__chrome",
+        "top": 0,
+        "height": 76,
+        "width": 1280
+      },
+      {
+        "sel": ".nw-masthead__primary",
+        "top": 76,
+        "height": 45,
+        "width": 1280
+      },
+      {
+        "sel": ".nw-masthead__topics",
+        "top": 121,
+        "height": 37,
+        "width": 1280
+      },
+      {
+        "sel": "main",
+        "top": 199,
+        "height": 5571,
+        "width": 1280
+      }
+    ],
+    "navItems": [
+      {
+        "label": "गृहपृष्ठ",
+        "left": 16,
+        "right": 83
+      },
+      {
+        "label": "ताजा",
+        "left": 85,
+        "right": 139
+      },
+      {
+        "label": "राजनीति",
+        "left": 141,
+        "right": 217
+      },
+      {
+        "label": "समाज",
+        "left": 219,
+        "right": 281
+      },
+      {
+        "label": "बजार",
+        "left": 283,
+        "right": 341
+      },
+      {
+        "label": "खेलकुद",
+        "left": 343,
+        "right": 416
+      },
+      {
+        "label": "मनोरञ्जन",
+        "left": 418,
+        "right": 497
+      },
+      {
+        "label": "विश्व",
+        "left": 499,
+        "right": 547
+      },
+      {
+        "label": "विचार",
+        "left": 549,
+        "right": 609
+      },
+      {
+        "label": "साहित्य",
+        "left": 611,
+        "right": 679
+      },
+      {
+        "label": "प्रविधि",
+        "left": 681,
+        "right": 742
+      },
+      {
+        "label": "स्वास्थ्य",
+        "left": 744,
+        "right": 811
+      },
+      {
+        "label": "शिक्षा",
+        "left": 813,
+        "right": 869
+      },
+      {
+        "label": "अन्तर्वार्ता",
+        "left": 871,
+        "right": 951
+      },
+      {
+        "label": "फोटो फिचर",
+        "left": 953,
+        "right": 1050
+      },
+      {
+        "label": "भिडियो",
+        "left": 1052,
+        "right": 1121
+      },
+      {
+        "label": "प्रदेश",
+        "left": 1123,
+        "right": 1180
+      },
+      {
+        "label": "तथ्य-जाँच",
+        "left": 1182,
+        "right": 1264
+      }
+    ],
+    "navOverflow": {
+      "scrollWidth": 1248,
+      "clientWidth": 1248,
+      "overflowPx": 0
+    },
+    "headlineTop": 245,
+    "cookie": null
+  },
+  "desktop-1440": {
+    "vw": 1440,
+    "vh": 900,
+    "chromeStack": [
+      {
+        "sel": ".nw-masthead__chrome",
+        "top": 0,
+        "height": 76,
+        "width": 1440
+      },
+      {
+        "sel": ".nw-masthead__primary",
+        "top": 76,
+        "height": 45,
+        "width": 1440
+      },
+      {
+        "sel": ".nw-masthead__topics",
+        "top": 121,
+        "height": 37,
+        "width": 1440
+      },
+      {
+        "sel": "main",
+        "top": 199,
+        "height": 5571,
+        "width": 1440
+      }
+    ],
+    "navItems": [
+      {
+        "label": "गृहपृष्ठ",
+        "left": 96,
+        "right": 163
+      },
+      {
+        "label": "ताजा",
+        "left": 165,
+        "right": 219
+      },
+      {
+        "label": "राजनीति",
+        "left": 221,
+        "right": 297
+      },
+      {
+        "label": "समाज",
+        "left": 299,
+        "right": 361
+      },
+      {
+        "label": "बजार",
+        "left": 363,
+        "right": 421
+      },
+      {
+        "label": "खेलकुद",
+        "left": 423,
+        "right": 496
+      },
+      {
+        "label": "मनोरञ्जन",
+        "left": 498,
+        "right": 577
+      },
+      {
+        "label": "विश्व",
+        "left": 579,
+        "right": 627
+      },
+      {
+        "label": "विचार",
+        "left": 629,
+        "right": 689
+      },
+      {
+        "label": "साहित्य",
+        "left": 691,
+        "right": 759
+      },
+      {
+        "label": "प्रविधि",
+        "left": 761,
+        "right": 822
+      },
+      {
+        "label": "स्वास्थ्य",
+        "left": 824,
+        "right": 891
+      },
+      {
+        "label": "शिक्षा",
+        "left": 893,
+        "right": 949
+      },
+      {
+        "label": "अन्तर्वार्ता",
+        "left": 951,
+        "right": 1031
+      },
+      {
+        "label": "फोटो फिचर",
+        "left": 1033,
+        "right": 1130
+      },
+      {
+        "label": "भिडियो",
+        "left": 1132,
+        "right": 1201
+      },
+      {
+        "label": "प्रदेश",
+        "left": 1203,
+        "right": 1260
+      },
+      {
+        "label": "तथ्य-जाँच",
+        "left": 1262,
+        "right": 1344
+      }
+    ],
+    "navOverflow": {
+      "scrollWidth": 1248,
+      "clientWidth": 1248,
+      "overflowPx": 0
+    },
+    "headlineTop": 245,
+    "cookie": null
+  },
+  "mobile-390": {
+    "vw": 390,
+    "vh": 844,
+    "chromeStack": [
+      {
+        "sel": ".nw-masthead__chrome",
+        "top": 0,
+        "height": 57,
+        "width": 390
+      },
+      {
+        "sel": ".nw-masthead__primary",
+        "top": 57,
+        "height": 45,
+        "width": 390
+      },
+      {
+        "sel": ".nw-masthead__topics",
+        "top": 0,
+        "height": 0,
+        "width": 0
+      },
+      {
+        "sel": "main",
+        "top": 102,
+        "height": 8087,
+        "width": 390
+      }
+    ],
+    "navItems": [
+      {
+        "label": "गृहपृष्ठ",
+        "left": 8,
+        "right": 28
+      },
+      {
+        "label": "ताजा",
+        "left": 30,
+        "right": 75
+      },
+      {
+        "label": "राजनीति",
+        "left": 77,
+        "right": 140
+      },
+      {
+        "label": "समाज",
+        "left": 142,
+        "right": 194
+      },
+      {
+        "label": "बजार",
+        "left": 196,
+        "right": 243
+      },
+      {
+        "label": "खेलकुद",
+        "left": 245,
+        "right": 305
+      },
+      {
+        "label": "मनोरञ्जन",
+        "left": 307,
+        "right": 372
+      },
+      {
+        "label": "विश्व",
+        "left": 374,
+        "right": 414
+      },
+      {
+        "label": "विचार",
+        "left": 416,
+        "right": 465
+      },
+      {
+        "label": "साहित्य",
+        "left": 467,
+        "right": 524
+      },
+      {
+        "label": "प्रविधि",
+        "left": 526,
+        "right": 577
+      },
+      {
+        "label": "स्वास्थ्य",
+        "left": 579,
+        "right": 635
+      },
+      {
+        "label": "शिक्षा",
+        "left": 637,
+        "right": 685
+      },
+      {
+        "label": "अन्तर्वार्ता",
+        "left": 687,
+        "right": 752
+      },
+      {
+        "label": "फोटो फिचर",
+        "left": 754,
+        "right": 833
+      },
+      {
+        "label": "भिडियो",
+        "left": 835,
+        "right": 892
+      },
+      {
+        "label": "प्रदेश",
+        "left": 894,
+        "right": 940
+      },
+      {
+        "label": "तथ्य-जाँच",
+        "left": 942,
+        "right": 1010
+      }
+    ],
+    "navOverflow": {
+      "scrollWidth": 1002,
+      "clientWidth": 374,
+      "overflowPx": 628
+    },
+    "headlineTop": 400,
+    "cookie": null
+  }
+}

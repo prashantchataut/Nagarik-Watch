@@ -2,6 +2,7 @@ import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const configDir = path.dirname(fileURLToPath(import.meta.url))
 const monorepoRoot = path.join(configDir, '../..')
@@ -192,7 +193,17 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+const sentryWrapped =
+  isCloudflareWorkers || isStaticPagesExport
+    ? nextConfig
+    : withSentryConfig(nextConfig, {
+        silent: true,
+        telemetry: false,
+        sourcemaps: { disable: true },
+        widenClientFileUpload: false,
+      })
+
+export default sentryWrapped
 
 if (!isStaticPagesExport) {
   initOpenNextCloudflareForDev()

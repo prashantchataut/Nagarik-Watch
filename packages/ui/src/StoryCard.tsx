@@ -191,7 +191,7 @@ export function StoryCard({
     return (
       <article className={cn('group relative flex flex-nowrap items-start gap-3', className)}>
         {showThumb ? (
-          <div className="relative block w-[4.75rem] shrink-0 overflow-hidden aspect-[4/3] bg-brand-tint sm:w-24">
+          <div className="relative block w-[4.75rem] shrink-0 overflow-hidden aspect-[3/2] bg-brand-tint sm:w-24">
             <Image
               src={story.heroImage!.url}
               alt=""
@@ -253,7 +253,7 @@ export function StoryCard({
         </HeadingTag>
         {deck ? (
           <p
-            className="mt-2 line-clamp-3 text-body-lg leading-relaxed text-ink-soft"
+            className="mt-2 line-clamp-2 text-body-lg leading-relaxed text-ink-soft"
             lang={titleLang}
           >
             {deck}
@@ -271,8 +271,7 @@ export function StoryCard({
       {showFeaturedPhoto || (!isFeatured && story.heroImage && !placeholderMedia) ? (
         <div
           className={cn(
-            'relative mb-3 block overflow-hidden rounded-sm bg-brand-tint',
-            isFeatured ? 'aspect-[16/9]' : 'aspect-[4/3]',
+            'relative mb-3 block overflow-hidden bg-brand-tint aspect-[3/2]',
           )}
         >
           <Image
@@ -282,7 +281,7 @@ export function StoryCard({
             priority={priority}
             unoptimized={unoptimized}
             sizes={imgSizes}
-            className="object-cover transition-transform duration-slow ease-out-quint group-hover:scale-[1.03]"
+            className="object-cover object-center transition-transform duration-slow ease-out-quint group-hover:scale-[1.03]"
             aria-hidden="true"
           />
         </div>
@@ -304,7 +303,7 @@ export function StoryCard({
       </HeadingTag>
       {deck && (
         <p
-          className="mt-2 text-body-lg text-ink-soft leading-relaxed line-clamp-3"
+          className="mt-2 text-body-lg text-ink-soft leading-relaxed line-clamp-2"
           lang={titleLang}
         >
           {deck}

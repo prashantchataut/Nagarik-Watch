@@ -27,7 +27,7 @@ export function TopicsLinks({ locale, topics }: { locale: Locale; topics: TopicL
           {en ? 'Trending' : 'ट्रेन्डिङ'}
         </span>
         <ul className="flex min-w-0 flex-1 items-center overflow-hidden text-caption text-ink-soft">
-          {topics.slice(0, 8).map((topic, index) => {
+          {topics.slice(0, 10).map((topic, index) => {
             const active = pathsMatch(pathname, topic.href)
             return (
               <li

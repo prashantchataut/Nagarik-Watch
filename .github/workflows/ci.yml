@@ -168,6 +168,7 @@ jobs:
           lib/site.test.ts
           lib/launch-phases.test.ts
           lib/launch-readiness.test.ts
+          lib/launch-gate-core.test.ts
         env:
           CONTENT_SOURCE: json
           CI: 'true'
@@ -191,3 +192,69 @@ jobs:
           PAYLOAD_API_TOKEN: ${{ env.PAYLOAD_API_TOKEN }}
           DATABASE_URL: ${{ env.DATABASE_URL }}
           CI: 'true'
+
+  live-gate:
+    name: live-gate fixture parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Live gate fails closed without secrets
+        run: |
+          set +e
+          NEXT_PUBLIC_LAUNCH_STATUS=live pnpm launch:gate
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            echo "Expected launch:gate to fail without live secrets"
+            exit 1
+          fi
+
+      - name: Live gate passes with safe fixtures
+        env:
+          NEXT_PUBLIC_LAUNCH_STATUS: live
+          NEXT_PUBLIC_SITE_URL: https://www.nagarikwatch.com
+          BETTER_AUTH_URL: https://www.nagarikwatch.com
+          DATABASE_URL: postgres://nagarik:nagarik@localhost:5432/nagarik
+          AUTH_SECRET: fixture-auth-secret-32-characters!
+          CONTENT_SOURCE: payload
+          PAYLOAD_PUBLIC_SERVER_URL: https://admin.nagarikwatch.com
+          PAYLOAD_API_TOKEN: fixture-payload-service-account-token
+          PAYLOAD_SECRET: fixture-payload-secret-32-characters!
+          REVALIDATE_SECRET: fixture-revalidate-secret-32-chars!
+          PAYLOAD_DB_PUSH: 'false'
+          NEXT_PUBLIC_PUBLICATION_LEGAL_NAME: CI Fixture Publisher Pvt Ltd
+          NEXT_PUBLIC_EDITOR_IN_CHIEF: CI Fixture Editor
+          NEXT_PUBLIC_DOIB_NUMBER: NW-CI-FIXTURE-REG-99
+          NEXT_PUBLIC_NEWSROOM_PHONE: '+977-01-4000000'
+          NEXT_PUBLIC_NEWSROOM_ADDRESS: Kathmandu fixture address
+          NEXT_PUBLIC_NEWSROOM_EMAIL: desk@example.com
+          RESEND_API_KEY: re_fixture_key
+          AUTH_EMAIL_FROM: Nagarik Watch <accounts@example.com>
+          NEWSLETTER_FROM: Nagarik Watch <newsletter@example.com>
+          BLOB_READ_WRITE_TOKEN: vercel_blob_rw_fixture_token
+          SENTRY_DSN: https://public@o0.ingest.sentry.io/0
+          CRON_SECRET: fixture-cron-secret-32-characters!!
+          STAFF_MFA_ENABLED: 'true'
+          CAPTCHA_PROVIDER: turnstile
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: site-key-example
+          TURNSTILE_SECRET_KEY: secret-key-example
+          SUBMISSION_IP_SALT: fixture-submission-salt-32-chars!!
+          PARTNER_FEED_TOKENS: nw_partner_ci_fixture_token_ok
+          NEXT_PUBLIC_ADS_MODE: 'off'
+          PUBLISHED_ARTICLE_COUNT: '30'
+        run: pnpm launch:gate

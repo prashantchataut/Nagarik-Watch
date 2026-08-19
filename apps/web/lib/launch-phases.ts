@@ -4,6 +4,7 @@
  * See docs/launch-runbook.md.
  */
 import type { LaunchCheck } from '@/lib/launch-readiness'
+import { inRepoLaunchProgramComplete } from '@/lib/launch-gate-core'
 
 export type LaunchPhaseItem = {
   id: string
@@ -146,6 +147,29 @@ export function getLaunchPhases(): LaunchPhase[] {
           label: 'Staff MFA enforced',
           detail: 'STAFF_MFA_ENABLED=true for all newsroom roles.',
           checkKeys: ['staff-mfa'],
+        },
+        {
+          id: 'syndication',
+          label: 'Partner feed fail-closed',
+          detail: 'PARTNER_FEED_TOKENS required; unauthorized partner.json is 401.',
+          checkKeys: ['partner-feed-tokens'],
+        },
+        {
+          id: 'ops-secrets',
+          label: 'Ops secrets and boot passwords',
+          detail: 'Submission salt, auth auto-migrate off, boot passwords cleared, ad sales identity.',
+          checkKeys: [
+            'submission-ip-salt',
+            'auth-auto-migrate',
+            'boot-passwords',
+            'ad-sales-email',
+          ],
+        },
+        {
+          id: 'cms-health',
+          label: 'Payload /healthz green',
+          detail: 'Database reachable, durable media, categories, corpus, publicationDrift=0.',
+          checkKeys: ['cms-health'],
         },
         {
           id: 'observability',
@@ -301,6 +325,6 @@ export function getLaunchStatusSummary(checks: LaunchCheck[], score: number): La
     hard,
     failCount,
     warnCount,
-    inRepoComplete: true,
+    inRepoComplete: inRepoLaunchProgramComplete(checks),
   }
 }

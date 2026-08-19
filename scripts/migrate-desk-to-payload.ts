@@ -176,6 +176,64 @@ function publicWorkflow(stage: string | undefined): {
   return { workflowStage: stage && stage.length ? stage : 'draft', status: 'draft' }
 }
 
+function isHttpUrl(value: string | undefined): boolean {
+  if (!value?.trim()) return false
+  try {
+    const url = new URL(value)
+    return url.protocol === 'https:' || url.protocol === 'http:'
+  } catch {
+    return false
+  }
+}
+
+async function ensureHeroMedia(article: DeskArticle): Promise<string | undefined> {
+  const sourceUrl = article.heroImageUrl?.trim()
+  if (!sourceUrl || !isHttpUrl(sourceUrl)) return undefined
+  if (!apply) return `dry-run-media:${article.slug}`
+
+  const downloaded = await fetch(sourceUrl)
+  if (!downloaded.ok) {
+    console.warn(`hero download failed for ${article.slug}: ${downloaded.status}`)
+    return undefined
+  }
+  const contentType = downloaded.headers.get('content-type')?.split(';')[0]?.trim() || 'image/jpeg'
+  if (!contentType.startsWith('image/')) {
+    console.warn(`hero is not an image for ${article.slug}: ${contentType}`)
+    return undefined
+  }
+  const bytes = Buffer.from(await downloaded.arrayBuffer())
+  const form = new FormData()
+  const filename = `${article.slug.slice(0, 40)}.${contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg'}`
+  form.append('file', new Blob([new Uint8Array(bytes)], { type: contentType }), filename)
+  form.append('alt', article.heroImageAlt?.trim() || article.titleNe)
+  form.append('credit', article.heroCredit?.trim() || 'Migrated from soft desk')
+  if (article.heroCaptionNe?.trim()) form.append('caption', article.heroCaptionNe.trim())
+
+  const response = await fetch(`${payloadBase()}/api/media`, {
+    method: 'POST',
+    headers: {
+      authorization: `users API-Key ${env('PAYLOAD_API_TOKEN')}`,
+      accept: 'application/json',
+    },
+    body: form,
+  })
+  const body = (await response.json().catch(() => ({}))) as {
+    doc?: PayloadDoc
+    id?: string | number
+    errors?: Array<{ message?: string }>
+    message?: string
+  }
+  if (!response.ok) {
+    console.warn(
+      `hero upload failed for ${article.slug}:`,
+      body.errors?.[0]?.message || body.message || response.status,
+    )
+    return undefined
+  }
+  const id = body.doc?.id ?? body.id
+  return id !== undefined ? String(id) : undefined
+}
+
 async function upsertArticle(article: DeskArticle): Promise<'created' | 'updated' | 'skipped'> {
   const existing = await findByField('articles', 'slug', article.slug)
   const categoryId = await ensureCategory(article.categorySlug)
@@ -183,8 +241,21 @@ async function upsertArticle(article: DeskArticle): Promise<'created' | 'updated
   const authorIds = (
     await Promise.all((article.authorIds ?? []).map((id) => ensureAuthor(id)))
   ).filter((id): id is string => Boolean(id))
+  const heroImageId = await ensureHeroMedia(article)
 
-  const { workflowStage, status } = publicWorkflow(article.workflowStage)
+  let { workflowStage, status } = publicWorkflow(article.workflowStage)
+  if (
+    (workflowStage === 'published' || workflowStage === 'updated') &&
+    !heroImageId &&
+    apply
+  ) {
+    console.warn(
+      `demoting ${article.slug} to draft/ready: published desk story has no transferable heroImage`,
+    )
+    workflowStage = 'ready'
+    status = 'draft'
+  }
+
   const body = {
     titleNe: article.titleNe,
     titleEn: article.titleEn,
@@ -222,6 +293,10 @@ async function upsertArticle(article: DeskArticle): Promise<'created' | 'updated
     seoDescription: article.seoDescriptionNe,
     heroCaption: article.heroCaptionNe,
     heroCredit: article.heroCredit,
+    heroImage:
+      heroImageId && !String(heroImageId).startsWith('dry-run-') ? heroImageId : undefined,
+    mediaReferenceUrl:
+      !heroImageId && isHttpUrl(article.heroImageUrl) ? article.heroImageUrl : undefined,
     _status: status,
   }
 

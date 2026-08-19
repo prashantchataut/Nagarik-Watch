@@ -25,6 +25,13 @@ Payload storage adapter first.
 
 ## 2. Deploy Payload (`apps/admin`)
 
+Vercel project: `nagarik-watch-admin` (`prj_bt2QpvcWwy6OhXannKpttX007UJU`).
+Canonical host: `admin.nagarikwatch.com` (added to the Vercel project; production alias
+`https://nagarik-watch-admin.vercel.app` is live as of 2026-08-15).
+
+Set **Root Directory** to `apps/admin` in the Vercel dashboard (or deploy from the monorepo
+root with the admin build command). Apply env from `apps/admin/.env.example`.
+
 Required values:
 
 - `DATABASE_URL`

@@ -53,8 +53,9 @@ export default async function LaunchPage() {
           <p className="mt-1 text-[1.35rem] font-semibold text-ink">{status.stageLabel}</p>
           <p className="mt-2 text-meta leading-7 text-ink-soft">{status.nextAction}</p>
           <p className="mt-2 text-caption text-mute">
-            Status: {status.launchStatus} · In-repo program: complete · Remaining: operator env,
-            DNS, corpus, legal
+            Status: {status.launchStatus} · In-repo program:{' '}
+            {status.inRepoComplete ? 'no code-owned fails' : 'code-owned checks still failing'} ·
+            Remaining: operator env, DNS, corpus, legal
           </p>
         </AdminCard>
       </div>
@@ -62,8 +63,8 @@ export default async function LaunchPage() {
       <AdminCallout tone={status.failCount > 0 ? 'danger' : 'attention'} className="mb-6">
         <p className="text-meta leading-7">
           {status.inRepoComplete
-            ? 'Code and docs for the launch program are in place. Clearing fails/warns requires Vercel secrets, Payload cutover, real stories, and verified publication identity — not more homepage polish.'
-            : 'In-repo launch work is incomplete.'}{' '}
+            ? 'No in-repo launch checks are failing. Clearing remaining fails/warns requires Vercel secrets, Payload cutover, real stories, and verified publication identity — not more homepage polish.'
+            : 'In-repo launch checks are still failing. Fix origin/schema/code gates before treating remaining work as operator-only.'}{' '}
           Runbook: <code className="text-caption">docs/launch-runbook.md</code>
         </p>
       </AdminCallout>

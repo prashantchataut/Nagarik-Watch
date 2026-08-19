@@ -35,7 +35,7 @@ describe('launch phases', () => {
     const checks = getLaunchChecks()
     const summary = getLaunchStatusSummary(checks, 40)
     expect(summary.stage).toBe('topology')
-    expect(summary.inRepoComplete).toBe(true)
+    expect(summary.inRepoComplete).toBe(false)
     expect(summary.nextAction.toLowerCase()).toContain('vercel')
   })
 

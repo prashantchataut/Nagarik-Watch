@@ -31,7 +31,8 @@ article. Do not spray cosmetic edits across the whole tree in one pass.
   heavy ink bars.
 - Nepali labels: no Latin uppercase + wide letter-spacing costume.
 - Polls: real editorial questions only; gate demo/placeholder content from public UI.
-- One live/reference band; do not duplicate weather/NEPSE/forex in strip + card grid.
+- One live/reference band in the masthead row (`MastheadReference`); do not
+  reintroduce a standalone markets strip or HomeLiveBoard on the homepage.
 - Mukta for Devanagari display; Noto for body; Source Sans 3 for Latin UI.
 - Category bands use **desk / stack / mosaic** only. Never sparse text-only 3-col with
   empty cells. Never giant SVG placeholder grids.
@@ -69,7 +70,7 @@ article. Do not spray cosmetic edits across the whole tree in one pass.
 | Section headers  | `packages/ui/src/SectionHeader.tsx`                                     |
 | Story cards      | `packages/ui/src/StoryCard.tsx`                                         |
 | Polls            | `apps/web/components/home/PollOfDay.tsx`, `apps/web/lib/polls-admin.ts` |
-| Live reference   | `apps/web/components/live/UtilityStrip.tsx`, `HomeLiveBoard.tsx`        |
+| Live reference   | `apps/web/components/live/MastheadReference.tsx` (inside masthead row)  |
 | Tokens / kickers | `apps/web/app/globals.css`, `packages/ui` tokens                        |
 | Fonts            | `apps/web/app/fonts.ts`                                                 |
 

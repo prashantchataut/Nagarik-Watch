@@ -18,7 +18,7 @@ export function StoryCardSkeleton({ variant = 'default', className }: StoryCardS
   const isFeatured = variant === 'featured'
   return (
     <div className={cn('flex flex-col', className)} aria-hidden="true">
-      <div className={cn(shimmerBase, isFeatured ? 'mb-3 aspect-[16/9]' : 'mb-3 aspect-[4/3]')} />
+      <div className={cn(shimmerBase, isFeatured ? 'mb-3 aspect-[3/2]' : 'mb-3 aspect-[3/2]')} />
       <div className={cn(shimmerBase, 'mb-2 h-4 w-20 rounded-sm')} />
       <div className={cn(shimmerBase, 'mb-2 h-5 w-full rounded-sm')} />
       <div className={cn(shimmerBase, 'h-5 w-3/4 rounded-sm')} />
@@ -49,12 +49,12 @@ export function DenseStoryRowSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'grid grid-cols-[4.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[5rem_minmax(0,1fr)]',
+        'grid grid-cols-[4.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[5.25rem_minmax(0,1fr)]',
         className,
       )}
       aria-hidden="true"
     >
-      <div className={cn(shimmerBase, 'aspect-[4/3] rounded-sm')} />
+      <div className={cn(shimmerBase, 'aspect-[3/2] rounded-sm')} />
       <div className="min-w-0 space-y-2">
         <div className={cn(shimmerBase, 'h-3 w-16 rounded-sm')} />
         <div className={cn(shimmerBase, 'h-4 w-full rounded-sm')} />
@@ -70,43 +70,34 @@ export function DenseStoryRowSkeleton({ className }: { className?: string }) {
  */
 export function LeadPackageSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('border-b border-rule pb-5 sm:pb-6 lg:pb-7', className)} aria-hidden="true">
-      <div className="grid gap-5 sm:gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] lg:gap-7 xl:gap-8">
+    <div className={cn('border-b border-rule pb-4 sm:pb-5', className)} aria-hidden="true">
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] sm:gap-4">
+        <div className={cn(shimmerBase, 'aspect-[3/2] w-full')} />
         <div className="min-w-0">
-          <div className={cn(shimmerBase, 'h-3 w-20 rounded-sm')} />
-          <div className={cn(shimmerBase, 'mt-2 h-8 w-full rounded-sm sm:h-10')} />
-          <div className={cn(shimmerBase, 'mt-2 h-8 w-[82%] rounded-sm sm:h-10')} />
-          <div className={cn(shimmerBase, 'mt-3 h-4 w-full max-w-2xl rounded-sm')} />
-          <div className={cn(shimmerBase, 'mt-2 h-4 w-[72%] max-w-xl rounded-sm')} />
-          <div className={cn(shimmerBase, 'mt-3 h-4 w-44 rounded-sm')} />
-          <div className={cn(shimmerBase, 'mt-3.5 aspect-[16/10] w-full sm:mt-4 sm:aspect-[16/9]')} />
-        </div>
-
-        <div className="min-w-0 border-t border-rule pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0 xl:pl-7">
-          <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-3 sm:grid-cols-[9rem_minmax(0,1fr)] lg:block">
-            <div className={cn(shimmerBase, 'aspect-[4/3] lg:aspect-[16/10]')} />
-            <div className="min-w-0 lg:mt-3">
-              <div className={cn(shimmerBase, 'h-3 w-16 rounded-sm')} />
-              <div className={cn(shimmerBase, 'mt-2 h-5 w-full rounded-sm')} />
-              <div className={cn(shimmerBase, 'mt-2 h-5 w-4/5 rounded-sm')} />
-              <div className={cn(shimmerBase, 'mt-2 h-3 w-28 rounded-sm')} />
-            </div>
-          </div>
-          <div className="mt-4 divide-y divide-rule border-t border-rule">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="space-y-2 py-3">
-                <div className={cn(shimmerBase, 'h-3 w-20 rounded-sm')} />
-                <div className={cn(shimmerBase, 'h-4 w-full rounded-sm')} />
-                <div className={cn(shimmerBase, 'h-4 w-4/5 rounded-sm')} />
-              </div>
-            ))}
-          </div>
+          <div className={cn(shimmerBase, 'h-3 w-16 rounded-sm')} />
+          <div className={cn(shimmerBase, 'mt-2 h-6 w-full rounded-sm')} />
+          <div className={cn(shimmerBase, 'mt-2 h-6 w-[82%] rounded-sm')} />
+          <div className={cn(shimmerBase, 'mt-3 h-4 w-full rounded-sm')} />
+          <div className={cn(shimmerBase, 'mt-2 h-4 w-[88%] rounded-sm')} />
+          <div className={cn(shimmerBase, 'mt-2 h-4 w-[70%] rounded-sm')} />
+          <div className={cn(shimmerBase, 'mt-3 h-3 w-36 rounded-sm')} />
         </div>
       </div>
 
-      <div className="mt-4 divide-y divide-rule border-t border-rule lg:grid lg:grid-cols-4 lg:divide-x lg:divide-y-0 lg:divide-rule">
+      <div className="mt-4 grid gap-4 border-t border-rule pt-4 sm:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div key={i} className="min-w-0">
+            <div className={cn(shimmerBase, 'aspect-[3/2]')} />
+            <div className={cn(shimmerBase, 'mt-2 h-3 w-14 rounded-sm')} />
+            <div className={cn(shimmerBase, 'mt-2 h-4 w-full rounded-sm')} />
+            <div className={cn(shimmerBase, 'mt-1.5 h-4 w-4/5 rounded-sm')} />
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 grid divide-y divide-rule border-t border-rule sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="space-y-2 py-2.5 lg:px-4 lg:py-3">
+          <div key={i} className="space-y-2 py-2.5 sm:px-3.5">
             <div className={cn(shimmerBase, 'h-3 w-16 rounded-sm')} />
             <div className={cn(shimmerBase, 'h-4 w-full rounded-sm')} />
             <div className={cn(shimmerBase, 'h-4 w-3/4 rounded-sm')} />
@@ -121,27 +112,38 @@ export function LeadPackageSkeleton({ className }: { className?: string }) {
 export function HomeFeedSkeleton({ className }: { className?: string }) {
   return (
     <div
-      className={cn('mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5', className)}
+      className={cn('mx-auto max-w-page px-3 py-3 sm:px-4 sm:py-4', className)}
       aria-busy="true"
       aria-live="polite"
     >
-      <LeadPackageSkeleton />
-      <div className="mt-5 border-b border-rule pb-5 sm:mt-6 sm:pb-6">
-        <div className="mb-4 flex items-end justify-between border-b border-rule pb-2">
-          <div>
-            <div className={cn(shimmerBase, 'h-6 w-28 rounded-sm')} />
-            <div className={cn(shimmerBase, 'mt-1.5 h-0.5 w-12')} />
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(16.75rem,18.5rem)] lg:items-start">
+        <div className="min-w-0">
+          <LeadPackageSkeleton />
+          <div className="mt-5 border-b border-rule pb-5">
+            <div className="mb-3.5 flex items-end justify-between border-b border-rule pb-2">
+              <div>
+                <div className={cn(shimmerBase, 'h-6 w-28 rounded-sm')} />
+                <div className={cn(shimmerBase, 'mt-1.5 h-0.5 w-12')} />
+              </div>
+              <div className={cn(shimmerBase, 'h-4 w-16 rounded-sm')} />
+            </div>
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:gap-5">
+              <StoryCardSkeleton variant="featured" />
+              <div className="divide-y divide-rule md:border-l md:border-rule md:pl-5">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <DenseStoryRowSkeleton key={i} />
+                ))}
+              </div>
+            </div>
           </div>
-          <div className={cn(shimmerBase, 'h-4 w-16 rounded-sm')} />
         </div>
-        <div className="grid gap-4 md:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)] md:gap-5">
-          <StoryCardSkeleton variant="featured" />
-          <div className="divide-y divide-rule md:border-l md:border-rule md:pl-5">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <DenseStoryRowSkeleton key={i} />
-            ))}
-          </div>
-        </div>
+        <aside className="hidden min-w-0 lg:block">
+          <div className={cn(shimmerBase, 'h-6 w-24 rounded-sm')} />
+          <div className={cn(shimmerBase, 'mt-1.5 h-0.5 w-10')} />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <DenseStoryRowSkeleton key={i} />
+          ))}
+        </aside>
       </div>
     </div>
   )

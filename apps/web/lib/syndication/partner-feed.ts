@@ -77,3 +77,20 @@ export function embargoRemainingMs(item: EmbargoWindow, now: Date = new Date()):
   if (!Number.isFinite(releaseAt)) return 0
   return Math.max(0, releaseAt - now.getTime())
 }
+
+export function parsePartnerFeedTokens(raw: string | undefined | null): string[] {
+  return String(raw ?? '')
+    .split(/[\s,]+/)
+    .map((token) => token.trim())
+    .filter(Boolean)
+}
+
+export function presentedPartnerToken(
+  authorizationHeader: string | null,
+  queryToken: string | null,
+): string | null {
+  const bearer = authorizationHeader?.match(/^Bearer\s+(.+)$/i)?.[1]?.trim()
+  if (bearer) return bearer
+  const query = queryToken?.trim()
+  return query || null
+}

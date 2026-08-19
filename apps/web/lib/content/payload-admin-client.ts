@@ -1,5 +1,10 @@
 import 'server-only'
-import type { ArticleBlock } from '@nagarikwatch/db'
+import type { ArticleBlock, WorkflowStage } from '@nagarikwatch/db'
+import {
+  canActorTransition,
+  isValidHttpUrl,
+  reporterMayEditDraft,
+} from '@nagarikwatch/db'
 
 export function isPayloadCanonical(): boolean {
   const source = process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim()
@@ -216,9 +221,33 @@ export type PayloadJournalistDraftInput = {
   notificationTagSlugs?: string[]
 }
 
+export class PayloadJournalistEditBlockedError extends Error {
+  readonly status = 409
+  constructor(message: string) {
+    super(message)
+    this.name = 'PayloadJournalistEditBlockedError'
+  }
+}
+
+function assertOptionalMediaReference(url: string | undefined): string | undefined {
+  if (!url?.trim()) return undefined
+  const trimmed = url.trim()
+  if (!isValidHttpUrl(trimmed)) {
+    throw new Error('mediaReferenceUrl must be a valid http(s) URL for editorial handoff only.')
+  }
+  return trimmed
+}
+
+function authorEmail(value: PayloadRelationship | undefined): string {
+  return value && typeof value === 'object' && value.email
+    ? String(value.email).trim().toLowerCase()
+    : ''
+}
+
 export async function createPayloadJournalistDraft(
   input: PayloadJournalistDraftInput,
 ): Promise<{ id: string; slug: string; workflowStage: string }> {
+  const mediaReferenceUrl = assertOptionalMediaReference(input.mediaReferenceUrl)
   const [category, author, tags] = await Promise.all([
     findDocument('categories', 'slug', input.categorySlug),
     findDocument('authors', 'email', input.reporterEmail),
@@ -258,12 +287,13 @@ export async function createPayloadJournalistDraft(
         reportingLocation: input.reportingLocation,
         sourceNote: input.sourceNote,
         editorPitch: input.editorPitch,
-        mediaReferenceUrl: input.mediaReferenceUrl,
+        mediaReferenceUrl,
         internalNotes: input.internalNotes,
         premium: false,
         commentsEnabled: true,
         notificationMode: input.notificationMode ?? 'none',
         notificationTagSlugs: input.notificationTagSlugs ?? [],
+        // Candidate URL only — never attach as publishable heroImage from the journalist desk.
         _status: 'draft',
       }),
     },
@@ -295,7 +325,7 @@ export type PayloadJournalistDraft = {
   updatedAt?: string
 }
 
-type PayloadRelationship = string | number | { id?: string | number; slug?: string }
+type PayloadRelationship = string | number | { id?: string | number; slug?: string; email?: string }
 type PayloadDraftDoc = PayloadDoc & {
   titleNe?: string
   titleEn?: string
@@ -303,6 +333,7 @@ type PayloadDraftDoc = PayloadDoc & {
   bodyNe?: ArticleBlock[]
   category?: PayloadRelationship
   tags?: Array<{ tag?: PayloadRelationship }>
+  authors?: Array<{ author?: PayloadRelationship }>
   workflowStage?: string
   homepageTeaserNe?: string
   socialCopyNe?: string
@@ -348,8 +379,34 @@ export async function getPayloadJournalistDraft(id: string): Promise<PayloadJour
 
 export async function updatePayloadJournalistDraft(
   id: string,
-  input: Omit<PayloadJournalistDraftInput, 'reporterEmail'>,
+  input: Omit<PayloadJournalistDraftInput, 'reporterEmail'> & { reporterEmail: string },
 ): Promise<PayloadJournalistDraft> {
+  const live = await payloadJson<PayloadDraftDoc>(
+    `/api/articles/${encodeURIComponent(id)}?draft=true&depth=2`,
+  )
+  const liveStage = String(live.workflowStage ?? 'draft') as WorkflowStage
+  if (!reporterMayEditDraft(liveStage)) {
+    throw new PayloadJournalistEditBlockedError(
+      `This draft is in “${liveStage}” and cannot be overwritten from the journalist desk.`,
+    )
+  }
+  if (!canActorTransition('reporter', liveStage, input.workflowStage)) {
+    throw new PayloadJournalistEditBlockedError(
+      `Invalid journalist workflow transition: ${liveStage} → ${input.workflowStage}`,
+    )
+  }
+
+  const reporterEmail = input.reporterEmail.trim().toLowerCase()
+  const authorEmails = (live.authors ?? [])
+    .map((row) => authorEmail(row.author))
+    .filter(Boolean)
+  if (authorEmails.length > 0 && !authorEmails.includes(reporterEmail)) {
+    throw new PayloadJournalistEditBlockedError(
+      'Only the assigned Payload author can update this journalist draft.',
+    )
+  }
+
+  const mediaReferenceUrl = assertOptionalMediaReference(input.mediaReferenceUrl)
   const [category, tags] = await Promise.all([
     findDocument('categories', 'slug', input.categorySlug),
     Promise.all(input.tagSlugs.map((slug) => findDocument('tags', 'slug', slug))),
@@ -367,13 +424,14 @@ export async function updatePayloadJournalistDraft(
         bodyNe: input.bodyNe,
         category: category.id,
         tags: tags.filter((tag): tag is PayloadDoc => Boolean(tag)).map((tag) => ({ tag: tag.id })),
+        // Only draft|submitted — never rewind later CMS stages.
         workflowStage: input.workflowStage,
         homepageTeaserNe: input.homepageTeaserNe,
         socialCopyNe: input.socialCopyNe,
         reportingLocation: input.reportingLocation,
         sourceNote: input.sourceNote,
         editorPitch: input.editorPitch,
-        mediaReferenceUrl: input.mediaReferenceUrl,
+        mediaReferenceUrl,
         internalNotes: input.internalNotes,
         locale: input.locale,
         noIndex: true,

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
@@ -30,6 +30,8 @@ type MastheadProps = {
   topics?: TopicLink[]
   account?: MastheadAccount | null
   leaderboard?: ReactNode
+  /** Live reference (weather, markets) rendered inside the masthead row. */
+  reference?: ReactNode
 }
 
 const UTIL_LINK =
@@ -38,15 +40,31 @@ const UTIL_LINK =
 const UTIL_ICON_BTN =
   'inline-flex h-11 w-11 items-center justify-center border border-transparent text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:border-chrome-rule hover:bg-surface-raised/70 hover:text-on-chrome focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
+/**
+ * Desk slots shown directly in the crimson rail. The long tail moves into a
+ * "more" menu so the bar keeps even rhythm instead of filling to the pixel and
+ * silently scrolling the moment an editor adds a category.
+ */
+const PRIMARY_NAV_SLOTS = 9
+
+function navLinkClass(active: boolean) {
+  return active
+    ? 'inline-flex min-h-11 items-center gap-1 whitespace-nowrap border-b-2 border-paper bg-brand-bar-active px-3 text-caption font-black text-paper sm:px-3.5 sm:text-body'
+    : 'inline-flex min-h-11 items-center gap-1 whitespace-nowrap border-b-2 border-transparent px-3 text-caption font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:border-paper/70 hover:bg-brand-bar-active/65 hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-paper sm:px-3.5 sm:text-body'
+}
+
 export function Masthead({
   locale,
   navCategories,
   topics = [],
   account = null,
   leaderboard = null,
+  reference = null,
 }: MastheadProps) {
   const dict = getDictionary(locale)
   const pathname = usePathname() ?? '/'
+  const primaryCategories = navCategories.slice(0, PRIMARY_NAV_SLOTS)
+  const overflowCategories = navCategories.slice(PRIMARY_NAV_SLOTS)
   const [dateLabel, setDateLabel] = useState('')
   const [englishDateLabel, setEnglishDateLabel] = useState('')
   const homeHref = localizeHref(locale, '/')
@@ -97,16 +115,16 @@ export function Masthead({
             <MobileNav locale={locale} navCategories={navCategories} account={account} />
             <Link
               href={homeHref}
-              className="nw-masthead__logo mx-auto min-w-0 max-w-[10.5rem] transition-opacity duration-fast ease-out-quint hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              className="nw-masthead__logo mx-auto min-w-0 transition-opacity duration-fast ease-out-quint hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               aria-label={dict.siteName}
             >
-              <Logo siteName={dict.siteName} tone="chrome" className="w-full max-w-[10.5rem]" />
+              <Logo siteName={dict.siteName} tone="chrome" compact />
             </Link>
             <SearchLauncher locale={locale} />
           </div>
 
           <div className="mx-auto hidden min-h-16 max-w-page items-center gap-4 px-4 py-2 lg:flex">
-            <div className="flex min-w-0 shrink-0 items-center gap-4">
+            <div className="flex min-w-0 items-center gap-3.5">
               <Link
                 href={homeHref}
                 className="nw-masthead__logo min-w-0 shrink transition-opacity duration-fast ease-out-quint hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
@@ -116,20 +134,21 @@ export function Masthead({
               </Link>
               <div className="hidden flex-col border-l border-chrome-rule pl-3.5 leading-tight xl:flex">
                 <span
-                  className="text-caption font-bold text-on-chrome"
+                  className="whitespace-nowrap text-caption font-bold text-on-chrome"
                   lang={lang}
                   suppressHydrationWarning
                 >
                   {dateLabel || '\u00a0'}
                 </span>
                 <span
-                  className="text-[0.68rem] font-medium text-on-chrome-soft"
+                  className="whitespace-nowrap text-[0.68rem] font-medium text-on-chrome-soft"
                   lang="en"
                   suppressHydrationWarning
                 >
                   {englishDateLabel || '\u00a0'}
                 </span>
               </div>
+              {reference}
             </div>
 
             {leaderboard ? (
@@ -196,8 +215,8 @@ export function Masthead({
           aria-label={dict.primaryNav}
           className="nw-masthead__primary border-b border-black/15 bg-brand-bar text-paper"
         >
-          <div className="mx-auto flex max-w-page items-stretch px-2 sm:px-4">
-            <ul className="flex min-w-0 flex-1 flex-nowrap items-center gap-x-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="relative mx-auto flex max-w-page items-stretch px-2 sm:px-4">
+            <ul className="nw-masthead__navrail flex min-w-0 flex-1 flex-nowrap items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <li>
                 <NavLink href={homeHref} active={pathsMatch(pathname, homeHref)}>
                   <HomeGlyph />
@@ -209,12 +228,25 @@ export function Masthead({
                   {dict.navLatest}
                 </NavLink>
               </li>
-              {navCategories.map((category) => {
+              {primaryCategories.map((category) => {
                 const label = en && category.nameEn ? category.nameEn : category.nameNe
                 const categoryLang = en && category.nameEn ? 'en' : 'ne'
                 const href = localizeHref(locale, `/${category.slug}`)
                 return (
                   <li key={category.slug}>
+                    <NavLink href={href} active={pathsMatch(pathname, href)} lang={categoryLang}>
+                      {label}
+                    </NavLink>
+                  </li>
+                )
+              })}
+              {/* Mobile keeps the full scrollable rail; long-tail desks live in More on lg+. */}
+              {overflowCategories.map((category) => {
+                const label = en && category.nameEn ? category.nameEn : category.nameNe
+                const categoryLang = en && category.nameEn ? 'en' : 'ne'
+                const href = localizeHref(locale, `/${category.slug}`)
+                return (
+                  <li key={`mobile-${category.slug}`} className="lg:hidden">
                     <NavLink href={href} active={pathsMatch(pathname, href)} lang={categoryLang}>
                       {label}
                     </NavLink>
@@ -239,7 +271,20 @@ export function Masthead({
                   {en ? 'Fact check' : 'तथ्य-जाँच'}
                 </NavLink>
               </li>
+              {overflowCategories.length > 0 ? (
+                <li className="ms-auto hidden shrink-0 lg:flex">
+                  <NavMoreMenu
+                    locale={locale}
+                    categories={overflowCategories}
+                    pathname={pathname}
+                  />
+                </li>
+              ) : null}
             </ul>
+            <div
+              className="pointer-events-none absolute inset-y-0 end-0 w-8 bg-gradient-to-l from-brand-bar to-transparent lg:hidden"
+              aria-hidden="true"
+            />
           </div>
         </nav>
       </header>
@@ -282,13 +327,101 @@ function NavLink({
       href={href}
       lang={lang}
       aria-current={active ? 'page' : undefined}
-      className={
-        active
-          ? 'inline-flex min-h-11 items-center gap-1 whitespace-nowrap border-b-2 border-paper bg-brand-bar-active px-2.5 text-caption font-black text-paper sm:px-3 sm:text-body'
-          : 'inline-flex min-h-11 items-center gap-1 whitespace-nowrap border-b-2 border-transparent px-2.5 text-caption font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:border-paper/70 hover:bg-brand-bar-active/65 hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-paper sm:px-3 sm:text-body'
-      }
+      className={navLinkClass(Boolean(active))}
     >
       {children}
     </Link>
+  )
+}
+
+/**
+ * Long-tail desks. Kept in a menu so the crimson rail never runs edge to edge.
+ */
+function NavMoreMenu({
+  locale,
+  categories,
+  pathname,
+}: {
+  locale: Locale
+  categories: Category[]
+  pathname: string
+}) {
+  const en = locale === 'en'
+  const [open, setOpen] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    const onPointer = (event: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('mousedown', onPointer)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('mousedown', onPointer)
+    }
+  }, [open])
+
+  // Close on navigation so the panel never lingers over the next page.
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
+
+  const hrefs = categories.map((category) => ({
+    category,
+    href: localizeHref(locale, `/${category.slug}`),
+  }))
+  const activeInside = hrefs.some((entry) => pathsMatch(pathname, entry.href))
+
+  return (
+    <div ref={panelRef} className="relative flex items-stretch">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        lang={en ? 'en' : 'ne'}
+        className={navLinkClass(activeInside)}
+      >
+        <span>{en ? 'More' : 'थप'}</span>
+        <span aria-hidden="true" className="text-paper/75">
+          ▾
+        </span>
+      </button>
+
+      {open ? (
+        <div className="absolute end-0 top-full z-50 w-[min(92vw,22rem)] border border-rule bg-surface-raised p-2 shadow-md">
+          <ul className="grid grid-cols-2 gap-0.5">
+            {hrefs.map(({ category, href }) => {
+              const label = en && category.nameEn ? category.nameEn : category.nameNe
+              const active = pathsMatch(pathname, href)
+              return (
+                <li key={category.slug}>
+                  <Link
+                    href={href}
+                    lang={en && category.nameEn ? 'en' : 'ne'}
+                    aria-current={active ? 'page' : undefined}
+                    onClick={() => setOpen(false)}
+                    className={
+                      active
+                        ? 'block px-2 py-2 text-caption font-extrabold text-brand-strong'
+                        : 'block px-2 py-2 text-caption font-semibold text-ink transition-colors duration-fast ease-out-quint hover:bg-surface hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
+                    }
+                  >
+                    {label}
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      ) : null}
+    </div>
   )
 }

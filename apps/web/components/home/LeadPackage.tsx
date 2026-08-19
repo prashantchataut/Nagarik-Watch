@@ -58,7 +58,7 @@ function StoryMedia({
         fill
         priority={priority}
         sizes={sizes}
-        className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.02]"
+        className="object-cover object-center transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.02]"
       />
     </Link>
   )
@@ -72,21 +72,30 @@ function PrimaryLead({ story, locale }: { story: StoryCardData; locale: Locale }
 
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-      <article className="group min-w-0" data-home-role="lead">
+      <article
+        className={`group min-w-0 text-start ${
+          photo
+            ? 'grid gap-3 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] sm:items-start sm:gap-4 lg:gap-5'
+            : ''
+        }`}
+        data-home-role="lead"
+      >
         {photo ? (
           <StoryMedia
             story={story}
             locale={locale}
             priority
-            sizes="(min-width: 1280px) 820px, (min-width: 1024px) 64vw, 100vw"
-            className="aspect-[16/10] sm:aspect-[16/9]"
+            sizes="(min-width: 1280px) 520px, (min-width: 640px) 52vw, 100vw"
+            className="aspect-[3/2]"
           />
-        ) : null}
+        ) : (
+          <div className="h-0.5 w-16 bg-brand" aria-hidden="true" />
+        )}
 
-        <div className={photo ? 'mt-3 sm:mt-3.5' : 'border-t-2 border-brand pt-3'}>
+        <div className="min-w-0">
           <CategoryLabel category={story.category} locale={locale} as="span" />
           <h1
-            className="mt-1.5 text-pretty font-display text-[1.85rem] font-black leading-[1.18] text-ink sm:text-[2.35rem] sm:leading-[1.14] lg:text-[2.85rem] xl:text-[3rem]"
+            className="mt-1.5 text-pretty font-display text-[1.45rem] font-black leading-[1.22] text-ink sm:text-[1.7rem] sm:leading-[1.2] lg:text-[1.95rem]"
             lang={titleLang}
           >
             <Link
@@ -99,7 +108,7 @@ function PrimaryLead({ story, locale }: { story: StoryCardData; locale: Locale }
 
           {deck ? (
             <p
-              className="mt-2 max-w-[42rem] text-pretty text-body leading-relaxed text-ink-soft line-clamp-3 sm:mt-2.5 sm:text-body-lg sm:leading-relaxed"
+              className="mt-2 text-pretty text-body leading-relaxed text-ink-soft line-clamp-3 sm:line-clamp-4"
               lang={titleLang}
             >
               {deck}
@@ -110,7 +119,7 @@ function PrimaryLead({ story, locale }: { story: StoryCardData; locale: Locale }
             authors={story.authors}
             locale={locale}
             publishedAt={story.publishedAt}
-            className="mt-2 sm:mt-2.5"
+            className="mt-2.5"
           />
         </div>
       </article>
@@ -118,19 +127,16 @@ function PrimaryLead({ story, locale }: { story: StoryCardData; locale: Locale }
   )
 }
 
-function SupportLead({ story, locale }: { story: StoryCardData; locale: Locale }) {
+function SupportStory({ story, locale }: { story: StoryCardData; locale: Locale }) {
   const title = titleFor(story, locale)
-  const deck = deckFor(story, locale)
   const titleLang = langFor(story, locale)
   const photo = hasPhoto(story)
 
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
       <article
-        className={`group min-w-0 ${
-          photo
-            ? 'grid grid-cols-[6.5rem_minmax(0,1fr)] gap-2.5 sm:grid-cols-[7.5rem_minmax(0,1fr)] lg:grid-cols-1'
-            : ''
+        className={`group min-w-0 text-start ${
+          photo ? 'grid grid-cols-[5.75rem_minmax(0,1fr)] gap-2.5 sm:grid-cols-1 sm:gap-0' : ''
         }`}
         data-home-role="support"
       >
@@ -138,32 +144,23 @@ function SupportLead({ story, locale }: { story: StoryCardData; locale: Locale }
           <StoryMedia
             story={story}
             locale={locale}
-            sizes="(min-width: 1024px) 360px, 120px"
-            className="aspect-[4/3] lg:aspect-[16/10]"
+            sizes="(min-width: 640px) 360px, 96px"
+            className="aspect-[3/2] sm:mb-2"
           />
         ) : null}
-
-        <div className={photo ? 'min-w-0 lg:mt-2.5' : 'min-w-0'}>
+        <div className="min-w-0">
           <CategoryLabel category={story.category} locale={locale} as="span" />
           <h2
-            className="mt-1 text-pretty font-display text-h3 font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong sm:text-[1.35rem] lg:text-[1.5rem]"
+            className="mt-1 text-pretty font-display text-[1.02rem] font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong sm:text-[1.12rem]"
             lang={titleLang}
           >
             <Link
               href={hrefFor(story, locale)}
               className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
-              {title}
+              <span className="line-clamp-3">{title}</span>
             </Link>
           </h2>
-          {deck ? (
-            <p
-              className="mt-1 line-clamp-2 text-caption leading-relaxed text-ink-soft sm:text-meta"
-              lang={titleLang}
-            >
-              {deck}
-            </p>
-          ) : null}
           <div className="mt-1.5 text-caption text-mute">
             <Dateline iso={story.publishedAt} locale={locale} />
           </div>
@@ -174,69 +171,50 @@ function SupportLead({ story, locale }: { story: StoryCardData; locale: Locale }
 }
 
 /**
- * Homepage opening hierarchy: one editorial thesis, then distinct support roles.
- * Packed left/right desk, never stacked centered mega voids.
+ * THESIS: first viewport is a packed news desk, photo then type, never a centered void.
+ * OWN-WORLD: Civic Crimson kickers, Mukta headlines, 3:2 photography, hairline rules.
+ * STORY: scan the lead, two supports, and a pulse of briefs in one pass.
+ * FIRST VIEWPORT: 3:2 lead, left-aligned display, 2-up supports, 4-brief pulse.
+ * FORM: Nepali portal packing, Civic Crimson identity.
  */
 export function LeadPackage({ stories, locale }: LeadPackageProps) {
   if (stories.length === 0) return null
 
   const english = locale === 'en'
   const lead = stories[0]!
-  const support = stories[1]
-  const briefs = stories.slice(2, 4)
-  const pulse = stories.slice(4, 8)
-  const hasSupportColumn = Boolean(support) || briefs.length > 0
+  const support = stories.slice(1, 3)
+  const pulse = stories.slice(3, 7)
 
   return (
     <section
-      className="border-b border-rule pb-4 sm:pb-5 lg:pb-6"
+      className="border-b border-rule pb-4 text-start sm:pb-5"
       aria-label={english ? 'Top stories' : 'मुख्य समाचार'}
       data-home-lead-package
     >
-      <div
-        className={`grid gap-4 sm:gap-5 ${
-          hasSupportColumn
-            ? 'lg:grid-cols-[minmax(0,1.55fr)_minmax(17rem,1fr)] lg:items-start lg:gap-6 xl:gap-7'
-            : ''
-        }`}
-      >
-        <PrimaryLead story={lead} locale={locale} />
+      <PrimaryLead story={lead} locale={locale} />
 
-        {hasSupportColumn ? (
-          <div className="min-w-0 border-t border-rule pt-3.5 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0 xl:pl-6">
-            {support ? <SupportLead story={support} locale={locale} /> : null}
-            {briefs.length > 0 ? (
-              <div
-                className={`${support ? 'mt-3 border-t border-rule pt-1' : ''} divide-y divide-rule`}
-              >
-                {briefs.map((story) => (
-                  <div key={story.id} className="py-2.5">
-                    <InstrumentedStory
-                      articleSlug={story.slug}
-                      articleCategory={story.category.slug}
-                    >
-                      <DenseStoryItem
-                        story={story}
-                        locale={locale}
-                        compact
-                        showDeck={false}
-                        showMeta
-                        showDateline
-                        thumb="sm"
-                      />
-                    </InstrumentedStory>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
+      {support.length > 0 ? (
+        <div
+          className={`mt-4 grid gap-3.5 border-t border-rule pt-4 ${
+            support.length > 1 ? 'sm:grid-cols-2 sm:gap-4' : ''
+          }`}
+        >
+          {support.map((story) => (
+            <SupportStory key={story.id} story={story} locale={locale} />
+          ))}
+        </div>
+      ) : null}
 
       {pulse.length > 0 ? (
-        <div className="mt-3.5 border-t border-rule pt-1 sm:mt-4">
+        <div className="mt-4 border-t border-rule pt-1">
           <h2 className="sr-only">{english ? 'More top stories' : 'थप मुख्य समाचार'}</h2>
-          <ol className="grid divide-y divide-rule sm:grid-cols-2 sm:divide-x sm:divide-y-0 sm:divide-rule lg:grid-cols-4">
+          <ol
+            className={`grid divide-y divide-rule ${
+              pulse.length > 1
+                ? 'sm:grid-cols-2 sm:divide-x sm:divide-y-0 sm:divide-rule'
+                : ''
+            } ${pulse.length > 2 ? 'lg:grid-cols-4' : ''}`}
+          >
             {pulse.map((story, index) => (
               <li
                 key={story.id}

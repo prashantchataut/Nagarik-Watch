@@ -7,7 +7,8 @@
 import 'server-only'
 import { getPoolStats } from '@/lib/pg-pool'
 import { cronHealthScore, utilizationScore } from '@/lib/algorithms/product/ops-health'
-import { getCronHeartbeats, minutesSince, type CronHeartbeat } from '@/lib/ops/cron-heartbeat'
+import { getCronHeartbeats, getCronRunHistory, minutesSince, type CronHeartbeat } from '@/lib/ops/cron-heartbeat'
+import { cronGreenWindowHours } from '@/lib/ops/cron-window'
 
 export type CronJobExpectation = { job: string; label: string; intervalMinutes: number }
 
@@ -59,6 +60,7 @@ export type OpsHealthSnapshot = {
   cron: CronSnapshot[]
   errorBudget: ErrorBudgetSnapshot | null
   generatedAt: string
+  scheduledPublishGreenHours: number | null
 }
 
 function poolSnapshot(): PoolSnapshot {
@@ -130,10 +132,15 @@ export async function getOpsHealthSnapshot(options?: {
   errorBudget?: { windowRequests: number; errorCount: number; targetErrorRate?: number }
 }): Promise<OpsHealthSnapshot> {
   const heartbeats = await getCronHeartbeats().catch(() => [] as CronHeartbeat[])
+  const scheduledRuns = await getCronRunHistory('scheduled-publish').catch(() => [] as string[])
+  const scheduled = EXPECTED_CRON_JOBS.find((job) => job.job === 'scheduled-publish')
   return {
     pool: poolSnapshot(),
     cron: cronSnapshots(heartbeats),
     errorBudget: options?.errorBudget ? errorBudgetSnapshot(options.errorBudget) : null,
     generatedAt: new Date().toISOString(),
+    scheduledPublishGreenHours: scheduled
+      ? cronGreenWindowHours(scheduledRuns, scheduled.intervalMinutes)
+      : null,
   }
 }

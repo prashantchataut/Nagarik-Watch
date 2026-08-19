@@ -52,7 +52,11 @@ export function ProvinceHub({ locale, className, stories = [] }: ProvinceHubProp
       />
 
       {populated.length >= 3 ? (
-        <ul className="mt-3.5 grid gap-0 divide-y divide-rule border-y border-rule sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-3">
+        <ul
+          className={`mt-3.5 grid gap-0 divide-y divide-rule border-y border-rule sm:grid-cols-2 sm:divide-x sm:divide-y-0 ${
+            populated.length === 3 || populated.length >= 6 ? 'lg:grid-cols-3' : ''
+          }`}
+        >
           {populated.slice(0, 6).map(({ province, story }, index) => {
             if (!story) return null
             return (

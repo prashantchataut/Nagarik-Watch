@@ -29,20 +29,19 @@ export function isTrustedWriteRequest(request: NextRequest): boolean {
       .filter((value): value is string => Boolean(value)),
   )
 
-  // Same-deployment trust: Origin matching this request's Host is always allowed.
-  // Covers custom domains, www aliases, and *.vercel.app without widening to arbitrary hosts.
-  const host =
-    request.headers.get('x-forwarded-host')?.split(',')[0]?.trim() ||
-    request.headers.get('host')?.trim() ||
-    ''
-  if (host) {
-    allowed.add(`https://${host}`)
-    allowed.add(`http://${host}`)
-  }
-
-  const allowHostPreview =
+  // Host-header trust is preview/dev only. Production must not widen the
+  // allowlist from a spoofable Host / X-Forwarded-Host value.
+  const allowHostTrust =
     process.env.NODE_ENV !== 'production' || process.env.ALLOW_HOST_ORIGIN_TRUST === 'true'
-  if (allowHostPreview) {
+  if (allowHostTrust) {
+    const host =
+      request.headers.get('x-forwarded-host')?.split(',')[0]?.trim() ||
+      request.headers.get('host')?.trim() ||
+      ''
+    if (host) {
+      allowed.add(`https://${host}`)
+      allowed.add(`http://${host}`)
+    }
     allowed.add('http://localhost:3000')
     allowed.add('http://127.0.0.1:3000')
     allowed.add('http://localhost:3101')

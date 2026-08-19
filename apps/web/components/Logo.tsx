@@ -76,6 +76,8 @@ type LogoProps = {
   markOnly?: boolean
   stacked?: boolean
   tone?: LogoTone
+  /** Narrow chrome rows: wordmark must stay on one line inside a 56px bar. */
+  compact?: boolean
 }
 
 export function Logo({
@@ -84,6 +86,7 @@ export function Logo({
   markOnly = false,
   stacked = false,
   tone = 'default',
+  compact = false,
 }: LogoProps) {
   const siteNameLang = /[A-Za-z]/.test(siteName) ? 'en' : 'ne'
   const isEn = siteNameLang === 'en'
@@ -112,14 +115,22 @@ export function Logo({
       <LogoMark
         title={`${siteName} / Nagarik Watch`}
         tone={tone}
-        className={
-          stacked ? 'h-12 w-12 shrink-0 sm:h-14 sm:w-14' : 'h-9 w-9 shrink-0 sm:h-11 sm:w-11'
-        }
+        className={cn(
+          'shrink-0',
+          stacked
+            ? 'h-12 w-12 sm:h-14 sm:w-14'
+            : compact
+              ? 'h-8 w-8'
+              : 'h-9 w-9 sm:h-11 sm:w-11',
+        )}
       />
       <span className={cn('flex flex-col leading-none', stacked && 'items-center text-center')}>
         <span
           className={cn(
-            'font-display text-[1.65rem] font-black leading-[1.02] tracking-[-0.03em] sm:text-[2.05rem]',
+            'font-display font-black leading-[1.02] tracking-[-0.03em]',
+            compact
+              ? 'whitespace-nowrap text-[1.15rem]'
+              : 'text-[1.65rem] sm:text-[2.05rem]',
             titleClass,
           )}
           lang={siteNameLang}
@@ -127,10 +138,13 @@ export function Logo({
           {siteName}
           <span className="text-brand ml-0.5 inline-block">.</span>
         </span>
-        <span className="flex items-center gap-1.5 mt-1">
+        <span className={cn('flex items-center gap-1.5', compact ? 'mt-0.5' : 'mt-1')}>
           <span
             className={cn(
-              'font-sans text-[0.62rem] font-black tracking-[0.14em] uppercase sm:text-[0.68rem]',
+              'font-sans font-black uppercase',
+              compact
+                ? 'text-[0.5rem] tracking-[0.12em]'
+                : 'text-[0.62rem] tracking-[0.14em] sm:text-[0.68rem]',
               subClass,
             )}
             lang="en"

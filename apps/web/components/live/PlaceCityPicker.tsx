@@ -10,6 +10,8 @@ type PlaceCityPickerProps = {
   place: LivePlace
   onPlaceChange: (place: LivePlace, chosen: boolean) => void
   compact?: boolean
+  /** `chrome` reads on the masthead surface, which is near-black in dark mode. */
+  tone?: 'default' | 'chrome'
 }
 
 export function PlaceCityPicker({
@@ -17,6 +19,7 @@ export function PlaceCityPicker({
   place,
   onPlaceChange,
   compact = false,
+  tone = 'default',
 }: PlaceCityPickerProps) {
   const en = locale === 'en'
   const [open, setOpen] = useState(false)
@@ -77,15 +80,17 @@ export function PlaceCityPicker({
         type="button"
         onClick={() => setOpen((value) => !value)}
         className={
-          compact
-            ? 'inline-flex items-center gap-1 rounded border border-rule bg-surface px-2 py-0.5 text-caption font-semibold text-ink transition-colors hover:border-brand hover:bg-brand-tint/30'
-            : 'inline-flex items-center gap-2 rounded border border-rule bg-surface px-3 py-2 text-body-sm font-semibold text-ink transition-colors hover:border-brand hover:bg-brand-tint/25'
+          tone === 'chrome'
+            ? 'inline-flex max-w-[7.5rem] items-center gap-1 border border-chrome-rule px-2 py-0.5 text-caption font-semibold text-on-chrome transition-colors hover:border-brand hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
+            : compact
+              ? 'inline-flex items-center gap-1 rounded border border-rule bg-surface px-2 py-0.5 text-caption font-semibold text-ink transition-colors hover:border-brand hover:bg-brand-tint/30'
+              : 'inline-flex items-center gap-2 rounded border border-rule bg-surface px-3 py-2 text-body-sm font-semibold text-ink transition-colors hover:border-brand hover:bg-brand-tint/25'
         }
         aria-expanded={open}
         aria-haspopup="listbox"
       >
-        <span>{label}</span>
-        <span className="text-ink-soft" aria-hidden>
+        <span className="truncate">{label}</span>
+        <span className={tone === 'chrome' ? 'text-on-chrome-soft' : 'text-ink-soft'} aria-hidden>
           ▾
         </span>
       </button>

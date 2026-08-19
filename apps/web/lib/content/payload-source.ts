@@ -136,7 +136,8 @@ function stablePublicationDate(doc: PayloadDoc): string {
 function publicArticleWhere(): Record<string, Record<string, unknown>> {
   return {
     _status: { equals: 'published' },
-    workflowStage: { in: ['scheduled', 'published', 'updated'] },
+    // Match soft-desk + revalidate webhook: scheduled stays invisible until cron promotes.
+    workflowStage: { in: ['published', 'updated'] },
     publishAt: { less_than_equal: new Date().toISOString() },
   }
 }
