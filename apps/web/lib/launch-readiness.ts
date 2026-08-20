@@ -49,8 +49,34 @@ function overlayModuleProbes(checks: LaunchCheck[]): LaunchCheck[] {
   const launchLive = (envValue(process.env, 'NEXT_PUBLIC_LAUNCH_STATUS') || 'preview').toLowerCase() === 'live'
   const contentSource =
     envValue(process.env, 'CONTENT_SOURCE') || envValue(process.env, 'PAYLOAD_CONTENT_SOURCE')
+  const authSecret =
+    envValue(process.env, 'AUTH_SECRET') || envValue(process.env, 'BETTER_AUTH_SECRET')
+  const newsroomAddress = envValue(process.env, 'NEXT_PUBLIC_NEWSROOM_ADDRESS')
 
   let next = checks
+  next = replaceCheck(next, 'auth-secret', {
+    key: 'auth-secret',
+    label: 'Authentication secret',
+    status:
+      authSecret.length >= 32 && !looksUnverified(authSecret)
+        ? 'pass'
+        : launchLive
+          ? 'fail'
+          : 'warn',
+    detail:
+      authSecret.length >= 32 && !looksUnverified(authSecret)
+        ? 'Authentication secret is configured'
+        : 'AUTH_SECRET or BETTER_AUTH_SECRET with at least 32 characters is required before live launch',
+  })
+  next = replaceCheck(next, 'newsroom-contact', {
+    key: 'newsroom-contact',
+    label: 'Newsroom address',
+    status: newsroomAddress && !looksUnverified(newsroomAddress) ? 'pass' : launchLive ? 'fail' : 'warn',
+    detail:
+      newsroomAddress && !looksUnverified(newsroomAddress)
+        ? 'Verified newsroom address is configured'
+        : 'NEXT_PUBLIC_NEWSROOM_ADDRESS must contain the operator-verified newsroom address before live launch',
+  })
   next = replaceCheck(next, 'database', {
     key: 'database',
     label: 'Persistent database',

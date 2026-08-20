@@ -7,7 +7,7 @@ function isRealPhoto(url: string | undefined): boolean {
   return Boolean(url && !url.startsWith('data:'))
 }
 
-/** Visual feature for the day. Skips placeholder media so the band never shows a black slab. */
+/** Visual feature for the day. Skips synthetic media so the band never shows a black slab. */
 export function PhotoOfTheDay({ locale, story }: { locale: Locale; story: StoryCardData | null }) {
   if (!story?.heroImage?.url || !isRealPhoto(story.heroImage.url)) return null
   const en = locale === 'en'

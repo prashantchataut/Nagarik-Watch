@@ -11,7 +11,7 @@
  *   - Source-reliability note + fact-consistency hook (returns flags only;
  *     verdicts stay human until a real model is wired).
  *
- * What is deliberately a placeholder: ML toxicity models, bot-traffic
+ * What is deliberately deferred: ML toxicity models, bot-traffic
  * detection, misinformation pattern detection — these need a model endpoint
  * and a labelled dataset that do not exist yet. Wrappers are exposed so a
  * future worker plugs in without changing call sites.

@@ -5,14 +5,13 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { AD_PLACEMENTS, getAdMode, isAdPlacementKey, isNetworkAdsReady } from '@/lib/ads'
 import { getAdEventSummary } from '@/lib/ad-events'
 import { listHouseAds, upsertHouseAd } from '@/lib/house-ads'
+import { HouseAdEditor } from '@/components/admin/HouseAdEditor'
 import { promoteHouseAdWinners } from '@/lib/ads/house-ad-promote'
 import { deliveryCoverage, fillRateAnomaly } from '@/lib/ads/yield-local'
 import {
   AdminPageHeader,
   AdminCard,
   AdminButton,
-  AdminInput,
-  AdminSelect,
   AdminMetric,
   AdminTable,
 } from '@/components/admin/primitives'
@@ -35,22 +34,54 @@ async function saveHouseAd(formData: FormData) {
     if (!isAdPlacementKey(placementKey)) {
       redirect('/admin/ads?error=placement')
     }
+
+    const title = String(formData.get('title') ?? '').trim()
+    const body = String(formData.get('body') ?? '').trim()
+    const cta = String(formData.get('cta') ?? '').trim()
+    const href = String(formData.get('href') ?? '').trim()
+    if (!title || !body || !cta || !isSafeCampaignHref(href)) {
+      redirect('/admin/ads?error=creative')
+    }
+
+    const abEnabled = formData.get('abEnabled') === 'on'
+    const challengerTitle = String(formData.get('challengerTitle') ?? '').trim()
+    const challengerBody = String(formData.get('challengerBody') ?? '').trim()
+    const challengerCta = String(formData.get('challengerCta') ?? '').trim()
+    const challengerHref = String(formData.get('challengerHref') ?? '').trim()
+    if (
+      abEnabled &&
+      (!challengerTitle ||
+        !challengerBody ||
+        !challengerCta ||
+        !isSafeCampaignHref(challengerHref))
+    ) {
+      redirect('/admin/ads?error=challenger')
+    }
+
     await upsertHouseAd({
       placementKey,
       active: formData.get('active') === 'on',
-      title: String(formData.get('title') ?? '').trim() || 'Nagarik Watch partnership',
-      body: String(formData.get('body') ?? '').trim() || 'Clearly labelled house campaign.',
-      cta: String(formData.get('cta') ?? '').trim() || 'Learn more',
-      href: String(formData.get('href') ?? '').trim() || '/advertise',
+      title,
+      body,
+      cta,
+      href,
       imageUrl: String(formData.get('imageUrl') ?? '').trim() || undefined,
-      abEnabled: formData.get('abEnabled') === 'on',
-      challenger: {
-        title: String(formData.get('challengerTitle') ?? '').trim(),
-        body: String(formData.get('challengerBody') ?? '').trim(),
-        cta: String(formData.get('challengerCta') ?? '').trim(),
-        href: String(formData.get('challengerHref') ?? '').trim(),
-        imageUrl: String(formData.get('challengerImageUrl') ?? '').trim() || undefined,
-      },
+      titleEn: String(formData.get('titleEn') ?? '').trim() || undefined,
+      bodyEn: String(formData.get('bodyEn') ?? '').trim() || undefined,
+      ctaEn: String(formData.get('ctaEn') ?? '').trim() || undefined,
+      abEnabled,
+      challenger: abEnabled
+        ? {
+            title: challengerTitle,
+            body: challengerBody,
+            cta: challengerCta,
+            href: challengerHref,
+            imageUrl: String(formData.get('challengerImageUrl') ?? '').trim() || undefined,
+            titleEn: String(formData.get('challengerTitleEn') ?? '').trim() || undefined,
+            bodyEn: String(formData.get('challengerBodyEn') ?? '').trim() || undefined,
+            ctaEn: String(formData.get('challengerCtaEn') ?? '').trim() || undefined,
+          }
+        : null,
     })
     revalidatePath('/admin/ads')
     redirect('/admin/ads?saved=1')
@@ -58,6 +89,17 @@ async function saveHouseAd(formData: FormData) {
     if (error && typeof error === 'object' && 'digest' in error) throw error
     console.error('[admin/ads] save failed', error instanceof Error ? error.message : error)
     redirect('/admin/ads?error=save')
+  }
+}
+
+function isSafeCampaignHref(value: string): boolean {
+  if (!value) return false
+  if (value.startsWith('/')) return !value.startsWith('//')
+  try {
+    const url = new URL(value)
+    return url.protocol === 'https:' || url.protocol === 'http:'
+  } catch {
+    return false
   }
 }
 
@@ -144,7 +186,11 @@ export default async function AdsPage({
               ? 'Placement चयन गलत छ।'
               : params.error === 'promote'
                 ? 'A/B विजेता प्रवर्द्धन गर्न सकिएन।'
-                : 'House ad सुरक्षित गर्न सकिएन। DATABASE_URL र ops schema जाँच गर्नुहोस्।'}
+                : params.error === 'creative'
+                  ? 'शीर्षक, विवरण, CTA र सुरक्षित destination URL आवश्यक छन्।'
+                  : params.error === 'challenger'
+                    ? 'A/B चलाउँदा challenger को शीर्षक, विवरण, CTA र सुरक्षित URL आवश्यक छन्।'
+                    : 'House ad सुरक्षित गर्न सकिएन। DATABASE_URL र ops schema जाँच गर्नुहोस्।'}
         </p>
       ) : null}
       <div className="mb-5 grid gap-4 lg:grid-cols-[1fr_0.7fr]">
@@ -200,11 +246,11 @@ export default async function AdsPage({
         {coverageAnomaly.anomalous ? (
           <p className="mt-1 text-meta font-semibold text-red-700" lang="en">
             Coverage is {(coverageAnomaly.drop * 100).toFixed(0)} points below the fully-wired
-            baseline — configure more house ads or a network.
+            baseline. Configure more house ads or a network.
           </p>
         ) : (
           <p className="mt-1 text-meta text-ink-soft" lang="en">
-            Local check only — no vendor fill/eCPM data is reported here.
+            Local check only. No vendor fill/eCPM data is reported here.
           </p>
         )}
       </AdminCard>
@@ -214,148 +260,20 @@ export default async function AdsPage({
           House ad creative
         </h2>
         <p className="mt-2 max-w-body text-meta text-ink-soft" lang="ne">
-          Payment/ad-network नजोडिए पनि खाली placeholder देखाउने होइन। House ad राखेर sponsorship,
-          membership वा media-kit CTA चलाउनुहोस्।
+          Payment/ad-network नजोडिए पनि सार्वजनिक पृष्ठमा खाली ad shell राखिँदैन। House ad राखेर
+          sponsorship, membership वा media-kit CTA चलाउनुहोस्।
         </p>
-        <form action={saveHouseAd} className="mt-4 grid gap-3 lg:grid-cols-6">
-          <div className="lg:col-span-2">
-            <AdminSelect
-              label="Placement"
-              name="placementKey"
-              lang="en"
-              defaultValue={houseAds[0]?.placementKey ?? placements[0]?.key}
-              options={placements.map((placement) => ({
-                value: placement.key,
-                label: placement.key,
-              }))}
-            />
-          </div>
-          <div className="lg:col-span-2">
-            <AdminInput
-              label="Title"
-              name="title"
-              lang="en"
-              defaultValue={
-                houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.title
-              }
-            />
-          </div>
-          <AdminInput
-            label="CTA"
-            name="cta"
-            lang="en"
-            defaultValue={
-              houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.cta
-            }
-          />
-          <label className="flex items-center gap-2 pt-6 text-meta font-semibold text-ink-soft">
-            <input
-              name="active"
-              type="checkbox"
-              className="size-4 accent-brand"
-              defaultChecked={
-                houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
-                  ?.active ?? false
-              }
-            />{' '}
-            Active
-          </label>
-          <div className="lg:col-span-3">
-            <AdminInput
-              label="Body"
-              name="body"
-              lang="en"
-              defaultValue={
-                houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.body
-              }
-            />
-          </div>
-          <div className="lg:col-span-2">
-            <AdminInput
-              label="Link"
-              name="href"
-              placeholder="/advertise"
-              lang="en"
-              defaultValue={
-                houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.href
-              }
-            />
-          </div>
-          <AdminInput
-            label="Image URL"
-            name="imageUrl"
-            lang="en"
-            defaultValue={
-              houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')?.imageUrl
-            }
-          />
-          <div className="lg:col-span-6 rounded-md border border-rule bg-surface px-3 py-3">
-            <label className="flex items-center gap-2 text-meta font-semibold text-ink">
-              <input
-                name="abEnabled"
-                type="checkbox"
-                className="size-4 accent-brand"
-                defaultChecked={
-                  houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
-                    ?.abEnabled ?? false
-                }
-              />
-              Enable A/B (control vs challenger) — CTR via experiments store
-            </label>
-            <div className="mt-3 grid gap-3 lg:grid-cols-4">
-              <AdminInput
-                label="Challenger title"
-                name="challengerTitle"
-                lang="en"
-                defaultValue={
-                  houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
-                    ?.challenger?.title
-                }
-              />
-              <AdminInput
-                label="Challenger CTA"
-                name="challengerCta"
-                lang="en"
-                defaultValue={
-                  houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
-                    ?.challenger?.cta
-                }
-              />
-              <AdminInput
-                label="Challenger link"
-                name="challengerHref"
-                lang="en"
-                defaultValue={
-                  houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
-                    ?.challenger?.href
-                }
-              />
-              <AdminInput
-                label="Challenger image"
-                name="challengerImageUrl"
-                lang="en"
-                defaultValue={
-                  houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
-                    ?.challenger?.imageUrl
-                }
-              />
-              <div className="lg:col-span-4">
-                <AdminInput
-                  label="Challenger body"
-                  name="challengerBody"
-                  lang="en"
-                  defaultValue={
-                    houseByPlacement.get(houseAds[0]?.placementKey ?? placements[0]?.key ?? '')
-                      ?.challenger?.body
-                  }
-                />
-              </div>
-            </div>
-          </div>
-          <div className="lg:col-span-6 flex flex-wrap items-center gap-3">
-            <AdminButton type="submit">Save house ad</AdminButton>
-          </div>
-        </form>
+        <HouseAdEditor
+          placements={placements.map((placement) => ({
+            key: placement.key,
+            label: placement.label,
+            width: placement.width,
+            height: placement.height,
+            position: placement.position,
+          }))}
+          houseAds={houseAds}
+          action={saveHouseAd}
+        />
         <form action={promoteHouseAdWinnersAction} className="mt-3">
           <AdminButton type="submit" variant="secondary">
             Promote A/B winners now

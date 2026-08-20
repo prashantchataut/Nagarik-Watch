@@ -5,7 +5,7 @@ import { PROVINCES } from '@/lib/site'
 
 describe('recommendation follow-ups', () => {
   it('keeps house-ad experiment ids stable for promote matching', () => {
-    expect(houseAdExperimentId('home-top')).toBe('house-ad-home-top')
+    expect(houseAdExperimentId('home-mid')).toBe('house-ad-home-mid')
     expect(houseAdExperimentId('article-inline')).toBe('house-ad-article-inline')
   })
 

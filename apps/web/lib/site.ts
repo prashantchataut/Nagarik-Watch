@@ -58,7 +58,7 @@ export const PUBLICATION = {
   logoPath: '/icon.svg',
 } as const
 
-/** Hide unverified launch placeholders from the public footer/chrome. */
+/** Hide unverified launch values from the public footer and chrome. */
 export function isPublicPublicationValue(value: string | undefined): boolean {
   const trimmed = value?.trim() ?? ''
   if (!trimmed) return false

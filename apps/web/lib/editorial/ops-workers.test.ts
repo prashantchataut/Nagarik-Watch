@@ -23,6 +23,6 @@ describe('payload cutover checklist', () => {
 
 describe('house ad experiment ids', () => {
   it('namespaces placement keys', () => {
-    expect(houseAdExperimentId('home-top')).toBe('house-ad-home-top')
+    expect(houseAdExperimentId('home-mid')).toBe('house-ad-home-mid')
   })
 })

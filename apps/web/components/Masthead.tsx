@@ -161,15 +161,6 @@ export function Masthead({
 
             <div className="flex min-w-0 shrink-0 items-center justify-end gap-1">
               <Link
-                href={patroHref}
-                className={`${UTIL_LINK} hidden xl:inline-flex`}
-                lang={lang}
-                title={en ? 'Nepali calendar and Patro' : 'नेपाली क्यालेन्डर र पात्रो'}
-              >
-                <IconCalendar width={16} height={16} />
-                <span>{en ? 'Patro' : 'पात्रो'}</span>
-              </Link>
-              <Link
                 href={unicodeHref}
                 className={`${UTIL_LINK} hidden 2xl:inline-flex`}
                 lang={lang}
@@ -213,7 +204,7 @@ export function Masthead({
 
         <nav
           aria-label={dict.primaryNav}
-          className="nw-masthead__primary border-b border-black/15 bg-brand-bar text-paper"
+          className="nw-masthead__primary hidden border-b border-black/15 bg-brand-bar text-paper lg:block"
         >
           <div className="relative mx-auto flex max-w-page items-stretch px-2 sm:px-4">
             <ul className="nw-masthead__navrail flex min-w-0 flex-1 flex-nowrap items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -240,19 +231,6 @@ export function Masthead({
                   </li>
                 )
               })}
-              {/* Mobile keeps the full scrollable rail; long-tail desks live in More on lg+. */}
-              {overflowCategories.map((category) => {
-                const label = en && category.nameEn ? category.nameEn : category.nameNe
-                const categoryLang = en && category.nameEn ? 'en' : 'ne'
-                const href = localizeHref(locale, `/${category.slug}`)
-                return (
-                  <li key={`mobile-${category.slug}`} className="lg:hidden">
-                    <NavLink href={href} active={pathsMatch(pathname, href)} lang={categoryLang}>
-                      {label}
-                    </NavLink>
-                  </li>
-                )
-              })}
               <li>
                 <NavLink
                   href={localizeHref(locale, '/province')}
@@ -271,6 +249,16 @@ export function Masthead({
                   {en ? 'Fact check' : 'तथ्य-जाँच'}
                 </NavLink>
               </li>
+              <li className="ms-2 flex shrink-0 items-stretch border-l border-paper/25 pl-2">
+                <Link
+                  href={patroHref}
+                  lang={lang}
+                  className="inline-flex min-h-11 items-center gap-1.5 bg-paper px-3.5 text-body font-extrabold text-brand-strong transition-colors duration-fast ease-out-quint hover:bg-brand-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-paper"
+                >
+                  <IconCalendar width={16} height={16} />
+                  <span>{en ? 'Patro' : 'पात्रो'}</span>
+                </Link>
+              </li>
               {overflowCategories.length > 0 ? (
                 <li className="ms-auto hidden shrink-0 lg:flex">
                   <NavMoreMenu
@@ -281,10 +269,6 @@ export function Masthead({
                 </li>
               ) : null}
             </ul>
-            <div
-              className="pointer-events-none absolute inset-y-0 end-0 w-8 bg-gradient-to-l from-brand-bar to-transparent lg:hidden"
-              aria-hidden="true"
-            />
           </div>
         </nav>
       </header>

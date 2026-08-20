@@ -10,7 +10,7 @@ import { cn } from './cn'
  *   - Accessibility: the image is decorative (alt="" + aria-hidden). The
  *     headline link is the lone semantic action. No aria-hidden on focusable
  *     elements (fixes the prior WCAG violation).
- *   - Images: data: URLs (SVG placeholders) load with `unoptimized` so
+ *   - Images: data: URLs (synthetic SVG media) load with `unoptimized` so
  *     next/image passes them through. Remote URLs go through the optimizer.
  */
 /** Runtime layout keys. DESIGN.md uses lead|standard|compact|text-only aliases. */

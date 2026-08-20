@@ -7,7 +7,7 @@ type Network = 'adsense' | 'gam' | ''
 
 /**
  * Loads third-party ad scripts only when mode=network and the matching
- * publisher id is present. Never injects placeholders as filled inventory.
+ * publisher id is present. Never treats an empty network response as filled inventory.
  */
 export function NetworkAdScripts({
   mode,

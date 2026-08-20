@@ -18,7 +18,7 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
   const placements = Object.values(AD_PLACEMENTS)
   const salesEmail = adSalesEmail()
   const featured = placements.filter((p) =>
-    ['home-top', 'home-billboard', 'article-sidebar-sticky', 'mobile-sticky'].includes(p.key),
+    ['masthead-leaderboard', 'home-billboard', 'article-sidebar-sticky', 'mobile-sticky'].includes(p.key),
   )
 
   return (

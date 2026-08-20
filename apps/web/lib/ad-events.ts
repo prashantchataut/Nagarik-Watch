@@ -48,6 +48,8 @@ async function ensureSchema(): Promise<Queryable | null> {
   try {
     const pool = await getPool()
     if (!pool) return null
+    // Production schema is migration-owned; never run DDL in a reader/admin request.
+    if (isProductionRuntime()) return pool
     if (!schemaReady) {
       schemaReady = (async () => {
         await pool.query(`

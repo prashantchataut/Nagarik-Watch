@@ -1,0 +1,55 @@
+{
+  "campaign": "NEBians student learning community",
+  "destination": "https://nebians.consica.com.np",
+  "imageGuidance": "Optional. If NEBians provides an approved campaign image or Neby mascot asset, paste its HTTPS URL into imageUrl for the rectangle and native placements. Leave imageUrl omitted for the leaderboard and mobile banner unless a legible, crop-safe asset is supplied.",
+  "creatives": [
+    {
+      "placementKey": "masthead-leaderboard",
+      "active": false,
+      "title": "NEBians: पढाइका सामग्री र विद्यार्थी समुदाय एउटै ठाउँमा",
+      "body": "BLE, SEE, कक्षा ११/१२ र स्नातक तहका नोट्स, पाठ्यपुस्तक, पुराना प्रश्नपत्र र छलफल खोज्नुहोस्।",
+      "cta": "NEBians खोल्नुहोस्",
+      "href": "https://nebians.consica.com.np",
+      "titleEn": "NEBians: study resources and student community in one place",
+      "bodyEn": "Find notes, textbooks, past papers and discussions for BLE, SEE, Class 11/12 and Bachelor-level study.",
+      "ctaEn": "Open NEBians",
+      "abEnabled": false
+    },
+    {
+      "placementKey": "article-sidebar-top",
+      "active": false,
+      "title": "परीक्षाको तयारीका सामग्री सजिलै खोज्नुहोस्",
+      "body": "नोट्स, पुराना प्रश्नपत्र, फोरम छलफल र NEB Class 12 result checker सहित NEBians विद्यार्थी समुदाय।",
+      "cta": "सामग्री हेर्नुहोस्",
+      "href": "https://nebians.consica.com.np",
+      "titleEn": "Find study materials for your next exam",
+      "bodyEn": "NEBians brings together notes, past papers, forum discussions and an NEB Class 12 result checker.",
+      "ctaEn": "Explore resources",
+      "abEnabled": false
+    },
+    {
+      "placementKey": "mobile-sticky",
+      "active": false,
+      "title": "NEBians मा पढाइका सामग्री",
+      "body": "नोट्स र पुराना प्रश्नपत्र",
+      "cta": "खोल्नुहोस्",
+      "href": "https://nebians.consica.com.np",
+      "titleEn": "Study resources on NEBians",
+      "bodyEn": "Notes and past papers",
+      "ctaEn": "Open",
+      "abEnabled": false
+    },
+    {
+      "placementKey": "article-native-related",
+      "active": false,
+      "title": "NEBians मा नोट्स, प्रश्नपत्र र विद्यार्थी छलफल",
+      "body": "BLE देखि SEE, कक्षा ११/१२ र स्नातक तहसम्मका अध्ययन सामग्री खोज्नुहोस्, समुदायमा प्रश्न सोध्नुहोस् र उपलब्ध परीक्षा उपकरण प्रयोग गर्नुहोस्।",
+      "cta": "NEBians हेर्नुहोस्",
+      "href": "https://nebians.consica.com.np",
+      "titleEn": "Notes, past papers and student discussions on NEBians",
+      "bodyEn": "Explore study resources from BLE and SEE through Class 11/12 and Bachelor level, ask questions in the community and use available exam tools.",
+      "ctaEn": "Visit NEBians",
+      "abEnabled": false
+    }
+  ]
+}

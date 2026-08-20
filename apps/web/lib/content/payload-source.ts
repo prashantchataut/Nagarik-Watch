@@ -25,6 +25,8 @@ import { payloadServerUrl } from './payload-admin-client'
 import { categoryBySlug } from '@/lib/content/seed/categories'
 
 const PER_PAGE = 12
+const PUBLICATION_CUTOFF_BUCKET_MS = 60_000
+const PAYLOAD_LAST_GOOD_TTL_MS = 15 * 60_000
 
 type PayloadDoc = Record<string, unknown> & { id: string | number }
 
@@ -133,12 +135,14 @@ function stablePublicationDate(doc: PayloadDoc): string {
   return '1970-01-01T00:00:00.000Z'
 }
 
-function publicArticleWhere(): Record<string, Record<string, unknown>> {
+function publicArticleWhere(now = Date.now()): Record<string, Record<string, unknown>> {
+  const cutoff = Math.floor(now / PUBLICATION_CUTOFF_BUCKET_MS) * PUBLICATION_CUTOFF_BUCKET_MS
   return {
     _status: { equals: 'published' },
     // Match soft-desk + revalidate webhook: scheduled stays invisible until cron promotes.
     workflowStage: { in: ['published', 'updated'] },
-    publishAt: { less_than_equal: new Date().toISOString() },
+    // Bucket the cutoff so equivalent reader requests share the same Next cache key.
+    publishAt: { less_than_equal: new Date(cutoff).toISOString() },
   }
 }
 
@@ -233,6 +237,18 @@ type PayloadFindResult<T> = {
   page?: number
 }
 
+const payloadLastKnownGood = new Map<
+  string,
+  { value: PayloadFindResult<PayloadDoc>; expiresAt: number }
+>()
+
+function payloadLastKnownGoodKey(endpoint: string): string {
+  const url = new URL(endpoint)
+  const cutoffKey = 'where[publishAt][less_than_equal]'
+  if (url.searchParams.has(cutoffKey)) url.searchParams.set(cutoffKey, 'PUBLICATION_CUTOFF')
+  return url.toString()
+}
+
 async function payloadFind<T extends PayloadDoc>(
   collection: 'articles' | 'categories' | 'authors' | 'tags',
   options: PayloadFindOptions = {},
@@ -269,22 +285,43 @@ async function payloadFind<T extends PayloadDoc>(
     1_500,
     Math.min(10_000, Number(process.env.NW_PAYLOAD_READ_TIMEOUT_MS ?? 4_000)),
   )
-  const response = await fetch(`${payloadServerUrl()}/api/${collection}?${params.toString()}`, {
-    cache: revalidateSeconds > 0 ? 'force-cache' : 'no-store',
-    next: revalidateSeconds > 0 ? { revalidate: revalidateSeconds } : undefined,
-    headers: { accept: 'application/json' },
-    signal: AbortSignal.timeout(timeoutMs),
-  })
-  const body = (await response.json().catch(() => ({}))) as PayloadFindResult<T> & {
-    errors?: Array<{ message?: string }>
-    message?: string
+  const endpoint = `${payloadServerUrl()}/api/${collection}?${params.toString()}`
+  const lastKnownGoodKey = payloadLastKnownGoodKey(endpoint)
+
+  try {
+    const response = await fetch(endpoint, {
+      cache: revalidateSeconds > 0 ? 'force-cache' : 'no-store',
+      next: revalidateSeconds > 0 ? { revalidate: revalidateSeconds } : undefined,
+      headers: { accept: 'application/json' },
+      signal: AbortSignal.timeout(timeoutMs),
+    })
+    const body = (await response.json().catch(() => ({}))) as PayloadFindResult<T> & {
+      errors?: Array<{ message?: string }>
+      message?: string
+    }
+    if (!response.ok) {
+      const message =
+        body.errors?.[0]?.message || body.message || `Payload read failed: ${response.status}`
+      throw new Error(message)
+    }
+
+    const value: PayloadFindResult<T> = {
+      ...body,
+      docs: Array.isArray(body.docs) ? body.docs : [],
+    }
+    payloadLastKnownGood.set(lastKnownGoodKey, {
+      value: value as PayloadFindResult<PayloadDoc>,
+      expiresAt: Date.now() + PAYLOAD_LAST_GOOD_TTL_MS,
+    })
+    return value
+  } catch (error) {
+    const cached = payloadLastKnownGood.get(lastKnownGoodKey)
+    if (cached && cached.expiresAt >= Date.now()) {
+      return cached.value as PayloadFindResult<T>
+    }
+    if (cached) payloadLastKnownGood.delete(lastKnownGoodKey)
+    throw error
   }
-  if (!response.ok) {
-    const message =
-      body.errors?.[0]?.message || body.message || `Payload read failed: ${response.status}`
-    throw new Error(message)
-  }
-  return { ...body, docs: Array.isArray(body.docs) ? body.docs : [] }
 }
 
 export async function createPayloadContentSource(): Promise<ContentSource> {
@@ -379,7 +416,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
       // The previous implementation made four near-identical cross-service
       // article requests on a cold render, multiplying Payload cold-start/DB
       // latency and making the reader feel slow whenever the CMS was unhealthy.
-      const [{ docs }, { docs: catDocs }] = await Promise.all([
+      const [{ docs }, categoryResult] = await Promise.all([
         payloadFind<PayloadDoc>('articles', {
           where: publishedWhere,
           sort: '-publishAt',
@@ -393,7 +430,7 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
           limit: 50,
           depth: 0,
           revalidateSeconds: 120,
-        }),
+        }).catch(() => ({ docs: [] as PayloadDoc[] })),
       ])
 
       const rows = docs as unknown as PayloadDoc[]
@@ -426,7 +463,18 @@ export async function createPayloadContentSource(): Promise<ContentSource> {
         ).values(),
       ).slice(0, 6)
       const breaking = cards.filter((card) => card.isBreaking).slice(0, 6)
-      const sections = (catDocs as unknown as PayloadDoc[])
+      const categoryDocs =
+        categoryResult.docs.length > 0
+          ? (categoryResult.docs as PayloadDoc[])
+          : Array.from(
+              new Map(
+                rows
+                  .map((row) => row.category as PayloadDoc | undefined)
+                  .filter((category): category is PayloadDoc => Boolean(category?.id))
+                  .map((category) => [String(category.slug ?? category.id), category]),
+              ).values(),
+            )
+      const sections = categoryDocs
         .map((categoryDoc) => {
           const items = cards.filter(
             (card) => card.category.slug === String((categoryDoc as { slug?: string }).slug),

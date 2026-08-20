@@ -49,18 +49,13 @@ export async function AdSlot({
   const placement = adPlacement(placementKey)
   const mode = getAdMode()
   const adLabel = dict.adLabel
-  const houseAd = mode === 'house' ? await getHouseAd(placement.key as AdPlacementKey) : null
+  const houseAd =
+    mode === 'house' ? await getHouseAd(placement.key as AdPlacementKey).catch(() => null) : null
   const mediaKitHref = localizeHref(locale, '/advertise')
   const resolvedVariant = variant ?? resolveVariant(placement.size)
 
   let creative: HouseAdCreative | null = houseAd?.active
-    ? {
-        title: houseAd.title,
-        body: houseAd.body,
-        cta: houseAd.cta,
-        href: houseAd.href,
-        imageUrl: houseAd.imageUrl,
-      }
+    ? localizedCreative(houseAd, locale)
     : null
   let experimentId: string | undefined
 
@@ -79,7 +74,7 @@ export async function AdSlot({
       eventType: 'exposure',
     }).catch(() => null)
     if (assignment?.variantId === 'challenger') {
-      creative = houseAd.challenger
+      creative = localizedCreative(houseAd.challenger, locale)
     }
   }
 
@@ -136,11 +131,19 @@ export async function AdSlot({
         {mode === 'house' && creative ? (
           <HouseAdLink
             href={creative.href}
-            className={resolvedVariant === 'native' ? 'max-w-[28rem] text-left' : 'max-w-[24rem]'}
+            className={
+              resolvedVariant === 'mobile'
+                ? 'flex w-full items-center justify-between gap-2 text-left'
+                : resolvedVariant === 'native'
+                  ? 'max-w-[28rem] text-left'
+                  : 'max-w-[24rem]'
+            }
             experimentId={experimentId}
             placementKey={placement.key}
           >
-            {creative.imageUrl && !creative.imageUrl.startsWith('data:') ? (
+            {creative.imageUrl &&
+            !creative.imageUrl.startsWith('data:') &&
+            resolvedVariant !== 'mobile' ? (
               // eslint-disable-next-line @next/next/no-img-element -- remote house-ad creative URL
               <img
                 src={creative.imageUrl}
@@ -152,13 +155,27 @@ export async function AdSlot({
                 }
               />
             ) : null}
-            <span className="block font-display text-body-lg font-bold text-ink">
+            <span
+              className={
+                resolvedVariant === 'mobile'
+                  ? 'min-w-0 truncate text-caption font-bold text-ink'
+                  : 'block font-display text-body-lg font-bold text-ink'
+              }
+            >
               {creative.title}
             </span>
-            <span className="mt-1 block text-caption leading-relaxed text-ink-soft">
-              {creative.body}
-            </span>
-            <span className="mt-3 inline-flex rounded-full border border-rule bg-surface px-3 py-1.5 text-caption font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong">
+            {resolvedVariant !== 'mobile' ? (
+              <span className="mt-1 block text-caption leading-relaxed text-ink-soft">
+                {creative.body}
+              </span>
+            ) : null}
+            <span
+              className={
+                resolvedVariant === 'mobile'
+                  ? 'shrink-0 rounded-full border border-rule bg-surface px-2.5 py-1 text-caption font-bold text-brand-strong'
+                  : 'mt-3 inline-flex rounded-full border border-rule bg-surface px-3 py-1.5 text-caption font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong'
+              }
+            >
               {creative.cta}
             </span>
           </HouseAdLink>
@@ -203,41 +220,14 @@ export async function AdSlot({
   return shell
 }
 
-export function AdStack({ locale, className = '' }: { locale: Locale; className?: string }) {
-  const lang = locale === 'en' ? 'en' : 'ne'
-  return (
-    <aside
-      className={`grid gap-4 ${className}`}
-      aria-label={locale === 'en' ? 'Advertisement rail' : 'विज्ञापन रेल'}
-      lang={lang}
-    >
-      <AdSlot locale={locale} placementKey="sidebar-rectangle" variant="rail" />
-      <div className="rounded-lg border border-rule bg-surface-raised p-4">
-        <p
-          className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong"
-          lang="en"
-        >
-          Media kit
-        </p>
-        <h2 className="mt-1 font-display text-h3 text-ink">
-          {locale === 'en'
-            ? 'Commercial space is clearly labelled'
-            : 'व्यावसायिक स्थान स्पष्ट लेबल हुन्छ'}
-        </h2>
-        <p className="mt-2 text-meta leading-relaxed text-ink-soft">
-          {locale === 'en'
-            ? 'Each placement has a stable key, reserved size, surface and reader-facing label before campaign delivery is connected.'
-            : 'हरेक स्थानमा स्थिर key, सुरक्षित आकार, surface र पाठकले देख्ने label छ।'}
-        </p>
-      </div>
-      <AdSlot
-        locale={locale}
-        placementKey="sidebar-tower"
-        variant="rail"
-        className="hidden xl:flex"
-      />
-    </aside>
-  )
+function localizedCreative(creative: HouseAdCreative, locale: Locale): HouseAdCreative {
+  if (locale !== 'en') return creative
+  return {
+    ...creative,
+    title: creative.titleEn?.trim() || creative.title,
+    body: creative.bodyEn?.trim() || creative.body,
+    cta: creative.ctaEn?.trim() || creative.cta,
+  }
 }
 
 function resolveVariant(size: AdSize): AdVariant {
@@ -250,7 +240,7 @@ function resolveVariant(size: AdSize): AdVariant {
 
 function slotClass(variant: AdVariant) {
   const base =
-    'ad-slot group relative isolate mx-auto overflow-hidden border border-dashed border-rule bg-surface-raised text-center'
+    'ad-slot group relative isolate mx-auto overflow-hidden border border-rule bg-surface-raised text-center'
   switch (variant) {
     case 'billboard':
       return `${base} flex flex-col items-center justify-center rounded-xl p-5`

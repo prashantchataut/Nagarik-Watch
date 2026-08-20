@@ -10,7 +10,7 @@ import { mainSiteHref } from '@/lib/calendar-host'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import Link from 'next/link'
 
-/** Utility primary nav for the पात्रो product (Ratopati/OK calendar IA). */
+/** Utility primary nav for the पात्रो product and its calendar information architecture. */
 export const PATRO_NAV = [
   {
     path: '/patro',

@@ -1,7 +1,21 @@
+import type { Metadata } from 'next'
+import { HomePage, homeMetadata } from '@/components/home/HomePage'
+import { PublicShell } from '@/components/public/PublicShell'
+
+export const revalidate = 120
+
+export function generateMetadata(): Metadata {
+  return homeMetadata('ne')
+}
+
 /**
- * Public `/` is rewritten to `/ne` by middleware (see middleware.ts).
- * This file is a typed safety net only — never host admin chrome here.
+ * Middleware normally rewrites `/` into the Nepali locale tree. This fallback uses
+ * the same homepage component and public shell if middleware is bypassed by a host.
  */
 export default function RootPage() {
-  return null
+  return (
+    <PublicShell locale="ne">
+      <HomePage locale="ne" />
+    </PublicShell>
+  )
 }

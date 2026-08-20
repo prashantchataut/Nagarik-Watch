@@ -64,14 +64,21 @@ for (const file of files) {
   }
 }
 
-// Homepage hierarchy invariants. These encode the August 9 design decision so the
-// opening package cannot silently drift back to stacked mega-heroes or multiple H1s.
-const homePagePath = join(ROOT, 'apps/web/app/[locale]/page.tsx')
-const leadPackagePath = join(ROOT, 'apps/web/components/home/LeadPackage.tsx')
+// Homepage hierarchy invariants. The active opening package is the locked portal feed:
+// 3–5 centered display stories, with exactly one priority H1 inside MegaStoryBlock.
+const homePagePath = join(ROOT, 'apps/web/components/home/HomePage.tsx')
+const localeHomeRoutePath = join(ROOT, 'apps/web/app/[locale]/page.tsx')
+const portalFeedPath = join(ROOT, 'apps/web/components/home/PortalFeed.tsx')
+const megaStoryPath = join(ROOT, 'apps/web/components/home/MegaStoryBlock.tsx')
 
 try {
   const homePage = stripComments(readFileSync(homePagePath, 'utf8'))
-  if (!/LeadPackage/.test(homePage) || /PortalFeed|MegaStoryBlock/.test(homePage)) {
+  const localeRoute = stripComments(readFileSync(localeHomeRoutePath, 'utf8'))
+  if (
+    !/PortalFeed/.test(homePage) ||
+    /LeadPackage/.test(homePage) ||
+    !/HomePage/.test(localeRoute)
+  ) {
     findings.push({ ban: 'homepage-opening-hierarchy', file: relative(ROOT, homePagePath) })
   }
 } catch {
@@ -79,13 +86,22 @@ try {
 }
 
 try {
-  const leadPackage = stripComments(readFileSync(leadPackagePath, 'utf8'))
-  const h1Count = leadPackage.match(/<h1\b/g)?.length ?? 0
-  if (h1Count !== 1) {
-    findings.push({ ban: 'homepage-h1-count', file: relative(ROOT, leadPackagePath) })
+  const portalFeed = stripComments(readFileSync(portalFeedPath, 'utf8'))
+  if (!/slice\(0,\s*5\)/.test(portalFeed) || !/MegaStoryBlock/.test(portalFeed)) {
+    findings.push({ ban: 'homepage-portal-feed-contract', file: relative(ROOT, portalFeedPath) })
   }
 } catch {
-  findings.push({ ban: 'homepage-lead-package-missing', file: relative(ROOT, leadPackagePath) })
+  findings.push({ ban: 'homepage-portal-feed-missing', file: relative(ROOT, portalFeedPath) })
+}
+
+try {
+  const megaStory = stripComments(readFileSync(megaStoryPath, 'utf8'))
+  const h1Count = megaStory.match(/<h1\b/g)?.length ?? 0
+  if (h1Count !== 1 || !/priority/.test(megaStory)) {
+    findings.push({ ban: 'homepage-h1-count', file: relative(ROOT, megaStoryPath) })
+  }
+} catch {
+  findings.push({ ban: 'homepage-mega-story-missing', file: relative(ROOT, megaStoryPath) })
 }
 
 if (findings.length) {

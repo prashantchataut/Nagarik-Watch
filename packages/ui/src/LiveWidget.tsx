@@ -8,7 +8,7 @@ import { cn } from './cn'
  *   - a title,
  *   - a source line + relative "last updated" label (every live value must show provenance,
  *     PRODUCT.md: reader trust above all),
- *   - a MOCK / नमुना badge whenever the value is placeholder data, so readers are never
+ *   - a visible feed-status badge when a source is explicitly non-live, so readers are never
  *     misled into treating it as reporting,
  *   - first-class loading, error, and empty states (the spec requires all three on every
  *     live widget; without them a feed outage silently shows stale or blank numbers).
@@ -29,7 +29,7 @@ type LiveWidgetProps = {
   source?: string
   /** Pre-formatted relative time ("५ मिनेटअघि" / "5 min ago"). */
   updatedLabel?: string
-  /** When true, renders the placeholder badge. */
+  /** When true, renders the non-live feed-status badge. */
   mock?: boolean
   /** Localized strings (kept out of the UI package, passed in). */
   labels: {

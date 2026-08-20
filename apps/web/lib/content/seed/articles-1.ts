@@ -3,8 +3,8 @@ import { unsplash } from './media'
 
 /**
  * Seed articles, batch 1: politics, society, business. Headlines and copy reflect real,
- * current Nepal and world stories (June 2026) sourced from Onlinekhabar, Setopati and
- * Ratopati — the Iran-US/Hormuz crisis, the FIFA World Cup, remittance records, the RSP
+ * current Nepal and world stories (June 2026) assembled for the newsroom seed corpus,
+ * covering the Iran-US/Hormuz crisis, the FIFA World Cup, remittance records, the RSP
  * convention, the passport-printing case and the Pathibhara cable-car dispute. Hero images
  * are topical Unsplash photos whose IDs are all verified working. A subset carry an
  * author-reviewed English version (hasEnglish) to exercise the /en filter; the rest are

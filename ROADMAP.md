@@ -33,8 +33,8 @@ Status legend: ✅ shipped · 🔒 credential-blocked · 💤 dormant by product
 - [x] Print-friendly article styles + tools after body
 - [x] Image/video sitemaps, JSON Feed, humans.txt, security.txt
 - [x] Utility strip uses attributed real providers only (no invented scores)
-- [ ] Live blog block + LiveBlogPosting schema — ⏳ remaining editorial format
-- [ ] Full Nepali calendar festivals page — ⏳ content inventory
+- [x] Live blog route + newsroom desk + LiveBlogPosting schema
+- [x] Nepali calendar month grid + festival/holiday inventory + utility desk
 - [x] PWA service worker boot path (offline depth still incremental)
 
 ## Phase 3 — Scale & operations
@@ -48,8 +48,8 @@ Status legend: ✅ shipped · 🔒 credential-blocked · 💤 dormant by product
 - [x] Web push (VAPID) — 🔒 until VAPID keys configured
 - [💤] Redis presence / real-time counts — honest adapter until Redis is provisioned
 - [x] Plausible analytics behind consent
-- [x] Sentry boundary (`SENTRY_DSN`) — 🔒 console-only until DSN + `@sentry/nextjs` install
-- [🔒] Plagiarism vendor — adapter not claimed ready without contract
+- [x] Sentry boundary (`SENTRY_DSN`) — 🔒 console-only until DSN is configured
+- [⏳] Plagiarism vendor — no production adapter yet; requires a contract and reviewed provider
 - [x] Partner feed + cron jobs (digest, interactions, ops-probe, notifications)
 - [x] Election/exam portals — empty/unconfigured until official/manual source
 - [💤] Province host routing — dormant without real domains

@@ -57,7 +57,7 @@ function extname(file) {
 }
 
 function shouldSkip(path) {
-  const rel = relative(root, path).split('/').join('/')
+  const rel = relative(root, path).replace(/\\/g, '/')
   const parts = rel.split('/')
   if (parts.some((part) => excludedSegments.has(part))) return true
   if (rel.endsWith('.tsbuildinfo')) return true
@@ -78,7 +78,7 @@ function collect(path, out = []) {
 for (const entry of scanRoots) {
   const absolute = join(root, entry)
   for (const file of collect(absolute)) {
-    const rel = relative(root, file).replace(/\\\\/g, '/').split('/').join('/')
+    const rel = relative(root, file).replace(/\\/g, '/')
     const text = readFileSync(file, 'utf8')
     for (const pattern of banned) {
       if (pattern.test(text)) failures.push(`${rel}: banned public-surface phrase ${pattern}`)

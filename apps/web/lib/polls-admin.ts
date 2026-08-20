@@ -108,8 +108,8 @@ export async function listPolls(): Promise<Poll[]> {
 }
 
 /**
- * Public homepage must never show draft-quality / placeholder poll copy
- * (e.g. "what is this ?", "test", "demo"). Hide those until editors publish real copy.
+ * Public homepage must never show draft-quality or filler poll copy. Hide those questions
+ * until editors publish a complete editorial question with real answer choices.
  */
 export function isPublicReadyPoll(poll: Pick<Poll, 'question' | 'options'>): boolean {
   const question = cleanText(poll.question, 220)

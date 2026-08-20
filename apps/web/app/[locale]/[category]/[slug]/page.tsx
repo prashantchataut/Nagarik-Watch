@@ -209,7 +209,7 @@ export default async function ArticlePage({
                 ) : null}
                 <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
               </div>
-              <h1 className="mt-3 text-pretty font-display text-[clamp(2.05rem,4.5vw,3.25rem)] font-black leading-[1.12] tracking-[-0.025em] text-ink">
+              <h1 className="mt-3 text-pretty font-display text-[clamp(2.05rem,4.5vw,3.25rem)] font-black leading-[1.2] tracking-[-0.025em] text-ink">
                 {title}
               </h1>
               {deck ? (
@@ -305,19 +305,6 @@ export default async function ArticlePage({
                 />
               </div>
               <ReadingProgress locale={readingLocale} targetId="article-reading-column" />
-              {deck ? (
-                <div className="my-5 rounded-lg border border-brand/30 bg-brand-tint/40 p-4 sm:p-5">
-                  <div className="flex items-center gap-2 font-display font-extrabold text-body text-brand-strong mb-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand text-paper text-xs">
-                      📌
-                    </span>
-                    <span>{readingEnglish ? 'Key Takeaways' : 'मुख्य बुँदाहरू'}</span>
-                  </div>
-                  <ul className="list-disc list-inside space-y-1.5 text-body text-ink leading-relaxed">
-                    <li>{deck}</li>
-                  </ul>
-                </div>
-              ) : null}
               <ArticleBody
                 blocks={openingBody}
                 locale={readingLocale}

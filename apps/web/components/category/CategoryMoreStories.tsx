@@ -16,7 +16,7 @@ type CategoryMoreStoriesProps = {
 
 /**
  * Section body under the category lead: list (default) or thumb grid.
- * Matches Ratopati category view switcher without copying their chrome.
+ * Provides a dense category view switcher without duplicating global chrome.
  */
 export function CategoryMoreStories({ stories, locale, heading }: CategoryMoreStoriesProps) {
   const english = locale === 'en'

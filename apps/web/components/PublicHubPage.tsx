@@ -96,6 +96,13 @@ export async function PublicHubPage({
         lang={lang}
       />
 
+      <AdSlot
+        locale={locale}
+        placementKey="hub-top"
+        variant="standard"
+        className="mt-4"
+      />
+
       {hub.mode === 'utility' ? (
         <div className="mt-6">
           <UtilityWidgetRail locale={locale} />

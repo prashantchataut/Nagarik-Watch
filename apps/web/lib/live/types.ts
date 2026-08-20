@@ -17,7 +17,7 @@ export interface LiveValue<T> {
   data?: T
   source: string
   updatedAt: string
-  /** Reserved for explicitly labelled preview/demo feeds. Production providers never fabricate data. */
+  /** Reserved for explicitly labelled non-live feeds. Production providers never fabricate data. */
   mock: boolean
   error?: string
 }

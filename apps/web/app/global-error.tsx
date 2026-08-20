@@ -21,27 +21,18 @@ export default function GlobalError({
       <body className="bg-surface text-ink antialiased">
         <main className="mx-auto min-h-screen max-w-page px-4 py-12 sm:py-16" role="alert">
           <div className="max-w-3xl border-y border-rule py-10">
-            <p
-              className="text-caption font-bold uppercase tracking-[0.16em] text-brand-strong"
-              lang="en"
-            >
-              Service unavailable
+            <p className="text-caption font-bold text-brand-strong" lang="ne">
+              पृष्ठ लोड हुन सकेन
             </p>
             <h1 className="mt-2 font-display text-display text-ink" lang="ne">
-              सेवा अस्थायी रूपमा उपलब्ध छैन
+              केही गडबड भयो
             </h1>
             <p className="mt-1 font-display text-h2 text-ink-soft" lang="en">
-              Service temporarily unavailable
+              This page could not load
             </p>
             <div className="mt-4 max-w-body space-y-1 text-body-lg leading-relaxed text-ink-soft">
-              <p lang="ne">
-                कृपया केहीबेरपछि पुनः प्रयास गर्नुहोस्। समस्या जारी रहे समाचार कक्षसँग सम्पर्क
-                गर्नुहोस्।
-              </p>
-              <p lang="en">
-                Please try again shortly. If the problem continues, contact the newsroom
-                administrator.
-              </p>
+              <p lang="ne">फेरि प्रयास गर्नुहोस् वा गृहपृष्ठमा फर्कनुहोस्।</p>
+              <p lang="en">Try again, or return to the homepage.</p>
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <button
@@ -50,7 +41,7 @@ export default function GlobalError({
                   try {
                     sessionStorage.removeItem('nw-chunk-reload')
                   } catch {
-                    /* ignore */
+                    // Session storage is optional in restricted browser contexts.
                   }
                   window.location.reload()
                 }}
@@ -67,6 +58,13 @@ export default function GlobalError({
               >
                 Try again
               </button>
+              <a
+                href="/"
+                className="inline-flex min-h-13 items-center border border-rule px-6 text-meta font-bold text-ink hover:border-brand hover:text-brand-strong"
+                lang="ne"
+              >
+                गृहपृष्ठ
+              </a>
             </div>
           </div>
         </main>

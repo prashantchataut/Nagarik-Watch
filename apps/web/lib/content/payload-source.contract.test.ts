@@ -121,12 +121,58 @@ describe('Payload content source contract', () => {
 
   it('queries only published/updated stages for readers (scheduled stays cron-gated)', async () => {
     const { createPayloadContentSource } = await import('./payload-source')
-    await createPayloadContentSource()
+    const source = await createPayloadContentSource()
+    await source.getHomepage()
     const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>
     const articleCalls = fetchMock.mock.calls
       .map((call) => String(call[0]))
       .filter((url) => url.includes('/api/articles'))
     expect(articleCalls.some((url) => url.includes('published'))).toBe(true)
     expect(articleCalls.every((url) => !decodeURIComponent(url).includes('scheduled'))).toBe(true)
+  })
+
+  it('builds homepage sections from expanded article categories when the category endpoint is down', async () => {
+    const workingFetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input)
+        if (url.includes('/api/categories')) {
+          return new Response(JSON.stringify({ message: 'category service unavailable' }), {
+            status: 503,
+          })
+        }
+        return workingFetch(input)
+      }),
+    )
+
+    const { createPayloadContentSource } = await import('./payload-source')
+    const source = await createPayloadContentSource()
+    const homepage = await source.getHomepage()
+
+    expect(homepage?.lead.slug).toBe('budget-brief')
+    expect(homepage?.sections[0]?.category.slug).toBe('politics')
+    expect(homepage?.sections[0]?.lead?.slug).toBe('budget-brief')
+  })
+
+  it('reuses a warm article response across publication-cutoff buckets during a CMS outage', async () => {
+    const firstMinute = Date.parse('2026-07-01T10:00:30.000Z')
+    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(firstMinute)
+
+    const { createPayloadContentSource } = await import('./payload-source')
+    const source = await createPayloadContentSource()
+    const first = await source.getHomepage()
+    expect(first?.lead.slug).toBe('budget-brief')
+
+    nowSpy.mockReturnValue(firstMinute + 90_000)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        new Response(JSON.stringify({ message: 'cms unavailable' }), { status: 503 }),
+      ),
+    )
+
+    const duringOutage = await source.getHomepage()
+    expect(duringOutage?.lead.slug).toBe('budget-brief')
   })
 })
