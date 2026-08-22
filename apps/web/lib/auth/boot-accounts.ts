@@ -104,6 +104,10 @@ function configuredSpecs(): ConfiguredBootAccountSpec[] {
   return [...byEmail.values()]
 }
 
+export function hasConfiguredNewsroomBootAccounts(): boolean {
+  return configuredSpecs().length > 0
+}
+
 export function maskEmail(email: string): string {
   const [local, domain] = email.split('@')
   if (!local || !domain) return '***'
@@ -384,7 +388,7 @@ async function seedOne(
  * Provision / repair newsroom boot accounts from env.
  * Soft-fails: logs errors but never blocks Better Auth from serving sign-in.
  * Successful provision is cached for the warm instance; failures retry next call.
- * Pass `{ forcePassword: true }` from staff login so env passwords always win.
+ * Use `{ forcePassword: true }` only for an explicit operator-requested password repair.
  */
 export async function ensureNewsroomBootAccounts(
   auth: AuthApi,
@@ -451,6 +455,6 @@ export async function getBootLoginHint(): Promise<BootLoginHint> {
     emails: specs.map((spec) => spec.email),
     maskedEmails: specs.map((spec) => maskEmail(spec.email)),
     provisionedCount: specs.length,
-    lastError: lastProvisionError,
+    lastError: specs.length > 0 ? lastProvisionError : null,
   }
 }

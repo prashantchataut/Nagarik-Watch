@@ -32,7 +32,7 @@ export function Hero({ story, locale, className, priority = true }: HeroProps) {
       <div className="min-w-0">
         <CategoryLabel category={story.category} locale={locale} as="span" className="mb-2" />
         <h1
-          className="text-pretty font-display text-[clamp(1.75rem,3.8vw,2.85rem)] font-extrabold leading-[1.12] tracking-[-0.025em] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong xl:text-[clamp(1.85rem,3.2vw,2.65rem)]"
+          className={`text-pretty font-display text-[clamp(1.75rem,3.8vw,2.85rem)] font-extrabold leading-[1.12] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong xl:text-[clamp(1.85rem,3.2vw,2.65rem)] ${titleLang === 'en' ? 'tracking-[-0.025em]' : 'tracking-normal'}`}
           lang={titleLang}
         >
           <Link

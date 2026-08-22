@@ -58,6 +58,14 @@ describe('launch gate core parity', () => {
     expect(launchGateExitCode(checks, true)).toBe(0)
   })
 
+  it('rejects localhost production origins before launch', () => {
+    const checks = evaluateLaunchEnvChecks({
+      ...fixtureLiveEnv,
+      BETTER_AUTH_URL: 'http://localhost:3000',
+    })
+    expect(checks.find((check) => check.key === 'auth-url')?.status).toBe('fail')
+  })
+
   it('enforces origin-topology even in preview', () => {
     const checks = evaluateLaunchEnvChecks({ CF_PAGES_STATIC: '1' })
     expect(checks.find((check) => check.key === 'origin-topology')?.status).toBe('fail')

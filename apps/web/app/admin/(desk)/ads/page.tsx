@@ -10,7 +10,6 @@ import { promoteHouseAdWinners } from '@/lib/ads/house-ad-promote'
 import { deliveryCoverage, fillRateAnomaly } from '@/lib/ads/yield-local'
 import {
   AdminPageHeader,
-  AdminCard,
   AdminButton,
   AdminMetric,
   AdminTable,
@@ -190,8 +189,8 @@ export default async function AdsPage({
                     : 'House ad सुरक्षित गर्न सकिएन। DATABASE_URL र ops schema जाँच गर्नुहोस्।'}
         </p>
       ) : null}
-      <div className="mb-5 grid gap-4 lg:grid-cols-[1fr_0.7fr]">
-        <AdminCard>
+      <section className="ad-ops-overview">
+        <div className="ad-ops-overview__status">
           <p className="text-body text-ink" lang="ne">
             हालको delivery mode:{' '}
             <code className="font-mono text-ink-soft" lang="en">
@@ -211,12 +210,10 @@ export default async function AdsPage({
             Public pages reserved ad slots राख्छन्। House mode मा तलको creative सक्रिय भए
             reader-facing ad देखिन्छ। Network mode मा provider container जोडिन्छ।
           </p>
-        </AdminCard>
-        <AdminCard>
-          <p className="admin-section-title" lang="en">
-            30-day events
-          </p>
-          <div className="admin-metric-grid mt-3">
+        </div>
+        <div className="ad-ops-overview__metrics">
+          <p className="admin-section-title" lang="en">30-day events</p>
+          <div className="admin-metric-grid">
             <AdminMetric
               value={summaries.reduce((sum, item) => sum + item.impressions, 0)}
               label="Impressions"
@@ -227,12 +224,10 @@ export default async function AdsPage({
             />
             <AdminMetric value={formatCtr(summaries)} label="CTR" />
           </div>
-        </AdminCard>
-      </div>
+        </div>
+      </section>
 
-      <AdminCard
-        className={`mb-5 ${coverageAnomaly.anomalous ? 'admin-callout admin-callout--danger' : ''}`}
-      >
+      <section className={`ad-coverage ${coverageAnomaly.anomalous ? 'is-anomalous' : ''}`}>
         <p className="text-meta font-bold text-brand-strong" lang="ne">
           वितरण कभरेज
         </p>
@@ -250,9 +245,9 @@ export default async function AdsPage({
             Local check only. No vendor fill/eCPM data is reported here.
           </p>
         )}
-      </AdminCard>
+      </section>
 
-      <AdminCard className="mb-6">
+      <section className="admin-data-surface mb-6 p-4 sm:p-5">
         <h2 className="font-display text-h2 text-ink" lang="ne">
           House ad creative
         </h2>
@@ -280,7 +275,7 @@ export default async function AdsPage({
             Also runs every 6 hours via cron.
           </p>
         </form>
-      </AdminCard>
+      </section>
 
       <div className="grid gap-5">
         {Object.entries(grouped).map(([surface, items]) => (

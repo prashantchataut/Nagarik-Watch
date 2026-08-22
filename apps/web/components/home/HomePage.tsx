@@ -190,6 +190,8 @@ export async function HomePage({ locale }: { locale: Locale }) {
       <div className="mx-auto max-w-page px-3 pb-8 pt-2 sm:px-4 sm:pt-3 lg:pb-10">
         <PortalFeed stories={frontPageStories} locale={locale} />
 
+        <HomeBillboardAd locale={locale} className="mt-6 sm:mt-8" />
+
         <EditorialSpotlight
           locale={locale}
           diaspora={diasporaSpotlight}
@@ -294,7 +296,6 @@ export async function HomePage({ locale }: { locale: Locale }) {
           historyMode="anniversary"
           photoOfDay={photoOfDay}
         />
-        <HomeBillboardAd locale={locale} />
       </div>
     </div>
   )

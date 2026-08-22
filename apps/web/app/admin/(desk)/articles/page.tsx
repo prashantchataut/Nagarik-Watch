@@ -10,7 +10,6 @@ import { firstAdminLoadError, safeAdminLoad } from '@/lib/admin/safe-load'
 import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/CmsCanonicalBanner'
 import {
   AdminButton,
-  AdminCard,
   AdminCallout,
   AdminFilterLink,
   AdminPageHeader,
@@ -174,7 +173,8 @@ export default async function ArticlesPage({
         </AdminCallout>
       ) : null}
 
-      <form method="get" className="mb-4 flex flex-wrap items-end gap-2" role="search">
+      <div className="admin-list-toolbar">
+        <form method="get" className="admin-list-toolbar__search" role="search">
         {status ? <input type="hidden" name="status" value={status} /> : null}
         <label className="min-w-[12rem] flex-1">
           <span className="sr-only">खोज</span>
@@ -195,24 +195,25 @@ export default async function ArticlesPage({
             खाली
           </AdminButton>
         ) : null}
-      </form>
+        </form>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        <AdminFilterLink href={listHref({ status: '', page: 1 })} active={!status}>
+        <nav className="admin-list-toolbar__filters" aria-label="समाचार स्थिति फिल्टर">
+          <AdminFilterLink href={listHref({ status: '', page: 1 })} active={!status}>
           सबै
         </AdminFilterLink>
-        {FILTER_STAGES.map((key) => (
-          <AdminFilterLink
-            key={key}
-            href={listHref({ status: key, page: 1 })}
-            active={status === key}
-          >
-            {STAGE_LABELS[key]}
-          </AdminFilterLink>
-        ))}
+          {FILTER_STAGES.map((key) => (
+            <AdminFilterLink
+              key={key}
+              href={listHref({ status: key, page: 1 })}
+              active={status === key}
+            >
+              {STAGE_LABELS[key]}
+            </AdminFilterLink>
+          ))}
+        </nav>
       </div>
 
-      <AdminCard className={items.length > 0 ? 'overflow-hidden !p-0' : undefined}>
+      <section className="admin-data-surface">
         {items.length === 0 ? (
           <div className="py-10 text-center">
             <p className="admin-section-title" lang="ne">
@@ -350,7 +351,7 @@ export default async function ArticlesPage({
             ) : null}
           </div>
         )}
-      </AdminCard>
+      </section>
     </div>
   )
 }

@@ -20,17 +20,13 @@ export default async function AdminLoginPage({
 }: {
   searchParams: Promise<{ reset?: string }>
 }) {
+  const bootConfig = await getBootLoginHint()
   let authReady = false
   let bootFailed = false
   try {
     const auth = await getAuth()
     authReady = true
-    // Do not bcrypt/rewrite every configured staff password on every login
-    // page render. `getAuth()` already schedules normal boot provisioning after
-    // the response. Operators can explicitly request a blocking repair when
-    // rotating an env password by setting AUTH_BOOT_REPAIR_ON_LOGIN=true for
-    // one deployment/request window.
-    if (process.env.NODE_ENV !== 'production' || process.env.AUTH_BOOT_REPAIR_ON_LOGIN === 'true') {
+    if (bootConfig.configured) {
       await ensureNewsroomBootAccounts(
         auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
         { forcePassword: process.env.AUTH_BOOT_REPAIR_ON_LOGIN === 'true' },
@@ -56,10 +52,10 @@ export default async function AdminLoginPage({
     <StaffAuthShell
       kind="admin"
       locale="ne"
-      title="सम्पादकीय लगइन"
-      lede="सम्पादक, प्रकाशक र एडमिन यहाँबाट प्रकाशन, भूमिका र लाइभ डेस्क चलाउँछन्। रिपोर्टिङ ड्राफ्ट पत्रकार डेस्कमा हुन्छ।"
-      formTitle="साइन इन"
-      formLede="स्टाफ खाता मात्र। सार्वजनिक साइनअपबाट एडमिन भूमिका मिल्दैन।"
+      title="सम्पादकीय न्युजरुम"
+      lede="प्रकाशन, समीक्षा, भूमिका र लाइभ अपरेसनका लागि सुरक्षित सम्पादकीय प्रवेश। रिपोर्टिङ ड्राफ्ट पत्रकार डेस्कमै रहन्छ।"
+      formTitle="न्युजरुममा प्रवेश"
+      formLede="अधिकृत स्टाफ खाता प्रयोग गर्नुहोस्। सार्वजनिक खाताबाट सम्पादकीय पहुँच खुल्दैन।"
       points={['प्रकाशन कतार र CMS', 'भूमिका, निमन्त्रणा, अडिट', 'लाइभ ब्लग र विजेट']}
       footer={
         <>
@@ -97,7 +93,7 @@ export default async function AdminLoginPage({
         <AdminLoginForm
           resetComplete={query.reset === 'success'}
           databaseOnline={authReady}
-          expectedEmails={boot.emails}
+          expectedEmails={showBootHint ? boot.emails : []}
         />
       ) : null}
     </StaffAuthShell>

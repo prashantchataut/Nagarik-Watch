@@ -1,26 +1,27 @@
-/**
- * Font definitions for Nagarik Watch.
- *  - Mukta: Devanagari + Latin display (headlines) — news masthead voice.
- *  - Noto Sans Devanagari: Devanagari body (best Nepali matra/conjunct coverage).
- *  - Source Sans 3: Latin UI / English body (editorial companion).
- *
- * Exposes CSS variable classes for seamless offline builds and CDN-backed font stacks.
- */
+import { Mukta, Noto_Sans_Devanagari, Source_Sans_3 } from 'next/font/google'
 
-export const mukta = {
-  variable: '--font-mukta',
-  className: 'font-display',
-}
+export const mukta = Mukta({
+  subsets: ['devanagari', 'latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-mukta-face',
+  preload: true,
+})
 
-export const notoDevanagari = {
-  variable: '--font-devanagari',
-  className: 'font-devanagari',
-}
+export const notoDevanagari = Noto_Sans_Devanagari({
+  subsets: ['devanagari'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-devanagari-face',
+  preload: true,
+})
 
-export const sourceSans = {
-  variable: '--font-source-sans',
-  className: 'font-sans',
-}
+export const sourceSans = Source_Sans_3({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-source-sans-face',
+  preload: true,
+})
 
-/** All font className variables, applied on <html> in the root layout. */
-export const fontVariables = ''
+export const fontVariables = `${mukta.variable} ${notoDevanagari.variable} ${sourceSans.variable}`

@@ -49,7 +49,7 @@ export default async function MembershipPage({ params }: { params: Promise<Param
             Nagarik Watch Membership
           </p>
           <h1
-            className="mt-3 max-w-5xl font-display text-[clamp(2.35rem,7vw,5rem)] leading-[1.03] tracking-[-0.035em] text-ink"
+            className={`mt-3 max-w-5xl font-display text-[clamp(2.35rem,7vw,5rem)] text-ink ${ne ? 'leading-[1.12] tracking-normal' : 'leading-[1.03] tracking-[-0.035em]'}`}
             lang={ne ? 'ne' : 'en'}
           >
             {ne
@@ -70,7 +70,7 @@ export default async function MembershipPage({ params }: { params: Promise<Param
           aria-label={ne ? 'सक्रियता अवस्था' : 'Activation status'}
         >
           <p
-            className="text-caption font-bold uppercase tracking-[0.14em] text-ink-soft"
+            className={ne ? 'font-display text-meta font-bold tracking-normal text-ink-soft' : 'text-caption font-bold uppercase tracking-[0.14em] text-ink-soft'}
             lang={ne ? 'ne' : 'en'}
           >
             {ne ? 'हालको सक्रियता' : 'Current activation'}
@@ -88,7 +88,7 @@ export default async function MembershipPage({ params }: { params: Promise<Param
       </header>
 
       <section className="mt-10 border-t border-rule" aria-labelledby="membership-options">
-        <div className="grid border-b border-rule py-4 text-caption font-bold uppercase tracking-[0.14em] text-ink-soft md:grid-cols-[1fr_12rem_1.35fr_12rem]">
+        <div className={`grid border-b border-rule py-4 font-bold text-ink-soft md:grid-cols-[1fr_12rem_1.35fr_12rem] ${ne ? 'font-display text-meta tracking-normal' : 'text-caption uppercase tracking-[0.14em]'}`}>
           <h2 id="membership-options" className="font-inherit">
             {ne ? 'सदस्यता' : 'Membership'}
           </h2>

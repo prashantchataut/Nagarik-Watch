@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { recordNotificationEvent } from '@/lib/notifications/store'
 import { deliverPushEvent } from '@/lib/notifications/subscriptions'
 import { revalidatePublishedArticle } from '@/lib/content/revalidate-published'
+import { refreshCanonicalHomepageSnapshot } from '@/lib/content'
 import { isValidRevalidateSignature } from '@/lib/security/revalidate-signature'
 
 export const runtime = 'nodejs'
@@ -89,6 +90,15 @@ export async function POST(request: NextRequest) {
       if (!paths.includes(path)) paths.push(path)
     }
   }
+
+  after(async () => {
+    await refreshCanonicalHomepageSnapshot().catch((error) => {
+      console.error(
+        '[revalidate] homepage snapshot refresh failed',
+        error instanceof Error ? error.message : error,
+      )
+    })
+  })
 
   const notificationEligible = message.status === 'published' || message.status === 'updated'
   if (notificationEligible && slug && category && message.titleNe && message.articleId) {

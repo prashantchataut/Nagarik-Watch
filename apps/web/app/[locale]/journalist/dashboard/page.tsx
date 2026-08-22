@@ -50,11 +50,11 @@ export default async function JournalistDashboard({
       <main className="newsroom-page">
         <header className="newsroom-page__header">
           <div>
-            <h1>{ne ? 'डेस्क' : 'Desk'}</h1>
+            <h1>{ne ? 'समाचार डेस्क' : 'News desk'}</h1>
             <p>
               {ne
-                ? 'ड्राफ्ट लेख्नुहोस्, समीक्षामा पठाउनुहोस्, सम्पादकीय प्रतिक्रिया हेर्नुहोस्।'
-                : 'Write drafts, submit for review, and track editor feedback.'}
+                ? 'तपाईंका ड्राफ्ट, समीक्षा र सम्पादकीय प्रतिक्रियाको आजको कार्यदृश्य।'
+                : 'Your current view of drafts, review status and editorial feedback.'}
             </p>
           </div>
           <div className="newsroom-page__header-actions">
@@ -115,7 +115,7 @@ export default async function JournalistDashboard({
                     <div>
                       <strong>{draft.titleNe}</strong>
                       <p>
-                        {draft.categorySlug} · {draft.workflowStage}
+                        {draft.categorySlug} · {stageLabel(draft.workflowStage, ne)}
                       </p>
                     </div>
                     {draft.articleId ? (
@@ -175,4 +175,11 @@ export default async function JournalistDashboard({
       </main>
     </JournalistWorkspaceShell>
   )
+}
+
+function stageLabel(stage: string, ne: boolean) {
+  if (stage === 'submitted') return ne ? 'समीक्षामा' : 'In review'
+  if (stage === 'published') return ne ? 'प्रकाशित' : 'Published'
+  if (stage === 'updated') return ne ? 'अद्यावधिक' : 'Updated'
+  return ne ? 'ड्राफ्ट' : 'Draft'
 }

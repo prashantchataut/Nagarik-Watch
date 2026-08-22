@@ -1,9 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import type { Locale } from '@nagarikwatch/db'
 import { pathsMatch } from '@/lib/i18n/locales'
+import { useStablePathname } from '@/lib/i18n/use-stable-pathname'
 
 export type TopicLink = {
   href: string
@@ -13,7 +13,7 @@ export type TopicLink = {
 }
 
 export function TopicsLinks({ locale, topics }: { locale: Locale; topics: TopicLink[] }) {
-  const pathname = usePathname() ?? '/'
+  const pathname = useStablePathname()
   const en = locale === 'en'
   if (!topics.length) return null
 

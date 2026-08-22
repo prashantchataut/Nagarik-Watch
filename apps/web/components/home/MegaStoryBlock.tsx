@@ -25,11 +25,6 @@ function storyLang(story: StoryCardData, locale: Locale): 'en' | 'ne' {
   return locale === 'en' && story.titleEn ? 'en' : 'ne'
 }
 
-function authorInitial(name: string): string {
-  const clean = name.trim()
-  return clean ? (Array.from(clean)[0] ?? '') : 'न'
-}
-
 export function MegaStoryBlock({
   story,
   locale,
@@ -46,74 +41,63 @@ export function MegaStoryBlock({
   const lead = size === 'lead'
   const author = story.authors[0]
   const byline = author?.name || story.byline || (locale === 'en' ? 'Nagarik Watch' : 'नागरिक वाच')
+  const headingClass = `${
+    lead ? 'text-[clamp(2.45rem,5vw,4.65rem)]' : 'text-[clamp(2rem,3.6vw,3.2rem)]'
+  } mt-2.5 max-w-[19ch] text-pretty font-display font-black text-ink ${
+    titleLang === 'en' ? 'leading-[1.04] tracking-[-0.03em]' : 'leading-[1.13] tracking-normal'
+  }`
+
+  const headline = priority ? (
+    <h1 className={headingClass} lang={titleLang}>
+      <StoryLink href={href}>{title}</StoryLink>
+    </h1>
+  ) : (
+    <h2 className={headingClass} lang={titleLang}>
+      <StoryLink href={href}>{title}</StoryLink>
+    </h2>
+  )
 
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-      <article className={`group min-w-0 py-5 text-center sm:py-6 lg:py-8 ${className}`.trim()}>
-        <CategoryLabel category={story.category} locale={locale} as="span" />
+      <article className={`group min-w-0 ${className}`.trim()}>
+        <div className={lead ? 'max-w-[58rem] pb-4 sm:pb-5' : 'max-w-[48rem] pb-4'}>
+          <CategoryLabel category={story.category} locale={locale} as="span" />
+          {headline}
 
-        {priority ? (
-          <h1
-            className={`mx-auto mt-2.5 max-w-[26ch] text-balance font-display font-black tracking-[-0.025em] text-ink ${
-              lead
-                ? 'text-[clamp(2rem,4.3vw,3.45rem)] leading-[1.16]'
-                : 'text-[clamp(1.75rem,3.4vw,2.75rem)] leading-[1.18]'
-            }`}
-            lang={titleLang}
-          >
-            <Link
-              href={href}
-              className="transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-            >
-              {title}
-            </Link>
-          </h1>
-        ) : (
-          <h2
-            className={`mx-auto mt-2.5 max-w-[26ch] text-balance font-display font-black tracking-[-0.02em] text-ink ${
-              lead
-                ? 'text-[clamp(2rem,4.3vw,3.45rem)] leading-[1.16]'
-                : 'text-[clamp(1.75rem,3.4vw,2.75rem)] leading-[1.18]'
-            }`}
-            lang={titleLang}
-          >
-            <Link
-              href={href}
-              className="transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-            >
-              {title}
-            </Link>
-          </h2>
-        )}
-
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-meta text-ink-soft">
-          <span
-            className="flex size-7 items-center justify-center rounded-full bg-brand-tint font-display text-caption font-extrabold text-brand-strong"
-            aria-hidden="true"
-          >
-            {authorInitial(byline)}
-          </span>
-          {author ? (
-            <Link
-              href={localizeHref(locale, `/author/${author.slug}`)}
-              className="font-semibold text-ink hover:text-brand-strong hover:underline"
+          {deck ? (
+            <p
+              className="mt-3 max-w-[44rem] text-pretty text-body leading-[1.7] text-ink-soft sm:text-body-lg"
               lang={titleLang}
             >
-              {author.name}
-            </Link>
-          ) : (
-            <span className="font-semibold text-ink" lang={titleLang}>
-              {byline}
-            </span>
-          )}
-          <span aria-hidden="true">·</span>
-          <Dateline iso={story.publishedAt} locale={locale} />
+              {deck}
+            </p>
+          ) : null}
+
+          <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-meta text-ink-soft">
+            {author ? (
+              <Link
+                href={localizeHref(locale, `/author/${author.slug}`)}
+                className="font-bold text-ink hover:text-brand-strong hover:underline"
+                lang={titleLang}
+              >
+                {author.name}
+              </Link>
+            ) : (
+              <span className="font-bold text-ink" lang={titleLang}>
+                {byline}
+              </span>
+            )}
+            <span aria-hidden="true">·</span>
+            <Dateline iso={story.publishedAt} locale={locale} />
+          </div>
         </div>
 
         {showPhoto ? (
           <Link
             href={href}
-            className="relative mx-auto mt-4 block aspect-[16/10] w-full max-w-[72rem] overflow-hidden bg-surface-raised text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:mt-5 sm:aspect-[16/9]"
+            className={`relative block overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${
+              lead ? 'aspect-[16/9] min-h-[16rem] sm:min-h-[24rem]' : 'aspect-[16/10] min-h-[15rem]'
+            }`}
             tabIndex={-1}
             aria-hidden="true"
           >
@@ -122,19 +106,23 @@ export function MegaStoryBlock({
               alt={image!.alt}
               fill
               priority={priority}
-              sizes="(min-width: 1440px) 1240px, (min-width: 1024px) calc(100vw - 64px), 100vw"
+              sizes={lead ? '(min-width: 1280px) 850px, (min-width: 1024px) 68vw, 100vw' : '(min-width: 1024px) 60vw, 100vw'}
               className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.012]"
             />
           </Link>
-        ) : deck ? (
-          <p
-            className="mx-auto mt-4 max-w-[48rem] text-pretty text-body leading-relaxed text-ink-soft sm:text-body-lg"
-            lang={titleLang}
-          >
-            {deck}
-          </p>
         ) : null}
       </article>
     </InstrumentedStory>
+  )
+}
+
+function StoryLink({ href, children }: { href: string; children: string }) {
+  return (
+    <Link
+      href={href}
+      className="transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+    >
+      {children}
+    </Link>
   )
 }

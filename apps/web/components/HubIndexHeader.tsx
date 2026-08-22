@@ -1,30 +1,37 @@
 type HubIndexHeaderProps = {
   title: string
-  /** Prefer short or omit. Long SaaS leads hurt portal indexes. */
+  /** Keep this factual and short; indexes should scan like publication desks. */
   lead?: string
   lang: 'ne' | 'en'
-  /** Optional; prefer none. Max one kicker per page. */
+  /** Optional editorial eyebrow. Max one per page. */
   kicker?: string
 }
 
-/** Compact editorial heading shared by category, topic, province, hub, and utility indexes. */
+/**
+ * Shared desk header for public indexes. One eyebrow, one headline, one deck:
+ * no side-stripe decoration, no dashboard-card chrome, no invented per-route styling.
+ */
 export function HubIndexHeader({ title, lead, lang, kicker }: HubIndexHeaderProps) {
   return (
-    <header lang={lang}>
-      {kicker ? <p className="mb-1 text-meta font-extrabold text-brand-strong">{kicker}</p> : null}
-      <div className="flex items-start gap-2.5">
-        <span className="mt-1 h-7 w-1 bg-brand sm:h-8" aria-hidden="true" />
-        <div className="min-w-0">
-          <h1 className="font-display text-[clamp(1.55rem,3.4vw,2.35rem)] font-extrabold leading-tight tracking-tight text-ink">
-            {title}
-          </h1>
-          {lead ? (
-            <p className="mt-1 max-w-[42rem] text-meta leading-relaxed text-ink-soft sm:text-body">
-              {lead}
-            </p>
-          ) : null}
-        </div>
+    <header className="hub-index-head border-b border-rule pb-4 sm:pb-5" lang={lang}>
+      <div className="flex items-center gap-2.5">
+        <span className="h-[2px] w-8 shrink-0 bg-brand" aria-hidden="true" />
+        <p className="text-caption font-extrabold text-brand-strong">
+          {kicker || (lang === 'en' ? 'Nagarik Watch' : 'नागरिक वाच')}
+        </p>
       </div>
+      <h1
+        className={`mt-2 max-w-[22ch] text-pretty font-display text-[clamp(2rem,4.6vw,3.5rem)] font-black text-ink ${
+          lang === 'en' ? 'leading-[1.04] tracking-[-0.025em]' : 'leading-[1.12] tracking-normal'
+        }`}
+      >
+        {title}
+      </h1>
+      {lead ? (
+        <p className="mt-2.5 max-w-[58ch] text-meta leading-relaxed text-ink-soft sm:text-body">
+          {lead}
+        </p>
+      ) : null}
     </header>
   )
 }

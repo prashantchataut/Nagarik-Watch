@@ -14,7 +14,6 @@ import { createMediaItem, listMediaItems } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
 import {
   AdminPageHeader,
-  AdminCard,
   AdminCallout,
   AdminButton,
   AdminInput,
@@ -58,49 +57,72 @@ export default async function MediaPage() {
     (process.env.CF_WORKERS === '1' &&
       (process.env.STORAGE_PUBLIC_BASE_URL?.trim() || process.env.R2_PUBLIC_BASE_URL?.trim())),
   )
+
   return (
     <div>
-      <AdminPageHeader subtitle="Image library metadata and production storage readiness" />
+      <AdminPageHeader subtitle="तस्बिर, alt text, caption र credit व्यवस्थापन" />
+
       {!persistentStorage ? (
         <AdminCallout tone="attention" className="mb-5">
           <p className="text-meta text-ink-soft" lang="ne">
-            Persistent media storage कन्फिगर छैन। Vercel मा local filesystem upload production-safe
-            हुँदैन; यो web desk का लागि Vercel Blob जोड्नुहोस्, वा canonical Payload Media प्रयोग
-            गर्नुहोस्।
+            Persistent media storage कन्फिगर छैन। उत्पादनमा Vercel Blob वा canonical Payload Media
+            प्रयोग गर्नुहोस्।
           </p>
         </AdminCallout>
       ) : null}
-      <div className="grid gap-5 xl:grid-cols-[0.9fr_1.4fr]">
-        <AdminCard>
-          <h2 className="font-display text-h2 text-ink">Add media</h2>
-          <form action={saveMedia} className="mt-4 grid gap-3">
+
+      <div className="admin-media-layout">
+        <aside className="admin-media-uploader">
+          <div className="admin-media-uploader__head">
+            <p lang="ne">नयाँ फाइल</p>
+            <h2 lang="ne">मिडिया थप्नुहोस्</h2>
+            <span lang="ne">प्रकाशनअघि alt text र credit जाँच गर्नुहोस्।</span>
+          </div>
+          <form action={saveMedia} className="admin-media-form">
             <AdminInput label="Image URL" name="url" required lang="en" />
             <AdminInput label="Alt text" name="alt" required lang="en" />
             <AdminTextarea label="Caption" name="caption" rows={3} lang="en" />
             <AdminInput label="Credit" name="credit" lang="en" />
-            <AdminButton type="submit">Save media URL</AdminButton>
+            <AdminButton type="submit">URL सुरक्षित गर्नुहोस्</AdminButton>
           </form>
           {persistentStorage ? <MediaUploadForm /> : null}
-        </AdminCard>
-        <AdminCard>
-          <h2 className="font-display text-h2 text-ink">Library</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {items.map((item) => (
-              <figure
-                key={item.id}
-                className="overflow-hidden rounded-sm border border-rule bg-surface"
-              >
-                <div className="relative aspect-video bg-surface-raised">
-                  <Image src={item.url} alt={item.alt} fill className="object-cover" unoptimized />
-                </div>
-                <figcaption className="p-3">
-                  <p className="text-meta font-semibold text-ink">{item.alt}</p>
-                  <p className="text-caption text-mute">{item.credit || 'No credit'}</p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </AdminCard>
+        </aside>
+
+        <section className="admin-media-library" aria-labelledby="media-library-title">
+          <header>
+            <div>
+              <p lang="ne">{items.length} फाइल</p>
+              <h2 id="media-library-title" lang="ne">
+                मिडिया लाइब्रेरी
+              </h2>
+            </div>
+          </header>
+
+          {items.length ? (
+            <div className="admin-media-grid">
+              {items.map((item) => (
+                <figure key={item.id} className="admin-media-item">
+                  <div className="admin-media-item__image">
+                    <Image src={item.url} alt={item.alt} fill className="object-cover" unoptimized />
+                  </div>
+                  <figcaption>
+                    <strong>{item.alt}</strong>
+                    <span>{item.credit || 'Credit missing'}</span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          ) : (
+            <div className="admin-empty">
+              <p className="admin-section-title" lang="ne">
+                मिडिया छैन
+              </p>
+              <p className="mt-2 text-meta text-ink-soft" lang="ne">
+                पहिलो तस्बिर URL वा upload मार्फत थप्नुहोस्।
+              </p>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   )

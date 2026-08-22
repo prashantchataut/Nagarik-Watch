@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
+import { AuthIllustration } from '@/components/auth/AuthIllustration'
 import { localizeHref } from '@/lib/i18n/locales'
 
 type AuthMode = 'login' | 'signup' | 'recover' | 'reset' | 'change' | 'invite'
@@ -19,52 +20,44 @@ const copy: Record<
   }
 > = {
   login: {
-    formTitleNe: 'पाठक खाता',
-    formTitleEn: 'Reader account',
-    formBodyNe: 'सुरक्षित समाचार र पढाइ इतिहास सिंक गर्न लगइन गर्नुहोस्।',
-    formBodyEn: 'Sign in to sync saved stories and reading history.',
-    panelTitleNe: 'समाचार खुला नै रहन्छ',
-    panelTitleEn: 'News stays open',
-    panelBodyNe:
-      'खाता समाचार पढ्नका लागि होइन। यो सुरक्षित सामग्री, इतिहास र व्यक्तिगत प्राथमिकताका लागि मात्र हो।',
-    panelBodyEn:
-      'An account is not required to read. It is only for saved stories, history and reader preferences.',
+    formTitleNe: 'फेरि स्वागत छ',
+    formTitleEn: 'Welcome back',
+    formBodyNe: 'सुरक्षित समाचार, पढाइ इतिहास र विषय प्राथमिकता हेर्न लगइन गर्नुहोस्।',
+    formBodyEn: 'Sign in to view saved stories, reading history and topic preferences.',
+    panelTitleNe: 'समाचार पढ्न लगइन चाहिँदैन',
+    panelTitleEn: 'Reading stays open',
+    panelBodyNe: 'खाताले उपकरणबीच सुरक्षित समाचार र तपाईंका पढाइ प्राथमिकता सिंक गर्छ।',
+    panelBodyEn: 'An account syncs saved stories and reading preferences across your devices.',
   },
   signup: {
     formTitleNe: 'पाठक खाता बनाउनुहोस्',
     formTitleEn: 'Create a reader account',
-    formBodyNe: 'इमेल र पासवर्डले उपकरणबीच सुरक्षित सामग्री सिंक गर्नुहोस्।',
-    formBodyEn: 'Use email and password to sync saved stories across devices.',
-    panelTitleNe: 'पाठक पहिलो',
-    panelTitleEn: 'Reader first',
-    panelBodyNe:
-      'सार्वजनिक साइनअपले न्युजरुम भूमिका दिँदैन। पत्रकार र सम्पादकीय पहुँच निमन्त्रणाबाट मात्र आउँछ।',
-    panelBodyEn:
-      'Public sign-up never grants newsroom roles. Reporter and editorial access are invitation-only.',
+    formBodyNe: 'इमेल र पासवर्डबाट तपाईंको पढाइ सूची उपकरणबीच राख्नुहोस्।',
+    formBodyEn: 'Use email and password to keep your reading list across devices.',
+    panelTitleNe: 'तपाईंको पढाइ, तपाईंको नियन्त्रणमा',
+    panelTitleEn: 'Your reading, under your control',
+    panelBodyNe: 'सुरक्षित समाचार, पढाइ इतिहास र विषय प्राथमिकता एकै ठाउँमा राख्नुहोस्।',
+    panelBodyEn: 'Save stories, review reading history and manage topic preferences.',
   },
   recover: {
     formTitleNe: 'पासवर्ड रिसेट',
     formTitleEn: 'Reset password',
     formBodyNe: 'खातामा प्रयोग भएको इमेल लेख्नुहोस्।',
     formBodyEn: 'Enter the email used for your account.',
-    panelTitleNe: 'एक पटकको सुरक्षित लिंक',
-    panelTitleEn: 'Single-use recovery link',
-    panelBodyNe:
-      'खाता भएमा रिसेट लिंक इमेलमा पठाइन्छ। सुरक्षा कारणले हामी यहाँ खाता छ वा छैन भन्ने पुष्टि गर्दैनौँ।',
-    panelBodyEn:
-      'If an account exists, a recovery link is emailed. For security, this screen does not confirm whether an address is registered.',
+    panelTitleNe: 'रिकभरी लिंक इमेलमा आउँछ',
+    panelTitleEn: 'Recovery happens by email',
+    panelBodyNe: 'खाता भएमा एकपटक प्रयोग हुने रिसेट लिंक पठाइन्छ।',
+    panelBodyEn: 'If the account exists, we send a single-use reset link.',
   },
   reset: {
-    formTitleNe: 'नयाँ पासवर्ड',
+    formTitleNe: 'नयाँ पासवर्ड राख्नुहोस्',
     formTitleEn: 'Choose a new password',
-    formBodyNe: 'कम्तीमा ८ अक्षरको बलियो पासवर्ड राख्नुहोस्।',
-    formBodyEn: 'Choose a strong password with at least 8 characters.',
-    panelTitleNe: 'लिंकको अवस्था',
-    panelTitleEn: 'Recovery link',
-    panelBodyNe:
-      'मान्य रिकभरी टोकन URL बाट पढिन्छ। म्याद सकिएको वा अपूर्ण लिंकले पासवर्ड परिवर्तन गर्दैन।',
-    panelBodyEn:
-      'The recovery token is read from the URL. Expired or incomplete links cannot change a password.',
+    formBodyNe: 'कम्तीमा ८ अक्षरको बलियो पासवर्ड प्रयोग गर्नुहोस्।',
+    formBodyEn: 'Use a strong password with at least 8 characters.',
+    panelTitleNe: 'रिकभरी लिंक सुरक्षित रूपमा जाँचिन्छ',
+    panelTitleEn: 'The recovery link is verified',
+    panelBodyNe: 'म्याद सकिएको वा अपूर्ण लिंकबाट पासवर्ड परिवर्तन हुँदैन।',
+    panelBodyEn: 'Expired or incomplete recovery links cannot change a password.',
   },
   change: {
     formTitleNe: 'पासवर्ड परिवर्तन',
@@ -81,12 +74,10 @@ const copy: Record<
     formTitleEn: 'Newsroom invitation',
     formBodyNe: 'निमन्त्रणा आएको यही इमेलको खाताबाट स्वीकार गर्नुहोस्।',
     formBodyEn: 'Accept with the account using the same email that received the invite.',
-    panelTitleNe: 'भूमिका सम्पादकले दिन्छन्',
-    panelTitleEn: 'Editorial roles are granted',
-    panelBodyNe:
-      'पाठक खातालाई न्युजरुम भूमिकामा उचाल्ने काम वैध, म्यादभित्रको निमन्त्रणा र सर्भर-side अनुमति जाँचपछि मात्र हुन्छ।',
-    panelBodyEn:
-      'A reader account is elevated only after a valid, unexpired invite and server-side permission checks.',
+    panelTitleNe: 'न्युजरुम भूमिका निमन्त्रणाबाट मात्र',
+    panelTitleEn: 'Newsroom roles are invitation-only',
+    panelBodyNe: 'पाठक खाताबाट स्वतः पत्रकार वा सम्पादक पहुँच खुल्दैन।',
+    panelBodyEn: 'A reader account never becomes a reporter or editor account automatically.',
   },
 }
 
@@ -105,82 +96,74 @@ export function ReaderAuthShell({
   const lang = ne ? 'ne' : 'en'
 
   return (
-    <main className="min-h-[78vh] bg-surface py-8 sm:py-12" lang={lang}>
-      <div className="mx-auto w-full max-w-5xl px-3 sm:px-5">
-        <header className="flex items-center justify-between gap-4 border-b border-rule pb-4">
+    <main className="reader-auth-shell min-h-dvh bg-brand-tint px-3 py-4 sm:px-5 sm:py-7" lang={lang}>
+      <div className="mx-auto grid min-h-[calc(100dvh-2rem)] w-full max-w-6xl overflow-hidden rounded-[1rem] border border-rule bg-surface sm:min-h-[calc(100dvh-3.5rem)] lg:grid-cols-[minmax(0,0.94fr)_minmax(26rem,1.06fr)]">
+        <aside className="relative hidden min-h-[42rem] overflow-hidden border-r border-rule bg-brand-tint p-8 lg:flex lg:flex-col">
           <Link
             href={localizeHref(locale, '/')}
+            className="relative z-10 w-fit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             aria-label={ne ? 'नागरिक वाच गृहपृष्ठ' : 'Nagarik Watch home'}
           >
             <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
           </Link>
-          <span className="text-caption font-bold text-mute">
-            {ne ? 'पाठक सेवा' : 'Reader service'}
-          </span>
-        </header>
 
-        {showRoleSwitch ? (
-          <nav className="border-b border-rule" aria-label={ne ? 'खाता प्रकार' : 'Account type'}>
-            <div className="flex min-w-0 overflow-x-auto">
-              <Link
-                href={localizeHref(locale, '/auth/login')}
-                className="inline-flex min-h-11 shrink-0 items-center border-b-2 border-brand px-3 text-meta font-extrabold text-brand-strong"
-              >
-                {ne ? 'पाठक' : 'Reader'}
-              </Link>
-              <Link
-                href={localizeHref(locale, '/journalist/login')}
-                className="inline-flex min-h-11 shrink-0 items-center border-b-2 border-transparent px-3 text-meta font-bold text-ink-soft hover:border-rule-strong hover:text-ink"
-              >
-                {ne ? 'पत्रकार डेस्क' : 'Reporter desk'}
-              </Link>
-              <Link
-                href="/admin/login"
-                className="inline-flex min-h-11 shrink-0 items-center border-b-2 border-transparent px-3 text-meta font-bold text-ink-soft hover:border-rule-strong hover:text-ink"
-              >
-                {ne ? 'सम्पादकीय एडमिन' : 'Editorial admin'}
-              </Link>
-            </div>
-          </nav>
-        ) : null}
-
-        <div className="grid border-b border-rule lg:grid-cols-[minmax(0,0.86fr)_minmax(24rem,1.14fr)]">
-          <aside className="border-b border-rule py-8 lg:border-b-0 lg:border-r lg:py-12 lg:pr-10">
+          <div className="relative z-10 mt-10 max-w-md">
             <p className="text-caption font-extrabold text-brand-strong">
-              {ne ? 'नागरिक वाच खाता' : 'Nagarik Watch account'}
+              {ne ? 'पाठक खाता' : 'Reader account'}
             </p>
-            <h2 className="mt-2 max-w-lg font-display text-[clamp(1.9rem,4vw,3.1rem)] font-black leading-[1.12] text-ink">
+            <h2 className="mt-2 text-pretty font-display text-[clamp(2rem,4vw,3.4rem)] font-black leading-[1.08] text-ink">
               {ne ? content.panelTitleNe : content.panelTitleEn}
             </h2>
-            <span className="mt-4 block h-0.5 w-12 bg-brand" aria-hidden="true" />
-            <p className="mt-4 max-w-lg text-body leading-relaxed text-ink-soft">
+            <p className="mt-4 max-w-[40ch] text-body leading-relaxed text-ink-soft">
               {ne ? content.panelBodyNe : content.panelBodyEn}
             </p>
-          </aside>
+          </div>
 
-          <section className="py-8 lg:py-12 lg:pl-10" aria-labelledby="reader-auth-title">
-            <p className="text-caption font-bold text-mute">
-              {ne ? 'सुरक्षित पहुँच' : 'Secure access'}
-            </p>
-            <h1 id="reader-auth-title" className="mt-1 font-display text-h1 font-black text-ink">
+          <div className="mt-auto pt-8">
+            <AuthIllustration variant="reader" className="mx-auto max-w-[38rem]" />
+          </div>
+        </aside>
+
+        <section className="flex min-w-0 flex-col bg-surface px-4 py-5 sm:px-8 sm:py-7 lg:px-10 lg:py-8" aria-labelledby="reader-auth-title">
+          <div className="flex items-center justify-between gap-4 border-b border-rule pb-4 lg:hidden">
+            <Link href={localizeHref(locale, '/')} aria-label={ne ? 'नागरिक वाच गृहपृष्ठ' : 'Nagarik Watch home'}>
+              <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} compact />
+            </Link>
+            <span className="text-caption font-bold text-mute">{ne ? 'पाठक सेवा' : 'Reader service'}</span>
+          </div>
+
+          {showRoleSwitch ? (
+            <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-caption font-bold lg:mt-0" aria-label={ne ? 'खाता प्रकार' : 'Account type'}>
+              <Link href={localizeHref(locale, '/auth/login')} className="text-brand-strong underline decoration-2 underline-offset-4">
+                {ne ? 'पाठक' : 'Reader'}
+              </Link>
+              <Link href={localizeHref(locale, '/journalist/login')} className="text-ink-soft hover:text-ink">
+                {ne ? 'पत्रकार डेस्क' : 'Reporter desk'}
+              </Link>
+              <Link href="/admin/login" className="text-ink-soft hover:text-ink">
+                {ne ? 'सम्पादकीय एडमिन' : 'Editorial admin'}
+              </Link>
+            </nav>
+          ) : null}
+
+          <div className="my-auto py-8 sm:py-12">
+            <p className="text-caption font-bold text-mute">{ne ? 'नागरिक वाच खाता' : 'Nagarik Watch account'}</p>
+            <h1 id="reader-auth-title" className="mt-2 text-pretty font-display text-[clamp(2.15rem,5vw,3.6rem)] font-black leading-[1.08] text-ink">
               {ne ? content.formTitleNe : content.formTitleEn}
             </h1>
-            <p className="mt-2 max-w-body text-meta leading-relaxed text-ink-soft">
+            <p className="mt-3 max-w-[44ch] text-body leading-relaxed text-ink-soft">
               {ne ? content.formBodyNe : content.formBodyEn}
             </p>
-            <div className="mt-6 max-w-lg">{children}</div>
-          </section>
-        </div>
+            <div className="mt-7 max-w-[30rem]">{children}</div>
+          </div>
 
-        <footer className="flex flex-wrap items-center justify-between gap-3 pt-4 text-caption text-mute">
-          <p>{ne ? 'समाचार पढ्न खाता चाहिँदैन।' : 'No account is required to read the news.'}</p>
-          <Link
-            href={localizeHref(locale, '/privacy')}
-            className="font-bold text-ink-soft hover:text-brand-strong"
-          >
-            {ne ? 'गोपनीयता' : 'Privacy'}
-          </Link>
-        </footer>
+          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-4 text-caption text-mute">
+            <p>{ne ? 'समाचार पढ्न खाता चाहिँदैन।' : 'No account is required to read the news.'}</p>
+            <Link href={localizeHref(locale, '/privacy')} className="font-bold text-ink-soft hover:text-brand-strong">
+              {ne ? 'गोपनीयता' : 'Privacy'}
+            </Link>
+          </footer>
+        </section>
       </div>
     </main>
   )

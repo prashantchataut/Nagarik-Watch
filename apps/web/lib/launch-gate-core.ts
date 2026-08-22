@@ -89,22 +89,47 @@ function postgresConfigured(env: LaunchGateEnv): boolean {
   return candidates.some((value) => /^postgres(?:ql)?:\/\//i.test(value))
 }
 
+function isProductionHttpsOrigin(value: string): boolean {
+  try {
+    const url = new URL(value)
+    const host = url.hostname.toLowerCase()
+    return (
+      url.protocol === 'https:' &&
+      host !== 'localhost' &&
+      host !== '127.0.0.1' &&
+      host !== '::1' &&
+      !host.endsWith('.localhost')
+    )
+  } catch {
+    return false
+  }
+}
+
 function verifiedSetting(
   key: string,
   label: string,
   env: LaunchGateEnv,
   envName: string,
-  options: { required?: boolean; secret?: boolean; warning?: string } = {},
+  options: {
+    required?: boolean
+    secret?: boolean
+    warning?: string
+    productionUrl?: boolean
+  } = {},
 ): LaunchCheck {
   const current = envValue(env, envName)
-  const invalid = looksUnverified(current) || (options.secret === true && current.length < 32)
+  const invalidValue = looksUnverified(current) || (options.secret === true && current.length < 32)
+  const invalidProductionUrl = options.productionUrl === true && !isProductionHttpsOrigin(current)
+  const invalid = invalidValue || invalidProductionUrl
   const required = options.required !== false
   return {
     key,
     label,
     status: invalid ? (required ? 'fail' : 'warn') : 'pass',
     detail: invalid
-      ? (options.warning ?? `${envName} is missing or still a placeholder`)
+      ? invalidProductionUrl && !invalidValue
+        ? `${envName} must be a public HTTPS origin, not localhost or plain HTTP`
+        : (options.warning ?? `${envName} is missing or still a placeholder`)
       : `${envName} is configured`,
   }
 }
@@ -174,8 +199,12 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
     },
     verifiedSetting('site-url', 'Public site URL', env, 'NEXT_PUBLIC_SITE_URL', {
       required: live,
+      productionUrl: live,
     }),
-    verifiedSetting('auth-url', 'Better Auth URL', env, 'BETTER_AUTH_URL', { required: live }),
+    verifiedSetting('auth-url', 'Better Auth URL', env, 'BETTER_AUTH_URL', {
+      required: live,
+      productionUrl: live,
+    }),
     {
       key: 'database',
       label: 'Persistent database',
@@ -229,6 +258,7 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
     },
     verifiedSetting('payload-url', 'Payload CMS URL', env, 'PAYLOAD_PUBLIC_SERVER_URL', {
       required: payloadRequired,
+      productionUrl: live,
     }),
     verifiedSetting('payload-token', 'Payload service account', env, 'PAYLOAD_API_TOKEN', {
       required: payloadRequired,

@@ -191,7 +191,7 @@ export function StoryCard({
     return (
       <article className={cn('group relative flex flex-nowrap items-start gap-3', className)}>
         {showThumb ? (
-          <div className="relative block w-[4.75rem] shrink-0 overflow-hidden aspect-[3/2] bg-brand-tint sm:w-24">
+          <div className="relative block w-[4.75rem] shrink-0 overflow-hidden aspect-[3/2] bg-surface-raised sm:w-24">
             <Image
               src={story.heroImage!.url}
               alt=""
@@ -271,7 +271,7 @@ export function StoryCard({
       {showFeaturedPhoto || (!isFeatured && story.heroImage && !placeholderMedia) ? (
         <div
           className={cn(
-            'relative mb-3 block overflow-hidden bg-brand-tint aspect-[3/2]',
+            'relative mb-3 block overflow-hidden bg-surface-raised aspect-[3/2]',
           )}
         >
           <Image
@@ -285,8 +285,6 @@ export function StoryCard({
             aria-hidden="true"
           />
         </div>
-      ) : isFeatured ? (
-        <div className="mb-3 border-t-2 border-brand pt-3" aria-hidden="true" />
       ) : null}
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <CategoryLabel category={story.category} locale={locale} as="span" />

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
+import { AuthIllustration } from '@/components/auth/AuthIllustration'
 import { localizeHref } from '@/lib/i18n/locales'
 
 export type StaffLoginKind = 'admin' | 'journalist'
@@ -18,8 +19,9 @@ type StaffAuthShellProps = {
 }
 
 /**
- * Shared Operate shell for admin and journalist sign-in.
- * Compact desk entrance: brand mast, brief, form. Not a marketing hero.
+ * Shared staff entrance. Reporter and admin retain the same information
+ * architecture but use different visual weight: reporter is welcoming and work-focused,
+ * admin is more restrained and security-forward.
  */
 export function StaffAuthShell({
   kind,
@@ -34,58 +36,56 @@ export function StaffAuthShell({
 }: StaffAuthShellProps) {
   const ne = locale === 'ne'
   const homeHref = kind === 'admin' ? '/' : localizeHref(locale, '/')
-  const badge = kind === 'admin' ? (ne ? 'सम्पादकीय' : 'Editorial') : ne ? 'पत्रकार' : 'Reporter'
+  const badge = kind === 'admin' ? (ne ? 'सम्पादकीय प्रशासन' : 'Editorial administration') : ne ? 'पत्रकार डेस्क' : 'Reporter desk'
+  const illustration = kind === 'admin' ? 'admin' : 'journalist'
 
   return (
-    <main
-      className={`newsroom-login ${kind === 'admin' ? 'newsroom-login--admin' : 'newsroom-login--reporter'}`}
-      lang={ne ? 'ne' : 'en'}
-    >
-      <div className="newsroom-login__mast">
-        <Link href={homeHref} aria-label={ne ? 'नागरिक वाच गृहपृष्ठ' : 'Nagarik Watch home'}>
-          <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
-        </Link>
-        <span className="newsroom-login__badge">{badge}</span>
-      </div>
+    <main className={`newsroom-login newsroom-login--${kind}`} lang={ne ? 'ne' : 'en'}>
+      <div className="newsroom-login__frame">
+        <aside className="newsroom-login__visual">
+          <div className="newsroom-login__visual-top">
+            <Link href={homeHref} aria-label={ne ? 'नागरिक वाच गृहपृष्ठ' : 'Nagarik Watch home'}>
+              <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} tone={kind === 'admin' ? 'onDark' : 'default'} />
+            </Link>
+            <span className="newsroom-login__badge">{badge}</span>
+          </div>
 
-      <nav className="newsroom-login__switch" aria-label={ne ? 'लगइन प्रकार' : 'Sign-in type'}>
-        <Link
-          href="/admin/login"
-          className={kind === 'admin' ? 'is-active' : undefined}
-          aria-current={kind === 'admin' ? 'page' : undefined}
-        >
-          {ne ? 'एडमिन' : 'Admin'}
-        </Link>
-        <Link
-          href={localizeHref(locale, '/journalist/login')}
-          className={kind === 'journalist' ? 'is-active' : undefined}
-          aria-current={kind === 'journalist' ? 'page' : undefined}
-        >
-          {ne ? 'पत्रकार' : 'Reporter'}
-        </Link>
-        <Link href={localizeHref(locale, '/auth/login')}>{ne ? 'पाठक' : 'Reader'}</Link>
-      </nav>
+          <div className="newsroom-login__brief">
+            <p className="newsroom-login__kicker">{kind === 'admin' ? (ne ? 'सुरक्षित न्युजरुम पहुँच' : 'Secure newsroom access') : ne ? 'रिपोर्टिङ कार्यक्षेत्र' : 'Reporting workspace'}</p>
+            <h1>{title}</h1>
+            <p>{lede}</p>
+            {points.length > 0 ? (
+              <ul className="newsroom-login__points">
+                {points.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
 
-      <div className="newsroom-login__grid">
-        <section className="newsroom-login__brief">
-          <h1>{title}</h1>
-          <span className="newsroom-login__brief-rule" aria-hidden="true" />
-          <p>{lede}</p>
-          {points.length > 0 ? (
-            <ul className="newsroom-login__points">
-              {points.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
-          ) : null}
-        </section>
+          <AuthIllustration variant={illustration} className="newsroom-login__illustration" />
+        </aside>
 
-        <section className="newsroom-login__form">
-          <header>
-            <h2>{formTitle}</h2>
-            <p>{formLede}</p>
-          </header>
-          {children}
+        <section className="newsroom-login__form" aria-labelledby="staff-auth-title">
+          <nav className="newsroom-login__switch" aria-label={ne ? 'लगइन प्रकार' : 'Sign-in type'}>
+            <Link href="/admin/login" className={kind === 'admin' ? 'is-active' : undefined} aria-current={kind === 'admin' ? 'page' : undefined}>
+              {ne ? 'एडमिन' : 'Admin'}
+            </Link>
+            <Link href={localizeHref(locale, '/journalist/login')} className={kind === 'journalist' ? 'is-active' : undefined} aria-current={kind === 'journalist' ? 'page' : undefined}>
+              {ne ? 'पत्रकार' : 'Reporter'}
+            </Link>
+            <Link href={localizeHref(locale, '/auth/login')}>{ne ? 'पाठक' : 'Reader'}</Link>
+          </nav>
+
+          <div className="newsroom-login__form-main">
+            <header>
+              <p className="newsroom-login__form-kicker">{kind === 'admin' ? (ne ? 'न्युजरुम नियन्त्रण' : 'Newsroom control') : ne ? 'आफ्नो डेस्क खोल्नुहोस्' : 'Open your desk'}</p>
+              <h2 id="staff-auth-title">{formTitle}</h2>
+              <p>{formLede}</p>
+            </header>
+            {children}
+          </div>
+
           <footer>{footer}</footer>
         </section>
       </div>

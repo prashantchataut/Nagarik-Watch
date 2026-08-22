@@ -26,8 +26,13 @@ import { createDialect } from './auth-pool'
 import { SITE_URL } from '@/lib/site'
 import { sendEmail } from '@/lib/email-provider'
 import { isUserDisabledById } from './disabled-users'
-import { ensureNewsroomBootAccounts } from './boot-accounts'
+import { ensureNewsroomBootAccounts, hasConfiguredNewsroomBootAccounts } from './boot-accounts'
 import { isGoogleAuthPublicEnabled } from './flags'
+import {
+  isProductionSafeOrigin,
+  normalizeAuthOrigin,
+  resolveAuthBaseUrl,
+} from './origin-config'
 
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET
 
@@ -52,25 +57,8 @@ if (
 
 const EFFECTIVE_AUTH_SECRET = AUTH_SECRET ?? 'local-dev-auth-secret-change-before-production-32'
 
-function normalizeOrigin(value: string | undefined | null): string | null {
-  if (!value) return null
-  const raw = value.trim()
-  if (!raw) return null
-  const withProtocol =
-    raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`
-  try {
-    return new URL(withProtocol).origin
-  } catch {
-    return null
-  }
-}
-
 function authBaseUrl(): string {
-  return (
-    normalizeOrigin(process.env.BETTER_AUTH_URL) ??
-    normalizeOrigin(process.env.NEXT_PUBLIC_SITE_URL) ??
-    SITE_URL
-  )
+  return resolveAuthBaseUrl(process.env, SITE_URL)
 }
 
 /** Canonical public hosts for newsroom + reader auth (www, apex, Vercel alias). */
@@ -107,7 +95,7 @@ function isAllowedAuthHost(host: string): boolean {
 function staticTrustedOrigins(): string[] {
   const fromEnv = (process.env.AUTH_TRUSTED_ORIGINS ?? '')
     .split(',')
-    .map((value) => normalizeOrigin(value))
+    .map((value) => normalizeAuthOrigin(value))
     .filter((value): value is string => Boolean(value))
 
   const candidates = [
@@ -133,8 +121,11 @@ function staticTrustedOrigins(): string[] {
   return Array.from(
     new Set(
       candidates
-        .map((value) => normalizeOrigin(value))
-        .filter((value): value is string => Boolean(value)),
+        .map((value) => normalizeAuthOrigin(value))
+        .filter((value): value is string => Boolean(value))
+        .filter(
+          (value) => process.env.NODE_ENV !== 'production' || isProductionSafeOrigin(value),
+        ),
     ),
   )
 }
@@ -337,13 +328,15 @@ async function buildAuth(): Promise<AuthInstance> {
     await runMigrations()
   }
 
-  // Kick off non-blocking boot provisioning. Production login no longer waits
-  // for password re-hashing; explicit repair is opt-in via AUTH_BOOT_REPAIR_ON_LOGIN.
-  after(() =>
-    ensureNewsroomBootAccounts(
-      auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
-    ).catch((error) => console.error('[auth] background boot provision failed', error)),
-  )
+  // Boot credentials are a deployment bootstrap mechanism, not a permanent requirement.
+  // Once they are deliberately removed, do not turn that healthy state into a false login error.
+  if (hasConfiguredNewsroomBootAccounts()) {
+    after(() =>
+      ensureNewsroomBootAccounts(
+        auth as unknown as Parameters<typeof ensureNewsroomBootAccounts>[0],
+      ).catch((error) => console.error('[auth] background boot provision failed', error)),
+    )
+  }
   return auth
 }
 

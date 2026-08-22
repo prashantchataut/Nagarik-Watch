@@ -19,14 +19,16 @@ export function JournalistWorkspaceShell({
   children: ReactNode
 }) {
   const ne = locale === 'ne'
-  const items = [
+  const primaryItems = [
     ['dashboard', '/journalist/dashboard', ne ? 'डेस्क' : 'Desk'],
     ['assignments', '/journalist/assignments', ne ? 'मेरा समाचार' : 'My stories'],
     ['new', '/journalist/articles/new', ne ? 'नयाँ ड्राफ्ट' : 'New draft'],
-    ['tools', '/journalist/tools', ne ? 'लेखन उपकरण' : 'Tools'],
+  ] as const
+  const supportItems = [
+    ['feedback', '/journalist/feedback', ne ? 'सम्पादकीय प्रतिक्रिया' : 'Editorial feedback'],
+    ['tools', '/journalist/tools', ne ? 'लेखन उपकरण' : 'Writing tools'],
     ['profile', '/journalist/profile', ne ? 'प्रोफाइल' : 'Profile'],
   ] as const
-
   const mobileItems = [
     ['dashboard', '/journalist/dashboard', ne ? 'डेस्क' : 'Desk'],
     ['assignments', '/journalist/assignments', ne ? 'समाचार' : 'Stories'],
@@ -45,37 +47,53 @@ export function JournalistWorkspaceShell({
           href={localizeHref(locale, '/journalist/dashboard')}
           className="newsroom-sidebar__brand"
         >
-          <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} className="max-w-[10rem]" />
+          <Logo
+            siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'}
+            className="max-w-[10rem]"
+            tone="onDark"
+          />
           <span className="newsroom-sidebar__desk-label">
-            {ne ? 'पत्रकार डेस्क' : 'Reporter desk'}
+            {ne ? 'पत्रकार कार्यक्षेत्र' : 'Reporter workspace'}
           </span>
         </Link>
+
         <nav aria-label={ne ? 'पत्रकार नेभिगेसन' : 'Journalist navigation'}>
-          {items.map(([key, href, label]) => (
-            <Link
-              key={key}
-              href={localizeHref(locale, href)}
-              aria-current={active === key ? 'page' : undefined}
-              className={active === key ? 'is-active' : undefined}
-            >
-              {label}
-            </Link>
-          ))}
-          <Link
-            href={localizeHref(locale, '/journalist/feedback')}
-            aria-current={active === 'feedback' ? 'page' : undefined}
-            className={active === 'feedback' ? 'is-active' : undefined}
-          >
-            {ne ? 'प्रतिक्रिया' : 'Feedback'}
-          </Link>
+          <div className="newsroom-sidebar__group">
+            <p>{ne ? 'समाचार काम' : 'Story work'}</p>
+            {primaryItems.map(([key, href, label]) => (
+              <Link
+                key={key}
+                href={localizeHref(locale, href)}
+                aria-current={active === key ? 'page' : undefined}
+                className={`${active === key ? 'is-active ' : ''}${key === 'new' ? 'is-primary' : ''}`.trim() || undefined}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+          <div className="newsroom-sidebar__group">
+            <p>{ne ? 'समर्थन' : 'Support'}</p>
+            {supportItems.map(([key, href, label]) => (
+              <Link
+                key={key}
+                href={localizeHref(locale, href)}
+                aria-current={active === key ? 'page' : undefined}
+                className={active === key ? 'is-active' : undefined}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
         </nav>
+
         <div className="newsroom-sidebar__identity">
           <strong>{name}</strong>
           <span>{roleLabel}</span>
-          <Link href={localizeHref(locale, '/')}>{ne ? 'सार्वजनिक साइट' : 'Public site'}</Link>
+          <Link href={localizeHref(locale, '/')}>{ne ? 'सार्वजनिक साइट खोल्नुहोस्' : 'Open public site'}</Link>
           <JournalistSignOutButton locale={locale} />
         </div>
       </aside>
+
       <div className="newsroom-main" id="newsroom-main">
         <header
           className="newsroom-mobilebar"
@@ -86,7 +104,7 @@ export function JournalistWorkspaceShell({
               key={key}
               href={localizeHref(locale, href)}
               aria-current={active === key ? 'page' : undefined}
-              className={active === key ? 'is-active' : undefined}
+              className={active === key ? 'is-active' : key === 'new' ? 'is-primary' : undefined}
             >
               {label}
             </Link>

@@ -1,16 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref } from '@/lib/i18n/locales'
+import { useStablePathname } from '@/lib/i18n/use-stable-pathname'
 import { patroEntryHref } from '@/lib/calendar-host'
 import {
-  IconBookmark,
   IconCalendar,
   IconClock,
   IconHome,
+  IconSearch,
   IconUser,
 } from '@/components/icons/PortalIcons'
 
@@ -19,11 +19,11 @@ type BottomNavProps = {
   accountHref?: string
 }
 
-type BottomNavKey = 'home' | 'latest' | 'patro' | 'saved' | 'account'
+type BottomNavKey = 'home' | 'latest' | 'patro' | 'search' | 'account'
 
 export function BottomNav({ locale, accountHref }: BottomNavProps) {
   const dict = getDictionary(locale)
-  const pathname = usePathname() ?? '/'
+  const pathname = useStablePathname()
   const lang = locale === 'en' ? 'en' : 'ne'
   const en = locale === 'en'
   const resolvedAccountHref = accountHref ?? localizeHref(locale, '/auth/login')
@@ -49,9 +49,9 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
       match: (path) => path.includes('/patro') || path.includes('/utilities/calendar'),
     },
     {
-      key: 'saved',
-      href: localizeHref(locale, '/saved'),
-      match: (path) => path.endsWith('/saved'),
+      key: 'search',
+      href: localizeHref(locale, '/search'),
+      match: (path) => path.endsWith('/search'),
     },
     {
       key: 'account',
@@ -65,7 +65,7 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
     home: dict.home,
     latest: en ? 'Latest' : 'ताजा',
     patro: en ? 'Patro' : 'पात्रो',
-    saved: en ? 'Saved' : 'सुरक्षित',
+    search: en ? 'Search' : 'खोज',
     account: en ? 'Account' : 'खाता',
   }
 
@@ -114,8 +114,8 @@ function BottomIcon({ name, active }: { name: BottomNavKey; active: boolean }) {
       return <IconClock {...props} />
     case 'patro':
       return <IconCalendar {...props} />
-    case 'saved':
-      return <IconBookmark {...props} />
+    case 'search':
+      return <IconSearch {...props} />
     case 'account':
       return <IconUser {...props} />
     default: {

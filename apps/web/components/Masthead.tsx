@@ -2,11 +2,11 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { usePathname } from 'next/navigation'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, pathsMatch, swapLocale } from '@/lib/i18n/locales'
+import { useStablePathname } from '@/lib/i18n/use-stable-pathname'
 import { MobileNav } from '@/components/MobileNav'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Logo } from '@/components/Logo'
@@ -30,29 +30,31 @@ type MastheadProps = {
   topics?: TopicLink[]
   account?: MastheadAccount | null
   leaderboard?: ReactNode
-  /** Live reference (weather, markets) rendered inside the masthead row. */
+  /** Live reference (weather, markets) rendered in the compact utility line. */
   reference?: ReactNode
 }
 
-const UTIL_LINK =
-  'inline-flex min-h-11 items-center gap-1.5 border border-transparent px-2.5 text-caption font-semibold text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:border-chrome-rule hover:bg-surface-raised/70 hover:text-on-chrome focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
+const PRIMARY_NAV_SLOTS = 8
 
-const UTIL_ICON_BTN =
-  'inline-flex h-11 w-11 items-center justify-center border border-transparent text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:border-chrome-rule hover:bg-surface-raised/70 hover:text-on-chrome focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
+const utilityLink =
+  'inline-flex min-h-9 items-center gap-1.5 px-2 text-caption font-semibold text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:text-on-chrome focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
-/**
- * Desk slots shown directly in the crimson rail. The long tail moves into a
- * "more" menu so the bar keeps even rhythm instead of filling to the pixel and
- * silently scrolling the moment an editor adds a category.
- */
-const PRIMARY_NAV_SLOTS = 9
+const iconButton =
+  'inline-flex h-9 w-9 items-center justify-center text-on-chrome-soft transition-colors duration-fast ease-out-quint hover:bg-surface-raised/60 hover:text-on-chrome focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
 function navLinkClass(active: boolean) {
   return active
-    ? 'inline-flex min-h-11 items-center gap-1 whitespace-nowrap border-b-2 border-paper bg-brand-bar-active px-3 text-caption font-black text-paper sm:px-3.5 sm:text-body'
-    : 'inline-flex min-h-11 items-center gap-1 whitespace-nowrap border-b-2 border-transparent px-3 text-caption font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:border-paper/70 hover:bg-brand-bar-active/65 hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-paper sm:px-3.5 sm:text-body'
+    ? 'inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap border-b-[3px] border-paper bg-brand-bar-active px-3 text-caption font-black text-paper sm:text-body'
+    : 'inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap border-b-[3px] border-transparent px-3 text-caption font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:bg-brand-bar-active/55 hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-paper sm:text-body'
 }
 
+/**
+ * Public chrome follows one simple hierarchy:
+ * utility facts -> publication identity/ad -> primary desks -> live topics.
+ * The old multi-band sticky stack made the first story fight the header; only
+ * the desk rail is sticky now, so navigation stays reachable without consuming
+ * the whole mobile viewport.
+ */
 export function Masthead({
   locale,
   navCategories,
@@ -62,219 +64,173 @@ export function Masthead({
   reference = null,
 }: MastheadProps) {
   const dict = getDictionary(locale)
-  const pathname = usePathname() ?? '/'
+  const pathname = useStablePathname()
+  const en = locale === 'en'
+  const lang = en ? 'en' : 'ne'
+  const homeHref = localizeHref(locale, '/')
+  const latestHref = localizeHref(locale, '/latest')
+  const savedHref = localizeHref(locale, '/saved')
+  const patroHref = patroEntryHref(locale)
+  const unicodeHref = localizeHref(locale, '/preeti-unicode')
+  const accountHref = account?.profileHref ?? localizeHref(locale, '/auth/login')
+  const toggleHref = pathname ? swapLocale(pathname) : localizeHref(en ? 'ne' : 'en', '/')
   const primaryCategories = navCategories.slice(0, PRIMARY_NAV_SLOTS)
   const overflowCategories = navCategories.slice(PRIMARY_NAV_SLOTS)
   const [dateLabel, setDateLabel] = useState('')
   const [englishDateLabel, setEnglishDateLabel] = useState('')
-  const homeHref = localizeHref(locale, '/')
-  const isHomepage = pathsMatch(pathname, homeHref)
-  const savedHref = localizeHref(locale, '/saved')
-  const latestHref = localizeHref(locale, '/latest')
-  const patroHref = patroEntryHref(locale)
-  const unicodeHref = localizeHref(locale, '/preeti-unicode')
-  const toggleHref = swapLocale(pathname)
-  const lang = locale === 'en' ? 'en' : 'ne'
-  const en = locale === 'en'
-  const accountHref = account?.profileHref ?? localizeHref(locale, '/auth/login')
+
+  useEffect(() => {
+    const now = new Date()
+    setDateLabel(formatDate(now.toISOString(), locale))
+    setEnglishDateLabel(
+      now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    )
+  }, [locale])
+
   const accountLabel = account
     ? account.kind === 'reader'
       ? en
         ? 'My account'
         : 'मेरो खाता'
       : en
-        ? 'Account'
-        : 'खाता'
+        ? 'Staff'
+        : 'कर्मचारी'
     : en
       ? 'Sign in'
       : 'लगइन'
-  const accountTitle = account
-    ? account.kind === 'reader'
-      ? `${account.kindLabel} · ${account.roleLabel}`
-      : en
-        ? 'Staff account'
-        : 'कर्मचारी खाता'
-    : undefined
-
-  useEffect(() => {
-    const now = new Date()
-    setDateLabel(formatDate(now.toISOString(), locale))
-    setEnglishDateLabel(
-      now.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-    )
-  }, [locale])
 
   return (
     <>
-      <header className="nw-masthead sticky top-0 z-40">
-        <div className="nw-masthead__chrome border-b border-chrome-rule bg-chrome text-on-chrome shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-          <div className="mx-auto grid h-14 max-w-page grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center px-3 lg:hidden">
-            <MobileNav locale={locale} navCategories={navCategories} account={account} />
-            <Link
-              href={homeHref}
-              className="nw-masthead__logo mx-auto min-w-0 transition-opacity duration-fast ease-out-quint hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-              aria-label={dict.siteName}
-            >
-              <Logo siteName={dict.siteName} tone="chrome" compact />
-            </Link>
-            <SearchLauncher locale={locale} />
-          </div>
+      <header className="nw-masthead relative z-30 border-b border-chrome-rule bg-chrome text-on-chrome">
+        <div className="mx-auto grid h-14 max-w-page grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center px-3 lg:hidden">
+          <MobileNav locale={locale} navCategories={navCategories} account={account} />
+          <Link
+            href={homeHref}
+            className="mx-auto min-w-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            aria-label={dict.siteName}
+          >
+            <Logo siteName={dict.siteName} tone="chrome" compact />
+          </Link>
+          <SearchLauncher locale={locale} />
+        </div>
 
-          <div className="mx-auto hidden min-h-16 max-w-page items-center gap-4 px-4 py-2 lg:flex">
-            <div className="flex min-w-0 items-center gap-3.5">
-              <Link
-                href={homeHref}
-                className="nw-masthead__logo min-w-0 shrink transition-opacity duration-fast ease-out-quint hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-                aria-label={dict.siteName}
-              >
-                <Logo siteName={dict.siteName} tone="chrome" className="max-w-[15rem]" />
-              </Link>
-              <div className="hidden flex-col border-l border-chrome-rule pl-3.5 leading-tight xl:flex">
-                <span
-                  className="whitespace-nowrap text-caption font-bold text-on-chrome"
-                  lang={lang}
-                  suppressHydrationWarning
-                >
-                  {dateLabel || '\u00a0'}
-                </span>
-                <span
-                  className="whitespace-nowrap text-[0.68rem] font-medium text-on-chrome-soft"
-                  lang="en"
-                  suppressHydrationWarning
-                >
-                  {englishDateLabel || '\u00a0'}
-                </span>
-              </div>
-              {reference}
+        <div className="hidden border-b border-chrome-rule lg:block">
+          <div className="mx-auto flex min-h-9 max-w-page items-center justify-between gap-4 px-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="whitespace-nowrap text-caption font-bold text-on-chrome" lang={lang} suppressHydrationWarning>
+                {dateLabel || '\u00a0'}
+              </span>
+              <span className="hidden whitespace-nowrap text-[0.68rem] font-semibold text-on-chrome-soft xl:inline" lang="en" suppressHydrationWarning>
+                {englishDateLabel || '\u00a0'}
+              </span>
+              {reference ? <span className="hidden min-w-0 xl:block">{reference}</span> : null}
             </div>
 
-            {leaderboard ? (
-              <div className="nw-masthead__leaderboard flex min-w-0 flex-1 justify-center px-2">
-                <div className="w-full max-w-[728px]">{leaderboard}</div>
-              </div>
-            ) : (
-              <div className="flex-1" />
-            )}
-
-            <div className="flex min-w-0 shrink-0 items-center justify-end gap-1">
-              <Link
-                href={unicodeHref}
-                className={`${UTIL_LINK} hidden 2xl:inline-flex`}
-                lang={lang}
-                title={en ? 'Preeti to Unicode converter' : 'प्रिती युनिकोड रूपान्तरण'}
-              >
-                <span className="font-bold">{en ? 'Unicode' : 'युनिकोड'}</span>
+            <div className="flex shrink-0 items-center gap-0.5">
+              <Link href={unicodeHref} className={`${utilityLink} hidden 2xl:inline-flex`} lang={lang}>
+                {en ? 'Unicode' : 'युनिकोड'}
               </Link>
-              <Link
-                href={savedHref}
-                className={UTIL_ICON_BTN}
-                title={dict.navSaved}
-                aria-label={dict.navSaved}
-              >
+              <Link href={savedHref} className={iconButton} title={dict.navSaved} aria-label={dict.navSaved}>
                 <IconBookmark width={17} height={17} />
               </Link>
-              <Link
-                href={accountHref}
-                className={`${UTIL_LINK} hidden xl:inline-flex`}
-                lang={lang}
-                title={accountTitle}
-              >
-                <IconUser width={17} height={17} />
-                <span className="max-w-[7rem] truncate">{accountLabel}</span>
+              <Link href={accountHref} className={`${utilityLink} hidden xl:inline-flex`} lang={lang}>
+                <IconUser width={16} height={16} />
+                <span className="max-w-[8rem] truncate">{accountLabel}</span>
               </Link>
-              <SearchLauncher locale={locale} className="!text-on-chrome-soft" />
+              <SearchLauncher locale={locale} className="!h-9 !w-9 !text-on-chrome-soft" />
               <ThemeToggle
                 locale={locale}
-                className="!h-11 !w-11 !rounded-none !border !border-transparent !text-on-chrome-soft hover:!border-chrome-rule hover:!bg-surface-raised/70 hover:!text-on-chrome"
+                className="!h-9 !w-9 !rounded-none !border-0 !text-on-chrome-soft hover:!bg-surface-raised/60 hover:!text-on-chrome"
               />
               <Link
                 href={toggleHref}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center border border-chrome-rule bg-surface-raised/60 px-2 text-caption font-extrabold text-on-chrome transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="ml-1 inline-flex min-h-8 min-w-10 items-center justify-center border border-chrome-rule px-2 text-caption font-extrabold text-on-chrome transition-colors hover:border-brand hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 lang={en ? 'ne' : 'en'}
                 aria-label={dict.localeToggleAria}
               >
-                {en ? 'नेपाली' : 'EN'}
+                {en ? 'ने' : 'EN'}
               </Link>
             </div>
           </div>
         </div>
 
-        <nav
-          aria-label={dict.primaryNav}
-          className={`nw-masthead__primary border-b border-black/15 bg-brand-bar text-paper ${
-            isHomepage ? 'hidden lg:block' : 'block'
-          }`}
-        >
-          <div className="relative mx-auto flex max-w-page items-stretch px-2 sm:px-4">
-            <ul className="nw-masthead__navrail flex min-w-0 flex-1 flex-nowrap items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <li>
-                <NavLink href={homeHref} active={pathsMatch(pathname, homeHref)}>
-                  <HomeGlyph />
-                  <span className="sr-only sm:not-sr-only">{dict.home}</span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink href={latestHref} active={pathsMatch(pathname, latestHref)} lang={lang}>
-                  {dict.navLatest}
-                </NavLink>
-              </li>
-              {primaryCategories.map((category, index) => {
-                const label = en && category.nameEn ? category.nameEn : category.nameNe
-                const categoryLang = en && category.nameEn ? 'en' : 'ne'
-                const href = localizeHref(locale, `/${category.slug}`)
-                return (
-                  <li key={category.slug} className={index >= 5 ? 'hidden lg:block' : undefined}>
-                    <NavLink href={href} active={pathsMatch(pathname, href)} lang={categoryLang}>
-                      {label}
-                    </NavLink>
-                  </li>
-                )
-              })}
-              <li>
-                <NavLink
-                  href={localizeHref(locale, '/province')}
-                  active={pathname.includes('/province')}
-                  lang={lang}
-                >
-                  {en ? 'Provinces' : 'प्रदेश'}
-                </NavLink>
-              </li>
-              <li className="hidden lg:block">
-                <NavLink
-                  href={localizeHref(locale, '/fact-check')}
-                  active={pathname.includes('/fact-check')}
-                  lang={lang}
-                >
-                  {en ? 'Fact check' : 'तथ्य-जाँच'}
-                </NavLink>
-              </li>
-              <li className="ms-1 flex shrink-0 items-stretch border-l border-paper/25 pl-1 sm:ms-2 sm:pl-2">
-                <Link
-                  href={patroHref}
-                  lang={lang}
-                  className="inline-flex min-h-11 items-center gap-1.5 bg-paper px-3 text-caption font-extrabold text-brand-strong sm:px-3.5 sm:text-body transition-colors duration-fast ease-out-quint hover:bg-brand-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-paper"
-                >
-                  <IconCalendar width={16} height={16} />
-                  <span>{en ? 'Patro' : 'पात्रो'}</span>
-                </Link>
-              </li>
-              {overflowCategories.length > 0 ? (
-                <li className="ms-auto hidden shrink-0 lg:flex">
-                  <NavMoreMenu
-                    locale={locale}
-                    categories={overflowCategories}
-                    pathname={pathname}
-                  />
-                </li>
-              ) : null}
-            </ul>
-          </div>
-        </nav>
+        <div className="mx-auto hidden min-h-[4.75rem] max-w-page items-center gap-6 px-4 py-2.5 lg:flex">
+          <Link
+            href={homeHref}
+            className="shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            aria-label={dict.siteName}
+          >
+            <Logo siteName={dict.siteName} tone="chrome" className="max-w-[18rem]" />
+          </Link>
+          <div className="flex-1" />
+          {leaderboard ? (
+            <div className="w-full max-w-[728px] shrink-0 xl:max-w-[760px]">{leaderboard}</div>
+          ) : (
+            <p className="max-w-sm text-right text-caption font-semibold leading-relaxed text-on-chrome-soft" lang={lang}>
+              {en ? 'Verified reporting. Clear context.' : 'सत्यापित समाचार, स्पष्ट सन्दर्भ'}
+            </p>
+          )}
+        </div>
       </header>
+
+      <nav
+        aria-label={dict.primaryNav}
+        className="nw-masthead__primary sticky top-0 z-40 border-b border-black/15 bg-brand-bar text-paper"
+      >
+        <div className="mx-auto flex max-w-page items-stretch px-1 sm:px-3">
+          <ul className="flex min-w-0 flex-1 flex-nowrap items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <li>
+              <NavLink href={homeHref} active={pathsMatch(pathname, homeHref)}>
+                <HomeGlyph />
+                <span className="sr-only sm:not-sr-only">{dict.home}</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink href={latestHref} active={pathsMatch(pathname, latestHref)} lang={lang}>
+                {dict.navLatest}
+              </NavLink>
+            </li>
+            {primaryCategories.map((category, index) => {
+              const label = en && category.nameEn ? category.nameEn : category.nameNe
+              const categoryLang = en && category.nameEn ? 'en' : 'ne'
+              const href = localizeHref(locale, `/${category.slug}`)
+              return (
+                <li key={category.slug} className={index >= 5 ? 'hidden lg:block' : undefined}>
+                  <NavLink href={href} active={pathsMatch(pathname, href)} lang={categoryLang}>
+                    {label}
+                  </NavLink>
+                </li>
+              )
+            })}
+            <li className="hidden md:block">
+              <NavLink href={localizeHref(locale, '/province')} active={pathname.includes('/province')} lang={lang}>
+                {en ? 'Provinces' : 'प्रदेश'}
+              </NavLink>
+            </li>
+            <li className="hidden xl:block">
+              <NavLink href={localizeHref(locale, '/fact-check')} active={pathname.includes('/fact-check')} lang={lang}>
+                {en ? 'Fact check' : 'तथ्य-जाँच'}
+              </NavLink>
+            </li>
+            <li className="ml-auto flex shrink-0 items-stretch border-l border-paper/25 pl-1 sm:pl-2">
+              <Link
+                href={patroHref}
+                lang={lang}
+                className="inline-flex min-h-11 items-center gap-1.5 bg-paper px-3 text-caption font-extrabold text-brand-strong transition-colors hover:bg-brand-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-paper sm:text-body"
+              >
+                <IconCalendar width={16} height={16} />
+                {en ? 'Patro' : 'पात्रो'}
+              </Link>
+            </li>
+            {overflowCategories.length > 0 ? (
+              <li className="hidden shrink-0 lg:flex">
+                <NavMoreMenu locale={locale} categories={overflowCategories} pathname={pathname} />
+              </li>
+            ) : null}
+          </ul>
+        </div>
+      </nav>
+
       {topics.length > 0 ? <TopicsLinks locale={locale} topics={topics} /> : null}
     </>
   )
@@ -282,57 +238,22 @@ export function Masthead({
 
 function HomeGlyph() {
   return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      aria-hidden="true"
-      focusable="false"
-    >
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true" focusable="false">
       <path d="M4 11.5 12 4l8 7.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M7 10.5V20h10v-9.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
 
-function NavLink({
-  href,
-  active,
-  lang,
-  children,
-}: {
-  href: string
-  active?: boolean
-  lang?: string
-  children: ReactNode
-}) {
+function NavLink({ href, active, lang, children }: { href: string; active?: boolean; lang?: string; children: ReactNode }) {
   return (
-    <Link
-      href={href}
-      lang={lang}
-      aria-current={active ? 'page' : undefined}
-      className={navLinkClass(Boolean(active))}
-    >
+    <Link href={href} lang={lang} aria-current={active ? 'page' : undefined} className={navLinkClass(Boolean(active))}>
       {children}
     </Link>
   )
 }
 
-/**
- * Long-tail desks. Kept in a menu so the crimson rail never runs edge to edge.
- */
-function NavMoreMenu({
-  locale,
-  categories,
-  pathname,
-}: {
-  locale: Locale
-  categories: Category[]
-  pathname: string
-}) {
+function NavMoreMenu({ locale, categories, pathname }: { locale: Locale; categories: Category[]; pathname: string }) {
   const en = locale === 'en'
   const [open, setOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -343,9 +264,7 @@ function NavMoreMenu({
       if (event.key === 'Escape') setOpen(false)
     }
     const onPointer = (event: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
-        setOpen(false)
-      }
+      if (panelRef.current && !panelRef.current.contains(event.target as Node)) setOpen(false)
     }
     document.addEventListener('keydown', onKey)
     document.addEventListener('mousedown', onPointer)
@@ -355,15 +274,9 @@ function NavMoreMenu({
     }
   }, [open])
 
-  // Close on navigation so the panel never lingers over the next page.
-  useEffect(() => {
-    setOpen(false)
-  }, [pathname])
+  useEffect(() => setOpen(false), [pathname])
 
-  const hrefs = categories.map((category) => ({
-    category,
-    href: localizeHref(locale, `/${category.slug}`),
-  }))
+  const hrefs = categories.map((category) => ({ category, href: localizeHref(locale, `/${category.slug}`) }))
   const activeInside = hrefs.some((entry) => pathsMatch(pathname, entry.href))
 
   return (
@@ -376,14 +289,10 @@ function NavMoreMenu({
         lang={en ? 'en' : 'ne'}
         className={navLinkClass(activeInside)}
       >
-        <span>{en ? 'More' : 'थप'}</span>
-        <span aria-hidden="true" className="text-paper/75">
-          ▾
-        </span>
+        {en ? 'More' : 'थप'} <span aria-hidden="true">▾</span>
       </button>
-
       {open ? (
-        <div className="absolute end-0 top-full z-50 w-[min(92vw,22rem)] border border-rule bg-surface-raised p-2 shadow-md">
+        <div className="absolute end-0 top-full z-50 w-[min(92vw,22rem)] border border-rule bg-surface-raised p-2 shadow-overlay">
           <ul className="grid grid-cols-2 gap-0.5">
             {hrefs.map(({ category, href }) => {
               const label = en && category.nameEn ? category.nameEn : category.nameNe
@@ -395,11 +304,11 @@ function NavMoreMenu({
                     lang={en && category.nameEn ? 'en' : 'ne'}
                     aria-current={active ? 'page' : undefined}
                     onClick={() => setOpen(false)}
-                    className={
+                    className={`block min-h-10 px-2.5 py-2 text-caption transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${
                       active
-                        ? 'block px-2 py-2 text-caption font-extrabold text-brand-strong'
-                        : 'block px-2 py-2 text-caption font-semibold text-ink transition-colors duration-fast ease-out-quint hover:bg-surface hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
-                    }
+                        ? 'bg-brand-tint font-extrabold text-brand-strong'
+                        : 'font-semibold text-ink hover:bg-surface hover:text-brand-strong'
+                    }`}
                   >
                     {label}
                   </Link>

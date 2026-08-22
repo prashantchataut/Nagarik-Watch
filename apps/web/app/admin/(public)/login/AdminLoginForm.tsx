@@ -123,6 +123,7 @@ export function AdminLoginForm({
           return
         }
         router.replace('/admin/dashboard')
+        router.refresh()
       } catch {
         setError('नेटवर्क त्रुटि। फेरि प्रयास गर्नुहोस्।')
       }

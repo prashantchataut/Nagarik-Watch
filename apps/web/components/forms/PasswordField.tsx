@@ -38,11 +38,12 @@ export function PasswordField({
     <div className="grid gap-1.5 text-meta font-semibold text-ink">
       <label htmlFor={id}>{label}</label>
       <div
-        className={
+        data-variant={variant}
+        className={`password-field__control ${
           newsroom
             ? 'flex border border-rule bg-surface focus-within:border-brand'
             : 'flex border border-rule bg-surface focus-within:border-brand focus-within:ring-2 focus-within:ring-brand-tint'
-        }
+        }`}
       >
         <input
           id={id}

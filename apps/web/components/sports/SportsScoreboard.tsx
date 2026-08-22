@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
-import type { Locale, StoryCardData } from '@nagarikwatch/db'
+import { formatDate, type Locale, type StoryCardData } from '@nagarikwatch/db'
 import { getFootballScores, getCricketScores } from '@/lib/live/sports'
 import { getStories } from '@/lib/content'
 import { localizeHref } from '@/lib/i18n/locales'
@@ -24,6 +25,7 @@ export async function SportsScoreboard({
       : Promise.resolve({ items: [] as StoryCardData[] }),
   ])
   const sportsStories = stories.items
+  const [leadStory, ...moreStories] = sportsStories
 
   return (
     <LiveDeskShell
@@ -31,11 +33,12 @@ export async function SportsScoreboard({
       title={ne ? 'खेलकुद' : 'Sports'}
       dek={
         ne
-          ? 'प्रमाणित स्कोर उपलब्ध हुँदा मात्र देखाइन्छ। तलका कथा सम्पादकीय समीक्षाबाट आउँछन्।'
-          : 'Scores appear only when a verified feed is available. Stories below are editorially reviewed.'
+          ? 'लाइभ स्कोर प्रमाणित प्रदायकबाट मात्र। समाचार र विश्लेषण न्यूजरुमबाट।'
+          : 'Live scores only from verified providers, with newsroom reporting and analysis below.'
       }
+      kicker={ne ? 'स्कोर + रिपोर्टिङ' : 'Scores + reporting'}
     >
-      <div className="grid gap-10 lg:grid-cols-2">
+      <section className="sports-board" aria-label={ne ? 'खेल स्कोर बोर्ड' : 'Sports scoreboard'}>
         <ScoreSection
           title={ne ? 'फुटबल' : 'Football'}
           source={football.source}
@@ -44,17 +47,17 @@ export async function SportsScoreboard({
           locale={locale}
         >
           {football.data.map((match, index) => (
-            <li key={`${match.home}-${match.away}-${index}`} className="border-t border-rule py-4">
-              <p className="text-caption font-semibold text-mute">{match.league}</p>
-              <div className="mt-2 flex items-center justify-between gap-4 font-display text-h3 text-ink">
-                <span>{match.home}</span>
-                <span className="tabular-nums font-extrabold">{match.score}</span>
-                <span>{match.away}</span>
-              </div>
-              <p className="mt-2 text-caption text-ink-soft">{match.minute || match.status}</p>
-            </li>
+            <ScoreRow
+              key={`${match.home}-${match.away}-${index}`}
+              competition={match.league}
+              home={match.home}
+              away={match.away}
+              score={match.score}
+              status={match.minute || match.status}
+            />
           ))}
         </ScoreSection>
+
         <ScoreSection
           title={ne ? 'क्रिकेट' : 'Cricket'}
           source={cricket.source}
@@ -63,60 +66,105 @@ export async function SportsScoreboard({
           locale={locale}
         >
           {cricket.data.map((match, index) => (
-            <li key={`${match.home}-${match.away}-${index}`} className="border-t border-rule py-4">
-              <p className="text-caption font-semibold text-mute">{match.league}</p>
-              <div className="mt-2 flex items-center justify-between gap-4 font-display text-h3 text-ink">
-                <span>{match.home}</span>
-                <span className="tabular-nums font-extrabold">{match.score}</span>
-                <span>{match.away}</span>
-              </div>
-              <p className="mt-2 text-caption text-ink-soft">{match.status}</p>
-            </li>
+            <ScoreRow
+              key={`${match.home}-${match.away}-${index}`}
+              competition={match.league}
+              home={match.home}
+              away={match.away}
+              score={match.score}
+              status={match.status}
+            />
           ))}
         </ScoreSection>
-      </div>
+      </section>
 
       {showStories ? (
-        <section className="mt-12 border-t border-ink pt-8">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 className="font-display text-h2 font-extrabold text-ink" lang={ne ? 'ne' : 'en'}>
-              {ne ? 'नयाँ खेलकुद कथा' : 'Latest sports stories'}
-            </h2>
-            <Link
-              href={localizeHref(locale, '/live-scores')}
-              className="text-meta font-semibold text-brand-strong"
-              lang={ne ? 'ne' : 'en'}
-            >
-              {ne ? 'प्रत्यक्ष स्कोर' : 'Live scores'}
+        <section className="sports-reporting" aria-labelledby="sports-reporting-title">
+          <header>
+            <div>
+              <p>{ne ? 'न्यूजरुम' : 'Newsroom'}</p>
+              <h2 id="sports-reporting-title">{ne ? 'खेलकुद रिपोर्टिङ' : 'Sports reporting'}</h2>
+            </div>
+            <Link href={localizeHref(locale, '/live-scores')}>
+              {ne ? 'लाइभ स्कोर' : 'Live scores'}
             </Link>
-          </div>
-          <ul className="mt-4 divide-y divide-rule border-y border-rule">
-            {sportsStories.length ? (
-              sportsStories.map((story) => (
-                <li key={story.id} className="py-4">
-                  <Link
-                    href={localizeHref(locale, `/${story.category.slug}/${story.slug}`)}
-                    className="block font-display text-h3 font-bold text-ink transition-colors hover:text-brand-strong"
-                    lang={locale === 'en' && story.titleEn ? 'en' : 'ne'}
-                  >
-                    {locale === 'en' && story.titleEn ? story.titleEn : story.titleNe}
-                  </Link>
-                  {(locale === 'en' ? story.deckEn : story.deckNe) ? (
-                    <p className="mt-1 line-clamp-2 text-meta text-ink-soft">
-                      {locale === 'en' ? story.deckEn : story.deckNe}
-                    </p>
-                  ) : null}
-                </li>
-              ))
-            ) : (
-              <li className="py-6 text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
-                {ne ? 'खेलकुद कथा उपलब्ध छैन।' : 'No sports stories available yet.'}
-              </li>
-            )}
-          </ul>
+          </header>
+
+          {leadStory ? (
+            <div className="sports-reporting__grid">
+              <Link
+                href={localizeHref(locale, `/${leadStory.category.slug}/${leadStory.slug}`)}
+                className="sports-reporting__lead group"
+              >
+                <div className="sports-reporting__lead-media">
+                  {leadStory.heroImage?.url && !leadStory.heroImage.url.startsWith('data:') ? (
+                    <Image
+                      src={leadStory.heroImage.url}
+                      alt={leadStory.heroImage.alt || titleFor(leadStory, locale)}
+                      fill
+                      sizes="(min-width: 1024px) 58vw, 100vw"
+                      className="object-cover transition-transform duration-slow motion-safe:group-hover:scale-[1.015]"
+                    />
+                  ) : (
+                    <span className="absolute inset-0 bg-brand-tint" aria-hidden="true" />
+                  )}
+                </div>
+                <p>{leadStory.categoryLabel}</p>
+                <h3>{titleFor(leadStory, locale)}</h3>
+                {deckFor(leadStory, locale) ? <span>{deckFor(leadStory, locale)}</span> : null}
+                <small>{formatDate(leadStory.publishedAt, locale)}</small>
+              </Link>
+
+              <ol className="sports-reporting__list">
+                {moreStories.map((story, index) => (
+                  <li key={story.id}>
+                    <span aria-hidden="true">{String(index + 2).padStart(2, '0')}</span>
+                    <div>
+                      <Link href={localizeHref(locale, `/${story.category.slug}/${story.slug}`)}>
+                        {titleFor(story, locale)}
+                      </Link>
+                      <p>
+                        {story.categoryLabel} · {formatDate(story.publishedAt, locale)}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ) : (
+            <p className="sports-reporting__empty">
+              {ne ? 'खेलकुद कथा उपलब्ध छैन।' : 'No sports stories available yet.'}
+            </p>
+          )}
         </section>
       ) : null}
     </LiveDeskShell>
+  )
+}
+
+function ScoreRow({
+  competition,
+  home,
+  away,
+  score,
+  status,
+}: {
+  competition: string
+  home: string
+  away: string
+  score: string
+  status: string
+}) {
+  return (
+    <li className="sports-score-row">
+      <p>{competition}</p>
+      <div>
+        <span>{home}</span>
+        <strong className="tabular-nums">{score}</strong>
+        <span>{away}</span>
+      </div>
+      <small>{status}</small>
+    </li>
   )
 }
 
@@ -137,41 +185,44 @@ function ScoreSection({
 }) {
   const ne = locale === 'ne'
   return (
-    <section className="border-t border-rule pt-5">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-display text-h2 font-extrabold text-ink">{title}</h2>
-        <span
-          className={
-            available
-              ? 'text-caption font-semibold text-up'
-              : 'text-caption font-semibold text-ink-soft'
-          }
-        >
+    <section className="sports-score-section">
+      <header>
+        <div>
+          <h2>{title}</h2>
+          <p>
+            {source} ·{' '}
+            {new Date(updatedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB', {
+              timeZone: 'Asia/Kathmandu',
+            })}
+          </p>
+        </div>
+        <span data-live={available ? 'true' : 'false'}>
           {available
             ? ne
-              ? 'सत्यापित फिड'
-              : 'Verified feed'
+              ? 'सत्यापित'
+              : 'Verified'
             : ne
-              ? 'डाटा उपलब्ध छैन'
-              : 'Data unavailable'}
+              ? 'फिड छैन'
+              : 'No feed'}
         </span>
-      </div>
-      <p className="mt-1 text-caption text-mute">
-        {source} ·{' '}
-        {new Date(updatedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB', { timeZone: 'Asia/Kathmandu' })}
-      </p>
+      </header>
       {available ? (
-        <ul className="mt-2">{children}</ul>
+        <ul>{children}</ul>
       ) : (
-        <p
-          className="mt-4 border-y border-rule py-5 text-body text-ink-soft"
-          lang={ne ? 'ne' : 'en'}
-        >
+        <p className="sports-score-section__empty">
           {ne
-            ? 'प्रदायक फिड अहिले उपलब्ध छैन। स्कोर फर्किएपछि यहाँ देखिन्छ।'
-            : 'No provider feed is available right now. Scores will appear here when verified.'}
+            ? 'प्रदायक फिड अहिले उपलब्ध छैन। प्रमाणित स्कोर फर्किएपछि यहाँ देखिन्छ।'
+            : 'The provider feed is unavailable. Verified scores will appear here when it returns.'}
         </p>
       )}
     </section>
   )
+}
+
+function titleFor(story: StoryCardData, locale: Locale) {
+  return locale === 'en' && story.titleEn ? story.titleEn : story.titleNe
+}
+
+function deckFor(story: StoryCardData, locale: Locale) {
+  return locale === 'en' ? story.deckEn : story.deckNe
 }

@@ -10,6 +10,8 @@ import type {
 } from '@nagarikwatch/db'
 import type { ContentSource, StoryListOptions } from './source'
 import { contentSourceFingerprint, resolveContentSource } from './resolve-content-source'
+import { isPayloadCanonical, isPayloadDeclared } from './payload-admin-client'
+import { readHomepageSnapshot, writeHomepageSnapshot } from './public-snapshot'
 
 let cached: { key: string; source: Promise<ContentSource> } | null = null
 
@@ -36,7 +38,39 @@ export async function getArticleBySlug(
 }
 
 export async function getHomepage(): Promise<HomepageData | null> {
-  return (await source()).getHomepage()
+  try {
+    const content = await source()
+    const homepage = await content.getHomepage()
+    if (homepage && isPayloadCanonical()) {
+      await writeHomepageSnapshot(homepage).catch(() => false)
+    }
+    return homepage
+  } catch (error) {
+    // A deployment may temporarily lose the Payload URL/config as well as Payload itself.
+    // A live launch is Payload-authoritative by policy even if CONTENT_SOURCE drifts, so a
+    // recent reader-safe Payload snapshot is the only acceptable fallback. Never substitute
+    // development JSON/seed content here; the launch gate still reports the env drift.
+    const liveLaunch =
+      (process.env.NEXT_PUBLIC_LAUNCH_STATUS?.trim() || 'preview').toLowerCase() === 'live'
+    if (isPayloadDeclared() || liveLaunch) {
+      const snapshot = await readHomepageSnapshot()
+      if (snapshot) {
+        console.warn(
+          '[content] canonical Payload homepage unavailable; serving recent published snapshot',
+          error instanceof Error ? error.message : error,
+        )
+        return snapshot
+      }
+    }
+    throw error
+  }
+}
+
+export async function refreshCanonicalHomepageSnapshot(): Promise<boolean> {
+  if (!isPayloadCanonical()) return false
+  const homepage = await (await source()).getHomepage()
+  if (!homepage) return false
+  return writeHomepageSnapshot(homepage, { force: true })
 }
 
 export async function getCategoryPage(

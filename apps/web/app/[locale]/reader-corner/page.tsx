@@ -46,7 +46,7 @@ export default async function ReaderCornerPage({
   ])
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8 sm:py-12" lang={english ? 'en' : 'ne'}>
+    <main className="reader-desk mx-auto max-w-page px-4 py-8 sm:py-10" lang={english ? 'en' : 'ne'}>
       <div>
         <HubIndexHeader
           title={english ? 'Reading desk' : 'पढाइ डेस्क'}
@@ -62,38 +62,23 @@ export default async function ReaderCornerPage({
           lang={english ? 'en' : 'ne'}
           kicker={english ? 'Reader account' : 'पाठक खाता'}
         />
-        <nav
-          className="mt-4 flex flex-wrap gap-4"
-          aria-label={english ? 'Desk links' : 'डेस्क लिंक'}
-        >
+        <nav className="reader-desk__nav" aria-label={english ? 'Desk links' : 'डेस्क लिंक'}>
           <Link
             href={localizeHref(locale, '/saved')}
-            className="inline-flex items-center border-b border-rule pb-1 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
+            className="reader-desk__nav-link"
           >
             {english ? 'Saved' : 'सुरक्षित'}
           </Link>
           <Link
             href={localizeHref(locale, session ? '/auth/profile' : '/auth/login')}
-            className="inline-flex items-center border-b border-rule pb-1 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
+            className="reader-desk__nav-link"
           >
             {session ? (english ? 'Account' : 'खाता') : english ? 'Sign in' : 'लगइन'}
           </Link>
         </nav>
       </div>
 
-      <div className="mt-6 border-y border-rule py-4 text-meta text-ink-soft">
-        <p>
-          {session
-            ? english
-              ? 'Your reading tools stay in one place; use the account page only for identity and security settings.'
-              : 'पढाइका उपकरण यहीँ रहन्छन्; पहिचान र सुरक्षा सेटिङका लागि मात्र खाता पृष्ठ प्रयोग गर्नुहोस्।'
-            : english
-              ? 'Device saves and reading history work without an account. Sign in only when you want cross-device sync.'
-              : 'खाता बिना पनि उपकरणमा सुरक्षित सूची र पढाइ इतिहास काम गर्छ। उपकरणबीच सिङ्क चाहिँदा मात्र लगइन गर्नुहोस्।'}
-        </p>
-      </div>
-
-      <div className="mt-8 space-y-10">
+      <div className="reader-desk__content">
         <RecommendedForYou
           locale={locale}
           catalog={storyPage.items}
@@ -119,6 +104,6 @@ export default async function ReaderCornerPage({
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

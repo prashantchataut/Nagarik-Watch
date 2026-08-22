@@ -1,9 +1,9 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
 import { type ReactNode } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
+import { useStablePathname } from '@/lib/i18n/use-stable-pathname'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Logo } from '@/components/Logo'
 import { mainSiteHref } from '@/lib/calendar-host'
@@ -73,14 +73,15 @@ export function PatroShell({
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
   const dict = getDictionary(locale)
-  const pathname = usePathname() ?? ''
+  const pathname = useStablePathname()
   const newsHref = mainSiteHref(locale, '/')
   const homeHref = localizeHref(locale, '/patro')
   const otherLocale = locale === 'en' ? 'ne' : 'en'
-  const toggleHref =
-    locale === 'en'
+  const toggleHref = pathname
+    ? locale === 'en'
       ? pathname.replace(/^\/en/, '') || '/'
       : `/en${pathname === '/' ? '' : pathname}`
+    : localizeHref(otherLocale, '/patro')
 
   if (mode === 'standalone') {
     return (

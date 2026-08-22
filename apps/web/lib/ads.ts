@@ -46,7 +46,7 @@ export const AD_PLACEMENTS = {
     label: 'Homepage billboard',
     descriptionNe: 'मुख्य समाचारपछि देखिने ठूलो 970×250 ब्रान्ड स्थान।',
     descriptionEn: 'Large 970×250 brand placement after the homepage hero.',
-    position: 'Home / closing billboard',
+    position: 'Home / after lead package',
   },
   'home-mid': {
     key: 'home-mid',

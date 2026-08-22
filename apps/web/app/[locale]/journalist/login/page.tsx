@@ -78,13 +78,13 @@ export default async function JournalistLoginPage({
     <StaffAuthShell
       kind="journalist"
       locale={ne ? 'ne' : 'en'}
-      title={ne ? 'पत्रकार लगइन' : 'Journalist login'}
+      title={ne ? 'पत्रकार डेस्कमा स्वागत छ' : 'Welcome to the reporter desk'}
       lede={
         ne
-          ? 'ड्राफ्ट लेख्नुहोस्, प्रमाण नोट राख्नुहोस्, सम्पादकलाई पठाउनुहोस्। यो डेस्क निमन्त्रित रिपोर्टरका लागि मात्र हो।'
-          : 'Write drafts, attach evidence notes, and submit to editors. This desk is for invited reporters only.'
+          ? 'असाइनमेन्ट हेर्नुहोस्, ड्राफ्ट लेख्नुहोस्, स्रोत नोट सुरक्षित गर्नुहोस् र समीक्षा लागि सम्पादकलाई पठाउनुहोस्।'
+          : 'Review assignments, write drafts, keep source notes, and send work to an editor for review.'
       }
-      formTitle={ne ? 'डेस्क खोल्नुहोस्' : 'Open your desk'}
+      formTitle={ne ? 'आफ्नो डेस्क खोल्नुहोस्' : 'Open your desk'}
       formLede={
         ne
           ? 'सम्पादकले दिएको इमेल र पासवर्ड प्रयोग गर्नुहोस्।'

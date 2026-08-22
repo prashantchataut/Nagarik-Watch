@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { useId, useState, type ReactNode } from 'react'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizeHref, pathsMatch, swapLocale } from '@/lib/i18n/locales'
+import { useStablePathname } from '@/lib/i18n/use-stable-pathname'
 import { patroEntryHref } from '@/lib/calendar-host'
 import { LogoMark } from '@/components/Logo'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -47,7 +47,7 @@ const SHEET_LINK_ROW = `${SHEET_LINK} gap-3`
 
 export function MobileNav({ locale, navCategories, account = null }: MobileNavProps) {
   const dict = getDictionary(locale)
-  const pathname = usePathname() ?? '/'
+  const pathname = useStablePathname()
   const [open, setOpen] = useState(false)
   const dialogId = useId()
   const en = locale === 'en'
@@ -56,7 +56,9 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
   const latestHref = localizeHref(locale, '/latest')
   const savedHref = localizeHref(locale, '/saved')
   const readerCornerHref = localizeHref(locale, '/reader-corner')
-  const toggleHref = swapLocale(pathname)
+  const toggleHref = pathname
+    ? swapLocale(pathname)
+    : localizeHref(locale === 'en' ? 'ne' : 'en', '/')
 
   return (
     <>
@@ -150,7 +152,7 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
             </DrawerSection>
 
             <DrawerSection label={en ? 'Useful services' : 'उपयोगी सेवाहरू'} lang={lang}>
-              <li className="grid grid-cols-2 gap-2 py-2">
+              <li className="grid grid-cols-2 gap-x-3 py-1">
                 <UtilityLink
                   href={patroEntryHref(locale)}
                   onClick={() => setOpen(false)}
@@ -339,9 +341,9 @@ function UtilityLink({
     <Link
       href={href}
       onClick={onClick}
-      className="flex min-h-12 items-center gap-2.5 rounded border border-rule bg-surface px-3 py-2 text-meta font-extrabold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      className="flex min-h-12 items-center gap-2.5 border-b border-rule px-2 py-2 text-meta font-extrabold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand"
     >
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center text-brand-strong">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center text-brand-strong" aria-hidden="true">
         {icon}
       </span>
       <span className="min-w-0 leading-snug">{label}</span>

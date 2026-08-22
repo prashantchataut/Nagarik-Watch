@@ -102,7 +102,7 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
         {error ? (
           <p
             role="alert"
-            className="border-l-2 border-brand pl-3 text-meta font-semibold text-brand-strong"
+            className="border border-brand/30 bg-brand-tint px-3 py-2 text-meta font-semibold text-brand-strong"
           >
             {error}
           </p>
@@ -164,7 +164,7 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
         {error ? (
           <p
             role="alert"
-            className="border-l-2 border-brand pl-3 text-meta font-semibold text-brand-strong"
+            className="border border-brand/30 bg-brand-tint px-3 py-2 text-meta font-semibold text-brand-strong"
           >
             {error}
           </p>

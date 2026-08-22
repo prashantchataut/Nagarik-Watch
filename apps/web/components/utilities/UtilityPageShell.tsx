@@ -135,34 +135,36 @@ export function UtilityPageShell({
 export function UtilityDirectory({ locale }: { locale: Locale }) {
   const en = locale === 'en'
   return (
-    <div className="mt-8">
-      <p className="border border-rule bg-surface-raised px-4 py-3 text-meta leading-relaxed text-ink-soft">
+    <div className="mt-7">
+      <p className="max-w-[68ch] border-y border-rule py-3 text-meta leading-relaxed text-ink-soft">
         {en
-          ? 'Tools run in your browser. Currency rates fetch live NRB reference when you open that tool.'
-          : 'उपकरणहरू ब्राउजरमै चल्छन्। मुद्रा दर खोल्दा नेरा सन्दर्भ लाइभ लिइन्छ।'}
+          ? 'Most tools run locally in your browser. Live rates and market references show their source and freshness when data is available.'
+          : 'धेरै उपकरण ब्राउजरमै चल्छन्। लाइभ दर र बजार सन्दर्भ उपलब्ध हुँदा स्रोत र अद्यावधिक समय स्पष्ट देखाइन्छ।'}
       </p>
 
-      <ul className="mt-5 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-        {UTILITY_LINKS.map((item) => (
-          <li key={item.path}>
+      <ol className="mt-5 grid border-t border-rule lg:grid-cols-2 lg:gap-x-8">
+        {UTILITY_LINKS.map((item, index) => (
+          <li key={item.path} className="border-b border-rule">
             <Link
               href={localizeHref(locale, item.path)}
-              className="group flex h-full flex-col border border-rule bg-surface-raised px-4 py-3.5 transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint/30"
+              className="group grid min-h-24 grid-cols-[2rem_minmax(0,1fr)_auto] gap-3 py-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
-              <h2 className="font-display text-body-lg font-extrabold text-ink group-hover:text-brand-strong sm:text-h3">
-                {en ? item.en : item.ne}
-              </h2>
-              <span className="mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden />
-              <p className="mt-2 text-meta leading-relaxed text-ink-soft">
-                {en ? item.noteEn : item.noteNe}
-              </p>
-              <span className="mt-auto pt-3 text-caption font-bold text-brand-strong">
-                {en ? 'Open tool' : 'खोल्नुहोस्'}
+              <span className="pt-1 font-sans text-caption font-bold tabular-nums text-mute" aria-hidden="true">
+                {String(index + 1).padStart(2, '0')}
               </span>
+              <span className="min-w-0">
+                <strong className="block font-display text-body-lg font-extrabold leading-tight text-ink group-hover:text-brand-strong sm:text-h3">
+                  {en ? item.en : item.ne}
+                </strong>
+                <span className="mt-1 block text-meta leading-relaxed text-ink-soft">
+                  {en ? item.noteEn : item.noteNe}
+                </span>
+              </span>
+              <span className="pt-1 text-body font-black text-brand-strong" aria-hidden="true">→</span>
             </Link>
           </li>
         ))}
-      </ul>
+      </ol>
     </div>
   )
 }

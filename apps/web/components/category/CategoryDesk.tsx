@@ -148,7 +148,7 @@ function CategoryLead({ story, locale }: { story: StoryCardData; locale: Locale 
           <div className="min-w-0">
             <CategoryLabel category={story.category} locale={locale} as="span" className="mb-2" />
             <h2
-              className="text-pretty font-display text-[clamp(1.8rem,4.1vw,3.15rem)] font-extrabold leading-[1.12] tracking-[-0.025em] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong"
+              className={`text-pretty font-display text-[clamp(1.8rem,4.1vw,3.15rem)] font-extrabold leading-[1.12] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong ${titleLang === 'en' ? 'tracking-[-0.025em]' : 'tracking-normal'}`}
               lang={titleLang}
             >
               <Link

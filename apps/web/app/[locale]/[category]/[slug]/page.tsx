@@ -165,7 +165,7 @@ export default async function ArticlePage({
   )
 
   return (
-    <article className="pb-10 print:pb-0" lang={readingEnglish ? 'en' : 'ne'}>
+    <article className="article-page pb-12 print:pb-0" lang={readingEnglish ? 'en' : 'ne'}>
       {englishMissing ? <DocumentLang lang="ne" /> : null}
       <SpeculationRules prerenderUrls={relatedHrefs.slice(0, 2)} prefetchUrls={relatedHrefs} />
       <ArticleJsonLd
@@ -177,9 +177,9 @@ export default async function ArticlePage({
       />
       <SpeakableJsonLd url={canonical} cssSelectors={['article h1', 'article .article-deck']} />
 
-      <div className="mx-auto max-w-page px-3 pt-4 sm:px-4 sm:pt-5">
+      <div className="mx-auto max-w-page px-3 pt-5 sm:px-4 sm:pt-7">
         <header
-          className="mx-auto max-w-[72rem] border-b border-rule pb-5"
+          className="article-head mx-auto max-w-[72rem] border-b border-rule pb-6 sm:pb-8"
           lang={readingEnglish ? 'en' : 'ne'}
         >
           {englishMissing ? (
@@ -207,15 +207,19 @@ export default async function ArticlePage({
             ) : null}
             <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
           </div>
-          <h1 className="mt-3 text-pretty font-display text-[clamp(2.35rem,5.5vw,4.5rem)] font-black leading-[1.2] tracking-[-0.025em] text-ink">
+          <h1
+            className={`mt-4 max-w-[20ch] text-pretty font-display text-[clamp(2.55rem,6vw,5rem)] font-black text-ink ${
+              readingEnglish ? 'leading-[1.03] tracking-[-0.035em]' : 'leading-[1.12] tracking-normal'
+            }`}
+          >
             {title}
           </h1>
           {deck ? (
-            <p className="article-deck mt-3 max-w-[52rem] text-body leading-relaxed text-ink-soft sm:text-body-lg sm:leading-relaxed">
+            <p className="article-deck mt-4 max-w-[55rem] text-[1.08rem] leading-[1.75] text-ink-soft sm:text-[1.24rem] sm:leading-[1.7]">
               {deck}
             </p>
           ) : null}
-          <div className="article-trust-ledger mt-4">
+          <div className="article-trust-ledger mt-5">
             <Byline
               authors={article.authors}
               locale={readingLocale}
@@ -263,7 +267,7 @@ export default async function ArticlePage({
         </header>
 
         {article.heroImage ? (
-          <figure className="mx-auto mt-5 max-w-[72rem]">
+          <figure className="article-hero mx-auto mt-6 max-w-[76rem] sm:mt-8">
             <div className="relative aspect-[16/9] overflow-hidden bg-surface-raised">
               <Image
                 src={article.heroImage.url}
@@ -271,7 +275,7 @@ export default async function ArticlePage({
                 fill
                 priority
                 unoptimized={article.heroImage.url.startsWith('data:')}
-                sizes="(min-width: 1280px) 1152px, calc(100vw - 2rem)"
+                sizes="(min-width: 1280px) 1216px, calc(100vw - 2rem)"
                 className="object-cover"
               />
             </div>
@@ -291,10 +295,10 @@ export default async function ArticlePage({
           </figure>
         ) : null}
 
-        <div className="mt-5 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:items-start lg:gap-x-8">
+        <div className="article-layout mt-7 lg:grid lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-start lg:gap-x-10 xl:grid-cols-[minmax(0,1fr)_18rem] xl:gap-x-12">
           <div className="min-w-0">
-            <div id="article-reading-column" className="mx-auto mt-0 min-w-0 max-w-[72ch]">
-              <div className="sticky top-[4.25rem] z-30 -mx-1 mb-4 border-b border-rule bg-surface px-1 py-1.5 print:hidden sm:top-[5rem]">
+            <div id="article-reading-column" className="mx-auto mt-0 min-w-0 max-w-[70ch]">
+              <div className="article-tool-dock sticky top-[3.15rem] z-30 -mx-1 mb-5 border-b border-rule bg-surface px-1 py-1.5 print:hidden">
                 <ReaderArticleControls
                   story={article}
                   locale={readingLocale}

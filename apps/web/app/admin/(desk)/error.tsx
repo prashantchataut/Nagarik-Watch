@@ -15,32 +15,37 @@ export default function AdminRouteError({
   }, [error])
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-16 text-center" role="alert">
-      <h1 className="font-display text-h1 text-ink" lang="ne">
-        न्यूजरुम पृष्ठ खोल्न सकिएन
-      </h1>
-      <p className="mt-3 text-body text-ink-soft" lang="ne">
-        सर्भर वा डाटाबेस जडान जाँचेर फेरि प्रयास गर्नुहोस्। समाचार सूची अझै काम गर्न सक्छ।
-      </p>
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-        <AdminButton type="button" onClick={reset}>
-          पुनः प्रयास गर्नुहोस्
-        </AdminButton>
-        <AdminButton href="/admin/dashboard" variant="secondary">
-          ड्यासबोर्ड
-        </AdminButton>
-        <AdminButton href="/admin/articles" variant="ghost">
-          समाचार सूची
-        </AdminButton>
-        <AdminButton href="/admin/login" variant="ghost">
-          लगइन
-        </AdminButton>
-      </div>
-      {error.digest ? (
-        <p className="mt-4 text-caption text-mute" lang="en">
-          Reference: {error.digest}
+    <main className="mx-auto max-w-3xl py-8 sm:py-12" role="alert" lang="ne">
+      <div className="grid gap-5 border-y border-rule py-6 sm:grid-cols-[6rem_minmax(0,1fr)] sm:gap-8 sm:py-8">
+        <p className="font-sans text-5xl font-black tabular-nums text-brand-strong" aria-hidden="true">
+          ERR
         </p>
-      ) : null}
+        <div>
+          <p className="text-caption font-extrabold text-brand-strong">न्युजरुम</p>
+          <h1 className="mt-1.5 font-display text-[clamp(1.9rem,4vw,3rem)] font-black leading-tight text-ink">
+            यो कार्यक्षेत्र खोल्न सकिएन
+          </h1>
+          <p className="mt-2 max-w-[55ch] text-meta leading-relaxed text-ink-soft">
+            सर्भर वा डाटाबेस जडान अस्थायी रूपमा उपलब्ध नहुन सक्छ। पुनः प्रयास गर्नुहोस्; समस्या रहे ड्यासबोर्डबाट अर्को काम खोल्नुहोस्।
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <AdminButton type="button" onClick={reset}>
+              पुनः प्रयास
+            </AdminButton>
+            <AdminButton href="/admin/dashboard" variant="secondary">
+              ड्यासबोर्ड
+            </AdminButton>
+            <AdminButton href="/admin/articles" variant="ghost">
+              समाचार
+            </AdminButton>
+          </div>
+          {error.digest ? (
+            <p className="mt-4 text-caption text-mute" lang="en">
+              Reference: {error.digest}
+            </p>
+          ) : null}
+        </div>
+      </div>
     </main>
   )
 }

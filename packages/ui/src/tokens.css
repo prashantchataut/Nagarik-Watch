@@ -8,9 +8,9 @@
 
 :root {
   /* Typography Stacks */
-  --font-mukta: 'Mukta', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
-  --font-devanagari: 'Noto Sans Devanagari', 'Mukta', system-ui, -apple-system, sans-serif;
-  --font-source-sans: 'Source Sans 3', system-ui, -apple-system, sans-serif;
+  --font-mukta: var(--font-mukta-face), 'Mukta', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+  --font-devanagari: var(--font-devanagari-face), 'Noto Sans Devanagari', 'Mukta', system-ui, -apple-system, sans-serif;
+  --font-source-sans: var(--font-source-sans-face), 'Source Sans 3', system-ui, -apple-system, sans-serif;
 
   /* Brand — Civic Crimson */
   --brand: oklch(0.55 0.18 25);

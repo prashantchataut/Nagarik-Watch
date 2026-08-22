@@ -6,9 +6,13 @@ import {
   reporterMayEditDraft,
 } from '@nagarikwatch/db'
 
-export function isPayloadCanonical(): boolean {
+export function isPayloadDeclared(): boolean {
   const source = process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim()
-  if (source !== 'payload') return false
+  return source === 'payload'
+}
+
+export function isPayloadCanonical(): boolean {
+  if (!isPayloadDeclared()) return false
   // Only treat Payload as canonical when its URL is configured. Otherwise the
   // in-app Postgres/JSON article store remains the newsroom CMS.
   return Boolean(

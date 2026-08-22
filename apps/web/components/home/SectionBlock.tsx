@@ -159,25 +159,18 @@ function VoiceStory({
 }) {
   const author = story.authors[0]
   const authorName = author?.name || (story.byline ? story.byline : '')
-  const fallbackAuthor = locale === 'en' ? 'Editorial column' : 'स्तम्भकार'
 
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
       <article className="min-w-0">
-        <div className="flex items-center gap-3">
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-surface-raised font-display text-caption font-extrabold text-brand-strong"
-            aria-hidden="true"
-          >
-            {(authorName || fallbackAuthor).slice(0, 2)}
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-meta font-bold text-ink">{authorName || fallbackAuthor}</p>
-            <p className="text-caption text-mute">
+        {authorName ? (
+          <p className="truncate text-meta font-bold text-brand-strong">
+            {authorName}
+            <span className="ml-2 font-normal text-mute">
               {locale === 'en' ? 'Opinion and analysis' : 'विचार / टिप्पणी'}
-            </p>
-          </div>
-        </div>
+            </span>
+          </p>
+        ) : null}
 
         <h3
           className={

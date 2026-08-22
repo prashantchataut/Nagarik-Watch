@@ -35,13 +35,13 @@ type PatroDeskProps = {
   calendarSchedule: PublishedCalendarSchedule | null
 }
 
-const TOOL_TILES = [
-  { path: '/utilities/date-converter', ne: 'मिति रूपान्तरण', en: 'Date converter', tone: 'a' },
-  { path: '/utilities/currency', ne: 'मुद्रा रूपान्तरण', en: 'Currency', tone: 'b' },
-  { path: '/rashifal', ne: 'राशिफल', en: 'Horoscope', tone: 'c' },
-  { path: '/utilities/preeti-unicode', ne: 'प्रिती युनिकोड', en: 'Preeti Unicode', tone: 'd' },
-  { path: '/market', ne: 'सेयर / सुन', en: 'Shares / gold', tone: 'e' },
-  { path: '/utilities', ne: 'सबै उपकरण', en: 'All tools', tone: 'f' },
+const TOOL_LINKS = [
+  { path: '/utilities/date-converter', ne: 'मिति रूपान्तरण', en: 'Date converter', neMeta: 'वि.सं. ↔ ई.सं.', enMeta: 'B.S. ↔ A.D.' },
+  { path: '/utilities/currency', ne: 'मुद्रा रूपान्तरण', en: 'Currency converter', neMeta: 'आधिकारिक दर', enMeta: 'Official rates' },
+  { path: '/rashifal', ne: 'राशिफल', en: 'Horoscope', neMeta: 'आजको संस्करण', enMeta: "Today's edition" },
+  { path: '/utilities/preeti-unicode', ne: 'प्रिती युनिकोड', en: 'Preeti Unicode', neMeta: 'नेपाली लेखन', enMeta: 'Nepali text tool' },
+  { path: '/market', ne: 'बजार बोर्ड', en: 'Market board', neMeta: 'NEPSE · सुन · मुद्रा', enMeta: 'NEPSE · bullion · forex' },
+  { path: '/utilities', ne: 'सबै उपकरण', en: 'All utilities', neMeta: 'नागरिक उपयोगी सेवा', enMeta: 'Reader utilities' },
 ] as const
 
 export function PatroDesk({
@@ -286,14 +286,14 @@ export function PatroDesk({
         <div className="patro-desk__main">
           <NepaliCalendar locale={locale} schedule={calendarSchedule} />
 
-          <nav aria-label={en ? 'Quick tools' : 'छिटो उपकरण'} className="patro-tiles">
-            {TOOL_TILES.map((tile) => (
-              <Link
-                key={tile.path}
-                href={localizeHref(locale, tile.path)}
-                className={`patro-tile patro-tile--${tile.tone}`}
-              >
-                {en ? tile.en : tile.ne}
+          <nav aria-label={en ? 'Quick tools' : 'छिटो उपकरण'} className="patro-tools">
+            {TOOL_LINKS.map((tool) => (
+              <Link key={tool.path} href={localizeHref(locale, tool.path)} className="patro-tool-link">
+                <span>
+                  <strong>{en ? tool.en : tool.ne}</strong>
+                  <small>{en ? tool.enMeta : tool.neMeta}</small>
+                </span>
+                <span aria-hidden="true">→</span>
               </Link>
             ))}
           </nav>

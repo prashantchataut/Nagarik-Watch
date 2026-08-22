@@ -150,16 +150,20 @@ export default async function DashboardPage() {
     <div className="space-y-5" data-desk={desk}>
       <CmsCanonicalBanner />
       <AdminLoadErrorBanner message={loadError} />
-      <AdminCard>
-        <p className="text-caption text-mute" lang="ne">
+      <section className="admin-dashboard-intro">
+        <p className="admin-dashboard-intro__meta" lang="ne">
           {formatDate(new Date().toISOString(), locale)} · {deskLabel} · {roleLabel}
         </p>
-        <h2 className="admin-welcome-title mt-1" lang="ne">
-          स्वागत छ, {newsroom.displayName || newsroom.email.split('@')[0]}
-        </h2>
-        <p className="admin-page-subtitle" lang="ne">
-          {blurb}
-        </p>
+        <div className="admin-dashboard-intro__copy">
+          <div>
+            <h2 className="admin-welcome-title" lang="ne">
+              {newsroom.displayName || newsroom.email.split('@')[0]}
+            </h2>
+            <p className="admin-page-subtitle" lang="ne">
+              {blurb}
+            </p>
+          </div>
+        </div>
         <div className="admin-quick-strip">
           {canCreate(role) ? (
             <AdminButton href="/admin/articles/new">+ नयाँ समाचार</AdminButton>
@@ -190,7 +194,7 @@ export default async function DashboardPage() {
             </AdminButton>
           ) : null}
         </div>
-      </AdminCard>
+      </section>
 
       <section className="admin-metric-grid" aria-label="डेस्क मेट्रिक">
         {metrics.map((m) => (

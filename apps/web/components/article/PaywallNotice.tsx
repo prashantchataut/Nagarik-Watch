@@ -9,7 +9,7 @@ export function PaywallNotice({ locale }: { locale: Locale }) {
       className="mt-8 border-y border-brand/25 bg-surface-raised px-1 py-6 sm:px-5"
       lang={ne ? 'ne' : 'en'}
     >
-      <p className="text-meta font-bold uppercase tracking-wide text-brand-strong">
+      <p className={ne ? 'font-display text-meta font-bold tracking-normal text-brand-strong' : 'text-meta font-bold uppercase tracking-wide text-brand-strong'}>
         {ne ? 'सदस्य सामग्री' : 'Member story'}
       </p>
       <h2 className="mt-2 font-display text-h1 leading-tight text-ink">
@@ -17,8 +17,8 @@ export function PaywallNotice({ locale }: { locale: Locale }) {
       </h2>
       <p className="mt-3 max-w-body text-body leading-relaxed text-ink-soft">
         {ne
-          ? 'तपाईंले सुरुवाती अंश पढ्नुभयो। सदस्यता सक्रिय भएपछि पूरा लेख, archive access र saved reading sync उपलब्ध हुन्छ।'
-          : 'You have reached the free reading limit. Membership unlocks the full article, archive access and synced saved reading.'}
+          ? 'तपाईंले सुरुवाती अंश पढ्नुभयो। सदस्यताबाट पूरा लेख, अभिलेख र उपकरणबीच सुरक्षित समाचार सिङ्क गर्न सकिन्छ।'
+          : 'You have reached the free reading limit. A membership includes the full story, archive access and synced saved stories.'}
       </p>
       <div className="mt-5 flex flex-wrap gap-3">
         <Link

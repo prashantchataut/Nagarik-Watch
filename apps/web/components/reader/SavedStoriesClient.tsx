@@ -177,142 +177,110 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
   }
 
   return (
-    <div className="mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5">
+    <main className="saved-library mx-auto max-w-page px-3 py-5 sm:px-4 sm:py-7" lang={ne ? 'ne' : 'en'}>
       <HubIndexHeader
         title={ne ? 'सुरक्षित समाचार' : 'Saved stories'}
         lead={
           ne
-            ? 'लेखमा सुरक्षित थिचेपछि यहाँ देखिन्छ। पढाइ डेस्क र खातासँग जोडिएको तपाईंको व्यक्तिगत सूची।'
-            : 'Stories you save on articles appear here. This is your personal list connected to the reading desk and account.'
+            ? 'फेरि पढ्न चाहेका समाचारको निजी सूची। उपकरणमा तुरुन्त सुरक्षित हुन्छ; उपलब्ध हुँदा खातासँग सिङ्क हुन्छ।'
+            : 'A private reading list for stories you want to return to. Saves stay on this device and sync to your account when available.'
         }
         lang={ne ? 'ne' : 'en'}
-        kicker={ne ? 'पाठक खाता' : 'Reader account'}
+        kicker={ne ? 'पढाइ संग्रह' : 'Reading library'}
       />
 
-      <p className="mt-4 text-meta font-semibold text-ink-soft" lang={ne ? 'ne' : 'en'}>
-        {countLabel}
-      </p>
-
-      <nav
-        className="mt-4 flex flex-wrap gap-4"
-        aria-label={ne ? 'सुरक्षित समाचार लिंक' : 'Saved story links'}
-      >
-        <Link
-          href={localizeHref(locale, '/reader-corner')}
-          className="inline-flex items-center border-b border-rule pb-1 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
-        >
-          {ne ? 'पढाइ डेस्क' : 'Reading desk'}
-        </Link>
-        <Link
-          href={localizeHref(locale, '/auth/profile')}
-          className="inline-flex items-center border-b border-rule pb-1 text-meta font-bold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
-        >
-          {ne ? 'खाता' : 'Account'}
-        </Link>
-      </nav>
-
-      <p
-        className="mt-6 border-y border-rule py-4 text-meta leading-relaxed text-ink-soft"
-        lang={ne ? 'ne' : 'en'}
-      >
-        {ne
-          ? 'सुरक्षित समाचार यस उपकरणमा तुरुन्तै रहन्छन्। खाता सिङ्क उपलब्ध हुँदा एउटै सूचीमा जोडिन्छ; पढाइ इतिहास र सिफारिस पढाइ डेस्कमा छन्।'
-          : 'Saved stories stay on this device immediately. Account sync merges into the same list when available; history and recommendations live in the reading desk.'}
-      </p>
+      <div className="saved-library__toolbar">
+        <p>{countLabel}</p>
+        <nav aria-label={ne ? 'पढाइ संग्रह नेभिगेसन' : 'Reading library navigation'}>
+          <Link href={localizeHref(locale, '/reader-corner')}>
+            {ne ? 'पढाइ डेस्क' : 'Reading desk'}
+          </Link>
+          <Link href={localizeHref(locale, '/auth/profile')}>{ne ? 'खाता' : 'Account'}</Link>
+        </nav>
+        {stories.length ? (
+          <button type="button" onClick={clearAll} disabled={pending}>
+            {ne ? 'सबै हटाउनुहोस्' : 'Clear all'}
+          </button>
+        ) : null}
+      </div>
 
       {syncError ? (
-        <p
-          role="status"
-          className="mt-3 border border-rule bg-surface-raised px-3 py-2 text-meta text-ink-soft"
-          lang={ne ? 'ne' : 'en'}
-        >
+        <p role="status" className="saved-library__notice">
           {ne
-            ? 'खाता सिंक अहिले उपलब्ध छैन; उपकरणको सूची काम गर्छ।'
-            : 'Account sync is unavailable; the device list still works.'}
+            ? 'खाता सिङ्क अहिले उपलब्ध छैन। यस उपकरणको सुरक्षित सूची भने काम गरिरहन्छ।'
+            : 'Account sync is unavailable right now. Your device reading list still works.'}
         </p>
       ) : null}
 
       {emptyState === 'all-stale' ? (
-        <p role="status" className="mt-3 text-meta text-mute" lang={ne ? 'ne' : 'en'}>
-          {ne ? 'सबै सुरक्षित समाचार ३० दिनभन्दा पुराना छन्।' : 'All saves are older than 30 days.'}
+        <p role="status" className="saved-library__stale">
+          {ne
+            ? 'सबै सुरक्षित समाचार ३० दिनभन्दा पुराना छन्। चाहिँदैन भने सूची खाली गर्न सक्नुहुन्छ।'
+            : 'All saved stories are older than 30 days. Clear the list if you no longer need them.'}
         </p>
       ) : null}
 
-      <div className="mt-6 divide-y divide-rule border-y border-rule">
-        {orderedStories.length ? (
-          orderedStories.map((story) => {
+      {orderedStories.length ? (
+        <ol className="saved-library__list">
+          {orderedStories.map((story, index) => {
             const title = (!ne && story.titleEn) || story.titleNe || story.slug
             const href = localizeHref(locale, `/${story.category}/${story.slug}`)
+            const sourceLabel =
+              story.source === 'account'
+                ? ne
+                  ? 'खाता + उपकरण'
+                  : 'Account + device'
+                : ne
+                  ? 'यस उपकरणमा'
+                  : 'On this device'
             return (
-              <article key={story.slug} className="flex items-start justify-between gap-4 py-4">
-                <div className="min-w-0">
-                  <p className="text-caption font-semibold text-mute">
-                    {story.source === 'account'
-                      ? ne
-                        ? 'खाता + उपकरण'
-                        : 'Account + device'
-                      : ne
-                        ? 'उपकरण'
-                        : 'Device'}
+              <li key={story.slug}>
+                <span className="saved-library__index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <div className="saved-library__story">
+                  <p>
+                    {sourceLabel} · {new Date(story.savedAt).toLocaleDateString(ne ? 'ne-NP' : 'en-GB')}
+                    {story.readingMinutes ? ` · ${story.readingMinutes} ${ne ? 'मिनेट' : 'min'}` : ''}
                   </p>
-                  <Link
-                    href={href}
-                    className="mt-1 block font-display text-body-lg font-bold leading-snug text-ink transition-colors hover:text-brand-strong"
-                  >
-                    {title}
-                  </Link>
-                  <p className="mt-1 text-caption text-mute">
-                    {new Date(story.savedAt).toLocaleDateString(ne ? 'ne-NP' : 'en-GB')}
-                  </p>
+                  <Link href={href}>{title}</Link>
                 </div>
                 <button
                   type="button"
                   onClick={() => removeStory(story)}
                   disabled={pending}
-                  className="shrink-0 border border-rule px-3 py-2 text-caption font-bold text-ink-soft hover:border-breaking hover:text-breaking"
+                  aria-label={ne ? `${title} हटाउनुहोस्` : `Remove ${title}`}
                 >
                   {ne ? 'हटाउनुहोस्' : 'Remove'}
                 </button>
-              </article>
+              </li>
             )
-          })
-        ) : (
-          <div className="py-10">
-            <p className="font-display text-h3 font-bold text-ink" lang={ne ? 'ne' : 'en'}>
-              {ready
-                ? ne
-                  ? 'अहिले कुनै सुरक्षित समाचार छैन।'
-                  : 'No saved stories yet.'
-                : ne
-                  ? 'लोड हुँदै…'
-                  : 'Loading…'}
-            </p>
-            <p className="mt-2 max-w-xl text-body text-ink-soft" lang={ne ? 'ne' : 'en'}>
-              {ne
-                ? 'कुनै समाचार खोल्नुहोस् र सुरक्षित गर्नुहोस् थिच्नुहोस्।'
-                : 'Open any story and tap save to keep it here.'}
-            </p>
-            <Link
-              href={localizeHref(locale, '/latest')}
-              className="mt-5 inline-flex min-h-11 items-center bg-brand px-4 text-meta font-bold text-paper hover:bg-brand-strong"
-              lang={ne ? 'ne' : 'en'}
-            >
-              {ne ? 'ताजा समाचार हेर्नुहोस्' : 'Browse latest'}
+          })}
+        </ol>
+      ) : (
+        <section className="saved-library__empty" aria-live="polite">
+          <p>{ready ? (ne ? 'सूची खाली छ' : 'Your list is empty') : ne ? 'लोड हुँदै…' : 'Loading…'}</p>
+          <h2>
+            {ready
+              ? ne
+                ? 'पढ्न बाँकी समाचार यहाँ राख्नुहोस्'
+                : 'Keep stories here for later'
+              : ne
+                ? 'सुरक्षित समाचार खोजिँदैछ'
+                : 'Finding your saved stories'}
+          </h2>
+          <span>
+            {ne
+              ? 'समाचार पढ्दा “सुरक्षित” थिचेपछि त्यो कथा यही सूचीमा आउँछ।'
+              : 'Tap save on any article and it will appear in this reading list.'}
+          </span>
+          {ready ? (
+            <Link href={localizeHref(locale, '/latest')}>
+              {ne ? 'ताजा समाचार खोल्नुहोस्' : 'Browse latest stories'}
             </Link>
-          </div>
-        )}
-      </div>
-
-      {stories.length ? (
-        <button
-          type="button"
-          onClick={clearAll}
-          disabled={pending}
-          className="mt-5 border border-rule px-4 py-2 text-meta font-bold text-ink-soft hover:border-breaking hover:text-breaking"
-        >
-          {ne ? 'सबै हटाउनुहोस्' : 'Clear all'}
-        </button>
-      ) : null}
-    </div>
+          ) : null}
+        </section>
+      )}
+    </main>
   )
 }
