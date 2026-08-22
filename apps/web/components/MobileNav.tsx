@@ -41,7 +41,7 @@ const SHEET_ICON_BTN =
   'inline-flex h-11 w-11 items-center justify-center rounded border border-rule text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
 const SHEET_LINK =
-  'flex min-h-11 items-center border-b border-rule/70 px-2 py-2 text-body font-semibold leading-snug text-ink transition-colors duration-fast ease-out-quint hover:bg-brand-tint/40 hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand'
+  'flex min-h-11 items-center rounded-sm px-2 py-2 text-body font-semibold leading-snug text-ink transition-colors duration-fast ease-out-quint hover:bg-brand-tint/40 hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand'
 
 const SHEET_LINK_ROW = `${SHEET_LINK} gap-3`
 
@@ -235,7 +235,7 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
                   <span>{en ? 'Reader corner' : 'पाठक मञ्च'}</span>
                 </Link>
               </li>
-              <li className="flex min-h-14 items-center justify-between gap-4 border-b border-rule/70 px-2 py-2">
+              <li className="flex min-h-14 items-center justify-between gap-4 px-2 py-2">
                 <span className="text-body font-semibold text-ink">{en ? 'Theme' : 'थिम'}</span>
                 <ThemeToggle locale={locale} className="!h-11 !w-11 !rounded border border-rule" />
               </li>
@@ -341,7 +341,9 @@ function UtilityLink({
       onClick={onClick}
       className="flex min-h-12 items-center gap-2.5 rounded border border-rule bg-surface px-3 py-2 text-meta font-extrabold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center text-brand-strong">{icon}</span>
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center text-brand-strong">
+        {icon}
+      </span>
       <span className="min-w-0 leading-snug">{label}</span>
     </Link>
   )

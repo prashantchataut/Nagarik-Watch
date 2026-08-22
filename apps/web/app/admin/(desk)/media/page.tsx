@@ -88,7 +88,7 @@ export default async function MediaPage() {
             {items.map((item) => (
               <figure
                 key={item.id}
-                className="overflow-hidden rounded-lg border border-rule bg-surface"
+                className="overflow-hidden rounded-sm border border-rule bg-surface"
               >
                 <div className="relative aspect-video bg-surface-raised">
                   <Image src={item.url} alt={item.alt} fill className="object-cover" unoptimized />

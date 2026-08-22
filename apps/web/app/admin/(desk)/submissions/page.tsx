@@ -165,7 +165,7 @@ export default async function SubmissionsPage({
                     <span className="line-clamp-4">{submission.description}</span>
                     {submission.editorNote ? (
                       <p
-                        className="mt-2 rounded-md bg-surface px-2 py-1 text-caption text-ink"
+                        className="mt-2 rounded-sm bg-surface px-2 py-1 text-caption text-ink"
                         lang="ne"
                       >
                         Note: {submission.editorNote}

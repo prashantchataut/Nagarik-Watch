@@ -178,118 +178,122 @@ export default async function ArticlePage({
       <SpeakableJsonLd url={canonical} cssSelectors={['article h1', 'article .article-deck']} />
 
       <div className="mx-auto max-w-page px-3 pt-4 sm:px-4 sm:pt-5">
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:items-start lg:gap-x-8">
-          <div className="min-w-0">
-            <header
-              className="max-w-body border-b border-rule pb-5"
-              lang={readingEnglish ? 'en' : 'ne'}
+        <header
+          className="mx-auto max-w-[72rem] border-b border-rule pb-5"
+          lang={readingEnglish ? 'en' : 'ne'}
+        >
+          {englishMissing ? (
+            <p
+              className="mb-4 border border-rule bg-surface-raised px-3 py-2 text-meta text-ink-soft print:hidden"
+              lang="en"
+              role="status"
             >
-              {englishMissing ? (
-                <p
-                  className="mb-4 border border-rule bg-surface-raised px-3 py-2 text-meta text-ink-soft print:hidden"
-                  lang="en"
-                  role="status"
-                >
-                  An English translation is not available for this story yet. Showing the Nepali
-                  edition.{' '}
-                  <Link
-                    href={`/${category}/${slug}`}
-                    className="font-bold text-brand-strong underline-offset-2 hover:underline"
-                  >
-                    Open Nepali URL
-                  </Link>
-                </p>
-              ) : null}
-              <div className="flex flex-wrap items-center gap-2">
-                <CategoryLabel category={article.category} locale={readingLocale} />
-                {membershipPublic && article.premium ? (
-                  <span className="rounded-sm bg-ink px-2 py-0.5 text-caption font-bold text-paper">
-                    {readingEnglish ? 'Member' : 'सदस्य'}
-                  </span>
-                ) : null}
-                <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
-              </div>
-              <h1 className="mt-3 text-pretty font-display text-[clamp(2.05rem,4.5vw,3.25rem)] font-black leading-[1.2] tracking-[-0.025em] text-ink">
-                {title}
-              </h1>
-              {deck ? (
-                <p className="article-deck mt-3 max-w-[44rem] text-body leading-relaxed text-ink-soft sm:text-body-lg sm:leading-relaxed">
-                  {deck}
-                </p>
-              ) : null}
-              <div className="article-trust-ledger mt-4">
-                <Byline
-                  authors={article.authors}
-                  locale={readingLocale}
-                  publishedAt={article.publishedAt}
-                  source={article.source}
-                />
-                <dl className="article-trust-ledger__facts mt-3">
-                  <div>
-                    <dt className="sr-only">{readingEnglish ? 'Reading time' : 'पढाइ समय'}</dt>
-                    <dd>
-                      {readingEnglish
-                        ? `${article.readingMinutes} min read`
-                        : `${article.readingMinutes} मिनेट पढाइ`}
-                    </dd>
-                  </div>
-                  {article.updatedAt ? (
-                    <div>
-                      <dt className="sr-only">{readingEnglish ? 'Updated' : 'अद्यावधिक'}</dt>
-                      <dd>
-                        {readingEnglish ? 'Updated' : 'अद्यावधिक'}:{' '}
-                        {formatDate(article.updatedAt, readingLocale)}
-                      </dd>
-                    </div>
-                  ) : null}
-                  {article.factCheckStatus === 'verified' ? (
-                    <div>
-                      <dt className="sr-only">{readingEnglish ? 'Fact check' : 'तथ्य जाँच'}</dt>
-                      <dd className="text-up">
-                        {readingEnglish ? 'Facts verified' : 'तथ्य प्रमाणित'}
-                      </dd>
-                    </div>
-                  ) : null}
-                  <div>
-                    <dt className="sr-only">{readingEnglish ? 'Source' : 'स्रोत'}</dt>
-                    <dd>
-                      {article.source
-                        ? readingEnglish
-                          ? 'Source-linked report'
-                          : 'स्रोत लिंक गरिएको समाचार'
-                        : readingEnglish
-                          ? 'Nagarik Watch newsroom'
-                          : 'नागरिक वाच न्युजरुम'}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            </header>
-
-            {article.heroImage ? (
-              <figure className="mt-4 max-w-body">
-                <div className="relative aspect-[16/9] overflow-hidden bg-surface-raised">
-                  <Image
-                    src={article.heroImage.url}
-                    alt={article.heroImage.alt}
-                    fill
-                    priority
-                    unoptimized={article.heroImage.url.startsWith('data:')}
-                    sizes="(min-width: 1024px) 680px, 100vw"
-                    className="object-cover"
-                  />
-                </div>
-                {article.heroCaptionNe || article.heroCredit ? (
-                  <figcaption className="mt-1.5 text-caption leading-relaxed text-ink-soft">
-                    {article.heroCaptionNe}
-                    {article.heroCaptionNe && article.heroCredit ? ', ' : ''}
-                    {article.heroCredit}
-                  </figcaption>
-                ) : null}
-              </figure>
+              An English translation is not available for this story yet. Showing the Nepali
+              edition.{' '}
+              <Link
+                href={`/${category}/${slug}`}
+                className="font-bold text-brand-strong underline-offset-2 hover:underline"
+              >
+                Open Nepali URL
+              </Link>
+            </p>
+          ) : null}
+          <div className="flex flex-wrap items-center gap-2">
+            <CategoryLabel category={article.category} locale={readingLocale} />
+            {membershipPublic && article.premium ? (
+              <span className="rounded-sm bg-ink px-2 py-0.5 text-caption font-bold text-paper">
+                {readingEnglish ? 'Member' : 'सदस्य'}
+              </span>
             ) : null}
+            <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
+          </div>
+          <h1 className="mt-3 text-pretty font-display text-[clamp(2.35rem,5.5vw,4.5rem)] font-black leading-[1.2] tracking-[-0.025em] text-ink">
+            {title}
+          </h1>
+          {deck ? (
+            <p className="article-deck mt-3 max-w-[52rem] text-body leading-relaxed text-ink-soft sm:text-body-lg sm:leading-relaxed">
+              {deck}
+            </p>
+          ) : null}
+          <div className="article-trust-ledger mt-4">
+            <Byline
+              authors={article.authors}
+              locale={readingLocale}
+              publishedAt={article.publishedAt}
+              source={article.source}
+            />
+            <dl className="article-trust-ledger__facts mt-3">
+              <div>
+                <dt className="sr-only">{readingEnglish ? 'Reading time' : 'पढाइ समय'}</dt>
+                <dd>
+                  {readingEnglish
+                    ? `${article.readingMinutes} min read`
+                    : `${article.readingMinutes} मिनेट पढाइ`}
+                </dd>
+              </div>
+              {article.updatedAt ? (
+                <div>
+                  <dt className="sr-only">{readingEnglish ? 'Updated' : 'अद्यावधिक'}</dt>
+                  <dd>
+                    {readingEnglish ? 'Updated' : 'अद्यावधिक'}:{' '}
+                    {formatDate(article.updatedAt, readingLocale)}
+                  </dd>
+                </div>
+              ) : null}
+              {article.factCheckStatus === 'verified' ? (
+                <div>
+                  <dt className="sr-only">{readingEnglish ? 'Fact check' : 'तथ्य जाँच'}</dt>
+                  <dd className="text-up">{readingEnglish ? 'Facts verified' : 'तथ्य प्रमाणित'}</dd>
+                </div>
+              ) : null}
+              <div>
+                <dt className="sr-only">{readingEnglish ? 'Source' : 'स्रोत'}</dt>
+                <dd>
+                  {article.source
+                    ? readingEnglish
+                      ? 'Source-linked report'
+                      : 'स्रोत लिंक गरिएको समाचार'
+                    : readingEnglish
+                      ? 'Nagarik Watch newsroom'
+                      : 'नागरिक वाच न्युजरुम'}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </header>
 
-            <div id="article-reading-column" className="mt-4 max-w-body min-w-0">
+        {article.heroImage ? (
+          <figure className="mx-auto mt-5 max-w-[72rem]">
+            <div className="relative aspect-[16/9] overflow-hidden bg-surface-raised">
+              <Image
+                src={article.heroImage.url}
+                alt={article.heroImage.alt}
+                fill
+                priority
+                unoptimized={article.heroImage.url.startsWith('data:')}
+                sizes="(min-width: 1280px) 1152px, calc(100vw - 2rem)"
+                className="object-cover"
+              />
+            </div>
+            {article.heroCaptionNe || article.heroCaptionEn || article.heroCredit ? (
+              <figcaption className="mt-1.5 text-caption leading-relaxed text-ink-soft">
+                {readingEnglish && article.heroCaptionEn
+                  ? article.heroCaptionEn
+                  : article.heroCaptionNe}
+                {(readingEnglish && article.heroCaptionEn
+                  ? article.heroCaptionEn
+                  : article.heroCaptionNe) && article.heroCredit
+                  ? ', '
+                  : ''}
+                {article.heroCredit}
+              </figcaption>
+            ) : null}
+          </figure>
+        ) : null}
+
+        <div className="mt-5 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:items-start lg:gap-x-8">
+          <div className="min-w-0">
+            <div id="article-reading-column" className="mx-auto mt-0 min-w-0 max-w-[72ch]">
               <div className="sticky top-[4.25rem] z-30 -mx-1 mb-4 border-b border-rule bg-surface px-1 py-1.5 print:hidden sm:top-[5rem]">
                 <ReaderArticleControls
                   story={article}
@@ -388,7 +392,7 @@ export default async function ArticlePage({
                   articleSlug={article.slug}
                   articleCategory={article.category.slug}
                   locale={readingLocale}
-                  commentsEnabled={article.commentsEnabled !== false}
+                  commentsEnabled={article.commentsEnabled === true}
                 />
               </div>
             </div>

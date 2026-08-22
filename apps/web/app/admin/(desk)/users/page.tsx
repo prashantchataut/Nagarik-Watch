@@ -446,7 +446,7 @@ export default async function UsersPage({
           <div className="mt-4 grid gap-3">
             {invites.length ? (
               invites.map((invite) => (
-                <div key={invite.id} className="rounded-lg border border-rule bg-surface p-3">
+                <div key={invite.id} className="rounded-sm border border-rule bg-surface p-3">
                   <p className="font-semibold text-ink">{invite.email}</p>
                   <p className="text-caption text-mute" lang="ne">
                     {NEWSROOM_ROLE_LABELS_NE[invite.role] ?? invite.role} · {invite.status} ·
@@ -467,7 +467,7 @@ export default async function UsersPage({
                 </div>
               ))
             ) : (
-              <p className="rounded-lg border border-dashed border-rule p-5 text-center text-meta text-mute">
+              <p className="rounded-sm border border-dashed border-rule p-5 text-center text-meta text-mute">
                 No invitations.
               </p>
             )}

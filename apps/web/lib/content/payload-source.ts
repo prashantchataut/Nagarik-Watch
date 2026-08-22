@@ -8,6 +8,7 @@
  * language toggle never dead-ends.
  */
 import 'server-only'
+import { buildPublicArticleWhere } from '@nagarikwatch/db'
 import type {
   Article,
   ArticleBlock,
@@ -25,7 +26,6 @@ import { payloadServerUrl } from './payload-admin-client'
 import { categoryBySlug } from '@/lib/content/seed/categories'
 
 const PER_PAGE = 12
-const PUBLICATION_CUTOFF_BUCKET_MS = 60_000
 const PAYLOAD_LAST_GOOD_TTL_MS = 15 * 60_000
 
 type PayloadDoc = Record<string, unknown> & { id: string | number }
@@ -135,15 +135,11 @@ function stablePublicationDate(doc: PayloadDoc): string {
   return '1970-01-01T00:00:00.000Z'
 }
 
-function publicArticleWhere(now = Date.now()): Record<string, Record<string, unknown>> {
-  const cutoff = Math.floor(now / PUBLICATION_CUTOFF_BUCKET_MS) * PUBLICATION_CUTOFF_BUCKET_MS
-  return {
-    _status: { equals: 'published' },
-    // Match soft-desk + revalidate webhook: scheduled stays invisible until cron promotes.
-    workflowStage: { in: ['published', 'updated'] },
-    // Bucket the cutoff so equivalent reader requests share the same Next cache key.
-    publishAt: { less_than_equal: new Date(cutoff).toISOString() },
-  }
+function publicArticleWhere(now = Date.now()): Record<string, unknown> {
+  // Use the exact request time. Flooring this value for cache reuse can make an
+  // immediately published story miss the first post-webhook ISR render, which
+  // then leaves that route stale for its full page revalidate interval.
+  return buildPublicArticleWhere(new Date(now).toISOString()) as Record<string, unknown>
 }
 
 function countArticleWords(blocks: unknown): number {
@@ -179,6 +175,11 @@ function asCard(doc: PayloadDoc): StoryCardData {
         .map((row) => asAuthor(row.author))
         .filter((author): author is { id: string; slug: string; name: string } => author !== null)
     : []
+  const tags = Array.isArray(doc.tags)
+    ? (doc.tags as { tag?: TagField }[])
+        .map((row) => asTag(row.tag))
+        .filter((tag): tag is Tag => tag !== null)
+    : []
   const bodyNe = Array.isArray(doc.bodyNe) ? (doc.bodyNe as ArticleBlock[]) : []
   const imageBlocks = bodyNe.filter((b) => b.type === 'image').length
   const hasVideo = bodyNe.some(
@@ -200,6 +201,7 @@ function asCard(doc: PayloadDoc): StoryCardData {
     heroImage: media,
     byline: String(doc.byline ?? authors.map((author) => author.name).join(', ')),
     authors,
+    tags,
     publishedAt: stablePublicationDate(doc),
     hasEnglish: String(doc.englishStatus ?? 'none') === 'published',
     isBreaking: Boolean(doc.isBreaking),
@@ -244,9 +246,37 @@ const payloadLastKnownGood = new Map<
 
 function payloadLastKnownGoodKey(endpoint: string): string {
   const url = new URL(endpoint)
-  const cutoffKey = 'where[publishAt][less_than_equal]'
-  if (url.searchParams.has(cutoffKey)) url.searchParams.set(cutoffKey, 'PUBLICATION_CUTOFF')
+  for (const key of url.searchParams.keys()) {
+    if (key.includes('[and]') && key.endsWith('[publishAt][less_than_equal]')) {
+      url.searchParams.set(key, 'PUBLICATION_CUTOFF')
+    }
+  }
   return url.toString()
+}
+
+function appendPayloadWhere(
+  params: URLSearchParams,
+  where: Record<string, unknown>,
+  prefix = 'where',
+): void {
+  for (const [field, operators] of Object.entries(where)) {
+    if ((field === 'and' || field === 'or') && Array.isArray(operators)) {
+      operators.forEach((clause, index) => {
+        if (!clause || typeof clause !== 'object' || Array.isArray(clause)) return
+        appendPayloadWhere(
+          params,
+          clause as Record<string, unknown>,
+          `${prefix}[${field}][${index}]`,
+        )
+      })
+      continue
+    }
+    if (!operators || typeof operators !== 'object' || Array.isArray(operators)) continue
+    for (const [operator, rawValue] of Object.entries(operators as Record<string, unknown>)) {
+      const value = Array.isArray(rawValue) ? rawValue.join(',') : String(rawValue)
+      params.set(`${prefix}[${field}][${operator}]`, value)
+    }
+  }
 }
 
 async function payloadFind<T extends PayloadDoc>(
@@ -259,26 +289,7 @@ async function payloadFind<T extends PayloadDoc>(
   if (options.page !== undefined) params.set('page', String(options.page))
   if (options.depth !== undefined) params.set('depth', String(options.depth))
 
-  for (const [field, operators] of Object.entries(options.where ?? {})) {
-    if (field === 'or' && Array.isArray(operators)) {
-      operators.forEach((clause, index) => {
-        if (!clause || typeof clause !== 'object') return
-        for (const [innerField, innerOps] of Object.entries(clause as Record<string, unknown>)) {
-          if (!innerOps || typeof innerOps !== 'object') continue
-          for (const [operator, rawValue] of Object.entries(innerOps as Record<string, unknown>)) {
-            const value = Array.isArray(rawValue) ? rawValue.join(',') : String(rawValue)
-            params.set(`where[or][${index}][${innerField}][${operator}]`, value)
-          }
-        }
-      })
-      continue
-    }
-    if (!operators || typeof operators !== 'object' || Array.isArray(operators)) continue
-    for (const [operator, rawValue] of Object.entries(operators as Record<string, unknown>)) {
-      const value = Array.isArray(rawValue) ? rawValue.join(',') : String(rawValue)
-      params.set(`where[${field}][${operator}]`, value)
-    }
-  }
+  appendPayloadWhere(params, options.where ?? {})
 
   const revalidateSeconds = Math.max(0, Number(options.revalidateSeconds ?? 0))
   const timeoutMs = Math.max(
@@ -690,7 +701,7 @@ function thisToArticle(doc: PayloadDoc, locale: Locale): Article {
     includeInNewsSitemap: doc.includeInNewsSitemap !== false,
     noindex: doc.noIndex === true,
     doNotRecommend: doc.doNotRecommend === true,
-    commentsEnabled: doc.commentsEnabled !== false,
+    commentsEnabled: doc.commentsEnabled === true,
     province: doc.province ? String(doc.province) : undefined,
     district: doc.district ? String(doc.district) : undefined,
     exclusive: doc.exclusive === true,

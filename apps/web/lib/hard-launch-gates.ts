@@ -5,7 +5,7 @@
  * it never invents DoIB/legal values.
  */
 export const HARD_LAUNCH_OPERATOR_GATES = [
-  'Production Postgres reachable; pnpm migrate:ops applied through 0014',
+  'Production Postgres reachable; pnpm migrate:ops reports no pending migrations',
   'Payload deployed at admin.nagarikwatch.com with PAYLOAD_DB_PUSH=false',
   'BLOB_READ_WRITE_TOKEN present on the Payload Vercel project',
   'Desk → Payload migration applied; DESK_TO_PAYLOAD_MIGRATED=true',

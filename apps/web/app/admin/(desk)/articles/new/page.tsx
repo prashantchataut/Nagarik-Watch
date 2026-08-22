@@ -34,7 +34,7 @@ export default async function NewArticlePage() {
       <div>
         <AdminPageHeader subtitle="Payload canonical mode सक्रिय छ" />
         <CmsCanonicalBanner />
-        <div className="rounded-lg border border-rule bg-surface-raised p-5">
+        <div className="rounded-sm border border-rule bg-surface-raised p-5">
           <p className="text-meta font-semibold text-ink" lang="ne">
             नयाँ लेख Payload CMS बाट बनाउनुहोस् ताकि प्रकाशित सामग्री सीधै पाठक-साइटमा देखियोस्।
           </p>

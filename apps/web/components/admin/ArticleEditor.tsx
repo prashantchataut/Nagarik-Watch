@@ -456,12 +456,12 @@ export function ArticleEditor({
       onSubmit={(event) => event.preventDefault()}
     >
       <div className="space-y-4">
-        <div className="sticky top-0 z-20 -mx-1 border-b border-rule bg-surface/95 px-1 py-3 backdrop-blur-sm">
+        <div className="sticky top-0 z-20 -mx-1 border-b border-rule bg-surface/95 px-1 py-3 ">
           {actionBar}
           {status.kind === 'error' ? (
             <div
               role="alert"
-              className="mt-2 rounded-md border border-breaking/30 bg-brand-tint px-3 py-2 text-meta font-semibold text-brand-strong"
+              className="mt-2 rounded-sm border border-breaking/30 bg-brand-tint px-3 py-2 text-meta font-semibold text-brand-strong"
             >
               {status.msg}
             </div>
@@ -469,14 +469,14 @@ export function ArticleEditor({
           {status.kind === 'saved' ? (
             <div
               role="status"
-              className="mt-2 rounded-md border border-up/30 bg-brand-tint/50 px-3 py-2 text-meta font-semibold text-brand-strong"
+              className="mt-2 rounded-sm border border-up/30 bg-brand-tint/50 px-3 py-2 text-meta font-semibold text-brand-strong"
             >
               {status.msg}
             </div>
           ) : null}
         </div>
 
-        <div className="space-y-3 rounded-lg border border-rule bg-surface-raised p-4 sm:p-5">
+        <div className="space-y-3 rounded-sm border border-rule bg-surface-raised p-4 sm:p-5">
           <AdminInput
             label="शीर्षक (नेपाली)"
             name="titleNe"
@@ -563,7 +563,7 @@ export function ArticleEditor({
           </details>
         </div>
 
-        <div className="rounded-lg border border-rule bg-surface-raised p-4 space-y-3">
+        <div className="rounded-sm border border-rule bg-surface-raised p-4 space-y-3">
           <fieldset>
             <legend className="text-meta font-semibold text-ink" lang="ne">
               ट्याग र लेखक
@@ -619,7 +619,7 @@ export function ArticleEditor({
       </div>
 
       <aside className="space-y-3 lg:sticky lg:top-16 lg:self-start">
-        <div className="rounded-lg border border-rule bg-surface-raised p-3 space-y-3">
+        <div className="rounded-sm border border-rule bg-surface-raised p-3 space-y-3">
           <p className="text-meta font-semibold text-ink" lang="ne">
             प्रकाशन
           </p>
@@ -644,7 +644,7 @@ export function ArticleEditor({
           <div className="hidden lg:block">{actionBar}</div>
         </div>
 
-        <div className="rounded-lg border border-rule bg-surface-raised p-3 space-y-3">
+        <div className="rounded-sm border border-rule bg-surface-raised p-3 space-y-3">
           <AdminSelect
             label="विभाग"
             name="category"
@@ -694,7 +694,7 @@ export function ArticleEditor({
         />
 
         {canManageHomepage ? (
-          <div className="rounded-lg border border-rule bg-surface-raised p-3 space-y-3">
+          <div className="rounded-sm border border-rule bg-surface-raised p-3 space-y-3">
             <label className="flex items-center gap-2 text-meta text-ink">
               <input
                 type="checkbox"
@@ -736,7 +736,7 @@ export function ArticleEditor({
             </label>
           </div>
         ) : (
-          <div className="rounded-lg border border-rule bg-surface-raised p-3">
+          <div className="rounded-sm border border-rule bg-surface-raised p-3">
             <label className="flex items-center gap-2 text-meta text-ink">
               <input
                 type="checkbox"
@@ -749,7 +749,7 @@ export function ArticleEditor({
           </div>
         )}
 
-        <details className="rounded-lg border border-rule bg-surface-raised p-3">
+        <details className="rounded-sm border border-rule bg-surface-raised p-3">
           <summary className="cursor-pointer text-meta font-semibold text-ink" lang="ne">
             स्रोत र एसइओ
           </summary>

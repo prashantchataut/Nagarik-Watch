@@ -76,11 +76,9 @@ const NAV_GROUPS: {
   heading: string
   items: NavItem[]
   roles?: ReadonlySet<NewsroomRole>
-  defaultOpen?: boolean
 }[] = [
   {
     heading: 'सम्पादन',
-    defaultOpen: true,
     roles: EDITOR_ROLES,
     items: [
       { label: 'मिडिया', href: '/admin/media', icon: 'media', roles: MEDIA_MANAGER_ROLES },
@@ -187,7 +185,6 @@ const NAV_GROUPS: {
   {
     heading: 'सुपर एडमिन',
     roles: new Set<NewsroomRole>(['super_admin']),
-    defaultOpen: true,
     items: [
       { label: 'भूमिका', href: '/admin/roles', icon: 'role' },
       { label: 'अडिट लग', href: '/admin/audit-log', icon: 'audit' },
@@ -238,6 +235,10 @@ export function AdminShell({
   const [navPendingHref, setNavPendingHref] = useState<string | null>(null)
   const [signOutError, setSignOutError] = useState<string | null>(null)
   const navPending = Boolean(navPendingHref && navPendingHref !== clientPath)
+  const showWorkflow =
+    /^\/admin\/(dashboard|articles|journalists|comments|submissions|live-blogs)(?:\/|$)/.test(
+      clientPath,
+    )
 
   useEffect(() => {
     setNavPendingHref(null)
@@ -381,7 +382,7 @@ export function AdminShell({
             ref={menuButtonRef}
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-ink-soft hover:bg-brand-tint hover:text-brand-strong lg:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center border border-transparent text-ink-soft hover:border-rule hover:bg-surface-raised hover:text-brand-strong lg:hidden"
             aria-label="मेनु खोल्नुहोस्"
             aria-expanded={drawerOpen}
           >
@@ -424,7 +425,7 @@ export function AdminShell({
         ) : null}
 
         <main className="admin-main">
-          <AdminWorkflowStrip role={role} />
+          {showWorkflow ? <AdminWorkflowStrip role={role} /> : null}
           {children}
         </main>
       </div>
@@ -456,7 +457,7 @@ function AdminSidebar({
   deskLabel: string
   primaryNav: NavItem[]
   session: NewsroomSession
-  visibleGroups: { heading: string; items: NavItem[]; defaultOpen?: boolean }[]
+  visibleGroups: { heading: string; items: NavItem[] }[]
   signingOut: boolean
   signOut: () => void
   resolveHref: (href: string) => { href: string; external: boolean }
@@ -491,7 +492,7 @@ function AdminSidebar({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-soft hover:bg-brand-tint hover:text-brand-strong"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center border border-transparent text-ink-soft hover:border-rule hover:bg-surface hover:text-brand-strong"
             aria-label="मेनु बन्द"
           >
             <NavIcon name="close" />
@@ -527,17 +528,10 @@ function AdminSidebar({
         </ul>
 
         {visibleGroups.map((group) => (
-          <details
-            key={group.heading}
-            className="group/nav mt-2.5"
-            open={group.defaultOpen || group.items.some((i) => isActivePath(clientPath, i.href))}
-          >
-            <summary className="cursor-pointer list-none px-2 py-1 text-[0.7rem] font-bold text-mute [&::-webkit-details-marker]:hidden">
-              <span className="inline-flex items-center gap-1" lang="ne">
-                {group.heading}
-                <span className="text-mute transition-transform group-open/nav:rotate-90">›</span>
-              </span>
-            </summary>
+          <section key={group.heading} className="mt-4 border-t border-rule pt-2">
+            <h2 className="px-2 py-1 text-[0.68rem] font-bold text-mute" lang="ne">
+              {group.heading}
+            </h2>
             <ul className="mt-0.5 space-y-0.5">
               {group.items.map((item) => {
                 const { href, external } = resolveHref(item.href)
@@ -564,7 +558,7 @@ function AdminSidebar({
                 )
               })}
             </ul>
-          </details>
+          </section>
         ))}
       </nav>
 

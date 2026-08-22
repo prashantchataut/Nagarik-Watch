@@ -12,7 +12,7 @@ type PasswordFieldProps = {
   helpText?: string
   showLabel?: string
   hideLabel?: string
-  /** reader = rounded public forms; newsroom = square staff controls */
+  /** Reader and newsroom variants share flat controls; the variant only changes emphasis. */
   variant?: 'reader' | 'newsroom'
 }
 
@@ -41,7 +41,7 @@ export function PasswordField({
         className={
           newsroom
             ? 'flex border border-rule bg-surface focus-within:border-brand'
-            : 'flex rounded-md border border-rule bg-surface focus-within:border-brand focus-within:ring-2 focus-within:ring-brand-tint'
+            : 'flex border border-rule bg-surface focus-within:border-brand focus-within:ring-2 focus-within:ring-brand-tint'
         }
       >
         <input
@@ -57,7 +57,7 @@ export function PasswordField({
           className={
             newsroom
               ? 'min-h-11 min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:outline-none disabled:opacity-60'
-              : 'min-h-11 min-w-0 flex-1 rounded-l-md bg-transparent px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:outline-none disabled:opacity-60'
+              : 'min-h-11 min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:outline-none disabled:opacity-60'
           }
         />
         <button
@@ -69,7 +69,7 @@ export function PasswordField({
           className={
             newsroom
               ? 'min-h-11 min-w-11 border-l border-rule px-3 text-caption font-bold uppercase tracking-wide text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-surface-raised hover:text-ink disabled:opacity-60'
-              : 'min-h-11 min-w-16 rounded-r-md border-l border-rule px-3 text-caption font-bold uppercase tracking-wide text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong disabled:opacity-60'
+              : 'min-h-11 min-w-16 border-l border-rule px-3 text-caption font-bold uppercase tracking-wide text-ink-soft transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong disabled:opacity-60'
           }
         >
           {buttonLabel}

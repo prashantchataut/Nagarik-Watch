@@ -22,8 +22,8 @@ const serverFunction: ServerFunctionClient = (args) =>
 const Layout = ({ children }: Args) => RootLayout({ config, importMap, children, serverFunction })
 
 export const metadata: Metadata = {
-  title: 'Nagarik Watch CMS',
-  description: 'Editorial CMS for Nagarik Watch (नागरिक वाच)',
+  title: 'नागरिक वाच न्यूजरुम',
+  description: 'नागरिक वाचको सम्पादकीय प्रकाशन प्रणाली',
 }
 
 export default Layout

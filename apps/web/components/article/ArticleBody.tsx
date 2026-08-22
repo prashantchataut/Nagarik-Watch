@@ -227,7 +227,7 @@ function Embed({
   const title = block.caption ?? (isYouTube ? 'YouTube video' : 'Embedded media')
   return (
     <figure className="my-2">
-      <div className="relative aspect-video overflow-hidden rounded-lg border border-rule">
+      <div className="relative aspect-video overflow-hidden border border-rule">
         <iframe
           src={embedUrl}
           title={title}

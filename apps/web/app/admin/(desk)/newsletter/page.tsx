@@ -141,7 +141,7 @@ export default async function NewsletterPage() {
           </form>
           <form
             action={addSubscriber}
-            className="mt-6 grid gap-2 rounded-lg border border-rule bg-surface p-3"
+            className="mt-6 grid gap-2 rounded-sm border border-rule bg-surface p-3"
           >
             <AdminInput label="Add subscriber" name="email" type="email" required lang="en" />
             <AdminButton type="submit" variant="secondary">
@@ -156,7 +156,7 @@ export default async function NewsletterPage() {
           <div className="mt-4 grid gap-3">
             {issues.length ? (
               issues.map((issue) => (
-                <article key={issue.id} className="rounded-lg border border-rule bg-surface p-4">
+                <article key={issue.id} className="rounded-sm border border-rule bg-surface p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <h3 className="font-display text-h3 text-ink">{issue.subject}</h3>
@@ -175,7 +175,7 @@ export default async function NewsletterPage() {
                 </article>
               ))
             ) : (
-              <p className="rounded-lg border border-dashed border-rule p-6 text-center text-meta text-mute">
+              <p className="rounded-sm border border-dashed border-rule p-6 text-center text-meta text-mute">
                 No newsletter issues yet.
               </p>
             )}

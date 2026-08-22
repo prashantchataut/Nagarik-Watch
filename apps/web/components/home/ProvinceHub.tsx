@@ -15,11 +15,13 @@ function titleFor(story: StoryCardData, locale: Locale): string {
   return locale === 'en' && story.titleEn ? story.titleEn : story.titleNe
 }
 
+function deckFor(story: StoryCardData, locale: Locale): string | undefined {
+  return locale === 'en' ? story.deckEn : story.deckNe
+}
+
 function pickProvinceLeads(stories: StoryCardData[]): Map<string, StoryCardData> {
   const leads = new Map<string, StoryCardData>()
-  const sorted = [...stories].sort(
-    (a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt),
-  )
+  const sorted = [...stories].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
   for (const story of sorted) {
     const province = story.province?.trim()
     if (!province || leads.has(province)) continue
@@ -29,8 +31,8 @@ function pickProvinceLeads(stories: StoryCardData[]): Map<string, StoryCardData>
 }
 
 /**
- * Province band: packed story leads when inventory exists, otherwise a dense
- * nav of province links (never an empty faux desk).
+ * Province hub: real provincial leads when inventory exists, otherwise a compact
+ * horizontal navigator. Empty pseudo-cards are never fabricated.
  */
 export function ProvinceHub({ locale, className, stories = [] }: ProvinceHubProps) {
   const english = locale === 'en'
@@ -52,36 +54,38 @@ export function ProvinceHub({ locale, className, stories = [] }: ProvinceHubProp
       />
 
       {populated.length >= 3 ? (
-        <ul
-          className={`mt-3.5 grid gap-0 divide-y divide-rule border-y border-rule sm:grid-cols-2 sm:divide-x sm:divide-y-0 ${
-            populated.length === 3 || populated.length >= 6 ? 'lg:grid-cols-3' : ''
-          }`}
-        >
-          {populated.slice(0, 6).map(({ province, story }, index) => {
+        <ul className="mt-4 flex flex-wrap gap-3">
+          {populated.slice(0, 6).map(({ province, story }) => {
             if (!story) return null
+            const deck = deckFor(story, locale)
             return (
               <li
                 key={province.slug}
-                className={`min-w-0 py-3 sm:px-4 ${index % 2 === 0 ? 'sm:pl-0' : ''} ${
-                  index % 2 === 1 ? 'sm:pr-0 lg:pr-4' : ''
-                } ${index >= 2 ? 'sm:border-t sm:border-rule lg:border-t-0' : ''} ${
-                  index === populated.length - 1 || index === 5 ? 'lg:pr-0' : ''
-                }`}
+                className="min-w-0 flex-1 basis-[18rem] bg-surface-raised px-3.5 py-3.5 sm:px-4"
               >
-                <p
-                  className="text-caption font-bold text-brand-strong"
+                <Link
+                  href={localizeHref(locale, `/province/${province.slug}`)}
+                  className="text-caption font-extrabold text-brand-strong hover:underline"
                   lang={lang}
                 >
                   {english ? province.nameEn : province.nameNe}
-                </p>
+                </Link>
                 <h3
-                  className="mt-1 text-pretty font-display text-body font-bold leading-snug text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong sm:text-body-lg"
+                  className="mt-1.5 text-pretty font-display text-body font-bold leading-snug text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong sm:text-body-lg"
                   lang={locale === 'en' && story.titleEn ? 'en' : 'ne'}
                 >
                   <Link href={localizeHref(locale, `/${story.category.slug}/${story.slug}`)}>
                     {titleFor(story, locale)}
                   </Link>
                 </h3>
+                {deck ? (
+                  <p
+                    className="mt-1.5 line-clamp-2 text-caption leading-relaxed text-ink-soft"
+                    lang={locale === 'en' && story.titleEn ? 'en' : 'ne'}
+                  >
+                    {deck}
+                  </p>
+                ) : null}
               </li>
             )
           })}
@@ -89,14 +93,14 @@ export function ProvinceHub({ locale, className, stories = [] }: ProvinceHubProp
       ) : (
         <nav
           aria-label={english ? 'Province news' : 'प्रदेश समाचार'}
-          className="mt-3 overflow-x-auto border-y border-rule [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="mt-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <ul className="flex min-w-max items-stretch sm:min-w-0 sm:grid sm:grid-cols-4 lg:grid-cols-7">
-            {PROVINCES.map((province, index) => (
-              <li key={province.slug} className={index > 0 ? 'border-l border-rule' : ''}>
+          <ul className="flex min-w-max gap-2 sm:min-w-0 sm:grid sm:grid-cols-4 lg:grid-cols-7">
+            {PROVINCES.map((province) => (
+              <li key={province.slug}>
                 <Link
                   href={localizeHref(locale, `/province/${province.slug}`)}
-                  className="group flex min-h-11 min-w-[8.5rem] items-center gap-2 px-3 py-2.5 transition-colors duration-fast ease-out-quint hover:bg-brand-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand sm:min-w-0"
+                  className="group flex min-h-11 min-w-[8.25rem] items-center justify-center bg-surface-raised px-3 py-2.5 text-center transition-colors duration-fast ease-out-quint hover:bg-brand-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:min-w-0"
                   lang={lang}
                 >
                   <span className="font-display text-meta font-bold text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong sm:text-body">

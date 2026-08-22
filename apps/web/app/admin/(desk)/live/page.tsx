@@ -121,7 +121,7 @@ export default async function LiveAdminPage() {
           </h2>
           <div className="mt-4 grid gap-3">
             {providers.map((provider) => (
-              <div key={provider.key} className="rounded-md border border-rule bg-surface p-3">
+              <div key={provider.key} className="rounded-sm border border-rule bg-surface p-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-semibold text-ink" lang="en">
                     {provider.label}
@@ -151,7 +151,7 @@ export default async function LiveAdminPage() {
         </p>
         <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {ACTIVE_ALGORITHM_REGISTRY.map((algorithm) => (
-            <div key={algorithm.id} className="rounded-md border border-rule bg-surface p-4">
+            <div key={algorithm.id} className="rounded-sm border border-rule bg-surface p-4">
               <p className="text-caption font-bold text-brand-strong">{algorithm.id}</p>
               <p className="mt-1 font-display text-body-lg font-semibold text-ink">
                 {algorithm.label}
@@ -167,7 +167,7 @@ export default async function LiveAdminPage() {
 
 function Signal({ label, value }: { label: string; value: string }) {
   return (
-    <span className="rounded-md bg-surface-raised px-2 py-1">
+    <span className="rounded-sm bg-surface-raised px-2 py-1">
       <span className="block text-[0.68rem] font-bold text-mute">{label}</span>
       <strong className="text-ink">{value}</strong>
     </span>

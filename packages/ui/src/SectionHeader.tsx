@@ -3,8 +3,9 @@ import type { Locale } from '@nagarikwatch/db'
 import { cn } from './cn'
 
 /**
- * Section heading with hairline rule + short brand title underline (DESIGN.md §4).
- * Avoid full-width heavy ink bars; those read as wireframe section chops.
+ * Editorial section heading with a short civic-crimson marker and an optional
+ * desktop connector. It intentionally avoids full-width rules on small screens
+ * so stacked desks do not look like a wireframe.
  */
 type SectionHeaderProps = {
   title: string
@@ -29,11 +30,10 @@ export function SectionHeader({
   className,
 }: SectionHeaderProps) {
   const lang = titleLang ?? locale
+
   return (
-    <div
-      className={cn('flex items-end justify-between gap-4 border-b border-rule pb-2', className)}
-    >
-      <div className="min-w-0">
+    <div className={cn('flex min-w-0 items-end gap-3 sm:gap-4', className)}>
+      <div className="min-w-0 shrink-0">
         <h2
           id={id}
           className="font-display text-h3 font-extrabold tracking-tight text-ink sm:text-h2"
@@ -41,18 +41,21 @@ export function SectionHeader({
         >
           {title}
         </h2>
-        <span className="mt-1.5 block h-0.5 w-12 bg-brand" aria-hidden="true" />
+        <span className="mt-1.5 block h-0.5 w-11 bg-brand" aria-hidden="true" />
       </div>
-      {href && moreLabel && (
+
+      <span className="mb-2 hidden h-px min-w-8 flex-1 bg-rule sm:block" aria-hidden="true" />
+
+      {href && moreLabel ? (
         <Link
           href={href}
-          className="mb-0.5 shrink-0 text-meta font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+          className="mb-0.5 ml-auto shrink-0 text-meta font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           lang={locale === 'en' ? 'en' : 'ne'}
         >
           {moreLabel}
           <span aria-hidden="true"> →</span>
         </Link>
-      )}
+      ) : null}
     </div>
   )
 }

@@ -2,12 +2,8 @@
   "version": 1,
   "articles": [
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "local-election"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["local-election"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -175,7 +171,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/provincial-alliance-realignment-2083.jpg",
@@ -185,12 +181,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "budget-2083"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["budget-2083"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -353,7 +345,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%231A1012%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%233A1C22%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AE%E0%A4%A8%E0%A4%B8%E0%A5%81%E0%A4%A8%20%E0%A4%85%E0%A4%A7%E0%A4%BF%E0%A4%B5%E0%A5%87%E0%A4%B6%E0%A4%A8%3A%20%E0%A4%AC%E0%A4%9C%E0%A5%87%E0%A4%9F%20%E0%A4%95%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%A8%E0%A5%8D%E0%A4%B5%E0%A4%AF%E0%A4%A8%20%E0%A4%B0%20%E0%A4%B5%E0%A4%BF%E0%A4%A7%E0%A5%87%E0%A4%AF%E0%A4%95%20%E0%A4%AA%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -363,12 +355,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "local-election"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["local-election"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -531,7 +519,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%231A1012%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%233A1C22%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B8%E0%A5%8D%E0%A4%A5%E0%A4%BE%E0%A4%A8%E0%A5%80%E0%A4%AF%20%E0%A4%9A%E0%A5%81%E0%A4%A8%E0%A4%BE%E0%A4%B5%20%E0%A4%96%E0%A4%B0%E0%A5%8D%E0%A4%9A%3A%20%E0%A4%AA%E0%A4%BE%E0%A4%B0%E0%A4%A6%E0%A4%B0%E0%A5%8D%E0%A4%B6%E0%A4%BF%E0%A4%A4%E0%A4%BE%E0%A4%95%E0%A5%8B%20%E0%A4%A8%E0%A4%AF%E0%A4%BE%E0%A4%81%20%E0%A4%AE%E0%A4%BE%E0%A4%AA%E0%A4%A6%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -541,12 +529,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "budget-2083"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["budget-2083"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -705,7 +689,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%231A1012%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%233A1C22%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B8%E0%A4%82%E0%A4%98%E0%A5%80%E0%A4%AF%20%E0%A4%A8%E0%A4%BF%E0%A4%9C%E0%A4%BE%E0%A4%AE%E0%A4%A4%E0%A5%80%20%E0%A4%B8%E0%A5%81%E0%A4%A7%E0%A4%BE%E0%A4%B0%3A%20%E0%A4%B8%E0%A5%87%E0%A4%B5%E0%A4%BE%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%B5%E0%A4%BE%E0%A4%B9%E0%A4%AE%E0%A4%BE%20%E0%A4%95%E0%A5%87%20%E0%A4%AB%E0%A5%87%E0%A4%B0%E0%A4%BF%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -715,12 +699,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "exclusive-report"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["exclusive-report"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -879,7 +859,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%231A1012%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%233A1C22%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AF%E0%A5%81%E0%A4%B5%E0%A4%BE%20%E0%A4%86%E0%A4%A8%E0%A5%8D%E0%A4%A6%E0%A5%8B%E0%A4%B2%E0%A4%A8%E0%A4%AA%E0%A4%9B%E0%A4%BF%E0%A4%95%E0%A5%8B%20%E0%A4%B6%E0%A4%BE%E0%A4%B8%E0%A4%A8%3A%20%E0%A4%9C%E0%A4%B5%E0%A4%BE%E0%A4%AB%E0%A4%A6%E0%A5%87%E0%A4%B9%E0%A4%BF%E0%A4%A4%E0%A4%BE%20%E0%A4%95%E0%A4%B8%E0%A4%B0%E0%A5%80%20%E0%A4%AE%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -889,12 +869,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -1057,7 +1033,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/monsoon-highway-community-impact.jpg",
@@ -1067,12 +1043,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -1231,7 +1203,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232E2620%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B6%E0%A4%B9%E0%A4%B0%E0%A5%80%20%E0%A4%AB%E0%A5%8B%E0%A4%B9%E0%A5%8B%E0%A4%B0%20%E0%A4%B5%E0%A5%8D%E0%A4%AF%E0%A4%B5%E0%A4%B8%E0%A5%8D%E0%A4%A5%E0%A4%BE%E0%A4%AA%E0%A4%A8%3A%20%E0%A4%AE%E0%A4%A8%E0%A4%B8%E0%A5%81%E0%A4%A8%E0%A4%B2%E0%A5%87%20%E0%A4%AC%E0%A4%A2%E0%A4%BE%E0%A4%8F%E0%A4%95%E0%A5%8B%20%E0%A4%9A%E0%A4%BE%E0%A4%AA%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -1241,12 +1213,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -1405,7 +1373,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232E2620%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B8%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%B5%E0%A4%9C%E0%A4%A8%E0%A4%BF%E0%A4%95%20%E0%A4%AF%E0%A4%BE%E0%A4%A4%E0%A4%BE%E0%A4%AF%E0%A4%BE%E0%A4%A4%E0%A4%AE%E0%A4%BE%20%E0%A4%AE%E0%A4%B9%E0%A4%BF%E0%A4%B2%E0%A4%BE%20%E0%A4%B8%E0%A5%81%E0%A4%B0%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%BE%3A%20%E0%A4%B5%E0%A5%8D%E0%A4%AF%E0%A4%B5%E0%A4%B9%E0%A4%BE%E0%A4%B0%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -1415,12 +1383,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -1579,7 +1543,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232E2620%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%97%E0%A5%8D%E0%A4%B0%E0%A4%BE%E0%A4%AE%E0%A5%80%E0%A4%A3%20%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%BE%E0%A4%B8%E0%A5%8D%E0%A4%A5%E0%A5%8D%E0%A4%AF%20%E0%A4%9A%E0%A5%8C%E0%A4%95%E0%A5%80%3A%20%E0%A4%9C%E0%A4%A8%E0%A4%B6%E0%A4%95%E0%A5%8D%E0%A4%A4%E0%A4%BF%20%E0%A4%85%E0%A4%AD%E0%A4%BE%E0%A4%B5%20%E0%A4%B0%20%E0%A4%B8%E0%A5%87%E0%A4%B5%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -1589,12 +1553,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -1753,7 +1713,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232E2620%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B8%E0%A4%AE%E0%A5%81%E0%A4%A6%E0%A4%BE%E0%A4%AF%E0%A4%BF%E0%A4%95%20%E0%A4%B5%E0%A4%BF%E0%A4%AA%E0%A4%A6%E0%A5%8D%20%E0%A4%85%E0%A4%AD%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%B8%3A%20%E0%A4%AA%E0%A5%82%E0%A4%B0%E0%A5%8D%E0%A4%B5%E0%A4%A4%E0%A4%AF%E0%A4%BE%E0%A4%B0%E0%A5%80%20%E0%A4%A8%E0%A5%88%20%E0%A4%9C%E0%A5%80%E0%A4%B5%E0%A4%A8%E0%A4%B0%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -1763,12 +1723,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "budget-2083"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["budget-2083"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -1815,11 +1771,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "ढुवानी लागतको हिस्सा",
-            "बजार अनुगमनको नियमितता",
-            "ऊर्जा बचत उपाय"
-          ]
+          "items": ["ढुवानी लागतको हिस्सा", "बजार अनुगमनको नियमितता", "ऊर्जा बचत उपाय"]
         },
         {
           "type": "pullQuote",
@@ -1931,7 +1883,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/wholesale-inflation-fuel-cost-pressure.jpg",
@@ -1941,12 +1893,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "data-story"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["data-story"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -1993,11 +1941,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "जोखिम सीमा तोक्नु",
-            "ऋण लिएर कारोबार नगर्नु",
-            "वित्तीय विवरण पढ्नु"
-          ]
+          "items": ["जोखिम सीमा तोक्नु", "ऋण लिएर कारोबार नगर्नु", "वित्तीय विवरण पढ्नु"]
         },
         {
           "type": "heading2",
@@ -2105,7 +2049,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2310141A%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231E2A38%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%A8%E0%A5%87%E0%A4%AA%E0%A5%8D%E0%A4%B8%E0%A5%87%E0%A4%AE%E0%A4%BE%20%E0%A4%B8%E0%A4%BE%E0%A4%B5%E0%A4%A7%E0%A4%BE%E0%A4%A8%E0%A5%80%3A%20%E0%A4%B2%E0%A4%97%E0%A4%BE%E0%A4%A8%E0%A5%80%E0%A4%95%E0%A4%B0%E0%A5%8D%E0%A4%A4%E0%A4%BE%E0%A4%B2%E0%A5%87%20%E0%A4%B9%E0%A5%87%E0%A4%B0%E0%A5%8D%E0%A4%A8%E0%A5%87%20%E0%A4%B8%E0%A4%82%E0%A4%95%E0%A5%87%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -2115,12 +2059,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -2167,11 +2107,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "सहकारी पारदर्शिता",
-            "साना कर्जाको सरल प्रक्रिया",
-            "डिजिटल भुक्तानी"
-          ]
+          "items": ["सहकारी पारदर्शिता", "साना कर्जाको सरल प्रक्रिया", "डिजिटल भुक्तानी"]
         },
         {
           "type": "heading2",
@@ -2279,7 +2215,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2310141A%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231E2A38%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B5%E0%A4%BF%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A5%87%E0%A4%B7%E0%A4%A3%20%E0%A4%B0%20%E0%A4%B8%E0%A4%BE%E0%A4%A8%E0%A4%BE%20%E0%A4%B5%E0%A5%8D%E0%A4%AF%E0%A4%B5%E0%A4%B8%E0%A4%BE%E0%A4%AF%3A%20%E0%A4%A4%E0%A4%B0%E0%A4%B2%E0%A4%A4%E0%A4%BE%E0%A4%95%E0%A5%8B%20%E0%A4%B8%E0%A4%AE%E0%A5%8D%E0%A4%AC%E0%A4%A8%E0%A5%8D%E0%A4%A7%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -2289,12 +2225,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -2341,11 +2273,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "मौसम अद्यावधिक दिनु",
-            "रद्द नीति स्पष्ट राख्नु",
-            "गाइड तालिम"
-          ]
+          "items": ["मौसम अद्यावधिक दिनु", "रद्द नीति स्पष्ट राख्नु", "गाइड तालिम"]
         },
         {
           "type": "heading2",
@@ -2453,7 +2381,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2310141A%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231E2A38%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AE%E0%A4%A8%E0%A4%B8%E0%A5%81%E0%A4%A8%20%E0%A4%AA%E0%A4%B0%E0%A5%8D%E0%A4%AF%E0%A4%9F%E0%A4%A8%3A%20%E0%A4%9C%E0%A5%8B%E0%A4%96%E0%A4%BF%E0%A4%AE%20%E0%A4%B5%E0%A5%8D%E0%A4%AF%E0%A4%B5%E0%A4%B8%E0%A5%8D%E0%A4%A5%E0%A4%BE%E0%A4%AA%E0%A4%A8%E0%A4%B8%E0%A4%B9%E0%A4%BF%E0%A4%A4%20%E0%A4%B8%E0%A4%AE%E0%A5%8D%E0%A4%AD%E0%A4%BE%E0%A4%B5%E0%A4%A8%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -2463,12 +2391,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "budget-2083"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["budget-2083"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -2515,11 +2439,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "एकद्वार चेकलिस्ट",
-            "महिला लक्षित उत्पादन",
-            "पुनर्भुक्तानी लचिलोपन"
-          ]
+          "items": ["एकद्वार चेकलिस्ट", "महिला लक्षित उत्पादन", "पुनर्भुक्तानी लचिलोपन"]
         },
         {
           "type": "heading2",
@@ -2627,7 +2547,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2310141A%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231E2A38%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B8%E0%A4%BE%E0%A4%A8%E0%A4%BE%20%E0%A4%89%E0%A4%A6%E0%A5%8D%E0%A4%AF%E0%A5%8B%E0%A4%97%3A%20%E0%A4%95%E0%A4%B0%E0%A5%8D%E0%A4%9C%E0%A4%BE%20%E0%A4%AA%E0%A4%B9%E0%A5%81%E0%A4%81%E0%A4%9A%E0%A4%95%E0%A4%BE%20%E0%A4%85%E0%A4%B5%E0%A4%B0%E0%A5%8B%E0%A4%A7%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -2637,12 +2557,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "nepal-cricket"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["nepal-cricket"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -2689,11 +2605,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "फिटनेस मापदण्ड सार्वजनिक गर्नु",
-            "उमेर समूह मार्गचित्र",
-            "घरेलु लिगसँग तालमेल"
-          ]
+          "items": ["फिटनेस मापदण्ड सार्वजनिक गर्नु", "उमेर समूह मार्गचित्र", "घरेलु लिगसँग तालमेल"]
         },
         {
           "type": "heading2",
@@ -2801,7 +2713,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/national-cricket-training-camp-focus.jpg",
@@ -2811,12 +2723,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "fifa-world-cup"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["fifa-world-cup"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -2863,11 +2771,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "नियमित घरेलु लिग",
-            "कोचिङ तालिम",
-            "सुरक्षित प्रशिक्षण स्थल"
-          ]
+          "items": ["नियमित घरेलु लिग", "कोचिङ तालिम", "सुरक्षित प्रशिक्षण स्थल"]
         },
         {
           "type": "heading2",
@@ -2975,7 +2879,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1410%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E1E%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AE%E0%A4%B9%E0%A4%BF%E0%A4%B2%E0%A4%BE%20%E0%A4%AB%E0%A5%81%E0%A4%9F%E0%A4%AC%E0%A4%B2%3A%20%E0%A4%AE%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%97%E0%A4%9A%E0%A4%BF%E0%A4%A4%E0%A5%8D%E0%A4%B0%20%E0%A4%B0%20%E0%A4%B2%E0%A4%97%E0%A4%BE%E0%A4%A8%E0%A5%80%E0%A4%95%E0%A5%8B%20%E0%A4%96%E0%A4%BE%E0%A4%81%E0%A4%9A%E0%A5%8B%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -2985,12 +2889,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -3037,11 +2937,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "मेडिकल स्टेसन",
-            "पानी र छाया व्यवस्था",
-            "ट्राफिक सूचना अग्रिम"
-          ]
+          "items": ["मेडिकल स्टेसन", "पानी र छाया व्यवस्था", "ट्राफिक सूचना अग्रिम"]
         },
         {
           "type": "heading2",
@@ -3149,7 +3045,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1410%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E1E%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%95%E0%A4%BE%E0%A4%A0%E0%A4%AE%E0%A4%BE%E0%A4%A1%E0%A5%8C%E0%A4%82%20%E0%A4%B0%E0%A5%8B%E0%A4%A1%20%E0%A4%B0%E0%A5%87%E0%A4%B8%3A%20%E0%A4%B8%E0%A4%AE%E0%A5%81%E0%A4%A6%E0%A4%BE%E0%A4%AF%E0%A4%BF%E0%A4%95%20%E0%A4%96%E0%A5%87%E0%A4%B2%E0%A4%95%E0%A5%8B%20%E0%A4%8A%E0%A4%B0%E0%A5%8D%E0%A4%9C%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -3159,12 +3055,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "budget-2083"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["budget-2083"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -3211,11 +3103,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "सुरक्षित खेल मैदान",
-            "आधारभूत किट",
-            "वार्षिक प्रतियोगिता क्यालेन्डर"
-          ]
+          "items": ["सुरक्षित खेल मैदान", "आधारभूत किट", "वार्षिक प्रतियोगिता क्यालेन्डर"]
         },
         {
           "type": "heading2",
@@ -3323,7 +3211,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1410%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E1E%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B5%E0%A4%BF%E0%A4%A6%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%B2%E0%A4%AF%20%E0%A4%96%E0%A5%87%E0%A4%B2%E0%A4%95%E0%A5%81%E0%A4%A6%3A%20%E0%A4%AC%E0%A4%9C%E0%A5%87%E0%A4%9F%20%E0%A4%85%E0%A4%AD%E0%A4%BE%E0%A4%B5%E0%A4%B2%E0%A5%87%20%E0%A4%B8%E0%A4%BE%E0%A4%81%E0%A4%98%E0%A5%81%E0%A4%B0%E0%A4%BF%E0%A4%8F%E0%A4%95%E0%A5%8B%20%E0%A4%AE%E0%A5%88%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -3333,12 +3221,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "nepal-cricket"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["nepal-cricket"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -3385,11 +3269,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "रद्द सूचना छिटो",
-            "टिकट फिर्ता नीति",
-            "इनडोर विकल्प"
-          ]
+          "items": ["रद्द सूचना छिटो", "टिकट फिर्ता नीति", "इनडोर विकल्प"]
         },
         {
           "type": "heading2",
@@ -3497,7 +3377,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1410%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E1E%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AE%E0%A4%A8%E0%A4%B8%E0%A5%81%E0%A4%A8%20%E0%A4%96%E0%A5%87%E0%A4%B2%20%E0%A4%AA%E0%A4%BE%E0%A4%A4%E0%A5%8D%E0%A4%B0%E0%A5%8B%3A%20%E0%A4%B0%E0%A4%A6%E0%A5%8D%E0%A4%A6%20%E0%A4%B9%E0%A5%8B%E0%A4%87%E0%A4%A8%2C%20%E0%A4%AA%E0%A5%81%E0%A4%A8%E0%A4%83%E0%A4%A4%E0%A4%BE%E0%A4%B2%E0%A4%BF%E0%A4%95%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -3507,12 +3387,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -3559,11 +3435,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "सुलभ टिकट",
-            "नयाँ निर्देशक खण्ड",
-            "उपशीर्षक पहुँच"
-          ]
+          "items": ["सुलभ टिकट", "नयाँ निर्देशक खण्ड", "उपशीर्षक पहुँच"]
         },
         {
           "type": "heading2",
@@ -3671,7 +3543,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/nepali-film-festival-prep.jpg",
@@ -3681,9 +3553,7 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "none",
@@ -3731,11 +3601,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "विद्यालय कार्यक्रम",
-            "सामुदायिक रेडियो प्रसारण",
-            "युवा कलाकार मेन्टरसिप"
-          ]
+          "items": ["विद्यालय कार्यक्रम", "सामुदायिक रेडियो प्रसारण", "युवा कलाकार मेन्टरसिप"]
         },
         {
           "type": "heading2",
@@ -3843,7 +3709,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23161210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%233A2418%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B2%E0%A5%8B%E0%A4%95%20%E0%A4%B8%E0%A4%82%E0%A4%97%E0%A5%80%E0%A4%A4%20%E0%A4%AA%E0%A5%81%E0%A4%A8%E0%A4%B0%E0%A5%81%E0%A4%A4%E0%A5%8D%E0%A4%A5%E0%A4%BE%E0%A4%A8%3A%20%E0%A4%AE%E0%A4%9E%E0%A5%8D%E0%A4%9A%20%E0%A4%B0%20%E0%A4%AA%E0%A5%81%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A4%BE%20%E0%A4%B9%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A4%BE%E0%A4%A8%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -3853,12 +3719,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -3905,11 +3767,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "विद्यार्थी छुट",
-            "भ्रमण प्रदर्शनी",
-            "स्थानीय भाषा नाटक"
-          ]
+          "items": ["विद्यार्थी छुट", "भ्रमण प्रदर्शनी", "स्थानीय भाषा नाटक"]
         },
         {
           "type": "heading2",
@@ -4017,7 +3875,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23161210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%233A2418%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%95%E0%A4%BE%E0%A4%A0%E0%A4%AE%E0%A4%BE%E0%A4%A1%E0%A5%8C%E0%A4%82%20%E0%A4%B0%E0%A4%99%E0%A5%8D%E0%A4%97%E0%A4%AE%E0%A4%9E%E0%A5%8D%E0%A4%9A%20%E0%A4%AF%E0%A4%BE%E0%A4%AE%3A%20%E0%A4%B8%E0%A4%BE%E0%A4%A8%E0%A5%8B%20%E0%A4%B9%E0%A4%B2%2C%20%E0%A4%A0%E0%A5%82%E0%A4%B2%E0%A5%8B%20%E0%A4%B8%E0%A4%82%E0%A4%B5%E0%A4%BE%E0%A4%A6%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -4027,9 +3885,7 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "secondary",
@@ -4077,11 +3933,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "रिलिज झ्याल पारदर्शिता",
-            "राजस्व बाँडफाँड",
-            "पाइरेसी निवारण"
-          ]
+          "items": ["रिलिज झ्याल पारदर्शिता", "राजस्व बाँडफाँड", "पाइरेसी निवारण"]
         },
         {
           "type": "heading2",
@@ -4189,7 +4041,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23161210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%233A2418%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B8%E0%A5%8D%E0%A4%9F%E0%A5%8D%E0%A4%B0%E0%A4%BF%E0%A4%AE%E0%A4%BF%E0%A4%99%20%E0%A4%B0%20%E0%A4%B8%E0%A4%BF%E0%A4%A8%E0%A5%87%E0%A4%AE%E0%A4%BE%20%E0%A4%B9%E0%A4%B2%3A%20%E0%A4%B8%E0%A4%B9%E0%A4%85%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A4%BF%E0%A4%A4%E0%A5%8D%E0%A4%B5%E0%A4%95%E0%A5%8B%20%E0%A4%AC%E0%A4%BE%E0%A4%9F%E0%A5%8B%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -4199,12 +4051,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -4251,11 +4099,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "अग्रिम सूचना",
-            "भीड व्यवस्थापन",
-            "स्थानीय कलाकार प्राथमिकता"
-          ]
+          "items": ["अग्रिम सूचना", "भीड व्यवस्थापन", "स्थानीय कलाकार प्राथमिकता"]
         },
         {
           "type": "heading2",
@@ -4363,7 +4207,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23161210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%233A2418%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B8%E0%A4%BE%E0%A4%81%E0%A4%B8%E0%A5%8D%E0%A4%95%E0%A5%83%E0%A4%A4%E0%A4%BF%E0%A4%95%20%E0%A4%B8%E0%A4%AE%E0%A5%8D%E0%A4%AA%E0%A4%A6%E0%A4%BE%20%E0%A4%95%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%AF%E0%A4%95%E0%A5%8D%E0%A4%B0%E0%A4%AE%3A%20%E0%A4%AA%E0%A4%BE%E0%A4%A4%E0%A5%8D%E0%A4%B0%E0%A5%8B%20%E0%A4%B0%20%E0%A4%B8%E0%A4%B9%E0%A4%AD%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -4373,12 +4217,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "geopolitics"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["geopolitics"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -4425,11 +4265,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "इन्धन मौज्दात स्थिति",
-            "सार्वजनिक यातायात विकल्प",
-            "मूल्य समायोजन प्रक्रिया"
-          ]
+          "items": ["इन्धन मौज्दात स्थिति", "सार्वजनिक यातायात विकल्प", "मूल्य समायोजन प्रक्रिया"]
         },
         {
           "type": "heading2",
@@ -4537,7 +4373,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/west-asia-energy-shock-nepal-lens.jpg",
@@ -4547,12 +4383,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -4599,11 +4431,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "नदी प्रवाह आदानप्रदान",
-            "पूर्वसूचना भाषा सरलता",
-            "सीमावर्ती राहत समन्वय"
-          ]
+          "items": ["नदी प्रवाह आदानप्रदान", "पूर्वसूचना भाषा सरलता", "सीमावर्ती राहत समन्वय"]
         },
         {
           "type": "heading2",
@@ -4711,7 +4539,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23101418%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23243038%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%A6%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%BF%E0%A4%A3%20%E0%A4%8F%E0%A4%B8%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%E0%A4%AE%E0%A4%A8%E0%A4%B8%E0%A5%81%E0%A4%A8%3A%20%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A5%87%E0%A4%A4%E0%A5%8D%E0%A4%B0%E0%A5%80%E0%A4%AF%20%E0%A4%A4%E0%A4%B8%E0%A5%8D%E0%A4%AC%E0%A4%BF%E0%A4%B0%20%E0%A4%B0%20%E0%A4%B8%E0%A4%BE%E0%A4%9D%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -4721,12 +4549,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -4773,11 +4597,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "कानुनी कामदार मार्ग",
-            "शुल्क पारदर्शिता",
-            "गुनासो संयन्त्र"
-          ]
+          "items": ["कानुनी कामदार मार्ग", "शुल्क पारदर्शिता", "गुनासो संयन्त्र"]
         },
         {
           "type": "heading2",
@@ -4885,7 +4705,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23101418%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23243038%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B5%E0%A4%BF%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A5%87%E0%A4%B7%E0%A4%A3%20%E0%A4%95%E0%A4%B0%E0%A4%BF%E0%A4%A1%E0%A5%8B%E0%A4%B0%3A%20%E0%A4%B5%E0%A4%BF%E0%A4%B6%E0%A5%8D%E0%A4%B5%20%E0%A4%B6%E0%A5%8D%E0%A4%B0%E0%A4%AE%20%E0%A4%AC%E0%A4%9C%E0%A4%BE%E0%A4%B0%E0%A4%95%E0%A5%8B%20%E0%A4%B8%E0%A4%A8%E0%A5%8D%E0%A4%A6%E0%A4%B0%E0%A5%8D%E0%A4%AD%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -4895,12 +4715,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -4947,11 +4763,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "हिमाली जोखिम",
-            "कृषि बीमा",
-            "हरित वित्त पहुँच"
-          ]
+          "items": ["हिमाली जोखिम", "कृषि बीमा", "हरित वित्त पहुँच"]
         },
         {
           "type": "heading2",
@@ -5059,7 +4871,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23101418%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23243038%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%9C%E0%A4%B2%E0%A4%B5%E0%A4%BE%E0%A4%AF%E0%A5%81%20%E0%A4%B8%E0%A4%AE%E0%A5%8D%E0%A4%AE%E0%A5%87%E0%A4%B2%E0%A4%A8%20%E0%A4%A4%E0%A4%AF%E0%A4%BE%E0%A4%B0%E0%A5%80%3A%20%E0%A4%AA%E0%A4%BE%E0%A4%A0%E0%A4%95%20%E0%A4%AC%E0%A5%8D%E0%A4%B0%E0%A4%BF%E0%A4%AB%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -5069,12 +4881,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "geopolitics"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["geopolitics"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -5121,11 +4929,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "सुरक्षित आश्रय",
-            "सूचना पहुँच",
-            "बालबालिका संरक्षण"
-          ]
+          "items": ["सुरक्षित आश्रय", "सूचना पहुँच", "बालबालिका संरक्षण"]
         },
         {
           "type": "heading2",
@@ -5233,7 +5037,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23101418%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23243038%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B5%E0%A4%BF%E0%A4%B8%E0%A5%8D%E0%A4%A5%E0%A4%BE%E0%A4%AA%E0%A4%A8%20%E0%A4%B0%20%E0%A4%AE%E0%A4%BE%E0%A4%A8%E0%A4%B5%20%E0%A4%85%E0%A4%A7%E0%A4%BF%E0%A4%95%E0%A4%BE%E0%A4%B0%3A%20%E0%A4%B5%E0%A4%BF%E0%A4%B6%E0%A5%8D%E0%A4%B5%20%E0%A4%B8%E0%A4%A8%E0%A5%8D%E0%A4%A6%E0%A4%B0%E0%A5%8D%E0%A4%AD%E0%A4%95%E0%A5%8B%20%E0%A4%AA%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -5243,12 +5047,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -5295,11 +5095,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "वडा सेवा समय",
-            "प्रदेश बजेट कार्यान्वयन",
-            "संघीय मापदण्ड"
-          ]
+          "items": ["वडा सेवा समय", "प्रदेश बजेट कार्यान्वयन", "संघीय मापदण्ड"]
         },
         {
           "type": "heading2",
@@ -5407,7 +5203,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/federalism-accountability-column.jpg",
@@ -5417,12 +5213,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -5469,11 +5261,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "निकास क्षमता",
-            "अवैध निर्माण नियन्त्रण",
-            "हरित क्षेत्र"
-          ]
+          "items": ["निकास क्षमता", "अवैध निर्माण नियन्त्रण", "हरित क्षेत्र"]
         },
         {
           "type": "heading2",
@@ -5581,7 +5369,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A2420%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AE%E0%A4%A8%E0%A4%B8%E0%A5%81%E0%A4%A8%20%E0%A4%B0%20%E0%A4%B8%E0%A4%B9%E0%A4%B0%E0%A5%80%20%E0%A4%AF%E0%A5%8B%E0%A4%9C%E0%A4%A8%E0%A4%BE%3A%20%E0%A4%A8%E0%A4%BE%E0%A4%B2%E0%A5%80%E0%A4%A6%E0%A5%87%E0%A4%96%E0%A4%BF%20%E0%A4%86%E0%A4%B5%E0%A4%BE%E0%A4%B8%E0%A4%B8%E0%A4%AE%E0%A5%8D%E0%A4%AE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -5591,12 +5379,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "exclusive-report"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["exclusive-report"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -5643,11 +5427,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "स्रोत संरक्षण",
-            "सच्याइ नीति",
-            "घृणा भाषण बन्देज"
-          ]
+          "items": ["स्रोत संरक्षण", "सच्याइ नीति", "घृणा भाषण बन्देज"]
         },
         {
           "type": "heading2",
@@ -5755,7 +5535,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A2420%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A5%87%E0%A4%B8%20%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%A4%E0%A4%A8%E0%A5%8D%E0%A4%A4%E0%A5%8D%E0%A4%B0%E0%A4%A4%E0%A4%BE%20%E0%A4%B0%20%E0%A4%A8%E0%A5%88%E0%A4%A4%E0%A4%BF%E0%A4%95%E0%A4%A4%E0%A4%BE%3A%20%E0%A4%8F%E0%A4%95%E0%A5%88%20%E0%A4%B8%E0%A4%BF%E0%A4%95%E0%A5%8D%E0%A4%95%E0%A4%BE%E0%A4%95%E0%A4%BE%20%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -5765,12 +5545,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -5817,11 +5593,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "सीप माग मिलान",
-            "क्षेत्रीय अवसर",
-            "महिला सुरक्षा"
-          ]
+          "items": ["सीप माग मिलान", "क्षेत्रीय अवसर", "महिला सुरक्षा"]
         },
         {
           "type": "heading2",
@@ -5929,7 +5701,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A2420%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AF%E0%A5%81%E0%A4%B5%E0%A4%BE%20%E0%A4%B0%E0%A5%8B%E0%A4%9C%E0%A4%97%E0%A4%BE%E0%A4%B0%E0%A5%80%20%E0%A4%A8%E0%A5%80%E0%A4%A4%E0%A4%BF%3A%20%E0%A4%B5%E0%A4%BE%E0%A4%9A%E0%A4%BE%20%E0%A4%B9%E0%A5%8B%E0%A4%87%E0%A4%A8%20%E0%A4%AC%E0%A4%BE%E0%A4%9F%E0%A5%8B%20%E0%A4%9A%E0%A4%BE%E0%A4%B9%E0%A4%BF%E0%A4%A8%E0%A5%8D%E0%A4%9B%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -5939,12 +5711,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "budget-2083"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["budget-2083"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -5991,11 +5759,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "बस फ्रिक्वेन्सी",
-            "महिला सुरक्षा",
-            "एकीकृत टिकट"
-          ]
+          "items": ["बस फ्रिक्वेन्सी", "महिला सुरक्षा", "एकीकृत टिकट"]
         },
         {
           "type": "heading2",
@@ -6103,7 +5867,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A2420%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B8%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%B5%E0%A4%9C%E0%A4%A8%E0%A4%BF%E0%A4%95%20%E0%A4%AF%E0%A4%BE%E0%A4%A4%E0%A4%BE%E0%A4%AF%E0%A4%BE%E0%A4%A4%20%E0%A4%B2%E0%A4%97%E0%A4%BE%E0%A4%A8%E0%A5%80%3A%20%E0%A4%B6%E0%A4%B9%E0%A4%B0%E0%A4%95%E0%A5%8B%20%E0%A4%B8%E0%A4%BE%E0%A4%9D%E0%A4%BE%20%E0%A4%B9%E0%A4%BF%E0%A4%A4%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -6113,12 +5877,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -6165,11 +5925,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "भाषा प्रयोग",
-            "सामाजिक सन्दर्भ",
-            "पाठ समूह छलफल"
-          ]
+          "items": ["भाषा प्रयोग", "सामाजिक सन्दर्भ", "पाठ समूह छलफल"]
         },
         {
           "type": "heading2",
@@ -6277,7 +6033,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/new-nepali-poetry-collections.jpg",
@@ -6287,9 +6043,7 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "none",
@@ -6337,11 +6091,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "सटीक टिप्पणी",
-            "सुलभ संस्करण",
-            "डिजिटल अभिलेख"
-          ]
+          "items": ["सटीक टिप्पणी", "सुलभ संस्करण", "डिजिटल अभिलेख"]
         },
         {
           "type": "heading2",
@@ -6449,7 +6199,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%95%E0%A5%8D%E0%A4%B2%E0%A4%BE%E0%A4%B8%E0%A4%BF%E0%A4%95%20%E0%A4%97%E0%A4%A6%E0%A5%8D%E0%A4%AF%20%E0%A4%85%E0%A4%A8%E0%A5%81%E0%A4%B5%E0%A4%BE%E0%A4%A6%3A%20%E0%A4%A8%E0%A4%AF%E0%A4%BE%E0%A4%81%20%E0%A4%AA%E0%A5%81%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A4%BE%E0%A4%B8%E0%A4%AE%E0%A5%8D%E0%A4%AE%E0%A4%95%E0%A5%8B%20%E0%A4%AA%E0%A5%81%E0%A4%B2%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -6459,12 +6209,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -6511,11 +6257,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "निःशुल्क सत्र",
-            "सांकेतिक भाषा/उपशीर्षक",
-            "प्रदेश भ्रमण"
-          ]
+          "items": ["निःशुल्क सत्र", "सांकेतिक भाषा/उपशीर्षक", "प्रदेश भ्रमण"]
         },
         {
           "type": "heading2",
@@ -6623,7 +6365,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B8%E0%A4%BE%E0%A4%B9%E0%A4%BF%E0%A4%A4%E0%A5%8D%E0%A4%AF%20%E0%A4%AE%E0%A4%B9%E0%A5%8B%E0%A4%A4%E0%A5%8D%E0%A4%B8%E0%A4%B5%3A%20%E0%A4%AA%E0%A4%B9%E0%A5%81%E0%A4%81%E0%A4%9A%20%E0%A4%B0%20%E0%A4%B5%E0%A4%BF%E0%A4%B5%E0%A4%BF%E0%A4%A7%20%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%B0%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -6633,12 +6375,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "budget-2083"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["budget-2083"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -6685,11 +6423,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "पुस्तक कुना",
-            "साप्ताहिक पठन समय",
-            "अभिभावक सहभागिता"
-          ]
+          "items": ["पुस्तक कुना", "साप्ताहिक पठन समय", "अभिभावक सहभागिता"]
         },
         {
           "type": "heading2",
@@ -6797,7 +6531,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B5%E0%A4%BF%E0%A4%A6%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%B2%E0%A4%AF%20%E0%A4%AA%E0%A4%A0%E0%A4%A8%20%E0%A4%B8%E0%A4%82%E0%A4%B8%E0%A5%8D%E0%A4%95%E0%A5%83%E0%A4%A4%E0%A4%BF%3A%20%E0%A4%AA%E0%A4%B0%E0%A5%80%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%BE%E0%A4%AD%E0%A4%A8%E0%A5%8D%E0%A4%A6%E0%A4%BE%20%E0%A4%AA%E0%A4%B0%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -6807,12 +6541,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -6859,11 +6589,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "भाषा मिश्रण",
-            "घरको स्मृति",
-            "पहचान द्वन्द्व"
-          ]
+          "items": ["भाषा मिश्रण", "घरको स्मृति", "पहचान द्वन्द्व"]
         },
         {
           "type": "heading2",
@@ -6971,7 +6697,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%B5%E0%A4%BE%E0%A4%B8%E0%A5%80%20%E0%A4%B2%E0%A5%87%E0%A4%96%E0%A4%95%20%E0%A4%A8%E0%A5%8B%E0%A4%9F%E0%A4%AC%E0%A5%81%E0%A4%95%3A%20%E0%A4%A6%E0%A5%81%E0%A4%88%20%E0%A4%A6%E0%A5%81%E0%A4%A8%E0%A4%BF%E0%A4%AF%E0%A4%BE%E0%A4%AC%E0%A5%80%E0%A4%9A%E0%A4%95%E0%A5%8B%20%E0%A4%95%E0%A4%A5%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -6981,12 +6707,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "data-story"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["data-story"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -7033,11 +6755,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "सहमति स्पष्टता",
-            "उजुरी मार्ग",
-            "अफलाइन सेवा"
-          ]
+          "items": ["सहमति स्पष्टता", "उजुरी मार्ग", "अफलाइन सेवा"]
         },
         {
           "type": "heading2",
@@ -7145,7 +6863,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/digital-id-public-services.jpg",
@@ -7155,12 +6873,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "budget-2083"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["budget-2083"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -7207,11 +6921,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "शुल्क देखिने",
-            "लेनदेन रसीद",
-            "ग्राहक सहयोग"
-          ]
+          "items": ["शुल्क देखिने", "लेनदेन रसीद", "ग्राहक सहयोग"]
         },
         {
           "type": "heading2",
@@ -7319,7 +7029,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121018%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23261E36%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AB%E0%A4%BF%E0%A4%A8%E0%A4%9F%E0%A5%87%E0%A4%95%20%E0%A4%97%E0%A5%8D%E0%A4%B0%E0%A4%BE%E0%A4%AE%E0%A5%80%E0%A4%A3%20%E0%A4%AA%E0%A4%B9%E0%A5%81%E0%A4%81%E0%A4%9A%3A%20%E0%A4%AE%E0%A5%8B%E0%A4%AC%E0%A4%BE%E0%A4%87%E0%A4%B2%20%E0%A4%AC%E0%A5%88%E0%A4%95%E0%A4%BF%E0%A4%99%E0%A4%95%E0%A5%8B%20%E0%A4%85%E0%A4%B0%E0%A5%8D%E0%A4%95%E0%A5%8B%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -7329,12 +7039,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "exclusive-report"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["exclusive-report"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -7381,11 +7087,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "दुई चरणीय प्रमाणीकरण",
-            "अपरिचित लिंक नखोल्ने",
-            "सफ्टवेयर अद्यावधिक"
-          ]
+          "items": ["दुई चरणीय प्रमाणीकरण", "अपरिचित लिंक नखोल्ने", "सफ्टवेयर अद्यावधिक"]
         },
         {
           "type": "heading2",
@@ -7493,7 +7195,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121018%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23261E36%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B8%E0%A4%BE%E0%A4%87%E0%A4%AC%E0%A4%B0%20%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%9A%E0%A5%8D%E0%A4%9B%E0%A4%A4%E0%A4%BE%3A%20%E0%A4%AA%E0%A4%BE%E0%A4%A0%E0%A4%95%E0%A4%95%E0%A4%BE%20%E0%A4%B2%E0%A4%BE%E0%A4%97%E0%A4%BF%20%E0%A4%B5%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%B5%E0%A4%B9%E0%A4%BE%E0%A4%B0%E0%A4%BF%E0%A4%95%20%E0%A4%97%E0%A4%BE%E0%A4%87%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -7503,12 +7205,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -7555,11 +7253,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "स्रोत प्रमाण",
-            "पारदर्शी खुलासा",
-            "सच्याइ प्रक्रिया"
-          ]
+          "items": ["स्रोत प्रमाण", "पारदर्शी खुलासा", "सच्याइ प्रक्रिया"]
         },
         {
           "type": "heading2",
@@ -7667,7 +7361,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121018%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23261E36%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%8F%E0%A4%86%E0%A4%88%20%E0%A4%B0%20%E0%A4%A8%E0%A5%8D%E0%A4%AF%E0%A5%82%E0%A4%9C%E0%A4%B0%E0%A5%81%E0%A4%AE%20%E0%A4%A8%E0%A5%88%E0%A4%A4%E0%A4%BF%E0%A4%95%E0%A4%A4%E0%A4%BE%3A%20%E0%A4%AE%E0%A4%BE%E0%A4%A8%E0%A4%B5%20%E0%A4%B8%E0%A4%AE%E0%A5%8D%E0%A4%AA%E0%A4%BE%E0%A4%A6%E0%A4%A8%20%E0%A4%85%E0%A4%AA%E0%A4%B0%E0%A4%BF%E0%A4%B9%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -7677,12 +7371,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -7729,11 +7419,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "विद्यालय कनेक्टिभिटी",
-            "स्वास्थ्य चौकी लिंक",
-            "मर्मत सम्झौता"
-          ]
+          "items": ["विद्यालय कनेक्टिभिटी", "स्वास्थ्य चौकी लिंक", "मर्मत सम्झौता"]
         },
         {
           "type": "heading2",
@@ -7841,7 +7527,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121018%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23261E36%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AA%E0%A4%B9%E0%A4%BE%E0%A4%A1%E0%A5%80%20%E0%A4%AC%E0%A5%8D%E0%A4%B0%E0%A5%8B%E0%A4%A1%E0%A4%AC%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%A8%E0%A5%8D%E0%A4%A1%3A%20%E0%A4%B6%E0%A4%BF%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%BE%20%E0%A4%B0%20%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%BE%E0%A4%B8%E0%A5%8D%E0%A4%A5%E0%A5%8D%E0%A4%AF%E0%A4%95%E0%A5%8B%20%E0%A4%AA%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -7851,12 +7537,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -7903,11 +7585,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "उमालेको/शोधित पानी",
-            "झुलको प्रयोग",
-            "लक्षण देखिए जाँच"
-          ]
+          "items": ["उमालेको/शोधित पानी", "झुलको प्रयोग", "लक्षण देखिए जाँच"]
         },
         {
           "type": "heading2",
@@ -8015,7 +7693,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/monsoon-disease-alert-guide.jpg",
@@ -8025,9 +7703,7 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "none",
@@ -8075,11 +7751,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "एम्बुलेन्स/कोष",
-            "प्रशिक्षित कर्मी",
-            "पोषण परामर्श"
-          ]
+          "items": ["एम्बुलेन्स/कोष", "प्रशिक्षित कर्मी", "पोषण परामर्श"]
         },
         {
           "type": "heading2",
@@ -8187,7 +7859,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1414%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E2C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%97%E0%A5%8D%E0%A4%B0%E0%A4%BE%E0%A4%AE%E0%A5%80%E0%A4%A3%20%E0%A4%AE%E0%A4%BE%E0%A4%A4%E0%A5%83%20%E0%A4%A6%E0%A5%87%E0%A4%96%E0%A4%AD%E0%A4%BE%E0%A4%B2%3A%20%E0%A4%AA%E0%A4%B9%E0%A5%81%E0%A4%81%E0%A4%9A%20%E0%A4%B0%20%E0%A4%B8%E0%A4%AE%E0%A5%8D%E0%A4%AE%E0%A4%BE%E0%A4%A8%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -8197,12 +7869,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -8249,11 +7917,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "विद्यालय परामर्श",
-            "कार्यस्थल नीति",
-            "मिडिया भाषा"
-          ]
+          "items": ["विद्यालय परामर्श", "कार्यस्थल नीति", "मिडिया भाषा"]
         },
         {
           "type": "heading2",
@@ -8361,7 +8025,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1414%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E2C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AE%E0%A4%BE%E0%A4%A8%E0%A4%B8%E0%A4%BF%E0%A4%95%20%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%BE%E0%A4%B8%E0%A5%8D%E0%A4%A5%E0%A5%8D%E0%A4%AF%20%E0%A4%95%E0%A4%B2%E0%A4%82%E0%A4%95%20%E0%A4%A4%E0%A5%8B%E0%A4%A1%E0%A5%8D%E0%A4%A8%E0%A5%87%20%E0%A4%95%E0%A5%81%E0%A4%B0%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -8371,12 +8035,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "data-story"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["data-story"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -8423,11 +8083,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "विभागगत औसत समय",
-            "टोकन प्रणाली",
-            "आपतकाल छुट्याउने"
-          ]
+          "items": ["विभागगत औसत समय", "टोकन प्रणाली", "आपतकाल छुट्याउने"]
         },
         {
           "type": "heading2",
@@ -8535,7 +8191,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1414%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E2C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%85%E0%A4%B8%E0%A5%8D%E0%A4%AA%E0%A4%A4%E0%A4%BE%E0%A4%B2%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%A4%E0%A5%80%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%BE%20%E0%A4%B8%E0%A4%AE%E0%A4%AF%3A%20%E0%A4%AA%E0%A4%BE%E0%A4%B0%E0%A4%A6%E0%A4%B0%E0%A5%8D%E0%A4%B6%E0%A4%BF%E0%A4%A4%E0%A4%BE%20%E0%A4%95%E0%A4%BF%E0%A4%A8%20%E0%A4%9A%E0%A4%BE%E0%A4%B9%E0%A4%BF%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -8545,9 +8201,7 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "none",
@@ -8595,11 +8249,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "स्थानीय भाषा",
-            "साइड इफेक्ट इमानदारी",
-            "प्रश्नोत्तर सत्र"
-          ]
+          "items": ["स्थानीय भाषा", "साइड इफेक्ट इमानदारी", "प्रश्नोत्तर सत्र"]
         },
         {
           "type": "heading2",
@@ -8707,7 +8357,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1414%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E2C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%96%E0%A5%8B%E0%A4%AA%20%E0%A4%9A%E0%A5%87%E0%A4%A4%E0%A4%A8%E0%A4%BE%3A%20%E0%A4%B8%E0%A4%AE%E0%A5%81%E0%A4%A6%E0%A4%BE%E0%A4%AF%20%E0%A4%B5%E0%A4%BF%E0%A4%B6%E0%A5%8D%E0%A4%B5%E0%A4%BE%E0%A4%B8%20%E0%A4%AA%E0%A5%81%E0%A4%A8%E0%A4%B0%E0%A5%8D%E0%A4%A8%E0%A4%BF%E0%A4%B0%E0%A5%8D%E0%A4%AE%E0%A4%BE%E0%A4%A3%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -8717,12 +8367,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -8769,11 +8415,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "तुलना कम गर्ने",
-            "वैकल्पिक मार्ग खुला राख्ने",
-            "मानसिक सहयोग"
-          ]
+          "items": ["तुलना कम गर्ने", "वैकल्पिक मार्ग खुला राख्ने", "मानसिक सहयोग"]
         },
         {
           "type": "heading2",
@@ -8881,7 +8523,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/see-grade12-result-culture.jpg",
@@ -8891,12 +8533,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -8943,11 +8581,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "दुर्गम भत्ता",
-            "स्थानीय करार मापदण्ड",
-            "बहुविषय तालिम"
-          ]
+          "items": ["दुर्गम भत्ता", "स्थानीय करार मापदण्ड", "बहुविषय तालिम"]
         },
         {
           "type": "heading2",
@@ -9055,7 +8689,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1218%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2840%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AA%E0%A4%B9%E0%A4%BE%E0%A4%A1%E0%A5%80%20%E0%A4%B6%E0%A4%BF%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%95%20%E0%A4%85%E0%A4%AD%E0%A4%BE%E0%A4%B5%3A%20%E0%A4%95%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%BE%20%E0%A4%95%E0%A5%8B%E0%A4%A0%E0%A4%BE%E0%A4%95%E0%A5%8B%20%E0%A4%B5%E0%A4%BE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A4%B5%E0%A4%BF%E0%A4%95%E0%A4%A4%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -9065,12 +8699,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "data-story"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["data-story"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -9117,11 +8747,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "बिजुली",
-            "शिक्षक तालिम",
-            "अफलाइन सामग्री"
-          ]
+          "items": ["बिजुली", "शिक्षक तालिम", "अफलाइन सामग्री"]
         },
         {
           "type": "heading2",
@@ -9229,7 +8855,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1218%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2840%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%A1%E0%A4%BF%E0%A4%9C%E0%A4%BF%E0%A4%9F%E0%A4%B2%20%E0%A4%95%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%BE%3A%20%E0%A4%B8%E0%A4%AE%E0%A4%BE%E0%A4%A8%E0%A4%A4%E0%A4%BE%20%E0%A4%AC%E0%A4%BF%E0%A4%A8%E0%A4%BE%20%E0%A4%85%E0%A4%A7%E0%A5%81%E0%A4%B0%E0%A5%8B%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -9239,12 +8865,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "budget-2083"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["budget-2083"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -9291,11 +8913,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "सरल आवेदन",
-            "समयतालिका",
-            "सहयोग डेस्क"
-          ]
+          "items": ["सरल आवेदन", "समयतालिका", "सहयोग डेस्क"]
         },
         {
           "type": "heading2",
@@ -9403,7 +9021,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1218%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2840%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%9B%E0%A4%BE%E0%A4%A4%E0%A5%8D%E0%A4%B0%E0%A4%B5%E0%A5%83%E0%A4%A4%E0%A5%8D%E0%A4%A4%E0%A4%BF%20%E0%A4%AA%E0%A4%B9%E0%A5%81%E0%A4%81%E0%A4%9A%3A%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%95%E0%A4%BE%E0%A4%B0%E0%A5%80%20%E0%A4%A8%E0%A5%88%20%E0%A4%AA%E0%A4%B9%E0%A4%BF%E0%A4%B2%E0%A5%8B%20%E0%A4%B8%E0%A4%BF%E0%A4%81%E0%A4%A2%E0%A5%80%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -9413,12 +9031,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -9465,11 +9079,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "सुरक्षा मापदण्ड",
-            "अभिभावक सूचना",
-            "पुनःपठन तालिका"
-          ]
+          "items": ["सुरक्षा मापदण्ड", "अभिभावक सूचना", "पुनःपठन तालिका"]
         },
         {
           "type": "heading2",
@@ -9577,7 +9187,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1218%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2840%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AE%E0%A4%A8%E0%A4%B8%E0%A5%81%E0%A4%A8%20%E0%A4%B5%E0%A4%BF%E0%A4%A6%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%B2%E0%A4%AF%20%E0%A4%AC%E0%A4%A8%E0%A5%8D%E0%A4%A6%3A%20%E0%A4%B8%E0%A4%BF%E0%A4%95%E0%A4%BE%E0%A4%87%20%E0%A4%A8%E0%A4%BF%E0%A4%B0%E0%A4%A8%E0%A5%8D%E0%A4%A4%E0%A4%B0%E0%A4%A4%E0%A4%BE%20%E0%A4%AF%E0%A5%8B%E0%A4%9C%E0%A4%A8%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -9587,12 +9197,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "exclusive-report"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["exclusive-report"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -9639,11 +9245,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "प्राथमिकता छनोट",
-            "नागरिक सुनुवाइ",
-            "सूचक सार्वजनिक"
-          ]
+          "items": ["प्राथमिकता छनोट", "नागरिक सुनुवाइ", "सूचक सार्वजनिक"]
         },
         {
           "type": "heading2",
@@ -9751,7 +9353,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/interview-provincial-planner.jpg",
@@ -9761,12 +9363,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -9813,11 +9411,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "धितो विकल्प",
-            "बजार लिंक",
-            "तालिम"
-          ]
+          "items": ["धितो विकल्प", "बजार लिंक", "तालिम"]
         },
         {
           "type": "heading2",
@@ -9925,7 +9519,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23322028%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%85%E0%A4%A8%E0%A5%8D%E0%A4%A4%E0%A4%B0%E0%A5%8D%E0%A4%B5%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%A4%E0%A4%BE%3A%20%E0%A4%AE%E0%A4%B9%E0%A4%BF%E0%A4%B2%E0%A4%BE%20%E0%A4%89%E0%A4%A6%E0%A5%8D%E0%A4%AF%E0%A4%AE%E0%A5%80%E0%A4%B8%E0%A4%81%E0%A4%97%20%E0%A4%AA%E0%A5%81%E0%A4%81%E0%A4%9C%E0%A5%80%20%E0%A4%B0%20%E0%A4%AC%E0%A4%9C%E0%A4%BE%E0%A4%B0%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -9935,12 +9529,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "nepal-cricket"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["nepal-cricket"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -9987,11 +9577,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "आधारभूत सीप",
-            "अभिभावक अपेक्षा",
-            "चोट रोकथाम"
-          ]
+          "items": ["आधारभूत सीप", "अभिभावक अपेक्षा", "चोट रोकथाम"]
         },
         {
           "type": "heading2",
@@ -10099,7 +9685,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23322028%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%85%E0%A4%A8%E0%A5%8D%E0%A4%A4%E0%A4%B0%E0%A5%8D%E0%A4%B5%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%A4%E0%A4%BE%3A%20%E0%A4%95%E0%A5%8D%E0%A4%B0%E0%A4%BF%E0%A4%95%E0%A5%87%E0%A4%9F%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%B6%E0%A4%BF%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%95%E0%A4%B8%E0%A4%81%E0%A4%97%20%E0%A4%AF%E0%A5%81%E0%A4%B5%E0%A4%BE%20%E0%A4%B5%E0%A4%BF%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -10109,12 +9695,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -10161,11 +9743,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "पूर्वसूचना",
-            "भू-उपयोग",
-            "समुदाय विज्ञान"
-          ]
+          "items": ["पूर्वसूचना", "भू-उपयोग", "समुदाय विज्ञान"]
         },
         {
           "type": "heading2",
@@ -10273,7 +9851,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23322028%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%85%E0%A4%A8%E0%A5%8D%E0%A4%A4%E0%A4%B0%E0%A5%8D%E0%A4%B5%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%A4%E0%A4%BE%3A%20%E0%A4%9C%E0%A4%B2%E0%A4%B5%E0%A4%BE%E0%A4%AF%E0%A5%81%20%E0%A4%B5%E0%A5%88%E0%A4%9C%E0%A5%8D%E0%A4%9E%E0%A4%BE%E0%A4%A8%E0%A4%BF%E0%A4%95%E0%A4%B8%E0%A4%81%E0%A4%97%20%E0%A4%B9%E0%A4%BF%E0%A4%AE%E0%A4%BE%E0%A4%B2%E0%A5%80%20%E0%A4%9C%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -10283,12 +9861,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -10335,11 +9909,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "स्वयंसेवक तालिम",
-            "पारदर्शी कोष",
-            "दूतावास समन्वय"
-          ]
+          "items": ["स्वयंसेवक तालिम", "पारदर्शी कोष", "दूतावास समन्वय"]
         },
         {
           "type": "heading2",
@@ -10447,7 +10017,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23322028%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%85%E0%A4%A8%E0%A5%8D%E0%A4%A4%E0%A4%B0%E0%A5%8D%E0%A4%B5%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%A4%E0%A4%BE%3A%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%B5%E0%A4%BE%E0%A4%B8%E0%A5%80%20%E0%A4%B8%E0%A4%82%E0%A4%97%E0%A4%A0%E0%A4%95%E0%A4%B8%E0%A4%81%E0%A4%97%20%E0%A4%B8%E0%A4%BE%E0%A4%AE%E0%A5%82%E0%A4%B9%E0%A4%BF%E0%A4%95%20%E0%A4%B8%E0%A4%B9%E0%A4%AF%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -10457,12 +10027,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -10509,11 +10075,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "तारपोल र पानी",
-            "बिहानको आपूर्ति",
-            "महिला विक्रेता"
-          ]
+          "items": ["तारपोल र पानी", "बिहानको आपूर्ति", "महिला विक्रेता"]
         },
         {
           "type": "heading2",
@@ -10621,7 +10183,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/photo-monsoon-markets.jpg",
@@ -10631,12 +10193,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -10683,11 +10241,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "मेसिन र मजदुर",
-            "सुरक्षा गियर",
-            "रातको बत्ती"
-          ]
+          "items": ["मेसिन र मजदुर", "सुरक्षा गियर", "रातको बत्ती"]
         },
         {
           "type": "heading2",
@@ -10795,7 +10349,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AB%E0%A5%8B%E0%A4%9F%E0%A5%8B%20%E0%A4%95%E0%A4%A5%E0%A4%BE%3A%20%E0%A4%B0%E0%A4%BE%E0%A4%9C%E0%A4%AE%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%97%20%E0%A4%AE%E0%A4%B0%E0%A5%8D%E0%A4%AE%E0%A4%A4%20%E0%A4%9F%E0%A5%8B%E0%A4%B2%E0%A5%80%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -10805,9 +10359,7 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "secondary",
@@ -10855,11 +10407,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "चिया पसल",
-            "अखबार पाठक",
-            "विद्यालय जाने बच्चा"
-          ]
+          "items": ["चिया पसल", "अखबार पाठक", "विद्यालय जाने बच्चा"]
         },
         {
           "type": "heading2",
@@ -10967,7 +10515,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AB%E0%A5%8B%E0%A4%9F%E0%A5%8B%20%E0%A4%95%E0%A4%A5%E0%A4%BE%3A%20%E0%A4%95%E0%A4%BE%E0%A4%A0%E0%A4%AE%E0%A4%BE%E0%A4%A1%E0%A5%8C%E0%A4%82%20%E0%A4%AC%E0%A4%BF%E0%A4%B9%E0%A4%BE%E0%A4%A8%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -10977,12 +10525,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -11029,11 +10573,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "टोकरी",
-            "हिम/कुहिरो",
-            "सामुदायिक बास"
-          ]
+          "items": ["टोकरी", "हिम/कुहिरो", "सामुदायिक बास"]
         },
         {
           "type": "heading2",
@@ -11141,7 +10681,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AB%E0%A5%8B%E0%A4%9F%E0%A5%8B%20%E0%A4%95%E0%A4%A5%E0%A4%BE%3A%20%E0%A4%9A%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%E0%A4%AC%E0%A4%97%E0%A4%BE%E0%A4%A8%E0%A4%95%E0%A4%BE%20%E0%A4%95%E0%A4%BE%E0%A4%AE%E0%A4%A6%E0%A4%BE%E0%A4%B0%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -11151,12 +10691,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -11203,11 +10739,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "बालुवा थुप्रो",
-            "स्थानान्तरण छलफल",
-            "बालबालिका खेल"
-          ]
+          "items": ["बालुवा थुप्रो", "स्थानान्तरण छलफल", "बालबालिका खेल"]
         },
         {
           "type": "heading2",
@@ -11315,7 +10847,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AB%E0%A5%8B%E0%A4%9F%E0%A5%8B%20%E0%A4%95%E0%A4%A5%E0%A4%BE%3A%20%E0%A4%A8%E0%A4%A6%E0%A5%80%20%E0%A4%95%E0%A4%9F%E0%A4%BE%E0%A4%A8%E0%A4%B2%E0%A5%87%20%E0%A4%9B%E0%A5%8B%E0%A4%8F%E0%A4%95%E0%A4%BE%20%E0%A4%AC%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%80%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -11325,12 +10857,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "exclusive-report"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["exclusive-report"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -11377,11 +10905,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "पाइच",
-            "फिल्ड सुरक्षा",
-            "सम्पादन जाँच"
-          ]
+          "items": ["पाइच", "फिल्ड सुरक्षा", "सम्पादन जाँच"]
         },
         {
           "type": "heading2",
@@ -11489,7 +11013,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/video-desk-how-we-work.jpg",
@@ -11499,9 +11023,7 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "none",
@@ -11549,11 +11071,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "इन्टरनेट लागत",
-            "दृश्य आवश्यकता",
-            "सच्याइ सजिलो"
-          ]
+          "items": ["इन्टरनेट लागत", "दृश्य आवश्यकता", "सच्याइ सजिलो"]
         },
         {
           "type": "heading2",
@@ -11661,7 +11179,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B2%E0%A4%BE%E0%A4%87%E0%A4%AD%20%E0%A4%AC%E0%A5%8D%E0%A4%B2%E0%A4%97%20%E0%A4%B0%20%E0%A4%AD%E0%A4%BF%E0%A4%A1%E0%A4%BF%E0%A4%AF%E0%A5%8B%20%E0%A4%B5%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%96%E0%A5%8D%E0%A4%AF%E0%A4%BE%3A%20%E0%A4%95%E0%A4%B9%E0%A4%BF%E0%A4%B2%E0%A5%87%20%E0%A4%95%E0%A5%81%E0%A4%A8%3F%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -11671,12 +11189,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "climate"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["climate"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -11723,11 +11237,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "ठूलो फन्ट",
-            "स्थानीय उदाहरण",
-            "कल टु एक्शन"
-          ]
+          "items": ["ठूलो फन्ट", "स्थानीय उदाहरण", "कल टु एक्शन"]
         },
         {
           "type": "heading2",
@@ -11835,7 +11345,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%95%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A4%BE%E0%A4%AE%E0%A4%BE%20%E0%A4%AE%E0%A4%A8%E0%A4%B8%E0%A5%81%E0%A4%A8%20%E0%A4%B8%E0%A4%A4%E0%A4%B0%E0%A5%8D%E0%A4%95%E0%A4%A4%E0%A4%BE%3A%20%E0%A4%A6%E0%A5%87%E0%A4%96%E0%A4%BF%E0%A4%A8%E0%A5%87%20%E0%A4%9A%E0%A5%87%E0%A4%A4%E0%A4%BE%E0%A4%B5%E0%A4%A8%E0%A5%80%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -11845,12 +11355,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -11897,10 +11403,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "हिंसा ग्लोरिफाइ नगर्ने",
-            "बालबालिका पहिचान"
-          ]
+          "items": ["हिंसा ग्लोरिफाइ नगर्ने", "बालबालिका पहिचान"]
         },
         {
           "type": "heading2",
@@ -12008,7 +11511,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%9B%E0%A5%8B%E0%A4%9F%E0%A5%8B%20%E0%A4%AD%E0%A4%BF%E0%A4%A1%E0%A4%BF%E0%A4%AF%E0%A5%8B%20%E0%A4%B8%E0%A4%AE%E0%A4%BE%E0%A4%9A%E0%A4%BE%E0%A4%B0%20%E0%A4%A8%E0%A5%88%E0%A4%A4%E0%A4%BF%E0%A4%95%E0%A4%A4%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -12018,12 +11521,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "data-story"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["data-story"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -12070,11 +11569,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "मेटाडेटा",
-            "ब्याकअप",
-            "सार्वजनिक पहुँच तह"
-          ]
+          "items": ["मेटाडेटा", "ब्याकअप", "सार्वजनिक पहुँच तह"]
         },
         {
           "type": "heading2",
@@ -12182,7 +11677,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AD%E0%A4%BF%E0%A4%A1%E0%A4%BF%E0%A4%AF%E0%A5%8B%20%E0%A4%85%E0%A4%AD%E0%A4%BF%E0%A4%B2%E0%A5%87%E0%A4%96%20%E0%A4%A1%E0%A4%BF%E0%A4%9C%E0%A4%BF%E0%A4%9F%E0%A4%BE%E0%A4%87%E0%A4%9C%E0%A5%87%E0%A4%B8%E0%A4%A8%3A%20%E0%A4%B8%E0%A5%8D%E0%A4%AE%E0%A5%83%E0%A4%A4%E0%A4%BF%20%E0%A4%9C%E0%A5%8B%E0%A4%97%E0%A4%BE%E0%A4%89%E0%A4%A8%E0%A5%87%20%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -12192,12 +11687,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -12244,11 +11735,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "कानुनी करार",
-            "बीमा",
-            "हेल्पलाइन"
-          ]
+          "items": ["कानुनी करार", "बीमा", "हेल्पलाइन"]
         },
         {
           "type": "heading2",
@@ -12356,7 +11843,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "/media/edition-2026-07/gulf-labour-rights-briefing.jpg",
@@ -12366,12 +11853,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -12418,11 +11901,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "भाषा कक्षा",
-            "करार बुझाइ",
-            "पारिवारिक योजना"
-          ]
+          "items": ["भाषा कक्षा", "करार बुझाइ", "पारिवारिक योजना"]
         },
         {
           "type": "heading2",
@@ -12530,7 +12009,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%9C%E0%A4%BE%E0%A4%AA%E0%A4%BE%E0%A4%A8%20%E0%A4%A4%E0%A4%BE%E0%A4%B2%E0%A4%BF%E0%A4%AE%20%E0%A4%95%E0%A4%BE%E0%A4%AE%E0%A4%A6%E0%A4%BE%E0%A4%B0%20%E0%A4%AE%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%97%3A%20%E0%A4%85%E0%A4%AA%E0%A5%87%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%BE%20%E0%A4%B0%20%E0%A4%B5%E0%A4%BE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A4%B5%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -12540,12 +12019,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "data-story"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["data-story"],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -12592,11 +12067,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "आकस्मिक कोष",
-            "ऋण सावधानी",
-            "शिक्षा लगानी"
-          ]
+          "items": ["आकस्मिक कोष", "ऋण सावधानी", "शिक्षा लगानी"]
         },
         {
           "type": "heading2",
@@ -12704,7 +12175,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B5%E0%A4%BF%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A5%87%E0%A4%B7%E0%A4%A3%20%E0%A4%B0%20%E0%A4%AA%E0%A4%BE%E0%A4%B0%E0%A4%BF%E0%A4%B5%E0%A4%BE%E0%A4%B0%E0%A4%BF%E0%A4%95%20%E0%A4%AC%E0%A4%9C%E0%A5%87%E0%A4%9F%3A%20%E0%A4%A6%E0%A5%80%E0%A4%97%E0%A5%8B%20%E0%A4%B5%E0%A5%8D%E0%A4%AF%E0%A4%B5%E0%A4%B8%E0%A5%8D%E0%A4%A5%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -12714,12 +12185,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "labour-migration"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["labour-migration"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -12766,11 +12233,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "आधिकारिक स्रोत",
-            "छात्रवृत्ति खोज",
-            "ठगी कन्सल्टेन्सीबाट बच्ने"
-          ]
+          "items": ["आधिकारिक स्रोत", "छात्रवृत्ति खोज", "ठगी कन्सल्टेन्सीबाट बच्ने"]
         },
         {
           "type": "heading2",
@@ -12878,7 +12341,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B5%E0%A4%BF%E0%A4%A6%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%A5%E0%A5%80%20%E0%A4%AD%E0%A4%BF%E0%A4%B8%E0%A4%BE%20%E0%A4%A4%E0%A4%AF%E0%A4%BE%E0%A4%B0%E0%A5%80%20%E0%A4%9A%E0%A5%87%E0%A4%95%E0%A4%B2%E0%A4%BF%E0%A4%B8%E0%A5%8D%E0%A4%9F%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
@@ -12888,12 +12351,8 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": [
-        "aut-newsroom-desk"
-      ],
-      "tagSlugs": [
-        "editor-pick"
-      ],
+      "authorIds": ["aut-newsroom-desk"],
+      "tagSlugs": ["editor-pick"],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -12940,11 +12399,7 @@
         {
           "type": "list",
           "ordered": false,
-          "items": [
-            "पारदर्शी लेखा",
-            "युवा समावेश",
-            "महिला समिति"
-          ]
+          "items": ["पारदर्शी लेखा", "युवा समावेश", "महिला समिति"]
         },
         {
           "type": "heading2",
@@ -13052,7 +12507,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+          "text": "Send corrections or local tips to the desk. Publication details and available source attribution are shown with each story."
         }
       ],
       "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121014%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232A181C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%B5%E0%A4%BE%E0%A4%B8%E0%A5%80%20%E0%A4%B8%E0%A4%BE%E0%A4%81%E0%A4%B8%E0%A5%8D%E0%A4%95%E0%A5%83%E0%A4%A4%E0%A4%BF%E0%A4%95%20%E0%A4%B8%E0%A4%82%E0%A4%98%3A%20%E0%A4%AA%E0%A4%B9%E0%A4%BF%E0%A4%9A%E0%A4%BE%E0%A4%A8%20%E0%A4%B0%20%E0%A4%B8%E0%A4%B9%E0%A4%AF%E0%A5%8B%E0%A4%97%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",

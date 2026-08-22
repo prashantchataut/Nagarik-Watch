@@ -11,8 +11,8 @@ type HomeClosingDeskProps = {
 }
 
 /**
- * Homepage close: compact newsletter strip + archive/history + photo desk.
- * One band, shared rhythm — not three orphan SaaS modules with dead space.
+ * A deliberate editorial close: one compact conversion band followed only by
+ * archive/photo modules that have real inventory. No empty columns or filler.
  */
 export function HomeClosingDesk({
   locale,
@@ -26,18 +26,28 @@ export function HomeClosingDesk({
 
   return (
     <section
-      className="mt-5 border-t border-rule pt-5"
+      className="mt-10 sm:mt-12"
       aria-label={english ? 'More from the newsroom' : 'समाचार कक्षबाट थप'}
     >
-      <div className="border border-rule bg-surface-raised px-3 py-3 sm:px-4 sm:py-3.5">
+      <div className="bg-brand-tint/30 px-4 py-4 sm:px-5 sm:py-5 lg:grid lg:grid-cols-[minmax(13rem,0.38fr)_minmax(0,0.62fr)] lg:items-center lg:gap-7">
+        <div className="mb-3 lg:mb-0" lang={english ? 'en' : 'ne'}>
+          <p className="font-display text-h3 font-extrabold text-ink">
+            {english ? 'Daily briefing, in one email.' : 'दैनिक ब्रिफिङ, एक इमेलमा।'}
+          </p>
+          <p className="mt-1 text-meta leading-relaxed text-ink-soft">
+            {english
+              ? 'A concise digest of important reporting and public-service updates.'
+              : 'महत्त्वपूर्ण रिपोर्टिङ र सार्वजनिक सेवा अपडेटको छोटो डाइजेस्ट।'}
+          </p>
+        </div>
         <NewsletterInline locale={locale} />
       </div>
 
       {hasHistory || hasPhoto ? (
         <div
-          className={`mt-5 grid gap-5 ${
+          className={`mt-8 grid gap-8 ${
             hasHistory && hasPhoto
-              ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-6 lg:items-start'
+              ? 'lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start lg:gap-8'
               : ''
           }`}
         >

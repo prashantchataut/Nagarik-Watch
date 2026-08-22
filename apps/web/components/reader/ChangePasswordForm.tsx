@@ -79,7 +79,7 @@ export function ChangePasswordForm({ locale }: { locale: 'ne' | 'en' }) {
       {message && (
         <div
           role="status"
-          className="rounded-md border border-rule bg-surface-raised px-4 py-3 text-meta font-semibold text-ink"
+          className="border border-rule bg-surface-raised px-4 py-3 text-meta font-semibold text-ink"
           lang={ne ? 'ne' : 'en'}
         >
           {message}
@@ -88,7 +88,7 @@ export function ChangePasswordForm({ locale }: { locale: 'ne' | 'en' }) {
       {error && (
         <div
           role="alert"
-          className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+          className="border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
           lang={ne ? 'ne' : 'en'}
         >
           {error}

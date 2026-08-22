@@ -22,10 +22,7 @@ import {
   rolesFromUser,
   withRoles,
 } from '../access/rbac'
-import {
-  revalidatePublishedArticle,
-  revalidateDeletedArticle,
-} from '../hooks/revalidate'
+import { revalidatePublishedArticle, revalidateDeletedArticle } from '../hooks/revalidate'
 
 const allowedBlockTypes = new Set([
   'paragraph',
@@ -70,7 +67,10 @@ function canPublishField({ req }: { req: { user?: unknown } }): boolean {
   return hasAnyRole(req.user, publishingRoles)
 }
 
-function validateArticleBlocks(value: unknown, opts?: { requireImageMedia?: boolean }): string | null {
+function validateArticleBlocks(
+  value: unknown,
+  opts?: { requireImageMedia?: boolean },
+): string | null {
   if (!Array.isArray(value) || value.length === 0) return 'bodyNe must contain at least one block.'
 
   for (const [index, rawBlock] of value.entries()) {
@@ -144,7 +144,7 @@ export const Articles: CollectionConfig = {
   admin: {
     useAsTitle: 'titleNe',
     defaultColumns: ['titleNe', 'category', '_status', 'publishAt', 'sourceType'],
-    group: 'Content',
+    group: 'सम्पादन',
   },
   access: {
     read: publishedOrNewsroom,
@@ -295,7 +295,7 @@ export const Articles: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description:
-          'Editorial stage only. Public readers only see published/updated stages after Payload Publish (and after cron promotes scheduled). Use Publish together with a non-future publishAt.',
+          'Editorial stage only. Public readers require Payload Publish. Scheduled stories stay hidden until publishAt; once due, readers may see them before the cron promotes the workflow label. The cron is still required for deterministic revalidation and notifications.',
       },
     },
     {
@@ -779,8 +779,7 @@ export const Articles: CollectionConfig = {
         const stage = String(full.workflowStage ?? 'idea') as WorkflowStage
         const status = String(full._status ?? 'draft')
         const originalStage = String(original.workflowStage ?? stage) as WorkflowStage
-        const publishing =
-          status === 'published' && stage !== 'archived' && stage !== 'retracted'
+        const publishing = status === 'published' && stage !== 'archived' && stage !== 'retracted'
 
         if (operation === 'create' && req.user && !Array.isArray(data.assignedTo)) {
           data.assignedTo = [req.user.id]

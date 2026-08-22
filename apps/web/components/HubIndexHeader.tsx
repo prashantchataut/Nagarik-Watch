@@ -7,20 +7,24 @@ type HubIndexHeaderProps = {
   kicker?: string
 }
 
-/** Dense index header for category, hub, account, and utility surfaces. */
+/** Compact editorial heading shared by category, topic, province, hub, and utility indexes. */
 export function HubIndexHeader({ title, lead, lang, kicker }: HubIndexHeaderProps) {
   return (
-    <header className="border-b border-rule pb-3 sm:pb-4" lang={lang}>
+    <header lang={lang}>
       {kicker ? <p className="mb-1 text-meta font-extrabold text-brand-strong">{kicker}</p> : null}
-      <h1 className="font-display text-[clamp(1.45rem,3.2vw,2.1rem)] font-extrabold leading-tight tracking-tight text-ink">
-        {title}
-      </h1>
-      <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
-      {lead ? (
-        <p className="mt-1.5 max-w-[40rem] text-meta leading-relaxed text-ink-soft sm:text-body">
-          {lead}
-        </p>
-      ) : null}
+      <div className="flex items-start gap-2.5">
+        <span className="mt-1 h-7 w-1 bg-brand sm:h-8" aria-hidden="true" />
+        <div className="min-w-0">
+          <h1 className="font-display text-[clamp(1.55rem,3.4vw,2.35rem)] font-extrabold leading-tight tracking-tight text-ink">
+            {title}
+          </h1>
+          {lead ? (
+            <p className="mt-1 max-w-[42rem] text-meta leading-relaxed text-ink-soft sm:text-body">
+              {lead}
+            </p>
+          ) : null}
+        </div>
+      </div>
     </header>
   )
 }

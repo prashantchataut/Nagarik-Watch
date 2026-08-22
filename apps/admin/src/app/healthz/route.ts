@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getPayload } from 'payload'
+import { buildPublicArticleWhere } from '@nagarikwatch/db'
+import { getPayload, type Where } from 'payload'
 import config from '@payload-config'
 import { isPayloadStorageWired } from '@/lib/storage-adapter'
 
@@ -49,30 +50,36 @@ export async function GET() {
   try {
     const payload = await getPayload({ config })
     const now = new Date().toISOString()
-    const [categories, publicArticles, publicationDrift] = await Promise.all([
-      payload.count({ collection: 'categories', overrideAccess: true }),
-      payload.count({
-        collection: 'articles',
-        overrideAccess: true,
-        where: {
-          and: [
-            { _status: { equals: 'published' } },
-            { workflowStage: { in: ['scheduled', 'published', 'updated'] } },
-            { publishAt: { less_than_equal: now } },
-          ],
-        },
-      }),
-      payload.count({
-        collection: 'articles',
-        overrideAccess: true,
-        where: {
-          and: [
-            { _status: { equals: 'draft' } },
-            { workflowStage: { in: ['scheduled', 'published', 'updated'] } },
-          ],
-        },
-      }),
-    ])
+    const [categories, publicArticles, publicationDrift, publicationTimingDrift] =
+      await Promise.all([
+        payload.count({ collection: 'categories', overrideAccess: true }),
+        payload.count({
+          collection: 'articles',
+          overrideAccess: true,
+          where: buildPublicArticleWhere(now) as Where,
+        }),
+        payload.count({
+          collection: 'articles',
+          overrideAccess: true,
+          where: {
+            and: [
+              { _status: { equals: 'draft' } },
+              { workflowStage: { in: ['scheduled', 'published', 'updated'] } },
+            ],
+          },
+        }),
+        payload.count({
+          collection: 'articles',
+          overrideAccess: true,
+          where: {
+            and: [
+              { _status: { equals: 'published' } },
+              { workflowStage: { in: ['scheduled', 'published', 'updated'] } },
+              { publishAt: { exists: false } },
+            ],
+          },
+        }),
+      ])
     const storageReady = isPayloadStorageWired()
     return NextResponse.json(
       {
@@ -83,6 +90,7 @@ export async function GET() {
           categories: categories.totalDocs,
           publicArticles: publicArticles.totalDocs,
           publicationDrift: publicationDrift.totalDocs,
+          publicationTimingDrift: publicationTimingDrift.totalDocs,
         },
         mediaStorage: storageReady ? 'vercel-blob' : 'missing',
         mediaUploadReady: storageReady,

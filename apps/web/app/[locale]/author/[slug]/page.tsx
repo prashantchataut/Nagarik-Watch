@@ -4,8 +4,8 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import type { CategoryRef, Locale } from '@nagarikwatch/db'
 import { notFound } from 'next/navigation'
-import { SectionHeader, StoryGrid } from '@nagarikwatch/ui'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
+import { CategoryMoreStories } from '@/components/category/CategoryMoreStories'
 import { getAuthor } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
@@ -131,12 +131,18 @@ export default async function AuthorPage({ params }: { params: Promise<Params> }
           </p>
         </div>
       ) : (
-        <section className="mt-8" aria-label={dict.authorStories}>
-          <SectionHeader title={dict.authorStories} locale={locale} />
-          <div className="mt-6">
-            <StoryGrid stories={stories.items} locale={locale} />
-          </div>
-        </section>
+        <div className="mt-8">
+          <CategoryMoreStories
+            stories={stories.items}
+            locale={locale}
+            heading={{ ne: dict.authorStories, en: dict.authorStories }}
+            kicker={{ ne: 'प्रकाशित काम', en: 'Body of work' }}
+            description={{
+              ne: 'यस लेखकका प्रकाशित रिपोर्ट, विचार र विश्लेषणलाई महत्त्वअनुसार क्रमबद्ध गरिएको छ।',
+              en: 'Published reporting, commentary and analysis from this writer, paced by editorial weight.',
+            }}
+          />
+        </div>
       )}
     </div>
   )

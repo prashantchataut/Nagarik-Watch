@@ -35,7 +35,7 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
   return (
     <section
       id="cookie-preferences"
-      className="mt-10 scroll-mt-24 rounded-lg border border-rule bg-surface-raised p-5 sm:p-6"
+      className="mt-10 scroll-mt-24 border border-rule bg-surface-raised p-5 sm:p-6"
       aria-label={en ? 'Manage cookie preferences' : 'कुकी रोजाइ व्यवस्थापन'}
       lang={lang}
     >

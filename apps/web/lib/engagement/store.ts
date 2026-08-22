@@ -10,6 +10,7 @@ import {
   type EngagementSample,
 } from '@nagarikwatch/db'
 import { getSharedPool } from '@/lib/pg-pool'
+import { shouldApplyLivePathDdl } from '@/lib/ops-db'
 import { getRankingShareSamples, getRankingAttentionSamples } from '@/lib/engagement/ranking-events'
 
 type BookmarkInput = {
@@ -125,7 +126,7 @@ async function getPool(): Promise<Pool | null> {
 
 async function ensureSchema() {
   const database = await getPool()
-  if (!database) return
+  if (!database || !shouldApplyLivePathDdl()) return
   schemaReady ??= database
     .query(
       `
@@ -302,6 +303,23 @@ export async function mergeAnonymousBookmarks(anonymousId: string, userId: strin
 }
 
 /** A reply may reference only an approved parent on the same public article. */
+export async function isApprovedComment(commentId: string): Promise<boolean> {
+  const id = commentId.trim()
+  if (!id) return false
+  const database = await getPool()
+  if (database) {
+    await ensureSchema()
+    const result = await database.query(
+      `select 1 from nw_comments where id=$1 and status='approved' limit 1`,
+      [id],
+    )
+    return Boolean(result.rowCount)
+  }
+  return (await readLocal()).comments.some(
+    (comment) => comment.id === id && comment.status === 'approved',
+  )
+}
+
 export async function isValidCommentParent(
   articleSlug: string,
   articleCategory: string,
@@ -1230,21 +1248,6 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
         }
         return null
       },
-    )
-
-    await pushRows(
-      `select article_slug as "articleId", article_category as "categorySlug", created_at as "at"
-       from nw_reactions where created_at >= $1`,
-      (row) => ({
-        articleId: String(row.articleId ?? ''),
-        categorySlug: row.categorySlug ? String(row.categorySlug) : undefined,
-        at: new Date(row.at as string | Date).toISOString(),
-        // Reactions count as lightweight engagement (same weight family as comments).
-        views: 0,
-        shares: 0,
-        comments: 1,
-        bookmarks: 0,
-      }),
     )
 
     return samples.filter((sample) => Boolean(sample.articleId))

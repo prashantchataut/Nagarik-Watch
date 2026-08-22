@@ -18,7 +18,9 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
   const placements = Object.values(AD_PLACEMENTS)
   const salesEmail = adSalesEmail()
   const featured = placements.filter((p) =>
-    ['masthead-leaderboard', 'home-billboard', 'article-sidebar-sticky', 'mobile-sticky'].includes(p.key),
+    ['masthead-leaderboard', 'home-billboard', 'article-sidebar-sticky', 'mobile-sticky'].includes(
+      p.key,
+    ),
   )
 
   return (
@@ -101,7 +103,9 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
       </section>
 
       <section className="mt-12 border-t border-rule pt-8">
-        <h2 className="font-display text-h2 text-ink">{en ? 'Sample slot' : 'नमूना स्लट'}</h2>
+        <h2 className="font-display text-h2 text-ink">
+          {en ? 'Billboard placement' : 'बिलबोर्ड प्लेसमेन्ट'}
+        </h2>
         <div className="mt-4">
           <AdSlot locale={locale} placementKey="home-billboard" variant="billboard" />
         </div>

@@ -136,6 +136,8 @@ path,source,kind,locale,auth,notes
 "/api/cron/ops-probe","apps/web/app/api/cron/ops-probe/route.ts","api","n/a","varies",""
 "/api/cron/scheduled-publish","apps/web/app/api/cron/scheduled-publish/route.ts","api","n/a","varies",""
 "/api/experiments","apps/web/app/api/experiments/route.ts","api","n/a","varies",""
+"/api/health/live","apps/web/app/api/health/live/route.ts","api","n/a","varies",""
+"/api/health/ready","apps/web/app/api/health/ready/route.ts","api","n/a","varies",""
 "/api/health","apps/web/app/api/health/route.ts","api","n/a","varies",""
 "/api/journalist/ai","apps/web/app/api/journalist/ai/route.ts","api","n/a","varies",""
 "/api/journalist/articles/:id","apps/web/app/api/journalist/articles/[id]/route.ts","api","n/a","varies",""

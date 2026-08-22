@@ -41,7 +41,15 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
   const dict = getDictionary(locale)
   const prefix = localePrefix(locale)
 
-  const index = useMemo(() => buildIndex(corpus), [corpus])
+  const [archiveCorpus, setArchiveCorpus] = useState<SearchableStory[]>([])
+  const [archiveLoading, setArchiveLoading] = useState(false)
+  const [archiveUnavailable, setArchiveUnavailable] = useState(false)
+  const mergedCorpus = useMemo(() => {
+    const byId = new Map<string, SearchableStory>()
+    for (const story of [...corpus, ...archiveCorpus]) byId.set(String(story.id), story)
+    return [...byId.values()]
+  }, [archiveCorpus, corpus])
+  const index = useMemo(() => buildIndex(mergedCorpus), [mergedCorpus])
 
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [debounced, setDebounced] = useState(searchParams.get('q') ?? '')
@@ -92,6 +100,36 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
     }, DEBOUNCE_MS)
     return () => clearTimeout(id)
   }, [query, searchParams, router, prefix, pushRecent])
+
+  // Expand beyond the recent client corpus through the bounded server-side content source.
+  useEffect(() => {
+    const q = debounced.trim()
+    if (q.length < 2) {
+      setArchiveCorpus([])
+      setArchiveUnavailable(false)
+      return
+    }
+    const controller = new AbortController()
+    setArchiveCorpus([])
+    setArchiveLoading(true)
+    setArchiveUnavailable(false)
+    const params = new URLSearchParams({ q, locale })
+    void fetch(`/api/search?${params.toString()}`, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`Search service returned ${response.status}`)
+        return (await response.json()) as { items?: SearchableStory[] }
+      })
+      .then((payload) => setArchiveCorpus(Array.isArray(payload.items) ? payload.items : []))
+      .catch((error: unknown) => {
+        if ((error as { name?: string }).name === 'AbortError') return
+        setArchiveCorpus([])
+        setArchiveUnavailable(true)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setArchiveLoading(false)
+      })
+    return () => controller.abort()
+  }, [debounced, locale])
 
   // Re-run the scorer whenever the debounced query changes.
   useEffect(() => {
@@ -201,11 +239,19 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
       {hasQuery && results.length > 0 && (
         <p className="mt-3 text-meta text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
           {dict.searchResults(results.length)}
-          {corpusCap && corpus.length >= corpusCap
+          {archiveLoading
             ? locale === 'en'
-              ? ` (indexed up to ${corpusCap} recent stories per load).`
-              : ` (प्रत्येक लोडमा बढीमा ${corpusCap} हालसालैका समाचार अनुक्रमित)।`
-            : ''}
+              ? ' · checking the published archive…'
+              : ' · प्रकाशित अभिलेख जाँचिँदै…'
+            : archiveUnavailable
+              ? locale === 'en'
+                ? ' · archive search is temporarily unavailable; recent results remain available.'
+                : ' · अभिलेख खोज अहिले उपलब्ध छैन; हालसालैका नतिजा भने देखाइएका छन्।'
+              : corpusCap && corpus.length >= corpusCap
+                ? locale === 'en'
+                  ? ' · recent index plus matching archive results.'
+                  : ' · हालसालैको सूचक र अभिलेखका मिल्ने नतिजा।'
+                : ''}
         </p>
       )}
 
@@ -264,7 +310,12 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
                         aria-hidden="true"
                       />
                     ) : (
-                      <span className="absolute inset-y-0 left-0 w-1 bg-brand" aria-hidden="true" />
+                      <span
+                        className="absolute inset-0 grid place-items-center text-caption font-bold text-mute"
+                        aria-hidden="true"
+                      >
+                        NW
+                      </span>
                     )}
                   </div>
                   <div className="min-w-0 flex-1 px-3 sm:px-0">

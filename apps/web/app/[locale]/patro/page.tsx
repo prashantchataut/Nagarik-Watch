@@ -7,6 +7,7 @@ import { canonicalAlternates } from '@/lib/seo/canonical'
 import { mainSiteHref } from '@/lib/calendar-host'
 import { PatroShell } from '@/components/utilities/PatroShell'
 import { PatroDesk } from '@/components/utilities/PatroDesk'
+import { getPublishedCalendarSchedule } from '@/lib/calendar-schedule'
 
 export const revalidate = 300
 
@@ -31,11 +32,12 @@ export default async function PatroPage({ params }: { params: Promise<{ locale: 
   const en = locale === 'en'
   const onCalendarHost = (await headers()).get('x-nw-calendar-host') === '1'
 
-  const [forex, gold, nepse, storiesPage] = await Promise.all([
+  const [forex, gold, nepse, storiesPage, calendarSchedule] = await Promise.all([
     getRealForex(locale),
     getRealGoldSilver(locale),
     getRealNepse(locale),
     getStories({ locale, perPage: 9 }).catch(() => ({ items: [], total: 0 })),
+    getPublishedCalendarSchedule(),
   ])
 
   const latestStories = storiesPage.items.slice(0, 6).map((story) => {
@@ -64,6 +66,7 @@ export default async function PatroPage({ params }: { params: Promise<{ locale: 
         onCalendarHost ? mainSiteHref(locale, '/latest') : localizeHref(locale, '/latest')
       }
       latestStories={latestStories}
+      calendarSchedule={calendarSchedule}
     />
   )
 

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { StoryCard } from '@nagarikwatch/ui'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getAuthors, getStories } from '@/lib/content'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { SITE_URL } from '@/lib/site'
+import { CategoryMoreStories } from '@/components/category/CategoryMoreStories'
 
 export const revalidate = 60
 
@@ -89,13 +89,18 @@ export default async function ColumnsPage({ params }: { params: Promise<{ locale
           </p>
         </div>
       ) : (
-        <ul className="mt-10 grid gap-8 md:grid-cols-2">
-          {items.map((story) => (
-            <li key={story.id}>
-              <StoryCard story={story} locale={locale} variant="text-led" />
-            </li>
-          ))}
-        </ul>
+        <div className="mt-10">
+          <CategoryMoreStories
+            stories={items}
+            locale={locale}
+            heading={{ ne: 'नयाँ स्तम्भ', en: 'Latest columns' }}
+            kicker={{ ne: 'तर्क र दृष्टिकोण', en: 'Argument and perspective' }}
+            description={{
+              ne: 'लेखकको दृष्टिकोण स्पष्ट हुने गरी प्रमुख स्तम्भ र सम्बन्धित विश्लेषण क्रमबद्ध छन्।',
+              en: 'Lead arguments first, followed by related analysis and commentary from the opinion desk.',
+            }}
+          />
+        </div>
       )}
     </div>
   )

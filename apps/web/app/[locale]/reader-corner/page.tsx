@@ -81,51 +81,17 @@ export default async function ReaderCornerPage({
         </nav>
       </div>
 
-      <section className="mt-6 border-y border-rule bg-surface-raised px-4 py-5">
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <p className="text-caption font-semibold text-mute">
-              {english ? 'Desk mode' : 'डेस्क मोड'}
-            </p>
-            <p className="mt-1 font-display text-h3 text-ink">
-              {session
-                ? english
-                  ? 'Signed-in reader'
-                  : 'लगइन पाठक'
-                : english
-                  ? 'Guest device'
-                  : 'अतिथि उपकरण'}
-            </p>
-          </div>
-          <div>
-            <p className="text-caption font-semibold text-mute">
-              {english ? 'What stays here' : 'यहाँ के रहन्छ'}
-            </p>
-            <p className="mt-1 text-body text-ink-soft">
-              {english
-                ? 'Recommendations, recent reads, notifications and preference controls.'
-                : 'सिफारिस, हालै पढिएका सामग्री, सूचना र रुचि नियन्त्रण।'}
-            </p>
-          </div>
-          <div>
-            <p className="text-caption font-semibold text-mute">
-              {english ? 'Account home' : 'खाता गृह'}
-            </p>
-            <Link
-              href={localizeHref(locale, session ? '/auth/profile' : '/auth/login')}
-              className="mt-1 inline-flex text-body font-semibold text-brand hover:text-brand-strong"
-            >
-              {session
-                ? english
-                  ? 'Open account settings'
-                  : 'खाता सेटिङ खोल्नुहोस्'
-                : english
-                  ? 'Sign in for sync'
-                  : 'सिङ्कका लागि लगइन'}
-            </Link>
-          </div>
-        </div>
-      </section>
+      <div className="mt-6 border-y border-rule py-4 text-meta text-ink-soft">
+        <p>
+          {session
+            ? english
+              ? 'Your reading tools stay in one place; use the account page only for identity and security settings.'
+              : 'पढाइका उपकरण यहीँ रहन्छन्; पहिचान र सुरक्षा सेटिङका लागि मात्र खाता पृष्ठ प्रयोग गर्नुहोस्।'
+            : english
+              ? 'Device saves and reading history work without an account. Sign in only when you want cross-device sync.'
+              : 'खाता बिना पनि उपकरणमा सुरक्षित सूची र पढाइ इतिहास काम गर्छ। उपकरणबीच सिङ्क चाहिँदा मात्र लगइन गर्नुहोस्।'}
+        </p>
+      </div>
 
       <div className="mt-8 space-y-10">
         <RecommendedForYou

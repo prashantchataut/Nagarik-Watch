@@ -66,7 +66,7 @@ export function PasswordResetRequestForm({
       {message && (
         <div
           role="status"
-          className="rounded-md border border-rule bg-surface-raised px-4 py-3 text-meta font-semibold text-ink"
+          className="border border-rule bg-surface-raised px-4 py-3 text-meta font-semibold text-ink"
           lang={ne ? 'ne' : 'en'}
         >
           {message}
@@ -75,7 +75,7 @@ export function PasswordResetRequestForm({
       {error && (
         <div
           role="alert"
-          className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+          className="border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
           lang={ne ? 'ne' : 'en'}
         >
           {error}
@@ -90,7 +90,7 @@ export function PasswordResetRequestForm({
           required
           disabled={pending}
           placeholder="you@example.com"
-          className="rounded-md border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
+          className="border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
         />
       </label>
       <button

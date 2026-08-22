@@ -150,31 +150,41 @@ export function HomeFeedSkeleton({ className }: { className?: string }) {
 }
 
 /**
- * Category / topic / hub desk bone: Hero column + side rail rows + more list.
+ * Category / topic / hub desk bone: split lead, asymmetric support band, then more rows.
  */
 export function CategoryDeskSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('grid gap-5', className)} aria-hidden="true">
-      <div className="grid gap-4 border-b border-rule pb-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(16rem,0.75fr)] xl:items-start xl:gap-5">
-        <div>
+    <div className={cn('grid gap-5 sm:gap-6', className)} aria-hidden="true">
+      <div className="grid gap-4 border-b border-rule pb-5 sm:pb-6 lg:grid-cols-[minmax(0,1.18fr)_minmax(18rem,0.82fr)] lg:items-center lg:gap-6">
+        <div className={cn(shimmerBase, 'aspect-[16/10] w-full sm:aspect-[16/9]')} />
+        <div className="min-w-0">
           <div className={cn(shimmerBase, 'mb-2 h-4 w-20 rounded-sm')} />
           <div className={cn(shimmerBase, 'mb-2 h-8 w-full rounded-sm')} />
           <div className={cn(shimmerBase, 'mb-2 h-8 w-4/5 rounded-sm')} />
-          <div className={cn(shimmerBase, 'mb-3 h-4 w-48 rounded-sm')} />
-          <div className={cn(shimmerBase, 'aspect-[16/10] w-full sm:aspect-[16/9]')} />
+          <div className={cn(shimmerBase, 'mb-2 h-4 w-full rounded-sm')} />
+          <div className={cn(shimmerBase, 'mb-3 h-4 w-5/6 rounded-sm')} />
+          <div className={cn(shimmerBase, 'h-3 w-40 rounded-sm')} />
         </div>
-        <aside className="min-w-0 border-t border-rule pt-3 xl:border-t-0 xl:pl-5 xl:pt-0">
-          <div className={cn(shimmerBase, 'mb-2 h-3 w-28 rounded-sm')} />
-          <div className="divide-y divide-rule border-y border-rule">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <DenseStoryRowSkeleton key={i} />
-            ))}
-          </div>
-        </aside>
       </div>
+
       <div>
-        <div className={cn(shimmerBase, 'mb-3 h-5 w-36 rounded-sm')} />
-        <div className="divide-y divide-rule">
+        <div className={cn(shimmerBase, 'mb-2.5 h-5 w-36 rounded-sm')} />
+        <div className="grid border-y border-rule lg:grid-cols-12">
+          <div className="lg:col-span-5 lg:pr-4">
+            <DenseStoryRowSkeleton />
+          </div>
+          <div className="border-t border-rule lg:col-span-4 lg:border-l lg:border-t-0 lg:px-4">
+            <DenseStoryRowSkeleton />
+          </div>
+          <div className="border-t border-rule lg:col-span-3 lg:border-l lg:border-t-0 lg:pl-4">
+            <DenseStoryRowSkeleton />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div className={cn(shimmerBase, 'mb-2 h-5 w-32 rounded-sm')} />
+        <div className="divide-y divide-rule border-y border-rule">
           {Array.from({ length: 5 }).map((_, i) => (
             <DenseStoryRowSkeleton key={i} />
           ))}

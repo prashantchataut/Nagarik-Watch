@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { NextResponse, type NextRequest } from 'next/server'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 import {
@@ -34,12 +35,20 @@ export async function GET(request: NextRequest) {
       { status: 503 },
     )
   }
-  if (!article) return NextResponse.json({ comments: [] })
-  const [comments, session] = await Promise.all([
-    getCommentsForArticle(article.slug, article.category),
-    getSession().catch(() => null),
-  ])
-  return NextResponse.json({
+  if (!article || !article.commentsEnabled) return NextResponse.json({ comments: [] })
+
+  let comments: Awaited<ReturnType<typeof getCommentsForArticle>>
+  let session: Awaited<ReturnType<typeof getSession>> | null
+  try {
+    ;[comments, session] = await Promise.all([
+      getCommentsForArticle(article.slug, article.category),
+      getSession().catch(() => null),
+    ])
+  } catch (error) {
+    console.error('[comments] read failed', error instanceof Error ? error.message : error)
+    return NextResponse.json({ error: 'Comments are temporarily unavailable.' }, { status: 503 })
+  }
+  const payload = {
     comments: comments.map((comment) => ({
       id: comment.id,
       authorName: comment.authorName,
@@ -48,13 +57,24 @@ export async function GET(request: NextRequest) {
       locale: comment.locale,
       status: comment.status,
       createdAt: comment.createdAt,
+      upvoteCount: Number(comment.upvoteCount ?? 0),
       canDelete: Boolean(
         session?.userId && 'authorUserId' in comment && comment.authorUserId === session.userId,
       ),
     })),
     signedIn: Boolean(session),
     displayName: session?.displayName ?? null,
-  })
+  }
+  const etag = `"${createHash('sha256').update(JSON.stringify(payload)).digest('base64url')}"`
+  const headers = {
+    'cache-control': 'private, no-cache, must-revalidate',
+    etag,
+    vary: 'Cookie',
+  }
+  if (request.headers.get('if-none-match') === etag) {
+    return new NextResponse(null, { status: 304, headers })
+  }
+  return NextResponse.json(payload, { headers })
 }
 
 export async function POST(request: NextRequest) {
@@ -74,7 +94,6 @@ export async function POST(request: NextRequest) {
 
   const articleSlug = String(body.articleSlug ?? '').trim()
   const articleCategory = String(body.articleCategory ?? '').trim()
-  const submittedName = String(body.authorName ?? '').trim()
   const bodyNe = String(body.bodyNe ?? '').trim()
   const parentId = body.parentId ? String(body.parentId).trim() : undefined
   const turnstileToken = String(body.turnstileToken ?? '')
@@ -97,7 +116,6 @@ export async function POST(request: NextRequest) {
     !bodyNe ||
     articleSlug.length > 160 ||
     articleCategory.length > 120 ||
-    submittedName.length > 80 ||
     (parentId?.length ?? 0) > 160
   ) {
     return NextResponse.json(
@@ -141,29 +159,72 @@ export async function POST(request: NextRequest) {
     )
   }
   if (!article) return NextResponse.json({ error: 'Article not found.' }, { status: 404 })
-  if (parentId && !(await isValidCommentParent(article.slug, article.category, parentId))) {
+  if (!article.commentsEnabled) {
+    return NextResponse.json(
+      {
+        error:
+          locale === 'en' ? 'Comments are closed for this article.' : 'यो समाचारमा टिप्पणी बन्द छ।',
+      },
+      { status: 403 },
+    )
+  }
+  if (parentId) {
+    let validParent = false
+    try {
+      validParent = await isValidCommentParent(article.slug, article.category, parentId)
+    } catch (error) {
+      console.error(
+        '[comments] reply validation failed',
+        error instanceof Error ? error.message : error,
+      )
+      return NextResponse.json(
+        {
+          error:
+            locale === 'en'
+              ? 'Comments are temporarily unavailable.'
+              : 'टिप्पणी सेवा अस्थायी रूपमा उपलब्ध छैन।',
+        },
+        { status: 503 },
+      )
+    }
+    if (!validParent) {
+      return NextResponse.json(
+        {
+          error:
+            locale === 'en'
+              ? 'Reply target is not available.'
+              : 'जवाफ दिन खोजिएको टिप्पणी उपलब्ध छैन।',
+        },
+        { status: 400 },
+      )
+    }
+  }
+
+  const authorName = session.displayName?.trim() || (locale === 'en' ? 'Reader' : 'पाठक')
+  let comment
+  try {
+    comment = await createComment({
+      articleSlug: article.slug,
+      articleCategory: article.category,
+      authorName,
+      authorEmail: session?.email,
+      authorUserId: session?.userId,
+      bodyNe,
+      parentId,
+      locale,
+    })
+  } catch (error) {
+    console.error('[comments] write failed', error instanceof Error ? error.message : error)
     return NextResponse.json(
       {
         error:
           locale === 'en'
-            ? 'Reply target is not available.'
-            : 'जवाफ दिन खोजिएको टिप्पणी उपलब्ध छैन।',
+            ? 'Comments are temporarily unavailable.'
+            : 'टिप्पणी सेवा अस्थायी रूपमा उपलब्ध छैन।',
       },
-      { status: 400 },
+      { status: 503 },
     )
   }
-
-  const authorName = session?.displayName?.trim() || submittedName
-  const comment = await createComment({
-    articleSlug: article.slug,
-    articleCategory: article.category,
-    authorName,
-    authorEmail: session?.email,
-    authorUserId: session?.userId,
-    bodyNe,
-    parentId,
-    locale,
-  })
 
   return NextResponse.json(
     {
@@ -198,7 +259,13 @@ export async function DELETE(request: NextRequest) {
   const id = String(body.id ?? '').trim()
   if (!id || id.length > 160)
     return NextResponse.json({ error: 'Invalid comment.' }, { status: 400 })
-  const result = await deleteOwnComment(id, session.userId)
+  let result: Awaited<ReturnType<typeof deleteOwnComment>>
+  try {
+    result = await deleteOwnComment(id, session.userId)
+  } catch (error) {
+    console.error('[comments] delete failed', error instanceof Error ? error.message : error)
+    return NextResponse.json({ error: 'Comments are temporarily unavailable.' }, { status: 503 })
+  }
   if (result === 'deleted') return NextResponse.json({ ok: true })
   if (result === 'has_replies') {
     return NextResponse.json(

@@ -5,13 +5,13 @@
  *
  * Concepts:
  *   - Velocity: engagement rate over a short window (e.g. views/minute).
- *   - Burst: a sudden spike relative to the article's own baseline.
+ *   - Burst: a sudden spike relative to the article's own preceding baseline.
  *   - Trending: velocity weighted by recency, scoped per category/province so
- *     a KPL cricket story does not drown out a national-politics surge.
+ *     a sports story does not drown out an unrelated section surge.
  *
- * The detectors are designed to run on a rolling sample buffer kept by the
- * ingestion layer (packages/ingest). Until that buffer is wired, the web app
- * falls back to the editorial + freshness ranker in apps/web/lib/ranking.ts.
+ * The web adapter feeds these detectors from the operational engagement store.
+ * Keeping the detector pure makes the ranking semantics testable independently
+ * from Postgres, request traffic, and the frontend cache.
  */
 import type { StoryCardData } from './types'
 
@@ -40,9 +40,9 @@ export type TrendingStory<T extends StoryCardData = StoryCardData> = T & {
 export type TrendingOptions = {
   /** Short window for "now" velocity (minutes). */
   shortWindowMinutes?: number
-  /** Longer window for the baseline (minutes). */
+  /** Total lookback window. Baseline excludes the short window (minutes). */
   baselineWindowMinutes?: number
-  /** Minimum baseline before burst ratio is meaningful (anti-noise). */
+  /** Minimum preceding-baseline signal before burst ratio is meaningful. */
   minBaseline?: number
   /** Recency half-life applied to the published-at signal (hours). */
   recencyHalfLifeHours?: number
@@ -56,10 +56,20 @@ const DEFAULTS = {
   recencyHalfLifeHours: 6,
 }
 
+function finiteNonNegative(value: number | undefined): number {
+  return Number.isFinite(value) ? Math.max(0, Number(value)) : 0
+}
+
 /** Sum a sample's weighted engagement (views dominate; dwell, shares, comments amplify). */
-function weightOf(s: EngagementSample): number {
-  const dwellBoost = Math.min(6, (s.dwellSeconds ?? 0) / 30)
-  return s.views + s.shares * 6 + s.comments * 3 + (s.bookmarks ?? 0) * 4 + dwellBoost
+function weightOf(sample: EngagementSample): number {
+  const dwellBoost = Math.min(6, finiteNonNegative(sample.dwellSeconds) / 30)
+  return (
+    finiteNonNegative(sample.views) +
+    finiteNonNegative(sample.shares) * 6 +
+    finiteNonNegative(sample.comments) * 3 +
+    finiteNonNegative(sample.bookmarks) * 4 +
+    dwellBoost
+  )
 }
 
 type ResolvedWindows = {
@@ -67,26 +77,29 @@ type ResolvedWindows = {
   baselineWindowMinutes: number
 }
 
-/** Aggregate samples per article, splitting into short-window vs baseline pools. */
+function positiveMinutes(value: number, fallback: number): number {
+  return Number.isFinite(value) && value > 0 ? value : fallback
+}
+
+/** Aggregate samples per article into non-overlapping current and baseline pools. */
 function aggregate(samples: EngagementSample[], now: Date, opts: ResolvedWindows) {
   const shortMs = opts.shortWindowMinutes * 60_000
   const baseMs = opts.baselineWindowMinutes * 60_000
-  const perArticle = new Map<
-    string,
-    { short: number; baseline: number; lastAt: number; samples: EngagementSample[] }
-  >()
+  const nowMs = now.getTime()
+  const perArticle = new Map<string, { short: number; baseline: number }>()
 
-  for (const s of samples) {
-    const t = Date.parse(s.at)
-    if (!Number.isFinite(t)) continue
-    const age = now.getTime() - t
-    if (age > baseMs) continue
-    const bucket = perArticle.get(s.articleId) ?? { short: 0, baseline: 0, lastAt: 0, samples: [] }
-    bucket.samples.push(s)
-    bucket.lastAt = Math.max(bucket.lastAt, t)
-    if (age <= shortMs) bucket.short += weightOf(s)
-    bucket.baseline += weightOf(s)
-    perArticle.set(s.articleId, bucket)
+  for (const sample of samples) {
+    const timestamp = Date.parse(sample.at)
+    if (!Number.isFinite(timestamp)) continue
+    const age = nowMs - timestamp
+    // Ignore future-dated telemetry and anything outside the full lookback window.
+    if (age < 0 || age > baseMs) continue
+
+    const bucket = perArticle.get(sample.articleId) ?? { short: 0, baseline: 0 }
+    const weight = weightOf(sample)
+    if (age <= shortMs) bucket.short += weight
+    else bucket.baseline += weight
+    perArticle.set(sample.articleId, bucket)
   }
   return perArticle
 }
@@ -98,71 +111,113 @@ export function velocityPerMinute(
   windowMinutes = DEFAULTS.shortWindowMinutes,
   now = new Date(),
 ): number {
-  const cutoff = now.getTime() - windowMinutes * 60_000
+  const resolvedWindow = positiveMinutes(windowMinutes, DEFAULTS.shortWindowMinutes)
+  const nowMs = now.getTime()
+  const cutoff = nowMs - resolvedWindow * 60_000
   const sum = samples
-    .filter((s) => s.articleId === articleId && Date.parse(s.at) >= cutoff)
-    .reduce((acc, s) => acc + weightOf(s), 0)
-  return sum / Math.max(1, windowMinutes)
+    .filter((sample) => {
+      if (sample.articleId !== articleId) return false
+      const timestamp = Date.parse(sample.at)
+      return Number.isFinite(timestamp) && timestamp >= cutoff && timestamp <= nowMs
+    })
+    .reduce((acc, sample) => acc + weightOf(sample), 0)
+  return sum / resolvedWindow
 }
 
-/** Burst ratio = short-window rate divided by the article's own baseline rate.
- *  Returns 0 when there is not enough baseline signal to judge a burst. */
+/**
+ * Burst ratio = current short-window rate divided by the preceding baseline rate.
+ * The baseline duration must describe only the preceding period; the current
+ * short window must not be counted in both numerator and denominator.
+ */
 export function burstRatio(
-  shortWindow: number,
-  baseline: number,
-  baselineWindow: number,
+  shortEngagement: number,
+  baselineEngagement: number,
+  baselineMinutes: number,
+  shortWindowMinutes = DEFAULTS.shortWindowMinutes,
   minBaseline = DEFAULTS.minBaseline,
 ): number {
-  if (baseline < minBaseline) return 0
-  const baselinePerWindow = (baseline / Math.max(1, baselineWindow)) * DEFAULTS.shortWindowMinutes
-  if (baselinePerWindow === 0) return 0
-  return shortWindow / baselinePerWindow
+  const safeShort = finiteNonNegative(shortEngagement)
+  const safeBaseline = finiteNonNegative(baselineEngagement)
+  const safeMinBaseline = finiteNonNegative(minBaseline)
+  if (safeBaseline < safeMinBaseline) return 0
+
+  const resolvedBaselineMinutes = positiveMinutes(baselineMinutes, 1)
+  const resolvedShortMinutes = positiveMinutes(shortWindowMinutes, DEFAULTS.shortWindowMinutes)
+  const baselineRate = safeBaseline / resolvedBaselineMinutes
+  if (baselineRate <= 0) return 0
+  return safeShort / resolvedShortMinutes / baselineRate
 }
 
 /** Recency weight: exponential decay so a 1h-old surge outranks a 12h-old one. */
 function recencyWeight(publishedAt: string, halfLifeHours: number, now: Date): number {
   const ageHours = (now.getTime() - Date.parse(publishedAt)) / 3_600_000
   if (!Number.isFinite(ageHours) || ageHours < 0) return 1
-  return Math.pow(0.5, ageHours / halfLifeHours)
+  return Math.pow(0.5, ageHours / Math.max(0.25, halfLifeHours))
 }
 
-/** Rank stories by a blended trending score = velocity × burst × recency.
- *  Scope with category/province filters to get per-section trending. */
+/** Rank stories by a blended trending score = velocity × burst × recency. */
 export function detectTrending<T extends StoryCardData>(
   stories: T[],
   samples: EngagementSample[],
   options: TrendingOptions = {},
 ): TrendingStory<T>[] {
-  const opts = { ...DEFAULTS, ...options }
-  const now = opts.now ?? new Date()
-  const perArticle = aggregate(samples, now, opts)
-
-  const shortMinutes = opts.shortWindowMinutes
-  const baseMinutes = opts.baselineWindowMinutes
+  const shortMinutes = positiveMinutes(
+    options.shortWindowMinutes ?? DEFAULTS.shortWindowMinutes,
+    DEFAULTS.shortWindowMinutes,
+  )
+  const requestedBaselineMinutes = positiveMinutes(
+    options.baselineWindowMinutes ?? DEFAULTS.baselineWindowMinutes,
+    DEFAULTS.baselineWindowMinutes,
+  )
+  const baseMinutes = Math.max(shortMinutes, requestedBaselineMinutes)
+  const precedingBaselineMinutes = Math.max(0, baseMinutes - shortMinutes)
+  const minBaseline = finiteNonNegative(options.minBaseline ?? DEFAULTS.minBaseline)
+  const recencyHalfLifeHours = positiveMinutes(
+    options.recencyHalfLifeHours ?? DEFAULTS.recencyHalfLifeHours,
+    DEFAULTS.recencyHalfLifeHours,
+  )
+  const now = options.now ?? new Date()
+  const perArticle = aggregate(samples, now, {
+    shortWindowMinutes: shortMinutes,
+    baselineWindowMinutes: baseMinutes,
+  })
 
   return stories
     .map((story) => {
-      const agg = perArticle.get(story.id)
-      const velocity = agg ? agg.short / Math.max(1, shortMinutes) : 0
-      const baseline = agg?.baseline ?? 0
-      const burst = burstRatio(agg?.short ?? 0, baseline, baseMinutes, opts.minBaseline)
-      const recency = recencyWeight(story.publishedAt, opts.recencyHalfLifeHours, now)
+      const aggregated = perArticle.get(story.id)
+      const shortEngagement = aggregated?.short ?? 0
+      const baseline = aggregated?.baseline ?? 0
+      const velocity = shortEngagement / shortMinutes
+      const burst =
+        precedingBaselineMinutes > 0
+          ? burstRatio(
+              shortEngagement,
+              baseline,
+              precedingBaselineMinutes,
+              shortMinutes,
+              minBaseline,
+            )
+          : 0
+      const recency = recencyWeight(story.publishedAt, recencyHalfLifeHours, now)
       const trendingScore = velocity * (1 + Math.min(burst, 10)) * recency
       return { ...story, velocity, burstRatio: burst, trendingScore, baseline } as TrendingStory<T>
     })
-    .filter((s) => Number.isFinite(s.trendingScore))
-    .sort((a, b) => b.trendingScore - a.trendingScore || b.publishedAt.localeCompare(a.publishedAt))
+    .filter((story) => Number.isFinite(story.trendingScore))
+    .sort(
+      (left, right) =>
+        right.trendingScore - left.trendingScore ||
+        right.publishedAt.localeCompare(left.publishedAt),
+    )
 }
 
-/** Filter samples to a single scope so trending can be computed per-category or
- *  per-province without re-aggregating the whole stream. */
+/** Filter samples to a single scope so trending can be computed per-category or province. */
 export function scopeSamples(
   samples: EngagementSample[],
   scope: { categorySlug?: string; provinceSlug?: string },
 ): EngagementSample[] {
-  return samples.filter((s) => {
-    if (scope.categorySlug && s.categorySlug !== scope.categorySlug) return false
-    if (scope.provinceSlug && s.provinceSlug !== scope.provinceSlug) return false
+  return samples.filter((sample) => {
+    if (scope.categorySlug && sample.categorySlug !== scope.categorySlug) return false
+    if (scope.provinceSlug && sample.provinceSlug !== scope.provinceSlug) return false
     return true
   })
 }

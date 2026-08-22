@@ -27,7 +27,7 @@ function storyLang(story: StoryCardData, locale: Locale): 'en' | 'ne' {
 
 function authorInitial(name: string): string {
   const clean = name.trim()
-  return clean ? Array.from(clean)[0] ?? '' : 'न'
+  return clean ? (Array.from(clean)[0] ?? '') : 'न'
 }
 
 export function MegaStoryBlock({
@@ -49,17 +49,15 @@ export function MegaStoryBlock({
 
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-      <article
-        className={`group min-w-0 border-b border-rule py-5 text-center sm:py-6 lg:py-8 ${className}`.trim()}
-      >
+      <article className={`group min-w-0 py-5 text-center sm:py-6 lg:py-8 ${className}`.trim()}>
         <CategoryLabel category={story.category} locale={locale} as="span" />
 
         {priority ? (
           <h1
-            className={`mx-auto mt-2.5 max-w-[28ch] text-balance font-display font-black tracking-[-0.025em] text-ink ${
+            className={`mx-auto mt-2.5 max-w-[26ch] text-balance font-display font-black tracking-[-0.025em] text-ink ${
               lead
-                ? 'text-[clamp(1.9rem,4.15vw,3.25rem)] leading-[1.17]'
-                : 'text-[clamp(1.8rem,3.65vw,2.9rem)] leading-[1.18]'
+                ? 'text-[clamp(2rem,4.3vw,3.45rem)] leading-[1.16]'
+                : 'text-[clamp(1.75rem,3.4vw,2.75rem)] leading-[1.18]'
             }`}
             lang={titleLang}
           >
@@ -72,10 +70,10 @@ export function MegaStoryBlock({
           </h1>
         ) : (
           <h2
-            className={`mx-auto mt-2.5 max-w-[28ch] text-balance font-display font-black tracking-[-0.02em] text-ink ${
+            className={`mx-auto mt-2.5 max-w-[26ch] text-balance font-display font-black tracking-[-0.02em] text-ink ${
               lead
-                ? 'text-[clamp(1.9rem,4.15vw,3.25rem)] leading-[1.17]'
-                : 'text-[clamp(1.8rem,3.65vw,2.9rem)] leading-[1.18]'
+                ? 'text-[clamp(2rem,4.3vw,3.45rem)] leading-[1.16]'
+                : 'text-[clamp(1.75rem,3.4vw,2.75rem)] leading-[1.18]'
             }`}
             lang={titleLang}
           >
@@ -115,7 +113,7 @@ export function MegaStoryBlock({
         {showPhoto ? (
           <Link
             href={href}
-            className="relative mt-4 block aspect-[16/10] w-full overflow-hidden bg-surface-raised text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:mt-5 sm:aspect-[16/9]"
+            className="relative mx-auto mt-4 block aspect-[16/10] w-full max-w-[72rem] overflow-hidden bg-surface-raised text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:mt-5 sm:aspect-[16/9]"
             tabIndex={-1}
             aria-hidden="true"
           >

@@ -90,8 +90,8 @@ export function PollOfDay({
     if (!hasLivePublicApi()) {
       setError(
         locale === 'en'
-          ? 'Voting is not available on this static preview host.'
-          : 'यो स्थिर पूर्वावलोकन होस्टमा मतदान उपलब्ध छैन।',
+          ? 'Voting is unavailable on this deployment.'
+          : 'यो डिप्लोयमेन्टमा मतदान सेवा उपलब्ध छैन।',
       )
       return
     }

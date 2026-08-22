@@ -117,20 +117,14 @@ export function Logo({
         tone={tone}
         className={cn(
           'shrink-0',
-          stacked
-            ? 'h-12 w-12 sm:h-14 sm:w-14'
-            : compact
-              ? 'h-8 w-8'
-              : 'h-9 w-9 sm:h-11 sm:w-11',
+          stacked ? 'h-12 w-12 sm:h-14 sm:w-14' : compact ? 'h-8 w-8' : 'h-9 w-9 sm:h-11 sm:w-11',
         )}
       />
       <span className={cn('flex flex-col leading-none', stacked && 'items-center text-center')}>
         <span
           className={cn(
             'font-display font-black leading-[1.02] tracking-[-0.03em]',
-            compact
-              ? 'whitespace-nowrap text-[1.15rem]'
-              : 'text-[1.65rem] sm:text-[2.05rem]',
+            compact ? 'whitespace-nowrap text-[1.15rem]' : 'text-[1.65rem] sm:text-[2.05rem]',
             titleClass,
           )}
           lang={siteNameLang}
@@ -138,27 +132,26 @@ export function Logo({
           {siteName}
           <span className="text-brand ml-0.5 inline-block">.</span>
         </span>
-        <span className={cn('flex items-center gap-1.5', compact ? 'mt-0.5' : 'mt-1')}>
-          <span
-            className={cn(
-              'font-sans font-black uppercase',
-              compact
-                ? 'text-[0.5rem] tracking-[0.12em]'
-                : 'text-[0.62rem] tracking-[0.14em] sm:text-[0.68rem]',
-              subClass,
-            )}
-            lang="en"
-          >
-            Nagarik Watch
+        {!compact ? (
+          <span className="mt-1 flex items-center gap-1.5">
+            <span
+              className={cn(
+                'font-sans text-[0.62rem] font-black uppercase tracking-[0.14em] sm:text-[0.68rem]',
+                subClass,
+              )}
+              lang="en"
+            >
+              Nagarik Watch
+            </span>
+            <span
+              className="hidden h-1 w-1 rounded-full bg-brand sm:inline-block"
+              aria-hidden="true"
+            />
+            <span className="hidden text-[0.58rem] font-bold uppercase tracking-wider text-brand sm:inline-block">
+              {isEn ? 'Independent News' : 'स्वतन्त्र समाचार'}
+            </span>
           </span>
-          <span
-            className="hidden sm:inline-block h-1 w-1 rounded-full bg-brand"
-            aria-hidden="true"
-          />
-          <span className="hidden sm:inline-block text-[0.58rem] font-bold text-brand uppercase tracking-wider">
-            {isEn ? 'Independent News' : 'स्वतन्त्र समाचार'}
-          </span>
-        </span>
+        ) : null}
       </span>
     </span>
   )

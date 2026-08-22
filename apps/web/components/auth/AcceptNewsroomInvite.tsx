@@ -5,9 +5,9 @@ import { useState, useTransition } from 'react'
 import { signOutRequest } from '@/lib/auth/sign-out-client'
 
 const btnPrimary =
-  'inline-flex h-12 items-center justify-center rounded-md bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex h-12 items-center justify-center bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60'
 const btnGhost =
-  'inline-flex h-12 items-center justify-center rounded-md border border-rule px-5 text-body font-bold text-ink hover:border-brand hover:text-brand-strong'
+  'inline-flex h-12 items-center justify-center border border-rule px-5 text-body font-bold text-ink hover:border-brand hover:text-brand-strong'
 
 export function AcceptNewsroomInvite({
   locale,
@@ -100,7 +100,7 @@ export function AcceptNewsroomInvite({
       {message ? (
         <div
           role={status === 'error' ? 'alert' : 'status'}
-          className={`rounded-md border px-4 py-3 text-meta font-semibold ${
+          className={`border px-4 py-3 text-meta font-semibold ${
             status === 'error'
               ? 'border-breaking/30 bg-brand-tint text-brand-strong'
               : 'border-rule bg-surface-raised text-ink'

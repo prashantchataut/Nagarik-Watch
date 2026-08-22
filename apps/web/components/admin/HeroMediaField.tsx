@@ -79,7 +79,7 @@ export function HeroMediaField({ url, alt, caption, credit, library, onChange }:
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-rule bg-surface-raised p-4">
+    <div className="space-y-3 rounded-sm border border-rule bg-surface-raised p-4">
       <div className="flex items-baseline justify-between gap-2">
         <p className="text-meta font-bold text-brand-strong" lang="ne">
           मुख्य तस्वीर
@@ -89,7 +89,7 @@ export function HeroMediaField({ url, alt, caption, credit, library, onChange }:
         </p>
       </div>
 
-      <div className="relative aspect-[16/10] overflow-hidden rounded-md border border-rule bg-surface">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-sm border border-rule bg-surface">
         {url ? (
           <Image src={url} alt={alt || 'Hero preview'} fill unoptimized className="object-cover" />
         ) : (
@@ -144,7 +144,7 @@ export function HeroMediaField({ url, alt, caption, credit, library, onChange }:
       ) : null}
 
       {pickerOpen ? (
-        <div className="max-h-56 overflow-y-auto rounded-md border border-rule bg-surface p-2">
+        <div className="max-h-56 overflow-y-auto rounded-sm border border-rule bg-surface p-2">
           {localLibrary.length === 0 ? (
             <p className="p-3 text-caption text-ink-soft" lang="ne">
               पुस्तकालय खाली छ। पहिले अपलोड गर्नुहोस् वा मिडिया पृष्ठमा URL थप्नुहोस्।

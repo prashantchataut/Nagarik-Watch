@@ -105,7 +105,7 @@ export default async function PollsPage() {
           ) : (
             <div className="mt-4 grid gap-3">
               {polls.map((poll) => (
-                <article key={poll.id} className="rounded-lg border border-rule bg-surface p-4">
+                <article key={poll.id} className="rounded-sm border border-rule bg-surface p-4">
                   <div className="flex items-start justify-between gap-3">
                     <h3 className="font-display text-h3 text-ink" lang="ne">
                       {poll.question}

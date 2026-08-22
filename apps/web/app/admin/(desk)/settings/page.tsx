@@ -96,7 +96,7 @@ export default async function SettingsPage() {
                   <form
                     key={setting.key}
                     action={saveSetting}
-                    className="rounded-lg border border-rule bg-surface p-4"
+                    className="rounded-sm border border-rule bg-surface p-4"
                   >
                     <input type="hidden" name="key" value={setting.key} />
                     <input type="hidden" name="label" value={setting.label} />

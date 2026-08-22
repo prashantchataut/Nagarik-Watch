@@ -61,7 +61,11 @@ afterEach(() => {
 
 describe('comments collection route', () => {
   it('lists comments for a public article', async () => {
-    mockGetPublicArticleIdentity.mockResolvedValue({ slug: 'floods', category: 'national' })
+    mockGetPublicArticleIdentity.mockResolvedValue({
+      slug: 'floods',
+      category: 'national',
+      commentsEnabled: true,
+    })
     mockGetCommentsForArticle.mockResolvedValue([
       {
         id: 'c1',
@@ -77,14 +81,89 @@ describe('comments collection route', () => {
     mockGetSession.mockResolvedValue({ userId: 'user-1', displayName: 'Reader' })
 
     const response = await GET(
-      new NextRequest(
-        'http://localhost/api/comments?articleSlug=floods&articleCategory=national',
-      ),
+      new NextRequest('http://localhost/api/comments?articleSlug=floods&articleCategory=national'),
     )
     expect(response.status).toBe(200)
     const body = (await response.json()) as { comments: Array<{ id: string; canDelete: boolean }> }
     expect(body.comments).toHaveLength(1)
     expect(body.comments[0]?.canDelete).toBe(true)
+    expect(response.headers.get('etag')).toBeTruthy()
+    expect(response.headers.get('cache-control')).toContain('private')
+  })
+
+  it('returns no public thread when comments are disabled for the canonical article', async () => {
+    mockGetPublicArticleIdentity.mockResolvedValue({
+      slug: 'floods',
+      category: 'national',
+      commentsEnabled: false,
+    })
+
+    const response = await GET(
+      new NextRequest('http://localhost/api/comments?articleSlug=floods&articleCategory=national'),
+    )
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ comments: [] })
+    expect(mockGetCommentsForArticle).not.toHaveBeenCalled()
+  })
+
+  it('uses the signed-in account display name instead of a client-supplied byline', async () => {
+    mockGetSession.mockResolvedValue({
+      userId: 'user-1',
+      displayName: 'Verified Reader',
+      email: 'reader@example.test',
+    })
+    mockGetPublicArticleIdentity.mockResolvedValue({
+      slug: 'floods',
+      category: 'national',
+      commentsEnabled: true,
+    })
+    mockCreateComment.mockImplementation(async (input) => ({
+      id: 'c2',
+      ...input,
+      status: 'pending',
+      createdAt: '2026-08-21T00:00:00.000Z',
+    }))
+
+    const response = await POST(
+      new NextRequest('http://localhost/api/comments', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', origin: 'http://localhost:3000' },
+        body: JSON.stringify({
+          articleSlug: 'floods',
+          articleCategory: 'national',
+          authorName: 'Spoofed Name',
+          bodyNe: 'यो प्रमाणित टिप्पणी हो।',
+        }),
+      }),
+    )
+
+    expect(response.status).toBe(201)
+    expect(mockCreateComment).toHaveBeenCalledWith(
+      expect.objectContaining({ authorName: 'Verified Reader', authorUserId: 'user-1' }),
+    )
+  })
+
+  it('rejects posting when comments were disabled in the CMS', async () => {
+    mockGetSession.mockResolvedValue({ userId: 'user-1', displayName: 'Reader' })
+    mockGetPublicArticleIdentity.mockResolvedValue({
+      slug: 'floods',
+      category: 'national',
+      commentsEnabled: false,
+    })
+
+    const response = await POST(
+      new NextRequest('http://localhost/api/comments', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', origin: 'http://localhost:3000' },
+        body: JSON.stringify({
+          articleSlug: 'floods',
+          articleCategory: 'national',
+          bodyNe: 'यो टिप्पणी प्रकाशित हुनु हुँदैन।',
+        }),
+      }),
+    )
+    expect(response.status).toBe(403)
+    expect(mockCreateComment).not.toHaveBeenCalled()
   })
 
   it('requires sign-in to create a comment', async () => {

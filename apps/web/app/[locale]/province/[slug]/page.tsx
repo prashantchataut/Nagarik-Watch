@@ -13,7 +13,7 @@ export function generateStaticParams() {
 }
 
 function resolveProvince(slug: string) {
-  return PROVINCES.find((p) => p.slug === slug)
+  return PROVINCES.find((province) => province.slug === slug)
 }
 
 export default async function Page({
@@ -26,19 +26,8 @@ export default async function Page({
   const province = resolveProvince(slug)
   if (!province) notFound()
 
-  const [{ items: stories }, { items: national }] = await Promise.all([
-    getStories({ locale, province: slug, perPage: 24 }),
-    getStories({ locale, perPage: 12 }),
-  ])
-
-  return (
-    <ProvinceDesk
-      locale={locale}
-      province={province}
-      stories={stories}
-      nationalFallback={stories.length === 0 ? national : []}
-    />
-  )
+  const { items: stories } = await getStories({ locale, province: slug, perPage: 28 })
+  return <ProvinceDesk locale={locale} province={province} stories={stories} />
 }
 
 export async function generateMetadata({

@@ -1,9 +1,11 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
 import { TurnstileField } from '@/components/forms/TurnstileField'
+import { localizeHref } from '@/lib/i18n/locales'
 
 type Comment = {
   id: string
@@ -40,7 +42,10 @@ export function CommentSection({
   const lang = ne ? 'ne' : 'en'
 
   useEffect(() => {
-    let cancelled = false
+    if (!commentsEnabled) {
+      setLoading(false)
+      return
+    }
     if (!hasLivePublicApi()) {
       setLoading(false)
       setError(
@@ -50,32 +55,72 @@ export function CommentSection({
       )
       return
     }
-    fetch(
-      `/api/comments?articleSlug=${encodeURIComponent(articleSlug)}&articleCategory=${encodeURIComponent(articleCategory)}`,
-      { cache: 'no-store' },
-    )
-      .then(async (response) => {
+
+    let stopped = false
+    let inFlight = false
+    let etag = ''
+    const controller = new AbortController()
+    const endpoint = `/api/comments?articleSlug=${encodeURIComponent(articleSlug)}&articleCategory=${encodeURIComponent(articleCategory)}`
+
+    async function loadComments(initial: boolean) {
+      if (stopped || inFlight || (!initial && document.visibilityState === 'hidden')) return
+      inFlight = true
+      try {
+        const response = await fetch(endpoint, {
+          cache: 'no-cache',
+          headers: etag ? { 'if-none-match': etag } : undefined,
+          signal: controller.signal,
+        })
+        if (response.status === 304) return
         if (!response.ok) throw new Error(`Comment request failed: ${response.status}`)
-        return response.json() as Promise<{
+        etag = response.headers.get('etag') ?? etag
+        const data = (await response.json()) as {
           comments?: Comment[]
           signedIn?: boolean
           displayName?: string | null
-        }>
-      })
-      .then((data) => {
-        if (cancelled) return
-        setComments(data.comments ?? [])
+        }
+        if (stopped) return
+        const incoming = data.comments ?? []
+        setComments((current) => {
+          const incomingIds = new Set(incoming.map((comment) => comment.id))
+          const localPending = current.filter(
+            (comment) => comment.status === 'pending' && !incomingIds.has(comment.id),
+          )
+          return [...incoming, ...localPending]
+        })
         setSignedIn(Boolean(data.signedIn))
         setDisplayName(data.displayName ?? null)
-      })
-      .catch(() => setError(ne ? 'टिप्पणी लोड गर्न सकिएन।' : 'Comments could not be loaded.'))
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
+        if (initial) setError(null)
+      } catch (loadError) {
+        if (stopped || controller.signal.aborted) return
+        if (initial) {
+          setError(ne ? 'टिप्पणी लोड गर्न सकिएन।' : 'Comments could not be loaded.')
+        } else {
+          console.warn(
+            '[comments] refresh failed',
+            loadError instanceof Error ? loadError.message : loadError,
+          )
+        }
+      } finally {
+        inFlight = false
+        if (initial && !stopped) setLoading(false)
+      }
     }
-  }, [articleCategory, articleSlug, ne])
+
+    void loadComments(true)
+    const interval = window.setInterval(() => void loadComments(false), 15_000)
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void loadComments(false)
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    return () => {
+      stopped = true
+      controller.abort()
+      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+  }, [articleCategory, articleSlug, commentsEnabled, ne])
 
   const roots = useMemo(() => comments.filter((comment) => !comment.parentId), [comments])
   const approvedCount = useMemo(
@@ -109,14 +154,15 @@ export function CommentSection({
       return
     }
     const form = new FormData(event.currentTarget)
-    const authorName = String(form.get('authorName') ?? '').trim()
     const bodyNe = String(form.get('bodyNe') ?? '').trim()
     const turnstileToken = String(form.get('cf-turnstile-response') ?? '')
-    if ((!signedIn && !authorName) || bodyNe.length < 3) {
+    if (!signedIn) {
+      setError(ne ? 'टिप्पणी गर्न लगइन आवश्यक छ।' : 'Sign in is required to comment.')
+      return
+    }
+    if (bodyNe.length < 3) {
       setError(
-        ne
-          ? 'नाम र कम्तीमा ३ अक्षरको टिप्पणी आवश्यक छ।'
-          : 'Add your name and a comment of at least 3 characters.',
+        ne ? 'कम्तीमा ३ अक्षरको टिप्पणी आवश्यक छ।' : 'Add a comment of at least 3 characters.',
       )
       return
     }
@@ -128,7 +174,6 @@ export function CommentSection({
           body: JSON.stringify({
             articleSlug,
             articleCategory,
-            authorName,
             bodyNe,
             parentId: replyTo?.id,
             locale,
@@ -146,7 +191,7 @@ export function CommentSection({
           ...current,
           {
             id: String(data.id),
-            authorName: String(data.authorName ?? displayName ?? authorName),
+            authorName: String(data.authorName ?? displayName ?? (ne ? 'पाठक' : 'Reader')),
             bodyNe,
             parentId: replyTo?.id,
             createdAt: new Date().toISOString(),
@@ -311,6 +356,21 @@ export function CommentSection({
             {ne ? 'टिप्पणी लेख्नुहोस्' : 'Write a comment'}
           </button>
         </div>
+      ) : !signedIn ? (
+        <div className="comment-composer">
+          <p className="comment-composer__identity">
+            {ne
+              ? 'टिप्पणी पठाउन पाठक खातामा लगइन गर्नुहोस्।'
+              : 'Sign in with a reader account to submit a comment.'}
+          </p>
+          <Link
+            href={`${localizeHref(locale, '/auth/login')}?next=${encodeURIComponent(
+              localizeHref(locale, `/${articleCategory}/${articleSlug}`),
+            )}`}
+          >
+            {ne ? 'लगइन गर्नुहोस्' : 'Sign in'}
+          </Link>
+        </div>
       ) : (
         <form ref={formRef} onSubmit={submit} className="comment-composer">
           {replyTo ? (
@@ -323,24 +383,11 @@ export function CommentSection({
               </button>
             </div>
           ) : null}
-          {!signedIn ? (
-            <label>
-              <span>{ne ? 'नाम' : 'Name'}</span>
-              <input
-                name="authorName"
-                required
-                maxLength={80}
-                disabled={pending}
-                placeholder={ne ? 'तपाईंको सार्वजनिक नाम' : 'Your public name'}
-              />
-            </label>
-          ) : (
-            <p className="comment-composer__identity">
-              {ne
-                ? `${displayName ?? 'पाठक'} को रूपमा टिप्पणी गर्दै`
-                : `Commenting as ${displayName ?? 'reader'}`}
-            </p>
-          )}
+          <p className="comment-composer__identity">
+            {ne
+              ? `${displayName ?? 'पाठक'} को रूपमा टिप्पणी गर्दै`
+              : `Commenting as ${displayName ?? 'reader'}`}
+          </p>
           <label>
             <span>
               {replyTo ? (ne ? 'जवाफ' : 'Reply') : ne ? 'तपाईंको टिप्पणी' : 'Your comment'}

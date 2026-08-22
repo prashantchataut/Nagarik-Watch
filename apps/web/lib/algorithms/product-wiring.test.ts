@@ -39,9 +39,9 @@ describe('product wiring + honesty gates', () => {
       ['../../app/api/cron/interactions-rebuild/route.ts', 'lib/engagement/interaction-matrix'],
       ['../../app/api/cron/ops-probe/route.ts', 'lib/ops/health-snapshot'],
       ['../../app/admin/(desk)/algorithms/page.tsx', 'runAllAlgorithms'],
-      ['../../app/[locale]/page.tsx', 'resolveMostReadStories'],
-      ['../../app/[locale]/page.tsx', 'resolveTrendingStories'],
-      ['../../app/[locale]/page.tsx', 'getStories'],
+      ['../../app/[locale]/most-read/page.tsx', 'resolveMostReadStories'],
+      ['../../app/[locale]/trending/page.tsx', 'resolveTrendingStories'],
+      ['../../components/home/HomePage.tsx', 'getHomepage'],
       ['../../app/api/reading/route.ts', 'hasServerEngagementConsent'],
       ['../../app/api/ranking-events/route.ts', 'hasServerEngagementConsent'],
       ['../../components/public/RankedStoryList.tsx', 'InstrumentedStory'],
@@ -58,10 +58,9 @@ describe('product wiring + honesty gates', () => {
   })
 
   it('allows algorithmic lens overlap: same story can be latest and most-read', () => {
-    const page = read('../../app/[locale]/page.tsx')
-    expect(page).toContain('excludeIds: new Set()')
-    expect(page).toContain('resolveTrendingStories')
+    const page = read('../../components/home/HomePage.tsx')
     expect(page).toContain('aboveFoldExclude')
+    expect(page).toContain('dedupeHomepage')
     expect(page).not.toContain('Rails must not recycle the front-page set')
     expect(page).not.toContain('buildStoryEngagementIndex')
   })

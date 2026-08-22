@@ -3,19 +3,13 @@
 import Link from 'next/link'
 import { useMemo } from 'react'
 import type { Locale } from '@nagarikwatch/db'
-import {
-  BS_MONTHS,
-  BS_MONTHS_EN,
-  adToBs,
-  formatBsFull,
-  toDevanagari,
-  upcomingCalendarEvents,
-} from '@nagarikwatch/db'
+import { BS_MONTHS, BS_MONTHS_EN, adToBs, formatBsFull, toDevanagari } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
 import { localizeNumber, relativeTime } from '@/lib/live/format'
 import { NepaliCalendar } from '@/components/utilities/NepaliCalendar'
 import type { ForexRate, GoldSilverReading } from '@/lib/live/real'
 import type { NepseReading } from '@/lib/live/types'
+import { upcomingFromSchedule, type PublishedCalendarSchedule } from '@/lib/calendar-view'
 
 type RateMeta = {
   source: string
@@ -38,6 +32,7 @@ type PatroDeskProps = {
     title: string
     thumb?: string | null
   }>
+  calendarSchedule: PublishedCalendarSchedule | null
 }
 
 const TOOL_TILES = [
@@ -59,18 +54,23 @@ export function PatroDesk({
   nepseMeta,
   latestIndexHref,
   latestStories,
+  calendarSchedule,
 }: PatroDeskProps) {
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
   const today = useMemo(() => adToBs(new Date()), [])
-  const upcoming = useMemo(() => upcomingCalendarEvents(today, 7), [today])
+  const upcoming = useMemo(
+    () => upcomingFromSchedule(calendarSchedule, today, 7),
+    [calendarSchedule, today],
+  )
   const holidays = useMemo(
     () =>
-      upcomingCalendarEvents(today, 12)
-        .filter((e) => e.holiday)
+      upcomingFromSchedule(calendarSchedule, today, 20)
+        .filter((event) => event.holiday)
         .slice(0, 6),
-    [today],
+    [calendarSchedule, today],
   )
+  const hasCurrentSchedule = calendarSchedule?.year === today.year
   const monthName = en ? BS_MONTHS_EN[today.month - 1] : BS_MONTHS[today.month - 1]
   const todayLabel = formatBsFull(today, locale)
   const usd = forex.find((r) => r.iso3 === 'USD') ?? forex[0]
@@ -112,7 +112,13 @@ export function PatroDesk({
             <h2>{en ? 'Upcoming' : 'आगामी पर्व'}</h2>
             {upcoming.length === 0 ? (
               <p className="patro-widget__empty">
-                {en ? 'No upcoming festivals listed.' : 'आगामी पर्व सूचीमा छैन।'}
+                {hasCurrentSchedule
+                  ? en
+                    ? 'No verified event is listed in the current schedule.'
+                    : 'हालको प्रमाणित तालिकामा आगामी पर्व सूचीबद्ध छैन।'
+                  : en
+                    ? 'A verified festival schedule has not been loaded for this B.S. year.'
+                    : 'यो बि.सं. वर्षका लागि प्रमाणित पर्व तालिका लोड गरिएको छैन।'}
               </p>
             ) : (
               <ul>
@@ -142,7 +148,13 @@ export function PatroDesk({
             <h2>{en ? 'Holidays ahead' : 'आगामी बिदा'}</h2>
             {holidays.length === 0 ? (
               <p className="patro-widget__empty">
-                {en ? 'No public holidays soon.' : 'नजिक सार्वजनिक बिदा छैन।'}
+                {hasCurrentSchedule
+                  ? en
+                    ? 'No verified public holiday is listed soon.'
+                    : 'नजिक प्रमाणित सार्वजनिक बिदा सूचीबद्ध छैन।'
+                  : en
+                    ? 'A verified public-holiday schedule has not been loaded for this B.S. year.'
+                    : 'यो बि.सं. वर्षका लागि प्रमाणित सार्वजनिक बिदा तालिका लोड गरिएको छैन।'}
               </p>
             ) : (
               <ul>
@@ -272,7 +284,7 @@ export function PatroDesk({
         </aside>
 
         <div className="patro-desk__main">
-          <NepaliCalendar locale={locale} />
+          <NepaliCalendar locale={locale} schedule={calendarSchedule} />
 
           <nav aria-label={en ? 'Quick tools' : 'छिटो उपकरण'} className="patro-tiles">
             {TOOL_TILES.map((tile) => (

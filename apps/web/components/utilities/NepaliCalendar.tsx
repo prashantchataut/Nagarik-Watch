@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
+import type { PublishedCalendarEvent, PublishedCalendarSchedule } from '@/lib/calendar-view'
 import {
   BS_MONTHS,
   BS_MONTHS_EN,
@@ -10,7 +11,6 @@ import {
   adToBs,
   bsMonthLength,
   bsToAd,
-  eventsForBsDay,
   formatBsFull,
   toDevanagari,
 } from '@nagarikwatch/db'
@@ -23,7 +23,7 @@ type DayCell = {
   weekday: number
   adDay: number
   adDate: Date | null
-  events: ReturnType<typeof eventsForBsDay>
+  events: PublishedCalendarEvent[]
 }
 
 type BsPoint = { year: number; month: number; day: number }
@@ -36,7 +36,13 @@ function readTodayBs(): BsPoint {
  * Editorial Bikram Sambat month desk: navigate months/years, mark today,
  * select a day for festival detail, and list the month agenda. Offline date math.
  */
-export function NepaliCalendar({ locale }: { locale: Locale }) {
+export function NepaliCalendar({
+  locale,
+  schedule,
+}: {
+  locale: Locale
+  schedule: PublishedCalendarSchedule | null
+}) {
   const en = locale === 'en'
   const seed = useMemo(() => readTodayBs(), [])
   const [todayBs, setTodayBs] = useState<BsPoint>(seed)
@@ -65,11 +71,14 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
         weekday: ad ? ad.getUTCDay() : (startWeekday + d - 1) % 7,
         adDay: ad ? ad.getUTCDate() : d,
         adDate: ad,
-        events: eventsForBsDay(month, d),
+        events:
+          schedule?.year === year
+            ? schedule.events.filter((event) => event.month === month && event.day === d)
+            : [],
       })
     }
     return out
-  }, [length, month, year, startWeekday])
+  }, [length, month, schedule, year, startWeekday])
 
   const monthName = en ? BS_MONTHS_EN[month - 1] : BS_MONTHS[month - 1]
   const selected = cells.find((c) => c.day === safeSelectedDay) ?? cells[0]
@@ -90,6 +99,7 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
     [holidaysThisMonth],
   )
   const festivalCount = holidaysThisMonth.length
+  const hasScheduleForYear = schedule?.year === year
 
   const goMonth = (delta: number) => {
     let m = month + delta
@@ -156,9 +166,13 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
           <span className="calendar-header__rule" aria-hidden="true" />
           {adRangeLabel ? <p className="calendar-header__ad">{adRangeLabel}</p> : null}
           <p className="calendar-header__meta">
-            {en
-              ? `${festivalCount} listed · ${holidayCount} public holiday${holidayCount === 1 ? '' : 's'}`
-              : `${toDevanagari(festivalCount)} सूची · ${toDevanagari(holidayCount)} सार्वजनिक बिदा`}
+            {hasScheduleForYear
+              ? en
+                ? `${festivalCount} verified event${festivalCount === 1 ? '' : 's'} · ${holidayCount} public holiday${holidayCount === 1 ? '' : 's'} · ${schedule?.source}`
+                : `${toDevanagari(festivalCount)} प्रमाणित कार्यक्रम · ${toDevanagari(holidayCount)} सार्वजनिक बिदा · ${schedule?.source}`
+              : en
+                ? 'Verified festival and public-holiday schedule not loaded for this B.S. year.'
+                : 'यो बि.सं. वर्षका लागि प्रमाणित पर्व र सार्वजनिक बिदा तालिका लोड गरिएको छैन।'}
           </p>
         </div>
 
@@ -318,7 +332,13 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
                 </ul>
               ) : (
                 <p className="calendar-selection__empty">
-                  {en ? 'No festival listed for this date.' : 'यो मितिमा सूचीबद्ध पर्व छैन।'}
+                  {hasScheduleForYear
+                    ? en
+                      ? 'No verified event is listed for this date.'
+                      : 'यो मितिमा प्रमाणित कार्यक्रम सूचीबद्ध छैन।'
+                    : en
+                      ? 'Verified schedule not loaded for this B.S. year.'
+                      : 'यो बि.सं. वर्षको प्रमाणित तालिका लोड गरिएको छैन।'}
                 </p>
               )}
             </div>
@@ -361,9 +381,13 @@ export function NepaliCalendar({ locale }: { locale: Locale }) {
               <h3>{en ? 'This month' : 'यो महिना'}</h3>
               <span className="calendar-agenda__rule" aria-hidden="true" />
               <p className="calendar-selection__empty">
-                {en
-                  ? 'No festivals or holidays listed for this month.'
-                  : 'यो महिनामा सूचीबद्ध पर्व वा बिदा छैन।'}
+                {hasScheduleForYear
+                  ? en
+                    ? 'No verified festival or public holiday is listed for this month.'
+                    : 'यो महिनामा प्रमाणित पर्व वा सार्वजनिक बिदा सूचीबद्ध छैन।'
+                  : en
+                    ? 'Verified schedule not loaded for this B.S. year.'
+                    : 'यो बि.सं. वर्षको प्रमाणित तालिका लोड गरिएको छैन।'}
               </p>
             </div>
           )}

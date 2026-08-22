@@ -4,10 +4,10 @@ export default function AdminLoading() {
       <div className="h-8 w-48 rounded bg-rule/60" />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-24 rounded-md border border-rule bg-surface-raised" />
+          <div key={i} className="h-24 rounded-sm border border-rule bg-surface-raised" />
         ))}
       </div>
-      <div className="h-64 rounded-md border border-rule bg-surface-raised" />
+      <div className="h-64 rounded-sm border border-rule bg-surface-raised" />
     </div>
   )
 }

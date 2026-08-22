@@ -125,19 +125,19 @@ export default async function LaunchPage() {
               : 'Complete checks before flipping to Payload. Web desk + JSON is soft-preview only (ADR-014).'}
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-md border border-rule bg-surface-raised p-3">
+          <div className="rounded-sm border border-rule bg-surface-raised p-3">
             <p className="text-caption text-mute">Desk articles</p>
             <p className="mt-1 text-h3 font-bold text-ink">{cutoverStatus.desk.total}</p>
           </div>
-          <div className="rounded-md border border-rule bg-surface-raised p-3">
+          <div className="rounded-sm border border-rule bg-surface-raised p-3">
             <p className="text-caption text-mute">Published (soft)</p>
             <p className="mt-1 text-h3 font-bold text-ink">{cutoverStatus.desk.published}</p>
           </div>
-          <div className="rounded-md border border-rule bg-surface-raised p-3">
+          <div className="rounded-sm border border-rule bg-surface-raised p-3">
             <p className="text-caption text-mute">Submitted</p>
             <p className="mt-1 text-h3 font-bold text-ink">{cutoverStatus.desk.submitted}</p>
           </div>
-          <div className="rounded-md border border-rule bg-surface-raised p-3">
+          <div className="rounded-sm border border-rule bg-surface-raised p-3">
             <p className="text-caption text-mute">CONTENT_SOURCE</p>
             <p className="mt-1 font-mono text-meta font-bold text-ink">
               {cutoverStatus.contentSource}

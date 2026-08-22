@@ -10,6 +10,7 @@ export type PublicArticleIdentity = {
   titleNe: string
   tagSlugs: string[]
   authorSlugs: string[]
+  commentsEnabled: boolean
 }
 
 type CacheEntry = {
@@ -18,7 +19,8 @@ type CacheEntry = {
 }
 
 const cache = new Map<string, CacheEntry>()
-const TTL_MS = 5 * 60_000
+// This is also an authorization boundary for engagement writes; keep editorial changes fresh.
+const TTL_MS = 60_000
 const MAX_ENTRIES = 500
 
 /**
@@ -44,6 +46,7 @@ export async function getPublicArticleIdentity(
             titleNe: article.titleNe,
             tagSlugs: article.tags.map((tag) => tag.slug),
             authorSlugs: article.authors.map((author) => author.slug),
+            commentsEnabled: article.commentsEnabled === true,
           }
         : null,
     )

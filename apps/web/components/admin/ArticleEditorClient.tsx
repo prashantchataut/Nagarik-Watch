@@ -27,11 +27,11 @@ const ArticleEditorLazy = dynamic(
         aria-label="सम्पादक लोड हुँदै"
       >
         <div className="space-y-3">
-          <div className="h-12 rounded-md bg-rule/50" />
-          <div className="h-10 rounded-md bg-rule/40" />
-          <div className="h-64 rounded-md border border-rule bg-surface-raised" />
+          <div className="h-12 rounded-sm bg-rule/50" />
+          <div className="h-10 rounded-sm bg-rule/40" />
+          <div className="h-64 rounded-sm border border-rule bg-surface-raised" />
         </div>
-        <div className="h-80 rounded-md border border-rule bg-surface-raised" />
+        <div className="h-80 rounded-sm border border-rule bg-surface-raised" />
       </div>
     ),
   },

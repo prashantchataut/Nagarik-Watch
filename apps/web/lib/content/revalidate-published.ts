@@ -17,7 +17,17 @@ export function revalidatePublishedArticle(input: {
 
   const category = input.categorySlug.trim()
   const slug = input.slug.trim()
-  const paths = new Set<string>(['/rss.xml', '/news-sitemap.xml', '/sitemap.xml', '/'])
+  const paths = new Set<string>([
+    '/rss.xml',
+    '/en/rss.xml',
+    '/atom.xml',
+    '/feed.json',
+    '/news-sitemap.xml',
+    '/image-sitemap.xml',
+    '/video-sitemap.xml',
+    '/sitemap.xml',
+    '/',
+  ])
 
   for (const locale of LOCALES) {
     paths.add(`/${locale}`)

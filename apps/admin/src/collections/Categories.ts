@@ -6,7 +6,7 @@ export const Categories: CollectionConfig = {
   admin: {
     useAsTitle: 'nameNe',
     defaultColumns: ['nameNe', 'nameEn', 'slug', 'navOrder', 'showInNav'],
-    group: 'Content',
+    group: 'वर्गीकरण',
   },
   access: {
     read: anyone,

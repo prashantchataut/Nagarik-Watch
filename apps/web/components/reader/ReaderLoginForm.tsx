@@ -71,7 +71,7 @@ export function ReaderLoginForm({
       {notice ? (
         <div
           role="status"
-          className="rounded-md border border-rule bg-surface-raised px-4 py-3 text-meta font-semibold text-ink"
+          className="border border-rule bg-surface-raised px-4 py-3 text-meta font-semibold text-ink"
           lang={ne ? 'ne' : 'en'}
         >
           {notice === 'reset'
@@ -86,7 +86,7 @@ export function ReaderLoginForm({
       {error && (
         <div
           role="alert"
-          className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+          className="border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
         >
           {error}
         </div>
@@ -101,7 +101,7 @@ export function ReaderLoginForm({
           required
           disabled={pending}
           placeholder="you@example.com"
-          className="rounded-md border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
+          className="border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
         />
       </label>
 
@@ -133,7 +133,7 @@ export function ReaderLoginForm({
 
       <div className="flex items-center justify-between text-caption">
         <Link
-          href={ne ? '/auth/forgot-password/' : '/en/auth/forgot-password/'}
+          href={`${ne ? '' : '/en'}/auth/forgot-password${safeNext(next) ? `?next=${encodeURIComponent(safeNext(next)!)}` : ''}`}
           className="text-ink-soft underline-offset-2 hover:text-brand-strong hover:underline"
         >
           <span lang={ne ? 'ne' : 'en'}>{ne ? 'पासवर्ड भुल्नुभयो?' : 'Forgot password?'}</span>

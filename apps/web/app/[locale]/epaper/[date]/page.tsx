@@ -9,7 +9,8 @@ import { LiveDeskShell } from '@/components/public/LiveDeskShell'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 import { staticEpaperDateParams } from '@/lib/static-export-params'
 
-export const dynamic = 'force-static'
+// Session-aware on the Node origin, but still exportable for the API-less static preview.
+export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
   const { editions } = await listReplicaPages()

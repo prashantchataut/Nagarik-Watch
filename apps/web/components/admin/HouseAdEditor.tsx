@@ -63,13 +63,13 @@ export function HouseAdEditor({
             label: `${item.key} · ${item.width}×${item.height}`,
           }))}
         />
-        <div className="rounded-md border border-rule bg-surface px-3 py-2.5 text-caption text-ink-soft">
+        <div className="rounded-sm border border-rule bg-surface px-3 py-2.5 text-caption text-ink-soft">
           <span className="block font-bold text-ink" lang="en">
             {placement.label}
           </span>
           <span lang="en">{placement.position}</span>
         </div>
-        <label className="flex min-h-11 items-center gap-2 rounded-md border border-rule bg-surface px-3 text-meta font-semibold text-ink-soft">
+        <label className="flex min-h-11 items-center gap-2 rounded-sm border border-rule bg-surface px-3 text-meta font-semibold text-ink-soft">
           <input
             name="active"
             type="checkbox"
@@ -80,7 +80,7 @@ export function HouseAdEditor({
         </label>
       </div>
 
-      <fieldset className="grid gap-3 rounded-lg border border-rule p-4 lg:grid-cols-6">
+      <fieldset className="grid gap-3 rounded-sm border border-rule p-4 lg:grid-cols-6">
         <legend className="px-1 text-meta font-bold text-brand-strong" lang="ne">
           नेपाली creative
         </legend>
@@ -95,7 +95,7 @@ export function HouseAdEditor({
         </div>
       </fieldset>
 
-      <fieldset className="grid gap-3 rounded-lg border border-rule p-4 lg:grid-cols-6">
+      <fieldset className="grid gap-3 rounded-sm border border-rule p-4 lg:grid-cols-6">
         <legend className="px-1 text-meta font-bold text-brand-strong" lang="en">
           English variant
         </legend>
@@ -130,7 +130,7 @@ export function HouseAdEditor({
         />
       </div>
 
-      <fieldset className="grid gap-3 rounded-lg border border-rule bg-surface p-4 lg:grid-cols-6">
+      <fieldset className="grid gap-3 rounded-sm border border-rule bg-surface p-4 lg:grid-cols-6">
         <legend className="px-1 text-meta font-bold text-brand-strong" lang="en">
           A/B challenger
         </legend>

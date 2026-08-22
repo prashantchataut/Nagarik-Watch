@@ -1,8 +1,10 @@
 import { bsMonthLength } from './date'
 
 /**
- * Comprehensive Bikram Sambat festival and public-holiday dataset for Nepal.
- * Covers 80+ national holidays, cultural festivals, Jayantis, Sankrantis, and observances.
+ * Legacy reference dates only. This table is not a verified schedule for a specific B.S. year.
+ * Lunar festivals and government holidays can move; reader-facing calendars must use a
+ * year-specific sourced schedule instead of treating these dates as current.
+ * @deprecated Prefer the newsroom-published calendar schedule for public surfaces.
  */
 
 export type CalendarEvent = {

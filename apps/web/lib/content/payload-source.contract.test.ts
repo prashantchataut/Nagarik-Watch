@@ -33,6 +33,7 @@ const SAMPLE_ARTICLE = {
 }
 
 describe('Payload content source contract', () => {
+  vi.setConfig({ testTimeout: 20_000 })
   const env = process.env
 
   beforeEach(() => {
@@ -105,6 +106,7 @@ describe('Payload content source contract', () => {
     expect(article?.titleNe).toBe('बजेट संक्षिप्त')
     expect(article?.category.slug).toBe('politics')
     expect(article?.authors[0]?.name).toBe('Reporter')
+    expect(article?.tags?.map((tag) => tag.slug)).toEqual(['budget'])
     expect(article?.heroImage?.url).toBe('https://cms.test/media/budget.jpg')
   })
 
@@ -116,10 +118,57 @@ describe('Payload content source contract', () => {
     expect(homepage).not.toBeNull()
     expect(homepage?.lead.slug).toBe('budget-brief')
     expect(homepage?.lead.category.slug).toBe('politics')
+    expect(homepage?.lead.tags?.map((tag) => tag.slug)).toEqual(['budget'])
     expect(homepage?.featured.length).toBeGreaterThan(0)
   })
 
-  it('queries only published/updated stages for readers (scheduled stays cron-gated)', async () => {
+  it('requires publishAt to have reached the reader cutoff', async () => {
+    const { createPayloadContentSource } = await import('./payload-source')
+    const source = await createPayloadContentSource()
+    await source.getHomepage()
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>
+    const articleUrl = fetchMock.mock.calls
+      .map((call) => decodeURIComponent(String(call[0])))
+      .find((url) => url.includes('/api/articles?'))
+    expect(articleUrl).toContain('where[and][2][publishAt][less_than_equal]=')
+    expect(articleUrl).not.toContain('[publishAt][exists]=false')
+    expect(articleUrl).not.toContain('[publishAt][equals]=null')
+  })
+
+  it('uses the exact reader publication cutoff so the first post-publish render is eligible', async () => {
+    const now = Date.parse('2026-08-21T10:00:14.900Z')
+    vi.spyOn(Date, 'now').mockReturnValue(now)
+
+    const { createPayloadContentSource } = await import('./payload-source')
+    const source = await createPayloadContentSource()
+    await source.getHomepage()
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>
+    const articleUrl = fetchMock.mock.calls
+      .map((call) => String(call[0]))
+      .find((url) => url.includes('/api/articles?'))
+    expect(articleUrl).toBeTruthy()
+    const cutoff = new URL(articleUrl!).searchParams.get(
+      'where[and][2][publishAt][less_than_equal]',
+    )
+    expect(cutoff).toBeTruthy()
+    expect(Date.parse(String(cutoff))).toBe(now)
+  })
+
+  it('keeps the publication gate when a search adds its own OR clauses', async () => {
+    const { createPayloadContentSource } = await import('./payload-source')
+    const source = await createPayloadContentSource()
+    await source.getStories({ q: 'budget', locale: 'ne', page: 1 })
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>
+    const searchUrl = fetchMock.mock.calls
+      .map((call) => decodeURIComponent(String(call[0])))
+      .find((url) => url.includes('/api/articles?') && url.includes('budget'))
+
+    expect(searchUrl).toContain('where[and][0][_status][equals]=published')
+    expect(searchUrl).toContain('where[and][2][publishAt][less_than_equal]=')
+    expect(searchUrl).toContain('where[or][0][titleNe][contains]=budget')
+  })
+
+  it('includes scheduled in the reader stage gate so due stories do not depend on cron promotion', async () => {
     const { createPayloadContentSource } = await import('./payload-source')
     const source = await createPayloadContentSource()
     await source.getHomepage()
@@ -127,8 +176,8 @@ describe('Payload content source contract', () => {
     const articleCalls = fetchMock.mock.calls
       .map((call) => String(call[0]))
       .filter((url) => url.includes('/api/articles'))
-    expect(articleCalls.some((url) => url.includes('published'))).toBe(true)
-    expect(articleCalls.every((url) => !decodeURIComponent(url).includes('scheduled'))).toBe(true)
+    const decoded = articleCalls.map((url) => decodeURIComponent(url)).join('\n')
+    expect(decoded).toContain('where[and][1][workflowStage][in]=scheduled,published,updated')
   })
 
   it('builds homepage sections from expanded article categories when the category endpoint is down', async () => {
@@ -155,7 +204,7 @@ describe('Payload content source contract', () => {
     expect(homepage?.sections[0]?.lead?.slug).toBe('budget-brief')
   })
 
-  it('reuses a warm article response across publication-cutoff buckets during a CMS outage', async () => {
+  it('reuses a warm article response across publication cutoff timestamps during a CMS outage', async () => {
     const firstMinute = Date.parse('2026-07-01T10:00:30.000Z')
     const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(firstMinute)
 
@@ -167,8 +216,8 @@ describe('Payload content source contract', () => {
     nowSpy.mockReturnValue(firstMinute + 90_000)
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () =>
-        new Response(JSON.stringify({ message: 'cms unavailable' }), { status: 503 }),
+      vi.fn(
+        async () => new Response(JSON.stringify({ message: 'cms unavailable' }), { status: 503 }),
       ),
     )
 

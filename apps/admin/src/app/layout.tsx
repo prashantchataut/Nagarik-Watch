@@ -6,6 +6,7 @@ import { RootLayout, handleServerFunctions } from '@payloadcms/next/layouts'
 import { importMap } from './(payload)/admin/importMap'
 import type { ServerFunctionClient } from 'payload'
 import '@payloadcms/next/css'
+import './globals.css'
 
 type Args = {
   children: React.ReactNode
@@ -22,8 +23,8 @@ const serverFunction: ServerFunctionClient = (args) =>
 const Layout = ({ children }: Args) => RootLayout({ config, importMap, children, serverFunction })
 
 export const metadata: Metadata = {
-  title: 'Nagarik Watch CMS',
-  description: 'Editorial CMS for Nagarik Watch (नागरिक वाच)',
+  title: 'नागरिक वाच न्यूजरुम',
+  description: 'नागरिक वाचको सम्पादकीय प्रकाशन प्रणाली',
 }
 
 export default Layout

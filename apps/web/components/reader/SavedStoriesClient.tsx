@@ -211,36 +211,14 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
         </Link>
       </nav>
 
-      <section className="mt-6 border-y border-rule bg-surface-raised px-4 py-5">
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <p className="text-caption font-semibold text-mute">
-              {ne ? 'सूची प्रकार' : 'List type'}
-            </p>
-            <p className="mt-1 font-display text-h3 text-ink">{ne ? 'फेरि पढ्न' : 'Read later'}</p>
-          </div>
-          <div>
-            <p className="text-caption font-semibold text-mute">
-              {ne ? 'उपकरण स्थिति' : 'Device status'}
-            </p>
-            <p className="mt-1 text-body text-ink-soft">
-              {ne
-                ? 'स्थानीय सुरक्षित सूची तुरुन्तै काम गर्छ, खाता सिङ्क उपलब्ध हुँदा त्यो पनि जोडिन्छ।'
-                : 'Local saves work immediately, with account sync merging in when available.'}
-            </p>
-          </div>
-          <div>
-            <p className="text-caption font-semibold text-mute">
-              {ne ? 'सम्बन्धित ठाउँ' : 'Related areas'}
-            </p>
-            <p className="mt-1 text-body text-ink-soft">
-              {ne
-                ? 'पढाइ इतिहास र सिफारिसका लागि पढाइ डेस्क हेर्नुहोस्।'
-                : 'Open the reading desk for history, recommendations and alerts.'}
-            </p>
-          </div>
-        </div>
-      </section>
+      <p
+        className="mt-6 border-y border-rule py-4 text-meta leading-relaxed text-ink-soft"
+        lang={ne ? 'ne' : 'en'}
+      >
+        {ne
+          ? 'सुरक्षित समाचार यस उपकरणमा तुरुन्तै रहन्छन्। खाता सिङ्क उपलब्ध हुँदा एउटै सूचीमा जोडिन्छ; पढाइ इतिहास र सिफारिस पढाइ डेस्कमा छन्।'
+          : 'Saved stories stay on this device immediately. Account sync merges into the same list when available; history and recommendations live in the reading desk.'}
+      </p>
 
       {syncError ? (
         <p

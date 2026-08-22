@@ -23,7 +23,7 @@ export default async function SeoPage() {
       <AdminCard>
         <div className="grid gap-3">
           {checks.map(([label, value]) => (
-            <div key={label} className="rounded-md border border-rule bg-surface p-4">
+            <div key={label} className="rounded-sm border border-rule bg-surface p-4">
               <p className="text-caption font-bold text-mute" lang="en">
                 {label}
               </p>

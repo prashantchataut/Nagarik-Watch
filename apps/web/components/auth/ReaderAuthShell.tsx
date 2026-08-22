@@ -5,78 +5,88 @@ import { localizeHref } from '@/lib/i18n/locales'
 
 type AuthMode = 'login' | 'signup' | 'recover' | 'reset' | 'change' | 'invite'
 
-type AuthCopy = {
-  formTitleNe: string
-  formTitleEn: string
-  formBodyNe: string
-  formBodyEn: string
-  panelTitleNe: string
-  panelTitleEn: string
-  panelBodyNe: string
-  panelBodyEn: string
-}
-
-const copy: Record<AuthMode, AuthCopy> = {
+const copy: Record<
+  AuthMode,
+  {
+    formTitleNe: string
+    formTitleEn: string
+    formBodyNe: string
+    formBodyEn: string
+    panelTitleNe: string
+    panelTitleEn: string
+    panelBodyNe: string
+    panelBodyEn: string
+  }
+> = {
   login: {
-    formTitleNe: 'पाठक लगइन',
-    formTitleEn: 'Reader sign-in',
-    formBodyNe: 'सुरक्षित समाचार र व्यक्तिगत सिफारिसका लागि खाता प्रयोग गर्नुहोस्।',
-    formBodyEn: 'Sign in to access saved stories and personalized recommendations.',
-    panelTitleNe: 'पढाइ सधैं निःशुल्क र खुला',
-    panelTitleEn: 'Reading stays 100% free',
-    panelBodyNe: 'नागरिक वाचमा समाचार पढ्न खाता बनाउनु वा साइन इन गर्नु अनिवार्य छैन।',
+    formTitleNe: 'पाठक खाता',
+    formTitleEn: 'Reader account',
+    formBodyNe: 'सुरक्षित समाचार र पढाइ इतिहास सिंक गर्न लगइन गर्नुहोस्।',
+    formBodyEn: 'Sign in to sync saved stories and reading history.',
+    panelTitleNe: 'समाचार खुला नै रहन्छ',
+    panelTitleEn: 'News stays open',
+    panelBodyNe:
+      'खाता समाचार पढ्नका लागि होइन। यो सुरक्षित सामग्री, इतिहास र व्यक्तिगत प्राथमिकताका लागि मात्र हो।',
     panelBodyEn:
-      'Accounts are strictly optional for saving bookmarks. You never need an account just to read.',
+      'An account is not required to read. It is only for saved stories, history and reader preferences.',
   },
   signup: {
-    formTitleNe: 'नयाँ पाठक खाता बनाउनुहोस्',
-    formTitleEn: 'Create reader account',
-    formBodyNe: 'निःशुल्क खाता। मनपरेका समाचार सुरक्षित गर्न र पछि पढ्न।',
-    formBodyEn: 'Free reader account to save articles and sync across devices.',
-    panelTitleNe: 'स्वतन्त्र नेपाली पत्रकारिता',
-    panelTitleEn: 'Independent Nepali Journalism',
-    panelBodyNe: 'सार्वजनिक सरोकारका तथ्य र विश्वसनीय रिपोर्टिङ।',
-    panelBodyEn: 'Civic scrutiny, verified facts and public-interest reporting.',
+    formTitleNe: 'पाठक खाता बनाउनुहोस्',
+    formTitleEn: 'Create a reader account',
+    formBodyNe: 'इमेल र पासवर्डले उपकरणबीच सुरक्षित सामग्री सिंक गर्नुहोस्।',
+    formBodyEn: 'Use email and password to sync saved stories across devices.',
+    panelTitleNe: 'पाठक पहिलो',
+    panelTitleEn: 'Reader first',
+    panelBodyNe:
+      'सार्वजनिक साइनअपले न्युजरुम भूमिका दिँदैन। पत्रकार र सम्पादकीय पहुँच निमन्त्रणाबाट मात्र आउँछ।',
+    panelBodyEn:
+      'Public sign-up never grants newsroom roles. Reporter and editorial access are invitation-only.',
   },
   recover: {
-    formTitleNe: 'पासवर्ड पुनःप्राप्ति',
+    formTitleNe: 'पासवर्ड रिसेट',
     formTitleEn: 'Reset password',
-    formBodyNe: 'दर्ता भएको इमेल ठेगाना लेख्नुहोस्।',
-    formBodyEn: 'Enter your registered email address.',
-    panelTitleNe: 'खाता सुरक्षा',
-    panelTitleEn: 'Account Security',
-    panelBodyNe: 'पासवर्ड रिसेट लिंक तपाईंको इमेलमा पठाइनेछ।',
-    panelBodyEn: 'A secure single-use recovery link will be sent to your email.',
+    formBodyNe: 'खातामा प्रयोग भएको इमेल लेख्नुहोस्।',
+    formBodyEn: 'Enter the email used for your account.',
+    panelTitleNe: 'एक पटकको सुरक्षित लिंक',
+    panelTitleEn: 'Single-use recovery link',
+    panelBodyNe:
+      'खाता भएमा रिसेट लिंक इमेलमा पठाइन्छ। सुरक्षा कारणले हामी यहाँ खाता छ वा छैन भन्ने पुष्टि गर्दैनौँ।',
+    panelBodyEn:
+      'If an account exists, a recovery link is emailed. For security, this screen does not confirm whether an address is registered.',
   },
   reset: {
-    formTitleNe: 'नयाँ पासवर्ड राख्नुहोस्',
-    formTitleEn: 'Set new password',
+    formTitleNe: 'नयाँ पासवर्ड',
+    formTitleEn: 'Choose a new password',
     formBodyNe: 'कम्तीमा ८ अक्षरको बलियो पासवर्ड राख्नुहोस्।',
     formBodyEn: 'Choose a strong password with at least 8 characters.',
-    panelTitleNe: 'सुरक्षित लिंक',
-    panelTitleEn: 'Secure Link',
-    panelBodyNe: 'यो लिंक एक पटक मात्र प्रयोग गर्न सकिनेछ।',
-    panelBodyEn: 'This recovery link expires after single use.',
+    panelTitleNe: 'लिंकको अवस्था',
+    panelTitleEn: 'Recovery link',
+    panelBodyNe:
+      'मान्य रिकभरी टोकन URL बाट पढिन्छ। म्याद सकिएको वा अपूर्ण लिंकले पासवर्ड परिवर्तन गर्दैन।',
+    panelBodyEn:
+      'The recovery token is read from the URL. Expired or incomplete links cannot change a password.',
   },
   change: {
     formTitleNe: 'पासवर्ड परिवर्तन',
     formTitleEn: 'Change password',
-    formBodyNe: 'हालको पासवर्ड पुष्टि गर्नुहोस्।',
-    formBodyEn: 'Confirm your current password first.',
-    panelTitleNe: 'सुरक्षा नियन्त्रण',
-    panelTitleEn: 'Security Controls',
-    panelBodyNe: 'अन्य उपकरणका सक्रिय सत्रहरू बन्द हुनेछन्।',
-    panelBodyEn: 'Sessions on other devices will be invalidated.',
+    formBodyNe: 'हालको पासवर्ड पुष्टि गरेर नयाँ पासवर्ड राख्नुहोस्।',
+    formBodyEn: 'Confirm your current password before setting a new one.',
+    panelTitleNe: 'खाता सुरक्षा',
+    panelTitleEn: 'Account security',
+    panelBodyNe: 'पासवर्ड परिवर्तनपछि अन्य उपकरणका सत्र बन्द गर्न सकिन्छ।',
+    panelBodyEn: 'After changing your password, other device sessions can be invalidated.',
   },
   invite: {
-    formTitleNe: 'न्युजरुम निमन्त्रणा स्वीकार',
-    formTitleEn: 'Accept newsroom invite',
-    formBodyNe: 'निमन्त्रणा आएको इमेलसँग मिलाउनुहोस्।',
-    formBodyEn: 'Match the email address that received the invitation.',
-    panelTitleNe: 'न्युजरुम डेस्क',
-    panelTitleEn: 'Newsroom Desk',
-    panelBodyNe: 'सम्पादकीय भूमिका सम्पादकद्वारा दिइन्छ।',
-    panelBodyEn: 'Editorial permissions are granted by senior editors.',
+    formTitleNe: 'न्युजरुम निमन्त्रणा',
+    formTitleEn: 'Newsroom invitation',
+    formBodyNe: 'निमन्त्रणा आएको यही इमेलको खाताबाट स्वीकार गर्नुहोस्।',
+    formBodyEn: 'Accept with the account using the same email that received the invite.',
+    panelTitleNe: 'भूमिका सम्पादकले दिन्छन्',
+    panelTitleEn: 'Editorial roles are granted',
+    panelBodyNe:
+      'पाठक खातालाई न्युजरुम भूमिकामा उचाल्ने काम वैध, म्यादभित्रको निमन्त्रणा र सर्भर-side अनुमति जाँचपछि मात्र हुन्छ।',
+    panelBodyEn:
+      'A reader account is elevated only after a valid, unexpired invite and server-side permission checks.',
   },
 }
 
@@ -92,125 +102,86 @@ export function ReaderAuthShell({
   const ne = locale === 'ne'
   const content = copy[mode]
   const showRoleSwitch = mode === 'login' || mode === 'signup'
+  const lang = ne ? 'ne' : 'en'
 
   return (
-    <div className="min-h-[85vh] bg-surface flex flex-col justify-center py-8 sm:py-12">
-      <div className="mx-auto w-full max-w-4xl px-3 sm:px-6">
-        <div className="grid overflow-hidden rounded-2xl border border-rule bg-surface-raised shadow-card lg:grid-cols-[1.1fr_1fr]">
-          {/* Left: Editorial & Civic Reassurance Panel */}
-          <aside className="hidden flex-col justify-between bg-chrome p-8 text-on-chrome border-r border-chrome-rule lg:flex">
-            <div>
+    <main className="min-h-[78vh] bg-surface py-8 sm:py-12" lang={lang}>
+      <div className="mx-auto w-full max-w-5xl px-3 sm:px-5">
+        <header className="flex items-center justify-between gap-4 border-b border-rule pb-4">
+          <Link
+            href={localizeHref(locale, '/')}
+            aria-label={ne ? 'नागरिक वाच गृहपृष्ठ' : 'Nagarik Watch home'}
+          >
+            <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
+          </Link>
+          <span className="text-caption font-bold text-mute">
+            {ne ? 'पाठक सेवा' : 'Reader service'}
+          </span>
+        </header>
+
+        {showRoleSwitch ? (
+          <nav className="border-b border-rule" aria-label={ne ? 'खाता प्रकार' : 'Account type'}>
+            <div className="flex min-w-0 overflow-x-auto">
               <Link
-                href={localizeHref(locale, '/')}
-                className="inline-block transition-opacity hover:opacity-90"
+                href={localizeHref(locale, '/auth/login')}
+                className="inline-flex min-h-11 shrink-0 items-center border-b-2 border-brand px-3 text-meta font-extrabold text-brand-strong"
               >
-                <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} tone="chrome" />
+                {ne ? 'पाठक' : 'Reader'}
               </Link>
-
-              <div className="mt-12">
-                <span className="inline-flex rounded-full bg-brand-tint px-3 py-0.5 text-caption font-bold text-brand-strong uppercase">
-                  {ne ? 'नागरिक सेवा' : 'Public Service'}
-                </span>
-                <h2
-                  className="mt-4 font-display text-[1.75rem] font-black leading-tight text-on-chrome"
-                  lang={ne ? 'ne' : 'en'}
-                >
-                  {ne ? content.panelTitleNe : content.panelTitleEn}
-                </h2>
-                <span className="mt-3 block h-1 w-12 rounded bg-brand" aria-hidden="true" />
-                <p
-                  className="mt-4 text-body leading-relaxed text-on-chrome-soft"
-                  lang={ne ? 'ne' : 'en'}
-                >
-                  {ne ? content.panelBodyNe : content.panelBodyEn}
-                </p>
-              </div>
+              <Link
+                href={localizeHref(locale, '/journalist/login')}
+                className="inline-flex min-h-11 shrink-0 items-center border-b-2 border-transparent px-3 text-meta font-bold text-ink-soft hover:border-rule-strong hover:text-ink"
+              >
+                {ne ? 'पत्रकार डेस्क' : 'Reporter desk'}
+              </Link>
+              <Link
+                href="/admin/login"
+                className="inline-flex min-h-11 shrink-0 items-center border-b-2 border-transparent px-3 text-meta font-bold text-ink-soft hover:border-rule-strong hover:text-ink"
+              >
+                {ne ? 'सम्पादकीय एडमिन' : 'Editorial admin'}
+              </Link>
             </div>
+          </nav>
+        ) : null}
 
-            <div className="border-t border-chrome-rule/60 pt-4 text-caption text-on-chrome-soft">
-              <p lang={ne ? 'ne' : 'en'}>
-                {ne
-                  ? 'नागरिक वाच • स्वतन्त्र नेपाली डिजिटल समाचार'
-                  : 'Nagarik Watch • Independent Nepali News'}
-              </p>
-            </div>
+        <div className="grid border-b border-rule lg:grid-cols-[minmax(0,0.86fr)_minmax(24rem,1.14fr)]">
+          <aside className="border-b border-rule py-8 lg:border-b-0 lg:border-r lg:py-12 lg:pr-10">
+            <p className="text-caption font-extrabold text-brand-strong">
+              {ne ? 'नागरिक वाच खाता' : 'Nagarik Watch account'}
+            </p>
+            <h2 className="mt-2 max-w-lg font-display text-[clamp(1.9rem,4vw,3.1rem)] font-black leading-[1.12] text-ink">
+              {ne ? content.panelTitleNe : content.panelTitleEn}
+            </h2>
+            <span className="mt-4 block h-0.5 w-12 bg-brand" aria-hidden="true" />
+            <p className="mt-4 max-w-lg text-body leading-relaxed text-ink-soft">
+              {ne ? content.panelBodyNe : content.panelBodyEn}
+            </p>
           </aside>
 
-          {/* Right: Auth Form Surface */}
-          <div className="p-6 sm:p-8 flex flex-col justify-center bg-surface">
-            <div className="mb-6 lg:hidden">
-              <Link href={localizeHref(locale, '/')} className="inline-block">
-                <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
-              </Link>
-            </div>
-
-            {showRoleSwitch ? (
-              <nav
-                className="mb-5 flex flex-wrap items-center gap-1.5 border-b border-rule pb-3.5"
-                aria-label={ne ? 'लगइन प्रकार' : 'Sign-in type'}
-              >
-                <Link
-                  href={localizeHref(locale, '/auth/login')}
-                  className="rounded-full bg-brand px-3 py-1 text-caption font-extrabold text-paper shadow-sm"
-                >
-                  {ne ? 'पाठक खाता' : 'Reader'}
-                </Link>
-                <Link
-                  href={localizeHref(locale, '/journalist/login')}
-                  className="rounded-full border border-rule px-3 py-1 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong transition-colors"
-                >
-                  {ne ? 'पत्रकार डेस्क' : 'Reporter'}
-                </Link>
-                <Link
-                  href="/admin/login"
-                  className="rounded-full border border-rule px-3 py-1 text-caption font-semibold text-ink-soft hover:border-brand hover:text-brand-strong transition-colors"
-                >
-                  {ne ? 'न्युजरुम एडमिन' : 'Admin'}
-                </Link>
-              </nav>
-            ) : null}
-
-            <h1
-              className="font-display text-[1.45rem] sm:text-[1.65rem] font-black text-ink"
-              lang={ne ? 'ne' : 'en'}
-            >
+          <section className="py-8 lg:py-12 lg:pl-10" aria-labelledby="reader-auth-title">
+            <p className="text-caption font-bold text-mute">
+              {ne ? 'सुरक्षित पहुँच' : 'Secure access'}
+            </p>
+            <h1 id="reader-auth-title" className="mt-1 font-display text-h1 font-black text-ink">
               {ne ? content.formTitleNe : content.formTitleEn}
             </h1>
-            <p className="mt-1.5 text-caption sm:text-meta text-ink-soft" lang={ne ? 'ne' : 'en'}>
+            <p className="mt-2 max-w-body text-meta leading-relaxed text-ink-soft">
               {ne ? content.formBodyNe : content.formBodyEn}
             </p>
-
-            <div className="mt-5">{children}</div>
-
-            <p
-              className="mt-6 border-t border-rule pt-4 text-center text-caption text-mute"
-              lang={ne ? 'ne' : 'en'}
-            >
-              {ne ? (
-                <>
-                  समाचार पढ्न खाता चाहिँदैन।{' '}
-                  <Link
-                    href={localizeHref(locale, '/')}
-                    className="font-bold text-brand-strong underline"
-                  >
-                    गृहपृष्ठ फर्कनुहोस्
-                  </Link>
-                </>
-              ) : (
-                <>
-                  No account needed to read.{' '}
-                  <Link
-                    href={localizeHref(locale, '/')}
-                    className="font-bold text-brand-strong underline"
-                  >
-                    Return Home
-                  </Link>
-                </>
-              )}
-            </p>
-          </div>
+            <div className="mt-6 max-w-lg">{children}</div>
+          </section>
         </div>
+
+        <footer className="flex flex-wrap items-center justify-between gap-3 pt-4 text-caption text-mute">
+          <p>{ne ? 'समाचार पढ्न खाता चाहिँदैन।' : 'No account is required to read the news.'}</p>
+          <Link
+            href={localizeHref(locale, '/privacy')}
+            className="font-bold text-ink-soft hover:text-brand-strong"
+          >
+            {ne ? 'गोपनीयता' : 'Privacy'}
+          </Link>
+        </footer>
       </div>
-    </div>
+    </main>
   )
 }

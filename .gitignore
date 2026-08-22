@@ -69,6 +69,7 @@ nul
 # Local recovery / agent dumps (not product source)
 packages - Copy/
 nagarik-watch-latest.zip
+nagarik-watch-src.zip
 live-home.html
 live.css
 _archive_metadata/

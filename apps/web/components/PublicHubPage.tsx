@@ -96,12 +96,7 @@ export async function PublicHubPage({
         lang={lang}
       />
 
-      <AdSlot
-        locale={locale}
-        placementKey="hub-top"
-        variant="standard"
-        className="mt-4"
-      />
+      <AdSlot locale={locale} placementKey="hub-top" variant="standard" className="mt-4" />
 
       {hub.mode === 'utility' ? (
         <div className="mt-6">
@@ -118,11 +113,7 @@ export async function PublicHubPage({
             locale={locale}
             moreHeading={{ ne: 'यस खण्डका थप सामग्री', en: 'More in this section' }}
             sideKicker={{ ne: 'यहाँका अन्य', en: 'Also here' }}
-            midSlot={
-              <div className="border-y border-rule py-3">
-                <AdSlot locale={locale} placementKey="hub-inline" variant="native" />
-              </div>
-            }
+            midSlot={<AdSlot locale={locale} placementKey="hub-inline" variant="native" />}
           />
         </div>
       ) : hub.key === 'submit-story' ? null : (

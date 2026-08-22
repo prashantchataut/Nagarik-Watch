@@ -72,7 +72,7 @@ export function ReaderSubmissionForm({ locale }: Props) {
   return (
     <form
       onSubmit={submit}
-      className="mt-6 grid gap-4 rounded-xl border border-rule bg-surface p-5"
+      className="mt-6 grid gap-4 border border-rule bg-surface p-5"
       noValidate
     >
       {state ? (
@@ -142,7 +142,7 @@ export function ReaderSubmissionForm({ locale }: Props) {
         </span>
       </label>
 
-      <label className="flex items-start gap-3 rounded-lg border border-rule bg-surface-raised p-3 text-meta font-semibold text-ink">
+      <label className="flex items-start gap-3 border border-rule bg-surface-raised p-3 text-meta font-semibold text-ink">
         <input
           type="checkbox"
           className="mt-1"
@@ -179,7 +179,7 @@ export function ReaderSubmissionForm({ locale }: Props) {
         </div>
       ) : null}
 
-      <label className="flex items-start gap-3 rounded-lg border border-rule bg-surface-raised p-3 text-meta font-semibold text-ink">
+      <label className="flex items-start gap-3 border border-rule bg-surface-raised p-3 text-meta font-semibold text-ink">
         <input name="consent" type="checkbox" className="mt-1" required />
         <span>
           {ne

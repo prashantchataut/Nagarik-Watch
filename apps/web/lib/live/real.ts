@@ -19,6 +19,7 @@
 import 'server-only'
 import type { Locale } from '@nagarikwatch/db'
 import {
+  emptyLiveValue,
   failedLiveValue,
   type AqiReading,
   type LiveValue,
@@ -26,6 +27,7 @@ import {
   type WeatherReading,
 } from './types'
 import { getManualLiveRecord } from './manual'
+import { isManualForex, isManualGold, isManualNepse } from './manual-schema'
 import { execCircuit } from '../resilience/circuit-breaker'
 
 const KTM_LAT = 27.7172
@@ -297,21 +299,14 @@ const FOREX_FOCUS = new Set([
 ])
 
 /** REAL forex rates, NPR against the focus set. Provider-aware:
- *  FOREX_PROVIDER=fxrateapis with a licensed server credential uses fxrateapis (NPR cross-rates); otherwise
- *  the Nepal Rastra Bank daily feed is used. Falls back to an empty list on any failure. */
+ * Nepal Rastra Bank daily buy/sell rates are authoritative. A validated newsroom override
+ * is used only when NRB is unavailable. Midpoint providers are not converted into invented spreads. */
 export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate[]>> {
   const key = 'forex'
   const hit = cached<ForexRate[]>(key)
   if (hit) return hit
 
-  const provider = (process.env.FOREX_PROVIDER ?? 'nr-bank').toLowerCase()
-  const apiKey = process.env.FOREX_API_KEY
-
   try {
-    if (apiKey && provider === 'fxrateapis') {
-      const value = await fetchFxrateapisForex(apiKey)
-      if (value) return remember(key, value)
-    }
     const value = await execCircuit('nrb-forex', async () => {
       const today = new Date().toISOString().slice(0, 10)
       const url = `https://www.nrb.org.np/api/forex/v1/rates?from=${today}&to=${today}&per_page=10`
@@ -346,8 +341,8 @@ export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate
     })
     return remember(key, value)
   } catch (error) {
-    const manual = await getManualLiveRecord<ForexRate[]>('forex')
-    if (manual) {
+    const manual = await getManualLiveRecord<unknown>('forex')
+    if (manual && isManualForex(manual.data)) {
       return {
         status: 'ok',
         data: manual.data,
@@ -361,45 +356,10 @@ export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate
 }
 
 /**
- * fxrateapis returns 1 NPR expressed in each focus currency. We invert to NPR per 1 unit
- * of the currency (how Nepali readers quote rates). A retail-rate API has no buy/sell
- * spread, so we apply an indicative ±0.5% and label the source "FXRateAPIs (indicative)";
- * NRB remains the authoritative source when its feed is reachable.
+ * Third-party midpoint FX feeds are intentionally not mapped into buy/sell values.
+ * Nagarik Watch publishes the NRB retail buy/sell pair or a validated newsroom override;
+ * inventing a spread around a midpoint would make an indicative quote look authoritative.
  */
-async function fetchFxrateapisForex(apiKey: string): Promise<LiveValue<ForexRate[]> | null> {
-  return execCircuit('fxrateapis-forex', async () => {
-    const currencies = [...FOREX_FOCUS].join(',')
-    const url =
-      `https://api.fxrateapis.com/latest?base=NPR&currencies=${currencies}` +
-      `&api_key=${encodeURIComponent(apiKey)}`
-    const res = await withTimeout(fetch(url, { next: { revalidate: 600 } }), 5000)
-    if (!res.ok) throw new Error(`fxrateapis http ${res.status}`)
-    const j = (await res.json()) as { rates?: Record<string, number> }
-    const ratesMap = j.rates ?? {}
-    const rates: ForexRate[] = []
-    for (const iso3 of FOREX_FOCUS) {
-      const perNpr = ratesMap[iso3]
-      if (typeof perNpr !== 'number' || perNpr <= 0) continue
-      const nprPerUnit = 1 / perNpr
-      rates.push({
-        iso3,
-        name: iso3,
-        buy: Number((nprPerUnit * 0.995).toFixed(2)),
-        sell: Number((nprPerUnit * 1.005).toFixed(2)),
-        unit: 'NPR',
-      })
-    }
-    if (rates.length === 0) throw new Error('fxrateapis empty')
-    return {
-      status: 'ok',
-      data: rates,
-      source: 'FXRateAPIs (indicative)',
-      updatedAt: new Date().toISOString(),
-      mock: false,
-    }
-  })
-}
-
 /**
  * NEPSE — scraped from the public nepalstock.com homepage snippet (no official
  * JSON API exists free of charge). This is intentionally best-effort: any
@@ -446,8 +406,8 @@ export async function getRealNepse(_locale: Locale): Promise<LiveValue<NepseRead
     })
     return remember(key, value)
   } catch (error) {
-    const manual = await getManualLiveRecord<NepseReading>('nepse')
-    if (manual) {
+    const manual = await getManualLiveRecord<unknown>('nepse')
+    if (manual && isManualNepse(manual.data)) {
       return {
         status: 'ok',
         data: manual.data,
@@ -499,8 +459,8 @@ export type GoldSilverReading = {
  * until then the widget renders an attributed empty state. When a licensed feed is contracted, swap the fetch here.
  */
 export async function getRealGoldSilver(_locale: Locale): Promise<LiveValue<GoldSilverReading>> {
-  const manual = await getManualLiveRecord<GoldSilverReading>('gold-silver')
-  if (manual) {
+  const manual = await getManualLiveRecord<unknown>('gold-silver')
+  if (manual && isManualGold(manual.data)) {
     return {
       status: 'ok',
       source: manual.source,
@@ -509,17 +469,5 @@ export async function getRealGoldSilver(_locale: Locale): Promise<LiveValue<Gold
       data: manual.data,
     }
   }
-  return {
-    status: 'ok',
-    source: 'FENEGOSIDA (महासंघ दर)',
-    updatedAt: new Date().toISOString(),
-    mock: false,
-    data: {
-      goldTolaNpr: 142000,
-      silverTolaNpr: 1800,
-      goldGramNpr: 12174,
-      silverGramNpr: 154,
-      unit: 'NPR',
-    },
-  }
+  return emptyLiveValue<GoldSilverReading>('Newsroom-verified bullion rate')
 }

@@ -50,10 +50,7 @@ async function saveHouseAd(formData: FormData) {
     const challengerHref = String(formData.get('challengerHref') ?? '').trim()
     if (
       abEnabled &&
-      (!challengerTitle ||
-        !challengerBody ||
-        !challengerCta ||
-        !isSafeCampaignHref(challengerHref))
+      (!challengerTitle || !challengerBody || !challengerCta || !isSafeCampaignHref(challengerHref))
     ) {
       redirect('/admin/ads?error=challenger')
     }
@@ -157,7 +154,7 @@ export default async function AdsPage({
       {params.saved === '1' ? (
         <p
           role="status"
-          className="mb-4 rounded-md border border-up/30 bg-brand-tint/50 px-4 py-3 text-meta font-semibold text-brand-strong"
+          className="mb-4 rounded-sm border border-up/30 bg-brand-tint/50 px-4 py-3 text-meta font-semibold text-brand-strong"
           lang="ne"
         >
           House ad सुरक्षित भयो। Active छ भने सार्वजनिक पृष्ठमा देखिन्छ।
@@ -166,7 +163,7 @@ export default async function AdsPage({
       {params.promoted !== undefined ? (
         <p
           role="status"
-          className="mb-4 rounded-md border border-up/30 bg-brand-tint/50 px-4 py-3 text-meta font-semibold text-brand-strong"
+          className="mb-4 rounded-sm border border-up/30 bg-brand-tint/50 px-4 py-3 text-meta font-semibold text-brand-strong"
           lang="ne"
         >
           {Number(params.promoted) > 0
@@ -177,7 +174,7 @@ export default async function AdsPage({
       {params.error ? (
         <p
           role="alert"
-          className="mb-4 rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+          className="mb-4 rounded-sm border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
           lang="ne"
         >
           {params.error === 'permission'
@@ -289,7 +286,7 @@ export default async function AdsPage({
         {Object.entries(grouped).map(([surface, items]) => (
           <section
             key={surface}
-            className="overflow-hidden rounded-lg border border-rule bg-surface-raised"
+            className="overflow-hidden rounded-sm border border-rule bg-surface-raised"
           >
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rule bg-surface px-4 py-3">
               <h2 className="font-display text-h2 text-ink" lang="en">

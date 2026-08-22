@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
+import { SectionHeader } from '@nagarikwatch/ui'
 import { localizeHref } from '@/lib/i18n/locales'
 import { DenseStoryItem } from '@/components/home/DenseStoryItem'
 import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
@@ -27,31 +27,24 @@ export function LatestRail({
 
   return (
     <aside className={className} aria-labelledby={headingId}>
-      <div className="flex items-end justify-between gap-3 border-b border-rule pb-2">
-        <div className="min-w-0">
-          <h2
-            id={headingId}
-            className="text-pretty font-display text-h3 font-extrabold text-ink"
-            lang={english ? 'en' : 'ne'}
-          >
-            {english ? 'Latest' : 'ताजा अपडेट'}
-          </h2>
-          <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
-        </div>
-        <Link
-          href={localizeHref(locale, '/latest')}
-          className="mb-0.5 shrink-0 text-caption font-bold text-ink-soft transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-          lang={english ? 'en' : 'ne'}
-        >
-          {english ? 'All updates' : 'सबै ताजा'}
-          <span aria-hidden="true"> →</span>
-        </Link>
-      </div>
+      <SectionHeader
+        id={headingId}
+        title={english ? 'Latest' : 'ताजा अपडेट'}
+        locale={locale}
+        href={localizeHref(locale, '/latest')}
+        moreLabel={english ? 'All updates' : 'सबै ताजा'}
+      />
 
       {compact ? (
-        <ol className="divide-y divide-rule border-b border-rule">
-          {items.map((story) => (
-            <li key={story.id} className="py-2.5">
+        <ol className="mt-3.5 space-y-3">
+          {items.map((story, index) => (
+            <li key={story.id} className="grid min-w-0 grid-cols-[1.45rem_minmax(0,1fr)] gap-2.5">
+              <span
+                className="pt-0.5 font-sans text-caption font-black tabular-nums text-brand-strong"
+                aria-hidden="true"
+              >
+                {String(index + 1).padStart(2, '0')}
+              </span>
               <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
                 <DenseStoryItem
                   story={story}
@@ -67,26 +60,33 @@ export function LatestRail({
           ))}
         </ol>
       ) : (
-        <div>
-          <div className="py-3">
-            <InstrumentedStory articleSlug={lead.slug} articleCategory={lead.category.slug}>
-              <DenseStoryItem story={lead} locale={locale} showDeck showDateline thumb="lg" />
-            </InstrumentedStory>
-          </div>
+        <div className="mt-4">
+          <InstrumentedStory articleSlug={lead.slug} articleCategory={lead.category.slug}>
+            <DenseStoryItem story={lead} locale={locale} showDeck showDateline thumb="lg" />
+          </InstrumentedStory>
           {briefs.length > 0 ? (
-            <ol className="divide-y divide-rule border-y border-rule">
-              {briefs.map((story) => (
-                <li key={story.id} className="py-2.5">
+            <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              {briefs.map((story, index) => (
+                <li
+                  key={story.id}
+                  className="grid min-w-0 grid-cols-[1.45rem_minmax(0,1fr)] gap-2.5"
+                >
+                  <span
+                    className="pt-0.5 font-sans text-caption font-black tabular-nums text-brand-strong"
+                    aria-hidden="true"
+                  >
+                    {String(index + 2).padStart(2, '0')}
+                  </span>
                   <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-              <DenseStoryItem
-                story={story}
-                locale={locale}
-                compact
-                showDeck={false}
-                showDateline
-                showMeta
-                thumb="sm"
-              />
+                    <DenseStoryItem
+                      story={story}
+                      locale={locale}
+                      compact
+                      showDeck={false}
+                      showDateline
+                      showMeta
+                      thumb="sm"
+                    />
                   </InstrumentedStory>
                 </li>
               ))}

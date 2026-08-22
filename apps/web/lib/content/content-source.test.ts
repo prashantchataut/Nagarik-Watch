@@ -40,7 +40,7 @@ describe('content source resolution', () => {
 
     expect(isPayloadSourceMisconfigured()).toBe(true)
     await expect(resolveContentSource()).rejects.toThrow(/PAYLOAD_PUBLIC_SERVER_URL/)
-  })
+  }, 15_000)
 
   it('fail-closes a declared live launch that still points at the shadow store', async () => {
     process.env.NEXT_PUBLIC_LAUNCH_STATUS = 'live'

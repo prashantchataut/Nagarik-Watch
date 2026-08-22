@@ -22,23 +22,31 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
     setError(null)
     const password = String(new FormData(event.currentTarget).get('password') ?? '')
     startTransition(async () => {
-      const response = await fetch('/api/auth/two-factor/enable', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ password, issuer: 'Nagarik Watch' }),
-      })
-      const body = (await response.json().catch(() => null)) as
-        | Enrollment
-        | { message?: string }
-        | null
-      if (!response.ok || !body || !('totpURI' in body)) {
+      try {
+        const response = await fetch('/api/auth/two-factor/enable', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ password, issuer: 'Nagarik Watch' }),
+        })
+        const body = (await response.json().catch(() => null)) as
+          | Enrollment
+          | { message?: string }
+          | null
+        if (!response.ok || !body || !('totpURI' in body)) {
+          setError(
+            (body && 'message' in body && body.message) ||
+              (ne ? 'MFA सुरु गर्न सकिएन।' : 'Could not start MFA enrollment.'),
+          )
+          return
+        }
+        setEnrollment({ totpURI: body.totpURI, backupCodes: body.backupCodes })
+      } catch {
         setError(
-          (body && 'message' in body && body.message) ||
-            (ne ? 'MFA सुरु गर्न सकिएन।' : 'Could not start MFA enrollment.'),
+          ne
+            ? 'सुरक्षा सेवा अहिले उपलब्ध छैन। फेरि प्रयास गर्नुहोस्।'
+            : 'The security service is unavailable. Try again.',
         )
-        return
       }
-      setEnrollment({ totpURI: body.totpURI, backupCodes: body.backupCodes })
     })
   }
 
@@ -47,20 +55,29 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
     setError(null)
     const code = String(new FormData(event.currentTarget).get('code') ?? '').replace(/\s/g, '')
     startTransition(async () => {
-      const response = await fetch('/api/auth/two-factor/verify-totp', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ code, trustDevice: true }),
-      })
-      const body = (await response.json().catch(() => null)) as { message?: string } | null
-      if (!response.ok) {
+      try {
+        const response = await fetch('/api/auth/two-factor/verify-totp', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ code, trustDevice: true }),
+        })
+        const body = (await response.json().catch(() => null)) as { message?: string } | null
+        if (!response.ok) {
+          setError(
+            body?.message ||
+              (ne ? 'कोड मिलेन। फेरि प्रयास गर्नुहोस्।' : 'Invalid code. Try again.'),
+          )
+          return
+        }
+        router.replace('/admin/dashboard')
+        router.refresh()
+      } catch {
         setError(
-          body?.message || (ne ? 'कोड मिलेन। फेरि प्रयास गर्नुहोस्।' : 'Invalid code. Try again.'),
+          ne
+            ? 'कोड जाँच सेवा अहिले उपलब्ध छैन। फेरि प्रयास गर्नुहोस्।'
+            : 'Verification is unavailable. Try again.',
         )
-        return
       }
-      router.replace('/admin/dashboard')
-      router.refresh()
     })
   }
 
@@ -83,12 +100,15 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
           hideLabel={ne ? 'लुकाउनुहोस्' : 'Hide'}
         />
         {error ? (
-          <p role="alert" className="text-meta font-semibold text-brand-strong">
+          <p
+            role="alert"
+            className="border-l-2 border-brand pl-3 text-meta font-semibold text-brand-strong"
+          >
             {error}
           </p>
         ) : null}
         <button
-          className="min-h-11 rounded-md bg-brand px-5 font-bold text-paper"
+          className="min-h-11 border border-brand bg-brand px-5 font-bold text-paper hover:bg-brand-strong"
           disabled={pending}
         >
           {pending
@@ -105,20 +125,23 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
 
   return (
     <div className="grid gap-6">
-      <div className="w-fit rounded-lg border border-rule bg-white p-4">
+      <div className="w-fit border border-rule bg-white p-4">
         <QRCodeSVG value={enrollment.totpURI} size={220} level="M" />
       </div>
-      <p className="break-all text-caption text-ink-soft">{enrollment.totpURI}</p>
+      <details className="border-y border-rule py-3 text-caption text-ink-soft">
+        <summary className="cursor-pointer font-semibold text-ink">
+          {ne ? 'म्यानुअल सेटअप URI' : 'Manual setup URI'}
+        </summary>
+        <p className="mt-2 break-all">{enrollment.totpURI}</p>
+      </details>
       <div>
-        <h2 className="font-display text-h2 text-ink">
-          {ne ? 'Recovery codes' : 'Recovery codes'}
-        </h2>
+        <h2 className="font-display text-h2 text-ink">Recovery codes</h2>
         <p className="mt-1 text-meta text-ink-soft">
           {ne
-            ? 'यी कोड सुरक्षित password manager मा राख्नुहोस्।'
+            ? 'यी कोड सुरक्षित password manager मा एकपटक राख्नुहोस्।'
             : 'Store these once in a secure password manager.'}
         </p>
-        <ul className="mt-3 grid grid-cols-2 gap-2 font-mono text-meta">
+        <ul className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 border-y border-rule py-3 font-mono text-meta">
           {enrollment.backupCodes.map((code) => (
             <li key={code}>{code}</li>
           ))}
@@ -135,16 +158,19 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
             maxLength={6}
             required
             disabled={pending}
-            className="rounded-md border border-rule px-4 py-3 text-xl tracking-[0.35em]"
+            className="border border-rule px-4 py-3 text-xl tracking-[0.35em] focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint"
           />
         </label>
         {error ? (
-          <p role="alert" className="text-meta font-semibold text-brand-strong">
+          <p
+            role="alert"
+            className="border-l-2 border-brand pl-3 text-meta font-semibold text-brand-strong"
+          >
             {error}
           </p>
         ) : null}
         <button
-          className="min-h-11 rounded-md bg-brand px-5 font-bold text-paper"
+          className="min-h-11 border border-brand bg-brand px-5 font-bold text-paper hover:bg-brand-strong"
           disabled={pending}
         >
           {pending

@@ -78,12 +78,12 @@ export function PasswordResetForm({
       <div className="grid gap-4" lang={ne ? 'ne' : 'en'}>
         <div
           role="alert"
-          className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+          className="border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
         >
           {error}
         </div>
         <Link
-          href={ne ? '/auth/forgot-password' : '/en/auth/forgot-password'}
+          href={`${ne ? '' : '/en'}/auth/forgot-password${safeNext(next) ? `?next=${encodeURIComponent(safeNext(next)!)}` : ''}`}
           className="inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong"
         >
           {ne ? 'नयाँ लिंक माग्नुहोस्' : 'Request a new link'}
@@ -97,7 +97,7 @@ export function PasswordResetForm({
       {error && (
         <div
           role="alert"
-          className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+          className="border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
           lang={ne ? 'ne' : 'en'}
         >
           {error}

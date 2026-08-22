@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { getSharedPool } from '@/lib/pg-pool'
+import { shouldApplyLivePathDdl } from '@/lib/ops-db'
 
 export const REACTION_EMOJIS = ['👍', '❤️', '😮', '😢', '👏', '🔥'] as const
 export type ReactionEmoji = (typeof REACTION_EMOJIS)[number]
@@ -55,6 +56,7 @@ async function writeLocal(next: LocalStore): Promise<void> {
 }
 
 async function ensureSchema(): Promise<void> {
+  if (!shouldApplyLivePathDdl()) return
   const pool = await getSharedPool()
   if (!pool) return
   await pool.query(`

@@ -88,7 +88,7 @@ export function ReaderSignupForm({
       {error && (
         <div
           role="alert"
-          className="rounded-md border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
+          className="border border-breaking/30 bg-brand-tint px-4 py-3 text-meta font-semibold text-brand-strong"
         >
           {error}
         </div>
@@ -104,7 +104,7 @@ export function ReaderSignupForm({
           autoComplete="name"
           disabled={pending}
           placeholder={ne ? 'तपाईंको नाम' : 'Your name'}
-          className="rounded-md border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
+          className="border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
         />
       </label>
 
@@ -117,7 +117,7 @@ export function ReaderSignupForm({
           required
           disabled={pending}
           placeholder="you@example.com"
-          className="rounded-md border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
+          className="border border-rule bg-surface px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-tint disabled:opacity-60"
         />
       </label>
 

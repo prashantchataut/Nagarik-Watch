@@ -17,7 +17,7 @@ export const Authors: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'slug', 'role'],
-    group: 'People',
+    group: 'मानिस',
   },
   access: {
     read: anyone,

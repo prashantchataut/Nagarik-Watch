@@ -1,3 +1,4 @@
+import { buildPublicArticleWhere } from '@nagarikwatch/db'
 import type { Access, Where } from 'payload'
 
 export type NewsroomRole =
@@ -156,14 +157,8 @@ export const hardDeleteRoles = ['super_admin'] as const satisfies readonly Newsr
  */
 export const publishedOrNewsroom: Access = ({ req }) => {
   if (hasAnyRole(req.user, newsroomInternalRoles)) return true
-  const conditions: Where[] = [
-    { _status: { equals: 'published' } },
-    { workflowStage: { in: ['published', 'updated'] } },
-    { publishAt: { less_than_equal: new Date().toISOString() } },
-  ]
-  return {
-    and: conditions,
-  }
+  const where = buildPublicArticleWhere(new Date().toISOString())
+  return where as Where
 }
 
 /** Managers can edit all stories; contributors can edit stories assigned to their account. */

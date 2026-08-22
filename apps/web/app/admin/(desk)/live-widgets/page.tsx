@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { getProviderHealth } from '@/lib/live/health'
 import { listManualLiveRecords, setManualLiveRecord } from '@/lib/live/manual'
+import { validateManualLiveData } from '@/lib/live/manual-schema'
 import { formatDate } from '@nagarikwatch/db'
 import {
   AdminPageHeader,
@@ -26,32 +27,51 @@ const MANUAL_KEYS = [
   {
     key: 'nepse',
     label: 'NEPSE',
+    purpose: 'सार्वजनिक NEPSE फिड असफल हुँदा प्रमाणित सूचकाङ्क।',
     example: '{"index":2840.25,"change":18.5,"changePercent":0.66,"open":true}',
   },
   {
     key: 'forex',
     label: 'Forex',
+    purpose: 'NRB फिड असफल हुँदा वास्तविक खरिद/बिक्री दर मात्र।',
     example: '[{"iso3":"USD","name":"US Dollar","buy":133.2,"sell":133.8,"unit":"NPR"}]',
   },
   {
     key: 'gold-silver',
-    label: 'Gold/Silver',
+    label: 'Gold / Silver',
+    purpose: 'प्रकाशित महासंघ/प्रमाणित बजार दर। अनुमानित मूल्य निषेध।',
     example:
-      '{"goldTolaNpr":158500,"silverTolaNpr":1850,"goldGramNpr":13600,"silverGramNpr":158,"unit":"NPR per tola"}',
+      '{"goldTolaNpr":158500,"silverTolaNpr":1850,"goldGramNpr":13589,"silverGramNpr":158.6,"unit":"NPR per tola"}',
+  },
+  {
+    key: 'rashifal',
+    label: 'Daily Rashifal',
+    purpose: 'आजको काठमाडौं मितिका १२ राशिको पूर्ण सम्पादकीय संस्करण।',
+    example:
+      '{"date":"2026-08-21","signs":[{"slug":"mesha","forecastNe":"सम्पादकले लेखेको आजको पाठ","forecastEn":"Optional English"}]}',
+  },
+  {
+    key: 'calendar-schedule',
+    label: 'BS festival / holiday schedule',
+    purpose: 'एउटै बि.सं. वर्षका स्रोत-प्रमाणित पर्व र बिदा। अर्को वर्षमा स्वतः दोहोरिँदैन।',
+    example:
+      '{"year":2083,"events":[{"month":6,"day":3,"nameNe":"संविधान दिवस","nameEn":"Constitution Day","holiday":true}]}',
   },
   {
     key: 'football',
-    label: 'Football/FIFA',
+    label: 'Football',
+    purpose: 'प्रमाणित fixture/score override।',
     example:
-      '[{"league":"FIFA World Cup 2026","home":"Germany","away":"Japan","score":"2-1","minute":"FT","status":"finished"}]',
+      '[{"league":"Competition","home":"Home","away":"Away","score":"2-1","minute":"FT","status":"finished"}]',
   },
   {
     key: 'cricket',
     label: 'Cricket',
+    purpose: 'प्रमाणित fixture/score override।',
     example:
-      '[{"league":"Nepal tour","home":"Nepal","away":"UAE","score":"142/6","status":"Live"}]',
+      '[{"league":"Series","home":"Nepal","away":"Opponent","score":"142/6","status":"Live"}]',
   },
-]
+] as const
 
 function providerStatusTone(status: string): 'success' | 'attention' | 'danger' | 'neutral' {
   if (status === 'ok') return 'success'
@@ -67,56 +87,81 @@ async function saveManualLive(formData: FormData) {
   if (!MANUAL_KEYS.some((item) => item.key === key)) {
     redirect('/admin/live-widgets?error=invalid-key')
   }
+
+  const source = String(formData.get('source') ?? '').trim()
   const raw = String(formData.get('data') ?? '').trim()
-  if (!raw) {
-    redirect(`/admin/live-widgets?error=empty&key=${encodeURIComponent(key)}`)
+  if (!source || source.toLowerCase() === 'newsroom manual update') {
+    redirect(`/admin/live-widgets?error=source&key=${encodeURIComponent(key)}`)
   }
+  if (!raw) redirect(`/admin/live-widgets?error=empty&key=${encodeURIComponent(key)}`)
+
   let data: unknown
   try {
     data = JSON.parse(raw)
   } catch {
     redirect(`/admin/live-widgets?error=json&key=${encodeURIComponent(key)}`)
   }
-  await setManualLiveRecord({
-    key,
-    source: String(formData.get('source') ?? '').trim() || 'Newsroom manual update',
-    data,
-  })
+
+  const validation = validateManualLiveData(key, data)
+  if (!validation.ok) {
+    redirect(
+      `/admin/live-widgets?error=shape&key=${encodeURIComponent(key)}&detail=${encodeURIComponent(validation.message)}`,
+    )
+  }
+
+  await setManualLiveRecord({ key, source, data })
   revalidatePath('/admin/live-widgets')
+  revalidatePath('/patro')
+  revalidatePath('/ne/patro')
+  revalidatePath('/en/patro')
+  revalidatePath('/market')
+  revalidatePath('/ne/market')
+  revalidatePath('/en/market')
+  revalidatePath('/rashifal')
+  revalidatePath('/ne/rashifal')
+  revalidatePath('/en/rashifal')
   redirect(`/admin/live-widgets?saved=${encodeURIComponent(key)}`)
 }
 
 export default async function LiveWidgetsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; key?: string; saved?: string }>
+  searchParams: Promise<{ error?: string; key?: string; saved?: string; detail?: string }>
 }) {
   await requireNewsroomSession()
   const params = await searchParams
-
-  const providers = await getProviderHealth().catch(() => [])
-  const manualRecords = await listManualLiveRecords().catch(() => [])
+  const [providers, manualRecords] = await Promise.all([
+    getProviderHealth().catch(() => []),
+    listManualLiveRecords().catch(() => []),
+  ])
   const manualByKey = new Map(manualRecords.map((record) => [record.key, record]))
 
   const statusLabel: Record<string, string> = {
     ok: 'सक्रिय',
-    mock: 'नमुना',
-    unconfigured: 'अव्यवस्थित',
+    mock: 'गैर-लाइभ',
+    unconfigured: 'कन्फिगर छैन',
     error: 'त्रुटि',
   }
 
   const errorMessage =
     params.error === 'json'
-      ? `${params.key ?? 'Widget'} को JSON अवैध छ। ठीक गरेर फेरि सुरक्षित गर्नुहोस्।`
+      ? `${params.key ?? 'Widget'} को JSON अवैध छ।`
       : params.error === 'empty'
-        ? 'JSON खाली छ। उदाहरण संरचना राखेर सुरक्षित गर्नुहोस्।'
+        ? 'JSON खाली छ। स्रोत जाँचेर वास्तविक data राख्नुहोस्।'
         : params.error === 'invalid-key'
           ? 'अमान्य widget key।'
-          : null
+          : params.error === 'source'
+            ? 'सार्वजनिक live data का लागि स्पष्ट स्रोत label अनिवार्य छ।'
+            : params.error === 'shape'
+              ? params.detail || 'JSON को संरचना यो widget सँग मिलेन।'
+              : null
 
   return (
     <div>
-      <AdminPageHeader subtitle={`${providers.length} वटा बाह्य डाटा प्रदायक + manual override`} />
+      <AdminPageHeader
+        eyebrow="प्रकाशन डेटा"
+        subtitle="API असफल हुँदा मात्र प्रयोग हुने प्रमाणित newsroom override। प्रत्येक update मा स्रोत र data shape दुवै जाँचिन्छ।"
+      />
 
       {errorMessage ? (
         <AdminCallout tone="danger" className="mb-4">
@@ -128,67 +173,83 @@ export default async function LiveWidgetsPage({
       {params.saved ? (
         <AdminCallout tone="neutral" className="mb-4">
           <p role="status" lang="ne">
-            {params.saved} manual override सुरक्षित भयो।
+            {params.saved} सुरक्षित भयो। सार्वजनिक cache revalidate गरिएको छ।
           </p>
         </AdminCallout>
       ) : null}
 
-      <AdminCard className="mb-5">
-        <p className="text-body text-ink" lang="ne">
-          Weather/AQI keyless Open-Meteo बाट चल्छ। NEPSE, FIFA/football, bullion वा forex provider
-          fail भए fake-looking mock नदेखाउन editor ले तल manual JSON override राख्न सक्छ।
-        </p>
-      </AdminCard>
-
       <AdminCard className="mb-6">
-        <h2 className="font-display text-h2 text-ink" lang="ne">
-          Manual live-data override
+        <h2 className="font-display text-h2 font-extrabold text-ink" lang="ne">
+          म्यानुअल प्रकाशन
         </h2>
-        <p className="mt-2 max-w-body text-meta text-ink-soft" lang="ne">
-          API नभएको वा unstable भएको data यहाँबाट update गर्नुहोस्। JSON shape सही हुनुपर्छ; गलत
-          JSON save हुँदैन।
+        <p className="mt-2 max-w-body text-meta leading-relaxed text-ink-soft" lang="ne">
+          तलको उदाहरण स्वतः form मा भरिँदैन। वास्तविक स्रोतबाट जाँचिएको value मात्र JSON क्षेत्रमा
+          राख्नुहोस्। पुरानो value लाई आजको भनेर पुनःप्रकाशित नगर्नुहोस्।
         </p>
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+
+        <div className="mt-5 divide-y divide-rule border-y border-rule">
           {MANUAL_KEYS.map((item) => {
             const current = manualByKey.get(item.key)
             return (
               <form
                 key={item.key}
                 action={saveManualLive}
-                className="rounded-lg border border-rule bg-surface p-4"
+                className="grid gap-4 py-5 xl:grid-cols-[13rem_minmax(0,1fr)]"
               >
                 <input type="hidden" name="key" value={item.key} />
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-display text-h3 text-ink" lang="en">
-                      {item.label}
-                    </h3>
-                    <p className="mt-1 text-caption text-mute" lang="en">
-                      key: {item.key}
-                    </p>
-                  </div>
+                <div>
+                  <h3 className="font-display text-h3 font-extrabold text-ink" lang="en">
+                    {item.label}
+                  </h3>
+                  <p className="mt-1 text-caption text-mute" lang="en">
+                    {item.key}
+                  </p>
+                  <p className="mt-2 text-caption leading-relaxed text-ink-soft" lang="ne">
+                    {item.purpose}
+                  </p>
                   {current ? (
-                    <span className="admin-status admin-status--success">Manual active</span>
-                  ) : null}
+                    <p className="mt-3 text-caption font-bold text-success" lang="ne">
+                      सक्रिय · {formatDate(current.updatedAt, 'ne')}
+                    </p>
+                  ) : (
+                    <p className="mt-3 text-caption font-bold text-mute" lang="ne">
+                      override छैन
+                    </p>
+                  )}
                 </div>
-                <AdminInput
-                  id={`live-source-${item.key}`}
-                  label="Source label"
-                  name="source"
-                  defaultValue={current?.source ?? 'Newsroom manual update'}
-                  lang="en"
-                />
-                <AdminTextarea
-                  id={`live-data-${item.key}`}
-                  label="JSON data"
-                  name="data"
-                  defaultValue={current ? JSON.stringify(current.data, null, 2) : item.example}
-                  rows={8}
-                  lang="en"
-                />
-                <AdminButton type="submit" className="mt-3">
-                  Save {item.label}
-                </AdminButton>
+
+                <div className="min-w-0">
+                  <AdminInput
+                    id={`live-source-${item.key}`}
+                    label="स्रोत label"
+                    name="source"
+                    defaultValue={current?.source ?? ''}
+                    required
+                    hint="संस्था, फिड वा जिम्मेवार desk को नाम। generic ‘manual update’ स्वीकार हुँदैन।"
+                  />
+                  <AdminTextarea
+                    id={`live-data-${item.key}`}
+                    label="JSON data"
+                    name="data"
+                    defaultValue={current ? JSON.stringify(current.data, null, 2) : ''}
+                    rows={8}
+                    lang="en"
+                    required
+                  />
+                  {!current ? (
+                    <details className="mt-2 border-y border-rule py-2 text-caption text-ink-soft">
+                      <summary className="cursor-pointer font-bold text-ink">
+                        Structure reference
+                      </summary>
+                      <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-all font-mono text-[0.72rem] leading-relaxed">
+                        {item.example}
+                      </pre>
+                    </details>
+                  ) : null}
+                  <AdminButton type="submit" className="mt-3">
+                    Save verified {item.label}
+                  </AdminButton>
+                </div>
               </form>
             )
           })}
@@ -214,61 +275,61 @@ export default async function LiveWidgetsPage({
             </tr>
           </thead>
           <tbody>
-            {providers.map((p) => (
-              <tr key={p.key}>
+            {providers.map((provider) => (
+              <tr key={provider.key}>
                 <td className="align-top">
                   <p className="font-display font-semibold text-ink" lang="ne">
-                    {p.label}
+                    {provider.label}
                   </p>
                   <code className="font-mono text-caption text-mute" lang="en">
-                    {p.key}
+                    {provider.key}
                   </code>
                 </td>
                 <td className="hidden align-top md:table-cell">
-                  <ul className="flex flex-col gap-1">
-                    {p.envVars.length ? (
-                      p.envVars.map((v) => (
-                        <li key={v}>
+                  {provider.envVars.length ? (
+                    <ul className="flex flex-col gap-1">
+                      {provider.envVars.map((variable) => (
+                        <li key={variable}>
                           <code className="font-mono text-caption text-ink-soft" lang="en">
-                            {v}
+                            {variable}
                           </code>
                         </li>
-                      ))
-                    ) : (
-                      <li className="text-caption text-mute">No key required</li>
-                    )}
-                  </ul>
+                      ))}
+                    </ul>
+                  ) : (
+                    <span className="text-caption text-mute">No key required</span>
+                  )}
                 </td>
                 <td className="align-top">
                   <span
-                    className={`admin-status admin-status--${providerStatusTone(p.status)}`}
+                    className={`admin-status admin-status--${providerStatusTone(provider.status)}`}
                     lang="ne"
                   >
-                    {statusLabel[p.status] ?? p.status}
+                    {statusLabel[provider.status] ?? provider.status}
                   </span>
                 </td>
                 <td className="hidden align-top text-meta text-ink-soft lg:table-cell" lang="en">
-                  {p.source}
+                  {provider.source}
                 </td>
                 <td className="hidden align-top text-caption text-mute sm:table-cell" lang="ne">
-                  {p.updatedAt ? formatDate(p.updatedAt, 'ne') : '—'}
+                  {provider.updatedAt ? formatDate(provider.updatedAt, 'ne') : '—'}
                 </td>
                 <td className="align-top text-caption text-breaking" lang="ne">
-                  {p.error ? (
-                    <span className="line-clamp-2">{p.error}</span>
+                  {provider.error ? (
+                    <span className="line-clamp-2">{provider.error}</span>
                   ) : (
                     <span className="text-mute">—</span>
                   )}
                 </td>
               </tr>
             ))}
-            {providers.length === 0 && (
+            {providers.length === 0 ? (
               <tr>
                 <td colSpan={6} className="py-6 text-center text-body text-mute" lang="ne">
-                  कुनै प्रदायक जाँच्न सकिएन।
+                  प्रदायक स्वास्थ्य पढ्न सकिएन।
                 </td>
               </tr>
-            )}
+            ) : null}
           </tbody>
         </AdminTable>
       </AdminCard>

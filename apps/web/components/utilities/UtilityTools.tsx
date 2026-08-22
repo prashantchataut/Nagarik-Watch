@@ -219,10 +219,10 @@ export function PreetiUnicodeTool({ locale }: { locale: Locale }) {
     setUnicode('')
   }
 
-  function loadSample() {
-    const sample = "g]kfn ;'Gb/ b]z xf] ."
-    setPreeti(sample)
-    setUnicode(preetiToUnicode(sample))
+  function loadExample() {
+    const example = "g]kfn ;'Gb/ b]z xf] ."
+    setPreeti(example)
+    setUnicode(preetiToUnicode(example))
   }
 
   const copyLabel =
@@ -292,10 +292,10 @@ export function PreetiUnicodeTool({ locale }: { locale: Locale }) {
         </button>
         <button
           type="button"
-          onClick={loadSample}
+          onClick={loadExample}
           className="inline-flex min-h-11 items-center justify-center rounded-md border border-dashed border-rule px-4 text-caption font-bold text-ink-soft transition-colors hover:border-brand hover:text-brand-strong"
         >
-          {en ? 'Load sample text' : 'नमूना पाठ लोड गर्नुहोस्'}
+          {en ? 'Load example text' : 'उदाहरण पाठ लोड गर्नुहोस्'}
         </button>
       </div>
     </ToolWorkspace>
@@ -325,8 +325,10 @@ export function CurrencyConverterTool({
     if (!rate) return ''
     const number = Number(amount)
     if (!Number.isFinite(number)) return ''
-    const mid = (rate.buy + rate.sell) / 2
-    return (direction === 'foreign-to-npr' ? number * mid : number / mid).toLocaleString('en-US', {
+    const appliedRate = direction === 'foreign-to-npr' ? rate.buy : rate.sell
+    return (
+      direction === 'foreign-to-npr' ? number * appliedRate : number / appliedRate
+    ).toLocaleString('en-US', {
       maximumFractionDigits: 2,
     })
   }, [rate, amount, direction])
@@ -334,8 +336,8 @@ export function CurrencyConverterTool({
   const summary = source
     ? `${en ? 'Source' : 'स्रोत'}: ${source}. ${
         en
-          ? 'Indicative only; banks may apply different spreads.'
-          : 'संकेतात्मक मात्र; बैंकको खरिद-बिक्री अन्तर फरक हुन सक्छ।'
+          ? 'Foreign to NPR uses the published buy rate; NPR to foreign uses the published sell rate. Banks may still add fees.'
+          : 'विदेशी मुद्राबाट रुपैयाँमा खरिद दर र रुपैयाँबाट विदेशी मुद्रामा बिक्री दर प्रयोग हुन्छ। बैंकले छुट्टै शुल्क लिन सक्छ।'
       }`
     : en
       ? 'A verified exchange-rate feed is not available right now.'

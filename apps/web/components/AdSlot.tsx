@@ -54,9 +54,7 @@ export async function AdSlot({
   const mediaKitHref = localizeHref(locale, '/advertise')
   const resolvedVariant = variant ?? resolveVariant(placement.size)
 
-  let creative: HouseAdCreative | null = houseAd?.active
-    ? localizedCreative(houseAd, locale)
-    : null
+  let creative: HouseAdCreative | null = houseAd?.active ? localizedCreative(houseAd, locale) : null
   let experimentId: string | undefined
 
   if (houseAd?.active && houseAd.abEnabled && houseAd.challenger) {
@@ -150,8 +148,8 @@ export async function AdSlot({
                 alt=""
                 className={
                   resolvedVariant === 'native'
-                    ? 'mb-2 max-h-28 w-full rounded-md object-cover'
-                    : 'mb-2 max-h-36 w-full rounded-md object-cover'
+                    ? 'mb-2 max-h-28 w-full object-cover'
+                    : 'mb-2 max-h-36 w-full object-cover'
                 }
               />
             ) : null}
@@ -172,8 +170,8 @@ export async function AdSlot({
             <span
               className={
                 resolvedVariant === 'mobile'
-                  ? 'shrink-0 rounded-full border border-rule bg-surface px-2.5 py-1 text-caption font-bold text-brand-strong'
-                  : 'mt-3 inline-flex rounded-full border border-rule bg-surface px-3 py-1.5 text-caption font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong'
+                  ? 'shrink-0 border border-rule bg-surface px-2.5 py-1 text-caption font-bold text-brand-strong'
+                  : 'mt-3 inline-flex border border-rule bg-surface px-3 py-1.5 text-caption font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong'
               }
             >
               {creative.cta}
@@ -203,7 +201,7 @@ export async function AdSlot({
             </span>
             <Link
               href={mediaKitHref}
-              className="mt-3 inline-flex min-h-9 items-center rounded-full border border-rule bg-surface px-3 text-caption font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
+              className="mt-3 inline-flex min-h-9 items-center border border-rule bg-surface px-3 text-caption font-bold text-ink transition-colors hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
               lang={lang}
             >
               {locale === 'en' ? 'View media kit' : 'मिडिया किट हेर्नुहोस्'}
@@ -243,17 +241,17 @@ function slotClass(variant: AdVariant) {
     'ad-slot group relative isolate mx-auto overflow-hidden border border-rule bg-surface-raised text-center'
   switch (variant) {
     case 'billboard':
-      return `${base} flex flex-col items-center justify-center rounded-xl p-5`
+      return `${base} flex flex-col items-center justify-center p-5`
     case 'rail':
-      return `${base} flex flex-col items-center justify-center rounded-lg p-4`
+      return `${base} flex flex-col items-center justify-center p-4`
     case 'inline':
-      return `${base} flex flex-col items-center justify-center rounded-lg p-4`
+      return `${base} flex flex-col items-center justify-center p-4`
     case 'native':
-      return `${base} rounded-xl p-4`
+      return `${base} p-4`
     case 'mobile':
-      return `${base} flex flex-col items-center justify-center rounded-full px-3 py-2`
+      return `${base} flex flex-col items-center justify-center px-3 py-2`
     case 'standard':
     default:
-      return `${base} flex flex-col items-center justify-center rounded-lg p-4`
+      return `${base} flex flex-col items-center justify-center p-4`
   }
 }

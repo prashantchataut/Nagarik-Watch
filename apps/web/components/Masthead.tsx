@@ -68,6 +68,7 @@ export function Masthead({
   const [dateLabel, setDateLabel] = useState('')
   const [englishDateLabel, setEnglishDateLabel] = useState('')
   const homeHref = localizeHref(locale, '/')
+  const isHomepage = pathsMatch(pathname, homeHref)
   const savedHref = localizeHref(locale, '/saved')
   const latestHref = localizeHref(locale, '/latest')
   const patroHref = patroEntryHref(locale)
@@ -204,7 +205,9 @@ export function Masthead({
 
         <nav
           aria-label={dict.primaryNav}
-          className="nw-masthead__primary hidden border-b border-black/15 bg-brand-bar text-paper lg:block"
+          className={`nw-masthead__primary border-b border-black/15 bg-brand-bar text-paper ${
+            isHomepage ? 'hidden lg:block' : 'block'
+          }`}
         >
           <div className="relative mx-auto flex max-w-page items-stretch px-2 sm:px-4">
             <ul className="nw-masthead__navrail flex min-w-0 flex-1 flex-nowrap items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -219,12 +222,12 @@ export function Masthead({
                   {dict.navLatest}
                 </NavLink>
               </li>
-              {primaryCategories.map((category) => {
+              {primaryCategories.map((category, index) => {
                 const label = en && category.nameEn ? category.nameEn : category.nameNe
                 const categoryLang = en && category.nameEn ? 'en' : 'ne'
                 const href = localizeHref(locale, `/${category.slug}`)
                 return (
-                  <li key={category.slug}>
+                  <li key={category.slug} className={index >= 5 ? 'hidden lg:block' : undefined}>
                     <NavLink href={href} active={pathsMatch(pathname, href)} lang={categoryLang}>
                       {label}
                     </NavLink>
@@ -240,7 +243,7 @@ export function Masthead({
                   {en ? 'Provinces' : 'प्रदेश'}
                 </NavLink>
               </li>
-              <li>
+              <li className="hidden lg:block">
                 <NavLink
                   href={localizeHref(locale, '/fact-check')}
                   active={pathname.includes('/fact-check')}
@@ -249,11 +252,11 @@ export function Masthead({
                   {en ? 'Fact check' : 'तथ्य-जाँच'}
                 </NavLink>
               </li>
-              <li className="ms-2 flex shrink-0 items-stretch border-l border-paper/25 pl-2">
+              <li className="ms-1 flex shrink-0 items-stretch border-l border-paper/25 pl-1 sm:ms-2 sm:pl-2">
                 <Link
                   href={patroHref}
                   lang={lang}
-                  className="inline-flex min-h-11 items-center gap-1.5 bg-paper px-3.5 text-body font-extrabold text-brand-strong transition-colors duration-fast ease-out-quint hover:bg-brand-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-paper"
+                  className="inline-flex min-h-11 items-center gap-1.5 bg-paper px-3 text-caption font-extrabold text-brand-strong sm:px-3.5 sm:text-body transition-colors duration-fast ease-out-quint hover:bg-brand-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-paper"
                 >
                   <IconCalendar width={16} height={16} />
                   <span>{en ? 'Patro' : 'पात्रो'}</span>

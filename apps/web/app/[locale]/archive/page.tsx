@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import type { Locale } from '@nagarikwatch/db'
-import { StoryCard } from '@nagarikwatch/ui'
 import { getAuthors, getNavCategories, getStories, getTags } from '@/lib/content'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
@@ -168,15 +168,67 @@ export default async function ArchivePage({
       </p>
 
       {result.items.length > 0 ? (
-        <ul className="mt-6 grid gap-5 md:grid-cols-2">
-          {result.items.map((story) => (
-            <li key={story.id}>
-              <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-                <StoryCard story={story} locale={locale} variant="horizontal" />
-              </InstrumentedStory>
-            </li>
-          ))}
-        </ul>
+        <ol className="mt-6 border-t border-rule">
+          {result.items.map((story) => {
+            const title = locale === 'en' && story.titleEn ? story.titleEn : story.titleNe
+            const deck = locale === 'en' && story.deckEn ? story.deckEn : story.deckNe
+            const published = new Date(story.publishedAt)
+            const href = localizeHref(locale, `/${story.category.slug}/${story.slug}`)
+            const category =
+              locale === 'en' && story.category.nameEn
+                ? story.category.nameEn
+                : story.category.nameNe
+            return (
+              <li key={story.id} className="border-b border-rule py-5">
+                <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
+                  <article className="grid gap-3 sm:grid-cols-[7.5rem_minmax(0,1fr)_8.5rem] sm:gap-5">
+                    <div className="text-caption font-semibold text-mute">
+                      <time dateTime={story.publishedAt}>
+                        {Number.isNaN(published.getTime())
+                          ? story.publishedAt
+                          : new Intl.DateTimeFormat(locale === 'en' ? 'en-NP' : 'ne-NP', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            }).format(published)}
+                      </time>
+                      <p className="mt-1 text-brand-strong">{category}</p>
+                    </div>
+                    <div className="min-w-0">
+                      <h2 className="font-display text-h3 font-extrabold leading-snug text-ink">
+                        <Link href={href} className="hover:text-brand-strong">
+                          {title}
+                        </Link>
+                      </h2>
+                      {deck ? (
+                        <p className="mt-1.5 line-clamp-2 text-body text-ink-soft">{deck}</p>
+                      ) : null}
+                      {story.byline ? (
+                        <p className="mt-2 text-caption text-mute">{story.byline}</p>
+                      ) : null}
+                    </div>
+                    {story.heroImage?.url && !story.heroImage.url.startsWith('data:') ? (
+                      <Link
+                        href={href}
+                        className="relative hidden aspect-[4/3] overflow-hidden bg-surface-raised sm:block"
+                      >
+                        <Image
+                          src={story.heroImage.url}
+                          alt=""
+                          fill
+                          sizes="136px"
+                          className="object-cover"
+                        />
+                      </Link>
+                    ) : (
+                      <span className="hidden sm:block" aria-hidden="true" />
+                    )}
+                  </article>
+                </InstrumentedStory>
+              </li>
+            )
+          })}
+        </ol>
       ) : (
         <div
           className="mt-8 border-y border-rule bg-brand-tint/35 px-4 py-10 text-body-lg text-ink-soft"

@@ -9,9 +9,8 @@ import type { SearchableStory } from '@/lib/search'
 type Params = { locale: string }
 
 /**
- * Search route. The page is a server component: it loads the full story corpus once (capped for search breadth) and maps the cards onto the SearchableStory shape that
- * lib/search expects. All interactivity — input, debounce, keyboard nav, recents — lives in the
- * client SearchView, which receives the corpus as a prop.
+ * Search route. The page is a server component: it loads a bounded recent corpus for instant ranking and maps cards onto the SearchableStory shape that
+ * lib/search expects. All interactivity lives in SearchView. Queries also expand through /api/search so older published reporting is not excluded by the initial client payload.
  */
 export default async function SearchPage({ params }: { params: Promise<Params> }) {
   const { locale: rawLocale } = await params

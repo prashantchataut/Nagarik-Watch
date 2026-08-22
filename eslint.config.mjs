@@ -11,10 +11,13 @@ export default [
     ignores: [
       '**/node_modules/**',
       '**/.next/**',
+      '**/out/**',
       '**/dist/**',
       '**/build/**',
       '**/.turbo/**',
       '**/coverage/**',
+      '**/.open-next/**',
+      '.tmp-*/**',
       '**/playwright-report/**',
       'skills/**',
       '.agents/**',

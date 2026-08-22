@@ -1,11 +1,31 @@
-/* apps/admin global styles. Payload's own admin UI ships its CSS via the (payload)
-   layout; this file exists so the root layout has a stylesheet to import. */
-
+/* Nagarik Watch Payload register.
+   Keep the CMS operational, flat and typographic; Payload remains the source-of-truth editor. */
 :root {
-  /* Civic Crimson accent for any custom admin surfaces, matching DESIGN.md Palette A. */
-  --nw-brand: oklch(0.55 0.18 25);
-  --nw-ink: oklch(0.22 0.02 25);
-  --nw-surface: oklch(0.985 0.004 25);
+  --nw-brand: #b4232f;
+  --nw-brand-strong: #8f1722;
+  --nw-brand-tint: #f8eaec;
+  --nw-ink: #171415;
+  --nw-ink-soft: #5b5557;
+  --nw-muted: #777174;
+  --nw-surface: #fbfaf8;
+  --nw-raised: #ffffff;
+  --nw-rule: #ded9d6;
+
+  /* Payload token overrides. */
+  --theme-elevation-0: #fbfaf8;
+  --theme-elevation-50: #ffffff;
+  --theme-elevation-100: #f4f1ef;
+  --theme-elevation-150: #ebe7e4;
+  --theme-elevation-200: #ded9d6;
+  --theme-elevation-400: #8a8386;
+  --theme-elevation-600: #5b5557;
+  --theme-elevation-800: #2c2829;
+  --theme-elevation-1000: #171415;
+  --theme-success-500: #1d7a4a;
+  --theme-warning-500: #a56300;
+  --theme-error-500: #b4232f;
+  --theme-blue-500: #b4232f;
+  --theme-blue-600: #8f1722;
 }
 
 html,
@@ -14,4 +34,221 @@ body {
   padding: 0;
   background: var(--nw-surface);
   color: var(--nw-ink);
+}
+
+body,
+.payload-root {
+  font-family:
+    'Noto Sans Devanagari',
+    'Source Sans 3',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+/* Publication identity */
+.nw-cms-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1rem 1rem 0.8rem;
+  border-bottom: 1px solid var(--nw-rule);
+}
+
+.nw-cms-brand__mark {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  flex: 0 0 auto;
+  background: var(--nw-brand);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.nw-cms-brand__copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.08rem;
+  line-height: 1.1;
+}
+
+.nw-cms-brand__copy strong {
+  color: var(--nw-ink);
+  font-size: 0.98rem;
+  font-weight: 800;
+}
+
+.nw-cms-brand__copy small {
+  color: var(--nw-muted);
+  font-size: 0.67rem;
+  font-weight: 650;
+}
+
+/* Payload shell: reduce generic dashboard chrome and keep hierarchy explicit. */
+.nav {
+  border-right: 1px solid var(--nw-rule) !important;
+  background: #f7f5f2 !important;
+}
+
+.nav__scroll {
+  padding-bottom: 2rem;
+}
+
+.nav-group__label,
+.nav__label {
+  color: var(--nw-muted) !important;
+  font-size: 0.72rem !important;
+  font-weight: 750 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.nav a,
+.nav button {
+  border-radius: 2px !important;
+}
+
+.nav a[aria-current='page'],
+.nav a:hover,
+.nav button:hover {
+  background: var(--nw-brand-tint) !important;
+  color: var(--nw-brand-strong) !important;
+}
+
+.template-default__wrap,
+.template-default__content,
+.collection-list,
+.document-fields {
+  max-width: 100% !important;
+}
+
+.template-default__wrap {
+  padding-top: 1.25rem !important;
+}
+
+/* Work surfaces: flat and bounded, never floating-card chrome. */
+.card,
+.dashboard__card,
+.collection-list__wrap,
+.doc-controls,
+.document-fields__edit,
+.field-type,
+.upload__wrap,
+.file-field__upload {
+  border-radius: 2px !important;
+  box-shadow: none !important;
+}
+
+.card,
+.dashboard__card,
+.collection-list__wrap,
+.document-fields__edit {
+  border-color: var(--nw-rule) !important;
+}
+
+/* Form controls */
+input,
+textarea,
+select,
+.rs__control,
+.react-select__control,
+.field-type input,
+.field-type textarea {
+  border-radius: 2px !important;
+  box-shadow: none !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.rs__control--is-focused,
+.react-select__control--is-focused {
+  border-color: var(--nw-brand) !important;
+  box-shadow: 0 0 0 1px var(--nw-brand) !important;
+  outline: none !important;
+}
+
+/* Buttons/actions */
+.btn,
+button.btn,
+a.btn {
+  min-height: 2.35rem;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  font-weight: 700;
+}
+
+.btn--style-primary,
+.btn--style-primary:hover {
+  background: var(--nw-brand) !important;
+  border-color: var(--nw-brand) !important;
+  color: #fff !important;
+}
+
+.btn--style-primary:hover {
+  background: var(--nw-brand-strong) !important;
+  border-color: var(--nw-brand-strong) !important;
+}
+
+/* Tables are the newsroom's main scanning surface. */
+.table {
+  border: 1px solid var(--nw-rule);
+  border-radius: 0 !important;
+  background: var(--nw-raised);
+}
+
+.table th {
+  background: #f4f1ef !important;
+  color: var(--nw-ink-soft) !important;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.table tr,
+.table td,
+.table th {
+  border-color: var(--nw-rule) !important;
+}
+
+.table tbody tr:hover {
+  background: #fff8f8 !important;
+}
+
+/* Status metadata should read as labels, not decorative pills. */
+.pill,
+.status,
+.badge {
+  border-radius: 2px !important;
+  box-shadow: none !important;
+}
+
+/* Focus visibility */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--nw-brand) !important;
+  outline-offset: 2px !important;
+}
+
+@media (max-width: 768px) {
+  .template-default__wrap {
+    padding-inline: 0.8rem !important;
+  }
+
+  .nw-cms-brand {
+    padding-inline: 0.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

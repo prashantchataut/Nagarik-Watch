@@ -38,7 +38,8 @@ export function ReactionBar({
   useEffect(() => {
     if (!hasLivePublicApi()) return
     let cancelled = false
-    fetch(`/api/reactions?articleSlug=${encodeURIComponent(articleSlug)}`, { cache: 'no-store' })
+    const params = new URLSearchParams({ articleSlug, articleCategory })
+    fetch(`/api/reactions?${params.toString()}`, { cache: 'no-store' })
       .then((response) => (response.ok ? response.json() : null))
       .then((data: { counts?: Record<ReactionEmoji, number> } | null) => {
         if (!cancelled && data?.counts) setCounts(data.counts)
@@ -47,7 +48,7 @@ export function ReactionBar({
     return () => {
       cancelled = true
     }
-  }, [articleSlug])
+  }, [articleCategory, articleSlug])
 
   function toggle(emoji: ReactionEmoji) {
     if (!hasLivePublicApi()) return

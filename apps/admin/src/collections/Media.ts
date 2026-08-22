@@ -7,17 +7,12 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 /** Align with apps/web media sniff allowlist minus GIF (prefer modern formats in CMS). */
-const ALLOWED_MIME_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/avif',
-] as const
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'] as const
 
 export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
-    group: 'Content',
+    group: 'सम्पादन',
     description: 'JPEG, PNG, WebP, or AVIF up to 8MB. Alt and credit are required for publication.',
   },
   access: {

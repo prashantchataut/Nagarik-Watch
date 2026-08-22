@@ -172,9 +172,7 @@ function VoiceStory({
             {(authorName || fallbackAuthor).slice(0, 2)}
           </span>
           <div className="min-w-0">
-            <p className="truncate text-meta font-bold text-ink">
-              {authorName || fallbackAuthor}
-            </p>
+            <p className="truncate text-meta font-bold text-ink">{authorName || fallbackAuthor}</p>
             <p className="text-caption text-mute">
               {locale === 'en' ? 'Opinion and analysis' : 'विचार / टिप्पणी'}
             </p>
@@ -230,7 +228,7 @@ export function SectionBlock({
 
   return (
     <section
-      className={`border-b border-rule pb-5 sm:pb-6 ${className ?? ''}`.trim()}
+      className={`min-w-0 scroll-mt-24 ${className ?? ''}`.trim()}
       aria-labelledby={`sec-${section.category.slug}`}
     >
       <SectionHeader
@@ -274,7 +272,7 @@ function NewsDesk({ items, locale }: { items: StoryCardData[]; locale: Locale })
           <RankedCard story={lead} locale={locale} variant="text-led" />
         </div>
       )}
-      <div className="min-w-0 divide-y divide-rule border-t border-rule pt-1 md:border-l md:border-t-0 md:pl-5 md:pt-0">
+      <div className="min-w-0 divide-y divide-rule md:border-l md:border-rule md:pl-5">
         {rest.map((story) => (
           <div key={story.id} className="py-2.5 first:pt-0 last:pb-0">
             <BriefRow story={story} locale={locale} />
@@ -300,7 +298,7 @@ function SplitDesk({ items, locale }: { items: StoryCardData[]; locale: Locale }
           locale={locale}
           variant={hasPhoto(first) ? 'featured' : 'text-led'}
         />
-        <div className="border-t border-rule pt-3.5 md:border-l md:border-t-0 md:pl-5 md:pt-0">
+        <div className="md:border-l md:border-rule md:pl-5">
           <RankedCard
             story={second}
             locale={locale}
@@ -309,10 +307,10 @@ function SplitDesk({ items, locale }: { items: StoryCardData[]; locale: Locale }
         </div>
       </div>
       {rest.length > 0 ? (
-        <div className="mt-3 divide-y divide-rule border-t border-rule pt-1">
+        <div className="mt-4 flex flex-wrap gap-3">
           {rest.map((story) => (
-            <div key={story.id} className="py-2.5">
-              <BriefRow story={story} locale={locale} />
+            <div key={story.id} className="min-w-0 flex-1 basis-[14rem]">
+              <SmallPhotoStory story={story} locale={locale} />
             </div>
           ))}
         </div>
@@ -341,10 +339,10 @@ function PhotoDesk({ items, locale }: { items: StoryCardData[]; locale: Locale }
         </div>
       </div>
       {rest.length > 0 ? (
-        <div className="mt-3 divide-y divide-rule border-t border-rule pt-1">
+        <div className="mt-4 flex flex-wrap gap-3">
           {rest.map((story) => (
-            <div key={story.id} className="py-2.5">
-              <BriefRow story={story} locale={locale} />
+            <div key={story.id} className="min-w-0 flex-1 basis-[14rem]">
+              <SmallPhotoStory story={story} locale={locale} />
             </div>
           ))}
         </div>
@@ -366,7 +364,7 @@ function VoicesDesk({ items, locale }: { items: StoryCardData[]; locale: Locale 
       >
         <VoiceStory story={lead} locale={locale} featured />
         {rest.length ? (
-          <div className="divide-y divide-rule border-t border-rule lg:border-l lg:border-t-0 lg:pl-5">
+          <div className="divide-y divide-rule lg:border-l lg:border-rule lg:pl-5">
             {rest.map((story) => (
               <div key={story.id} className="py-3 first:pt-0">
                 <VoiceStory story={story} locale={locale} />
@@ -380,5 +378,15 @@ function VoicesDesk({ items, locale }: { items: StoryCardData[]; locale: Locale 
 }
 
 function CompactDesk({ items, locale }: { items: StoryCardData[]; locale: Locale }) {
-  return <NewsDesk items={items} locale={locale} />
+  const visible = items.slice(0, 6)
+
+  return (
+    <div className="flex flex-wrap gap-x-6 gap-y-4">
+      {visible.map((story) => (
+        <div key={story.id} className="min-w-0 flex-1 basis-[18rem]">
+          <BriefRow story={story} locale={locale} />
+        </div>
+      ))}
+    </div>
+  )
 }

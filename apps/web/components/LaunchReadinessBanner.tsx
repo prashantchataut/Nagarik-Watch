@@ -22,10 +22,10 @@ export function LaunchReadinessBanner({ locale }: { locale: Locale }) {
             {locale === 'en'
               ? status === 'live'
                 ? 'Launch blockers remain'
-                : 'Preview deployment'
+                : 'Staging deployment'
               : status === 'live'
                 ? 'लन्च अवरोध बाँकी छन्'
-                : 'पूर्वावलोकन डिप्लोयमेन्ट'}
+                : 'स्टेजिङ डिप्लोयमेन्ट'}
           </p>
           <p className="mt-1 max-w-3xl">
             {locale === 'en'
@@ -38,7 +38,7 @@ export function LaunchReadinessBanner({ locale }: { locale: Locale }) {
             {[...blockers, ...warnings].slice(0, 4).map((issue) => (
               <li
                 key={issue.key}
-                className="rounded-full border border-rule bg-surface px-3 py-1 text-caption font-semibold text-ink"
+                className="border border-rule bg-surface px-3 py-1 text-caption font-semibold text-ink"
               >
                 {issue.label}
               </li>

@@ -1,8 +1,6 @@
 import { createHmac } from 'node:crypto'
-import type {
-  CollectionAfterChangeHook,
-  CollectionAfterDeleteHook,
-} from 'payload'
+import { evaluatePublicationVisibility } from '@nagarikwatch/db'
+import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
 type ArticleDoc = {
   id: string | number
@@ -26,10 +24,12 @@ type ArticleDoc = {
 type SyncStatus = 'pending' | 'ok' | 'failed' | 'skipped'
 
 function isReaderVisible(article: ArticleDoc | null | undefined): boolean {
-  if (!article || article._status !== 'published') return false
-  if (article.workflowStage !== 'published' && article.workflowStage !== 'updated') return false
-  const publishAt = article.publishAt ? Date.parse(String(article.publishAt)) : 0
-  return !publishAt || !Number.isFinite(publishAt) || publishAt <= Date.now()
+  if (!article) return false
+  return evaluatePublicationVisibility({
+    status: article._status,
+    workflowStage: article.workflowStage,
+    publishAt: article.publishAt,
+  }).visible
 }
 
 function webBaseUrl(): string | null {
@@ -282,11 +282,20 @@ export const revalidatePublishedArticle: CollectionAfterChangeHook = async ({
     return doc
   }
 
-  const [currentCategorySlug, previousCategorySlug, authorSlugs, tagSlugs] = await Promise.all([
+  const [
+    currentCategorySlug,
+    previousCategorySlug,
+    currentAuthorSlugs,
+    previousAuthorSlugs,
+    currentTagSlugs,
+    previousTagSlugs,
+  ] = await Promise.all([
     categorySlug(article, req),
     previous ? categorySlug(previous, req) : Promise.resolve(''),
     relationshipSlugs(article.authors, 'author', 'authors', req),
+    previous ? relationshipSlugs(previous.authors, 'author', 'authors', req) : Promise.resolve([]),
     relationshipSlugs(article.tags, 'tag', 'tags', req),
+    previous ? relationshipSlugs(previous.tags, 'tag', 'tags', req) : Promise.resolve([]),
   ])
 
   const payload = buildRevalidatePayload({
@@ -294,8 +303,8 @@ export const revalidatePublishedArticle: CollectionAfterChangeHook = async ({
     previous,
     currentCategorySlug,
     previousCategorySlug,
-    authorSlugs,
-    tagSlugs,
+    authorSlugs: [...new Set([...currentAuthorSlugs, ...previousAuthorSlugs])],
+    tagSlugs: [...new Set([...currentTagSlugs, ...previousTagSlugs])],
     visibleNow,
   })
 
@@ -315,7 +324,11 @@ export const revalidateDeletedArticle: CollectionAfterDeleteHook = async ({ doc,
   if (req.context?.skipReaderRevalidate) return doc
 
   const article = doc as ArticleDoc
-  if (!isReaderVisible(article) && article.workflowStage !== 'archived' && article.workflowStage !== 'retracted') {
+  if (
+    !isReaderVisible(article) &&
+    article.workflowStage !== 'archived' &&
+    article.workflowStage !== 'retracted'
+  ) {
     // Still bust if it was published/updated at any point with a slug.
     if (article._status !== 'published' || !article.slug) return doc
   }

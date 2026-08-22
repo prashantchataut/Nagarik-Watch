@@ -8,21 +8,19 @@ export const revalidate = 60
 
 export default async function ProvincesPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
-  const [{ items: allTagged }, ...perProvince] = await Promise.all([
-    getStories({ locale, perPage: 40 }),
-    ...PROVINCES.map((p) => getStories({ locale, province: p.slug, perPage: 40 })),
+  const [recentResult, ...perProvince] = await Promise.all([
+    getStories({ locale, perPage: 30 }),
+    ...PROVINCES.map((province) => getStories({ locale, province: province.slug, perPage: 1 })),
   ])
 
-  const counts: Record<string, number> = {}
-  for (let i = 0; i < PROVINCES.length; i += 1) {
-    const province = PROVINCES[i]
-    if (!province) continue
-    counts[province.slug] = perProvince[i]?.items.length ?? 0
-  }
+  const desks = PROVINCES.map((province, index) => ({
+    province,
+    total: perProvince[index]?.total ?? 0,
+    latest: perProvince[index]?.items[0],
+  }))
+  const recent = recentResult.items.filter((story) => Boolean(story.province)).slice(0, 8)
 
-  const recent = allTagged.filter((story) => Boolean(story.province)).slice(0, 9)
-
-  return <ProvinceIndex locale={locale} counts={counts} recent={recent} />
+  return <ProvinceIndex locale={locale} desks={desks} recent={recent} />
 }
 
 export async function generateMetadata({
@@ -31,7 +29,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const locale = asLocale((await params).locale)
-  const title = locale === 'en' ? 'Provinces' : 'प्रदेश'
+  const title = locale === 'en' ? 'Province desks' : 'प्रदेश डेस्क'
   return {
     title,
     alternates: { canonical: localizeHref(locale, '/province') },

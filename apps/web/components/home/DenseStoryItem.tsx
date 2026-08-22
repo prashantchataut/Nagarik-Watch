@@ -20,8 +20,8 @@ export type DenseStoryItemProps = {
   compact?: boolean
   /** Force thumbnail off (text-led lists). */
   showThumb?: boolean
-  /** Thumb column width preset. */
-  thumb?: 'sm' | 'md' | 'lg'
+  /** Thumb column width preset ('none' renders text-led). */
+  thumb?: 'sm' | 'md' | 'lg' | 'none'
   className?: string
 }
 
@@ -33,7 +33,7 @@ function deckFor(story: StoryCardData, locale: Locale): string | undefined {
   return locale === 'en' ? story.deckEn : story.deckNe
 }
 
-const thumbCols: Record<NonNullable<DenseStoryItemProps['thumb']>, string> = {
+const thumbCols: Record<Exclude<NonNullable<DenseStoryItemProps['thumb']>, 'none'>, string> = {
   sm: 'grid-cols-[4.25rem_minmax(0,1fr)] sm:grid-cols-[4.75rem_minmax(0,1fr)]',
   md: 'grid-cols-[5.5rem_minmax(0,1fr)] sm:grid-cols-[6.5rem_minmax(0,1fr)]',
   lg: 'grid-cols-[7rem_minmax(0,1fr)] sm:grid-cols-[8.5rem_minmax(0,1fr)]',
@@ -61,7 +61,8 @@ export function DenseStoryItem({
   const deck = deckFor(story, locale)
   const href = localizeHref(locale, `/${story.category.slug}/${story.slug}`)
   const image = story.heroImage
-  const showThumb = showThumbProp !== false && isRealPhoto(image?.url)
+  const showThumb = showThumbProp !== false && thumb !== 'none' && isRealPhoto(image?.url)
+  const thumbGrid = thumb === 'none' ? '' : `grid ${thumbCols[thumb]} gap-2.5`
   const rankLabel = rank !== undefined ? String(rank) : null
 
   const body = (
@@ -138,18 +139,12 @@ export function DenseStoryItem({
         >
           {rankLabel}
         </span>
-        <div className={`min-w-0 flex-1 ${showThumb ? `grid ${thumbCols[thumb]} gap-2.5` : ''}`}>
-          {body}
-        </div>
+        <div className={`min-w-0 flex-1 ${showThumb ? thumbGrid : ''}`}>{body}</div>
       </article>
     )
   }
 
   return (
-    <article
-      className={`group ${showThumb ? `grid ${thumbCols[thumb]} gap-2.5` : ''} ${className}`.trim()}
-    >
-      {body}
-    </article>
+    <article className={`group ${showThumb ? thumbGrid : ''} ${className}`.trim()}>{body}</article>
   )
 }

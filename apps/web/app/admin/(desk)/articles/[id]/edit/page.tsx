@@ -37,7 +37,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   if (!canEdit(session.newsroomRole)) {
     return (
       <div
-        className="rounded-lg border border-breaking/30 bg-brand-tint p-4 text-meta font-semibold text-brand-strong"
+        className="rounded-sm border border-breaking/30 bg-brand-tint p-4 text-meta font-semibold text-brand-strong"
         lang="ne"
       >
         यो लेख सम्पादन गर्ने अनुमति छैन।
@@ -49,7 +49,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
       <div>
         <AdminPageHeader subtitle="Payload canonical mode सक्रिय छ" />
         <CmsCanonicalBanner />
-        <div className="rounded-lg border border-rule bg-surface-raised p-5">
+        <div className="rounded-sm border border-rule bg-surface-raised p-5">
           <p className="text-meta font-semibold text-ink" lang="ne">
             यो लेख Payload CMS बाट सम्पादन गर्नुहोस् ताकि प्रकाशन परिवर्तन सीधै पाठक-साइटमा लागु
             होस्।
