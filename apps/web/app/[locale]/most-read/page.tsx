@@ -17,24 +17,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const locale = asLocale((await params).locale)
-  const catalog = await getStories({ locale, perPage: 100 })
-  const { live } = await resolveMostReadStories({
-    catalog: catalog.items,
-    limit: 18,
-    minLive: 3,
-  })
+  // Static desk title: metadata must never await the content source (the
+  // streamed <title> loses that race and falls back to the layout default).
   return {
-    title:
+    title: locale === 'en' ? 'Most read' : 'धेरै पढिएका',
+    description:
       locale === 'en'
-        ? 'Most read'
-        : 'धेरै पढिएका',
-    description: live
-      ? locale === 'en'
-        ? 'The most-read Nagarik Watch reporting from the last seven days.'
-        : 'पछिल्लो सात दिनमा सबैभन्दा धेरै पढिएका नागरिक वाच समाचार।'
-      : locale === 'en'
-        ? 'Newest Nagarik Watch reporting. Popularity ranking starts once enough verified readers accumulate.'
-        : 'नयाँ प्रकाशित नागरिक वाच समाचार। पर्याप्त पाठक पुगेपछि मात्र लोकप्रियता क्रम लागू हुन्छ।',
+        ? 'The most-read Nagarik Watch reporting from the last seven days, ranked from verified reader activity.'
+        : 'पछिल्लो सात दिनमा सबैभन्दा धेरै पढिएका नागरिक वाच समाचार, प्रमाणित पढाइ तथ्याङ्कका आधारमा।',
     alternates: canonicalAlternates(locale, '/most-read'),
   }
 }

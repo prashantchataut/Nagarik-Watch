@@ -17,28 +17,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const locale = asLocale((await params).locale)
-  const catalog = await getStories({ locale, perPage: 100 })
-  const { live } = await resolveTrendingStories({
-    catalog: catalog.items,
-    limit: 18,
-    minLive: 2,
-  })
+  // Static desk title: metadata must never await the content source.
   return {
-    title:
+    title: locale === 'en' ? 'Trending' : 'अहिले चर्चामा',
+    description:
       locale === 'en'
-        ? live
-          ? 'Trending'
-          : 'Recent stories'
-        : live
-          ? 'अहिले चर्चामा'
-          : 'हालसालैका समाचार',
-    description: live
-      ? locale === 'en'
-        ? 'Stories receiving sustained reader attention on Nagarik Watch.'
-        : 'नागरिक वाचमा पाठकको निरन्तर ध्यान पाइरहेका समाचार।'
-      : locale === 'en'
-        ? 'Newest Nagarik Watch reporting. Trend ranking starts once live attention accumulates.'
-        : 'नयाँ प्रकाशित नागरिक वाच समाचार। लाइभ ध्यान पर्याप्त भएपछि मात्र चर्चा क्रम लागू हुन्छ।',
+        ? 'Stories receiving sustained reader attention on Nagarik Watch, ranked with freshness in mind.'
+        : 'नागरिक वाचमा पाठकको निरन्तर ध्यान पाइरहेका समाचार, ताजापनसहित क्रमबद्ध।',
     alternates: canonicalAlternates(locale, '/trending'),
   }
 }
