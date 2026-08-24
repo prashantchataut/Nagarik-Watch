@@ -5,7 +5,8 @@ import { Pagination } from '@/components/Pagination'
 import { AdSlot } from '@/components/AdSlot'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { HubRelatedNav } from '@/components/public/HubRelatedNav'
-import { RankedStoryList } from '@/components/public/RankedStoryList'
+import { StoryIndexComposition } from '@/components/public/StoryIndexComposition'
+import { IndexRail, RailModule } from '@/components/public/IndexRail'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
 export async function generateMetadata({
@@ -61,22 +62,26 @@ export default async function LatestPage({
       <HubRelatedNav locale={locale} active="latest" />
 
       {result.items.length > 0 ? (
-        <>
-          <RankedStoryList
-            stories={result.items}
-            locale={locale}
-            mode="latest"
-            startRank={(result.page - 1) * PER_PAGE + 1}
-          />
-          <AdSlot locale={locale} placementKey="latest-inline" variant="inline" className="mt-6" />
-          <Pagination
-            page={result.page}
-            totalPages={result.totalPages}
-            basePath={localizeHref(locale, '/latest')}
-            locale={locale}
-            className="mt-8"
-          />
-        </>
+        <div className="mt-1 grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(15rem,0.3fr)] xl:items-start">
+          <div className="min-w-0">
+            <StoryIndexComposition stories={result.items} locale={locale} mode="latest" startRank={(result.page - 1) * PER_PAGE + 1} />
+            <AdSlot locale={locale} placementKey="latest-inline" variant="inline" className="mt-6" />
+            <Pagination
+              page={result.page}
+              totalPages={result.totalPages}
+              basePath={localizeHref(locale, '/latest')}
+              locale={locale}
+              className="mt-8"
+            />
+          </div>
+          <IndexRail locale={locale}>
+            <RailModule title={english ? 'About this list' : 'यो सूचीबारे'}>
+              {english
+                ? 'Ordered strictly by publication time. Every story passes editorial review before appearing here.'
+                : 'प्रकाशन समयअनुसार क्रमबद्ध। हरेक समाचार यहाँ आउनुअघि सम्पादकीय समीक्षा पूरा हुन्छ।'}
+            </RailModule>
+          </IndexRail>
+        </div>
       ) : (
         <p
           className="mt-6 border-y border-rule py-8 text-body text-ink-soft"

@@ -8,6 +8,7 @@ import { UtilityWidgetRail } from '@/components/live/LiveWidgets'
 import { AdSlot } from '@/components/AdSlot'
 import { CategoryDesk } from '@/components/category/CategoryDesk'
 import { ReaderSubmissionForm } from '@/components/forms/ReaderSubmissionForm'
+import { DeskHoldingPage } from '@/components/public/DeskHoldingPage'
 
 /** Map each hub key to real getStories filters — never return the unfiltered national pool for specialty desks. */
 export function hubStoryFilters(hubKey: StaticHub['key']): StoryListOptions {
@@ -83,10 +84,6 @@ export async function PublicHubPage({
   const ranked = rankStories(items, (story, index) => signalsForStory(story, engagement, index))
   const stories = ranked.slice(0, 12)
   const lang = locale === 'en' ? 'en' : 'ne'
-  const empty =
-    locale === 'en'
-      ? 'No stories have been published in this section yet.'
-      : 'यो खण्डमा अझै समाचार प्रकाशित भएका छैनन्।'
 
   return (
     <div className="mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5">
@@ -117,11 +114,45 @@ export async function PublicHubPage({
           />
         </div>
       ) : hub.key === 'submit-story' ? null : (
-        <div className="mt-4 border-y border-rule py-5" lang={lang}>
-          <p className="max-w-body text-body text-ink-soft">{empty}</p>
-        </div>
+        // Holding page (plan system 1.2): an empty desk still composes an
+        // editor note plus evergreen sibling stories — never a bare sentence.
+        <EmptyHubHolding hub={hub} locale={locale} />
       )}
     </div>
+  )
+}
+
+async function EmptyHubHolding({ hub, locale }: { hub: StaticHub; locale: Locale }) {
+  const fallback = await getStories({ locale, perPage: 6 }).catch(() => ({
+    items: [] as StoryCardData[],
+  }))
+  const en = locale === 'en'
+  const note =
+    hub.key === 'exclusive'
+      ? en
+        ? 'Our investigations desk is preparing its first long-form reports. Meanwhile, these recent stories show the standard of verification we hold every claim to.'
+        : 'हाम्रो खोजमूलक डेस्कले पहिलो लामा रिपोर्ट तयार गरिरहेको छ। यसैबीच, यी हालका समाचारले हामी प्रत्येक दाबीलाई कस्तो प्रमाणीकरण दिन्छौं भन्ने नमूना देखाउँछन्।'
+      : hub.key === 'photos'
+        ? en
+          ? 'The photo desk launches with its first galleries soon. These recent stories carry the photography running across today\u2019s edition.'
+          : 'फोटो डेस्क चाँडै पहिला ग्यालरीसहित सुरु हुँदैछ। यी हालका समाचारमा आजको संस्करणभरि छापिएका तस्बिरहरू छन्।'
+        : hub.key === 'video'
+          ? en
+            ? 'Video reporting begins with our first field packages. Until then, these stories show the desk\u2019s editorial ground.'
+            : 'भिडियो रिपोर्टिङ पहिला फिल्ड प्याकेजसहित सुरु हुँदैछ। त्यसअघि यी समाचारले डेस्कको सम्पादकीय आधार देखाउँछन्।'
+          : en
+            ? 'This section is being filled as stories pass editorial review. The newest verified reporting from the newsroom is shown below.'
+            : 'सम्पादकीय समीक्षा पूरा भएका समाचार यस खण्डमा थपिँदै छन्। तल न्युजरुमका नयाँ प्रमाणित समाचार देखाइएका छन्।'
+  return (
+    <DeskHoldingPage
+      locale={locale}
+      kicker={en ? 'Editor\u2019s note' : 'सम्पादकीय नोट'}
+      note={note}
+      fallbackStories={fallback.items}
+      fallbackLabel={en ? 'Latest from the newsroom' : 'न्युजरुमबाट ताजा'}
+      ctaHref={hub.key === 'exclusive' ? '/submit-story' : undefined}
+      ctaLabel={hub.key === 'exclusive' ? (en ? 'Send an investigation tip' : 'खोजमूलक टिप पठाउनुहोस्') : undefined}
+    />
   )
 }
 

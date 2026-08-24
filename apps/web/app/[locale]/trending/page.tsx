@@ -5,7 +5,8 @@ import { resolveTrendingStories } from '@/lib/content/trending-stories'
 import { AdSlot } from '@/components/AdSlot'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { HubRelatedNav } from '@/components/public/HubRelatedNav'
-import { RankedStoryList } from '@/components/public/RankedStoryList'
+import { StoryIndexComposition } from '@/components/public/StoryIndexComposition'
+import { IndexRail, RailModule } from '@/components/public/IndexRail'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
 export const revalidate = 60
@@ -78,10 +79,10 @@ export default async function TrendingPage({ params }: { params: Promise<{ local
       />
       <HubRelatedNav locale={locale} active="trending" />
 
-      <div className="mt-1 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(14rem,0.32fr)] xl:items-start xl:gap-8">
+      <div className="mt-1 grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(15rem,0.3fr)] xl:items-start">
         <div className="min-w-0">
           {ranked.length > 0 ? (
-            <RankedStoryList stories={ranked} locale={locale} mode="trending" />
+            <StoryIndexComposition stories={ranked} locale={locale} mode="trending" />
           ) : (
             <p
               className="mt-6 border-y border-rule py-8 text-body text-ink-soft"
@@ -98,17 +99,17 @@ export default async function TrendingPage({ params }: { params: Promise<{ local
           />
         </div>
 
-        <aside className="hidden border border-rule bg-surface-raised px-3.5 py-3.5 xl:block">
-          <p
-            className="font-display text-meta font-extrabold text-ink"
-            lang={english ? 'en' : 'ne'}
-          >
-            {english ? 'How this list works' : 'यो सूची कसरी बन्छ'}
-          </p>
-          <span className="mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden="true" />
-          <p
-            className="mt-2.5 text-caption leading-relaxed text-ink-soft"
-            lang={english ? 'en' : 'ne'}
+        <IndexRail locale={locale}>
+          <RailModule
+            title={
+              hasLiveSignal
+                ? english
+                  ? 'Live reader signal'
+                  : 'लाइभ पाठक संकेत'
+                : english
+                  ? 'Fallback: newest first'
+                  : 'पुनः: नयाँ पहिले'
+            }
           >
             {hasLiveSignal
               ? english
@@ -117,20 +118,8 @@ export default async function TrendingPage({ params }: { params: Promise<{ local
               : english
                 ? 'When live attention is thin, we show newest published stories without claiming a trend.'
                 : 'लाइभ संकेत पातलो हुँदा ट्रेन्ड दाबी नगरी नयाँ प्रकाशित समाचार देखाइन्छ।'}
-          </p>
-          <p
-            className="mt-3 border-t border-rule pt-3 text-caption font-bold text-brand-strong"
-            lang={english ? 'en' : 'ne'}
-          >
-            {hasLiveSignal
-              ? english
-                ? 'Live reader signal'
-                : 'लाइभ पाठक संकेत'
-              : english
-                ? 'Fallback: newest first'
-                : 'पुनः: नयाँ पहिले'}
-          </p>
-        </aside>
+          </RailModule>
+        </IndexRail>
       </div>
     </div>
   )

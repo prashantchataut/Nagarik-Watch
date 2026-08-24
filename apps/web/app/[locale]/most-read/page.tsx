@@ -5,7 +5,8 @@ import { resolveMostReadStories } from '@/lib/content/most-read-stories'
 import { AdSlot } from '@/components/AdSlot'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { HubRelatedNav } from '@/components/public/HubRelatedNav'
-import { RankedStoryList } from '@/components/public/RankedStoryList'
+import { StoryIndexComposition } from '@/components/public/StoryIndexComposition'
+import { IndexRail, RailModule } from '@/components/public/IndexRail'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 
 export const revalidate = 60
@@ -25,12 +26,8 @@ export async function generateMetadata({
   return {
     title:
       locale === 'en'
-        ? live
-          ? 'Most read'
-          : 'Recent stories'
-        : live
-          ? 'धेरै पढिएका'
-          : 'हालसालैका समाचार',
+        ? 'Most read'
+        : 'धेरै पढिएका',
     description: live
       ? locale === 'en'
         ? 'The most-read Nagarik Watch reporting from the last seven days.'
@@ -55,15 +52,7 @@ export default async function MostReadPage({ params }: { params: Promise<{ local
   return (
     <div className="mx-auto max-w-page px-3 py-6 sm:px-4 sm:py-8 lg:py-10">
       <HubIndexHeader
-        title={
-          english
-            ? live
-              ? 'Most read'
-              : 'Recent stories'
-            : live
-              ? 'धेरै पढिएका'
-              : 'हालसालैका समाचार'
-        }
+        title={english ? 'Most read' : 'धेरै पढिएका'}
         lead={
           live
             ? english
@@ -78,13 +67,28 @@ export default async function MostReadPage({ params }: { params: Promise<{ local
       <HubRelatedNav locale={locale} active="most-read" />
 
       {ranked.length ? (
-        <RankedStoryList stories={ranked} locale={locale} mode="most-read" />
+        <div className="mt-1 grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(15rem,0.3fr)] xl:items-start">
+          <div className="min-w-0">
+            <StoryIndexComposition stories={ranked} locale={locale} mode="most-read" />
+            <AdSlot locale={locale} placementKey="hub-inline" variant="native" className="mt-6" />
+          </div>
+          <IndexRail locale={locale}>
+            <RailModule title={english ? 'How ranking works' : 'क्रम कसरी बन्छ'}>
+              {live
+                ? english
+                  ? 'Ranks come from verified reader activity over the past seven days. No profile, no tracking identity — only anonymous counts.'
+                  : 'क्रम पछिल्लो सात दिनको प्रमाणित पढाइबाट बन्छ। प्रोफाइल वा ट्र्याकिङ पहिचान नहेरी केवल गुमनाम गणना प्रयोग हुन्छ।'
+                : english
+                  ? 'Popularity ranking starts once enough verified readers accumulate. Until then the newest reporting is shown.'
+                  : 'पर्याप्त प्रमाणित पाठक पुगेपछि मात्र लोकप्रियता क्रम लागू हुन्छ। त्यसअघि नयाँ प्रकाशित समाचार देखाइन्छ।'}
+            </RailModule>
+          </IndexRail>
+        </div>
       ) : (
         <p className="mt-6 border-y border-rule py-8 text-body text-ink-soft">
           {english ? 'No published stories are available.' : 'प्रकाशित सामग्री उपलब्ध छैन।'}
         </p>
       )}
-      <AdSlot locale={locale} placementKey="hub-inline" variant="native" className="mt-6" />
     </div>
   )
 }
