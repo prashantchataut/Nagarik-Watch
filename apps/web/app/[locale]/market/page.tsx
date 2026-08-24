@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localePrefix, localizeHref } from '@/lib/i18n/locales'
 import { getRealNepse, getRealForex, getRealGoldSilver } from '@/lib/live/real'
+import { getStories } from '@/lib/content'
 import { localizeNumber, relativeTime } from '@/lib/live/format'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
@@ -22,11 +23,13 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
   const lang = locale === 'en' ? 'en' : 'ne'
   const en = locale === 'en'
 
-  const [nepse, forex, goldSilver] = await Promise.all([
+  const [nepse, forex, goldSilver, marketNews] = await Promise.all([
     getRealNepse(locale),
     getRealForex(locale),
     getRealGoldSilver(locale),
+    getStories({ locale, category: 'business', perPage: 3 }).catch(() => ({ items: [] })),
   ])
+  const newsItems = marketNews.items
 
   const nepseUp = Boolean(nepse.data && nepse.data.change >= 0)
 
@@ -138,13 +141,59 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
             </table>
           </div>
         ) : (
-          <p className="market-forex__empty">
-            {en
-              ? 'The official foreign exchange feed is not available right now.'
-              : 'आधिकारिक विदेशी मुद्रा फिड अहिले उपलब्ध छैन।'}
-          </p>
+          <div className="border-y border-rule py-6" lang={lang}>
+            <p className="max-w-body text-body text-ink-soft">
+              {en
+                ? 'The official foreign exchange feed is not available right now. Rates return here as soon as the source publishes.'
+                : 'आधिकारिक विदेशी मुद्रा फिड अहिले उपलब्ध छैन। स्रोतले दर प्रकाशित गरेपछि यहाँ देखिन्छ।'}
+            </p>
+            <Link
+              href={localizeHref(locale, '/utilities/currency')}
+              className="mt-3 inline-flex text-meta font-bold text-brand-strong underline-offset-4 hover:underline"
+              lang={lang}
+            >
+              {en ? 'Open the currency converter →' : 'मुद्रा रूपान्तरण खोल्नुहोस् →'}
+            </Link>
+          </div>
         )}
       </section>
+
+      {newsItems.length > 0 ? (
+        <section className="mt-9" aria-labelledby="market-news-title">
+          <div className="flex items-baseline justify-between gap-3 border-b border-rule pb-2.5">
+            <h2 id="market-news-title" className="font-display text-h3 font-extrabold text-ink" lang={lang}>
+              {en ? 'Market news' : 'बजार समाचार'}
+            </h2>
+            <Link
+              href={localizeHref(locale, '/business')}
+              className="text-caption font-bold text-brand-strong hover:underline"
+              lang={lang}
+            >
+              {en ? 'All business →' : 'सबै बजार →'}
+            </Link>
+          </div>
+          <div className="mt-4 grid gap-x-5 gap-y-6 sm:grid-cols-3">
+            {newsItems.map((story) => (
+              <article key={story.id} className="group min-w-0">
+                <p className="text-caption font-bold text-brand-strong">
+                  {en && story.category.nameEn ? story.category.nameEn : story.category.nameNe}
+                </p>
+                <h3 className="mt-1 line-clamp-3 text-pretty font-display text-body font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong">
+                  <Link
+                    href={localizeHref(locale, `/${story.category.slug}/${story.slug}`)}
+                    lang={en && story.titleEn ? 'en' : 'ne'}
+                  >
+                    {en && story.titleEn ? story.titleEn : story.titleNe}
+                  </Link>
+                </h3>
+                <p className="mt-1 text-caption text-mute">
+                  {relativeTime(story.publishedAt, locale)}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   )
 }
