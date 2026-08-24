@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import type { Locale } from '@nagarikwatch/db'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { isPublicMembershipEnabled, membershipMode } from '@/lib/membership'
@@ -32,10 +32,45 @@ const tiers = [
 ]
 
 export default async function MembershipPage({ params }: { params: Promise<Params> }) {
-  if (!isPublicMembershipEnabled()) notFound()
-
   const locale: Locale = asLocale((await params).locale)
   const ne = locale === 'ne'
+
+  // Membership chrome stays dark until NEXT_PUBLIC_MEMBERSHIP_PUBLIC flips
+  // (Option A). The route still renders a composed holding page — never a 404.
+  if (!isPublicMembershipEnabled()) {
+    return (
+      <main className="mx-auto max-w-page px-4 py-14" lang={ne ? 'ne' : 'en'}>
+        <div className="mx-auto max-w-xl border border-rule bg-surface-raised px-5 py-6">
+          <p className="text-caption font-bold text-brand-strong">
+            {ne ? 'सदस्यता' : 'Membership'}
+          </p>
+          <h1 className="mt-2 font-display text-h2 font-extrabold leading-snug text-ink">
+            {ne ? 'सदस्यता चरण तयारीमा छ।' : 'The membership programme is in preparation.'}
+          </h1>
+          <p className="mt-3 text-body leading-relaxed text-ink-soft">
+            {ne
+              ? 'दैनिक समाचार सधैं खुला रहन्छ। सदस्यता योजना सार्वजनिक भएपछि यहीँ जानकारी दिइनेछ।'
+              : 'Daily news stays free to read. Membership details will be published here when the programme opens.'}
+          </p>
+          <p className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-meta font-bold">
+            <Link
+              href={localizeHref(locale, '/newsletter')}
+              className="text-brand-strong underline-offset-4 hover:underline"
+            >
+              {ne ? 'न्युजलेटर लिनुहोस् →' : 'Get the newsletter →'}
+            </Link>
+            <Link
+              href={localizeHref(locale, '/about')}
+              className="text-ink underline-offset-4 hover:text-brand-strong hover:underline"
+            >
+              {ne ? 'हाम्रो काम बारे →' : 'How we work →'}
+            </Link>
+          </p>
+        </div>
+      </main>
+    )
+  }
+
   const mode = membershipMode()
 
   return (

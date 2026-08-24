@@ -25,7 +25,7 @@ export function PublicErrorState({
   return (
     <main className="mx-auto grid min-h-[62vh] max-w-page content-center px-3 py-10 sm:px-4 sm:py-14" lang={lang}>
       <div className="grid gap-7 border-y border-rule py-8 lg:grid-cols-[10rem_minmax(0,1fr)] lg:items-start lg:gap-10 lg:py-10">
-        <p className="font-sans text-[clamp(3.5rem,9vw,7rem)] font-black leading-none tabular-nums text-brand-strong" aria-hidden="true">
+        <p className="whitespace-nowrap font-sans text-[clamp(3rem,8vw,6rem)] font-black leading-none tabular-nums text-brand-strong" aria-hidden="true">
           {code}
         </p>
         <div className="max-w-2xl">

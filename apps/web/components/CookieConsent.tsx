@@ -94,7 +94,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
     <>
       {bannerVisible ? (
         <section
-          className="nw-cookie-banner fixed inset-x-0 z-[35] border-t border-rule bg-surface shadow-overlay sm:inset-x-auto sm:left-6 sm:w-[min(28rem,calc(100vw-3rem))] sm:border"
+          className="nw-cookie-banner fixed inset-x-0 bottom-0 z-[35] border-t border-rule bg-surface shadow-overlay sm:inset-x-auto sm:bottom-6 sm:left-6 sm:w-[min(28rem,calc(100vw-3rem))] sm:border"
           role="region"
           aria-labelledby={`${dialogId}-banner-title`}
           aria-describedby={`${dialogId}-banner-body`}

@@ -59,7 +59,19 @@ export default async function DisasterAlertsPage({
                 : ''}
             </p>
           </div>
-          <span className="text-caption font-semibold text-ink-soft">{alerts.status}</span>
+          <span className="text-caption font-semibold text-ink-soft">
+            {alerts.status === 'ok'
+              ? en
+                ? 'Live'
+                : 'सक्रिय'
+              : alerts.status === 'error'
+                ? en
+                  ? 'Source issue'
+                  : 'स्रोत समस्या'
+                : en
+                  ? 'No active alerts'
+                  : 'कुनै सूचना छैन'}
+          </span>
         </div>
 
         {alerts.data.length ? (

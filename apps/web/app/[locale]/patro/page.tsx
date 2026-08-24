@@ -8,6 +8,7 @@ import { mainSiteHref } from '@/lib/calendar-host'
 import { PatroShell } from '@/components/utilities/PatroShell'
 import { PatroDesk } from '@/components/utilities/PatroDesk'
 import { getPublishedCalendarSchedule } from '@/lib/calendar-schedule'
+import { normalizeEditionHeroUrl } from '@/lib/content/store/seed-edition/_helpers'
 
 export const revalidate = 300
 
@@ -43,7 +44,13 @@ export default async function PatroPage({ params }: { params: Promise<{ locale: 
   const latestStories = storiesPage.items.slice(0, 6).map((story) => {
     const title = en && story.titleEn ? story.titleEn : story.titleNe
     const rawThumb = story.heroImage?.url
-    const thumb = rawThumb && !rawThumb.startsWith('data:') ? rawThumb : null
+    // Desk rows can carry pre-compression .png paths that 404; normalize first,
+    // then drop synthetic media so broken thumb boxes never render.
+    const normalized =
+      rawThumb && !rawThumb.startsWith('data:')
+        ? normalizeEditionHeroUrl(rawThumb, story.slug) ?? rawThumb
+        : null
+    const thumb = normalized && !normalized.startsWith('data:') ? normalized : null
     const path = `/${story.category.slug}/${story.slug}`
     return {
       id: story.id,

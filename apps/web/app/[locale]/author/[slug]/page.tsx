@@ -26,7 +26,8 @@ type Params = { locale: string; slug: string }
 export default async function AuthorPage({ params }: { params: Promise<Params> }) {
   const { locale: rawLocale, slug } = await params
   const locale: Locale = asLocale(rawLocale)
-  const data = await getAuthor(slug, locale)
+  // A transient source throw must never escape as an unstyled global error.
+  const data = await getAuthor(slug, locale).catch(() => null)
   if (!data) notFound()
 
   const { author, stories } = data

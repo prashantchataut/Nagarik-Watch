@@ -190,10 +190,16 @@ function ScoreSection({
         <div>
           <h2>{title}</h2>
           <p>
-            {source} ·{' '}
-            {new Date(updatedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB', {
-              timeZone: 'Asia/Kathmandu',
-            })}
+            {available ? (
+              <>
+                {source} ·{' '}
+                {new Date(updatedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB', {
+                  timeZone: 'Asia/Kathmandu',
+                })}
+              </>
+            ) : (
+              (ne ? 'प्रमाणित प्रदायक' : 'Verified provider')
+            )}
           </p>
         </div>
         <span data-live={available ? 'true' : 'false'}>
@@ -202,7 +208,7 @@ function ScoreSection({
               ? 'सत्यापित'
               : 'Verified'
             : ne
-              ? 'फिड छैन'
+              ? 'उपलब्ध छैन'
               : 'No feed'}
         </span>
       </header>

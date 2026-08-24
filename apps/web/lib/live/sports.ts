@@ -64,7 +64,7 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
     const manual = await getManualLiveRecord<FootballScore[]>('football')
     if (manual)
       return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return unavailable<FootballScore>('Football provider is not configured')
+    return unavailable<FootballScore>('football-data.org')
   }
 
   try {
@@ -146,7 +146,7 @@ export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[
     const manual = await getManualLiveRecord<CricketScore[]>('cricket')
     if (manual)
       return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return unavailable<CricketScore>('Cricket provider is not configured')
+    return unavailable<CricketScore>('api-sports')
   }
 
   try {
