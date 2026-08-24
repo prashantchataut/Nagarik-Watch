@@ -76,7 +76,7 @@ export default async function MostReadPage({ params }: { params: Promise<{ local
             <RailModule title={english ? 'How ranking works' : 'क्रम कसरी बन्छ'}>
               {live
                 ? english
-                  ? 'Ranks come from verified reader activity over the past seven days. No profile, no tracking identity — only anonymous counts.'
+                  ? 'Ranks come from verified reader activity over the past seven days. No profile, no tracking identity, only anonymous counts.'
                   : 'क्रम पछिल्लो सात दिनको प्रमाणित पढाइबाट बन्छ। प्रोफाइल वा ट्र्याकिङ पहिचान नहेरी केवल गुमनाम गणना प्रयोग हुन्छ।'
                 : english
                   ? 'Popularity ranking starts once enough verified readers accumulate. Until then the newest reporting is shown.'
