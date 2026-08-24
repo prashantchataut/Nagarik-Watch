@@ -9,6 +9,7 @@ import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { CategoryDesk } from '@/components/category/CategoryDesk'
 import { isStaticPagesExport } from '@/lib/build-mode'
 import { staticCategoryParams } from '@/lib/static-export-params'
+import { canonicalCategoryBySlug } from '@/lib/site'
 
 // Must be a string literal for Next segment config.
 export const revalidate = 60
@@ -30,13 +31,21 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale: raw, category: slug } = await params
   const locale = asLocale(raw)
-  const category = await getCategory(slug)
-  if (!category) return {}
-  const title = locale === 'en' ? category.nameEn : category.nameNe
-  const description = locale === 'en' ? category.descriptionEn : category.descriptionNe
+  // Desk names are static product taxonomy: resolve them synchronously so the
+  // streamed <title> never races a slow content-source read. The source is
+  // only consulted for slugs outside the canonical set.
+  const fallback = canonicalCategoryBySlug(slug)
+  if (fallback) {
+    return {
+      title: locale === 'en' ? fallback.nameEn : fallback.nameNe,
+      alternates: canonicalAlternates(locale, `/${slug}`),
+    }
+  }
+  const source = await getCategory(slug).catch(() => null)
+  if (!source) return {}
   return {
-    title,
-    description,
+    title: locale === 'en' ? source.nameEn || source.nameNe : source.nameNe || source.nameEn,
+    description: (locale === 'en' ? source.descriptionEn : source.descriptionNe) ?? undefined,
     alternates: canonicalAlternates(locale, `/${slug}`),
   }
 }
@@ -54,13 +63,20 @@ export default async function CategoryPage({
   const page = isStaticPagesExport
     ? 1
     : pageNumber((await (searchParams ?? Promise.resolve({}))).page)
-  const [category, result] = await Promise.all([
-    getCategory(slug),
-    getCategoryPage(slug, page, locale),
+  const [categoryResult, result] = await Promise.all([
+    getCategory(slug).catch(() => null),
+    getCategoryPage(slug, page, locale).catch(() => null),
   ])
-  if (!category || !result || page > result.totalPages) notFound()
-  const name = english ? category.nameEn : category.nameNe
-  const description = english ? category.descriptionEn : category.descriptionNe
+  // Fail safe to the canonical taxonomy so a source hiccup renders a correct
+  // desk shell (and a real empty state) instead of a 404/500. Partial records
+  // with empty names also fall back.
+  const fallback = canonicalCategoryBySlug(slug)
+  const category = categoryResult ??
+    (fallback ? { slug, nameNe: fallback.nameNe, nameEn: fallback.nameEn } : null)
+  const resolvedName = category ? (english ? category.nameEn || category.nameNe : category.nameNe || category.nameEn) : ''
+  if (!category || !resolvedName || !result || page > result.totalPages) notFound()
+  const name = resolvedName
+  const description = english ? categoryResult?.descriptionEn : categoryResult?.descriptionNe
   // Short desk lead only when CMS has real copy; never invent marketing blurb.
   const lead = description?.trim() || undefined
 

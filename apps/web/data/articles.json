@@ -1,9 +1,12 @@
 {
-  "version": 1,
   "articles": [
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["local-election"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "local-election"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -181,8 +184,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["budget-2083"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "budget-2083"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -355,8 +362,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["local-election"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "local-election"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -529,8 +540,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["budget-2083"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "budget-2083"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -699,8 +714,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["exclusive-report"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "exclusive-report"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -869,8 +888,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -1043,8 +1066,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -1213,8 +1240,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -1383,8 +1414,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -1553,8 +1588,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -1723,8 +1762,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["budget-2083"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "budget-2083"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -1771,7 +1814,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["ढुवानी लागतको हिस्सा", "बजार अनुगमनको नियमितता", "ऊर्जा बचत उपाय"]
+          "items": [
+            "ढुवानी लागतको हिस्सा",
+            "बजार अनुगमनको नियमितता",
+            "ऊर्जा बचत उपाय"
+          ]
         },
         {
           "type": "pullQuote",
@@ -1893,8 +1940,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["data-story"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "data-story"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -1941,7 +1992,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["जोखिम सीमा तोक्नु", "ऋण लिएर कारोबार नगर्नु", "वित्तीय विवरण पढ्नु"]
+          "items": [
+            "जोखिम सीमा तोक्नु",
+            "ऋण लिएर कारोबार नगर्नु",
+            "वित्तीय विवरण पढ्नु"
+          ]
         },
         {
           "type": "heading2",
@@ -2059,8 +2114,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -2107,7 +2166,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["सहकारी पारदर्शिता", "साना कर्जाको सरल प्रक्रिया", "डिजिटल भुक्तानी"]
+          "items": [
+            "सहकारी पारदर्शिता",
+            "साना कर्जाको सरल प्रक्रिया",
+            "डिजिटल भुक्तानी"
+          ]
         },
         {
           "type": "heading2",
@@ -2225,8 +2288,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -2273,7 +2340,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["मौसम अद्यावधिक दिनु", "रद्द नीति स्पष्ट राख्नु", "गाइड तालिम"]
+          "items": [
+            "मौसम अद्यावधिक दिनु",
+            "रद्द नीति स्पष्ट राख्नु",
+            "गाइड तालिम"
+          ]
         },
         {
           "type": "heading2",
@@ -2391,8 +2462,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["budget-2083"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "budget-2083"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -2439,7 +2514,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["एकद्वार चेकलिस्ट", "महिला लक्षित उत्पादन", "पुनर्भुक्तानी लचिलोपन"]
+          "items": [
+            "एकद्वार चेकलिस्ट",
+            "महिला लक्षित उत्पादन",
+            "पुनर्भुक्तानी लचिलोपन"
+          ]
         },
         {
           "type": "heading2",
@@ -2557,8 +2636,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["nepal-cricket"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "nepal-cricket"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -2605,7 +2688,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["फिटनेस मापदण्ड सार्वजनिक गर्नु", "उमेर समूह मार्गचित्र", "घरेलु लिगसँग तालमेल"]
+          "items": [
+            "फिटनेस मापदण्ड सार्वजनिक गर्नु",
+            "उमेर समूह मार्गचित्र",
+            "घरेलु लिगसँग तालमेल"
+          ]
         },
         {
           "type": "heading2",
@@ -2723,8 +2810,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["fifa-world-cup"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "fifa-world-cup"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -2771,7 +2862,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["नियमित घरेलु लिग", "कोचिङ तालिम", "सुरक्षित प्रशिक्षण स्थल"]
+          "items": [
+            "नियमित घरेलु लिग",
+            "कोचिङ तालिम",
+            "सुरक्षित प्रशिक्षण स्थल"
+          ]
         },
         {
           "type": "heading2",
@@ -2889,8 +2984,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -2937,7 +3036,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["मेडिकल स्टेसन", "पानी र छाया व्यवस्था", "ट्राफिक सूचना अग्रिम"]
+          "items": [
+            "मेडिकल स्टेसन",
+            "पानी र छाया व्यवस्था",
+            "ट्राफिक सूचना अग्रिम"
+          ]
         },
         {
           "type": "heading2",
@@ -3055,8 +3158,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["budget-2083"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "budget-2083"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -3103,7 +3210,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["सुरक्षित खेल मैदान", "आधारभूत किट", "वार्षिक प्रतियोगिता क्यालेन्डर"]
+          "items": [
+            "सुरक्षित खेल मैदान",
+            "आधारभूत किट",
+            "वार्षिक प्रतियोगिता क्यालेन्डर"
+          ]
         },
         {
           "type": "heading2",
@@ -3221,8 +3332,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["nepal-cricket"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "nepal-cricket"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -3269,7 +3384,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["रद्द सूचना छिटो", "टिकट फिर्ता नीति", "इनडोर विकल्प"]
+          "items": [
+            "रद्द सूचना छिटो",
+            "टिकट फिर्ता नीति",
+            "इनडोर विकल्प"
+          ]
         },
         {
           "type": "heading2",
@@ -3387,8 +3506,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -3435,7 +3558,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["सुलभ टिकट", "नयाँ निर्देशक खण्ड", "उपशीर्षक पहुँच"]
+          "items": [
+            "सुलभ टिकट",
+            "नयाँ निर्देशक खण्ड",
+            "उपशीर्षक पहुँच"
+          ]
         },
         {
           "type": "heading2",
@@ -3553,7 +3680,9 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "none",
@@ -3601,7 +3730,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["विद्यालय कार्यक्रम", "सामुदायिक रेडियो प्रसारण", "युवा कलाकार मेन्टरसिप"]
+          "items": [
+            "विद्यालय कार्यक्रम",
+            "सामुदायिक रेडियो प्रसारण",
+            "युवा कलाकार मेन्टरसिप"
+          ]
         },
         {
           "type": "heading2",
@@ -3719,8 +3852,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -3767,7 +3904,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["विद्यार्थी छुट", "भ्रमण प्रदर्शनी", "स्थानीय भाषा नाटक"]
+          "items": [
+            "विद्यार्थी छुट",
+            "भ्रमण प्रदर्शनी",
+            "स्थानीय भाषा नाटक"
+          ]
         },
         {
           "type": "heading2",
@@ -3885,7 +4026,9 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "secondary",
@@ -3933,7 +4076,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["रिलिज झ्याल पारदर्शिता", "राजस्व बाँडफाँड", "पाइरेसी निवारण"]
+          "items": [
+            "रिलिज झ्याल पारदर्शिता",
+            "राजस्व बाँडफाँड",
+            "पाइरेसी निवारण"
+          ]
         },
         {
           "type": "heading2",
@@ -4051,8 +4198,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -4099,7 +4250,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["अग्रिम सूचना", "भीड व्यवस्थापन", "स्थानीय कलाकार प्राथमिकता"]
+          "items": [
+            "अग्रिम सूचना",
+            "भीड व्यवस्थापन",
+            "स्थानीय कलाकार प्राथमिकता"
+          ]
         },
         {
           "type": "heading2",
@@ -4217,8 +4372,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["geopolitics"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "geopolitics"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -4265,7 +4424,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["इन्धन मौज्दात स्थिति", "सार्वजनिक यातायात विकल्प", "मूल्य समायोजन प्रक्रिया"]
+          "items": [
+            "इन्धन मौज्दात स्थिति",
+            "सार्वजनिक यातायात विकल्प",
+            "मूल्य समायोजन प्रक्रिया"
+          ]
         },
         {
           "type": "heading2",
@@ -4383,8 +4546,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -4431,7 +4598,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["नदी प्रवाह आदानप्रदान", "पूर्वसूचना भाषा सरलता", "सीमावर्ती राहत समन्वय"]
+          "items": [
+            "नदी प्रवाह आदानप्रदान",
+            "पूर्वसूचना भाषा सरलता",
+            "सीमावर्ती राहत समन्वय"
+          ]
         },
         {
           "type": "heading2",
@@ -4549,8 +4720,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -4597,7 +4772,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["कानुनी कामदार मार्ग", "शुल्क पारदर्शिता", "गुनासो संयन्त्र"]
+          "items": [
+            "कानुनी कामदार मार्ग",
+            "शुल्क पारदर्शिता",
+            "गुनासो संयन्त्र"
+          ]
         },
         {
           "type": "heading2",
@@ -4715,8 +4894,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -4763,7 +4946,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["हिमाली जोखिम", "कृषि बीमा", "हरित वित्त पहुँच"]
+          "items": [
+            "हिमाली जोखिम",
+            "कृषि बीमा",
+            "हरित वित्त पहुँच"
+          ]
         },
         {
           "type": "heading2",
@@ -4881,8 +5068,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["geopolitics"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "geopolitics"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -4929,7 +5120,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["सुरक्षित आश्रय", "सूचना पहुँच", "बालबालिका संरक्षण"]
+          "items": [
+            "सुरक्षित आश्रय",
+            "सूचना पहुँच",
+            "बालबालिका संरक्षण"
+          ]
         },
         {
           "type": "heading2",
@@ -5047,8 +5242,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -5095,7 +5294,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["वडा सेवा समय", "प्रदेश बजेट कार्यान्वयन", "संघीय मापदण्ड"]
+          "items": [
+            "वडा सेवा समय",
+            "प्रदेश बजेट कार्यान्वयन",
+            "संघीय मापदण्ड"
+          ]
         },
         {
           "type": "heading2",
@@ -5213,8 +5416,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -5261,7 +5468,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["निकास क्षमता", "अवैध निर्माण नियन्त्रण", "हरित क्षेत्र"]
+          "items": [
+            "निकास क्षमता",
+            "अवैध निर्माण नियन्त्रण",
+            "हरित क्षेत्र"
+          ]
         },
         {
           "type": "heading2",
@@ -5379,8 +5590,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["exclusive-report"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "exclusive-report"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -5427,7 +5642,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["स्रोत संरक्षण", "सच्याइ नीति", "घृणा भाषण बन्देज"]
+          "items": [
+            "स्रोत संरक्षण",
+            "सच्याइ नीति",
+            "घृणा भाषण बन्देज"
+          ]
         },
         {
           "type": "heading2",
@@ -5545,8 +5764,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -5593,7 +5816,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["सीप माग मिलान", "क्षेत्रीय अवसर", "महिला सुरक्षा"]
+          "items": [
+            "सीप माग मिलान",
+            "क्षेत्रीय अवसर",
+            "महिला सुरक्षा"
+          ]
         },
         {
           "type": "heading2",
@@ -5711,8 +5938,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["budget-2083"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "budget-2083"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -5759,7 +5990,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["बस फ्रिक्वेन्सी", "महिला सुरक्षा", "एकीकृत टिकट"]
+          "items": [
+            "बस फ्रिक्वेन्सी",
+            "महिला सुरक्षा",
+            "एकीकृत टिकट"
+          ]
         },
         {
           "type": "heading2",
@@ -5877,8 +6112,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -5925,7 +6164,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["भाषा प्रयोग", "सामाजिक सन्दर्भ", "पाठ समूह छलफल"]
+          "items": [
+            "भाषा प्रयोग",
+            "सामाजिक सन्दर्भ",
+            "पाठ समूह छलफल"
+          ]
         },
         {
           "type": "heading2",
@@ -6043,7 +6286,9 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "none",
@@ -6091,7 +6336,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["सटीक टिप्पणी", "सुलभ संस्करण", "डिजिटल अभिलेख"]
+          "items": [
+            "सटीक टिप्पणी",
+            "सुलभ संस्करण",
+            "डिजिटल अभिलेख"
+          ]
         },
         {
           "type": "heading2",
@@ -6209,8 +6458,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -6257,7 +6510,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["निःशुल्क सत्र", "सांकेतिक भाषा/उपशीर्षक", "प्रदेश भ्रमण"]
+          "items": [
+            "निःशुल्क सत्र",
+            "सांकेतिक भाषा/उपशीर्षक",
+            "प्रदेश भ्रमण"
+          ]
         },
         {
           "type": "heading2",
@@ -6375,8 +6632,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["budget-2083"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "budget-2083"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -6423,7 +6684,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["पुस्तक कुना", "साप्ताहिक पठन समय", "अभिभावक सहभागिता"]
+          "items": [
+            "पुस्तक कुना",
+            "साप्ताहिक पठन समय",
+            "अभिभावक सहभागिता"
+          ]
         },
         {
           "type": "heading2",
@@ -6541,8 +6806,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -6589,7 +6858,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["भाषा मिश्रण", "घरको स्मृति", "पहचान द्वन्द्व"]
+          "items": [
+            "भाषा मिश्रण",
+            "घरको स्मृति",
+            "पहचान द्वन्द्व"
+          ]
         },
         {
           "type": "heading2",
@@ -6707,8 +6980,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["data-story"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "data-story"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -6755,7 +7032,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["सहमति स्पष्टता", "उजुरी मार्ग", "अफलाइन सेवा"]
+          "items": [
+            "सहमति स्पष्टता",
+            "उजुरी मार्ग",
+            "अफलाइन सेवा"
+          ]
         },
         {
           "type": "heading2",
@@ -6873,8 +7154,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["budget-2083"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "budget-2083"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -6921,7 +7206,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["शुल्क देखिने", "लेनदेन रसीद", "ग्राहक सहयोग"]
+          "items": [
+            "शुल्क देखिने",
+            "लेनदेन रसीद",
+            "ग्राहक सहयोग"
+          ]
         },
         {
           "type": "heading2",
@@ -7039,8 +7328,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["exclusive-report"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "exclusive-report"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -7087,7 +7380,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["दुई चरणीय प्रमाणीकरण", "अपरिचित लिंक नखोल्ने", "सफ्टवेयर अद्यावधिक"]
+          "items": [
+            "दुई चरणीय प्रमाणीकरण",
+            "अपरिचित लिंक नखोल्ने",
+            "सफ्टवेयर अद्यावधिक"
+          ]
         },
         {
           "type": "heading2",
@@ -7205,8 +7502,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -7253,7 +7554,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["स्रोत प्रमाण", "पारदर्शी खुलासा", "सच्याइ प्रक्रिया"]
+          "items": [
+            "स्रोत प्रमाण",
+            "पारदर्शी खुलासा",
+            "सच्याइ प्रक्रिया"
+          ]
         },
         {
           "type": "heading2",
@@ -7371,8 +7676,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -7419,7 +7728,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["विद्यालय कनेक्टिभिटी", "स्वास्थ्य चौकी लिंक", "मर्मत सम्झौता"]
+          "items": [
+            "विद्यालय कनेक्टिभिटी",
+            "स्वास्थ्य चौकी लिंक",
+            "मर्मत सम्झौता"
+          ]
         },
         {
           "type": "heading2",
@@ -7537,8 +7850,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -7585,7 +7902,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["उमालेको/शोधित पानी", "झुलको प्रयोग", "लक्षण देखिए जाँच"]
+          "items": [
+            "उमालेको/शोधित पानी",
+            "झुलको प्रयोग",
+            "लक्षण देखिए जाँच"
+          ]
         },
         {
           "type": "heading2",
@@ -7703,7 +8024,9 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "none",
@@ -7751,7 +8074,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["एम्बुलेन्स/कोष", "प्रशिक्षित कर्मी", "पोषण परामर्श"]
+          "items": [
+            "एम्बुलेन्स/कोष",
+            "प्रशिक्षित कर्मी",
+            "पोषण परामर्श"
+          ]
         },
         {
           "type": "heading2",
@@ -7869,8 +8196,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -7917,7 +8248,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["विद्यालय परामर्श", "कार्यस्थल नीति", "मिडिया भाषा"]
+          "items": [
+            "विद्यालय परामर्श",
+            "कार्यस्थल नीति",
+            "मिडिया भाषा"
+          ]
         },
         {
           "type": "heading2",
@@ -8035,8 +8370,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["data-story"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "data-story"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -8083,7 +8422,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["विभागगत औसत समय", "टोकन प्रणाली", "आपतकाल छुट्याउने"]
+          "items": [
+            "विभागगत औसत समय",
+            "टोकन प्रणाली",
+            "आपतकाल छुट्याउने"
+          ]
         },
         {
           "type": "heading2",
@@ -8201,7 +8544,9 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "none",
@@ -8249,7 +8594,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["स्थानीय भाषा", "साइड इफेक्ट इमानदारी", "प्रश्नोत्तर सत्र"]
+          "items": [
+            "स्थानीय भाषा",
+            "साइड इफेक्ट इमानदारी",
+            "प्रश्नोत्तर सत्र"
+          ]
         },
         {
           "type": "heading2",
@@ -8367,8 +8716,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -8415,7 +8768,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["तुलना कम गर्ने", "वैकल्पिक मार्ग खुला राख्ने", "मानसिक सहयोग"]
+          "items": [
+            "तुलना कम गर्ने",
+            "वैकल्पिक मार्ग खुला राख्ने",
+            "मानसिक सहयोग"
+          ]
         },
         {
           "type": "heading2",
@@ -8533,8 +8890,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -8581,7 +8942,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["दुर्गम भत्ता", "स्थानीय करार मापदण्ड", "बहुविषय तालिम"]
+          "items": [
+            "दुर्गम भत्ता",
+            "स्थानीय करार मापदण्ड",
+            "बहुविषय तालिम"
+          ]
         },
         {
           "type": "heading2",
@@ -8699,8 +9064,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["data-story"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "data-story"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -8747,7 +9116,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["बिजुली", "शिक्षक तालिम", "अफलाइन सामग्री"]
+          "items": [
+            "बिजुली",
+            "शिक्षक तालिम",
+            "अफलाइन सामग्री"
+          ]
         },
         {
           "type": "heading2",
@@ -8865,8 +9238,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["budget-2083"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "budget-2083"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -8913,7 +9290,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["सरल आवेदन", "समयतालिका", "सहयोग डेस्क"]
+          "items": [
+            "सरल आवेदन",
+            "समयतालिका",
+            "सहयोग डेस्क"
+          ]
         },
         {
           "type": "heading2",
@@ -9031,8 +9412,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -9079,7 +9464,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["सुरक्षा मापदण्ड", "अभिभावक सूचना", "पुनःपठन तालिका"]
+          "items": [
+            "सुरक्षा मापदण्ड",
+            "अभिभावक सूचना",
+            "पुनःपठन तालिका"
+          ]
         },
         {
           "type": "heading2",
@@ -9197,8 +9586,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["exclusive-report"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "exclusive-report"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -9245,7 +9638,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["प्राथमिकता छनोट", "नागरिक सुनुवाइ", "सूचक सार्वजनिक"]
+          "items": [
+            "प्राथमिकता छनोट",
+            "नागरिक सुनुवाइ",
+            "सूचक सार्वजनिक"
+          ]
         },
         {
           "type": "heading2",
@@ -9363,8 +9760,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -9411,7 +9812,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["धितो विकल्प", "बजार लिंक", "तालिम"]
+          "items": [
+            "धितो विकल्प",
+            "बजार लिंक",
+            "तालिम"
+          ]
         },
         {
           "type": "heading2",
@@ -9529,8 +9934,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["nepal-cricket"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "nepal-cricket"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -9577,7 +9986,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["आधारभूत सीप", "अभिभावक अपेक्षा", "चोट रोकथाम"]
+          "items": [
+            "आधारभूत सीप",
+            "अभिभावक अपेक्षा",
+            "चोट रोकथाम"
+          ]
         },
         {
           "type": "heading2",
@@ -9695,8 +10108,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -9743,7 +10160,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["पूर्वसूचना", "भू-उपयोग", "समुदाय विज्ञान"]
+          "items": [
+            "पूर्वसूचना",
+            "भू-उपयोग",
+            "समुदाय विज्ञान"
+          ]
         },
         {
           "type": "heading2",
@@ -9861,8 +10282,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -9909,7 +10334,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["स्वयंसेवक तालिम", "पारदर्शी कोष", "दूतावास समन्वय"]
+          "items": [
+            "स्वयंसेवक तालिम",
+            "पारदर्शी कोष",
+            "दूतावास समन्वय"
+          ]
         },
         {
           "type": "heading2",
@@ -10027,8 +10456,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -10075,7 +10508,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["तारपोल र पानी", "बिहानको आपूर्ति", "महिला विक्रेता"]
+          "items": [
+            "तारपोल र पानी",
+            "बिहानको आपूर्ति",
+            "महिला विक्रेता"
+          ]
         },
         {
           "type": "heading2",
@@ -10193,8 +10630,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -10241,7 +10682,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["मेसिन र मजदुर", "सुरक्षा गियर", "रातको बत्ती"]
+          "items": [
+            "मेसिन र मजदुर",
+            "सुरक्षा गियर",
+            "रातको बत्ती"
+          ]
         },
         {
           "type": "heading2",
@@ -10359,7 +10804,9 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "secondary",
@@ -10407,7 +10854,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["चिया पसल", "अखबार पाठक", "विद्यालय जाने बच्चा"]
+          "items": [
+            "चिया पसल",
+            "अखबार पाठक",
+            "विद्यालय जाने बच्चा"
+          ]
         },
         {
           "type": "heading2",
@@ -10525,8 +10976,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -10573,7 +11028,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["टोकरी", "हिम/कुहिरो", "सामुदायिक बास"]
+          "items": [
+            "टोकरी",
+            "हिम/कुहिरो",
+            "सामुदायिक बास"
+          ]
         },
         {
           "type": "heading2",
@@ -10691,8 +11150,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -10739,7 +11202,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["बालुवा थुप्रो", "स्थानान्तरण छलफल", "बालबालिका खेल"]
+          "items": [
+            "बालुवा थुप्रो",
+            "स्थानान्तरण छलफल",
+            "बालबालिका खेल"
+          ]
         },
         {
           "type": "heading2",
@@ -10857,8 +11324,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["exclusive-report"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "exclusive-report"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -10905,7 +11376,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["पाइच", "फिल्ड सुरक्षा", "सम्पादन जाँच"]
+          "items": [
+            "पाइच",
+            "फिल्ड सुरक्षा",
+            "सम्पादन जाँच"
+          ]
         },
         {
           "type": "heading2",
@@ -11023,7 +11498,9 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
       "tagSlugs": [],
       "isBreaking": false,
       "isFeatured": "none",
@@ -11071,7 +11548,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["इन्टरनेट लागत", "दृश्य आवश्यकता", "सच्याइ सजिलो"]
+          "items": [
+            "इन्टरनेट लागत",
+            "दृश्य आवश्यकता",
+            "सच्याइ सजिलो"
+          ]
         },
         {
           "type": "heading2",
@@ -11189,8 +11670,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["climate"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -11237,7 +11722,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["ठूलो फन्ट", "स्थानीय उदाहरण", "कल टु एक्शन"]
+          "items": [
+            "ठूलो फन्ट",
+            "स्थानीय उदाहरण",
+            "कल टु एक्शन"
+          ]
         },
         {
           "type": "heading2",
@@ -11355,8 +11844,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -11403,7 +11896,10 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["हिंसा ग्लोरिफाइ नगर्ने", "बालबालिका पहिचान"]
+          "items": [
+            "हिंसा ग्लोरिफाइ नगर्ने",
+            "बालबालिका पहिचान"
+          ]
         },
         {
           "type": "heading2",
@@ -11521,8 +12017,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["data-story"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "data-story"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -11569,7 +12069,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["मेटाडेटा", "ब्याकअप", "सार्वजनिक पहुँच तह"]
+          "items": [
+            "मेटाडेटा",
+            "ब्याकअप",
+            "सार्वजनिक पहुँच तह"
+          ]
         },
         {
           "type": "heading2",
@@ -11687,8 +12191,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "lead",
       "workflowStage": "published",
@@ -11735,7 +12243,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["कानुनी करार", "बीमा", "हेल्पलाइन"]
+          "items": [
+            "कानुनी करार",
+            "बीमा",
+            "हेल्पलाइन"
+          ]
         },
         {
           "type": "heading2",
@@ -11853,8 +12365,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -11901,7 +12417,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["भाषा कक्षा", "करार बुझाइ", "पारिवारिक योजना"]
+          "items": [
+            "भाषा कक्षा",
+            "करार बुझाइ",
+            "पारिवारिक योजना"
+          ]
         },
         {
           "type": "heading2",
@@ -12019,8 +12539,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["data-story"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "data-story"
+      ],
       "isBreaking": false,
       "isFeatured": "secondary",
       "workflowStage": "published",
@@ -12067,7 +12591,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["आकस्मिक कोष", "ऋण सावधानी", "शिक्षा लगानी"]
+          "items": [
+            "आकस्मिक कोष",
+            "ऋण सावधानी",
+            "शिक्षा लगानी"
+          ]
         },
         {
           "type": "heading2",
@@ -12185,8 +12713,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["labour-migration"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -12233,7 +12765,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["आधिकारिक स्रोत", "छात्रवृत्ति खोज", "ठगी कन्सल्टेन्सीबाट बच्ने"]
+          "items": [
+            "आधिकारिक स्रोत",
+            "छात्रवृत्ति खोज",
+            "ठगी कन्सल्टेन्सीबाट बच्ने"
+          ]
         },
         {
           "type": "heading2",
@@ -12351,8 +12887,12 @@
       "updatedBy": "newsroom-edition-2026-07"
     },
     {
-      "authorIds": ["aut-newsroom-desk"],
-      "tagSlugs": ["editor-pick"],
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "editor-pick"
+      ],
       "isBreaking": false,
       "isFeatured": "none",
       "workflowStage": "published",
@@ -12399,7 +12939,11 @@
         {
           "type": "list",
           "ordered": false,
-          "items": ["पारदर्शी लेखा", "युवा समावेश", "महिला समिति"]
+          "items": [
+            "पारदर्शी लेखा",
+            "युवा समावेश",
+            "महिला समिति"
+          ]
         },
         {
           "type": "heading2",
@@ -12515,6 +13059,2110 @@
       "readingMinutes": 2,
       "createdBy": "newsroom-edition-2026-07",
       "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "शेयर बजारको कारोबार समय र अर्डर मिल्ने प्रक्रिया",
+      "heroCaptionNe": "पूर्व खुला अवधि, अर्डरको प्राथमिकता र दुई कारोबार दिनको वसूली प्रक्रिया यहाँ सरल भाषामा छ।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-1",
+      "slug": "svc-nepse-trading-hours-order-flow",
+      "categorySlug": "business",
+      "titleNe": "शेयर बजारको कारोबार समय र अर्डर मिल्ने प्रक्रिया",
+      "titleEn": "How NEPSE trading hours and order flow work",
+      "deckNe": "पूर्व खुला अवधि, अर्डरको प्राथमिकता र दुई कारोबार दिनको वसूली प्रक्रिया यहाँ सरल भाषामा छ।",
+      "deckEn": "Pre-open pricing, order priority and two-day settlement explained for new investors.",
+      "publishedAt": "2026-08-23T09:15:00.000Z",
+      "updatedAt": "2026-08-23T09:15:00.000Z",
+      "reportingLocation": "काठमाडौं",
+      "province": "bagmati",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "नेपाल स्टक एक्सचेन्जमा कारोबार आइतबारदेखि बिहीबारसम्म हुन्छ। बिहान ११ बजे खुल्छ र दिउँसो ३ बजे बन्द हुन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बजार खुल्नुअघि पूर्व खुला अवधि हुन्छ। त्यहाँ जम्मा भएका किन्ने र बेच्ने अर्डरबाट दिनको सुरुवाती मूल्य निर्धारण हुन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सामान्य कारोबारमा लगानीकर्ताले दलालमार्फत अर्डर पठाउँछन्। प्रणालीले किन्ने र बेच्ने अर्डर स्वतः मिलाउँछ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अर्डर मिल्ने क्रम"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "बढी मूल्य तिर्ने किन्ने अर्डर पहिले मिल्छ",
+            "घटी मूल्यमा दिने बेच्ने अर्डर पहिले मिल्छ",
+            "एउटै मूल्यमा पहिले पठाइएको अर्डर पहिले मिल्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "कारोबार पक्का भएपछि भुक्तानी र शेयर हस्तान्तरण दुई कारोबार दिनभित्र पूरा हुन्छ। यही कारण सेल्स पछि रकम खातामा आउन समय लाग्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "विश्लेषकहरू भन्छन्: संक्षिप्त समाचारले मूल्य बढ्यो भन्छ, तर पाठकलाई चाहिन्छ किन बढ्यो, कति समय रहन्छ र सरकारले के गर्न सक्छ भन्ने स्पष्टता।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नेपाली अर्थतन्त्रमा घरेलु माग, वैदेशिक रोजगारी प्रवाह र आयात निर्भरता एकसाथ चल्छ। शेयर बजारको कारोबार समय र अर्डर मिल्ने प्रक्रिया जस्ता विषयले मुद्रास्फीति, ब्याजदर र रोजगारी अपेक्षामाथि प्रश्न उठाउँछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं — शेयर बजारको कारोबार समय र अर्डर मिल्ने प्रक्रिया ले बजारमा मूल्य, आपूर्ति र लगानी मनोविज्ञानमा असर पारेको छ। पूर्व खुला अवधि, अर्डरको प्राथमिकता र दुई कारोबार दिनको वसूली प्रक्रिया यहाँ सरल भाषामा छ। नागरिक वाच बजार डेस्कका अनुसार साना व्यवसाय र उपभोक्ता दुवैले चाप महसुस गरेका छन्।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं मैदानमा नागरिक वाच संवाददाताले देखेको छ: शेयर बजारको कारोबार समय र अर्डर मिल्ने प्रक्रिया सँग सम्बन्धित सूचना अझै पूर्ण रूपमा केन्द्रमा नपुगेको छ। स्थानीयले भनेका छन्, सूचना ढिला आउँदा अन्योल बढ्छ र अफवाह फैलिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्वयंसेवक, व्यापारी र सार्वजनिक सेवाकर्मीसँगको कुराकानीमा देखिएको छ: समस्या एक दिनमै समाधान हुँदैन, तर प्रतिक्रिया छिटो हुनुपर्छ। प्रशासनले के गरिरहेको छ भन्ने सार्वजनिक अपडेट नभए विश्वास घट्छ।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "स्थानीय स्रोतसँग नियमित संवाद राख्नुपर्छ",
+            "दीर्घकालीन योजना छोटो घोषणासँग मेल खानुपर्छ",
+            "स्रोत विवरण प्रकाशनयोग्य हुनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "मैदान रिपोर्टिङमा हामी केवल एउटै स्रोतमा भर पर्दैनौं। दस्तावेज, सार्वजनिक बैठक, स्थानीय अभिलेख र प्रत्यक्ष अवलोकनलाई क्रस-चेक गर्छौं।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले सोध्न सक्छन्: यो समस्या नयाँ हो कि पुरानो संरचनागत कमजोरीको निरन्तरता? जवाफले समाधानको दिशा निर्धारण गर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सार्वजनिक बहसमा भावनात्मक अभिव्यक्ति बढ्दा तथ्य र सन्दर्भ कमजोर हुन सक्छ। नागरिक वाचले तथ्य, स्रोत र सन्दर्भलाई प्राथमिकता दिन्छ।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "पाठकले सेवाको गति माप्न सक्ने डेटा हेर्न पाउनुपर्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "शेयर बजारको कारोबार समय र अर्डर मिल्ने प्रक्रिया लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। पूर्व खुला अवधि, अर्डरको प्राथमिकता र दुई कारोबार दिनको वसूली प्रक्रिया यहाँ सरल भाषामा छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "आगामी साता शेयर बजारको कारोबार समय र अर्डर मिल्ने प्रक्रिया सम्बन्धमा नयाँ बैठक, प्रगति प्रतिवेदन वा नीति घोषणा आउन सक्छ। नागरिक वाचले प्रत्येक अपडेटलाई स्रोतसहित प्रकाशित गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं र अन्य प्रभावित क्षेत्रमा सेवा पुनर्स्थापनको गति नै मुख्य सूचक बन्नेछ। ढिलाइ भयो भने समुदायमा असन्तोष बढ्ने अनुमान छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौंबाट नागरिक वाच बजार डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: Pre-open pricing, order priority and two-day settlement explained for new investors. Our business desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "How NEPSE trading hours and order flow work is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2310141A%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231E2A38%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B6%E0%A5%87%E0%A4%AF%E0%A4%B0%20%E0%A4%AC%E0%A4%9C%E0%A4%BE%E0%A4%B0%E0%A4%95%E0%A5%8B%20%E0%A4%95%E0%A4%BE%E0%A4%B0%E0%A5%8B%E0%A4%AC%E0%A4%BE%E0%A4%B0%20%E0%A4%B8%E0%A4%AE%E0%A4%AF%20%E0%A4%B0%20%E0%A4%85%E0%A4%B0%E0%A5%8D%E0%A4%A1%E0%A4%B0%20%E0%A4%AE%E0%A4%BF%E0%A4%B2%E0%A5%8D%E0%A4%A8%E0%A5%87%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "रेमिट्यान्स शुल्क: बैंक, ट्रान्सफर कम्पनी र अनौपचारिक माध्यमको फरक",
+      "heroCaptionNe": "वैध माध्यममा कमिसन शून्य हुनु राष्ट्र बैंकको निर्देशन हो। तर विनिमय दरको फरकले थप खर्च बनाउन सक्छ।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-2",
+      "slug": "svc-remittance-fees-formal-informal",
+      "categorySlug": "business",
+      "titleNe": "रेमिट्यान्स शुल्क: बैंक, ट्रान्सफर कम्पनी र अनौपचारिक माध्यमको फरक",
+      "titleEn": "Remittance costs: banks, transfer companies and informal channels",
+      "deckNe": "वैध माध्यममा कमिसन शून्य हुनु राष्ट्र बैंकको निर्देशन हो। तर विनिमय दरको फरकले थप खर्च बनाउन सक्छ।",
+      "deckEn": "Zero commission applies on formal inflows; the exchange rate gap decides the real cost.",
+      "publishedAt": "2026-08-23T12:15:00.000Z",
+      "updatedAt": "2026-08-23T12:15:00.000Z",
+      "reportingLocation": "काठमाडौं",
+      "province": "bagmati",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "विदेशबाट पैसा ल्याउने मुख्य माध्यम तीन छन्। बैंक, अनुमतिप्राप्त रेमिट्यान्स कम्पनी र अनौपचारिक च्यानल।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नेपाल राष्ट्र बैंकले बैंक तथा वित्तीय संस्थाले पठाइएको रकम शून्य कमिसनमा उपलब्ध गराउनुपर्छ भन्ने निर्देशन दिएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "तर प्रत्येक सेवा प्रदायकको विनिमय दर फरक हुन्छ। त्यही फरकले ग्राहकले वास्तवमा बेहोर्ने खर्च निर्धारण गर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अनौपचारिक माध्यमको जोखिम"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "रसीद र अभिलेख नहुने",
+            "कानुनी जटिलता भोग्नुपर्ने",
+            "रकम हराउँदा दाबी गर्न नसकिने"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "सेवा लिनुअघि दर तुलना गर्ने, रसीद राख्ने र आफ्नै खातामा भुक्तानी लिने अभ्यास सुरक्षित मानिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "विश्लेषकहरू भन्छन्: संक्षिप्त समाचारले मूल्य बढ्यो भन्छ, तर पाठकलाई चाहिन्छ किन बढ्यो, कति समय रहन्छ र सरकारले के गर्न सक्छ भन्ने स्पष्टता।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं — रेमिट्यान्स शुल्क ले बजारमा मूल्य, आपूर्ति र लगानी मनोविज्ञानमा असर पारेको छ। वैध माध्यममा कमिसन शून्य हुनु राष्ट्र बैंकको निर्देशन हो। तर विनिमय दरको फरकले थप खर्च बनाउन सक्छ। नागरिक वाच बजार डेस्कका अनुसार साना व्यवसाय र उपभोक्ता दुवैले चाप महसुस गरेका छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नेपाली अर्थतन्त्रमा घरेलु माग, वैदेशिक रोजगारी प्रवाह र आयात निर्भरता एकसाथ चल्छ। रेमिट्यान्स शुल्क जस्ता विषयले मुद्रास्फीति, ब्याजदर र रोजगारी अपेक्षामाथि प्रश्न उठाउँछ।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "केही क्षेत्रमा सेवा केन्द्र खुल्दै गरे पनि पूर्ण क्षमतामा सञ्चालन हुन सकेका छैनन्। यसले रेमिट्यान्स शुल्क को प्रभाव लामो समयसम्म रहने संकेत दिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "मैदान रिपोर्टिङमा हामी केवल एउटै स्रोतमा भर पर्दैनौं। दस्तावेज, सार्वजनिक बैठक, स्थानीय अभिलेख र प्रत्यक्ष अवलोकनलाई क्रस-चेक गर्छौं।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "अत्यावश्यक सेवामा प्राथमिकता दिनुपर्छ",
+            "दीर्घकालीन योजना छोटो घोषणासँग मेल खानुपर्छ",
+            "समुदायको सुझाव कार्ययोजनामा ठाउँ पाउनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "स्वयंसेवक, व्यापारी र सार्वजनिक सेवाकर्मीसँगको कुराकानीमा देखिएको छ: समस्या एक दिनमै समाधान हुँदैन, तर प्रतिक्रिया छिटो हुनुपर्छ। प्रशासनले के गरिरहेको छ भन्ने सार्वजनिक अपडेट नभए विश्वास घट्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "रेमिट्यान्स शुल्क लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। वैध माध्यममा कमिसन शून्य हुनु राष्ट्र बैंकको निर्देशन हो। तर विनिमय दरको फरकले थप खर्च बनाउन सक्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सार्वजनिक बहसमा भावनात्मक अभिव्यक्ति बढ्दा तथ्य र सन्दर्भ कमजोर हुन सक्छ। नागरिक वाचले तथ्य, स्रोत र सन्दर्भलाई प्राथमिकता दिन्छ।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "समाचारले प्रश्न उठाउँछ, उत्तर दिने जिम्मेवारी संस्थामा रहन्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले सोध्न सक्छन्: यो समस्या नयाँ हो कि पुरानो संरचनागत कमजोरीको निरन्तरता? जवाफले समाधानको दिशा निर्धारण गर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं र अन्य प्रभावित क्षेत्रमा सेवा पुनर्स्थापनको गति नै मुख्य सूचक बन्नेछ। ढिलाइ भयो भने समुदायमा असन्तोष बढ्ने अनुमान छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "आगामी साता रेमिट्यान्स शुल्क सम्बन्धमा नयाँ बैठक, प्रगति प्रतिवेदन वा नीति घोषणा आउन सक्छ। नागरिक वाचले प्रत्येक अपडेटलाई स्रोतसहित प्रकाशित गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौंबाट नागरिक वाच बजार डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: Zero commission applies on formal inflows; the exchange rate gap decides the real cost. Our business desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "Remittance costs is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2310141A%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231E2A38%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B0%E0%A5%87%E0%A4%AE%E0%A4%BF%E0%A4%9F%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%A8%E0%A5%8D%E0%A4%B8%20%E0%A4%B6%E0%A5%81%E0%A4%B2%E0%A5%8D%E0%A4%95%3A%20%E0%A4%AC%E0%A5%88%E0%A4%82%E0%A4%95%2C%20%E0%A4%9F%E0%A5%8D%E0%A4%B0%E0%A4%BE%E0%A4%A8%E0%A5%8D%E0%A4%B8%E0%A4%AB%E0%A4%B0%20%E0%A4%95%E0%A4%AE%E0%A5%8D%E0%A4%AA%E0%A4%A8%E0%A5%80%20%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "मोबाइल डाटा ब्यालेन्स हेर्ने सजिलो तरिका",
+      "heroCaptionNe": "डायल कोड, अपरेटर एप र सहयोगी नम्बरबाट मौज्दात थाहा पाउन सकिन्छ। कोड समयसँगै परिवर्तन हुन सक्छ।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-3",
+      "slug": "svc-mobile-data-balance-check",
+      "categorySlug": "technology",
+      "titleNe": "मोबाइल डाटा ब्यालेन्स हेर्ने सजिलो तरिका",
+      "titleEn": "How to check your mobile data balance",
+      "deckNe": "डायल कोड, अपरेटर एप र सहयोगी नम्बरबाट मौज्दात थाहा पाउन सकिन्छ। कोड समयसँगै परिवर्तन हुन सक्छ।",
+      "deckEn": "Dial codes, operator apps and helplines make balance checks quick.",
+      "publishedAt": "2026-08-23T15:15:00.000Z",
+      "updatedAt": "2026-08-23T15:15:00.000Z",
+      "reportingLocation": "विराटनगर",
+      "province": "koshi",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "डाटा सकिएपछि अचानक इन्टरनेट काटिनु सामान्य समस्या हो। ब्यालेन्स नियमित हेर्दा यस्तो झन्झट घट्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "एनटीसी प्रिपेडमा *400# डायल गर्दा मुख्य मौज्दात देखिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "एनसेलमा *900# डायल गर्दा पनि मुख्य ब्यालेन्स देखिन्छ। दुवै अपरेटरको आफ्नै मोबाइल एपमा डाटा प्याकको बाँकी मात्रा विस्तृत देखिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "थप उपाय"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "अपरेटरको आधिकारिक एप प्रयोग गर्ने",
+            "सहयोगी नम्बरबाट सोध्ने",
+            "प्याक सकिने मिति एपमा जाँच्ने"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "डायल कोड र सेवा शर्त समयसँगै अद्यावधिक हुन सक्छन्। अन्तिम जानकारी अपरेटरको आधिकारिक स्रोतबाट पुष्टि गर्नुहोस्।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले छिटो स्क्यान गर्न सक्ने सार र गहिरो पढाइ दुवै चाहिन्छ भन्ने हाम्रो सम्पादकीय सिद्धान्त हो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "विराटनगर — मोबाइल डाटा ब्यालेन्स हेर्ने सजिलो तरिका विषयमा नागरिक वाच प्रविधि डेस्कको टोली सक्रिय रहेको छ। डायल कोड, अपरेटर एप र सहयोगी नम्बरबाट मौज्दात थाहा पाउन सकिन्छ। कोड समयसँगै परिवर्तन हुन सक्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "यो रिपोर्टमा हामी घटनाको पृष्ठभूमि, मैदानमा देखिएका प्रमाण र आगामी सम्भावनालाई अलग-अलग राखेर प्रस्तुत गर्छौं।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्वयंसेवक, व्यापारी र सार्वजनिक सेवाकर्मीसँगको कुराकानीमा देखिएको छ: समस्या एक दिनमै समाधान हुँदैन, तर प्रतिक्रिया छिटो हुनुपर्छ। प्रशासनले के गरिरहेको छ भन्ने सार्वजनिक अपडेट नभए विश्वास घट्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "मैदान रिपोर्टिङमा हामी केवल एउटै स्रोतमा भर पर्दैनौं। दस्तावेज, सार्वजनिक बैठक, स्थानीय अभिलेख र प्रत्यक्ष अवलोकनलाई क्रस-चेक गर्छौं।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "सूचना प्रवाहमा पारदर्शिता बढाउनुपर्छ",
+            "विपद् प्रभावित क्षेत्रमा विशेष खण्ड चाहिन्छ",
+            "समुदायको सुझाव कार्ययोजनामा ठाउँ पाउनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "केही क्षेत्रमा सेवा केन्द्र खुल्दै गरे पनि पूर्ण क्षमतामा सञ्चालन हुन सकेका छैनन्। यसले मोबाइल डाटा ब्यालेन्स हेर्ने सजिलो तरिका को प्रभाव लामो समयसम्म रहने संकेत दिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले सोध्न सक्छन्: यो समस्या नयाँ हो कि पुरानो संरचनागत कमजोरीको निरन्तरता? जवाफले समाधानको दिशा निर्धारण गर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सार्वजनिक बहसमा भावनात्मक अभिव्यक्ति बढ्दा तथ्य र सन्दर्भ कमजोर हुन सक्छ। नागरिक वाचले तथ्य, स्रोत र सन्दर्भलाई प्राथमिकता दिन्छ।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "पाठकले सेवाको गति माप्न सक्ने डेटा हेर्न पाउनुपर्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "मोबाइल डाटा ब्यालेन्स हेर्ने सजिलो तरिका लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। डायल कोड, अपरेटर एप र सहयोगी नम्बरबाट मौज्दात थाहा पाउन सकिन्छ। कोड समयसँगै परिवर्तन हुन सक्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "आगामी साता मोबाइल डाटा ब्यालेन्स हेर्ने सजिलो तरिका सम्बन्धमा नयाँ बैठक, प्रगति प्रतिवेदन वा नीति घोषणा आउन सक्छ। नागरिक वाचले प्रत्येक अपडेटलाई स्रोतसहित प्रकाशित गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "विराटनगर र अन्य प्रभावित क्षेत्रमा सेवा पुनर्स्थापनको गति नै मुख्य सूचक बन्नेछ। ढिलाइ भयो भने समुदायमा असन्तोष बढ्ने अनुमान छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "विराटनगरबाट नागरिक वाच प्रविधि डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: Dial codes, operator apps and helplines make balance checks quick. Our technology desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "How to check your mobile data balance is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121018%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23261E36%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AE%E0%A5%8B%E0%A4%AC%E0%A4%BE%E0%A4%87%E0%A4%B2%20%E0%A4%A1%E0%A4%BE%E0%A4%9F%E0%A4%BE%20%E0%A4%AC%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%B2%E0%A5%87%E0%A4%A8%E0%A5%8D%E0%A4%B8%20%E0%A4%B9%E0%A5%87%E0%A4%B0%E0%A5%8D%E0%A4%A8%E0%A5%87%20%E0%A4%B8%E0%A4%9C%E0%A4%BF%E0%A4%B2%E0%A5%8B%20%E0%A4%A4%E0%A4%B0%E0%A4%BF%E0%A4%95%E0%A4%BE%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "बलियो पासवर्ड र दुई चरणीय प्रमाणीकरणको सरल नियम",
+      "heroCaptionNe": "हरेक खातामा छुट्टै लामो पासवर्ड र सत्यापन चरण थप्दा खाता चोरीको जोखिम घट्छ।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-4",
+      "slug": "svc-password-two-factor-guide",
+      "categorySlug": "technology",
+      "titleNe": "बलियो पासवर्ड र दुई चरणीय प्रमाणीकरणको सरल नियम",
+      "titleEn": "Strong passwords and two-factor setup, made practical",
+      "deckNe": "हरेक खातामा छुट्टै लामो पासवर्ड र सत्यापन चरण थप्दा खाता चोरीको जोखिम घट्छ।",
+      "deckEn": "Long unique passphrases plus a second verification step cut takeover risk.",
+      "publishedAt": "2026-08-23T17:15:00.000Z",
+      "updatedAt": "2026-08-23T17:15:00.000Z",
+      "reportingLocation": "काठमाडौं",
+      "province": "bagmati",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "एउटै पासवर्ड धेरै खातामा प्रयोग गर्दा एउटा साइटको चुहावटले सबै खाता जोखिममा पर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बलियो पासवर्ड लामो र अनुमान गर्न कठिन हुन्छ। शब्दहरू जोडेर बनाइएको लामो वाक्यांश प्रभावकारी हुन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "जन्ममिति, फोन नम्बर र सजिलो क्रम प्रयोग गर्नु हुँदैन।"
+        },
+        {
+          "type": "heading2",
+          "text": "दुई चरणीय प्रमाणीकरण"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "इमेल र बैंकिङ खातामा पहिले सक्रिय गर्ने",
+            "प्रमाणीकरण एप वा एसएमएस कोड रोज्ने",
+            "ब्याकअप कोड सुरक्षित राख्ने"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "अपरिचित लिंकबाट पासवर्ड सोध्ने पृष्ठ फिसिङ हुन सक्छ। संस्थाले पासवर्ड सोध्दैनन् भन्ने आधारभूत नियम हो।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "यो रिपोर्टमा हामी घटनाको पृष्ठभूमि, मैदानमा देखिएका प्रमाण र आगामी सम्भावनालाई अलग-अलग राखेर प्रस्तुत गर्छौं।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं — बलियो पासवर्ड र दुई चरणीय प्रमाणीकरणको सरल नियम विषयमा नागरिक वाच प्रविधि डेस्कको टोली सक्रिय रहेको छ। हरेक खातामा छुट्टै लामो पासवर्ड र सत्यापन चरण थप्दा खाता चोरीको जोखिम घट्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले छिटो स्क्यान गर्न सक्ने सार र गहिरो पढाइ दुवै चाहिन्छ भन्ने हाम्रो सम्पादकीय सिद्धान्त हो।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "मैदान रिपोर्टिङमा हामी केवल एउटै स्रोतमा भर पर्दैनौं। दस्तावेज, सार्वजनिक बैठक, स्थानीय अभिलेख र प्रत्यक्ष अवलोकनलाई क्रस-चेक गर्छौं।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्वयंसेवक, व्यापारी र सार्वजनिक सेवाकर्मीसँगको कुराकानीमा देखिएको छ: समस्या एक दिनमै समाधान हुँदैन, तर प्रतिक्रिया छिटो हुनुपर्छ। प्रशासनले के गरिरहेको छ भन्ने सार्वजनिक अपडेट नभए विश्वास घट्छ।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "स्थानीय स्रोतसँग नियमित संवाद राख्नुपर्छ",
+            "विपद् प्रभावित क्षेत्रमा विशेष खण्ड चाहिन्छ",
+            "नागरिक उजुरी सुनुवाइ समयमै हुनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं मैदानमा नागरिक वाच संवाददाताले देखेको छ: बलियो पासवर्ड र दुई चरणीय प्रमाणीकरणको सरल नियम सँग सम्बन्धित सूचना अझै पूर्ण रूपमा केन्द्रमा नपुगेको छ। स्थानीयले भनेका छन्, सूचना ढिला आउँदा अन्योल बढ्छ र अफवाह फैलिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "बलियो पासवर्ड र दुई चरणीय प्रमाणीकरणको सरल नियम लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। हरेक खातामा छुट्टै लामो पासवर्ड र सत्यापन चरण थप्दा खाता चोरीको जोखिम घट्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सार्वजनिक बहसमा भावनात्मक अभिव्यक्ति बढ्दा तथ्य र सन्दर्भ कमजोर हुन सक्छ। नागरिक वाचले तथ्य, स्रोत र सन्दर्भलाई प्राथमिकता दिन्छ।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "छिटो प्रतिक्रिया र दीर्घकालीन जवाफदेहिता दुवै चाहिन्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले सोध्न सक्छन्: यो समस्या नयाँ हो कि पुरानो संरचनागत कमजोरीको निरन्तरता? जवाफले समाधानको दिशा निर्धारण गर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं र अन्य प्रभावित क्षेत्रमा सेवा पुनर्स्थापनको गति नै मुख्य सूचक बन्नेछ। ढिलाइ भयो भने समुदायमा असन्तोष बढ्ने अनुमान छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "आगामी साता बलियो पासवर्ड र दुई चरणीय प्रमाणीकरणको सरल नियम सम्बन्धमा नयाँ बैठक, प्रगति प्रतिवेदन वा नीति घोषणा आउन सक्छ। नागरिक वाचले प्रत्येक अपडेटलाई स्रोतसहित प्रकाशित गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौंबाट नागरिक वाच प्रविधि डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: Long unique passphrases plus a second verification step cut takeover risk. Our technology desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "Strong passwords and two is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23121018%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23261E36%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AC%E0%A4%B2%E0%A4%BF%E0%A4%AF%E0%A5%8B%20%E0%A4%AA%E0%A4%BE%E0%A4%B8%E0%A4%B5%E0%A4%B0%E0%A5%8D%E0%A4%A1%20%E0%A4%B0%20%E0%A4%A6%E0%A5%81%E0%A4%88%20%E0%A4%9A%E0%A4%B0%E0%A4%A3%E0%A5%80%E0%A4%AF%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%AE%E0%A4%BE%E0%A4%A3%E0%A5%80%E0%A4%95%E0%A4%B0%E0%A4%A3%E0%A4%95%E0%A5%8B%20%E0%A4%B8%E0%A4%B0%E0%A4%B2%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "मनसुनमा पानीजन्य रोगबाट बच्ने आधारभूत उपाय",
+      "heroCaptionNe": "पानी उमाल्ने, हात सफा गर्ने र झाडापखाला सुरु हुनासाथ ओआरएस दिने अभ्यासले गम्भीर अवस्था रोक्छ।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-5",
+      "slug": "svc-monsoon-waterborne-disease-prevention",
+      "categorySlug": "health",
+      "titleNe": "मनसुनमा पानीजन्य रोगबाट बच्ने आधारभूत उपाय",
+      "titleEn": "Monsoon basics: keeping waterborne disease away",
+      "deckNe": "पानी उमाल्ने, हात सफा गर्ने र झाडापखाला सुरु हुनासाथ ओआरएस दिने अभ्यासले गम्भीर अवस्था रोक्छ।",
+      "deckEn": "Boiled water, handwashing and early ORS use prevent serious dehydration.",
+      "publishedAt": "2026-08-22T08:15:00.000Z",
+      "updatedAt": "2026-08-22T08:15:00.000Z",
+      "reportingLocation": "बिरगञ्ज",
+      "province": "madhesh",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "मनसुनमा पानीका स्रोत दूषित हुन सजिलो हुन्छ। झाडापखाला र टाइफाइडजस्ता रोग यही सिजनमा प्रायः बढ्छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पिउने पानी राम्ररी उमालेर ढाकेर राख्नु भरपर्दो उपाय हो। उमालिएको पानी चिसो भएपछि सफा भाँडामा राख्नुपर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "भोजन बनाउनुअघि, खानुअघि र शौचपछि साबुनले हात धुने बानीले सङ्क्रमण फैलिन रोक लगाउँछ।"
+        },
+        {
+          "type": "heading2",
+          "text": "ओआरएस कहिले र कसरी"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "पहिलो पटक पातलो दिसा लाग्नासाथ ओआरएस सुरु गर्ने",
+            "सफा उमालेको पानीमा प्याकेट भरेअनुसार मिसाउने",
+            "बिरामीलाई थोरै थोरै गरी निरन्तर दिने"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "दिसा रोकिन्न, दिसामा रगत देखिन्छ वा बिरामी निकै कमजोर देखिए नजिकको स्वास्थ्य संस्था जानुपर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले छिटो स्क्यान गर्न सक्ने सार र गहिरो पढाइ दुवै चाहिन्छ भन्ने हाम्रो सम्पादकीय सिद्धान्त हो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "यो रिपोर्टमा हामी घटनाको पृष्ठभूमि, मैदानमा देखिएका प्रमाण र आगामी सम्भावनालाई अलग-अलग राखेर प्रस्तुत गर्छौं।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बिरगञ्ज — मनसुनमा पानीजन्य रोगबाट बच्ने आधारभूत उपाय विषयमा नागरिक वाच स्वास्थ्य डेस्कको टोली सक्रिय रहेको छ। पानी उमाल्ने, हात सफा गर्ने र झाडापखाला सुरु हुनासाथ ओआरएस दिने अभ्यासले गम्भीर अवस्था रोक्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय स्तरमा समाधानको पहल देखिए पनि स्रोत र जिम्मेवारी स्पष्ट नभए गुनासो कायम रहन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बिरगञ्ज मैदानमा नागरिक वाच संवाददाताले देखेको छ: मनसुनमा पानीजन्य रोगबाट बच्ने आधारभूत उपाय सँग सम्बन्धित सूचना अझै पूर्ण रूपमा केन्द्रमा नपुगेको छ। स्थानीयले भनेका छन्, सूचना ढिला आउँदा अन्योल बढ्छ र अफवाह फैलिन्छ।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "अत्यावश्यक सेवामा प्राथमिकता दिनुपर्छ",
+            "डेटा सार्वजनिक गर्दा भाषा सरल हुनुपर्छ",
+            "नागरिक उजुरी सुनुवाइ समयमै हुनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "स्वयंसेवक, व्यापारी र सार्वजनिक सेवाकर्मीसँगको कुराकानीमा देखिएको छ: समस्या एक दिनमै समाधान हुँदैन, तर प्रतिक्रिया छिटो हुनुपर्छ। प्रशासनले के गरिरहेको छ भन्ने सार्वजनिक अपडेट नभए विश्वास घट्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले सोध्न सक्छन्: यो समस्या नयाँ हो कि पुरानो संरचनागत कमजोरीको निरन्तरता? जवाफले समाधानको दिशा निर्धारण गर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सार्वजनिक बहसमा भावनात्मक अभिव्यक्ति बढ्दा तथ्य र सन्दर्भ कमजोर हुन सक्छ। नागरिक वाचले तथ्य, स्रोत र सन्दर्भलाई प्राथमिकता दिन्छ।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "पाठकले सेवाको गति माप्न सक्ने डेटा हेर्न पाउनुपर्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "मनसुनमा पानीजन्य रोगबाट बच्ने आधारभूत उपाय लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। पानी उमाल्ने, हात सफा गर्ने र झाडापखाला सुरु हुनासाथ ओआरएस दिने अभ्यासले गम्भीर अवस्था रोक्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "आगामी साता मनसुनमा पानीजन्य रोगबाट बच्ने आधारभूत उपाय सम्बन्धमा नयाँ बैठक, प्रगति प्रतिवेदन वा नीति घोषणा आउन सक्छ। नागरिक वाचले प्रत्येक अपडेटलाई स्रोतसहित प्रकाशित गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बिरगञ्ज र अन्य प्रभावित क्षेत्रमा सेवा पुनर्स्थापनको गति नै मुख्य सूचक बन्नेछ। ढिलाइ भयो भने समुदायमा असन्तोष बढ्ने अनुमान छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बिरगञ्जबाट नागरिक वाच स्वास्थ्य डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: Boiled water, handwashing and early ORS use prevent serious dehydration. Our health desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "Monsoon basics is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1414%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E2C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M927.9999999999999%20648%20L1472%20198%20L1472%20648%20Z%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.11%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AE%E0%A4%A8%E0%A4%B8%E0%A5%81%E0%A4%A8%E0%A4%AE%E0%A4%BE%20%E0%A4%AA%E0%A4%BE%E0%A4%A8%E0%A5%80%E0%A4%9C%E0%A4%A8%E0%A5%8D%E0%A4%AF%20%E0%A4%B0%E0%A5%8B%E0%A4%97%E0%A4%AC%E0%A4%BE%E0%A4%9F%20%E0%A4%AC%E0%A4%9A%E0%A5%8D%E0%A4%A8%E0%A5%87%20%E0%A4%86%E0%A4%A7%E0%A4%BE%E0%A4%B0%E0%A4%AD%E0%A5%82%E0%A4%A4%20%E0%A4%89%E0%A4%AA%E0%A4%BE%E0%A4%AF%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "डेंगुका लक्षण र अस्पताल जानुपर्ने संकेत",
+      "heroCaptionNe": "ज्वरो ओर्लेपछि पनि पेट दुख्ने, बान्ता हुने र पिसाब घट्ने लक्षण देखिए ढिलाइ नगर्नु जरुरी छ।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-6",
+      "slug": "svc-dengue-warning-signs-hospital",
+      "categorySlug": "health",
+      "titleNe": "डेंगुका लक्षण र अस्पताल जानुपर्ने संकेत",
+      "titleEn": "Dengue symptoms and when hospital care is needed",
+      "deckNe": "ज्वरो ओर्लेपछि पनि पेट दुख्ने, बान्ता हुने र पिसाब घट्ने लक्षण देखिए ढिलाइ नगर्नु जरुरी छ।",
+      "deckEn": "Warning signs often appear as the fever settles; timely care prevents complications.",
+      "publishedAt": "2026-08-22T11:15:00.000Z",
+      "updatedAt": "2026-08-22T11:15:00.000Z",
+      "reportingLocation": "काठमाडौं",
+      "province": "bagmati",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "डेंगु एडिज प्रजातिको लामखुट्टेको टोकाइबाट सर्छ। यो लामखुट्टे दिउँसो टोक्ने प्रवृत्ति राख्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सामान्यतया अचानक आउने उच्च ज्वरो, टाउको दुख्ने, शरीर र जोर्नी दुख्ने लक्षण देखिन्छन्। कतिपय बिरामीमा आँखाको पछाडि दुखाइ र छालामा रातो दाग पनि देखिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अस्पताल जानुपर्ने संकेत"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "ज्वरो घटेपछि पनि बढ्दो पेट दुखाइ",
+            "बारम्बार बान्ता हुने",
+            "गिजा वा नाकबाट रगत बग्ने",
+            "पिसाब कम हुने र अत्यधिक कमजोरी"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "ज्वरोमा प्यारासिटामोल सुरक्षित मानिन्छ। रगत पातलो हुने जोखिम बढाउने औषधि आफैँ रोज्नु हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "घर आसपासका भाँडा, टायर र टंकीमा जम्मा भएको पानी नियमित खाली गर्दा लामखुट्टे फैलिन रोक लाग्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले छिटो स्क्यान गर्न सक्ने सार र गहिरो पढाइ दुवै चाहिन्छ भन्ने हाम्रो सम्पादकीय सिद्धान्त हो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "यो रिपोर्टमा हामी घटनाको पृष्ठभूमि, मैदानमा देखिएका प्रमाण र आगामी सम्भावनालाई अलग-अलग राखेर प्रस्तुत गर्छौं।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं — डेंगुका लक्षण र अस्पताल जानुपर्ने संकेत विषयमा नागरिक वाच स्वास्थ्य डेस्कको टोली सक्रिय रहेको छ। ज्वरो ओर्लेपछि पनि पेट दुख्ने, बान्ता हुने र पिसाब घट्ने लक्षण देखिए ढिलाइ नगर्नु जरुरी छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय स्तरमा समाधानको पहल देखिए पनि स्रोत र जिम्मेवारी स्पष्ट नभए गुनासो कायम रहन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "केही क्षेत्रमा सेवा केन्द्र खुल्दै गरे पनि पूर्ण क्षमतामा सञ्चालन हुन सकेका छैनन्। यसले डेंगुका लक्षण र अस्पताल जानुपर्ने संकेत को प्रभाव लामो समयसम्म रहने संकेत दिन्छ।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "अत्यावश्यक सेवामा प्राथमिकता दिनुपर्छ",
+            "दीर्घकालीन योजना छोटो घोषणासँग मेल खानुपर्छ",
+            "समुदायको सुझाव कार्ययोजनामा ठाउँ पाउनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "मैदान रिपोर्टिङमा हामी केवल एउटै स्रोतमा भर पर्दैनौं। दस्तावेज, सार्वजनिक बैठक, स्थानीय अभिलेख र प्रत्यक्ष अवलोकनलाई क्रस-चेक गर्छौं।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "डेंगुका लक्षण र अस्पताल जानुपर्ने संकेत लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। ज्वरो ओर्लेपछि पनि पेट दुख्ने, बान्ता हुने र पिसाब घट्ने लक्षण देखिए ढिलाइ नगर्नु जरुरी छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सार्वजनिक बहसमा भावनात्मक अभिव्यक्ति बढ्दा तथ्य र सन्दर्भ कमजोर हुन सक्छ। नागरिक वाचले तथ्य, स्रोत र सन्दर्भलाई प्राथमिकता दिन्छ।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "छिटो प्रतिक्रिया र दीर्घकालीन जवाफदेहिता दुवै चाहिन्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले सोध्न सक्छन्: यो समस्या नयाँ हो कि पुरानो संरचनागत कमजोरीको निरन्तरता? जवाफले समाधानको दिशा निर्धारण गर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं र अन्य प्रभावित क्षेत्रमा सेवा पुनर्स्थापनको गति नै मुख्य सूचक बन्नेछ। ढिलाइ भयो भने समुदायमा असन्तोष बढ्ने अनुमान छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "आगामी साता डेंगुका लक्षण र अस्पताल जानुपर्ने संकेत सम्बन्धमा नयाँ बैठक, प्रगति प्रतिवेदन वा नीति घोषणा आउन सक्छ। नागरिक वाचले प्रत्येक अपडेटलाई स्रोतसहित प्रकाशित गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौंबाट नागरिक वाच स्वास्थ्य डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: Warning signs often appear as the fever settles; timely care prevents complications. Our health desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dengue symptoms and when hospital care is needed is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1414%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E2C%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%A1%E0%A5%87%E0%A4%82%E0%A4%97%E0%A5%81%E0%A4%95%E0%A4%BE%20%E0%A4%B2%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%A3%20%E0%A4%B0%20%E0%A4%85%E0%A4%B8%E0%A5%8D%E0%A4%AA%E0%A4%A4%E0%A4%BE%E0%A4%B2%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A5%81%E0%A4%AA%E0%A4%B0%E0%A5%8D%E0%A4%A8%E0%A5%87%20%E0%A4%B8%E0%A4%82%E0%A4%95%E0%A5%87%E0%A4%A4%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "राष्ट्रिय परिचयपत्र बनाउने र नवीकरण गर्ने प्रक्रिया",
+      "heroCaptionNe": "स्थानीय तहको कार्यालयमा बायोमेट्रिक विवरण दर्ता गराउनुपर्छ। विवरण सच्याउने र गुमेको कार्ड फिर्ताको प्रक्रिया छुट्टै हुन्छ।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-7",
+      "slug": "svc-national-id-enrollment-renewal",
+      "categorySlug": "society",
+      "titleNe": "राष्ट्रिय परिचयपत्र बनाउने र नवीकरण गर्ने प्रक्रिया",
+      "titleEn": "Getting and renewing the national ID card",
+      "deckNe": "स्थानीय तहको कार्यालयमा बायोमेट्रिक विवरण दर्ता गराउनुपर्छ। विवरण सच्याउने र गुमेको कार्ड फिर्ताको प्रक्रिया छुट्टै हुन्छ।",
+      "deckEn": "Biometric enrollment runs through local offices; corrections follow a separate process.",
+      "publishedAt": "2026-08-21T09:15:00.000Z",
+      "updatedAt": "2026-08-21T09:15:00.000Z",
+      "reportingLocation": "पोखरा",
+      "province": "gandaki",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "राष्ट्रिय परिचयपत्र नेपाली नागरिकको पहिचान एकै नम्बरमा जोड्ने सरकारी कार्ड हो। यसमा फोटो, औठो छाप र आँखाको विवरण राखिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "आवेदन प्रायः स्थानीय तहको कार्यालयबाट लिइन्छ। सुविधा उपलब्ध भए अनलाइन पूर्वदर्ता गरेर समय बचाउन सकिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नागरिकताको प्रमाणपत्र र तोकिएका कागजातसहित नजिकको दर्ता केन्द्र पुग्नुपर्छ। त्यहाँ फोटो खिचेर औठो छाप र आँखाको विवरण लिइन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "सामान्य प्रक्रिया"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "फारम वा अनलाइनबाट आवेदन",
+            "कागजात जाँच र बायोमेट्रिक दर्ता",
+            "रसिद अनुसार कार्ड संकलन"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "नाम वा ठेगाना सच्याउन र गुमेको कार्ड फिर्ताका लागि सोही कार्यालयमा निवेदन दिनुपर्छ। शुल्क र समय अवधि कार्यालयको सूचनाअनुसार फरक पर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "मनसुन र शहरी विस्तारले सामाजिक समस्या एकै ठाउँमा जम्मा हुँदै जान्छ। राष्ट्रिय परिचयपत्र बनाउने र नवीकरण गर्ने प्रक्रिया को सन्दर्भमा स्थानीय तह, प्रदेश र संघको समन्वय नभए सामान्य नागरिकले दोहोरो झन्झट भोग्नुपर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "समुदायका प्रतिनिधिले भनेका छन्: समस्या देखाउने मात्र होइन, समाधानको समयसीमा चाहिन्छ। नागरिक वाचले यो श्रृंखलामा प्रशासनिक प्रतिक्रिया र सेवा पुनर्स्थापनको प्रगति पनि ट्र्याक गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पोखरा — राष्ट्रिय परिचयपत्र बनाउने र नवीकरण गर्ने प्रक्रिया ले स्थानीय समुदायको दैनिक जीवनमा प्रत्यक्ष असर पारेको छ। स्थानीय तहको कार्यालयमा बायोमेट्रिक विवरण दर्ता गराउनुपर्छ। विवरण सच्याउने र गुमेको कार्ड फिर्ताको प्रक्रिया छुट्टै हुन्छ। नागरिक वाच समाज डेस्कले यातायात, बजार, स्वास्थ्य र विद्यालयसँग जोडिएका गुनासो संकलन गर्दा सेवा चाप बढेको देखिएको छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "पोखरा मैदानमा नागरिक वाच संवाददाताले देखेको छ: राष्ट्रिय परिचयपत्र बनाउने र नवीकरण गर्ने प्रक्रिया सँग सम्बन्धित सूचना अझै पूर्ण रूपमा केन्द्रमा नपुगेको छ। स्थानीयले भनेका छन्, सूचना ढिला आउँदा अन्योल बढ्छ र अफवाह फैलिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय स्तरमा समाधानको पहल देखिए पनि स्रोत र जिम्मेवारी स्पष्ट नभए गुनासो कायम रहन्छ।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "स्थानीय स्रोतसँग नियमित संवाद राख्नुपर्छ",
+            "विपद् प्रभावित क्षेत्रमा विशेष खण्ड चाहिन्छ",
+            "नागरिक उजुरी सुनुवाइ समयमै हुनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "केही क्षेत्रमा सेवा केन्द्र खुल्दै गरे पनि पूर्ण क्षमतामा सञ्चालन हुन सकेका छैनन्। यसले राष्ट्रिय परिचयपत्र बनाउने र नवीकरण गर्ने प्रक्रिया को प्रभाव लामो समयसम्म रहने संकेत दिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "विश्लेषणात्मक दृष्टिकोणबाट हेर्दा संस्थागत क्षमता र राजनीतिक इच्छाशक्ति दुवै निर्णायक हुन्छन्। कागजमा नीति राम्रो देखिन सक्छ, तर कार्यान्वयनमा कमजोरी भयो भने नतिजा देखिँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "राष्ट्रिय परिचयपत्र बनाउने र नवीकरण गर्ने प्रक्रिया लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। स्थानीय तहको कार्यालयमा बायोमेट्रिक विवरण दर्ता गराउनुपर्छ। विवरण सच्याउने र गुमेको कार्ड फिर्ताको प्रक्रिया छुट्टै हुन्छ।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "पाठकले सेवाको गति माप्न सक्ने डेटा हेर्न पाउनुपर्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "सार्वजनिक बहसमा भावनात्मक अभिव्यक्ति बढ्दा तथ्य र सन्दर्भ कमजोर हुन सक्छ। नागरिक वाचले तथ्य, स्रोत र सन्दर्भलाई प्राथमिकता दिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले यो कथा अनुसरण गर्दा तीन कुरा हेर्न सक्छन्: सेवा सुधारको प्रमाण, जवाफदेहिताको प्रक्रिया र समुदायको सहभागिता।"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पोखरा र अन्य प्रभावित क्षेत्रमा सेवा पुनर्स्थापनको गति नै मुख्य सूचक बन्नेछ। ढिलाइ भयो भने समुदायमा असन्तोष बढ्ने अनुमान छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पोखराबाट नागरिक वाच समाज डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: Biometric enrollment runs through local offices; corrections follow a separate process. Our society desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "Getting and renewing the national ID card is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232E2620%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B0%E0%A4%BE%E0%A4%B7%E0%A5%8D%E0%A4%9F%E0%A5%8D%E0%A4%B0%E0%A4%BF%E0%A4%AF%20%E0%A4%AA%E0%A4%B0%E0%A4%BF%E0%A4%9A%E0%A4%AF%E0%A4%AA%E0%A4%A4%E0%A5%8D%E0%A4%B0%20%E0%A4%AC%E0%A4%A8%E0%A4%BE%E0%A4%89%E0%A4%A8%E0%A5%87%20%E0%A4%B0%20%E0%A4%A8%E0%A4%B5%E0%A5%80%E0%A4%95%E0%A4%B0%E0%A4%A3%20%E0%A4%97%E0%A4%B0%E0%A5%8D%E0%A4%A8%E0%A5%87%20%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "climate"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "मनसुनमा राजमार्ग यात्राको सुरक्षा जाँचसूची",
+      "heroCaptionNe": "यात्राअघि बाटोको अवस्था थाहा लिने, दिउँसो यात्रा गर्ने र गाडीको प्राविधिक जाँच गर्ने बानीले जोखिम घटाउँछ।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-8",
+      "slug": "svc-monsoon-highway-safety-checklist",
+      "categorySlug": "society",
+      "titleNe": "मनसुनमा राजमार्ग यात्राको सुरक्षा जाँचसूची",
+      "titleEn": "A monsoon safety checklist for highway travel",
+      "deckNe": "यात्राअघि बाटोको अवस्था थाहा लिने, दिउँसो यात्रा गर्ने र गाडीको प्राविधिक जाँच गर्ने बानीले जोखिम घटाउँछ।",
+      "deckEn": "Route checks, daylight schedules and vehicle inspection lower risk on wet roads.",
+      "publishedAt": "2026-08-21T14:15:00.000Z",
+      "updatedAt": "2026-08-21T14:15:00.000Z",
+      "reportingLocation": "चितवन",
+      "province": "bagmati",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "मनसुनमा पहिरो, बाढी र भीरमा चिप्लिने खतरा बढ्छ। यात्रा योजना बनाउनुअघि बाटोको ताजा अवस्था थाहा लिनुपर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "प्रहरी र यातायात कार्यालयको सूचना, स्थानीय सञ्चारमाध्यम र सोही बाटो अघिल्लै गएका यात्रुको अनुभव भरपर्दा स्रोत हुन्।"
+        },
+        {
+          "type": "heading2",
+          "text": "यात्रा अघि जाँच्ने"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "मौसम पूर्वानुमान र बाटो खुला छ कि छैन",
+            "ब्रेक, टायर, लाइट र वाइपरको अवस्था",
+            "दिउँसो यात्रा सकिने गरी समय तालिका"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "रातको यात्रा, पहिरो जोनमा रोकेर फोटो खिच्ने र बगैंचा वा नदी किनारमा बस्ने गतिविधि जोखिमपूर्ण हुन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बसयात्रुले अति भीड गरिएको साधन रोज्नु हुँदैन। सिट बेल्ट बाँध्ने र चालकलाई सुरक्षाको सम्झाउने अभ्यास सबै यात्रुको भूमिका हो।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "चितवन — मनसुनमा राजमार्ग यात्राको सुरक्षा जाँचसूची ले स्थानीय समुदायको दैनिक जीवनमा प्रत्यक्ष असर पारेको छ। यात्राअघि बाटोको अवस्था थाहा लिने, दिउँसो यात्रा गर्ने र गाडीको प्राविधिक जाँच गर्ने बानीले जोखिम घटाउँछ। नागरिक वाच समाज डेस्कले यातायात, बजार, स्वास्थ्य र विद्यालयसँग जोडिएका गुनासो संकलन गर्दा सेवा चाप बढेको देखिएको छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "समुदायका प्रतिनिधिले भनेका छन्: समस्या देखाउने मात्र होइन, समाधानको समयसीमा चाहिन्छ। नागरिक वाचले यो श्रृंखलामा प्रशासनिक प्रतिक्रिया र सेवा पुनर्स्थापनको प्रगति पनि ट्र्याक गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "मनसुन र शहरी विस्तारले सामाजिक समस्या एकै ठाउँमा जम्मा हुँदै जान्छ। मनसुनमा राजमार्ग यात्राको सुरक्षा जाँचसूची को सन्दर्भमा स्थानीय तह, प्रदेश र संघको समन्वय नभए सामान्य नागरिकले दोहोरो झन्झट भोग्नुपर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "मैदान रिपोर्टिङमा हामी केवल एउटै स्रोतमा भर पर्दैनौं। दस्तावेज, सार्वजनिक बैठक, स्थानीय अभिलेख र प्रत्यक्ष अवलोकनलाई क्रस-चेक गर्छौं।"
+        },
+        {
+          "type": "paragraph",
+          "text": "केही क्षेत्रमा सेवा केन्द्र खुल्दै गरे पनि पूर्ण क्षमतामा सञ्चालन हुन सकेका छैनन्। यसले मनसुनमा राजमार्ग यात्राको सुरक्षा जाँचसूची को प्रभाव लामो समयसम्म रहने संकेत दिन्छ।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "स्थानीय स्रोतसँग नियमित संवाद राख्नुपर्छ",
+            "दीर्घकालीन योजना छोटो घोषणासँग मेल खानुपर्छ",
+            "स्रोत विवरण प्रकाशनयोग्य हुनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय स्तरमा समाधानको पहल देखिए पनि स्रोत र जिम्मेवारी स्पष्ट नभए गुनासो कायम रहन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले सोध्न सक्छन्: यो समस्या नयाँ हो कि पुरानो संरचनागत कमजोरीको निरन्तरता? जवाफले समाधानको दिशा निर्धारण गर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सार्वजनिक बहसमा भावनात्मक अभिव्यक्ति बढ्दा तथ्य र सन्दर्भ कमजोर हुन सक्छ। नागरिक वाचले तथ्य, स्रोत र सन्दर्भलाई प्राथमिकता दिन्छ।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "समाचारले प्रश्न उठाउँछ, उत्तर दिने जिम्मेवारी संस्थामा रहन्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "मनसुनमा राजमार्ग यात्राको सुरक्षा जाँचसूची लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। यात्राअघि बाटोको अवस्था थाहा लिने, दिउँसो यात्रा गर्ने र गाडीको प्राविधिक जाँच गर्ने बानीले जोखिम घटाउँछ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "आगामी साता मनसुनमा राजमार्ग यात्राको सुरक्षा जाँचसूची सम्बन्धमा नयाँ बैठक, प्रगति प्रतिवेदन वा नीति घोषणा आउन सक्छ। नागरिक वाचले प्रत्येक अपडेटलाई स्रोतसहित प्रकाशित गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "चितवन र अन्य प्रभावित क्षेत्रमा सेवा पुनर्स्थापनको गति नै मुख्य सूचक बन्नेछ। ढिलाइ भयो भने समुदायमा असन्तोष बढ्ने अनुमान छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "चितवनबाट नागरिक वाच समाज डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: Route checks, daylight schedules and vehicle inspection lower risk on wet roads. Our society desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "A monsoon safety checklist for highway travel is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23141210%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%232E2620%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AE%E0%A4%A8%E0%A4%B8%E0%A5%81%E0%A4%A8%E0%A4%AE%E0%A4%BE%20%E0%A4%B0%E0%A4%BE%E0%A4%9C%E0%A4%AE%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%97%20%E0%A4%AF%E0%A4%BE%E0%A4%A4%E0%A5%8D%E0%A4%B0%E0%A4%BE%E0%A4%95%E0%A5%8B%20%E0%A4%B8%E0%A5%81%E0%A4%B0%E0%A4%95%E0%A5%8D%E0%A4%B7%E0%A4%BE%20%E0%A4%9C%E0%A4%BE%E0%A4%81%E0%A4%9A%E0%A4%B8%E0%A5%82%E0%A4%9A%E0%A5%80%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "labour-migration"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "विनिमय दरले रेमिट्यान्स कसरी घटबढ गर्छ",
+      "heroCaptionNe": "पठाइएको विदेशी मुद्रा नेपाली रुपैयाँमा सेवा प्रदायकको दरले सट्टा हुन्छ। त्यही दरले हातमा आउने रकम निर्धारण गर्छ।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-9",
+      "slug": "svc-exchange-rates-remittance-receiving",
+      "categorySlug": "world",
+      "titleNe": "विनिमय दरले रेमिट्यान्स कसरी घटबढ गर्छ",
+      "titleEn": "How exchange rates shape what families receive",
+      "deckNe": "पठाइएको विदेशी मुद्रा नेपाली रुपैयाँमा सेवा प्रदायकको दरले सट्टा हुन्छ। त्यही दरले हातमा आउने रकम निर्धारण गर्छ।",
+      "deckEn": "The conversion rate, not just the fee, decides the final rupee amount.",
+      "publishedAt": "2026-08-20T10:15:00.000Z",
+      "updatedAt": "2026-08-20T10:15:00.000Z",
+      "reportingLocation": "बिरगञ्ज",
+      "province": "madhesh",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "परिवारले डलर वा दिराममा पठाए पनि नेपालमा भुक्तानी रुपैयाँमै मिल्छ। दुवै मुद्रा जोड्ने दर नै निर्णायक हुन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "विनिमय दर बजारमा दैनिक घटबढ हुन्छ। राष्ट्र बैंकले सन्दर्भ दर सार्वजनिक गर्छ, सेवा प्रदायकले त्यसमा थोरै फरक राख्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "कमिसन शून्य भए पनि दरको फरकले खर्च बनाउन सक्छ। त्यसैले एउटै दिनमा पनि प्रदायकबीच तुलना गर्नु उपयोगी हुन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "दर तुलना गर्दा हेर्ने"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "प्रदायकले दिने वास्तविक दर",
+            "भुक्तानी पुग्ने समय",
+            "रसीद र अभिलेखको व्यवस्था"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "दर बढ्दा परिवारले थोरै रकम थप पाउँछन्, घट्दा कम पाउँछन्। ठूलो रकम पठाउँदा दिनको दर हेरेर समय रोज्न सकिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले छिटो स्क्यान गर्न सक्ने सार र गहिरो पढाइ दुवै चाहिन्छ भन्ने हाम्रो सम्पादकीय सिद्धान्त हो।"
+        },
+        {
+          "type": "paragraph",
+          "text": "यो रिपोर्टमा हामी घटनाको पृष्ठभूमि, मैदानमा देखिएका प्रमाण र आगामी सम्भावनालाई अलग-अलग राखेर प्रस्तुत गर्छौं।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बिरगञ्ज — विनिमय दरले रेमिट्यान्स कसरी घटबढ गर्छ विषयमा नागरिक वाच अन्तर्राष्ट्रिय डेस्कको टोली सक्रिय रहेको छ। पठाइएको विदेशी मुद्रा नेपाली रुपैयाँमा सेवा प्रदायकको दरले सट्टा हुन्छ। त्यही दरले हातमा आउने रकम निर्धारण गर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "केही क्षेत्रमा सेवा केन्द्र खुल्दै गरे पनि पूर्ण क्षमतामा सञ्चालन हुन सकेका छैनन्। यसले विनिमय दरले रेमिट्यान्स कसरी घटबढ गर्छ को प्रभाव लामो समयसम्म रहने संकेत दिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय स्तरमा समाधानको पहल देखिए पनि स्रोत र जिम्मेवारी स्पष्ट नभए गुनासो कायम रहन्छ।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "अत्यावश्यक सेवामा प्राथमिकता दिनुपर्छ",
+            "डेटा सार्वजनिक गर्दा भाषा सरल हुनुपर्छ",
+            "नागरिक उजुरी सुनुवाइ समयमै हुनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "बिरगञ्ज मैदानमा नागरिक वाच संवाददाताले देखेको छ: विनिमय दरले रेमिट्यान्स कसरी घटबढ गर्छ सँग सम्बन्धित सूचना अझै पूर्ण रूपमा केन्द्रमा नपुगेको छ। स्थानीयले भनेका छन्, सूचना ढिला आउँदा अन्योल बढ्छ र अफवाह फैलिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "विनिमय दरले रेमिट्यान्स कसरी घटबढ गर्छ लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। पठाइएको विदेशी मुद्रा नेपाली रुपैयाँमा सेवा प्रदायकको दरले सट्टा हुन्छ। त्यही दरले हातमा आउने रकम निर्धारण गर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "विश्लेषणात्मक दृष्टिकोणबाट हेर्दा संस्थागत क्षमता र राजनीतिक इच्छाशक्ति दुवै निर्णायक हुन्छन्। कागजमा नीति राम्रो देखिन सक्छ, तर कार्यान्वयनमा कमजोरी भयो भने नतिजा देखिँदैन।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "पाठकले सेवाको गति माप्न सक्ने डेटा हेर्न पाउनुपर्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले सोध्न सक्छन्: यो समस्या नयाँ हो कि पुरानो संरचनागत कमजोरीको निरन्तरता? जवाफले समाधानको दिशा निर्धारण गर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले यो कथा अनुसरण गर्दा तीन कुरा हेर्न सक्छन्: सेवा सुधारको प्रमाण, जवाफदेहिताको प्रक्रिया र समुदायको सहभागिता।"
+        },
+        {
+          "type": "paragraph",
+          "text": "आगामी साता विनिमय दरले रेमिट्यान्स कसरी घटबढ गर्छ सम्बन्धमा नयाँ बैठक, प्रगति प्रतिवेदन वा नीति घोषणा आउन सक्छ। नागरिक वाचले प्रत्येक अपडेटलाई स्रोतसहित प्रकाशित गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "बिरगञ्जबाट नागरिक वाच अन्तर्राष्ट्रिय डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: The conversion rate, not just the fee, decides the final rupee amount. Our world desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "How exchange rates shape what families receive is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23101418%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23243038%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B5%E0%A4%BF%E0%A4%A8%E0%A4%BF%E0%A4%AE%E0%A4%AF%20%E0%A4%A6%E0%A4%B0%E0%A4%B2%E0%A5%87%20%E0%A4%B0%E0%A5%87%E0%A4%AE%E0%A4%BF%E0%A4%9F%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%A8%E0%A5%8D%E0%A4%B8%20%E0%A4%95%E0%A4%B8%E0%A4%B0%E0%A5%80%20%E0%A4%98%E0%A4%9F%E0%A4%AC%E0%A4%A2%20%E0%A4%97%E0%A4%B0%E0%A5%8D%E0%A4%9B%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "geopolitics"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "सार्क भिसा छूट योजना: नेपाली यात्रुका लागि दायरा",
+      "heroCaptionNe": "तोकिएका पद र पेसाका व्यक्तिलाई मात्र छूट स्टिकर मिल्छ। सामान्य पर्यटकले नियमित भिसा नै लिनुपर्छ।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-10",
+      "slug": "svc-saarc-visa-exemption-explainer",
+      "categorySlug": "world",
+      "titleNe": "सार्क भिसा छूट योजना: नेपाली यात्रुका लागि दायरा",
+      "titleEn": "What the SAARC visa exemption covers for Nepali travellers",
+      "deckNe": "तोकिएका पद र पेसाका व्यक्तिलाई मात्र छूट स्टिकर मिल्छ। सामान्य पर्यटकले नियमित भिसा नै लिनुपर्छ।",
+      "deckEn": "Exemption stickers serve listed officials and professions, not general tourists.",
+      "publishedAt": "2026-08-20T12:15:00.000Z",
+      "updatedAt": "2026-08-20T12:15:00.000Z",
+      "reportingLocation": "काठमाडौं",
+      "province": "bagmati",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "सार्कका सदस्य मुलुकबीच भिसा छूट योजना सञ्चालनमा छ। यसअन्तर्गत तोकिएका वर्गलाई छूट स्टिकर दिइन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "प्रायः मन्त्री, सांसद, न्यायाधीश, सरकारी पदाधिकारी, प्राध्यापक, पत्रकार र खेलाडीजस्ता वर्ग यसको दायरामा पर्छन्। पात्र वर्ग र बसाइ अवधि देशगत समझदारीअनुसार फरक हुन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "छूट आफ्नै देशका लागि लागू हुँदैन। नेपाली नागरिकले यो सुविधा अन्य सार्क मुलुक जाँदा मात्र पाउँछन्।"
+        },
+        {
+          "type": "heading2",
+          "text": "स्टिकर कसरी मिल्छ"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "सम्बन्धित मन्त्रालय वा निकायबाट सिफारिस",
+            "तोकिएको ढाँचामा आवेदन",
+            "निर्धारित प्रक्रियाबाट स्टिकर जारी"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "यो योजना पर्यटक भिसाको विकल्प होइन। आफन्त भ्रमण वा घुम्न जाने नागरिकले नियमित भिसा प्रक्रिया नै अपनाउनुपर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "यो रिपोर्टमा हामी घटनाको पृष्ठभूमि, मैदानमा देखिएका प्रमाण र आगामी सम्भावनालाई अलग-अलग राखेर प्रस्तुत गर्छौं।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं — सार्क भिसा छूट योजना विषयमा नागरिक वाच अन्तर्राष्ट्रिय डेस्कको टोली सक्रिय रहेको छ। तोकिएका पद र पेसाका व्यक्तिलाई मात्र छूट स्टिकर मिल्छ। सामान्य पर्यटकले नियमित भिसा नै लिनुपर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले छिटो स्क्यान गर्न सक्ने सार र गहिरो पढाइ दुवै चाहिन्छ भन्ने हाम्रो सम्पादकीय सिद्धान्त हो।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय स्तरमा समाधानको पहल देखिए पनि स्रोत र जिम्मेवारी स्पष्ट नभए गुनासो कायम रहन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "केही क्षेत्रमा सेवा केन्द्र खुल्दै गरे पनि पूर्ण क्षमतामा सञ्चालन हुन सकेका छैनन्। यसले सार्क भिसा छूट योजना को प्रभाव लामो समयसम्म रहने संकेत दिन्छ।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "स्थानीय स्रोतसँग नियमित संवाद राख्नुपर्छ",
+            "विपद् प्रभावित क्षेत्रमा विशेष खण्ड चाहिन्छ",
+            "नागरिक उजुरी सुनुवाइ समयमै हुनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "मैदान रिपोर्टिङमा हामी केवल एउटै स्रोतमा भर पर्दैनौं। दस्तावेज, सार्वजनिक बैठक, स्थानीय अभिलेख र प्रत्यक्ष अवलोकनलाई क्रस-चेक गर्छौं।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले सोध्न सक्छन्: यो समस्या नयाँ हो कि पुरानो संरचनागत कमजोरीको निरन्तरता? जवाफले समाधानको दिशा निर्धारण गर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "विश्लेषणात्मक दृष्टिकोणबाट हेर्दा संस्थागत क्षमता र राजनीतिक इच्छाशक्ति दुवै निर्णायक हुन्छन्। कागजमा नीति राम्रो देखिन सक्छ, तर कार्यान्वयनमा कमजोरी भयो भने नतिजा देखिँदैन।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "छिटो प्रतिक्रिया र दीर्घकालीन जवाफदेहिता दुवै चाहिन्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "सार्क भिसा छूट योजना लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। तोकिएका पद र पेसाका व्यक्तिलाई मात्र छूट स्टिकर मिल्छ। सामान्य पर्यटकले नियमित भिसा नै लिनुपर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "आगामी साता सार्क भिसा छूट योजना सम्बन्धमा नयाँ बैठक, प्रगति प्रतिवेदन वा नीति घोषणा आउन सक्छ। नागरिक वाचले प्रत्येक अपडेटलाई स्रोतसहित प्रकाशित गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले यो कथा अनुसरण गर्दा तीन कुरा हेर्न सक्छन्: सेवा सुधारको प्रमाण, जवाफदेहिताको प्रक्रिया र समुदायको सहभागिता।"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौंबाट नागरिक वाच अन्तर्राष्ट्रिय डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: Exemption stickers serve listed officials and professions, not general tourists. Our world desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "What the SAARC visa exemption covers for Nepali travellers is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23101418%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23243038%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%B8%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%95%20%E0%A4%AD%E0%A4%BF%E0%A4%B8%E0%A4%BE%20%E0%A4%9B%E0%A5%82%E0%A4%9F%20%E0%A4%AF%E0%A5%8B%E0%A4%9C%E0%A4%A8%E0%A4%BE%3A%20%E0%A4%A8%E0%A5%87%E0%A4%AA%E0%A4%BE%E0%A4%B2%E0%A5%80%20%E0%A4%AF%E0%A4%BE%E0%A4%A4%E0%A5%8D%E0%A4%B0%E0%A5%81%E0%A4%95%E0%A4%BE%20%E0%A4%B2%E0%A4%BE%E0%A4%97%E0%A4%BF%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [
+        "nepal-cricket"
+      ],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "नेपालको घरेलु क्रिकेट संरचना कस्तो छ",
+      "heroCaptionNe": "जिल्लादेखि प्रदेश हुँदै पीएम कप र फ्रेन्चाइज टी ट्वान्टीसम्म पुग्ने मार्ग राष्ट्रिय छनोटको आधार हो।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-11",
+      "slug": "svc-nepal-domestic-cricket-structure",
+      "categorySlug": "sports",
+      "titleNe": "नेपालको घरेलु क्रिकेट संरचना कस्तो छ",
+      "titleEn": "How the domestic cricket pyramid works",
+      "deckNe": "जिल्लादेखि प्रदेश हुँदै पीएम कप र फ्रेन्चाइज टी ट्वान्टीसम्म पुग्ने मार्ग राष्ट्रिय छनोटको आधार हो।",
+      "deckEn": "District selection feeds provincial sides, the PM Cup and the franchise stage.",
+      "publishedAt": "2026-08-20T15:15:00.000Z",
+      "updatedAt": "2026-08-20T15:15:00.000Z",
+      "reportingLocation": "काठमाडौं",
+      "province": "bagmati",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "नेपालमा घरेलु क्रिकेट जिल्ला र प्रदेशस्तरबाट सुरु हुन्छ। चरणबद्ध छनोट हुँदै राष्ट्रिय टोलीको दलबन्दीसम्म पुगिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "प्रधानमन्त्री वनडे कप देशको प्रमुख घरेलु एकदिवसीय प्रतियोगिता हो। प्रदेश र क्षेत्रीय टोलीबीच हुने यसै प्रतियोगिताको प्रदर्शनले राष्ट्रिय छनोटमा ठूलो भूमिका खेल्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "फ्रेन्चाइज आधारको टी ट्वान्टी प्रिमियर लिगले युवा खेलाडीलाई ठूलो मञ्च र सम्झौताको अवसर दिन्छ। यसले घरेलु खेलाडीलाई अन्तर्राष्ट्रिय खेलाडीसँग खेल्ने मौका पनि दिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "खेलाडीको मार्ग"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "जिल्ला तथा उमेर समूहको छनोट",
+            "प्रदेश टोलीबाट घरेलु सिजन",
+            "पीएम कप र लिग प्रदर्शनबाट राष्ट्रिय दलबन्दी"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "घरेलु प्रदर्शनको अभिलेख राख्ने र ऋतुभरि नियमित खेल्ने बानी छनोटको आधार बन्छ। संरचना र प्रतियोगिताको नाम समयसँगै परिवर्तन हुन सक्ने भएकाले क्रिकेट संघको आधिकारिक सूचना हेर्नु उपयोगी हुन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं — नेपालको घरेलु क्रिकेट संरचना कस्तो छ नेपाली खेलकुदको तयारी र प्रतिस्पर्धात्मकतासँग जोडिएको छ। जिल्लादेखि प्रदेश हुँदै पीएम कप र फ्रेन्चाइज टी ट्वान्टीसम्म पुग्ने मार्ग राष्ट्रिय छनोटको आधार हो। नागरिक वाच खेलकुद डेस्कले प्रशिक्षण, पूर्वाधार र खेलाडी कल्याणलाई एउटै फ्रेममा हेर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "अन्तर्राष्ट्रिय प्रतियोगिता नजिकिँदा तयारीको गुणस्तरले नतिजा निर्धारण गर्छ। प्रशिक्षक, खेलाडी र संघका पदाधिकारीबीचको समन्वय कमजोर भए प्रदर्शनमा दीर्घकालीन असर पर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "युवा खेलाडीका लागि मार्गचित्र स्पष्ट हुनु जरुरी छ। अभ्यास, पोषण, चोट व्यवस्थापन र मानसिक तयारी एकै योजनामा आउनुपर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "केही क्षेत्रमा सेवा केन्द्र खुल्दै गरे पनि पूर्ण क्षमतामा सञ्चालन हुन सकेका छैनन्। यसले नेपालको घरेलु क्रिकेट संरचना कस्तो छ को प्रभाव लामो समयसम्म रहने संकेत दिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्थानीय स्तरमा समाधानको पहल देखिए पनि स्रोत र जिम्मेवारी स्पष्ट नभए गुनासो कायम रहन्छ।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "सूचना प्रवाहमा पारदर्शिता बढाउनुपर्छ",
+            "विपद् प्रभावित क्षेत्रमा विशेष खण्ड चाहिन्छ",
+            "समुदायको सुझाव कार्ययोजनामा ठाउँ पाउनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं मैदानमा नागरिक वाच संवाददाताले देखेको छ: नेपालको घरेलु क्रिकेट संरचना कस्तो छ सँग सम्बन्धित सूचना अझै पूर्ण रूपमा केन्द्रमा नपुगेको छ। स्थानीयले भनेका छन्, सूचना ढिला आउँदा अन्योल बढ्छ र अफवाह फैलिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले सोध्न सक्छन्: यो समस्या नयाँ हो कि पुरानो संरचनागत कमजोरीको निरन्तरता? जवाफले समाधानको दिशा निर्धारण गर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सार्वजनिक बहसमा भावनात्मक अभिव्यक्ति बढ्दा तथ्य र सन्दर्भ कमजोर हुन सक्छ। नागरिक वाचले तथ्य, स्रोत र सन्दर्भलाई प्राथमिकता दिन्छ।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "पाठकले सेवाको गति माप्न सक्ने डेटा हेर्न पाउनुपर्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "नेपालको घरेलु क्रिकेट संरचना कस्तो छ लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। जिल्लादेखि प्रदेश हुँदै पीएम कप र फ्रेन्चाइज टी ट्वान्टीसम्म पुग्ने मार्ग राष्ट्रिय छनोटको आधार हो।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "आगामी साता नेपालको घरेलु क्रिकेट संरचना कस्तो छ सम्बन्धमा नयाँ बैठक, प्रगति प्रतिवेदन वा नीति घोषणा आउन सक्छ। नागरिक वाचले प्रत्येक अपडेटलाई स्रोतसहित प्रकाशित गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं र अन्य प्रभावित क्षेत्रमा सेवा पुनर्स्थापनको गति नै मुख्य सूचक बन्नेछ। ढिलाइ भयो भने समुदायमा असन्तोष बढ्ने अनुमान छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौंबाट नागरिक वाच खेलकुद डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: District selection feeds provincial sides, the PM Cup and the franchise stage. Our sports desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "How the domestic cricket pyramid works is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1410%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E1E%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%221248%22%20cy%3D%22288%22%20r%3D%22198%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.12%22%2F%3E%0A%20%20%20%20%20%3Ccircle%20cx%3D%221376%22%20cy%3D%22495.00000000000006%22%20r%3D%22108%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.05%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%A8%E0%A5%87%E0%A4%AA%E0%A4%BE%E0%A4%B2%E0%A4%95%E0%A5%8B%20%E0%A4%98%E0%A4%B0%E0%A5%87%E0%A4%B2%E0%A5%81%20%E0%A4%95%E0%A5%8D%E0%A4%B0%E0%A4%BF%E0%A4%95%E0%A5%87%E0%A4%9F%20%E0%A4%B8%E0%A4%82%E0%A4%B0%E0%A4%9A%E0%A4%A8%E0%A4%BE%20%E0%A4%95%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%8B%20%E0%A4%9B%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
+    },
+    {
+      "authorIds": [
+        "aut-newsroom-desk"
+      ],
+      "tagSlugs": [],
+      "isBreaking": false,
+      "isFeatured": "none",
+      "workflowStage": "published",
+      "sourceType": "original",
+      "premium": false,
+      "commentsEnabled": true,
+      "locale": "ne",
+      "noIndex": false,
+      "includeInNewsSitemap": true,
+      "heroImageAlt": "फुटबल ट्रान्सफर विन्डो र नेपाली क्लबको योजना",
+      "heroCaptionNe": "खेलाडी दर्ता तोकिएको समयखण्डमा मात्र हुन्छ। त्यही अवधिले क्लबको गोठ, बजेट र पूर्वतयारी निर्धारण गर्छ।",
+      "heroCredit": "नागरिक वाच",
+      "id": "art-svc-12",
+      "slug": "svc-football-transfer-windows-clubs",
+      "categorySlug": "sports",
+      "titleNe": "फुटबल ट्रान्सफर विन्डो र नेपाली क्लबको योजना",
+      "titleEn": "Football transfer windows and what they mean for clubs",
+      "deckNe": "खेलाडी दर्ता तोकिएको समयखण्डमा मात्र हुन्छ। त्यही अवधिले क्लबको गोठ, बजेट र पूर्वतयारी निर्धारण गर्छ।",
+      "deckEn": "Registration periods decide squad building, budgets and pre-season planning.",
+      "publishedAt": "2026-08-22T16:15:00.000Z",
+      "updatedAt": "2026-08-22T16:15:00.000Z",
+      "reportingLocation": "काठमाडौं",
+      "province": "bagmati",
+      "bodyNe": [
+        {
+          "type": "paragraph",
+          "text": "ट्रान्सफर विन्डो भनेको क्लबले नयाँ खेलाडी दर्ता गराउन पाउने तोकिएको अवधि हो। वर्षमा प्रायः दुई खण्ड हुन्छन्।"
+        },
+        {
+          "type": "paragraph",
+          "text": "नेपालमा राष्ट्रिय संघको निर्देशनअनुसार दर्ता अवधि तय हुन्छ। अवधि मिलाउँदा अन्तर्राष्ट्रिय क्यालेन्डरसँग मेल खाने गरिन्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "विन्डो बन्द भएपछि क्लबले स्थायी हस्तान्तरण गर्न पाउँदैन। सम्झौता सकिएका खेलाडी भने तोकिएको प्रक्रियामा जुनसुकै बेला नयाँ क्लबसँग जोडिन सक्छन्।"
+        },
+        {
+          "type": "heading2",
+          "text": "क्लबमा पर्ने असर"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "पूर्वतयारी नै गोठ निर्माणको मुख्य समय बन्छ",
+            "ढिलो भित्रिएका खेलाडीको तालमेल कठिन हुन्छ",
+            "बजेट विभाजन अवधि सुरु हुनुअघि सक्नुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "सामान्यतया नेपाली क्लबले घरेलु र विदेशी खेलाडी दुवै यही अवधिमा भित्र्याउँछन्। दर्ता प्रक्रिया समयमै पूरा नभए लिगमा खेल्ने योग्यता प्रश्नमा पर्न सक्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "पृष्ठभूमि"
+        },
+        {
+          "type": "paragraph",
+          "text": "अन्तर्राष्ट्रिय प्रतियोगिता नजिकिँदा तयारीको गुणस्तरले नतिजा निर्धारण गर्छ। प्रशिक्षक, खेलाडी र संघका पदाधिकारीबीचको समन्वय कमजोर भए प्रदर्शनमा दीर्घकालीन असर पर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं — फुटबल ट्रान्सफर विन्डो र नेपाली क्लबको योजना नेपाली खेलकुदको तयारी र प्रतिस्पर्धात्मकतासँग जोडिएको छ। खेलाडी दर्ता तोकिएको समयखण्डमा मात्र हुन्छ। त्यही अवधिले क्लबको गोठ, बजेट र पूर्वतयारी निर्धारण गर्छ। नागरिक वाच खेलकुद डेस्कले प्रशिक्षण, पूर्वाधार र खेलाडी कल्याणलाई एउटै फ्रेममा हेर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "युवा खेलाडीका लागि मार्गचित्र स्पष्ट हुनु जरुरी छ। अभ्यास, पोषण, चोट व्यवस्थापन र मानसिक तयारी एकै योजनामा आउनुपर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "मैदानबाट"
+        },
+        {
+          "type": "paragraph",
+          "text": "मैदान रिपोर्टिङमा हामी केवल एउटै स्रोतमा भर पर्दैनौं। दस्तावेज, सार्वजनिक बैठक, स्थानीय अभिलेख र प्रत्यक्ष अवलोकनलाई क्रस-चेक गर्छौं।"
+        },
+        {
+          "type": "paragraph",
+          "text": "स्वयंसेवक, व्यापारी र सार्वजनिक सेवाकर्मीसँगको कुराकानीमा देखिएको छ: समस्या एक दिनमै समाधान हुँदैन, तर प्रतिक्रिया छिटो हुनुपर्छ। प्रशासनले के गरिरहेको छ भन्ने सार्वजनिक अपडेट नभए विश्वास घट्छ।"
+        },
+        {
+          "type": "heading3",
+          "text": "संवादका मुख्य बुँदा"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "सूचना प्रवाहमा पारदर्शिता बढाउनुपर्छ",
+            "डेटा सार्वजनिक गर्दा भाषा सरल हुनुपर्छ",
+            "स्रोत विवरण प्रकाशनयोग्य हुनुपर्छ"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं मैदानमा नागरिक वाच संवाददाताले देखेको छ: फुटबल ट्रान्सफर विन्डो र नेपाली क्लबको योजना सँग सम्बन्धित सूचना अझै पूर्ण रूपमा केन्द्रमा नपुगेको छ। स्थानीयले भनेका छन्, सूचना ढिला आउँदा अन्योल बढ्छ र अफवाह फैलिन्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "विश्लेषण"
+        },
+        {
+          "type": "paragraph",
+          "text": "फुटबल ट्रान्सफर विन्डो र नेपाली क्लबको योजना लाई केवल दिनको शीर्षक बनाउनु हुँदैन। यसको कारण, प्रभाव र सम्भावित समाधानलाई अलग-अलग मापन गर्नुपर्छ। खेलाडी दर्ता तोकिएको समयखण्डमा मात्र हुन्छ। त्यही अवधिले क्लबको गोठ, बजेट र पूर्वतयारी निर्धारण गर्छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "सार्वजनिक बहसमा भावनात्मक अभिव्यक्ति बढ्दा तथ्य र सन्दर्भ कमजोर हुन सक्छ। नागरिक वाचले तथ्य, स्रोत र सन्दर्भलाई प्राथमिकता दिन्छ।"
+        },
+        {
+          "type": "pullQuote",
+          "quoteNe": "पाठकले सेवाको गति माप्न सक्ने डेटा हेर्न पाउनुपर्छ।",
+          "attribution": "नागरिक वाच सम्पादकीय नोट"
+        },
+        {
+          "type": "paragraph",
+          "text": "पाठकले सोध्न सक्छन्: यो समस्या नयाँ हो कि पुरानो संरचनागत कमजोरीको निरन्तरता? जवाफले समाधानको दिशा निर्धारण गर्छ।"
+        },
+        {
+          "type": "heading2",
+          "text": "अब के हुने सम्भावना"
+        },
+        {
+          "type": "paragraph",
+          "text": "दीर्घकालमा यो विषय संस्थागत सुधार, बजेट विनियोजन र स्थानीय सहभागितासँग जोडिनुपर्छ। एकल घोषणाले मात्र पर्याप्त हुँदैन।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौं र अन्य प्रभावित क्षेत्रमा सेवा पुनर्स्थापनको गति नै मुख्य सूचक बन्नेछ। ढिलाइ भयो भने समुदायमा असन्तोष बढ्ने अनुमान छ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "आगामी साता फुटबल ट्रान्सफर विन्डो र नेपाली क्लबको योजना सम्बन्धमा नयाँ बैठक, प्रगति प्रतिवेदन वा नीति घोषणा आउन सक्छ। नागरिक वाचले प्रत्येक अपडेटलाई स्रोतसहित प्रकाशित गर्नेछ।"
+        },
+        {
+          "type": "paragraph",
+          "text": "काठमाडौंबाट नागरिक वाच खेलकुद डेस्कको टोलीले यो विषयमा निरन्तर अनुगमन जारी राख्नेछ। अद्यावधिक, सुधार सुझाव र स्थानीय जानकारी सम्पादक@nagarikwatch.com मा पठाउन सकिन्छ।"
+        }
+      ],
+      "bodyEn": [
+        {
+          "type": "paragraph",
+          "text": "Nagarik Watch reporting: Registration periods decide squad building, budgets and pre-season planning. Our sports desk is tracking implementation, public statements, and on-the-ground impact."
+        },
+        {
+          "type": "paragraph",
+          "text": "Football transfer windows and what they mean for clubs is not a one-day headline. Readers need context on causes, who is accountable, and what changes in everyday services such as schools, clinics, and local offices."
+        },
+        {
+          "type": "paragraph",
+          "text": "We separate verified facts from speculation, cite sources where possible, and update the story as new documents, meetings, or service data become available."
+        },
+        {
+          "type": "paragraph",
+          "text": "Over the next week, watch for official timelines, committee hearings, and measurable service indicators rather than rhetoric alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Send corrections or local tips to the desk. This edition is original Nagarik Watch reporting for preview and editorial workflow demonstration."
+        }
+      ],
+      "heroImageUrl": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221600%22%20height%3D%22900%22%20viewBox%3D%220%200%201600%20900%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230E1410%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231A2E1E%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url(%23bg)%22%2F%3E%0A%20%20%3Crect%20x%3D%22880.0000000000001%22%20y%3D%22162%22%20width%3D%22608%22%20height%3D%22495.00000000000006%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%3Crect%20x%3D%22992%22%20y%3D%22252.00000000000003%22%20width%3D%22352%22%20height%3D%2272%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.08%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%228%22%20height%3D%22900%22%20fill%3D%22%23C02A2A%22%2F%3E%0A%20%20%3Crect%20x%3D%220%22%20y%3D%22894%22%20width%3D%221600%22%20height%3D%226%22%20fill%3D%22%23C02A2A%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22844%22%20font-family%3D%22Mukta%2CNoto%20Sans%20Devanagari%2Csans-serif%22%20font-size%3D%2288%22%20font-weight%3D%22800%22%20fill%3D%22%23F7F2F1%22%3E%E0%A4%AB%E0%A5%81%E0%A4%9F%E0%A4%AC%E0%A4%B2%20%E0%A4%9F%E0%A5%8D%E0%A4%B0%E0%A4%BE%E0%A4%A8%E0%A5%8D%E0%A4%B8%E0%A4%AB%E0%A4%B0%20%E0%A4%B5%E0%A4%BF%E0%A4%A8%E0%A5%8D%E0%A4%A1%E0%A5%8B%20%E0%A4%B0%20%E0%A4%A8%E0%A5%87%E0%A4%AA%E0%A4%BE%E0%A4%B2%E0%A5%80%20%E0%A4%95%E0%A5%8D%E0%A4%B2%E0%A4%AC%E0%A4%95%E0%A5%8B%20%E0%A4%AF%E0%A5%8B%E0%A4%9C%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2236%22%20y%3D%22872%22%20font-family%3D%22Source%20Sans%203%2Csystem-ui%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22700%22%20fill%3D%22%23F7F2F1%22%20opacity%3D%220.55%22%3ENAGARIK%20WATCH%3C%2Ftext%3E%0A%3C%2Fsvg%3E",
+      "englishStatus": "in_progress",
+      "hasEnglish": true,
+      "readingMinutes": 2,
+      "createdBy": "newsroom-edition-2026-07",
+      "updatedBy": "newsroom-edition-2026-07"
     }
-  ]
+  ],
+  "version": 1
 }

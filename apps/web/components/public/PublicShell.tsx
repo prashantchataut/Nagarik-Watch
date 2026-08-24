@@ -24,7 +24,7 @@ import { HtmlLangSync } from '@/components/HtmlLangSync'
 import { AdSlot } from '@/components/AdSlot'
 import { MastheadReference } from '@/components/live/MastheadReference'
 import type { TopicLink } from '@/components/TopicsLinks'
-import { PUBLICATION } from '@/lib/site'
+import { FALLBACK_NAV_CATEGORIES, PUBLICATION } from '@/lib/site'
 
 /** Hub routes that already live in the primary nav; a tag echo of them is noise. */
 const HUB_SLUGS = new Set(['fact-check', 'province', 'latest', 'home'])
@@ -48,11 +48,17 @@ function buildTopicLinks(
 
 export async function PublicShell({ locale, children }: { locale: Locale; children: ReactNode }) {
   const dict = getDictionary(locale)
-  const [navCategories, tags, session] = await Promise.all([
+  const [sourceNavCategories, tags, session] = await Promise.all([
     getNavCategories().catch(() => []),
     getTags().catch(() => []),
     getSession().catch(() => null),
   ])
+  // A cold prerender or source outage must never shrink the primary nav to a
+  // stub; fall back to the canonical desk taxonomy when the list is unusable.
+  const navCategories =
+    sourceNavCategories.length >= 5
+      ? sourceNavCategories
+      : ([...FALLBACK_NAV_CATEGORIES] as unknown as typeof sourceNavCategories)
   const topics = buildTopicLinks(locale, tags, navCategories)
   const adMode = getAdMode()
   const account = session

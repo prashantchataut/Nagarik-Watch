@@ -8,9 +8,13 @@ export const revalidate = 60
 
 export default async function ProvincesPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
+  // A single source hiccup must never 500 the desk index; failed queries
+  // degrade to empty columns and the page renders an honest empty state.
   const [recentResult, ...perProvince] = await Promise.all([
-    getStories({ locale, perPage: 30 }),
-    ...PROVINCES.map((province) => getStories({ locale, province: province.slug, perPage: 1 })),
+    getStories({ locale, perPage: 30 }).catch(() => null),
+    ...PROVINCES.map((province) =>
+      getStories({ locale, province: province.slug, perPage: 1 }).catch(() => null),
+    ),
   ])
 
   const desks = PROVINCES.map((province, index) => ({
@@ -18,7 +22,9 @@ export default async function ProvincesPage({ params }: { params: Promise<{ loca
     total: perProvince[index]?.total ?? 0,
     latest: perProvince[index]?.items[0],
   }))
-  const recent = recentResult.items.filter((story) => Boolean(story.province)).slice(0, 8)
+  const recent = (recentResult?.items ?? [])
+    .filter((story) => Boolean(story.province))
+    .slice(0, 8)
 
   return <ProvinceIndex locale={locale} desks={desks} recent={recent} />
 }

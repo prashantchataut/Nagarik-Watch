@@ -66,7 +66,9 @@ export default async function FactCheckPage({ params }: { params: Promise<{ loca
   const locale: Locale = asLocale((await params).locale)
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
-  const { items: stories } = await getStories({ locale, factCheck: true, perPage: 16 })
+  const { items: stories } = await getStories({ locale, factCheck: true, perPage: 16 }).catch(
+    () => ({ items: [] }),
+  )
   const [lead, ...ledger] = stories
 
   return (

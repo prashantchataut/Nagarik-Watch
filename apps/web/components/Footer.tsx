@@ -75,7 +75,6 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
     trustLinks.push(
       { href: localizeHref(locale, '/submit-story'), label: en ? 'Send a tip' : 'टिप पठाउनुहोस्' },
       { href: localizeHref(locale, '/journalist/login'), label: en ? 'Reporter desk' : 'पत्रकार डेस्क' },
-      { href: '/admin/login', label: en ? 'Newsroom' : 'न्युजरुम' },
     )
   }
 

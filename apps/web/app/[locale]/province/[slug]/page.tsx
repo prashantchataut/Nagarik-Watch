@@ -26,7 +26,9 @@ export default async function Page({
   const province = resolveProvince(slug)
   if (!province) notFound()
 
-  const { items: stories } = await getStories({ locale, province: slug, perPage: 28 })
+  const { items: stories } = await getStories({ locale, province: slug, perPage: 28 }).catch(
+    () => ({ items: [] }),
+  )
   return <ProvinceDesk locale={locale} province={province} stories={stories} />
 }
 

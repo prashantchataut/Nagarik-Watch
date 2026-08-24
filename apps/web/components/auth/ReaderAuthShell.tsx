@@ -140,9 +140,6 @@ export function ReaderAuthShell({
               <Link href={localizeHref(locale, '/journalist/login')} className="text-ink-soft hover:text-ink">
                 {ne ? 'पत्रकार डेस्क' : 'Reporter desk'}
               </Link>
-              <Link href="/admin/login" className="text-ink-soft hover:text-ink">
-                {ne ? 'सम्पादकीय एडमिन' : 'Editorial admin'}
-              </Link>
             </nav>
           ) : null}
 

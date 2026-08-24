@@ -97,7 +97,6 @@ export default async function JournalistLoginPage({
           <Link href={localizeHref(locale, '/auth/signup')}>
             {ne ? 'पाठक खाता बनाउनुहोस्' : 'Create a reader account'}
           </Link>
-          <Link href="/admin/login">{ne ? 'एडमिन लगइन' : 'Admin login'}</Link>
           <Link href={localizeHref(locale, '/auth/forgot-password')}>
             {ne ? 'पासवर्ड बिर्सनुभयो?' : 'Forgot password?'}
           </Link>

@@ -68,9 +68,6 @@ export function StaffAuthShell({
 
         <section className="newsroom-login__form" aria-labelledby="staff-auth-title">
           <nav className="newsroom-login__switch" aria-label={ne ? 'लगइन प्रकार' : 'Sign-in type'}>
-            <Link href="/admin/login" className={kind === 'admin' ? 'is-active' : undefined} aria-current={kind === 'admin' ? 'page' : undefined}>
-              {ne ? 'एडमिन' : 'Admin'}
-            </Link>
             <Link href={localizeHref(locale, '/journalist/login')} className={kind === 'journalist' ? 'is-active' : undefined} aria-current={kind === 'journalist' ? 'page' : undefined}>
               {ne ? 'पत्रकार' : 'Reporter'}
             </Link>
