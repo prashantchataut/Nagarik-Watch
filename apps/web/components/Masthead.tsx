@@ -44,8 +44,8 @@ const iconButton =
 
 function navLinkClass(active: boolean) {
   return active
-    ? 'inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap border-b-[3px] border-paper bg-brand-bar-active px-3 text-caption font-black text-paper sm:text-body'
-    : 'inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap border-b-[3px] border-transparent px-3 text-caption font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:bg-brand-bar-active/55 hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-paper sm:text-body'
+    ? 'inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap border-b-[3px] border-paper bg-white/10 px-3 text-caption font-black text-paper sm:text-body'
+    : 'inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap border-b-[3px] border-transparent px-3 text-caption font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:bg-white/10 hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-paper sm:text-body'
 }
 
 /**
@@ -175,10 +175,10 @@ export function Masthead({
 
       <nav
         aria-label={dict.primaryNav}
-        className="nw-masthead__primary sticky top-0 z-40 border-b border-black/15 bg-brand-bar text-paper"
+        className="nw-masthead__primary sticky top-0 z-40 isolate transform-gpu border-b border-black/15 bg-brand-bar text-paper"
       >
         <div className="mx-auto flex max-w-page items-stretch px-1 sm:px-3">
-          <ul className="flex min-w-0 flex-1 flex-nowrap items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <ul className="flex min-w-0 flex-1 flex-nowrap items-center overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <li>
               <NavLink href={homeHref} active={pathsMatch(pathname, homeHref)}>
                 <HomeGlyph />

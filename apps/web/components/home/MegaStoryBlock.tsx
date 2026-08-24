@@ -41,39 +41,72 @@ export function MegaStoryBlock({
   const lead = size === 'lead'
   const author = story.authors[0]
   const byline = author?.name || story.byline || (locale === 'en' ? 'Nagarik Watch' : 'नागरिक वाच')
-  const headingClass = `${
-    lead ? 'text-[clamp(2.45rem,5vw,4.65rem)]' : 'text-[clamp(2rem,3.6vw,3.2rem)]'
-  } mt-2.5 max-w-[19ch] text-pretty font-display font-black text-ink ${
-    titleLang === 'en' ? 'leading-[1.04] tracking-[-0.03em]' : 'leading-[1.13] tracking-normal'
-  }`
 
   const headline = priority ? (
-    <h1 className={headingClass} lang={titleLang}>
-      <StoryLink href={href}>{title}</StoryLink>
+    <h1
+      className={`text-balance font-display font-black text-ink ${
+        lead ? 'text-[clamp(1.9rem,3.4vw,2.9rem)]' : 'text-[clamp(1.7rem,3vw,2.4rem)]'
+      } ${titleLang === 'en' ? 'leading-[1.1] tracking-[-0.01em]' : 'leading-[1.22] tracking-normal'}`}
+      lang={titleLang}
+    >
+      <Link
+        href={href}
+        className="transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      >
+        {title}
+      </Link>
     </h1>
   ) : (
-    <h2 className={headingClass} lang={titleLang}>
-      <StoryLink href={href}>{title}</StoryLink>
+    <h2
+      className={`text-balance font-display font-black text-ink ${
+        lead ? 'text-[clamp(1.9rem,3.4vw,2.9rem)]' : 'text-[clamp(1.7rem,3vw,2.4rem)]'
+      } ${titleLang === 'en' ? 'leading-[1.1] tracking-[-0.01em]' : 'leading-[1.22] tracking-normal'}`}
+      lang={titleLang}
+    >
+      <Link
+        href={href}
+        className="transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      >
+        {title}
+      </Link>
     </h2>
   )
 
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
       <article className={`group min-w-0 ${className}`.trim()}>
-        <div className={lead ? 'max-w-[58rem] pb-4 sm:pb-5' : 'max-w-[48rem] pb-4'}>
+        {showPhoto ? (
+          <Link
+            href={href}
+            className="relative block aspect-[16/10] w-full overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:aspect-[16/9]"
+            tabIndex={-1}
+            aria-hidden="true"
+          >
+            <Image
+              src={image!.url}
+              alt={image!.alt}
+              fill
+              priority={priority}
+              sizes="(min-width: 1280px) 780px, (min-width: 1024px) 60vw, 100vw"
+              className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.012]"
+            />
+          </Link>
+        ) : null}
+
+        <div className="py-3.5 sm:py-4">
           <CategoryLabel category={story.category} locale={locale} as="span" />
-          {headline}
+          <div className="mt-1.5">{headline}</div>
 
           {deck ? (
             <p
-              className="mt-3 max-w-[44rem] text-pretty text-body leading-[1.7] text-ink-soft sm:text-body-lg"
+              className="mt-2 max-w-[52rem] text-pretty text-body leading-[1.6] text-ink-soft"
               lang={titleLang}
             >
               {deck}
             </p>
           ) : null}
 
-          <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-meta text-ink-soft">
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-meta text-ink-soft">
             {author ? (
               <Link
                 href={localizeHref(locale, `/author/${author.slug}`)}
@@ -91,38 +124,7 @@ export function MegaStoryBlock({
             <Dateline iso={story.publishedAt} locale={locale} />
           </div>
         </div>
-
-        {showPhoto ? (
-          <Link
-            href={href}
-            className={`relative block overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${
-              lead ? 'aspect-[16/9] min-h-[16rem] sm:min-h-[24rem]' : 'aspect-[16/10] min-h-[15rem]'
-            }`}
-            tabIndex={-1}
-            aria-hidden="true"
-          >
-            <Image
-              src={image!.url}
-              alt={image!.alt}
-              fill
-              priority={priority}
-              sizes={lead ? '(min-width: 1280px) 850px, (min-width: 1024px) 68vw, 100vw' : '(min-width: 1024px) 60vw, 100vw'}
-              className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.012]"
-            />
-          </Link>
-        ) : null}
       </article>
     </InstrumentedStory>
-  )
-}
-
-function StoryLink({ href, children }: { href: string; children: string }) {
-  return (
-    <Link
-      href={href}
-      className="transition-colors duration-fast ease-out-quint hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-    >
-      {children}
-    </Link>
   )
 }

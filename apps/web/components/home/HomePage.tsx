@@ -98,8 +98,16 @@ export function homeMetadata(locale: Locale): Metadata {
 }
 
 export async function HomePage({ locale }: { locale: Locale }) {
+  // A single transient source flake must never blank the front page; retry
+  // once before falling back to the service notice.
+  const loadEdition = async () => {
+    const first = await getHomepage().catch(() => null)
+    if (first) return first
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    return getHomepage().catch(() => null)
+  }
   const [homepage, activePoll] = await Promise.all([
-    getHomepage().catch(() => null),
+    loadEdition(),
     getActivePoll().catch(() => null),
   ])
 
