@@ -82,7 +82,15 @@ export async function PublicHubPage({
     buildStoryEngagementIndex(120),
   ])
   const ranked = rankStories(items, (story, index) => signalsForStory(story, engagement, index))
-  const stories = ranked.slice(0, 12)
+  const rankedTop = ranked.slice(0, 12)
+  let stories: StoryCardData[] = rankedTop
+  // Sparse specialty desks (a tag with two stories, a new desk) backfill from
+  // the newest pool so the page never renders one lonely item above a void.
+  if (rankedTop.length < 6) {
+    const fill = await getStories({ locale, perPage: 12 }).catch(() => ({ items: [] as StoryCardData[] }))
+    const seen = new Set(stories.map((story) => story.id))
+    stories = [...rankedTop, ...fill.items.filter((story) => !seen.has(story.id))].slice(0, 9)
+  }
   const lang = locale === 'en' ? 'en' : 'ne'
 
   return (

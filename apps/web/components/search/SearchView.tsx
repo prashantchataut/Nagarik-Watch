@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { localePrefix } from '@/lib/i18n/locales'
+import { localePrefix, localizeHref } from '@/lib/i18n/locales'
 import {
   autocomplete,
   buildIndex,
@@ -229,12 +229,37 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
             type="button"
             onClick={clear}
             aria-label={dict.searchClear}
-            className="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-mute transition-colors duration-fast ease-out-quint hover:bg-brand-tint hover:text-brand-strong"
+            className="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center text-mute transition-colors duration-fast ease-out-quint hover:text-brand-strong"
           >
             <ClearIcon />
           </button>
         )}
       </div>
+
+      {(suggestions.length > 0 || showRecents) && !hasQuery ? (
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          {suggestions.map((suggestion) => (
+            <button
+              key={suggestion}
+              type="button"
+              onClick={() => setQuery(suggestion)}
+              className="inline-flex min-h-9 items-center border border-rule bg-surface-raised px-3 text-caption font-semibold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+            >
+              {suggestion}
+            </button>
+          ))}
+          {recents.map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setQuery(r)}
+              className="inline-flex min-h-9 items-center gap-1.5 border border-dashed border-rule px-3 text-caption font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+            >
+              <span aria-hidden="true" className="text-mute">↺</span> {r}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {hasQuery && results.length > 0 && (
         <p className="mt-3 text-meta text-ink-soft" lang={locale === 'en' ? 'en' : 'ne'}>
@@ -255,141 +280,180 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
         </p>
       )}
 
-      {suggestions.length > 0 && (
-        <section className="mt-6" aria-label={locale === 'en' ? 'Suggestions' : 'सुझावहरू'}>
-          <h2 className="text-meta font-semibold text-ink-soft" lang={lang}>
-            {locale === 'en' ? 'Suggestions' : 'सुझाव'}
-          </h2>
-          <ul className="mt-2 divide-y divide-rule border-y border-rule">
-            {suggestions.map((suggestion) => (
-              <li key={suggestion}>
-                <button
-                  type="button"
-                  onClick={() => setQuery(suggestion)}
-                  className="block w-full py-3 text-left text-body font-semibold text-ink-soft transition hover:text-brand-strong"
-                >
-                  {suggestion}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Results */}
-      {hasQuery && results.length > 0 && (
-        <ul
-          ref={listRef}
-          className="mt-4 divide-y divide-rule border-y border-rule"
-          role="listbox"
-          aria-label={dict.searchHeading}
-        >
-          {results.map((r, i) => {
-            const title = titleFor(r)
-            const segs = highlightSegments(title, debounced)
-            const isActive = i === active
-            const deck = locale === 'en' && r.deckEn ? r.deckEn : r.deckNe
-            const thumbIsDataUrl = r.heroImage?.url.startsWith('data:') ?? false
-            return (
-              <li key={`${r.id}-${r.slug}`} role="option" aria-selected={isActive}>
-                <Link
-                  href={hrefFor(r)}
-                  className={`flex gap-3 px-0 py-4 transition-colors duration-fast ease-out-quint ${
-                    isActive ? 'bg-brand-tint/55' : 'hover:bg-brand-tint/35'
-                  }`}
-                >
-                  <div className="relative mt-0.5 hidden aspect-[4/3] w-24 shrink-0 overflow-hidden bg-brand-tint sm:block">
-                    {r.heroImage ? (
-                      <Image
-                        src={r.heroImage.url}
-                        alt=""
-                        fill
-                        unoptimized={thumbIsDataUrl}
-                        sizes="96px"
-                        className="object-cover"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <span
-                        className="absolute inset-0 grid place-items-center text-caption font-bold text-mute"
-                        aria-hidden="true"
-                      >
-                        NW
-                      </span>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1 px-3 sm:px-0">
-                    <span className="text-caption font-semibold text-mute">{r.categoryLabel}</span>
-                    <span
-                      className="mt-1 block font-display text-h3 text-ink"
-                      lang={locale === 'en' && r.titleEn ? 'en' : 'ne'}
+      <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,17rem)] lg:items-start lg:gap-10">
+        <div className="min-w-0">
+          {/* Results */}
+          {hasQuery && results.length > 0 && (
+            <ul
+              ref={listRef}
+              className="grid gap-3"
+              role="listbox"
+              aria-label={dict.searchHeading}
+            >
+              {results.map((r, i) => {
+                const title = titleFor(r)
+                const segs = highlightSegments(title, debounced)
+                const isActive = i === active
+                const deck = locale === 'en' && r.deckEn ? r.deckEn : r.deckNe
+                const thumbIsDataUrl = r.heroImage?.url.startsWith('data:') ?? false
+                const showThumb = Boolean(r.heroImage) && !thumbIsDataUrl
+                return (
+                  <li key={`${r.id}-${r.slug}`} role="option" aria-selected={isActive}>
+                    <Link
+                      href={hrefFor(r)}
+                      className={`group flex gap-4 border px-3 py-3.5 transition-colors duration-fast ease-out-quint ${
+                        isActive
+                          ? 'border-brand bg-brand-tint/45'
+                          : 'border-rule bg-surface-raised hover:border-brand/60'
+                      }`}
                     >
-                      {segs.map((s, idx) =>
-                        s.match ? (
-                          <mark key={idx} className="bg-transparent font-bold text-brand-strong">
-                            {s.text}
-                          </mark>
-                        ) : (
-                          <span key={idx}>{s.text}</span>
-                        ),
-                      )}
-                    </span>
-                    {deck ? (
-                      <span
-                        className="mt-1 block line-clamp-2 text-body text-ink-soft"
-                        lang={locale === 'en' && r.deckEn ? 'en' : 'ne'}
-                      >
-                        {deck}
-                      </span>
-                    ) : null}
-                    {r.authors.length > 0 ? (
-                      <span className="mt-1.5 block text-meta text-ink-soft">
-                        {r.authors.map((a) => a.name).join(' · ')}
-                      </span>
-                    ) : null}
-                  </div>
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
-      )}
+                      <div className="relative hidden aspect-[3/2] w-24 shrink-0 overflow-hidden bg-surface-raised sm:block">
+                        {showThumb ? (
+                          <Image
+                            src={r.heroImage!.url}
+                            alt=""
+                            fill
+                            sizes="96px"
+                            className="object-cover"
+                            aria-hidden="true"
+                          />
+                        ) : null}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-caption font-bold text-brand-strong">{r.categoryLabel}</span>
+                        <span
+                          className="mt-1 block font-display text-body-lg font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong"
+                          lang={locale === 'en' && r.titleEn ? 'en' : 'ne'}
+                        >
+                          {segs.map((s, idx) =>
+                            s.match ? (
+                              <mark key={idx} className="bg-transparent font-black text-brand-strong">
+                                {s.text}
+                              </mark>
+                            ) : (
+                              <span key={idx}>{s.text}</span>
+                            ),
+                          )}
+                        </span>
+                        {deck ? (
+                          <span
+                            className="mt-1 block line-clamp-2 text-caption leading-relaxed text-ink-soft"
+                            lang={locale === 'en' && r.deckEn ? 'en' : 'ne'}
+                          >
+                            {deck}
+                          </span>
+                        ) : null}
+                        {r.authors.length > 0 ? (
+                          <span className="mt-1.5 block text-caption text-mute">
+                            {r.authors.map((a) => a.name).join(' · ')}
+                          </span>
+                        ) : null}
+                      </div>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
 
-      {/* Empty: query but no results */}
-      {hasQuery && results.length === 0 && (
-        <div className="mt-10 border-y border-rule bg-brand-tint/35 px-4 py-10" lang={lang}>
-          <p className="font-display text-h2 text-ink">{dict.searchNoResults}</p>
-          <p className="mt-2 max-w-body text-body text-ink-soft">{dict.searchNoResultsHint}</p>
+          {/* No results: message + desk floors */}
+          {hasQuery && results.length === 0 && (
+            <div lang={lang}>
+              <div className="border border-rule bg-surface-raised px-4 py-5">
+                <p className="font-display text-h3 font-extrabold text-ink">{dict.searchNoResults}</p>
+                <p className="mt-2 max-w-[55ch] text-body leading-relaxed text-ink-soft">{dict.searchNoResultsHint}</p>
+              </div>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {[
+                  { href: '/latest', ne: 'ताजा समाचार', en: 'Latest news' },
+                  { href: '/trending', ne: 'अहिले चर्चामा', en: 'Trending' },
+                  { href: '/most-read', ne: 'धेरै पढिएका', en: 'Most read' },
+                  { href: '/fact-check', ne: 'तथ्य-जाँच', en: 'Fact check' },
+                ].map((desk) => (
+                  <Link
+                    key={desk.href}
+                    href={localizeHref(locale, desk.href)}
+                    className="group flex min-h-14 items-center justify-between gap-3 border border-rule bg-surface-raised px-4 text-body font-bold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+                    lang={lang}
+                  >
+                    {locale === 'en' ? desk.en : desk.ne}
+                    <span aria-hidden="true" className="text-brand-strong">→</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty query */}
+          {!hasQuery && recents.length === 0 && suggestions.length === 0 && (
+            <div lang={lang}>
+              <div className="border border-rule bg-surface-raised px-4 py-5">
+                <p className="font-display text-h3 font-extrabold text-ink">{dict.searchEmptyQuery}</p>
+                <p className="mt-2 max-w-[55ch] text-body leading-relaxed text-ink-soft">{dict.searchEmptyHint}</p>
+              </div>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {[
+                  { href: '/latest', ne: 'ताजा समाचार', en: 'Latest news' },
+                  { href: '/columns', ne: 'स्तम्भ र विश्लेषण', en: 'Columns and analysis' },
+                  { href: '/patro', ne: 'नेपाली पात्रो', en: 'Nepali calendar' },
+                  { href: '/market', ne: 'बजार बोर्ड', en: 'Market board' },
+                ].map((desk) => (
+                  <Link
+                    key={desk.href}
+                    href={localizeHref(locale, desk.href)}
+                    className="group flex min-h-14 items-center justify-between gap-3 border border-rule bg-surface-raised px-4 text-body font-bold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
+                    lang={lang}
+                  >
+                    {locale === 'en' ? desk.en : desk.ne}
+                    <span aria-hidden="true" className="text-brand-strong">→</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
 
-      {showRecents && (
-        <section className="mt-8">
-          <h2 className="font-display text-h2 text-ink" lang={lang}>
-            {dict.searchRecent}
-          </h2>
-          <ul className="mt-3 divide-y divide-rule border-y border-rule">
-            {recents.map((r) => (
-              <li key={r}>
-                <button
-                  type="button"
-                  onClick={() => setQuery(r)}
-                  className="block w-full py-3 text-left text-body font-semibold text-ink-soft transition hover:text-brand-strong"
-                >
-                  {r}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {!hasQuery && recents.length === 0 && (
-        <div className="mt-10 border-y border-rule bg-brand-tint/35 px-4 py-10" lang={lang}>
-          <p className="font-display text-h2 text-ink">{dict.searchEmptyQuery}</p>
-          <p className="mt-2 max-w-body text-body text-ink-soft">{dict.searchEmptyHint}</p>
-        </div>
-      )}
+        {/* Rail */}
+        <aside className="hidden min-w-0 lg:block" aria-label={locale === 'en' ? 'Search help' : 'खोज सहायता'}>
+          <div className="sticky top-24 space-y-5">
+            <section className="border border-rule bg-surface-raised px-3.5 py-3.5">
+              <p className="font-display text-meta font-extrabold text-ink" lang={lang}>
+                {locale === 'en' ? 'Search tips' : 'खोज सुझाव'}
+              </p>
+              <span className="mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden="true" />
+              <ul className="mt-2.5 grid gap-1.5 text-caption leading-relaxed text-ink-soft" lang={lang}>
+                <li>· {locale === 'en' ? 'Try a reporter name or a topic' : 'पत्रकारको नाम वा विषय प्रयोग गर्नुहोस्'}</li>
+                <li>· {locale === 'en' ? 'Nepali and English both work' : 'नेपाली र अङ्ग्रेजी दुवै चल्छ'}</li>
+                <li>· {locale === 'en' ? 'Shorter queries match more stories' : 'छोटो शब्दले बढी समाचार मिल्छ'}</li>
+              </ul>
+            </section>
+            <section className="border border-rule bg-surface-raised px-3.5 py-3.5">
+              <p className="font-display text-meta font-extrabold text-ink" lang={lang}>
+                {locale === 'en' ? 'Popular desks' : 'लोकप्रिय डेस्क'}
+              </p>
+              <span className="mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden="true" />
+              <ul className="mt-2.5 grid gap-1.5">
+                {[
+                  { href: '/politics', ne: 'राजनीति', en: 'Politics' },
+                  { href: '/business', ne: 'बाजार', en: 'Business' },
+                  { href: '/sports', ne: 'खेलकुद', en: 'Sports' },
+                  { href: '/opinion', ne: 'विचार', en: 'Opinion' },
+                ].map((desk) => (
+                  <li key={desk.href}>
+                    <Link
+                      href={localizeHref(locale, desk.href)}
+                      className="text-caption font-bold text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+                      lang={lang}
+                    >
+                      {locale === 'en' ? desk.en : desk.ne}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+        </aside>
+      </div>
     </div>
   )
 }

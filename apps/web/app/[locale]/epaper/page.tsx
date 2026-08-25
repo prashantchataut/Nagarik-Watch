@@ -43,30 +43,66 @@ export default async function EpaperPage({ params }: { params: Promise<{ locale:
       }
     >
       {!enabled || editions.length === 0 ? (
-        <div className="border-y border-rule py-10" role="status" lang={en ? 'en' : 'ne'}>
-          <p className="font-display text-h2 font-bold text-ink">
-            {en ? 'E-paper is not yet available' : 'ई-पेपर अहिले उपलब्ध छैन'}
-          </p>
-          <p className="mt-3 max-w-body text-body text-ink-soft">
-            {en
-              ? 'The digital replica has not been published yet. Meanwhile, read the latest stories or browse the newsletter archive.'
-              : 'डिजिटल प्रतिलिपि अझै प्रकाशित भएको छैन। यसबीच ताजा समाचार पढ्नुहोस् वा न्युजलेटर अभिलेख हेर्नुहोस्।'}
-          </p>
-          <div className="mt-6 flex flex-wrap gap-4">
-            <Link
-              href={localizeHref(locale, '/latest')}
-              className="text-meta font-bold text-brand-strong"
+        <>
+          <div className="mt-2 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,19rem)] lg:items-start lg:gap-8">
+            <div
+              className="relative grid min-h-[16rem] place-items-center overflow-hidden border border-rule bg-surface-raised px-6 py-10 text-center"
+              role="status"
+              lang={en ? 'en' : 'ne'}
+              aria-label={en ? 'E-paper preview placeholder' : 'ई-पेपर पूर्वावलोकन'}
             >
-              {en ? 'Latest news' : 'ताजा समाचार'}
-            </Link>
-            <Link
-              href={localizeHref(locale, '/newsletter/archive')}
-              className="text-meta font-bold text-brand-strong"
-            >
-              {en ? 'Newsletter archive' : 'न्युजलेटर अभिलेख'}
-            </Link>
+              <div className="min-w-0">
+                <div className="mx-auto grid h-14 w-11 place-items-center border border-rule bg-surface" aria-hidden="true">
+                  <span className="grid grid-cols-2 gap-0.5">
+                    {[0, 1, 2, 3].map((dot) => (
+                      <span key={dot} className="block h-2.5 w-2.5 bg-brand-tint" />
+                    ))}
+                  </span>
+                </div>
+                <p className="mt-4 font-display text-h3 font-extrabold text-ink">
+                  {en ? 'E-paper is in preparation' : 'ई-पेपर तयारीमा छ'}
+                </p>
+                <p className="mx-auto mt-2 max-w-[46ch] text-body leading-relaxed text-ink-soft">
+                  {en
+                    ? 'The page-for-page digital replica launches with the first print edition. Until then, every story is free to read on the site.'
+                    : 'पहिलो छापिएको संस्करणसहित पृष्ठ-दर-पृष्ठ डिजिटल प्रतिलिपि सुरु हुन्छ। त्यसअघि हरेक समाचार साइटमा निःशुल्क पढ्न सकिन्छ।'}
+                </p>
+              </div>
+            </div>
+
+            <aside className="min-w-0 space-y-5">
+              <section className="border border-rule bg-surface-raised px-3.5 py-3.5">
+                <p className="font-display text-meta font-extrabold text-ink" lang={en ? 'en' : 'ne'}>
+                  {en ? 'What the e-paper includes' : 'ई-पेपरमा के हुन्छ'}
+                </p>
+                <span className="mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden="true" />
+                <ul className="mt-2.5 grid gap-1.5 text-caption leading-relaxed text-ink-soft" lang={en ? 'en' : 'ne'}>
+                  <li>· {en ? 'Page-for-page replica of the print edition' : 'छापा संस्करणको पृष्ठ-दर-पृष्ठ प्रतिलिपि'}</li>
+                  <li>· {en ? 'Seven-day archive of past editions' : 'पछिल्ला सात दिनका संस्करण संग्रह'}</li>
+                  <li>· {en ? 'Downloadable pages for offline reading' : 'अफलाइन पढाइका लागि डाउनलोड'}</li>
+                </ul>
+              </section>
+              <section className="border border-rule bg-surface-raised px-3.5 py-3.5">
+                <p className="font-display text-meta font-extrabold text-ink" lang={en ? 'en' : 'ne'}>
+                  {en ? 'Read meanwhile' : 'यसैबीच पढ्नुहोस्'}
+                </p>
+                <span className="mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden="true" />
+                <ul className="mt-2.5 grid gap-1.5">
+                  <li>
+                    <Link href={localizeHref(locale, '/latest')} className="text-caption font-bold text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong" lang={en ? 'en' : 'ne'}>
+                      {en ? 'Latest news →' : 'ताजा समाचार →'}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href={localizeHref(locale, '/newsletter/archive')} className="text-caption font-bold text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong" lang={en ? 'en' : 'ne'}>
+                      {en ? 'Newsletter archive →' : 'न्युजलेटर अभिलेख →'}
+                    </Link>
+                  </li>
+                </ul>
+              </section>
+            </aside>
           </div>
-        </div>
+        </>
       ) : (
         <section aria-labelledby="editions-heading">
           <h2 id="editions-heading" className="font-display text-h2 font-extrabold text-ink">
