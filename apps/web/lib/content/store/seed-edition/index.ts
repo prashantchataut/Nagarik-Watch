@@ -15,6 +15,7 @@ import { editionPhotoStory } from './photo-story'
 import { editionVideo } from './video'
 import { editionDiaspora } from './diaspora'
 import { editionService } from './service'
+import { editionAugust } from './august'
 
 /** July 2026 original edition: 5 full stories × 15 categories. */
 export function buildEditionArticles(): StoredArticle[] {
@@ -35,5 +36,6 @@ export function buildEditionArticles(): StoredArticle[] {
     ...editionVideo(),
     ...editionDiaspora(),
     ...editionService(),
+    ...editionAugust(),
   ]
 }
