@@ -136,35 +136,37 @@ export function UtilityDirectory({ locale }: { locale: Locale }) {
   const en = locale === 'en'
   return (
     <div className="mt-7">
-      <p className="max-w-[68ch] border-y border-rule py-3 text-meta leading-relaxed text-ink-soft">
+      <p className="max-w-[68ch] text-meta leading-relaxed text-ink-soft">
         {en
           ? 'Most tools run locally in your browser. Live rates and market references show their source and freshness when data is available.'
           : 'धेरै उपकरण ब्राउजरमै चल्छन्। लाइभ दर र बजार सन्दर्भ उपलब्ध हुँदा स्रोत र अद्यावधिक समय स्पष्ट देखाइन्छ।'}
       </p>
 
-      <ol className="mt-5 grid border-t border-rule lg:grid-cols-2 lg:gap-x-8">
+      <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {UTILITY_LINKS.map((item, index) => (
-          <li key={item.path} className="border-b border-rule">
+          <li key={item.path} className="min-w-0">
             <Link
               href={localizeHref(locale, item.path)}
-              className="group grid min-h-24 grid-cols-[2rem_minmax(0,1fr)_auto] gap-3 py-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              className="group flex h-full min-h-[8.5rem] flex-col justify-between gap-3 border border-rule bg-surface-raised px-4 py-4 transition-colors duration-fast ease-out-quint hover:border-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
-              <span className="pt-1 font-sans text-caption font-bold tabular-nums text-mute" aria-hidden="true">
-                {String(index + 1).padStart(2, '0')}
-              </span>
               <span className="min-w-0">
-                <strong className="block font-display text-body-lg font-extrabold leading-tight text-ink group-hover:text-brand-strong sm:text-h3">
-                  {en ? item.en : item.ne}
-                </strong>
-                <span className="mt-1 block text-meta leading-relaxed text-ink-soft">
+                <span className="flex items-center gap-2">
+                  <span className="font-sans text-caption font-bold tabular-nums text-brand-strong" aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <strong className="block font-display text-body-lg font-extrabold leading-tight text-ink group-hover:text-brand-strong">
+                    {en ? item.en : item.ne}
+                  </strong>
+                </span>
+                <span className="mt-1.5 block text-caption leading-relaxed text-ink-soft">
                   {en ? item.noteEn : item.noteNe}
                 </span>
               </span>
-              <span className="pt-1 text-body font-black text-brand-strong" aria-hidden="true">→</span>
+              <span className="text-body font-black text-brand-strong" aria-hidden="true">→</span>
             </Link>
           </li>
         ))}
-      </ol>
+      </ul>
     </div>
   )
 }

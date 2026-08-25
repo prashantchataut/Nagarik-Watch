@@ -22,5 +22,7 @@ export async function generateMetadata({
 
 export default async function LiveScoresPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale: Locale = asLocale((await params).locale)
-  return <SportsScoreboard locale={locale} showStories={false} />
+  // The sports news grid is the page's content floor: provider feeds come and
+  // go, the newsroom reporting does not.
+  return <SportsScoreboard locale={locale} showStories />
 }

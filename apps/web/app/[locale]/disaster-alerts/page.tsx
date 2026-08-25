@@ -133,6 +133,40 @@ export default async function DisasterAlertsPage({
           </div>
         )}
       </section>
+
+      {/* Always-useful furniture: emergency contacts stay on this page in every state. */}
+      <section className="mt-9" aria-labelledby="emergency-contacts-title">
+        <div className="flex items-baseline justify-between gap-3 border-b border-rule pb-2.5">
+          <h2 id="emergency-contacts-title" className="font-display text-h3 font-extrabold text-ink" lang={en ? 'en' : 'ne'}>
+            {en ? 'Emergency contacts' : 'आपत्कालीन सम्पर्क'}
+          </h2>
+          <span className="text-caption text-mute" lang={en ? 'en' : 'ne'}>
+            {en ? 'Nepal, toll-free unless noted' : 'नेपाल, शुल्करहित'}
+          </span>
+        </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { ne: 'प्रहरी सहायता', en: 'Police assistance', num: '100' },
+            { ne: 'आगो र उद्धार', en: 'Fire and rescue', num: '101' },
+            { ne: 'एम्बुलेन्स', en: 'Ambulance', num: '102' },
+            { ne: 'राष्ट्रिय आपत्कालीन', en: 'National emergency', num: '1180' },
+          ].map((contact) => (
+            <div key={contact.num} className="border border-rule bg-surface-raised px-4 py-4">
+              <p className="text-caption font-semibold text-ink-soft" lang={en ? 'en' : 'ne'}>
+                {en ? contact.en : contact.ne}
+              </p>
+              <p className="mt-1 font-display text-[1.9rem] font-black tabular-nums leading-none text-brand-strong" lang="en">
+                {contact.num}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-caption leading-relaxed text-mute" lang={en ? 'en' : 'ne'}>
+          {en
+            ? 'In a life-threatening emergency call 100 first. District emergency operations centres publish local numbers.'
+            : 'ज्यान जोखिममा पर्ने आपत्कालीन अवस्थामा पहिले १०० फोन गर्नुहोस्। जिल्ला आपत् व्यवस्थापन केन्द्रले स्थानीय नम्बर सार्वजनिक गर्छन्।'}
+        </p>
+      </section>
     </LiveDeskShell>
   )
 }
