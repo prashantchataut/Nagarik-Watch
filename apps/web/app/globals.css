@@ -2767,8 +2767,12 @@ html.nw-dialog-open {
       gap: 2rem;
     }
     .utility-sidebar {
-      position: sticky;
-      top: 5rem;
+    position: sticky;
+    top: 5rem;
+    max-height: calc(100dvh - 6rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
     }
     .utility-mobile-nav {
       display: none;
