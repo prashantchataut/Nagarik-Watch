@@ -220,12 +220,22 @@ export default async function ArticlePage({
             </p>
           ) : null}
           <div className="article-trust-ledger mt-5">
-            <Byline
-              authors={article.authors}
-              locale={readingLocale}
-              publishedAt={article.publishedAt}
-              source={article.source}
-            />
+            <div className="flex items-center gap-3">
+              <span
+                className="flex h-11 w-11 shrink-0 items-center justify-center bg-brand font-display text-body font-extrabold text-paper"
+                aria-hidden="true"
+              >
+                {article.authors[0]
+                  ? Array.from(article.authors[0]!.name.trim()).slice(0, 2).join('') || 'ना'
+                  : 'ना'}
+              </span>
+              <Byline
+                authors={article.authors}
+                locale={readingLocale}
+                publishedAt={article.publishedAt}
+                source={article.source}
+              />
+            </div>
             <dl className="article-trust-ledger__facts mt-3">
               <div>
                 <dt className="sr-only">{readingEnglish ? 'Reading time' : 'पढाइ समय'}</dt>
@@ -267,7 +277,7 @@ export default async function ArticlePage({
         </header>
 
         {article.heroImage ? (
-          <figure className="article-hero mx-auto mt-6 max-w-[76rem] sm:mt-8">
+          <figure className="article-hero mx-auto mt-6 max-w-[72rem] sm:mt-8">
             <div className="relative aspect-[16/9] overflow-hidden bg-surface-raised">
               <Image
                 src={article.heroImage.url}
