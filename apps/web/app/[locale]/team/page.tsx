@@ -29,7 +29,7 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
   const contributors = authors.filter((a) => a.role === 'columnist' || a.role === 'contributor')
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
+    <div className="team-page mx-auto max-w-page px-4 py-8 sm:py-12">
       <HubIndexHeader
         title={en ? 'Our team' : 'हाम्रो टोली'}
         lead={

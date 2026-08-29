@@ -107,7 +107,7 @@ export function DateConverterTool({ locale }: { locale: Locale }) {
   const bs = useMemo(() => {
     if (!ad) return ''
     try {
-      const value = new Date(`${ad}T00:00:00`)
+      const value = new Date(`${ad}T12:00:00Z`)
       if (Number.isNaN(value.getTime())) return ''
       return formatBsFull(adToBs(value), locale)
     } catch {

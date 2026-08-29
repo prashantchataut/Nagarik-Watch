@@ -8,7 +8,7 @@ import { mainSiteHref } from '@/lib/calendar-host'
 import { PatroShell } from '@/components/utilities/PatroShell'
 import { PatroDesk } from '@/components/utilities/PatroDesk'
 import { getPublishedCalendarSchedule } from '@/lib/calendar-schedule'
-import { normalizeEditionHeroUrl } from '@/lib/content/store/seed-edition/_helpers'
+import { normalizeLegacyHeroUrl } from '@/lib/content/media-compat'
 
 export const revalidate = 300
 
@@ -48,7 +48,7 @@ export default async function PatroPage({ params }: { params: Promise<{ locale: 
     // then drop synthetic media so broken thumb boxes never render.
     const normalized =
       rawThumb && !rawThumb.startsWith('data:')
-        ? normalizeEditionHeroUrl(rawThumb, story.slug) ?? rawThumb
+        ? normalizeLegacyHeroUrl(rawThumb, story.slug) ?? rawThumb
         : null
     const thumb = normalized && !normalized.startsWith('data:') ? normalized : null
     const path = `/${story.category.slug}/${story.slug}`

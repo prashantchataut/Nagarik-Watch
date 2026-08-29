@@ -96,9 +96,9 @@ export function ReaderAuthShell({
   const lang = ne ? 'ne' : 'en'
 
   return (
-    <main className="reader-auth-shell min-h-dvh bg-brand-tint px-3 py-4 sm:px-5 sm:py-7" lang={lang}>
-      <div className="mx-auto grid min-h-[calc(100dvh-2rem)] w-full max-w-6xl overflow-hidden rounded-[1rem] border border-rule bg-surface sm:min-h-[calc(100dvh-3.5rem)] lg:grid-cols-[minmax(0,0.94fr)_minmax(26rem,1.06fr)]">
-        <aside className="relative hidden min-h-[42rem] overflow-hidden border-r border-rule bg-brand-tint p-8 lg:flex lg:flex-col">
+    <main className="reader-auth-shell min-h-dvh bg-surface px-3 py-4 sm:px-5 sm:py-7" lang={lang}>
+      <div className="mx-auto grid min-h-[calc(100dvh-2rem)] w-full max-w-6xl overflow-hidden border-y border-rule bg-surface sm:min-h-[calc(100dvh-3.5rem)] sm:border lg:grid-cols-[minmax(0,0.94fr)_minmax(26rem,1.06fr)]">
+        <aside className="relative hidden min-h-[42rem] overflow-hidden border-r border-rule bg-surface-raised p-8 lg:flex lg:flex-col">
           <Link
             href={localizeHref(locale, '/')}
             className="relative z-10 w-fit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"

@@ -48,21 +48,21 @@ function PortalFeature({ story, locale }: { story: StoryCardData; locale: Locale
               src={image!.url}
               alt={image!.alt}
               fill
-              sizes="(min-width: 1024px) 30vw, 100vw"
-              className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.015]"
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.012]"
             />
           </Link>
         ) : null}
-        <div className="pt-2.5">
+        <div className="pt-3">
           <CategoryLabel category={story.category} locale={locale} as="span" />
           <h2
-            className="mt-1.5 text-pretty font-display text-[1.3rem] font-extrabold leading-[1.28] text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong sm:text-[1.45rem]"
+            className="mt-1.5 text-pretty font-display text-[clamp(1.45rem,2.5vw,2rem)] font-extrabold leading-[1.2] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong"
             lang={lang}
           >
             <Link href={href}>{titleFor(story, locale)}</Link>
           </h2>
           {deck ? (
-            <p className="mt-1.5 line-clamp-2 text-body leading-relaxed text-ink-soft" lang={lang}>
+            <p className="mt-2 line-clamp-2 text-body leading-[1.65] text-ink-soft" lang={lang}>
               {deck}
             </p>
           ) : null}
@@ -75,61 +75,25 @@ function PortalFeature({ story, locale }: { story: StoryCardData; locale: Locale
 
 function PortalPick({ story, locale }: { story: StoryCardData; locale: Locale }) {
   const href = hrefFor(story, locale)
-  const image = story.heroImage
-  const showPhoto = Boolean(image?.url) && !image!.url.startsWith('data:')
   const deck = deckFor(story, locale)
   const lang = langFor(story, locale)
 
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-      {showPhoto ? (
-        <article className="group grid min-w-0 grid-cols-[5.5rem_minmax(0,1fr)] gap-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
-          <Link
-            href={href}
-            className="relative aspect-[3/2] overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-            tabIndex={-1}
-            aria-hidden="true"
-          >
-            <Image
-              src={image!.url}
-              alt={image!.alt}
-              fill
-              sizes="112px"
-              className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.02]"
-            />
-          </Link>
-
-          <div className="min-w-0">
-            <CategoryLabel category={story.category} locale={locale} as="span" />
-            <h3
-              className="mt-1 text-pretty font-display text-body font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong sm:text-body-lg"
-              lang={lang}
-            >
-              <Link href={href}>{titleFor(story, locale)}</Link>
-            </h3>
-            {deck ? (
-              <p className="mt-1 line-clamp-2 text-caption leading-relaxed text-ink-soft" lang={lang}>
-                {deck}
-              </p>
-            ) : null}
-          </div>
-        </article>
-      ) : (
-        <article className="group min-w-0">
-          <CategoryLabel category={story.category} locale={locale} as="span" />
-          <h3
-            className="mt-1 text-pretty font-display text-body font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong sm:text-body-lg"
-            lang={lang}
-          >
-            <Link href={href}>{titleFor(story, locale)}</Link>
-          </h3>
-          {deck ? (
-            <p className="mt-1 line-clamp-2 text-caption leading-relaxed text-ink-soft" lang={lang}>
-              {deck}
-            </p>
-          ) : null}
-        </article>
-      )}
+      <article className="group min-w-0 border-t border-rule pt-4 sm:border-t-0 sm:border-l sm:pl-5 sm:first:border-l-0 sm:first:pl-0">
+        <CategoryLabel category={story.category} locale={locale} as="span" />
+        <h3
+          className="mt-1.5 text-pretty font-display text-body-lg font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong"
+          lang={lang}
+        >
+          <Link href={href}>{titleFor(story, locale)}</Link>
+        </h3>
+        {deck ? (
+          <p className="mt-1.5 line-clamp-2 text-meta leading-relaxed text-ink-soft" lang={lang}>
+            {deck}
+          </p>
+        ) : null}
+      </article>
     </InstrumentedStory>
   )
 }
@@ -143,31 +107,19 @@ export function PortalFeed({ stories, locale }: PortalFeedProps) {
   const picks = unique.slice(3, 5)
 
   return (
-    <section aria-label={locale === 'en' ? 'Top stories' : 'मुख्य समाचार'}>
-      {/* Broadsheet opening: dominant lead with support stories packed beside it. */}
-      <div
-        className={`grid gap-5 pt-2 sm:pt-3 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:gap-7 ${
-          supporting.length > 0 ? '' : 'lg:grid-cols-1'
-        }`}
-      >
-        <div className="min-w-0 border-b border-rule pb-4 lg:border-b-0 lg:pb-0">
-          <MegaStoryBlock story={lead} locale={locale} priority size="lead" />
+    <section aria-label={locale === 'en' ? 'Top stories' : 'मुख्य समाचार'} className="home-opening">
+      <MegaStoryBlock story={lead} locale={locale} priority size="lead" />
+
+      {supporting.length > 0 ? (
+        <div className={`mt-7 grid gap-6 border-b border-rule pb-7 sm:mt-9 sm:pb-9 ${supporting.length > 1 ? 'md:grid-cols-2 md:gap-7' : ''}`}>
+          {supporting.map((story) => (
+            <PortalFeature key={story.id} story={story} locale={locale} />
+          ))}
         </div>
-        {supporting.length > 0 ? (
-          <div className="min-w-0 space-y-6 border-t border-rule pt-4 lg:space-y-7 lg:border-t-0 lg:pt-0">
-            {supporting.map((story) => (
-              <PortalFeature key={story.id} story={story} locale={locale} />
-            ))}
-          </div>
-        ) : null}
-      </div>
+      ) : null}
 
       {picks.length > 0 ? (
-        <div
-          className={`mt-6 grid gap-4 bg-surface-raised px-3 py-4 sm:px-4 lg:mt-7 ${
-            picks.length > 1 ? 'sm:grid-cols-2 sm:gap-5' : ''
-          }`}
-        >
+        <div className={`mt-5 grid gap-4 sm:mt-6 ${picks.length > 1 ? 'sm:grid-cols-2 sm:gap-0' : ''}`}>
           {picks.map((story) => (
             <PortalPick key={story.id} story={story} locale={locale} />
           ))}

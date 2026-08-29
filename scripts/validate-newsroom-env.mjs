@@ -39,7 +39,7 @@ function env(name) {
   return process.env[name]?.trim() ?? ''
 }
 
-const contentSource = env('CONTENT_SOURCE') || env('PAYLOAD_CONTENT_SOURCE') || 'json'
+const contentSource = env('CONTENT_SOURCE') || env('PAYLOAD_CONTENT_SOURCE') || 'payload'
 const payloadUrl = env('PAYLOAD_PUBLIC_SERVER_URL') || env('PAYLOAD_ADMIN_URL')
 
 if (!env('DATABASE_URL')) {

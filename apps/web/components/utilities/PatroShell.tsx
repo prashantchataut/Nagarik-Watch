@@ -149,7 +149,6 @@ export function PatroShell({
 
   return (
     <div className="patro-shell mx-auto max-w-page px-3 pb-10 pt-3 sm:px-4 sm:pb-12 sm:pt-4">
-      <PatroToolNav locale={locale} pathname={pathname} />
       {children}
     </div>
   )

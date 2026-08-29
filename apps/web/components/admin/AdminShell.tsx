@@ -168,7 +168,7 @@ const NAV_GROUPS: {
     ]),
     items: [
       { label: 'लाइभ अप्स', href: '/admin/live', icon: 'signal' },
-      { label: 'म्यानुअल विजेट', href: '/admin/live-widgets', icon: 'widget' },
+      { label: 'लाइभ डेटा', href: '/admin/live-widgets', icon: 'widget' },
       { label: 'एल्गोरिदम सारांश', href: '/admin/algorithms', icon: 'algorithm' },
       { label: 'प्रयोग', href: '/admin/experiments', icon: 'algorithm' },
       { label: 'सेटिङ', href: '/admin/settings', icon: 'settings', roles: SETTINGS_MANAGER_ROLES },

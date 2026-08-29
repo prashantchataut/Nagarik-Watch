@@ -1,75 +1,58 @@
 # ADR-014: Canonical CMS and admin boundary
 
 - **Date:** 2026-07-06
-- **Status:** Accepted (amended 2026-08-02 — soft vs hard content path)
+- **Status:** Accepted (amended 2026-08-28 — Payload default, no runtime news fixtures)
 
 ## Decision
 
-**Hard launch / live** requires Payload CMS (`apps/admin`) as the sole source of truth for
-production editorial content. It is deployed as a separate application. `apps/web` consumes
-public content through Payload's server-side REST API using `PAYLOAD_PUBLIC_SERVER_URL`.
+Payload CMS (`apps/admin`) is the canonical source of truth for editorial content in every normal deployment mode. The public app consumes content through Payload's server-side REST API using `PAYLOAD_PUBLIC_SERVER_URL` and a least-privilege service token where required.
 
-**Soft launch / preview** may use the web desk store (`CONTENT_SOURCE=json` or unset) backed
-by Postgres `nw_articles` (or local JSON in development). Soft launch gates require a working
-desk publish path, corpus, auth/email, and cron — not Payload. Flipping
-`NEXT_PUBLIC_LAUNCH_STATUS=live` still requires `CONTENT_SOURCE=payload`.
+`CONTENT_SOURCE` defaults to `payload`. `CONTENT_SOURCE=json` is an explicit local/emergency compatibility mode only; it is never selected implicitly when Payload is missing. A Payload-declared deployment that lacks its CMS URL fails closed instead of silently serving a different article store.
 
-The custom admin in `apps/web/app/admin` is an operations surface for auth/users, launch
-readiness, comments, submissions, contact, live data, live blogs, newsletters, polls, ads,
-audit records, settings, and diagnostics. When Payload is canonical, article, category,
-tag, author, and media routes redirect to Payload and web shadow-store mutations are
-rejected.
+The custom admin in `apps/web/app/admin` is the operations surface for auth/users, launch readiness, comments, submissions, contact, live data, live blogs, newsletters, polls, ads, audit records, settings and diagnostics. It is not a second production article CMS. When Payload is canonical, article/category/tag/author/media links route to Payload and shadow-store mutations are rejected.
 
-The dedicated journalist desk remains in `apps/web`. Under Payload it creates drafts through
-a least-privilege service-account API key. The Better Auth journalist email must match an
-active Payload Authors document.
+The journalist desk remains in `apps/web`. In Payload mode it creates and updates drafts through the CMS bridge; the Better Auth journalist identity must match an active Payload author.
 
-Live / hard launch requires:
+Source-code article fixtures are not shipped. Payload's development seed may create structural categories and shared desk identities, but it never creates or publishes articles. Volatile tags/topics are created in the CMS.
 
-- `CONTENT_SOURCE=payload`
+## Required production topology
+
+- `CONTENT_SOURCE=payload` or omitted (Payload is the default)
 - `PAYLOAD_PUBLIC_SERVER_URL=<cms origin>`
-- `DATABASE_URL=<postgres url>`
+- `PAYLOAD_API_TOKEN=<least-privilege bridge token>` where journalist/admin bridge actions are enabled
+- `DATABASE_URL=<postgres url>` for auth and operational data
 - `PAYLOAD_DB_PUSH=false`
-- `PAYLOAD_API_TOKEN=<least-privilege bridge key>` when the journalist desk is enabled
+- `REVALIDATE_SECRET=<signed reader-cache webhook secret>`
 
-Soft / preview may run with:
-
-- `CONTENT_SOURCE` unset or `json`
-- `DATABASE_URL` (Postgres) so desk + engagement share one store
-- `NEXT_PUBLIC_LAUNCH_STATUS=preview`
+`CONTENT_SOURCE=json` is reserved for an intentional local/emergency recovery procedure and must never be used as an automatic fallback.
 
 ## Why
 
-Earlier revisions had three incompatible assumptions:
+Earlier revisions had multiple incompatible assumptions: Payload existed as a separate deployment, the web app retained its own article CRUD/store, and several build/dev paths could silently choose the shadow store. That topology allowed an editor to see a successful write that the reader site never consumed. Hardcoded edition fixtures made the split even harder to detect because an apparently populated site could be running without the CMS at all.
 
-1. Payload was a separate deployment.
-2. The web app attempted to import `@payload-config` and use the Local API despite not
-   depending on Payload or sharing its build context.
-3. The web admin could write a JSON/operational article store that the public Payload
-   reader never consumed.
-
-That topology could produce successful-looking writes that never appeared publicly, and
-the Local API import could not resolve in the web deployment. A real newsroom needs one
-content authority and an explicit network boundary.
+A real newsroom needs one editorial authority, an explicit network boundary, and failure states that remain visible.
 
 ## Consequences
 
-- Payload owns article bodies, taxonomy, authors, media, revisions, workflow, and publish
-  state.
-- The public web app depends on Payload REST availability; failures surface as errors rather
-  than falling back to invented or stale production content.
-- CMS media URLs are resolved against the Payload origin, while object-storage hosts are
-  explicitly admitted by the web image configuration.
-- The local JSON / Postgres desk store is the **soft-launch** content path; live mode
-  rejects non-Payload `CONTENT_SOURCE`.
-- Better Auth and operational `nw_*` data remain web concerns, backed by Postgres in
-  production.
-- Shared `@nagarikwatch/db` types remain the rendering contract, but mapping at the REST
-  boundary is explicit and testable.
+- Payload owns article bodies, taxonomy, authors, media, revisions, workflow and publish state.
+- The public app does not invent or auto-seed journalism when Payload is unavailable.
+- CMS media URLs are resolved against the Payload/storage origin.
+- The JSON/Postgres article store is compatibility debt, not a peer CMS. Its remaining routes/files may be deleted after the cutover checklist proves no deployment depends on `CONTENT_SOURCE=json`.
+- Better Auth and `nw_*` operational data remain web concerns.
+- Shared `@nagarikwatch/db` types remain the rendering contract, with explicit mapping at the REST boundary.
+
+## Cutover completion criteria
+
+1. Production and preview both report `contentMode=payload`.
+2. Editorial publishing, scheduling, unpublishing and media upload work in Payload.
+3. Journalist draft creation works through the Payload bridge if enabled.
+4. Reader revalidation fires after publish/update/delete.
+5. No deployment, workflow or operator runbook depends on `CONTENT_SOURCE=json`.
+6. Only then remove the shadow article CRUD/API/store files listed in the phase-2 deletion manifest.
 
 ## Follow-up
 
 - Add contract tests against a disposable Payload/Postgres environment.
-- Add signed on-demand revalidation hooks after Payload publish/update.
+- Keep signed on-demand revalidation covered by integration tests.
 - Replace lazy operational DDL with reviewed migrations.
-- Evaluate a private service URL for web-to-CMS reads to reduce public-hop latency.
+- Evaluate a private web-to-CMS service URL for lower latency.

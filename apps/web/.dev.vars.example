@@ -4,7 +4,7 @@ BETTER_AUTH_SECRET=37gxr9AM6GmF7uV1UGVVP-xc0m97qiVdmGhZb8I10oc
 REVALIDATE_SECRET=rV1zg80Gs3u2F0PzuwUlZ3h4f2JbAfLOCtnLI9sF2O0
 # Paste your Neon / Supabase connection string:
 # DATABASE_URL=postgresql://...
-CONTENT_SOURCE=json
+CONTENT_SOURCE=payload
 NEXT_PUBLIC_LAUNCH_STATUS=preview
 ENABLE_WEB_ADMIN_SCAFFOLD=true
 # After first deploy, set to your app origin:

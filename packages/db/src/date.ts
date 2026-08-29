@@ -1,47 +1,7 @@
-/**
- * Locale-aware date formatting using the `nepali-datetime` library for
- * accurate BS conversion (per-year month-length table, BS 2000-2099).
- * Verified anchor: 2026-06-19 AD === असार ५, २०८३ BS.
- */
 import NepaliDate from 'nepali-datetime'
 
-export function formatDate(iso: string, locale: 'ne' | 'en'): string {
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return ''
-  // Noon UTC avoids server (UTC) vs browser (NPT) calendar-day flips near midnight.
-  const stable = new Date(
-    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 12, 0, 0),
-  )
-  if (locale === 'en') {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ] as const
-    return `${stable.getUTCDate()} ${months[stable.getUTCMonth()]} ${stable.getUTCFullYear()}`
-  }
-  try {
-    const bs = new NepaliDate(stable)
-    const monthName = BS_MONTHS[bs.getMonth()] ?? ''
-    return `${toDevanagari(bs.getDate())} ${monthName} ${toDevanagari(bs.getYear())}`
-  } catch {
-    return `${stable.getUTCDate()}/${stable.getUTCMonth() + 1}/${stable.getUTCFullYear()}`
-  }
-}
-
-export function toDevanagari(value: number | string): string {
-  const map = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९']
-  return String(value).replace(/[0-9]/g, (d) => map[Number(d)]!)
-}
+export const BS_YEAR_MIN = 2000
+export const BS_YEAR_MAX = 2099
 
 export const BS_MONTHS = [
   'बैशाख',
@@ -57,6 +17,7 @@ export const BS_MONTHS = [
   'फागुन',
   'चैत',
 ] as const
+
 export const BS_MONTHS_EN = [
   'Baisakh',
   'Jestha',
@@ -74,25 +35,81 @@ export const BS_MONTHS_EN = [
 
 export type BsDate = { year: number; month: number; day: number }
 
-export function bsMonthLength(year: number, month: number): number {
+type CalendarDate = { year: number; month: number; day: number }
+
+function kathmanduCalendarDate(date: Date): CalendarDate {
+  if (Number.isNaN(date.getTime())) throw new RangeError('Invalid Gregorian date.')
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kathmandu',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date)
+  const year = Number(parts.find((part) => part.type === 'year')?.value)
+  const month = Number(parts.find((part) => part.type === 'month')?.value)
+  const day = Number(parts.find((part) => part.type === 'day')?.value)
+  if (!year || !month || !day) throw new RangeError('Could not resolve Kathmandu calendar date.')
+  return { year, month, day }
+}
+
+function stableAdDate({ year, month, day }: CalendarDate): Date {
+  return new Date(Date.UTC(year, month - 1, day, 12, 0, 0))
+}
+
+export function formatDate(iso: string, locale: 'ne' | 'en'): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  const calendar = kathmanduCalendarDate(date)
+  if (locale === 'en') {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const
+    return `${calendar.day} ${months[calendar.month - 1]} ${calendar.year}`
+  }
   try {
-    return NepaliDate.getDaysOfMonth(year, month - 1)
+    const bs = adToBs(stableAdDate(calendar))
+    return formatBsFull(bs, 'ne')
   } catch {
-    return 30
+    return `${calendar.day}/${calendar.month}/${calendar.year}`
   }
 }
 
-export function adToBs(date: Date): BsDate {
-  try {
-    const bs = new NepaliDate(date)
-    return { year: bs.getYear(), month: bs.getMonth() + 1, day: bs.getDate() }
-  } catch {
-    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() }
+export function toDevanagari(value: number | string): string {
+  const map = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९']
+  return String(value).replace(/[0-9]/g, (digit) => map[Number(digit)]!)
+}
+
+export function bsMonthLength(year: number, month: number): number {
+  if (!Number.isInteger(year) || year < BS_YEAR_MIN || year > BS_YEAR_MAX) {
+    throw new RangeError(`Bikram Sambat year must be ${BS_YEAR_MIN}-${BS_YEAR_MAX}.`)
   }
+  if (!Number.isInteger(month) || month < 1 || month > 12) {
+    throw new RangeError('Bikram Sambat month must be 1-12.')
+  }
+  const days = NepaliDate.getDaysOfMonth(year, month - 1)
+  if (!Number.isInteger(days) || days < 28 || days > 32) {
+    throw new RangeError('Calendar library returned an invalid Bikram Sambat month length.')
+  }
+  return days
+}
+
+export function adToBs(date: Date): BsDate {
+  if (Number.isNaN(date.getTime())) throw new RangeError('Invalid Gregorian date.')
+  const stable = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 12, 0, 0))
+  const bs = new NepaliDate(stable)
+  const value = { year: bs.getYear(), month: bs.getMonth() + 1, day: bs.getDate() }
+  if (value.year < BS_YEAR_MIN || value.year > BS_YEAR_MAX || value.month < 1 || value.month > 12) {
+    throw new RangeError(`Gregorian date falls outside supported Bikram Sambat range ${BS_YEAR_MIN}-${BS_YEAR_MAX}.`)
+  }
+  return value
+}
+
+export function todayBsInKathmandu(now = new Date()): BsDate {
+  return adToBs(stableAdDate(kathmanduCalendarDate(now)))
 }
 
 export function bsToAd(bsYear: number, bsMonth: number, bsDay: number): Date | null {
   try {
+    const maxDay = bsMonthLength(bsYear, bsMonth)
+    if (!Number.isInteger(bsDay) || bsDay < 1 || bsDay > maxDay) return null
     const bs = new NepaliDate(bsYear, bsMonth - 1, bsDay)
     return bs.getDateObject()
   } catch {
@@ -107,6 +124,3 @@ export function formatBsFull(bs: BsDate, locale: 'ne' | 'en'): string {
   const year = locale === 'en' ? String(bs.year) : toDevanagari(bs.year)
   return `${day} ${monthName} ${year}`
 }
-
-export const BS_YEAR_MIN = 2000
-export const BS_YEAR_MAX = 2099

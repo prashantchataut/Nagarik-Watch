@@ -31,7 +31,7 @@ export function CmsCanonicalBanner({ collection = 'articles' }: { collection?: s
         गर्न सकिँदैन।
       </p>
       <p className="mt-1 text-caption text-ink-soft" lang="ne">
-        प्रकाशन Payload CMS बाट गर्नुहोस्, वा सार्वजनिक स्रोत CONTENT_SOURCE=json मा फर्काउनुहोस्।
+        प्रकाशन Payload CMS बाट गर्नुहोस्। CONTENT_SOURCE=json केवल स्पष्ट local/emergency desk mode का लागि हो।
       </p>
       <div className="mt-3">
         <AdminButton href={cmsUrl} variant="secondary" target="_blank" rel="noopener noreferrer">

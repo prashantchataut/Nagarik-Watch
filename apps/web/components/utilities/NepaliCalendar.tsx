@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import type { PublishedCalendarEvent, PublishedCalendarSchedule } from '@/lib/calendar-view'
+import { relativeTime } from '@/lib/live/format'
 import {
   BS_MONTHS,
   BS_MONTHS_EN,
   BS_YEAR_MAX,
   BS_YEAR_MIN,
-  adToBs,
+  todayBsInKathmandu,
   bsMonthLength,
   bsToAd,
   formatBsFull,
@@ -28,8 +29,30 @@ type DayCell = {
 
 type BsPoint = { year: number; month: number; day: number }
 
+function kathmanduAdParts(date: Date): { day: number; weekday: number } {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kathmandu',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date)
+  const year = Number(parts.find((part) => part.type === 'year')?.value)
+  const month = Number(parts.find((part) => part.type === 'month')?.value)
+  const day = Number(parts.find((part) => part.type === 'day')?.value)
+  const weekday = new Date(Date.UTC(year, month - 1, day, 12)).getUTCDay()
+  return { day, weekday }
+}
+
+function formatKathmanduAdDate(
+  date: Date,
+  locale: string,
+  options: Intl.DateTimeFormatOptions,
+): string {
+  return new Intl.DateTimeFormat(locale, { ...options, timeZone: 'Asia/Kathmandu' }).format(date)
+}
+
 function readTodayBs(): BsPoint {
-  return adToBs(new Date())
+  return todayBsInKathmandu()
 }
 
 /**
@@ -60,7 +83,7 @@ export function NepaliCalendar({
   const safeSelectedDay = Math.min(selectedDay, length)
   const firstAd = bsToAd(year, month, 1)
   const lastAd = bsToAd(year, month, length)
-  const startWeekday = firstAd ? firstAd.getUTCDay() : 0
+  const startWeekday = firstAd ? kathmanduAdParts(firstAd).weekday : 0
 
   const cells = useMemo(() => {
     const out: DayCell[] = []
@@ -68,8 +91,8 @@ export function NepaliCalendar({
       const ad = bsToAd(year, month, d)
       out.push({
         day: d,
-        weekday: ad ? ad.getUTCDay() : (startWeekday + d - 1) % 7,
-        adDay: ad ? ad.getUTCDate() : d,
+        weekday: ad ? kathmanduAdParts(ad).weekday : (startWeekday + d - 1) % 7,
+        adDay: ad ? kathmanduAdParts(ad).day : d,
         adDate: ad,
         events:
           schedule?.year === year
@@ -140,11 +163,11 @@ export function NepaliCalendar({
     if (!firstAd || !lastAd) return ''
     const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' }
     const loc = en ? 'en-GB' : 'ne-NP'
-    return `${firstAd.toLocaleDateString(loc, opts)} – ${lastAd.toLocaleDateString(loc, opts)}`
+    return `${formatKathmanduAdDate(firstAd, loc, opts)} – ${formatKathmanduAdDate(lastAd, loc, opts)}`
   })()
 
   const selectedAdLabel = selected?.adDate
-    ? selected.adDate.toLocaleDateString(en ? 'en-GB' : 'ne-NP', {
+    ? formatKathmanduAdDate(selected.adDate, en ? 'en-GB' : 'ne-NP', {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
@@ -168,8 +191,8 @@ export function NepaliCalendar({
           <p className="calendar-header__meta">
             {hasScheduleForYear
               ? en
-                ? `${festivalCount} verified event${festivalCount === 1 ? '' : 's'} · ${holidayCount} public holiday${holidayCount === 1 ? '' : 's'} · ${schedule?.source}`
-                : `${toDevanagari(festivalCount)} प्रमाणित कार्यक्रम · ${toDevanagari(holidayCount)} सार्वजनिक बिदा · ${schedule?.source}`
+                ? `${festivalCount} verified event${festivalCount === 1 ? '' : 's'} · ${holidayCount} public holiday${holidayCount === 1 ? '' : 's'} · ${schedule?.source} · ${relativeTime(schedule.updatedAt, locale)}`
+                : `${toDevanagari(festivalCount)} प्रमाणित कार्यक्रम · ${toDevanagari(holidayCount)} सार्वजनिक बिदा · ${schedule?.source} · ${relativeTime(schedule.updatedAt, locale)}`
               : en
                 ? 'Verified festival and public-holiday schedule not loaded for this B.S. year.'
                 : 'यो बि.सं. वर्षका लागि प्रमाणित पर्व र सार्वजनिक बिदा तालिका लोड गरिएको छैन।'}

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useMemo } from 'react'
 import type { Locale } from '@nagarikwatch/db'
-import { BS_MONTHS, BS_MONTHS_EN, adToBs, formatBsFull, toDevanagari } from '@nagarikwatch/db'
+import { BS_MONTHS, BS_MONTHS_EN, formatBsFull, todayBsInKathmandu, toDevanagari } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
 import { localizeNumber, relativeTime } from '@/lib/live/format'
 import { NepaliCalendar } from '@/components/utilities/NepaliCalendar'
@@ -58,7 +58,7 @@ export function PatroDesk({
 }: PatroDeskProps) {
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
-  const today = useMemo(() => adToBs(new Date()), [])
+  const today = useMemo(() => todayBsInKathmandu(), [])
   const upcoming = useMemo(
     () => upcomingFromSchedule(calendarSchedule, today, 7),
     [calendarSchedule, today],
@@ -78,6 +78,7 @@ export function PatroDesk({
   const adDateLabel = useMemo(
     () =>
       new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Kathmandu',
         weekday: 'long',
         day: 'numeric',
         month: 'long',
@@ -107,6 +108,24 @@ export function PatroDesk({
       </div>
 
       <div className="patro-desk__layout">
+
+
+        <div className="patro-desk__main">
+          <NepaliCalendar locale={locale} schedule={calendarSchedule} />
+
+          <nav aria-label={en ? 'Quick tools' : 'छिटो उपकरण'} className="patro-tools">
+            {TOOL_LINKS.map((tool) => (
+              <Link key={tool.path} href={localizeHref(locale, tool.path)} className="patro-tool-link">
+                <span>
+                  <strong>{en ? tool.en : tool.ne}</strong>
+                  <small>{en ? tool.enMeta : tool.neMeta}</small>
+                </span>
+                <span aria-hidden="true">→</span>
+              </Link>
+            ))}
+          </nav>
+        </div>
+
         <aside className="patro-sidebar">
           <section className="patro-widget">
             <h2>{en ? 'Upcoming' : 'आगामी पर्व'}</h2>
@@ -282,22 +301,6 @@ export function PatroDesk({
             </p>
           </section>
         </aside>
-
-        <div className="patro-desk__main">
-          <NepaliCalendar locale={locale} schedule={calendarSchedule} />
-
-          <nav aria-label={en ? 'Quick tools' : 'छिटो उपकरण'} className="patro-tools">
-            {TOOL_LINKS.map((tool) => (
-              <Link key={tool.path} href={localizeHref(locale, tool.path)} className="patro-tool-link">
-                <span>
-                  <strong>{en ? tool.en : tool.ne}</strong>
-                  <small>{en ? tool.enMeta : tool.neMeta}</small>
-                </span>
-                <span aria-hidden="true">→</span>
-              </Link>
-            ))}
-          </nav>
-        </div>
       </div>
 
       {latestStories.length > 0 ? (

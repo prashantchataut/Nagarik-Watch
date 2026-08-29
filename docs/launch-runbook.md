@@ -12,7 +12,7 @@ and `pnpm launch:gate`.
 | ------------------------------------------------------------------------------ | ------------ |
 | In-repo (code, gates, ADR-004, honesty, CI smoke, comments, partner feed auth) | **Complete** |
 | Operator Phase 0 (DNS → Vercel, Postgres, email, Blob)                         | Remaining    |
-| Operator Phase Soft (`CONTENT_SOURCE=json` + Postgres desk, ≥30 stories, cron) | Remaining    |
+| Operator Phase Preview (Payload CMS + ≥30 reviewed stories + cron) | Remaining    |
 | Operator Phase Hard (`CONTENT_SOURCE=payload` cutover + `live`)                | Remaining    |
 
 `/admin/launch` shows an env **readiness %**, soft/hard phase badges wired to probes, and a
@@ -56,7 +56,7 @@ APIs (`scripts/build-pages-static.mjs`).
 | Syndication   | `PARTNER_FEED_TOKENS` (comma-separated `nw_partner_…` tokens)                                    |
 | Submissions   | `SUBMISSION_IP_SALT` ≥32                                                                         |
 | Legal         | `NEXT_PUBLIC_PUBLICATION_LEGAL_NAME`, `EDITOR_IN_CHIEF`, `DOIB_NUMBER`, address, phone, email    |
-| Seed          | Leave `ALLOW_STARTER_SEED` unset/false in production                                             |
+| Fixtures      | Runtime article fixtures are not shipped; remove legacy `ALLOW_STARTER_SEED` if present            |
 | Admin nav     | Soft preview hides algorithms/experiments extras; set `NEXT_PUBLIC_ADMIN_FULL_NAV=1` to show all |
 
 ## Phase 0 — Topology
@@ -71,7 +71,7 @@ APIs (`scripts/build-pages-static.mjs`).
 ## Phase 1 — Soft desk (before Payload)
 
 1. Keep `CONTENT_SOURCE` unset or `json` with `DATABASE_URL` so desk publish writes `nw_articles`.
-2. Publish ≥30 real Nepali stories from web desk; confirm no starter seed on homepage.
+2. Publish ≥30 reviewed Nepali stories in Payload; confirm the homepage is entirely CMS-backed.
 3. Confirm `/admin/launch` soft phase: desk-publish, corpus, auth/email, cron (not Payload).
 
 ## Phase 1b — Payload cutover (hard gate)

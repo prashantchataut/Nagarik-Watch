@@ -25,7 +25,7 @@ const siteUrl =
   'https://nagarik-watch.pages.dev'
 
 const vars = {
-  CONTENT_SOURCE: entries.get('CONTENT_SOURCE') || 'json',
+  CONTENT_SOURCE: entries.get('CONTENT_SOURCE') || 'payload',
   NEXT_PUBLIC_LAUNCH_STATUS: entries.get('NEXT_PUBLIC_LAUNCH_STATUS') || 'preview',
   ENABLE_WEB_ADMIN_SCAFFOLD: entries.get('ENABLE_WEB_ADMIN_SCAFFOLD') || 'true',
   NEXT_PUBLIC_SITE_URL: siteUrl,

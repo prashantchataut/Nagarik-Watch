@@ -6,11 +6,14 @@
 import 'server-only'
 import type { ContentSource } from './source'
 import { createStoreContentSource } from './store/store-source'
-import { isPayloadCanonical, isPayloadSourceMisconfigured } from './payload-admin-client'
+import {
+  declaredContentSource,
+  isPayloadCanonical,
+  isPayloadSourceMisconfigured,
+} from './payload-admin-client'
 
 export function contentSourceFingerprint(): string {
-  const source =
-    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'json'
+  const source = declaredContentSource()
   const url =
     process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim() || process.env.PAYLOAD_ADMIN_URL?.trim() || ''
   return `${source}|${url}`
@@ -18,8 +21,7 @@ export function contentSourceFingerprint(): string {
 
 export async function resolveContentSource(): Promise<ContentSource> {
   if (isPayloadSourceMisconfigured()) {
-    const source =
-      process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'json'
+    const source = declaredContentSource()
     const launchLive =
       (process.env.NEXT_PUBLIC_LAUNCH_STATUS?.trim() || 'preview').toLowerCase() === 'live'
     throw new Error(

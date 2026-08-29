@@ -125,7 +125,7 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
 
   return (
     <div className="grid gap-6">
-      <div className="w-fit border border-rule bg-white p-4">
+      <div className="w-fit border border-rule bg-surface p-4">
         <QRCodeSVG value={enrollment.totpURI} size={220} level="M" />
       </div>
       <details className="border-y border-rule py-3 text-caption text-ink-soft">

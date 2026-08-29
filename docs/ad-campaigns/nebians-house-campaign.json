@@ -4,18 +4,6 @@
   "imageGuidance": "Optional. If NEBians provides an approved campaign image or Neby mascot asset, paste its HTTPS URL into imageUrl for the rectangle and native placements. Leave imageUrl omitted for the leaderboard and mobile banner unless a legible, crop-safe asset is supplied.",
   "creatives": [
     {
-      "placementKey": "masthead-leaderboard",
-      "active": false,
-      "title": "NEBians: पढाइका सामग्री र विद्यार्थी समुदाय एउटै ठाउँमा",
-      "body": "BLE, SEE, कक्षा ११/१२ र स्नातक तहका नोट्स, पाठ्यपुस्तक, पुराना प्रश्नपत्र र छलफल खोज्नुहोस्।",
-      "cta": "NEBians खोल्नुहोस्",
-      "href": "https://nebians.consica.com.np",
-      "titleEn": "NEBians: study resources and student community in one place",
-      "bodyEn": "Find notes, textbooks, past papers and discussions for BLE, SEE, Class 11/12 and Bachelor-level study.",
-      "ctaEn": "Open NEBians",
-      "abEnabled": false
-    },
-    {
       "placementKey": "article-sidebar-top",
       "active": false,
       "title": "परीक्षाको तयारीका सामग्री सजिलै खोज्नुहोस्",

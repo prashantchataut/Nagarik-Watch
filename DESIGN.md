@@ -1,395 +1,890 @@
-# DESIGN.md, Nagarik Watch
-
-> Design system for the impeccable skill. Loaded with `PRODUCT.md` before every design
-> task. Register: **brand** (portal surfaces) unless working in the CMS/admin (**product**).
-
-This document is opinionated and complete enough to design from. Three full palette
-proposals are below; **one must be chosen** before Phase 1 implementation. Everything else
-(type, spacing, components, motion, bans) is fixed across all three palettes., -
-
-## 1. Color strategy
-
-**Register:** brand (portal). **Strategy: Committed.**
-
-A single saturated brand color carries 30–60% of identity surfaces (masthead, section
-labels, breaking ticker, links, category accents). Neutrals are tinted toward the brand
-hue. There is no `#000` and no `#fff` anywhere, neutrals are tinted with chroma
-0.005–0.02 toward the brand hue, per impeccable law. Chroma reduces as lightness
-approaches 0 or 100 (high chroma at extremes looks garish).
-
-Dark vs light is not a reflex. The physical scene: _a Nepali reader, often on a phone,
-reading outdoors or in a lit room during the day, in transit, sometimes at night in bed_.
-That forces **light, high-readability surfaces for article reading** (the core activity).
-Dark mode is offered as a user toggle for night reading, not as a default.
-
-### Anti-reflex check (done before settling)
-
-- News portals → reflex says "lots of red, alarmist." Rejected: our red (if chosen) is a
-  _civic, calm_ crimson, used with restraint, not as alarm wallpaper.
-- Indian-subcontinent news → reflex says "yellow breaking-news bars." Rejected.
-- The chosen direction must read as **a serious news brand**, not a tabloid and not a SaaS., -
-
-## 2. Palette, chosen: A (Civic Crimson) ✅
-
-All values in **OKLCH**. `oklch(L C H)` where L = lightness 0–1, C = chroma, H = hue °.
-"Brand" = the committed accent; "Surface" = page background (tinted neutral, not white);
-"Ink" = primary text; "Mute" = secondary text/borders.
-
-> **Decision (2026-06-18): Palette A, Civic Crimson is chosen.** The token table under A
-> below is the authoritative source of truth, encoded as CSS variables in `packages/ui`
-> and the Tailwind theme extension. Palettes B and C are retained below only as rejected
-> alternatives for the decision record.
-
-### Palette A, Civic Crimson ✅ CHOSEN
-
-A deep, serious crimson drawn from the crimson of Nepal's flag, desaturated enough to read
-as civic and trustworthy rather than alarming. Distinct from Setopati (blue) and Ratopati.
-This is the most ownable, most "news-appropriate" of the three.
-
-| Role | OKLCH | Hex (approx) | Use |
-|, , , , -|, , , , , , , -|, , , , |-, , , , , , , , , , |
-| `brand` | `oklch(0.55 0.18 25)` | `#C02A2A`-ish| Masthead, links, section labels |
-| `brand-strong` | `oklch(0.45 0.20 25)` | `#9E1F22`-ish| Hover, breaking ticker bar |
-| `brand-tint` | `oklch(0.96 0.02 25)` | `#F9F1F0`-ish| Subtle backgrounds, section rules |
-| `surface` | `oklch(0.985 0.004 25)` | `#FBFAF9`-ish| Page background (warm, not white) |
-| `surface-raised`| `oklch(0.99 0.003 25)` | `#FEFDFD`-ish| Cards, article body container |
-| `ink` | `oklch(0.22 0.02 25)` | `#3A3332`-ish| Primary text (warm near-black) |
-| `ink-soft` | `oklch(0.40 0.015 25)` | `#6B5F5D`-ish| Secondary text, decks, meta |
-| `mute` | `oklch(0.62 0.012 25)` | `#9C8E8C`-ish| Tertiary, captions, timestamps |
-| `rule` | `oklch(0.90 0.008 25)` | `#E2DAD8`-ish| Hairline dividers, borders |
-| `breaking` | `oklch(0.50 0.22 27)` | `#8E1B1B`-ish| Breaking-news bar (stronger than brand)|
-
-**Why:** crimson is flag-native (no other national flag is a non-rectangular double-
-pendant in crimson), it is gravely readable on warm neutrals, and it reads as _civic_
-rather than _tabloid_ when desaturated and paired with warm-tinted ink.
-
-### Palette B, Editorial Ink (navy/charcoal)
-
-A confident editorial navy-blue, classic and trustworthy. **Caveat:** Setopati is
-associated with a blue; this risks looking derivative unless we lean the hue toward teal-
-ink and keep chroma restrained. Most "safe," least ownable.
-
-| Role | OKLCH | Hex (approx) | Use |
-|, , , , -|, , , , , , , -|, , , , |-, , , , , , , , , , |
-| `brand` | `oklch(0.42 0.11 245)` | `#1F3A7A`-ish| Masthead, links, section labels |
-| `brand-strong` | `oklch(0.33 0.12 245)` | `#172C66`-ish| Hover, breaking ticker bar |
-| `brand-tint` | `oklch(0.96 0.015 245)` | `#EEF1F9`-ish| Subtle backgrounds |
-| `surface` | `oklch(0.985 0.004 240)` | `#F9FAFB`-ish| Page background (cool, not white) |
-| `surface-raised`| `oklch(0.99 0.003 240)` | `#FDFEFE`-ish| Cards, body container |
-| `ink` | `oklch(0.24 0.02 245)` | `#2A2F3A`-ish| Primary text (cool near-black) |
-| `ink-soft` | `oklch(0.42 0.018 245)` | `#5A6173`-ish| Secondary text |
-| `mute` | `oklch(0.62 0.014 245)` | `#8C92A0`-ish| Tertiary, captions |
-| `rule` | `oklch(0.90 0.01 245)` | `#DDE1EA`-ish| Hairline dividers |
-| `breaking` | `oklch(0.38 0.18 27)` | `#8E1B1B`-ish| Breaking-news bar (kept crimson) |
-
-**Why:** navy is the global newspaper default (NYT, Guardian-leaning). Safe, readable,
-serious. **Why not first choice:** least differentiated in the Nepali market; reads as
-generic "newspaper website."
-
-### Palette C, Forest / Hills (deep green)
-
-A deep forest green, evoking the Nepali landscape (hills, Terai) and signaling growth,
-stability, and civic life. Rare among Nepali news portals, so **most visually ownable**.
-Slight risk of reading as "agriculture/environment niche" if not handled with editorial
-gravitas; mitigated by pairing with serious ink and strong type.
-
-| Role | OKLCH | Hex (approx) | Use |
-|, , , , -|, , , , , , , -|, , , , |-, , , , , , , , , , |
-| `brand` | `oklch(0.42 0.09 155)` | `#1E5E47`-ish| Masthead, links, section labels |
-| `brand-strong` | `oklch(0.33 0.10 155)` | `#154435`-ish| Hover, breaking ticker bar |
-| `brand-tint` | `oklch(0.96 0.015 155)` | `#ECF5F0`-ish| Subtle backgrounds |
-| `surface` | `oklch(0.985 0.005 150)` | `#F9FBF9`-ish| Page background (warm-cool, not white)|
-| `surface-raised`| `oklch(0.99 0.003 150)` | `#FDFEFD`-ish| Cards, body container |
-| `ink` | `oklch(0.24 0.015 160)` | `#2A332E`-ish| Primary text |
-| `ink-soft` | `oklch(0.42 0.015 160)` | `#556459`-ish| Secondary text |
-| `mute` | `oklch(0.62 0.012 160)` | `#8B958C`-ish| Tertiary, captions |
-| `rule` | `oklch(0.90 0.008 155)` | `#DDE3DE`-ish| Hairline dividers |
-| `breaking` | `oklch(0.50 0.22 27)` | `#8E1B1B`-ish| Breaking-news bar (kept crimson) |
-
-**Why:** distinct, ownable, gravitas-capable. **Why caution:** must avoid looking like a
-niche sustainability site; requires a strong typographic masthead and editorial restraint.
-
-> **Decision needed before Phase 1:** ~~pick A, B, or C.~~ **DECIDED: A.** The chosen
-> palette's tokens are encoded as CSS variables and the Tailwind theme extension in
-> `packages/ui`. B and C below are the rejected alternatives for the record., -
-
-## 3. Typography
-
-**Devanagari-first.** Body and headlines optimize for Nepali conjuncts, matras, and
-appropriate line-height (Devanagari needs ~1.6–1.7 line-height for body, more than Latin).
-
-### Font stacks
-
-- **Devanagari body:** "Noto Sans Devanagari" (Google Fonts, free, OFL). Best open-source
-  coverage of Nepali matras and conjuncts. Fallback: "Mukta", system Devanagari.
-- **Devanagari display (headlines):** **Mukta** (Google Fonts, OFL) at heavier weights.
-  Locked 2026-07-26 (founder preference). Baloo 2 is retired as an A/B candidate.
-- **Latin / English section / UI numbers:** "Source Sans 3" (Google Fonts, OFL). Editorial
-  Latin companion to Mukta/Noto; deliberately not Inter (anti-slop / DESIGN decision 2026-07-19).
-  CSS variable is `--font-source-sans` (historical `--font-inter` alias removed); the loaded
-  face is Source Sans 3.
-- **Serif option for long-form/columns:** a serif for the opinion/columns section gives it
-  a distinct editorial identity. Candidate: "Tiro Devanagari Sanskrit" + "Tiro Devanagari
-  Hindi" (OFL) or fall back to the sans. Decision in Phase 1 columns work.
-
-### Type scale (modular, ratio ~1.25, passes the impeccable ≥1.25 hierarchy test)
+# Nagarik Watch Design System and Editorial Product Contract
 
-| Token | Devanagari / Latin | Size / Line-height | Weight | Use |
-|, , , , |-, , , , , , , |-, , , , , -|, , |, , , , , , , -|
-| `display` | Mukta / Source Sans 3 | 44px / 1.15 | 700 | Lead-story headline (hero) |
-| `h1` | Mukta / Source Sans 3 | 32px / 1.2 | 700 | Article headline |
-| `h2` | Mukta / Source Sans 3 | 24px / 1.25 | 700 | Section headers, sub-leads |
-| `h3` | Mukta / Source Sans 3 | 20px / 1.3 | 600 | Card titles |
-| `body-lg` | Noto Sans Devanagari/Source Sans 3| 19px / 1.7 | 400 | Article body (Devanagari) |
-| `body` | Noto Sans Devanagari/Source Sans 3| 16px / 1.65 | 400 | Default body, cards |
-| `meta` | Source Sans 3 / Noto Sans | 13px / 1.4 | 500 | Byline, date, timestamps |
-| `caption` | Source Sans 3 / Noto Sans | 12px / 1.35 | 400 | Image captions, credits |
-
-**Rules:**
-
-- Body line-length capped at **65–75ch** (impeccable law). Article column ~680px max.
-- Hierarchy through **scale + weight contrast**, not color or decoration.
-- No gradient text. No text effects. Emphasis via weight or size only.
-- Numbers in headlines (e.g. "५ करोड") render in Devanagari numerals by default in the
-  Nepali locale; Latin numerals in the English section. Locale-driven., -
-
-## 4. Spacing & layout
-
-A single 4px-based spacing scale, varied deliberately for rhythm (impeccable: same padding
-everywhere is monotony).
-
-```
-0, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128  (px)
-```
-
-Tokens: `space-1`=4 … `space-2`=8 … up to `space-12`=128.
-
-### Density dial (homepage and section indexes)
-
-**Decision (2026-07-26):** Portal surfaces target **dense editorial packing**, not gallery
-whitespace. Readers come to scan many stories; blank mid-page voids read as unfinished.
-
-| Dial            | Homepage target | Notes                                                                             |
-| --------------- | --------------- | --------------------------------------------------------------------------------- |
-| Visual density  | **7 / 10**      | Tight story rows, image+deck on rails, packed section bands                       |
-| Design variance | **7 / 10**      | Explicit desk compositions with controlled asymmetry, not repeated card templates |
-| Motion          | **3 / 10**      | Hover/focus only; no scroll theatre                                               |
+**Status:** implementation contract  
+**Updated:** 2026-08-28  
+**Primary register:** Devanagari-first civic newsroom  
+**Secondary register:** calm newsroom operations product  
+**Brand direction:** Civic Crimson on warm paper
 
-Reference craft bar for packing: serious Nepali news portals (e.g. OnlineKhabar-class
-information density). We match **story packing and scan rhythm**, never ad clutter,
-autoplay, or interstitial traps. PRODUCT.md still bans tabloid chrome.
+This file is the source of truth for Nagarik Watch UI/UX. It replaces the earlier palette-comparison document and the visual habits that made the product feel like a generic portal dashboard.
 
-**Homepage editorial composition (2026-08-09):**
-
-- The opening package is **one dominant lead + one support lead + two support briefs + a compact top-story pulse**. Never stack multiple centered mega-heroes.
-- Category sections choose a composition by **editorial role**, not by array index or modulo rotation: news desk, split desk, photo desk, voices, or compact desk.
-- Lists are reserved for information that is genuinely sequential or ranked (`Latest`, `Most read`). Editorial category sections must compose stories rather than render interchangeable rows.
-- Homepage category kickers are typographic brand labels, not repeated filled pills. Trending topics are plain newsroom links with separators, not chips.
-- Reader personalization and province engagement analytics stay out of the main pitch homepage. The homepage foregrounds reporting, freshness, geography, photography and editorial judgment.
-- Ads follow completed editorial units: the first inline placement comes only after three populated desks; the closing billboard sits after the category stream. No ad-story-ad cadence.
-- Mobile removes the persistent live utility strip and keeps the first screens focused on masthead, breaking news, the lead package and a compact latest package.
+The product is not a pile of cards, utility bars, or navigation rows. It is a publication. Every public page should feel like a different page from the same newspaper; every internal page should feel like a newsroom workstation built for a specific job.
 
-**Layout primitives:**
+---
+
+## 1. Product thesis
+
+Nagarik Watch should feel:
+
+- **editorial, not templated** — hierarchy comes from headline scale, photography, rules, whitespace, and sequence;
+- **Nepali-first, not translated-first** — Devanagari is given enough size, line-height, and measure to look intentional;
+- **dense in information, light in chrome** — readers can see many stories without seeing many boxes;
+- **civic, not alarmist** — crimson is an identity and navigation color, not wallpaper;
+- **service-oriented** — calendar, market, results, live scores, search, saved reading, and conversion tools are real products with honest data states;
+- **operationally truthful** — the UI never fabricates content, dates, rates, scores, holidays, or source freshness to avoid an empty state;
+- **CMS-led** — published editorial content belongs to the canonical content system, not page components.
+
+### The anti-goals
 
-- Page max-width: **1280px** for the homepage grid; **680px** for the article body
-  column; **1200px** for section/category pages.
-- Gutter: 16–20px desktop, 12–16px mobile (tighter than SaaS defaults).
-- Homepage section stack: prefer `space-y-6`–`8`, not `10`–`12`.
-- The article body is **not** wrapped in a card, it sits on the page surface with a
-  hairline rule above the byline. Cards are used only where the card affordance is right
-  (story grids, related stories, most-read). No nested cards, ever.
-
-### Section separation
-
-**Do not** use full-width heavy ink rules (`border-*-2/3 border-ink`) as the default
-section divider. Those shout “wireframe” and chop the page into sparse bands.
-
-**Preferred:**
-
-1. Hairline `border-rule` under the section header row.
-2. A short brand underline under the section title only (≈2–3rem wide, `brand` or
-   `brand-strong`), not a page-wide bar.
-3. Vertical rhythm + background tint (`surface-raised` / `brand-tint`) when a module
-   needs a stronger boundary (poll, live reference).
-
-### Nepali kickers and labels
-
-Devanagari must never inherit Latin “tracked uppercase” costume.
-
-- **Banned on `lang="ne"`:** `text-transform: uppercase` and `letter-spacing` above
-  `0.02em` (prefer `0`).
-- Category kickers: brand color + weight + optional short underline. Sentence case.
-- Latin-only micro-labels (EN locale, ISO codes) may use modest tracking ≤ `0.06em`.
-
-## 5. Component inventory
-
-Editorial card primitives live in `packages/ui` (`StoryCard`, `StoryGrid`, `Hero`,
-`SectionHeader`, `CategoryLabel`, `Byline`, `Dateline`, `LiveWidget`, skeletons).
-
-**Chrome and article surfaces live in `apps/web/components/`** (Masthead, Footer,
-BreakingTicker, ArticleBody, ShareBar, AdSlot, PublicShell, HubIndexHeader, etc.).
-Each is accessible (keyboard, focus-visible, ARIA where needed) and themable via the
-chosen palette tokens.
-
-**Editorial (apps/web + packages/ui):**
-
-The primitives in `packages/ui` and chrome in `apps/web/components`. Each is accessible (keyboard, focus-visible, ARIA where
-needed) and themable via the chosen palette tokens.
-
-**Editorial:**
-
-- `Masthead`, wordmark "नागरिक वाच / Nagarik Watch", date in BS (बिक्रम सम्बत) + AD, weather
-  optional. Sticky on scroll with condensing behavior.
-- `PrimaryNav`, category nav, Devanagari labels, with language toggle (ने/EN) and search.
-- `BreakingTicker`, horizontal scrolling strip, brand-strong background, used **only**
-  for genuinely breaking items.
-- `StoryCard`, image, category label, headline (h3), meta. Variants: `lead` (large, h2),
-  `standard`, `compact` (no image, list-style), `text-only`.
-- `StoryGrid`, varies card sizes for rhythm; never identical-card grids.
-- `Hero`, the single lead story with display headline, large image, deck.
-- `SectionBlock`, a labeled category section on the homepage (e.g. "राजनीति") with a
-  mixed grid + a "थप" (more) link.
-- `ArticleBody`, long-form column, 680px, rich-text rendered, inline elements: pull
-  quote, image, embed, ad slot.
-- `Byline`, `Dateline`, `Tags`, `ShareBar` (no modal, inline), `RelatedStories`.
-- `PullQuote`, full-bleed within the article column, brand-tint background, no
-  side-stripe border (impeccable ban).
-- `CorrectionNotice`, dated, visible, set in `meta` size with a clear label.
-
-**Media (Phase 3):**
-
-- `ImageGallery`, `VideoEmbed`, `LiveBlogFeed`, `EpaperViewer`.
-
-**Commerce / chrome:**
-
-- `AdSlot`, labeled "विज्ञापन / Advertisement", lazy-loaded, viewability-tracked, never
-  between every paragraph.
-- `SponsoredBadge`, unambiguous labeling for native/sponsored content.
-- `Footer`, registration number (DoIB), Press Council listing, sections, about, contact,
-  ethics policy, privacy.
-
-**Feedback:**
-
-- `Toast` (transient), `InlineMessage` (persistent, e.g. "यो लेख अपडेट भएको छ")., -
-
-## 6. Elevation
-
-Minimal. News sites should feel flat and typographic, not app-like.
-
-- `flat`, default. Hairline `rule` border only.
-- `raised`, `surface-raised` background + 1px rule. Used for cards and the article
-  container.
-- `sticky`, sticky header gets a subtle bottom hairline + tiny backdrop tint, not a
-  heavy shadow.
-- `overlay`, used only for the search panel and mobile menu. Soft shadow
-  `0 8px 32px oklch(0.2 0.02 25 / 0.12)`, no glassmorphism.
-
-No element uses a drop shadow deeper than the overlay token. No fake-3D, no bevels., -
-
-## 7. Motion
-
-- **Never animate layout properties** (width, height, top, left). Animate `transform` and
-  `opacity` only (impeccable law).
-- Ease **out** with exponential curves: `cubic-bezier(0.16, 1, 0.3, 1)` (ease-out-quint)
-  is the default. No bounce, no elastic.
-- Durations: `fast`=120ms (hover, focus), `base`=200ms (toggles, menu), `slow`=320ms
-  (overlays). Nothing longer than 400ms.
-- `prefers-reduced-motion`: all non-essential motion disabled.
-- The breaking ticker scrolls horizontally at a calm, readable pace; pauses on hover and
-  on focus; stops under reduced-motion (replaced with a static "ब्रेकिङ:" label + first
-  item + arrow)., -
-
-## 8. Iconography
-
-- Line icons, 1.5px stroke, 20/24px boxes, drawn on the same grid. Source: Lucide (ISC) or
-  hand-drawn to match. No filled "app-icon" style, no emoji as UI.
-- Icons sit on a 4px grid; sized 16/20/24 only.
-- Each icon has a Devanagari-accessible `aria-label` (e.g. search icon → `खोज्नुहोस्`)., -
-
-## 9. Absolute bans (impeccable, enforced, non-negotiable)
-
-If any of these appear, the element is rewritten with different structure.
-
-1. **No side-stripe borders.** No `border-left`/`border-right` > 1px as a colored accent
-   on cards, list items, callouts, or alerts. Use full borders, background tints, leading
-   icons/numbers, or nothing.
-2. **No gradient text.** No `background-clip: text` + gradient. Single solid color;
-   emphasis via weight or size.
-3. **No glassmorphism as default.** No decorative blurs/glass cards. Rare and purposeful,
-   or nothing.
-4. **No hero-metric template.** No big-number + small-label + supporting-stats + gradient
-   accent blocks. This is a news brand, not a SaaS landing page.
-5. **No identical card grids.** Story grids vary card sizes and densities for rhythm.
-6. **No modal as first thought.** Share, search, and newsletter default to inline or
-   overlay panels; modals only when truly necessary.
-7. **No em dashes in copy.** Use commas, colons, semicolons, periods, or parentheses. Not
-   `, `., -
-
-## 10. AI-slop test (impeccable)
-
-Two-altitude category-reflex check, run on every key surface:
-
-- **First-order:** if someone could guess palette + theme from "Nepali news portal" alone
-  (alarm-red tabloid, or default-newspaper-navy), it's the training-data reflex. Rework.
-- **Second-order:** if "Nepali news portal that's not tabloid-red" leads predictably to
-  "safe navy SaaS-y newsroom," that's the trap one tier deeper. Rework toward a
-  typographic, civic, Devanagari-confident identity.
-
-The design passes when neither answer is obvious from the domain. Palette A (Civic
-Crimson) paired with strong Devanagari display type and a flat, typographic layout
-clears both altitudes; Palette C (Forest) clears them even more strongly., -
-
-## 11. Accessibility (baseline, hard requirements)
-
-- **WCAG 2.1 AA** contrast for all text on all surfaces in both palettes.
-- Semantic HTML: `<article>`, `<header>`, `<nav>`, `<main>`, `<time>`, `<figure>`.
-- `lang="ne"` on Devanagari content, `lang="en"` on English content, mixed runs use
-  `<span lang>`.
-- Keyboard navigable; visible focus ring (2px brand outline, offset 2px).
-- All editorial images require alt text in the CMS (enforced, see content-model.md).
-- Skip-to-content link on every page.
-- Respect `prefers-reduced-motion` and `prefers-color-scheme` (dark-mode tokens defined)., -
-
-## 12. Dark mode (user toggle, not default)
-
-**Decision (2026-07-24):** Dark mode uses **true black** surfaces (`oklch(0 0 0)`), raised
-panels at `oklch(0.14 0 0)`, and chroma-0 ink. Brand crimson is accents only (nav bar,
-links, category rules), never a reddish-brown page wash and never pink body headlines.
-Light mode remains warm-tinted Civic Crimson neutrals.
-
-**Decision (2026-07-26):** Masthead/footer `--chrome` is **paper in light mode** and **black
-in dark mode**, with `--on-chrome` for text. Only the crimson category desk stays dark in
-both themes. This stops light mode reading as an inverted portal., -
-
-## Open design questions
-
-- Do opinion/columns use a serif for editorial distinction, or stay in the system sans?
-- Final masthead wordmark treatment (Devanagari-primary lockup vs bilingual stacked).
-- ~~Live reference: keep a single compact strip, or fold weather into the masthead?~~
-  **Resolved 2026-07-26:** one compact Markets strip under masthead/topics (UtilityStrip).
-  **Revised 2026-08-14:** folded into the masthead row (`MastheadReference`). Measured at
-  1280px the standalone strip carried ~190px of content across a 1264px band while the
-  masthead row held a 590px void, so the band read as an unfinished page. One band, one
-  weather fetch, and the void now carries the date, weather and NEPSE.
-
-## Decision log
-
-| Date       | Decision                                                             | Rationale                                                                                           |
-| ---------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| 2026-06-18 | **Palette A, Civic Crimson CHOSEN**                                  | Founder pick; civic fit, flag-adjacent, distinct from Setopati/Ratopati                             |
-| 2026-06-18 | 3 palettes proposed; A recommended                                   | Ownability + civic fit                                                                              |
-| 2026-06-18 | Light-first, dark as toggle                                          | Reading scene forces it                                                                             |
-| 2026-06-18 | Noto Sans Devanagari + Mukta + Inter                                 | Free, OFL, best coverage                                                                            |
-| 2026-07-19 | Latin UI: **Source Sans 3** (not Inter)                              | Matches `fonts.ts`; Inter is anti-slop reflex-reject                                                |
-| 2026-07-24 | Dark mode: **true black** surfaces                                   | Founder: reddish soft dark looked amateur; black + crimson accents                                  |
-| 2026-07-26 | Light chrome: **paper masthead/footer**                              | Light mode felt dark because chrome was always black                                                |
-| 2026-07-26 | **Mukta locked** for Devanagari display                              | Founder preference; end Baloo A/B                                                                   |
-| 2026-07-26 | Homepage density **7/10**; soft section rules                        | Sparse SaaS spacing + thick ink rules felt unfinished vs Nepali portal craft                        |
-| 2026-07-26 | Latest rail = image + deck + meta                                    | Headline-only lists read as blank wireframes                                                        |
-| 2026-07-26 | Hide demo/placeholder polls on public                                | Real portal cannot show “test/demo” poll copy                                                       |
-| 2026-07-26 | Category desks must **vary by editorial purpose**                    | text-led columns + giant SVG mosaics left empty cells and looked unfinished vs OnlineKhabar packing |
-| 2026-08-09 | Homepage opening = **lead/support/pulse**, never stacked mega-heroes | First-screen story choice and hierarchy matter more than oversized presentation                     |
-| 2026-08-09 | Homepage sections map to **editorial roles**, never modulo rotation  | Distinct politics, business, opinion, sports and media rhythms prevent template monotony            |
-| 2026-08-09 | **No homepage dashboard layer**                                      | Personalization and reader-heat analytics compete with journalism on the pitch surface              |
-| 2026-08-09 | Masthead primary bar is **news navigation only**                     | Calendar/market button clusters made the publication chrome feel app-like                           |
-| 2026-07-26 | Treat `data:` heroes as soft media                                   | Never blow SVG stand-ins to full overlay cards; prefer packed horizontal desks                      |
+Do not ship:
+
+- four or five horizontal bars before the first story;
+- tiny 14–16px Devanagari body copy;
+- every section as an identical bordered card grid;
+- left-aligned hero copy with no visual hierarchy simply because it is easiest to code;
+- generic gradients, glass panels, glow, ornamental pills, or “AI dashboard” styling;
+- fake live numbers, sample news presented as current news, or calendar fallback values that look authoritative;
+- a homepage that disappears because one optional feed is unavailable;
+- duplicated navigation within the same visual level;
+- duplicated content-authoring authorities in production.
+
+---
+
+## 2. Competitive grammar, not competitive cloning
+
+The redesign borrows information-architecture lessons from mature Nepali news products without copying their brand systems.
+
+### Useful patterns to retain
+
+- a visible distinction between **rapid updates** and **edited section packages**;
+- a dominant first story with meaningful photography;
+- section rhythm that changes by editorial role rather than repeating one card component;
+- utilities such as the calendar treated as dedicated reader services;
+- publication identity, contact routes, and standards kept easy to find;
+- special packages, video, opinion, and data work allowed to have their own editorial zones.
+
+### What Nagarik Watch should do differently
+
+- fewer chrome bands;
+- larger Devanagari type;
+- warmer reading surface;
+- less tabloid use of red;
+- more whitespace around primary decisions;
+- explicit provenance and failure states for service data;
+- a stronger separation between public editorial surfaces and internal newsroom operations.
+
+---
+
+## 3. Visual foundation
+
+### 3.1 Color
+
+The public product uses **Civic Crimson** as a restrained committed accent.
+
+| Token | Value / intent | Use |
+| --- | --- | --- |
+| `brand` | `oklch(0.55 0.18 25)` | desk rail, links, kickers, active states |
+| `brand-strong` | darker civic crimson | hover, emphasis, urgent labels |
+| `brand-tint` | very light crimson tint | selected/active background only |
+| `paper` | warm paper around `#F7F3ED` | principal reading field |
+| `chrome` | warm off-white around `#F8F5F0` | masthead and quiet chrome |
+| `surface` | warm neutral around `#F4F1EC` | page surface |
+| `surface-raised` | warm near-paper around `#FBF9F6` | rare raised controls, not default cards |
+| `ink` | warm near-black | primary copy |
+| `ink-soft` | warm charcoal | decks and secondary copy |
+| `mute` | low-contrast warm gray | timestamps and captions |
+| `rule` | warm hairline gray | structural dividers |
+| `breaking` | stronger crimson | actual breaking-news status only |
+
+Rules:
+
+1. Crimson carries identity; it does not fill entire content modules by default.
+2. Hairlines and paper changes are preferred to boxes.
+3. New light-theme surfaces must not introduce pure white as a default page background.
+4. Green/red market states are semantic, not brand decoration.
+5. Dark mode is a reader option, not the default identity.
+
+### 3.2 Typography
+
+- **Display / Nepali headline:** Mukta.
+- **Body / UI Devanagari:** Noto Sans Devanagari.
+- **Latin UI:** the existing sans stack, tuned to align visually with Devanagari.
+- **Data / numbers:** tabular numerals where comparison matters.
+
+Recommended scale:
+
+| Role | Size |
+| --- | --- |
+| Homepage lead | `clamp(2.35rem, 6vw, 4.5rem)` |
+| Desk / institutional H1 | `clamp(2.35rem, 6vw, 4.25rem)` |
+| Article H1 | `clamp(2.5rem, 6.5vw, 5rem)` subject to length |
+| Section H2 | 1.75–2.4rem |
+| Story card title | 1.2–1.65rem according to role |
+| Article body | 1.08–1.18rem minimum responsive target |
+| General Nepali body | 1.05–1.2rem |
+| Meta | 0.8–0.9rem; never the main reading layer |
+
+Devanagari rules:
+
+- use generous line-height, generally 1.45–1.7 for running copy;
+- do not use aggressive negative letter spacing;
+- do not uppercase or over-track Nepali text;
+- keep article measure around **42.5rem / 680px**;
+- center major display headlines when the page is a destination, not a transactional tool.
+
+### 3.3 Layout and rhythm
+
+- principal public page width: existing `max-w-page` token;
+- article reading width: ~680px;
+- editorial section spacing: usually 2–3rem, larger at major transitions;
+- structural rules are usually 1px; important edition breaks may use 2px ink rules;
+- avoid nested padding boxes; let page gutters and typography create the frame;
+- image aspect ratio should come from editorial role, not one universal thumbnail shape.
+
+---
+
+## 4. Public chrome: exactly two primary bands
+
+### Band 1 — paper masthead
+
+Desktop includes:
+
+- Nagarik Watch logo at the left;
+- Kathmandu/Nepal civil date;
+- compact live reference facts such as weather/NEPSE when verified;
+- Unicode, saved reading, account, search, theme, locale controls as quiet utilities;
+- **पात्रो** as the single solid service CTA.
+
+Mobile includes:
+
+- menu trigger;
+- logo;
+- search;
+- no desktop utility clutter.
+
+### Band 2 — sticky Civic Crimson desk rail
+
+- one horizontal row of editorial desks;
+- horizontally scrollable on narrow screens;
+- active state is visible without another tab row;
+- overflow menu is permitted for secondary desks;
+- Patro can appear at the rail edge on mobile where the desktop CTA is absent.
+
+### Prohibited masthead patterns
+
+- topic chips in a third row;
+- leaderboard ad inside the masthead stack;
+- weather, date, stock, language, social links, login, and breaking news each receiving their own strip;
+- a second sticky nav underneath the first sticky nav;
+- hamburger plus duplicated full desktop menu at the same breakpoint.
+
+The first editorial content should arrive quickly. Chrome exists to orient, not to delay reading.
+
+---
+
+## 5. Homepage edition
+
+The homepage is an **edition**, not a component gallery.
+
+### Sequence
+
+1. verified breaking ticker only when there is breaking material;
+2. centered lead package;
+3. lead photograph as dominant visual anchor;
+4. two supporting stories;
+5. commercial billboard after the editorial opening, never before it;
+6. editorial spotlight / special package;
+7. core desks with a latest rail where useful;
+8. business/sports and other role-specific desks;
+9. provider-backed live-sport band when verified scores exist;
+10. public-service desk: today in BS + next verified event, NEPSE when available, and NRB USD/NPR when available;
+11. mid-page labeled ad;
+12. province hub;
+13. entertainment/world feature pair;
+14. active poll if published;
+15. opinion/literature voices;
+16. secondary desks;
+17. closing desk such as history/photo-of-day when sourced.
+
+### Lead package
+
+- centered kicker, headline, deck, byline/date;
+- headline should be the largest type on the site home;
+- copy uses a controlled maximum measure;
+- hero image sits below the lead copy and can span the main content width;
+- lead image receives priority loading;
+- support stories are subordinate in both scale and position.
+
+### Section role system
+
+Do not force every desk into one card grid.
+
+- **Politics / world / health / diaspora:** news desk; text hierarchy and a clear lead.
+- **Society / technology / education:** compact desk; faster scan, more rows, smaller images.
+- **Business:** split desk; lead reporting plus market/service context where verified.
+- **Sports / entertainment / photo:** image-led desk.
+- **Opinion / interview:** voices; author and thesis matter more than thumbnail repetition.
+- **Literature / long-form:** slower split composition with more whitespace.
+
+### Homepage empty/failure behavior
+
+- retry a transient canonical source error once;
+- never replace a failed source with fabricated stories;
+- if no trustworthy edition can be read, render an explicit newsroom service notice;
+- optional modules may disappear independently without blanking the entire edition.
+
+---
+
+## 6. Article page
+
+The article is the most important reading surface.
+
+### Header
+
+- centered category/kicker;
+- large centered headline;
+- centered deck and provenance where applicable;
+- byline, publish/update dates, correction status, and trust signals are clear but quiet;
+- save/share tools are available without becoming another large toolbar.
+
+### Reading column
+
+- max ~680px;
+- body 18–19px equivalent with generous Devanagari leading;
+- paragraphs receive visible vertical rhythm;
+- inline media can break wider than the text where the story warrants it;
+- captions remain visually attached to media;
+- headings clearly interrupt the flow;
+- quoted material, data, embeds, and live modules must have distinguishable semantics.
+
+### Article end
+
+- correction/update information remains explicit;
+- next-story navigation must look like editorial links, not ecommerce cards;
+- related material should not overwhelm the conclusion;
+- ad slots are labeled and cannot cause layout shift.
+
+---
+
+## 7. Desk, category, topic, tag, province, author and index pages
+
+All content-index destinations use the shared destination grammar.
+
+### Destination header
+
+- centered kicker/rules;
+- 2.35–4.25rem H1;
+- concise centered deck;
+- no boxed title card;
+- no duplicated breadcrumb-like label rows unless needed for orientation.
+
+### Editorial body
+
+- one clear lead when inventory supports it;
+- supporting material beneath in role-appropriate rows/grids;
+- latest/most-read rails are optional enhancements, not obligatory sidebars;
+- empty desks use a composed editorial note plus real evergreen/latest material;
+- no fake inventory is generated to make the page look full.
+
+This family includes:
+
+- category routes;
+- latest;
+- most-read;
+- trending;
+- editor picks / exclusive / wire where available;
+- topic and tag routes;
+- province and district routes;
+- author/columns;
+- fact-check and specialist reporting indexes;
+- search-adjacent and archive indexes;
+- RSS and sitemap destinations.
+
+---
+
+## 8. Institutional, legal and standards pages
+
+About, ethics, privacy, cookies, editorial policy, fact-check policy, corrections policy, recommendation policy, terms, and related routes use a publication-document grammar.
+
+### Header
+
+- centered publication kicker;
+- large, calm H1;
+- short lead;
+- no SaaS hero card.
+
+### Body
+
+- narrow readable measure;
+- sections separated by whitespace and rules rather than floating cards;
+- lists and definitions remain semantic;
+- dates/revisions are explicit where policy governance requires them;
+- important contact/escalation routes remain links, not decorative callouts.
+
+---
+
+## 9. Contact, advertising and team
+
+### Contact
+
+- centered publication header;
+- tips and corrections presented as two editorial lanes separated by rules;
+- contact form is the primary interaction, not buried under cards;
+- newsroom desk contacts form a quiet sticky rail on desktop;
+- response-time copy is factual and modest.
+
+### Advertising
+
+- treat it as a media-kit/service page, not a generic lead-gen landing page;
+- centered institutional header;
+- sales/contact facts in a restrained rule-based band;
+- ad principles displayed as flat editorial statements;
+- placement inventory comes from the real ad-placement model;
+- never invent reach, audience, or pricing numbers.
+
+### Team
+
+- active authors come from the content source;
+- newsroom people are editorial rows with monogram/photo and role;
+- contributors may be more compact;
+- standards links are flat institutional links, not a three-card marketing block.
+
+---
+
+## 10. Search, saved reading, archive and reader corner
+
+### Search
+
+- large search field as the page's primary control;
+- keyboard focus must be obvious;
+- result filters should not create chip clutter;
+- no-result state offers useful next actions and real destinations;
+- history/suggestions are visibly distinct from results.
+
+### Saved
+
+- device-only vs account-synced behavior must be stated truthfully;
+- empty state explains how to save a story;
+- saved stories use the same editorial list grammar as index pages.
+
+### Archive
+
+- date navigation should feel like archive navigation, not a calendar clone;
+- dates are timezone-correct for Nepal publication dates;
+- empty days remain honest.
+
+### Reader corner / submissions
+
+- distinguish participation from editorial endorsement;
+- forms use clear field labels, status, success, and failure states;
+- do not promise publication.
+
+---
+
+## 11. Utility hub
+
+Utilities are a reader-service product family, not a permanent sidebar.
+
+### Shell
+
+- shared centered destination header;
+- horizontal scrollable tool rail under the header;
+- active tool indicated by a Civic Crimson bottom rule;
+- workspace below with no desktop sidebar consuming reading width;
+- directory view uses indexed editorial rows in two columns on larger screens rather than large cards.
+
+### Utility standards
+
+Every tool must have:
+
+- a clear single primary task;
+- accessible labels and error messages;
+- useful keyboard behavior;
+- local/offline calculation where the result can be deterministic;
+- source/time labels for live external data;
+- a truthful unavailable state;
+- no silent “best guess” fallbacks.
+
+This family includes date converter, Preeti/Unicode, currency, calendar, calculators and other registered tools.
+
+---
+
+## 12. Patro / Bikram Sambat calendar
+
+The calendar is a first-class reader service.
+
+### Information architecture
+
+On the apex site:
+
+1. today block;
+2. calendar workspace;
+3. quick tool links;
+4. upcoming festivals/holidays and market/forex reference rail;
+5. latest newsroom context below when available.
+
+The embedded Patro page must not repeat a second Patro tool nav when the site masthead and quick-tool workspace already provide navigation. The standalone calendar host may keep its own product header/nav because it does not inherit the main site chrome.
+
+### Today and timezone
+
+- resolve “today” from `Asia/Kathmandu` civil time;
+- server and client representations must agree across UTC boundaries;
+- AD labels shown for BS dates must also format in `Asia/Kathmandu`;
+- do not derive a Nepal weekday from raw UTC components without normalization.
+
+### Supported conversion range
+
+- only the supported `nepali-datetime` BS range is valid;
+- currently exposed contract: **BS 2000–2099**;
+- previous/next controls disable at the boundary;
+- out-of-range values must fail, not approximate.
+
+### Absolute data rules
+
+Never:
+
+- return `30` because a BS month-length lookup failed;
+- return the Gregorian year/month/day as if it were a Bikram Sambat date;
+- accept day 32 simply because some BS months can be 32 days;
+- repeat one year's festival schedule into another year;
+- present an unsourced festival or holiday as verified.
+
+### Festival / holiday publishing
+
+- the reader calendar is provider-driven; operators should not hand-author a year of holidays in JSX or raw JSON;
+- default provider adapter is BizzPatro when `CALENDAR_API_KEY` is configured; a normalized JSON provider may be selected with `CALENDAR_PROVIDER=json` and `CALENDAR_API_URL`;
+- a scheduled `/api/cron/calendar-sync` job refreshes the current BS year and persists a validated last-known-good snapshot;
+- each snapshot is bound to one BS year and keeps a meaningful provider/source label;
+- every provider month/day is validated through the BS conversion library before publication;
+- duplicate events are rejected/deduplicated before the snapshot becomes public;
+- upstream provider failure preserves the last validated snapshot and exposes staleness instead of inventing replacements;
+- the Ministry of Home Affairs annual holiday notice is the authority operators should use to audit provider holiday coverage when the ministry publishes the schedule as a notice/PDF rather than an application API;
+- public UI displays a clear “verified schedule not loaded” state when no validated snapshot exists.
+
+---
+
+## 13. Market, NEPSE, forex, gold/silver and live scores
+
+These are **source-driven services**.
+
+- source name and last update must be shown where practical;
+- external provider health is observable in admin;
+- football supports `football-data.org` or API-Football; cricket supports CricketData or Sportmonks Cricket through provider adapters;
+- the homepage live-sport band is independent of whether a sports article exists in the CMS and renders only when a provider/manual verified fallback returns real match data;
+- live matches rank ahead of fixtures/results; a provider outage collapses the homepage band rather than showing fake scores;
+- manual override is permitted only as a sourced newsroom fallback;
+- manual data must pass shape validation;
+- no stale override is automatically re-labeled as current;
+- unavailable is preferable to fabricated;
+- numeric tables use tabular figures;
+- rise/fall uses text/symbol plus color so meaning does not depend on color alone.
+
+---
+
+## 14. Rashifal
+
+Rashifal is editorial content with a date contract, not random filler.
+
+- daily record must be tied to the Kathmandu local date;
+- exactly 12 unique signs are required;
+- Nepali forecast text is required; English is optional where supported;
+- stale or incomplete data does not masquerade as today's edition;
+- page header follows destination grammar; signs may use a denser service layout because they are parallel records.
+
+---
+
+## 15. Photos, video, data stories, e-paper and live coverage
+
+These surfaces may be visually stronger than normal index pages, but still inherit the brand.
+
+### Photos / video
+
+- media is dominant;
+- captions, credits and source remain visible;
+- autoplay is avoided unless user-initiated and accessible;
+- poster dimensions are reserved to prevent layout shift.
+
+### Data stories
+
+- charts and interactives explain the data source;
+- fallback text/table exists for inaccessible or failed graphics;
+- visual decoration never obscures axes or labels.
+
+### E-paper
+
+- edition date and availability are primary;
+- empty editions remain honest;
+- page thumbnails reserve dimensions.
+
+### Live coverage / disaster alerts / elections / results
+
+- urgency is communicated with semantic status and update time;
+- breaking crimson is used only for current urgent state;
+- updates are timestamped;
+- stale state is visible;
+- emergency information is never buried under promotional modules.
+
+---
+
+## 16. Authentication, profile and membership
+
+### Reader auth
+
+- calm split or focused form surface;
+- brand illustration is secondary to the form;
+- labels remain persistent;
+- password requirements and failures are specific;
+- social auth buttons represent real configured providers only;
+- locale and return-to-news controls remain accessible.
+
+### Staff / journalist auth
+
+- visually distinct from public reader auth;
+- names the newsroom context clearly;
+- MFA/setup states are first-class, not afterthought modals;
+- no public navigation clutter while authenticating.
+
+### Membership
+
+When enabled:
+
+- editorial-independence language is prominent;
+- plans are compared as editorial rows, not ecommerce pricing cards;
+- activation/payment mode is explicit;
+- contribution does not imply editorial influence.
+
+When disabled:
+
+- render a composed publication holding page;
+- do not show a lonely bordered “coming soon” card;
+- keep newsletter/about routes available.
+
+---
+
+## 17. Journalist workspace
+
+Journalist pages are a task product, not public editorial pages.
+
+- dashboard prioritizes assignment/review status and next action;
+- article editor uses a dominant writing column with supporting metadata panels;
+- feedback and assignments are chronological and scannable;
+- tools share form and validation primitives with the newsroom admin;
+- no public-site masthead density is imported into the workstation.
+
+---
+
+## 18. Admin architecture
+
+There are two internal responsibilities and they must remain visibly and technically distinct.
+
+### 18.1 Canonical Payload CMS
+
+Payload owns editorial entities such as articles, media, categories, tags and authors. `CONTENT_SOURCE` defaults to `payload`; omitting the variable must not silently choose the shadow store.
+
+Design intent:
+
+- warm-paper neutral shell rather than default pure-white SaaS chrome;
+- larger collection/document titles;
+- readable field spacing;
+- calmer tables;
+- obvious primary actions;
+- no decorative gradients/glass.
+
+### 18.2 Nagarik Watch operations admin
+
+The custom `/admin` workstation owns operational workflows such as:
+
+- dashboard / newsroom health;
+- live operations and manual verified service overrides;
+- comments/contact/submissions;
+- polling/newsletter workflows;
+- ad operations;
+- experiments/analytics/launch checks;
+- roles/settings where applicable.
+
+It must not pretend to be a second canonical article CMS. Where Payload is canonical, editorial entity links route to Payload and dashboard publication counts/recent stories are read from Payload rather than the shadow store.
+
+### Operations shell
+
+- warm neutral application surface;
+- ~17rem desktop sidebar;
+- strong current-location indicator using inset Civic Crimson rather than filled pills;
+- 4.25rem topbar;
+- content max width around 94rem;
+- workflow strip is flat and task-oriented;
+- mobile drawer has focus management and escape behavior.
+
+### Admin page hierarchy
+
+1. shell page title / location;
+2. small page subtitle/eyebrow only when useful;
+3. primary action;
+4. data/task content;
+5. health/help context.
+
+Avoid admin pages where every statistic and action is a raised card. Tables, lists, and rule-separated work queues are preferred.
+
+---
+
+## 19. Content authority and “no hardcoded news” rule
+
+### Production contract
+
+- Payload is the default and canonical editorial mode; explicit `CONTENT_SOURCE=json` exists only as a local/emergency compatibility path;
+- a Payload-declared deployment must fail closed if its CMS origin/token requirements are not configured;
+- articles, media, authors, categories and volatile topics/tags are editable in Payload;
+- page JSX must not contain current-news arrays presented as production inventory;
+- source-code/runtime article fixtures are not shipped and no development command may auto-populate published journalism;
+- the Payload seed may create stable categories and shared desk identities only; it never creates articles, and it does not pre-seed time-sensitive topics;
+- specialty hubs may not pad a sparse desk by relabeling unrelated recent stories as matching content; any broader fallback stream must be visibly separate;
+- service overrides are operational records with source and validation, not hardcoded reader UI values.
+
+### Allowed constants
+
+Constants are appropriate for stable product structure, for example:
+
+- navigation labels;
+- BS month names;
+- supported utility routes;
+- semantic role lists;
+- ad placement identifiers;
+- zodiac identifiers;
+- validation ranges tied to a library contract.
+
+Stable product constants are not the same thing as publishing mutable news or live facts in source code.
+
+---
+
+## 20. Advertising
+
+- every commercial slot is labeled as advertising;
+- placement dimensions reserve space to protect CLS;
+- masthead must not grow extra bands for ads;
+- no ad may visually mimic a story card or newsroom notice;
+- an unavailable ad collapses according to placement rules without leaving misleading copy;
+- ad inventory and public advertising page use the same placement model.
+
+---
+
+## 21. Accessibility contract
+
+Minimum requirements:
+
+- semantic heading order;
+- skip link reaches the real main landmark;
+- interactive elements are keyboard reachable;
+- focus visible against warm paper and crimson surfaces;
+- menus/dialogs/drawers return or manage focus predictably;
+- horizontal rails remain scrollable with keyboard/touch where relevant;
+- images have meaningful alt text when editorial and empty alt when purely duplicative;
+- form fields have persistent labels;
+- validation is announced and not color-only;
+- touch targets are generally at least ~44px where practical;
+- zoom/reflow works at 200% and narrow phone widths;
+- reduced-motion preferences disable nonessential movement;
+- live service status does not spam assistive technology.
+
+---
+
+## 22. Performance contract
+
+Targets:
+
+- LCP <= 2.5s at the 75th percentile;
+- INP <= 200ms;
+- CLS <= 0.1.
+
+Implementation rules:
+
+- lead image is priority-loaded with correct responsive `sizes`;
+- non-lead media is lazy by default;
+- image dimensions/aspect ratio are reserved;
+- ad dimensions are reserved;
+- server-render meaningful editorial HTML;
+- do not hydrate static decoration;
+- optional live modules should not block the main edition;
+- fonts are limited to the approved families/weights;
+- avoid layout-measuring JavaScript for effects CSS can express;
+- no carousels that require heavy client libraries for simple horizontal browsing.
+
+---
+
+## 23. Motion and interaction
+
+Motion should explain state, not decorate the page.
+
+Allowed:
+
+- small hover color transitions;
+- slight editorial image scale on pointer hover when reduced-motion permits;
+- menu/drawer transitions;
+- progress/status changes tied to actual operations.
+
+Avoid:
+
+- bouncing CTAs;
+- auto-moving story carousels;
+- parallax;
+- gradient shimmer on content that already exists;
+- scroll-jacking;
+- large spring animations on reading pages.
+
+---
+
+## 24. Responsive behavior
+
+### Phone
+
+- single masthead row;
+- swipeable sticky crimson desk rail;
+- five-item bottom navigation where enabled;
+- one-column article/index flow;
+- sidebars move below the primary task or disappear when redundant;
+- calendar cells remain legible without horizontal page overflow.
+
+### Tablet
+
+- two-column editorial support grids where hierarchy remains clear;
+- avoid forcing desktop sidebars too early.
+
+### Desktop
+
+- use breadth for editorial contrast, not merely more cards;
+- latest/service rails are reserved for pages where they materially improve scanning;
+- sticky rails do not compete with the main masthead.
+
+---
+
+## 25. Route-family implementation map
+
+| Route family | Shared design owner | Primary pattern |
+| --- | --- | --- |
+| `/` | `HomePage`, `PortalFeed`, `HomeSportsLive`, `HomeServiceDesk`, home blocks | edition + verified service context |
+| `/:category/:slug` | article route/components | centered article |
+| `/:category` | `HubIndexHeader`, `CategoryDesk` | desk destination |
+| `/latest`, `/most-read`, `/trending` | `HubIndexHeader`, index components | ranked/index newsroom |
+| `/topic/:slug`, `/tag/:slug` | `HubIndexHeader` | topical index |
+| `/province`, `/province/:slug`, `/district/:slug` | hub header + geo components | geographic index |
+| `/author/:slug`, `/columns`, `/team` | hub header + people grammar | byline/people |
+| `/about`, `/help`, `/ethics`, `/privacy`, policies, terms | `InfoPageHeader`, info sections | publication document/service help |
+| `/contact` | `InfoPageHeader`, contact form | service/document |
+| `/advertise` | `InfoPageHeader`, ad model | media kit |
+| `/utilities`, `/utilities/:tool` | `UtilityPageShell` | reader tool |
+| `/patro` | `PatroShell`, `PatroDesk`, `NepaliCalendar` | calendar service |
+| `/market`, `/nepse`, `/rashifal`, `/live-scores` | destination header + source modules | live reader service |
+| `/search`, `/saved`, `/archive` | dedicated view + destination grammar | retrieval |
+| `/photos`, `/video`, `/data-stories`, `/epaper` | media-specific components | visual edition |
+| `/live/:slug`, disaster/election/results | live/status components | urgent coverage |
+| `/auth/*`, `/login`, `/register`, `/profile` | auth shells | focused reader task |
+| `/membership` | publication header + plan rows | reader support |
+| `/journalist/*` | journalist workspace | newsroom task |
+| `/admin/*` | `AdminShell`, admin primitives | operations workstation |
+| Payload admin | Payload theme globals | canonical CMS |
+| `__not-found` | public shell + recovery links | recovery |
+
+A new route should join one of these families before inventing a new page shell.
+
+---
+
+## 26. State matrix
+
+Every route/component must account for the states that apply to it.
+
+| State | Required behavior |
+| --- | --- |
+| loading | preserve layout; do not flash fake data |
+| empty | explain what is absent and offer a real next step |
+| error | specific, recoverable where possible |
+| offline | distinguish from “no data” |
+| stale | show timestamp/source when freshness matters |
+| unauthorized | explain access boundary without exposing protected data |
+| disabled feature | composed holding page, not a broken link |
+| invalid input | field-level message + preserved user input |
+| success | concise confirmation tied to the action |
+
+---
+
+## 27. UI bans
+
+These are regressions unless a documented exception is approved.
+
+- generic gradient hero backgrounds;
+- glassmorphism;
+- glow shadows;
+- rounded-everything;
+- pill labels for every metadata item;
+- card-within-card-within-card;
+- dashboard KPI tiles on reader pages;
+- all-caps tracked Nepali labels;
+- fake quotes/testimonials;
+- unsourced statistics;
+- pure decorative icon grids;
+- equal visual weight for every story;
+- more than two primary public chrome bands;
+- a sidebar on every desktop page;
+- a CTA repeated in header, rail, hero and sticky footer simultaneously;
+- skeletons that remain visible instead of real error/empty handling;
+- placeholder content in production;
+- silent data coercion that converts failure into a plausible-looking value.
+
+---
+
+## 28. Review checklist
+
+Before merging a UI change, answer yes to the relevant questions.
+
+### Editorial hierarchy
+
+- Is the most important story/action visually obvious?
+- Does this page look like a publication rather than a card library?
+- Is Devanagari large enough and given enough line-height?
+- Is whitespace doing structural work?
+
+### Chrome
+
+- Did this add a new band? If yes, is it truly necessary?
+- Is navigation duplicated elsewhere on the same page?
+- Does the content start early enough?
+
+### Data truth
+
+- Is mutable editorial/service data coming from its real source?
+- Does failure remain failure rather than becoming a fabricated fallback?
+- Are date/time calculations explicitly tied to Kathmandu when they represent Nepal civil time?
+- Is source/freshness visible where readers might mistake stale data for live data?
+
+### Accessibility
+
+- Can the page be completed with keyboard alone?
+- Is focus visible?
+- Do labels and landmarks make sense out of context?
+- Does 200% zoom preserve task order?
+
+### Performance
+
+- Is the largest above-fold image prioritized and correctly sized?
+- Are media/ad dimensions reserved?
+- Did this introduce avoidable client JavaScript?
+
+### Responsive
+
+- Does the phone layout preserve hierarchy instead of simply stacking desktop cards?
+- Does the primary task come before side content in DOM order?
+- Are horizontal rails intentionally scrollable rather than page overflow bugs?
+
+---
+
+## 29. Decision record
+
+### 2026-08-28 — newsroom reset
+
+- Civic Crimson retained as the single public accent.
+- Public chrome reduced to paper masthead + sticky crimson desk rail.
+- Homepage lead centered and enlarged; lead photo made dominant.
+- Shared destination and institutional headers standardized.
+- Article measure standardized at ~680px.
+- Utility desktop sidebar removed in favor of a horizontal tool rail.
+- Embedded Patro duplicate nav removed.
+- Calendar calculations tied to `Asia/Kathmandu` and unsupported conversions made explicit failures.
+- Calendar publication validation tightened to actual BS month lengths and duplicate rejection.
+- Custom operations admin and Payload CMS visually aligned while preserving separate responsibilities.
+- Payload is now the default editorial authority; missing Payload configuration fails closed instead of implicitly selecting JSON.
+- Runtime/source-code article fixtures and the 87-story checked-in edition file were removed; Payload development seeding is taxonomy/desk-only.
+- Volatile topic/tag seeds were removed so topics are created in the CMS.
+- Sparse specialty hubs keep unrelated newsroom stories in a separately labeled stream rather than misclassifying them.
+- Calendar holidays/events now support automatic provider sync with a validated last-known-good snapshot; manual year JSON is no longer the normal workflow.
+- Live football/cricket adapters use sport-specific provider schemas and the homepage renders a compact live-score band only when verified data is available.
+- Operations-admin publication metrics read the canonical content authority.
+- The homepage service desk accepts a configured licensed NEPSE JSON adapter before the public-page fallback, and bullion supports the same normalized provider pattern; absent feeds stay unavailable rather than inventing values.
+
+This contract is intentionally stricter than a mood board. If an implementation conflicts with it, the implementation should be changed or the decision should be recorded here before the design drifts.

@@ -21,13 +21,20 @@ describe('content source resolution', () => {
     expect(isPayloadCanonical()).toBe(true)
   })
 
-  it('falls back to store when Payload is not canonical', async () => {
+  it('defaults to Payload and fail-closes when its origin is missing', async () => {
     delete process.env.CONTENT_SOURCE
     delete process.env.PAYLOAD_CONTENT_SOURCE
     delete process.env.PAYLOAD_PUBLIC_SERVER_URL
+    delete process.env.PAYLOAD_ADMIN_URL
 
-    const { isPayloadCanonical } = await import('./payload-admin-client')
+    const { declaredContentSource, isPayloadCanonical, isPayloadSourceMisconfigured } =
+      await import('./payload-admin-client')
+    const { resolveContentSource } = await import('./resolve-content-source')
+
+    expect(declaredContentSource()).toBe('payload')
     expect(isPayloadCanonical()).toBe(false)
+    expect(isPayloadSourceMisconfigured()).toBe(true)
+    await expect(resolveContentSource()).rejects.toThrow(/PAYLOAD_PUBLIC_SERVER_URL/)
   })
 
   it('fail-closes when CONTENT_SOURCE=payload but CMS URL is missing', async () => {

@@ -48,7 +48,9 @@ function overlayModuleProbes(checks: LaunchCheck[]): LaunchCheck[] {
   const paymentAdapter = getPaymentAdapterState()
   const launchLive = (envValue(process.env, 'NEXT_PUBLIC_LAUNCH_STATUS') || 'preview').toLowerCase() === 'live'
   const contentSource =
-    envValue(process.env, 'CONTENT_SOURCE') || envValue(process.env, 'PAYLOAD_CONTENT_SOURCE')
+    envValue(process.env, 'CONTENT_SOURCE') ||
+    envValue(process.env, 'PAYLOAD_CONTENT_SOURCE') ||
+    'payload'
   const authSecret =
     envValue(process.env, 'AUTH_SECRET') || envValue(process.env, 'BETTER_AUTH_SECRET')
   const newsroomAddress = envValue(process.env, 'NEXT_PUBLIC_NEWSROOM_ADDRESS')
@@ -233,8 +235,8 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
 
   let livePublished = 0
   try {
-    const { getAdminDashboardSnapshot } = await import('@/lib/content/store/json-store')
-    const snap = await getAdminDashboardSnapshot()
+    const { getCanonicalAdminDashboardSnapshot } = await import('@/lib/content/admin-dashboard')
+    const snap = await getCanonicalAdminDashboardSnapshot()
     livePublished = snap.publishedTotal
   } catch {
     livePublished = -1
@@ -244,8 +246,8 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
   const count = livePublished >= 0 ? livePublished : declared
   const source =
     livePublished >= 0
-      ? 'from article store'
-      : 'declared via PUBLISHED_ARTICLE_COUNT only (store unread)'
+      ? 'from canonical content source'
+      : 'declared via PUBLISHED_ARTICLE_COUNT only (canonical source unread)'
   checks = replaceCheck(checks, 'content-volume', {
     key: 'content-volume',
     label: 'Published content threshold',

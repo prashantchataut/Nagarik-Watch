@@ -6,7 +6,6 @@ const adsFile = join(root, 'apps/web/lib/ads.ts')
 const adsText = readFileSync(adsFile, 'utf8')
 const keys = [...adsText.matchAll(/'([a-z0-9-]+)'\s*:\s*\{/g)].map((m) => m[1])
 const requiredRegistered = [
-  'masthead-leaderboard',
   'home-billboard',
   'home-mid',
   'article-top-billboard',
@@ -16,9 +15,7 @@ const requiredRegistered = [
   'article-native-related',
   'category-top',
   'category-inline',
-  'latest-top',
   'latest-inline',
-  'trending-top',
   'trending-inline',
   'hub-top',
   'hub-top',
@@ -27,7 +24,6 @@ const requiredRegistered = [
 ]
 
 const requiredRendered = [
-  'masthead-leaderboard',
   'home-billboard',
   'home-mid',
   'article-top-billboard',
@@ -36,9 +32,7 @@ const requiredRendered = [
   'article-native-related',
   'category-top',
   'category-inline',
-  'latest-top',
   'latest-inline',
-  'trending-top',
   'trending-inline',
   'hub-inline',
   'mobile-sticky',

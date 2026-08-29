@@ -1,74 +1,26 @@
 import 'server-only'
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import type { Locale } from '@nagarikwatch/db'
-
-type ArticleSeed = {
-  id: string
-  slug: string
-  categorySlug: string
-  workflowStage?: string
-  locale?: Locale
-  hasEnglish?: boolean
-}
-
-type ArticlesFile = {
-  articles: ArticleSeed[]
-}
+import { authors } from './content/seed/authors'
+import { tags } from './content/seed/tags'
+import { FALLBACK_NAV_CATEGORIES, PROVINCES } from './site'
 
 const LOCALES: Locale[] = ['ne', 'en']
-
-function resolveArticlesFile(): string {
-  const inApp = path.join(process.cwd(), 'apps/web', 'data', 'articles.json')
-  if (existsSync(inApp)) return inApp
-  const inCwd = path.join(process.cwd(), 'data', 'articles.json')
-  if (existsSync(inCwd)) return inCwd
-  return inCwd
-}
-
-function readPublishedArticles(): ArticleSeed[] {
-  try {
-    const file = resolveArticlesFile()
-    const parsed = JSON.parse(readFileSync(file, 'utf8')) as ArticlesFile
-    return (parsed.articles ?? []).filter(
-      (article) =>
-        article.workflowStage === 'published' ||
-        article.workflowStage === 'updated' ||
-        !article.workflowStage,
-    )
-  } catch {
-    return []
-  }
-}
 
 export function staticLocaleParams(): Array<{ locale: Locale }> {
   return LOCALES.map((locale) => ({ locale }))
 }
 
 export function staticCategoryParams(): Array<{ locale: Locale; category: string }> {
-  const categories = new Set<string>()
-  for (const article of readPublishedArticles()) {
-    categories.add(article.categorySlug)
-  }
-  return LOCALES.flatMap((locale) => [...categories].map((category) => ({ locale, category })))
-}
-
-export function staticArticleParams(): Array<{ locale: Locale; category: string; slug: string }> {
-  const articles = readPublishedArticles()
   return LOCALES.flatMap((locale) =>
-    articles
-      .filter((article) => locale === 'ne' || article.hasEnglish !== false)
-      .map((article) => ({
-        locale,
-        category: article.categorySlug,
-        slug: article.slug,
-      })),
+    FALLBACK_NAV_CATEGORIES.map((category) => ({ locale, category: category.slug })),
   )
 }
 
-import { authors } from './content/seed/authors'
-import { tags } from './content/seed/tags'
-import { PROVINCES } from './site'
+export function staticArticleParams(): Array<{ locale: Locale; category: string; slug: string }> {
+  return []
+}
 
 const UTILITY_TOOLS = [
   'calendar',
@@ -123,15 +75,8 @@ export function staticUtilityToolParams() {
   return localeFieldParams('tool', UTILITY_TOOLS)
 }
 
-export function staticPhotoParams() {
-  return LOCALES.flatMap((locale) =>
-    readPublishedArticles()
-      .filter(
-        (article) => article.categorySlug === 'photo-story' || article.categorySlug === 'photos',
-      )
-      .filter((article) => locale === 'ne' || article.hasEnglish !== false)
-      .map((article) => ({ locale, slug: article.slug })),
-  )
+export function staticPhotoParams(): Array<{ locale: Locale; slug: string }> {
+  return []
 }
 
 export function staticLiveBlogParams() {
@@ -167,13 +112,11 @@ export function staticNewsletterIssueParams() {
 }
 
 export function staticArticleIdParams(): Array<{ id: string }> {
-  return readPublishedArticles().map((article) => ({ id: article.id }))
+  return []
 }
 
-export function staticLocaleArticleIdParams() {
-  return LOCALES.flatMap((locale) =>
-    readPublishedArticles().map((article) => ({ locale, id: article.id })),
-  )
+export function staticLocaleArticleIdParams(): Array<{ locale: Locale; id: string }> {
+  return []
 }
 
 export function staticEpaperDateParams(dates: string[]) {

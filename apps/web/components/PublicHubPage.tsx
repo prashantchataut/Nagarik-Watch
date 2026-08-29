@@ -83,13 +83,14 @@ export async function PublicHubPage({
   ])
   const ranked = rankStories(items, (story, index) => signalsForStory(story, engagement, index))
   const rankedTop = ranked.slice(0, 12)
-  let stories: StoryCardData[] = rankedTop
-  // Sparse specialty desks (a tag with two stories, a new desk) backfill from
-  // the newest pool so the page never renders one lonely item above a void.
+  const stories: StoryCardData[] = rankedTop
+  let latestFallback: StoryCardData[] = []
+  // A sparse specialty desk must never disguise unrelated reporting as desk
+  // inventory. Fetch a separate, clearly labelled newsroom continuation instead.
   if (rankedTop.length < 6) {
     const fill = await getStories({ locale, perPage: 12 }).catch(() => ({ items: [] as StoryCardData[] }))
     const seen = new Set(stories.map((story) => story.id))
-    stories = [...rankedTop, ...fill.items.filter((story) => !seen.has(story.id))].slice(0, 9)
+    latestFallback = fill.items.filter((story) => !seen.has(story.id)).slice(0, 6)
   }
   const lang = locale === 'en' ? 'en' : 'ne'
 
@@ -112,15 +113,30 @@ export async function PublicHubPage({
       {hub.key === 'submit-story' ? <ReaderSubmissionWorkflow locale={locale} /> : null}
 
       {stories.length > 0 ? (
-        <div className="mt-4">
-          <CategoryDesk
-            stories={stories}
-            locale={locale}
-            moreHeading={{ ne: 'यस खण्डका थप सामग्री', en: 'More in this section' }}
-            sideKicker={{ ne: 'यहाँका अन्य', en: 'Also here' }}
-            midSlot={<AdSlot locale={locale} placementKey="hub-inline" variant="native" />}
-          />
-        </div>
+        <>
+          <div className="mt-4">
+            <CategoryDesk
+              stories={stories}
+              locale={locale}
+              moreHeading={{ ne: 'यस खण्डका थप सामग्री', en: 'More in this section' }}
+              sideKicker={{ ne: 'यहाँका अन्य', en: 'Also here' }}
+              midSlot={<AdSlot locale={locale} placementKey="hub-inline" variant="native" />}
+            />
+          </div>
+          {latestFallback.length > 0 ? (
+            <DeskHoldingPage
+              locale={locale}
+              kicker={locale === 'en' ? 'From the wider newsroom' : 'अन्य डेस्कबाट'}
+              note={
+                locale === 'en'
+                  ? `This desk currently has ${stories.length} matching ${stories.length === 1 ? 'story' : 'stories'}. The reporting below is recent newsroom work and is not part of this desk.`
+                  : `यस डेस्कमा अहिले मिल्ने ${stories.length} समाचार छन्। तलका सामग्री न्युजरुमका ताजा रिपोर्ट हुन् र यस डेस्कको सूचीमा मिसाइएका छैनन्।`
+              }
+              fallbackStories={latestFallback}
+              fallbackLabel={locale === 'en' ? 'Latest from the newsroom' : 'न्युजरुमबाट ताजा'}
+            />
+          ) : null}
+        </>
       ) : hub.key === 'submit-story' ? null : (
         // Holding page (plan system 1.2): an empty desk still composes an
         // editor note plus evergreen sibling stories — never a bare sentence.

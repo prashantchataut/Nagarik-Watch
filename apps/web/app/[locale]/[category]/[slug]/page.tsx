@@ -179,7 +179,7 @@ export default async function ArticlePage({
 
       <div className="mx-auto max-w-page px-3 pt-5 sm:px-4 sm:pt-7">
         <header
-          className="article-head mx-auto max-w-[72rem] border-b border-rule pb-6 sm:pb-8"
+          className="article-head mx-auto max-w-[68rem] border-b border-rule pb-7 text-center sm:pb-9"
           lang={readingEnglish ? 'en' : 'ne'}
         >
           {englishMissing ? (
@@ -198,7 +198,7 @@ export default async function ArticlePage({
               </Link>
             </p>
           ) : null}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <CategoryLabel category={article.category} locale={readingLocale} />
             {membershipPublic && article.premium ? (
               <span className="rounded-sm bg-ink px-2 py-0.5 text-caption font-bold text-paper">
@@ -208,18 +208,18 @@ export default async function ArticlePage({
             <PrintButton locale={readingLocale} className="ml-auto print:hidden" />
           </div>
           <h1
-            className={`mt-4 max-w-[20ch] text-pretty font-display text-[clamp(2.55rem,6vw,5rem)] font-black text-ink ${
+            className={`mx-auto mt-4 max-w-[20ch] text-balance font-display text-[clamp(2.55rem,6vw,5rem)] font-black text-ink ${
               readingEnglish ? 'leading-[1.03] tracking-[-0.035em]' : 'leading-[1.12] tracking-normal'
             }`}
           >
             {title}
           </h1>
           {deck ? (
-            <p className="article-deck mt-4 max-w-[55rem] text-[1.08rem] leading-[1.75] text-ink-soft sm:text-[1.24rem] sm:leading-[1.7]">
+            <p className="article-deck mx-auto mt-4 max-w-[55rem] text-[1.08rem] leading-[1.75] text-ink-soft sm:text-[1.24rem] sm:leading-[1.7]">
               {deck}
             </p>
           ) : null}
-          <div className="article-trust-ledger mt-5">
+          <div className="article-trust-ledger mx-auto mt-6 max-w-[55rem] text-left">
             <div className="flex items-center gap-3">
               <span
                 className="flex h-11 w-11 shrink-0 items-center justify-center bg-brand font-display text-body font-extrabold text-paper"
@@ -307,7 +307,7 @@ export default async function ArticlePage({
 
         <div className="article-layout mt-7 lg:grid lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-start lg:gap-x-10 xl:grid-cols-[minmax(0,1fr)_18rem] xl:gap-x-12">
           <div className="min-w-0">
-            <div id="article-reading-column" className="mx-auto mt-0 min-w-0 max-w-[70ch]">
+            <div id="article-reading-column" className="mx-auto mt-0 min-w-0 max-w-[42.5rem]">
               <div className="article-tool-dock sticky top-[3.15rem] z-30 -mx-1 mb-5 border-b border-rule bg-surface px-1 py-1.5 print:hidden">
                 <ReaderArticleControls
                   story={article}

@@ -31,7 +31,7 @@ export function getPayloadCutoverChecklist(): {
   currentlyCanonical: boolean
   checks: CutoverCheck[]
 } {
-  const contentSource = value('CONTENT_SOURCE') || value('PAYLOAD_CONTENT_SOURCE') || 'json'
+  const contentSource = value('CONTENT_SOURCE') || value('PAYLOAD_CONTENT_SOURCE') || 'payload'
   const payloadUrl = value('PAYLOAD_PUBLIC_SERVER_URL') || value('PAYLOAD_ADMIN_URL')
   const token = value('PAYLOAD_API_TOKEN')
   const secret = value('PAYLOAD_SECRET')
@@ -134,8 +134,8 @@ export function getPayloadCutoverChecklist(): {
       ok: starterSeed !== 'true' && starterSeed !== '1',
       detail:
         starterSeed === 'true' || starterSeed === '1'
-          ? 'ALLOW_STARTER_SEED must be unset/false before public cutover'
-          : 'Starter seed is not forced on',
+          ? 'Legacy ALLOW_STARTER_SEED is obsolete and must be removed; runtime article fixtures are no longer shipped'
+          : 'Runtime article fixtures are not shipped',
     },
     {
       key: 'launch-status',

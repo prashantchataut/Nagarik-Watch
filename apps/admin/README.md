@@ -21,7 +21,7 @@ The admin runs on `http://localhost:3001/admin` by default. The first Payload ac
 - Configure durable object storage before accepting production uploads.
 - Share `REVALIDATE_SECRET` with the reader app.
 - Keep `CONTENT_SOURCE=payload` on the reader deployment.
-- Do not seed publishable journalism. `pnpm --filter @nagarikwatch/admin seed -- --demo-articles` creates unmistakable draft-only fixtures.
+- The seed command creates taxonomy and shared desk identities only. It never creates articles; journalism is authored or imported through Payload CMS.
 
 ## Ownership boundary
 

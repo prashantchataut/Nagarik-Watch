@@ -3,6 +3,7 @@ import type { Locale } from '@nagarikwatch/db'
 import { AD_PLACEMENTS } from '@/lib/ads'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import Link from 'next/link'
+import { InfoPageHeader } from '@/components/InfoPage'
 
 function adSalesEmail(): string {
   const configured = process.env.NEXT_PUBLIC_AD_SALES_EMAIL?.trim()
@@ -45,7 +46,6 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
   const salesEmail = adSalesEmail()
 
   const featuredKeys = new Set([
-    'masthead-leaderboard',
     'home-billboard',
     'article-sidebar-sticky',
     'mobile-sticky',
@@ -84,42 +84,42 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
   ]
 
   return (
-    <div className="mx-auto max-w-page px-4 py-10" lang={lang}>
-      <header className="border-b border-rule pb-8">
-        <h1 className="font-display text-h1 text-ink sm:text-display">
-          {en ? 'Advertise with Nagarik Watch' : 'नागरिक वाचमा विज्ञापन'}
-        </h1>
-        <p className="mt-4 max-w-[42rem] text-body-lg leading-relaxed text-ink-soft">
-          {en
-            ? 'Reach readers who come for credible reporting. Commercial campaigns stay separate from editorial work, and every unit is labelled before readers see it.'
-            : 'भरपर्दो पत्रकारिता खोज्न आउने पाठकसम्म पुग्नुहोस्। व्यावसायिक अभियान सम्पादकीय कामबाट अलग रहन्छ, र हरेक युनिट पाठकले देख्नुअघि लेबल हुन्छ।'}
-        </p>
+    <div className="advertise-page mx-auto max-w-page px-4 py-10 sm:py-14" lang={lang}>
+      <InfoPageHeader
+        kicker={en ? 'Commercial partnerships' : 'व्यावसायिक साझेदारी'}
+        title={en ? 'Advertise with Nagarik Watch' : 'नागरिक वाचमा विज्ञापन'}
+        lead={
+          en
+            ? 'Reach readers who come for credible reporting. Commercial campaigns stay separate from editorial work, and every unit is clearly labelled.'
+            : 'भरपर्दो पत्रकारिता खोज्न आउने पाठकसम्म पुग्नुहोस्। व्यावसायिक अभियान सम्पादकीय कामबाट अलग रहन्छ र हरेक युनिट स्पष्ट लेबलसहित देखिन्छ।'
+        }
+        lang={lang}
+      />
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:max-w-3xl">
-          <div className="border border-rule bg-surface-raised px-4 py-4">
-            <p className="text-caption font-semibold text-ink-soft" lang={lang}>
-              {en ? 'Sales desk' : 'विज्ञापन डेस्क'}
-            </p>
-            <a
-              href={`mailto:${salesEmail}`}
-              className="mt-1 block font-display text-h3 font-bold text-brand transition-colors duration-fast ease-out-quint hover:text-brand-strong"
-              lang="en"
-            >
-              {salesEmail}
-            </a>
-          </div>
-          <div className="border border-rule bg-surface-raised px-4 py-4">
-            <p className="text-caption font-semibold text-ink-soft" lang={lang}>
-              {en ? 'What to include' : 'पठाउनुपर्ने विवरण'}
-            </p>
-            <p className="mt-1 text-meta leading-relaxed text-ink" lang={lang}>
-              {en
-                ? 'Campaign dates, target surfaces, creative sizes, billing details.'
-                : 'अभियान मिति, लक्षित सतह, रचना आकार, बिलिङ विवरण।'}
-            </p>
-          </div>
+      <div className="advertise-contact-strip mx-auto mt-7 grid max-w-4xl gap-4 border-y border-rule py-5 sm:grid-cols-2">
+        <div>
+          <p className="text-caption font-semibold text-ink-soft" lang={lang}>
+            {en ? 'Sales desk' : 'विज्ञापन डेस्क'}
+          </p>
+          <a
+            href={`mailto:${salesEmail}`}
+            className="mt-1 block font-display text-h3 font-bold text-brand transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+            lang="en"
+          >
+            {salesEmail}
+          </a>
         </div>
-      </header>
+        <div>
+          <p className="text-caption font-semibold text-ink-soft" lang={lang}>
+            {en ? 'What to include' : 'पठाउनुपर्ने विवरण'}
+          </p>
+          <p className="mt-1 text-meta leading-relaxed text-ink" lang={lang}>
+            {en
+              ? 'Campaign dates, target surfaces, creative sizes and billing details.'
+              : 'अभियान मिति, लक्षित सतह, रचना आकार र बिलिङ विवरण।'}
+          </p>
+        </div>
+      </div>
 
       <section className="mt-10" aria-labelledby="advertise-principles">
         <h2 id="advertise-principles" className="font-display text-h2 text-ink">

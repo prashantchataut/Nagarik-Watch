@@ -46,15 +46,15 @@ export function DeskHoldingPage({
 
   return (
     <div className="mt-6">
-      <section className="border border-rule bg-surface-raised px-4 py-4" aria-label={kicker}>
-        <p className="text-caption font-bold text-brand-strong">{kicker}</p>
-        <p className="mt-2 max-w-[60ch] text-body leading-relaxed text-ink-soft" lang={en ? 'en' : 'ne'}>
+      <section className="border-y border-rule py-7 text-center" aria-label={kicker}>
+        <p className="text-caption font-bold uppercase tracking-[0.12em] text-brand-strong">{kicker}</p>
+        <p className="mx-auto mt-2 max-w-[60ch] text-body-lg leading-relaxed text-ink-soft" lang={en ? 'en' : 'ne'}>
           {note}
         </p>
         {ctaHref && ctaLabel ? (
           <Link
             href={ctaHref}
-            className="mt-3 inline-flex text-meta font-bold text-brand-strong underline-offset-4 hover:underline"
+            className="mt-4 inline-flex border-b border-brand pb-0.5 text-meta font-bold text-brand-strong hover:text-ink"
             lang={en ? 'en' : 'ne'}
           >
             {ctaLabel} →

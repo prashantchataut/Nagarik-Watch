@@ -14,7 +14,7 @@ import {
   resolveAdminDeskVariant,
 } from '@/lib/admin-roles'
 import { listPendingJournalistReviews } from '@/lib/journalist-workspace'
-import { getAdminDashboardSnapshot } from '@/lib/content/store/json-store'
+import { getCanonicalAdminDashboardSnapshot } from '@/lib/content/admin-dashboard'
 import { getMostReadStats, getTrendingSamples } from '@/lib/engagement/store'
 import { getAdEventSummary } from '@/lib/ad-events'
 import { buildStoryEngagementIndex } from '@/lib/ranking-signals'
@@ -36,11 +36,12 @@ export default async function DashboardPage() {
   // analytics/ad aggregates stream below in their own Suspense boundary so a
   // slow operational query cannot hold the whole dashboard for seconds.
   const [snapshotResult, categoriesResult, pendingReviews] = await Promise.all([
-    safeAdminLoad('dashboard-snapshot', () => getAdminDashboardSnapshot(), {
+    safeAdminLoad('dashboard-snapshot', () => getCanonicalAdminDashboardSnapshot(), {
       publishedTotal: 0,
       scheduledCount: 0,
       breakingCount: 0,
       recentPublished: [],
+      source: 'payload' as const,
     }),
     safeAdminLoad('dashboard-categories', () => getNavCategories(), []),
     listPendingJournalistReviews().catch(() => []),

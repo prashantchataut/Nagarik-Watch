@@ -24,7 +24,7 @@ import { tags, tagBySlug } from '../seed/tags'
 import * as store from './json-store'
 import type { StoredArticle } from './json-store'
 import { placeholder } from '../seed/media'
-import { normalizeEditionHeroUrl } from './seed-edition/_helpers'
+import { normalizeLegacyHeroUrl } from '../media-compat'
 import { listContentAuthors, listContentCategories, listContentTags } from '@/lib/taxonomy-admin'
 import { isProductionRuntime } from '@/lib/ops-db'
 
@@ -57,7 +57,7 @@ function resolveHero(a: StoredArticle) {
   const raw = a.heroImageUrl?.trim()
   // Production: never invent data: SVG heroes that read as broken photography.
   if (raw && !(isProductionRuntime() && raw.startsWith('data:'))) {
-    const url = normalizeEditionHeroUrl(raw, a.slug) ?? raw
+    const url = normalizeLegacyHeroUrl(raw, a.slug) ?? raw
     if (!(isProductionRuntime() && url.startsWith('data:'))) {
       return { url, alt: a.heroImageAlt ?? a.titleNe }
     }

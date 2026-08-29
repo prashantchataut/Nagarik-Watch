@@ -161,7 +161,7 @@ async function fetchProviderWeather(
   if (provider === 'weatherstack') {
     return execCircuit('weatherstack', async () => {
       const url =
-        `http://api.weatherstack.com/current?access_key=${encodeURIComponent(apiKey)}` +
+        `https://api.weatherstack.com/current?access_key=${encodeURIComponent(apiKey)}` +
         `&query=${KTM_LAT},${KTM_LON}&units=m`
       const res = await withTimeout(fetch(url, { next: { revalidate: 300 } }), 4000)
       if (!res.ok) throw new Error(`weatherstack http ${res.status}`)
@@ -360,18 +360,87 @@ export async function getRealForex(_locale: Locale): Promise<LiveValue<ForexRate
  * Nagarik Watch publishes the NRB retail buy/sell pair or a validated newsroom override;
  * inventing a spread around a midpoint would make an indicative quote look authoritative.
  */
+type NormalizedNepseResponse = {
+  index?: number
+  change?: number
+  changePercent?: number
+  open?: boolean
+  source?: string
+  updatedAt?: string
+  data?: {
+    index?: number
+    change?: number
+    changePercent?: number
+    open?: boolean
+    source?: string
+    updatedAt?: string
+  }
+}
+
+function liveApiHeaders(prefix: 'NEPSE' | 'GOLD_SILVER'): HeadersInit {
+  const apiKey = process.env[`${prefix}_API_KEY`]?.trim()
+  if (!apiKey) return {}
+  const header = process.env[`${prefix}_API_AUTH_HEADER`]?.trim() || 'Authorization'
+  const scheme = process.env[`${prefix}_API_AUTH_SCHEME`]?.trim() ?? 'Bearer'
+  return { [header]: scheme ? `${scheme} ${apiKey}` : apiKey }
+}
+
+async function fetchConfiguredNepse(): Promise<LiveValue<NepseReading>> {
+  const endpoint = process.env.NEPSE_API_URL?.trim()
+  if (!endpoint) throw new Error('NEPSE_API_URL is not configured')
+  const res = await withTimeout(
+    fetch(endpoint, {
+      headers: liveApiHeaders('NEPSE'),
+      next: { revalidate: 120 },
+    }),
+    5000,
+  )
+  if (!res.ok) throw new Error(`NEPSE provider http ${res.status}`)
+  const body = (await res.json()) as NormalizedNepseResponse
+  const payload = body.data ?? body
+  const candidate = {
+    index: payload.index,
+    change: payload.change,
+    changePercent: payload.changePercent,
+    open: payload.open,
+  }
+  if (!isManualNepse(candidate)) {
+    throw new Error('NEPSE provider must return index, change, changePercent and open')
+  }
+  const timestamp = payload.updatedAt ? new Date(payload.updatedAt) : new Date()
+  return {
+    status: 'ok',
+    data: candidate,
+    source:
+      payload.source?.trim() ||
+      process.env.NEPSE_SOURCE_NAME?.trim() ||
+      'Licensed NEPSE data provider',
+    updatedAt: Number.isNaN(timestamp.getTime()) ? new Date().toISOString() : timestamp.toISOString(),
+    mock: false,
+  }
+}
+
 /**
- * NEPSE — scraped from the public nepalstock.com homepage snippet (no official
- * JSON API exists free of charge). This is intentionally best-effort: any
- * layout change upstream degrades to a verified newsroom manual override or an explicit error state.
- *
- * Note: fetch target is confirmed at wire-time. If nepalstock.com blocks the
- * edge runtime or changes markup, the catch returns an attributed error — no fabricated reader-facing quote.
+ * NEPSE — a configured licensed JSON feed wins when present. Its normalized
+ * contract is {index, change, changePercent, open, source?, updatedAt?}. When
+ * no vendor URL is configured, the public nepalstock.com page is a best-effort
+ * secondary source. Both paths fail explicitly and may fall back only to a
+ * source-labelled newsroom override; no synthetic quote is generated.
  */
 export async function getRealNepse(_locale: Locale): Promise<LiveValue<NepseReading>> {
   const key = 'nepse'
   const hit = cached<NepseReading>(key)
   if (hit) return hit
+
+  let lastError: unknown = null
+  if (process.env.NEPSE_API_URL?.trim()) {
+    try {
+      const value = await execCircuit('nepse-configured-provider', fetchConfiguredNepse)
+      return remember(key, value)
+    } catch (error) {
+      lastError = error
+    }
+  }
 
   try {
     const value = await execCircuit('nepalstock-nepse', async () => {
@@ -393,12 +462,7 @@ export async function getRealNepse(_locale: Locale): Promise<LiveValue<NepseRead
       const changePercent = prevClose !== 0 ? (change / prevClose) * 100 : 0
       return {
         status: 'ok',
-        data: {
-          index,
-          change,
-          changePercent,
-          open: isNepseOpenNow(),
-        },
+        data: { index, change, changePercent, open: isNepseOpenNow() },
         source: 'NEPSE (nepalstock.com)',
         updatedAt: new Date().toISOString(),
         mock: false,
@@ -406,6 +470,7 @@ export async function getRealNepse(_locale: Locale): Promise<LiveValue<NepseRead
     })
     return remember(key, value)
   } catch (error) {
+    lastError = error
     const manual = await getManualLiveRecord<unknown>('nepse')
     if (manual && isManualNepse(manual.data)) {
       return {
@@ -416,7 +481,10 @@ export async function getRealNepse(_locale: Locale): Promise<LiveValue<NepseRead
         mock: false,
       }
     }
-    return failedLiveValue<NepseReading>('NEPSE (nepalstock.com)', error)
+    return failedLiveValue<NepseReading>(
+      process.env.NEPSE_API_URL?.trim() ? 'Configured NEPSE provider / nepalstock.com' : 'NEPSE (nepalstock.com)',
+      lastError,
+    )
   }
 }
 
@@ -452,22 +520,86 @@ export type GoldSilverReading = {
   unit: string
 }
 
+type NormalizedGoldResponse = Partial<GoldSilverReading> & {
+  source?: string
+  updatedAt?: string
+  data?: Partial<GoldSilverReading> & { source?: string; updatedAt?: string }
+}
+
+async function fetchConfiguredGoldSilver(): Promise<LiveValue<GoldSilverReading>> {
+  const endpoint = process.env.GOLD_SILVER_API_URL?.trim()
+  if (!endpoint) throw new Error('GOLD_SILVER_API_URL is not configured')
+  const res = await withTimeout(
+    fetch(endpoint, {
+      headers: liveApiHeaders('GOLD_SILVER'),
+      next: { revalidate: 300 },
+    }),
+    5000,
+  )
+  if (!res.ok) throw new Error(`Bullion provider http ${res.status}`)
+  const body = (await res.json()) as NormalizedGoldResponse
+  const payload = body.data ?? body
+  const candidate = {
+    goldTolaNpr: payload.goldTolaNpr,
+    silverTolaNpr: payload.silverTolaNpr,
+    goldGramNpr: payload.goldGramNpr,
+    silverGramNpr: payload.silverGramNpr,
+    unit: payload.unit,
+  }
+  if (!isManualGold(candidate)) {
+    throw new Error('Bullion provider returned an invalid normalized payload')
+  }
+  const timestamp = payload.updatedAt ? new Date(payload.updatedAt) : new Date()
+  return {
+    status: 'ok',
+    source:
+      payload.source?.trim() ||
+      process.env.GOLD_SILVER_SOURCE_NAME?.trim() ||
+      'Licensed Nepal bullion provider',
+    updatedAt: Number.isNaN(timestamp.getTime()) ? new Date().toISOString() : timestamp.toISOString(),
+    mock: false,
+    data: candidate,
+  }
+}
+
 /**
- * Gold/Silver prices. No free API exists for Nepal bullion rates; the Nepal
- * Gold & Silver Dealers Association publishes rates daily but without a stable
- * public feed. Editors must enter a verified manual rate in the live-widgets panel;
- * until then the widget renders an attributed empty state. When a licensed feed is contracted, swap the fetch here.
+ * Gold/Silver prices prefer an explicitly configured licensed normalized JSON
+ * feed. If none is configured (or it fails), only a source-labelled verified
+ * newsroom override is accepted; the product never guesses a Nepal retail rate.
  */
 export async function getRealGoldSilver(_locale: Locale): Promise<LiveValue<GoldSilverReading>> {
+  const key = 'gold-silver'
+  const hit = cached<GoldSilverReading>(key)
+  if (hit) return hit
+
+  if (process.env.GOLD_SILVER_API_URL?.trim()) {
+    try {
+      const value = await execCircuit('gold-silver-configured-provider', fetchConfiguredGoldSilver)
+      return remember(key, value)
+    } catch (error) {
+      const manual = await getManualLiveRecord<unknown>('gold-silver')
+      if (manual && isManualGold(manual.data)) {
+        return remember(key, {
+          status: 'ok',
+          source: manual.source,
+          updatedAt: manual.updatedAt,
+          mock: false,
+          data: manual.data,
+        })
+      }
+      return failedLiveValue<GoldSilverReading>('Configured Nepal bullion provider', error)
+    }
+  }
+
   const manual = await getManualLiveRecord<unknown>('gold-silver')
   if (manual && isManualGold(manual.data)) {
-    return {
+    return remember(key, {
       status: 'ok',
       source: manual.source,
       updatedAt: manual.updatedAt,
       mock: false,
       data: manual.data,
-    }
+    })
   }
   return emptyLiveValue<GoldSilverReading>('Newsroom-verified bullion rate')
 }

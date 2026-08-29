@@ -8,12 +8,12 @@
   --nw-ink-soft: #5b5557;
   --nw-muted: #777174;
   --nw-surface: #fbfaf8;
-  --nw-raised: #ffffff;
+  --nw-raised: #fbf9f6;
   --nw-rule: #ded9d6;
 
   /* Payload token overrides. */
   --theme-elevation-0: #fbfaf8;
-  --theme-elevation-50: #ffffff;
+  --theme-elevation-50: #fbf9f6;
   --theme-elevation-100: #f4f1ef;
   --theme-elevation-150: #ebe7e4;
   --theme-elevation-200: #ded9d6;
@@ -63,7 +63,7 @@ body,
   place-items: center;
   flex: 0 0 auto;
   background: var(--nw-brand);
-  color: #fff;
+  color: #f7f3ed;
   font-size: 1.15rem;
   font-weight: 800;
   line-height: 1;
@@ -186,7 +186,7 @@ a.btn {
 .btn--style-primary:hover {
   background: var(--nw-brand) !important;
   border-color: var(--nw-brand) !important;
-  color: #fff !important;
+  color: #f7f3ed !important;
 }
 
 .btn--style-primary:hover {
@@ -251,4 +251,82 @@ a.btn {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+:root {
+  --nw-surface: #f4f1ec;
+  --nw-raised: #fbf9f6;
+  --theme-elevation-0: #f4f1ec;
+  --theme-elevation-50: #fbf9f6;
+  --theme-elevation-100: #f0ece6;
+}
+
+.payload-root {
+  background: var(--nw-surface);
+}
+
+.nav {
+  background: #f8f5f0 !important;
+}
+
+.nw-cms-brand {
+  min-height: 4.5rem;
+  padding: 1.1rem 1.15rem;
+  background: #f8f5f0;
+}
+
+.nw-cms-brand__mark {
+  width: 2.35rem;
+  height: 2.35rem;
+  color: #f7f3ed;
+}
+
+.nw-cms-brand__copy strong {
+  font-size: 1.06rem;
+}
+
+.nw-cms-brand__copy small {
+  font-size: 0.72rem;
+}
+
+.template-default__wrap {
+  max-width: 96rem !important;
+  margin-inline: auto !important;
+  padding: 2rem clamp(1rem, 3vw, 3rem) 4rem !important;
+}
+
+.collection-list__header,
+.doc-header {
+  margin-bottom: 1.5rem !important;
+}
+
+.collection-list__header h1,
+.doc-header h1,
+.template-default h1 {
+  max-width: 24ch;
+  font-size: clamp(2rem, 3vw, 3rem) !important;
+  font-weight: 800 !important;
+  line-height: 1.08 !important;
+}
+
+.field-type {
+  margin-bottom: 1.35rem !important;
+}
+
+.field-label {
+  font-weight: 750 !important;
+}
+
+.table th,
+.table td {
+  padding-block: 0.85rem !important;
+}
+
+.table tbody tr:hover {
+  background: #f8edee !important;
+}
+
+.btn--style-primary,
+.btn--style-primary:hover {
+  color: #f7f3ed !important;
 }

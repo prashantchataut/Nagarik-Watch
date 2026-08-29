@@ -1,8 +1,8 @@
 /**
  * Article store — Postgres (`nw_articles`) in production when DATABASE_URL is
- * set; local JSON file for development. Development empty stores may auto-seed
- * starter articles (editable via /admin/articles). Production never auto-publishes
- * seed unless ALLOW_STARTER_SEED=true. Never holds scraped third-party copy.
+ * set; local JSON file for explicit development/emergency use. This store never
+ * creates reader-visible journalism from source-code fixtures: an empty store stays
+ * empty until an editor writes through the newsroom workflow.
  */
 import 'server-only'
 import { existsSync, promises as fs } from 'node:fs'
@@ -16,8 +16,7 @@ import {
   type Queryable,
 } from '@/lib/ops-db'
 import { resolveArticleStoreFallback } from './article-store-fallback'
-import { buildOriginalStarterArticles } from './seed-original'
-import { normalizeEditionHeroUrl } from './seed-edition/_helpers'
+import { normalizeLegacyHeroUrl } from '../media-compat'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import {
   assertWorkflowTransition,
@@ -36,14 +35,6 @@ const DATA_DIR = resolveDataDir()
 const STORE_FILE = path.join(DATA_DIR, 'articles.json')
 const PUBLIC_WORKFLOW_STAGES: readonly WorkflowStage[] = ['published', 'updated']
 const SCHEMA_KEY = 'nw-articles-v1'
-
-/** Production must not invent a published edition unless operators opt in. */
-function allowStarterSeed(): boolean {
-  const flag = process.env.ALLOW_STARTER_SEED?.trim().toLowerCase()
-  if (flag === 'true' || flag === '1') return true
-  if (flag === 'false' || flag === '0') return false
-  return !isProductionRuntime()
-}
 
 export type StoredArticle = {
   id: string
@@ -210,7 +201,7 @@ async function getArticlesPool(): Promise<Queryable | null> {
   return ensureOperationalSchema(SCHEMA_KEY, ensureArticlesTable)
 }
 
-async function insertSeedArticles(pool: Queryable, articles: StoredArticle[]): Promise<void> {
+async function upsertArticles(pool: Queryable, articles: StoredArticle[]): Promise<void> {
   for (const article of articles) {
     await pool.query(
       `INSERT INTO nw_articles (id, slug, category_slug, workflow_stage, published_at, updated_at, document)
@@ -236,11 +227,14 @@ async function insertSeedArticles(pool: Queryable, articles: StoredArticle[]): P
 }
 
 function withoutLegacyStarters(articles: StoredArticle[]): StoredArticle[] {
-  return articles.filter((article) => !String(article.id).startsWith('art-nw-'))
+  return articles.filter((article) => {
+    const id = String(article.id)
+    return !id.startsWith('art-nw-') && !id.startsWith('art-ed-')
+  })
 }
 
 function normalizeStoredArticle(article: StoredArticle): StoredArticle {
-  const heroImageUrl = normalizeEditionHeroUrl(article.heroImageUrl, article.slug)
+  const heroImageUrl = normalizeLegacyHeroUrl(article.heroImageUrl, article.slug)
   if (heroImageUrl === article.heroImageUrl) return article
   return { ...article, heroImageUrl }
 }
@@ -249,8 +243,8 @@ function normalizeArticles(articles: StoredArticle[]): StoredArticle[] {
   return articles.map(normalizeStoredArticle)
 }
 
-/** Refresh art-ed-* rows when Postgres still has pre-JPEG hero paths. */
-async function repairStaleEditionHeroes(
+/** One-way compatibility repair for pre-compression hero paths already stored by editors. */
+async function repairLegacyHeroPaths(
   pool: Queryable,
   articles: StoredArticle[],
 ): Promise<StoredArticle[]> {
@@ -259,60 +253,9 @@ async function repairStaleEditionHeroes(
     (article, index) => article.heroImageUrl !== articles[index]?.heroImageUrl,
   )
   if (stale.length > 0) {
-    await insertSeedArticles(pool, stale)
+    await upsertArticles(pool, stale)
   }
   return normalized
-}
-
-/** Insert any edition articles missing by id (never overwrite non-seed editor rows). */
-function missingSeedArticles(existing: StoredArticle[]): StoredArticle[] {
-  const haveIds = new Set(existing.map((article) => article.id))
-  const haveSlugs = new Set(existing.map((article) => `${article.categorySlug}:${article.slug}`))
-  return buildOriginalStarterArticles().filter(
-    (article) =>
-      !haveIds.has(article.id) && !haveSlugs.has(`${article.categorySlug}:${article.slug}`),
-  )
-}
-
-const EDITION_MIN_BODY_WORDS = 300
-
-function editionBodyWords(blocks: StoredArticle['bodyNe']): number {
-  return blocks
-    .map((b) => {
-      if ('text' in b && typeof b.text === 'string') return b.text
-      if (b.type === 'pullQuote') return b.quoteNe
-      if (b.type === 'list') return b.items.join(' ')
-      return ''
-    })
-    .join(' ')
-    .split(/\s+/)
-    .filter(Boolean).length
-}
-
-/** Replace stale short art-ed-* rows with the current long-form edition modules. */
-async function refreshEditionArticles(
-  pool: Queryable,
-  articles: StoredArticle[],
-): Promise<StoredArticle[]> {
-  const canonical = new Map(
-    buildOriginalStarterArticles()
-      .filter((article) => article.id.startsWith('art-ed-'))
-      .map((article) => [article.id, article] as const),
-  )
-  const toRefresh: StoredArticle[] = []
-  const next = articles.map((article) => {
-    if (!article.id.startsWith('art-ed-')) return article
-    const fresh = canonical.get(article.id)
-    if (!fresh) return article
-    if (editionBodyWords(article.bodyNe) >= EDITION_MIN_BODY_WORDS) return article
-    // Skip rows that newsroom already touched (updatedBy differs from seed creator).
-    if (article.updatedBy && article.updatedBy !== article.createdBy) return article
-    toRefresh.push(fresh)
-    return fresh
-  })
-  if (toRefresh.length === 0) return next
-  await insertSeedArticles(pool, toRefresh)
-  return next
 }
 
 async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
@@ -322,30 +265,8 @@ async function readFromPostgres(pool: Queryable): Promise<StoreShape> {
       .map((row) => parseDocument(row.document))
       .filter((a): a is StoredArticle => Boolean(a)),
   )
-
-  if (rawArticles.length === 0) {
-    if (!allowStarterSeed()) {
-      return { articles: [], version: 1 }
-    }
-    const seeded = normalizeArticles(buildOriginalStarterArticles())
-    await insertSeedArticles(pool, seeded)
-    return { articles: seeded, version: 1 }
-  }
-
-  const articles = await repairStaleEditionHeroes(pool, rawArticles)
-  // Never rewrite short art-ed-* bodies in production (or when seed is off);
-  // that wiped desk edits whenever word count fell under the seed threshold.
-  if (!allowStarterSeed()) {
-    return { articles, version: 1 }
-  }
-  const refreshed = await refreshEditionArticles(pool, articles)
-  const missing = missingSeedArticles(refreshed)
-  if (missing.length > 0) {
-    const normalizedMissing = normalizeArticles(missing)
-    await insertSeedArticles(pool, normalizedMissing)
-    return { articles: [...refreshed, ...normalizedMissing], version: 1 }
-  }
-  return { articles: refreshed, version: 1 }
+  const articles = await repairLegacyHeroPaths(pool, rawArticles)
+  return { articles, version: 1 }
 }
 
 async function writeToPostgres(pool: Queryable, store: StoreShape): Promise<void> {
@@ -387,51 +308,19 @@ async function applyStoreMutation(pool: Queryable, mutation: StoreMutation): Pro
     await pool.query(`DELETE FROM nw_articles WHERE id = $1`, [mutation.id])
     return
   }
-  await insertSeedArticles(pool, [mutation.article])
+  await upsertArticles(pool, [mutation.article])
 }
 
 async function readFromFile(): Promise<StoreShape> {
   try {
     const raw = await fs.readFile(STORE_FILE, 'utf-8')
     const parsed = JSON.parse(raw) as StoreShape
-    const existing = normalizeArticles(withoutLegacyStarters(parsed.articles ?? []))
-    if (!existing.length) {
-      if (!allowStarterSeed()) {
-        return { articles: [], version: 1 }
-      }
-      const seeded = normalizeArticles(buildOriginalStarterArticles())
-      const store = { articles: seeded, version: 1 }
-      await fs.mkdir(DATA_DIR, { recursive: true })
-      await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
-      return store
+    return {
+      articles: normalizeArticles(withoutLegacyStarters(parsed.articles ?? [])),
+      version: parsed.version ?? 1,
     }
-    if (!allowStarterSeed()) {
-      return { articles: existing, version: parsed.version ?? 1 }
-    }
-    const missing = normalizeArticles(missingSeedArticles(existing))
-    const articles = missing.length ? [...existing, ...missing] : existing
-    const store = { articles, version: parsed.version ?? 1 }
-    if (missing.length || articles.length !== (parsed.articles?.length ?? 0)) {
-      try {
-        await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
-      } catch {
-        // Read-only FS — return merged in-memory edition for this process.
-      }
-    }
-    return store
   } catch {
-    if (!allowStarterSeed()) {
-      return { articles: [], version: 1 }
-    }
-    const seeded = normalizeArticles(buildOriginalStarterArticles())
-    const store = { articles: seeded, version: 1 }
-    try {
-      await fs.mkdir(DATA_DIR, { recursive: true })
-      await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8')
-    } catch {
-      // Read-only FS — return in-memory seed for this process.
-    }
-    return store
+    return { articles: [], version: 1 }
   }
 }
 

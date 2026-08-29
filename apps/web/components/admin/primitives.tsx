@@ -137,6 +137,9 @@ export function AdminInput({
   onChange,
   placeholder,
   type = 'text',
+  min,
+  max,
+  step,
   required,
   disabled,
   lang,
@@ -150,6 +153,9 @@ export function AdminInput({
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
   placeholder?: string
   type?: string
+  min?: number | string
+  max?: number | string
+  step?: number | string
   required?: boolean
   disabled?: boolean
   lang?: string
@@ -166,6 +172,9 @@ export function AdminInput({
         id={id}
         name={name}
         type={type}
+        min={min}
+        max={max}
+        step={step}
         defaultValue={value === undefined ? defaultValue : undefined}
         value={value}
         onChange={onChange}

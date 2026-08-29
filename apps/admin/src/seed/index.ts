@@ -1,15 +1,12 @@
 /**
  * Safe development seed for Nagarik Watch.
  *
- * Default behavior seeds taxonomy and desk identities only. It does not create
- * publishable journalism. Use `--demo-articles` to add unmistakably labelled
- * draft fixtures for UI/workflow testing. Demo fixtures are always draft,
- * no-index, excluded from recommendations, and blocked from `--publish`.
+ * Seeds structural taxonomy and shared desk identities only. It never creates
+ * articles. Journalism must be created or imported through Payload CMS.
  *
  * Run:
  *   pnpm --filter @nagarikwatch/admin seed
  *   pnpm --filter @nagarikwatch/admin seed -- --reset
- *   pnpm --filter @nagarikwatch/admin seed -- --demo-articles
  */
 import { getPayload } from 'payload'
 import type { BasePayload } from 'payload'
@@ -18,10 +15,8 @@ import configPromise from '../payload.config'
 import { categories } from '../../../web/lib/content/seed/categories'
 import { authors } from '../../../web/lib/content/seed/authors'
 import { tags } from '../../../web/lib/content/seed/tags'
-import { demoArticleFixtures } from './fixtures'
 
 const RESET = process.argv.includes('--reset')
-const DEMO_ARTICLES = process.argv.includes('--demo-articles')
 const PUBLISH = process.argv.includes('--publish')
 
 type SlugToId = Map<string, number | string>
@@ -37,19 +32,11 @@ async function main() {
 
   if (RESET) await resetContent(payload)
 
-  const categoryIds = await seedCategories(payload)
-  const authorIds = await seedAuthors(payload)
-  const tagIds = await seedTags(payload)
+  await seedCategories(payload)
+  await seedAuthors(payload)
+  await seedTags(payload)
 
-  if (DEMO_ARTICLES) {
-    await seedDemoArticles(payload, { categoryIds, authorIds, tagIds })
-  }
-
-  payload.logger.info(
-    DEMO_ARTICLES
-      ? 'Seed complete: taxonomy, desk identities and non-public demo drafts are ready.'
-      : 'Seed complete: taxonomy and desk identities are ready. No articles were created.',
-  )
+  payload.logger.info('Seed complete: taxonomy and desk identities are ready. No articles were created.')
   process.exit(0)
 }
 
@@ -124,66 +111,6 @@ async function seedTags(payload: BasePayload): Promise<SlugToId> {
     ids.set(tag.slug, doc.id)
   }
   return ids
-}
-
-async function seedDemoArticles(
-  payload: BasePayload,
-  refs: { categoryIds: SlugToId; authorIds: SlugToId; tagIds: SlugToId },
-) {
-  for (const fixture of demoArticleFixtures) {
-    const category = refs.categoryIds.get(fixture.categorySlug)
-    const author = refs.authorIds.get(fixture.authorSlug)
-    if (!category || !author) {
-      throw new Error(`Demo fixture ${fixture.slug} has an unresolved category or author.`)
-    }
-
-    const data = {
-      titleNe: fixture.titleNe,
-      titleEn: fixture.titleEn,
-      slug: fixture.slug,
-      deckNe: fixture.deckNe,
-      deckEn: fixture.deckEn,
-      bodyNe: fixture.bodyNe,
-      bodyEn: fixture.bodyEn,
-      englishStatus: 'published' as const,
-      workflowStage: 'draft' as const,
-      category,
-      tags: fixture.tagSlugs
-        .map((slug) => refs.tagIds.get(slug))
-        .filter((id): id is number | string => id !== undefined)
-        .map((tag) => ({ tag })),
-      authors: [{ author }],
-      sourceType: 'original' as const,
-      locale: 'ne' as const,
-      noIndex: true,
-      includeInNewsSitemap: false,
-      doNotRecommend: true,
-      commentsEnabled: false,
-      isBreaking: false,
-      featuredState: 'none' as const,
-      internalNotes:
-        'DEVELOPMENT FIXTURE. Never publish. Replace with editor-reviewed reporting created in Payload.',
-      _status: 'draft' as const,
-    }
-
-    const existing = await findBySlug(payload, 'articles', fixture.slug)
-    if (existing) {
-      await payload.update({
-        collection: 'articles',
-        id: existing.id,
-        data,
-        draft: true,
-        overrideAccess: true,
-      })
-    } else {
-      await payload.create({
-        collection: 'articles',
-        data,
-        draft: true,
-        overrideAccess: true,
-      })
-    }
-  }
 }
 
 async function findBySlug(

@@ -6,15 +6,21 @@ import {
   reporterMayEditDraft,
 } from '@nagarikwatch/db'
 
+export function declaredContentSource(): 'payload' | 'json' {
+  const raw = (
+    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'payload'
+  ).toLowerCase()
+  return raw === 'json' ? 'json' : 'payload'
+}
+
 export function isPayloadDeclared(): boolean {
-  const source = process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim()
-  return source === 'payload'
+  return declaredContentSource() === 'payload'
 }
 
 export function isPayloadCanonical(): boolean {
   if (!isPayloadDeclared()) return false
-  // Only treat Payload as canonical when its URL is configured. Otherwise the
-  // in-app Postgres/JSON article store remains the newsroom CMS.
+  // Payload is canonical only with a configured origin; a missing origin is a
+  // blocking configuration error unless CONTENT_SOURCE=json was explicitly chosen.
   return Boolean(
     process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim() || process.env.PAYLOAD_ADMIN_URL?.trim(),
   )
@@ -27,8 +33,7 @@ export function isPayloadCanonical(): boolean {
  * that the public reader can never see.
  */
 export function isPayloadSourceMisconfigured(): boolean {
-  const source =
-    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'json'
+  const source = declaredContentSource()
   const launchLive =
     (process.env.NEXT_PUBLIC_LAUNCH_STATUS?.trim() || 'preview').toLowerCase() === 'live'
   if (launchLive && source !== 'payload') return true

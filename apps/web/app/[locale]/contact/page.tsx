@@ -47,7 +47,7 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
   const phone = isPublicPublicationValue(PUBLICATION.phone) ? PUBLICATION.phone : ''
 
   return (
-    <div className="mx-auto max-w-page px-4 py-10">
+    <div className="contact-page mx-auto max-w-page px-4 py-10">
       <InfoPageHeader
         kicker={dict.contactKicker}
         title={dict.footerContact}

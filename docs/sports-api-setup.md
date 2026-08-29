@@ -1,78 +1,118 @@
-# Live Sports Scores — API Setup
+# Live sports feeds — production setup
 
-The `/sports/live` page renders real football (incl. FIFA World Cup 2026) and cricket
-(incl. Nepal matches when available) scores the moment you add licensed feed credentials. Without keys the
-widget falls back to a clearly-labelled mock so the page never breaks.
+Date: 2026-08-28
 
-The code is **key-ready**: `apps/web/lib/live/sports.ts` already implements both providers
-with the same mock-fallback contract as weather/forex. You only register the free keys.
+Nagarik Watch does not ship demo scores. The reader-facing `/live-scores` surface and the
+homepage `HomeSportsLive` band render only provider data that passes the server adapter, or a
+source-labelled newsroom override. If neither exists, the live-score module stays absent/empty
+rather than inventing a match.
 
-## Providers (both have genuine, free tiers)
+## Supported football adapters
 
-| Sport    | Provider          | Free quota       | Covers                                               |
-| -------- | ----------------- | ---------------- | ---------------------------------------------------- |
-| Football | football-data.org | 10 requests/min  | FIFA World Cup, Premier League + a few major leagues |
-| Cricket  | api-sports.io     | 100 requests/day | ICC, bilateral, Nepal matches                        |
+### Option A — football-data.org
 
-Both keys are **server-side only** — `sports.ts` has `import 'server-only'` and reads them
-from `process.env`. They never ship to the browser.
+Environment:
 
-## Step 1 — Register the keys
-
-### Football (football-data.org)
-
-1. Go to <https://www.football-data.org/client/register>
-2. Register a free account; confirm via email.
-3. Open the profile page; copy your **API Token**.
-4. The free tier exposes a curated competition set (WC, PL, CL, etc.). For full coverage
-   (all leagues, live scores) you'd need a paid plan — the free tier is enough for
-   World Cup + headline leagues.
-
-### Cricket (api-sports.io)
-
-1. Go to <https://api-sports.io/explorer/> → **Cricket API**.
-2. Create a free account (100 requests/day, forever free).
-3. Dashboard → **API Keys** → copy your key.
-4. The free tier covers fixtures, scores, and standings for ICC + bilateral series.
-
-## Step 2 — Add the keys to your environment
-
-### Local dev (`.env.local`, gitignored):
-
-```
-FOOTBALL_PROVIDER="football-data-org"
-FOOTBALL_API_KEY="your-football-data-token"
-
-CRICKET_PROVIDER="api-sports"
-CRICKET_API_KEY="your-api-sports-key"
+```dotenv
+FOOTBALL_PROVIDER="football-data"
+FOOTBALL_API_KEY="..."
+FOOTBALL_DATA_API_BASE="https://api.football-data.org"
+# Optional comma-separated competition IDs/codes supported by your plan.
+FOOTBALL_COMPETITIONS=""
 ```
 
-### Production (Vercel project settings → Environment Variables):
+The adapter calls `/v4/matches` for the Kathmandu today/tomorrow window and sends the token as
+`X-Auth-Token`. The public v4 docs describe the cross-competition matches resource, `dateFrom`,
+`dateTo`, competition filters, and match status values.
 
-Add the same two pairs. Redeploy after saving. Never paste real keys into `.env.example`
-(that file is committed) — keep them in `.env.local` locally and Vercel's dashboard in prod.
+Reference: https://www.football-data.org/documentation/quickstart
 
-## Step 3 — Verify
+### Option B — API-Football
 
-1. `pnpm --filter @nagarikwatch/web dev`
-2. Visit <http://localhost:3000/sports/live> and <http://localhost:3000/en/sports/live>.
-3. The widget's source line should read "football-data.org" / "api-sports.io" (not "Mock").
-4. The admin dashboard at `/admin/live-widgets` will show the provider status as `ok`.
+Environment:
 
-## How the fallback works
+```dotenv
+FOOTBALL_PROVIDER="api-football"
+FOOTBALL_API_KEY="..."
+API_FOOTBALL_API_BASE="https://v3.football.api-sports.io"
+```
 
-`sports.ts` fetches only when the relevant key is set. Any failure (HTTP error, timeout,
-empty payload, quota exceeded) degrades to the mock value with `mock: true` and a source
-line explaining the failure — so the widget renders an honest placeholder, never broken.
+The adapter first calls `/fixtures?live=all`. If nothing is live, it requests the current
+Kathmandu date with `timezone=Asia/Kathmandu`. API-Football documents `live=all` as the live
+fixture feed and states that fixtures/events are refreshed on a near-live cadence.
 
-Caching: a 60-second in-process TTL cache (per key) so a page render doesn't double-fetch.
-This also keeps you well under the free-tier rate limits: at one refresh per minute, the
-football free tier (10/min) and cricket free tier (100/day ≈ one every ~15 min) are both safe.
+Reference: https://www.api-football.com/news/post/fifa-world-cup-2026-guide-to-using-data-with-api-sports
 
-## Notes on World Cup / Nepal coverage
+## Supported cricket adapters
 
-- **FIFA World Cup 2026**: covered by football-data.org while the tournament is in session.
-  The fetcher filters to matches within ±2 days of now so the widget stays relevant.
-- **Nepal national-team football/cricket**: football-data.org covers FIFA-sanctioned Nepal
-  fixtures; api-sports.io covers Nepal's ICC + bilateral cricket. Both surface "Nepal"
-  naturally when matches are scheduled.
+### Option A — CricketData / CricAPI
+
+Environment:
+
+```dotenv
+CRICKET_PROVIDER="cricketdata"
+CRICKET_API_KEY="..."
+CRICKETDATA_API_BASE="https://api.cricapi.com/v1"
+```
+
+The adapter calls `/currentMatches?apikey=...&offset=0`, reads the provider's innings `score`
+array and maps only returned runs/wickets/overs. It does not synthesize a score when an innings
+is missing.
+
+Reference: https://cricketdata.org/live-cricket-score-api/
+
+### Option B — Sportmonks Cricket
+
+Environment:
+
+```dotenv
+CRICKET_PROVIDER="sportmonks"
+CRICKET_API_KEY="..."
+SPORTMONKS_CRICKET_API_BASE="https://cricket.sportmonks.com/api/v2.0"
+```
+
+The adapter calls `/livescores` and requests `localteam,visitorteam,runs,league`. Sportmonks
+publishes a dedicated Cricket v2.0 livescores endpoint and innings/runs includes.
+
+References:
+
+- https://www.sportmonks.com/cricket-api/
+- https://www.sportmonks.com/blogs/how-to-build-a-live-cricket-score-tracker/
+
+## Homepage behavior
+
+`apps/web/components/home/HomeSportsLive.tsx` is intentionally independent of the CMS sports
+desk. This means a match can appear even when editors have not published a sports article.
+
+Rules:
+
+- live matches sort before fixtures, then finished matches;
+- at most four football and four cricket rows appear on home;
+- provider/source and Kathmandu update time are visible;
+- the entire band disappears when neither adapter has trustworthy rows;
+- the full reader surface remains `/live-scores`;
+- provider failures never become fake `0-0`, `TBD`, or demo matches.
+
+## Manual override policy
+
+The operations panel still permits a manual football/cricket override for emergencies such as a
+provider outage. An override must include a real source label and pass the live-data schema. It is
+not seeded and is never inserted automatically.
+
+## Verification
+
+With dependencies installed and credentials configured:
+
+```bash
+pnpm --filter @nagarikwatch/web dev
+```
+
+Then verify:
+
+1. `/live-scores` and `/en/live-scores` show the provider source.
+2. The homepage band appears only when rows are returned.
+3. `/admin/live-widgets` reports provider health.
+4. Remove a key temporarily: no demo score should appear.
+5. Check server logs for 401/403/quota/schema errors from the upstream.
+
+Never commit provider keys. Keep them in the deployment secret store and local ignored env files.

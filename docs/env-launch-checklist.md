@@ -4,7 +4,7 @@ Generated 2026-08-24 from `scripts/launch-gate.mjs` run against the **real
 production environment** (`vercel env pull`). Core stack is already live:
 DATABASE_URL, BETTER_AUTH_SECRET/URL, NEXT_PUBLIC_SITE_URL, CONTENT_SOURCE,
 PAYLOAD_SECRET, NEWSLETTER_API_KEY/BASE, NEXT_PUBLIC_LAUNCH_STATUS,
-ALLOW_STARTER_SEED.
+legacy `ALLOW_STARTER_SEED` (remove it if it is still present).
 
 Add each key with `vercel env add <KEY> production`, then redeploy.
 Do NOT commit real values anywhere. `.env.example` documents local dev.
@@ -60,7 +60,7 @@ Do NOT commit real values anywhere. `.env.example` documents local dev.
 ## 6. Editorial declaration (not env)
 
 - Mark **30 verified published articles** in the admin launch desk
-  (`/admin/launch`) — 26 seed stories are live; the verification step is the
+  (`/admin/launch`) — real CMS stories are live; the verification step is the
   newsroom's sign-off.
 
 ## 7. Already verified live (no action)

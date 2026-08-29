@@ -158,7 +158,8 @@ function captchaEnabled(env: LaunchGateEnv): { enabled: boolean; unsupported: bo
 export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): LaunchCheck[] {
   const live = isLive(env)
   const dbOk = postgresConfigured(env)
-  const contentSource = envValue(env, 'CONTENT_SOURCE') || envValue(env, 'PAYLOAD_CONTENT_SOURCE')
+  const contentSource =
+    envValue(env, 'CONTENT_SOURCE') || envValue(env, 'PAYLOAD_CONTENT_SOURCE') || 'payload'
   const staticExport =
     envValue(env, 'NEXT_PUBLIC_STATIC_EXPORT') === '1' ||
     envValue(env, 'CF_PAGES_STATIC') === '1' ||
@@ -228,19 +229,19 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
           ? 'fail'
           : contentSource === 'payload'
             ? 'pass'
-            : contentSource === 'json' || !contentSource
-              ? dbOk
-                ? 'pass'
-                : 'warn'
-              : 'fail',
+            : contentSource === 'json'
+            ? dbOk
+              ? 'pass'
+              : 'warn'
+            : 'fail',
       detail:
         contentSource === 'payload'
           ? 'Payload CMS is canonical'
-          : live
-            ? 'Live mode requires CONTENT_SOURCE=payload (ADR-014 hard cutover)'
-            : dbOk
-              ? 'Soft path: Postgres nw_articles / JSON desk is canonical until Payload cutover'
-              : 'Local file JSON store (dev) — set DATABASE_URL for soft-launch preview',
+          : contentSource === 'json'
+            ? dbOk
+              ? 'Explicit emergency/local JSON desk mode on Postgres'
+              : 'Explicit local JSON desk mode — not suitable for launch'
+            : 'Payload CMS is the default authority; configure PAYLOAD_PUBLIC_SERVER_URL',
     },
     {
       key: 'starter-seed',
@@ -253,8 +254,8 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
           : 'pass',
       detail:
         starterSeed === 'true' || starterSeed === '1'
-          ? 'ALLOW_STARTER_SEED is on — turn off before public soft launch'
-          : 'Starter seed is not forced on',
+          ? 'Legacy ALLOW_STARTER_SEED is set. Source-code article fixtures have been removed; delete this obsolete flag.'
+          : 'No legacy starter-seed flag is present; runtime article fixtures are not shipped.',
     },
     verifiedSetting('payload-url', 'Payload CMS URL', env, 'PAYLOAD_PUBLIC_SERVER_URL', {
       required: payloadRequired,

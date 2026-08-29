@@ -8,6 +8,8 @@ import {
   getRealWeather,
 } from '@/lib/live/real'
 import { getCricketScores, getFootballScores } from '@/lib/live/sports'
+import { getCalendarProviderState } from '@/lib/calendar-provider'
+import { getPublishedCalendarSchedule } from '@/lib/calendar-schedule'
 import type { LiveDataEnvelope, LiveValue } from '@/lib/live/types'
 
 export type ProviderHealth = {
@@ -47,6 +49,33 @@ function fromEnvelope<T>(value: LiveDataEnvelope<T>): CheckResult {
   }
 }
 
+
+async function calendarHealth(): Promise<CheckResult> {
+  const state = getCalendarProviderState()
+  if (!state.configured) {
+    return {
+      status: 'unconfigured',
+      source: state.source,
+      updatedAt: new Date().toISOString(),
+      error: state.detail,
+    }
+  }
+  const schedule = await getPublishedCalendarSchedule()
+  if (!schedule) {
+    return {
+      status: 'empty',
+      source: state.source,
+      updatedAt: new Date().toISOString(),
+      error: 'No validated current-year Bikram Sambat schedule is available yet.',
+    }
+  }
+  return {
+    status: 'ok',
+    source: schedule.source,
+    updatedAt: schedule.updatedAt,
+  }
+}
+
 async function manualOnly(key: string, label: string): Promise<CheckResult> {
   const record = await getManualLiveRecord(key)
   if (record) {
@@ -75,20 +104,27 @@ const PROVIDERS: ProviderDefinition[] = [
   {
     key: 'nepse',
     label: 'NEPSE',
-    envVars: [],
+    envVars: ['NEPSE_API_URL', 'NEPSE_API_KEY'],
     check: async () => fromLiveValue(await getRealNepse('ne')),
   },
   {
     key: 'bullion',
     label: 'Gold and silver',
-    envVars: [],
+    envVars: ['GOLD_SILVER_API_URL', 'GOLD_SILVER_API_KEY'],
     check: async () => fromLiveValue(await getRealGoldSilver('ne')),
   },
   {
     key: 'forex',
     label: 'Forex',
-    envVars: ['FOREX_API_KEY'],
+    envVars: [],
     check: async () => fromLiveValue(await getRealForex('ne')),
+  },
+  {
+    key: 'calendar',
+    label: 'Bikram Sambat calendar',
+    envVars: ['CALENDAR_API_KEY', 'CALENDAR_API_URL'],
+    requiresConfiguration: true,
+    check: calendarHealth,
   },
   {
     key: 'football',

@@ -10,6 +10,8 @@ import { HomeBillboardAd } from '@/components/home/HomeBillboardAd'
 import { HomeClosingDesk } from '@/components/home/HomeClosingDesk'
 import { HomeEmptyEdition } from '@/components/home/HomeEmptyEdition'
 import { HomeMidAd } from '@/components/home/HomeMidAd'
+import { HomeSportsLive } from '@/components/home/HomeSportsLive'
+import { HomeServiceDesk } from '@/components/home/HomeServiceDesk'
 import { LatestRail } from '@/components/home/LatestRail'
 import { PollOfDay } from '@/components/home/PollOfDay'
 import { PortalFeed } from '@/components/home/PortalFeed'
@@ -238,10 +240,15 @@ export async function HomePage({ locale }: { locale: Locale }) {
         {fullWidthCoreDesks.length > 0 ? (
           <div className="mt-8 space-y-8 sm:mt-10 sm:space-y-10">
             {fullWidthCoreDesks.map((section) => (
-              <Section key={section.category.slug} section={section} locale={locale} />
+              <div key={section.category.slug}>
+                <Section section={section} locale={locale} />
+              </div>
             ))}
           </div>
         ) : null}
+
+        <HomeSportsLive locale={locale} />
+        <HomeServiceDesk locale={locale} />
 
         {latest.length > 0 ? (
           <div className="mt-8 xl:hidden">

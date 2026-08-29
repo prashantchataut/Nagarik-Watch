@@ -1,18 +1,10 @@
-/**
- * Provider-aware live sports scores.
- *
- * Football uses football-data.org. Cricket uses the configured API-Sports-compatible
- * endpoint. When credentials are absent or an upstream fails, the service checks the
- * newsroom's verified manual override and otherwise returns an attributed empty/error
- * state. It never fabricates a score.
- *
- * Server-only: provider credentials live in process.env and never reach the client.
- */
 import 'server-only'
 import type { CricketScore, FootballScore, LiveDataEnvelope } from '@/lib/live/types'
 import { getManualLiveRecord } from '@/lib/live/manual'
 
 const TTL_MS = 60_000
+const FETCH_TIMEOUT_MS = 5_000
+
 type CacheEntry = { at: number; value: LiveDataEnvelope<unknown> }
 const cache = new Map<string, CacheEntry>()
 
@@ -21,16 +13,10 @@ function cached<T>(key: string): LiveDataEnvelope<T> | null {
   if (hit && Date.now() - hit.at < TTL_MS) return hit.value as LiveDataEnvelope<T>
   return null
 }
+
 function remember<T>(key: string, value: LiveDataEnvelope<T>): LiveDataEnvelope<T> {
   cache.set(key, { at: Date.now(), value })
   return value
-}
-
-async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  const timer = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error('sports-data timeout')), ms),
-  )
-  return Promise.race([promise, timer])
 }
 
 function unavailable<T>(source: string, error?: string): LiveDataEnvelope<T[]> {
@@ -43,169 +29,340 @@ function unavailable<T>(source: string, error?: string): LiveDataEnvelope<T[]> {
   }
 }
 
+function configuredProvider(value: string | undefined, fallback: string): string {
+  return value?.trim().toLowerCase() || fallback
+}
+
+function todayKathmandu(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kathmandu',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date())
+}
+
+async function providerFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  return fetch(url, {
+    ...init,
+    cache: 'no-store',
+    signal: init.signal ?? AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  })
+}
+
+async function manualFootball(): Promise<LiveDataEnvelope<FootballScore[]> | null> {
+  const manual = await getManualLiveRecord<FootballScore[]>('football')
+  if (!manual) return null
+  return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
+}
+
+async function manualCricket(): Promise<LiveDataEnvelope<CricketScore[]> | null> {
+  const manual = await getManualLiveRecord<CricketScore[]>('cricket')
+  if (!manual) return null
+  return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
+}
+
 type FootballDataMatch = {
   competition?: { name?: string }
   homeTeam?: { name?: string }
   awayTeam?: { name?: string }
-  score?: { fullTime?: { homeTeam?: number | null; awayTeam?: number | null } }
+  score?: {
+    fullTime?: {
+      home?: number | null
+      away?: number | null
+      homeTeam?: number | null
+      awayTeam?: number | null
+    }
+  }
   status?: string
   utcDate?: string
-  matchday?: number
+  minute?: number | null
 }
 
-/** Football live scores with verified manual fallback. */
-export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScore[]>> {
-  const key = 'football'
-  const hit = cached<FootballScore[]>(key)
-  if (hit) return hit
-
-  const apiKey = process.env.FOOTBALL_API_KEY
-  if (!apiKey) {
-    const manual = await getManualLiveRecord<FootballScore[]>('football')
-    if (manual)
-      return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return unavailable<FootballScore>('football-data.org')
-  }
-
-  try {
-    // WC 2000 (FIFA competitions id) + Premier League PL on free tier. Free tier exposes
-    // a small set of competitions; WC 2026 is covered when in-session.
-    const url = 'https://api.football-data.org/v4/matches?competitions=WC,PL'
-    const res = await withTimeout(
-      fetch(url, {
-        headers: { 'X-Auth-Token': apiKey },
-        next: { revalidate: 60 },
-      }),
-      5000,
-    )
-    if (!res.ok) throw new Error(`football http ${res.status}`)
-    const j = (await res.json()) as { matches?: FootballDataMatch[] }
-    const matches = j.matches ?? []
-    const now = Date.now()
-    const scores: FootballScore[] = matches
-      .filter((m) => {
-        const start = m.utcDate ? Date.parse(m.utcDate) : 0
-        // Show fixtures in the next 2 days and anything live/finished today.
-        return Math.abs(start - now) < 2 * 86_400_000 || m.status === 'IN' || m.status === 'PAUSED'
-      })
-      .slice(0, 10)
-      .map((m) => {
-        const home = m.score?.fullTime?.homeTeam
-        const away = m.score?.fullTime?.awayTeam
-        const hasScore = typeof home === 'number' && typeof away === 'number'
-        const isLive = m.status === 'IN' || m.status === 'PAUSED'
-        return {
-          league: m.competition?.name ?? 'Football',
-          home: m.homeTeam?.name ?? '?',
-          away: m.awayTeam?.name ?? '?',
-          score: hasScore ? `${home}-${away}` : '—',
-          minute: isLive ? 'Live' : '',
-          status: isLive ? ('live' as const) : ('fixture' as const),
-        }
-      })
-
-    if (scores.length === 0) throw new Error('football empty')
-    return remember(key, {
-      status: 'ok',
-      source: 'football-data.org',
-      updatedAt: new Date().toISOString(),
-      data: scores,
-    })
-  } catch (error) {
-    const manual = await getManualLiveRecord<FootballScore[]>('football')
-    if (manual)
-      return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return unavailable<FootballScore>(
-      'football-data.org',
-      error instanceof Error ? error.message : 'Football fetch failed',
-    )
+function footballDataScore(match: FootballDataMatch): FootballScore {
+  const fullTime = match.score?.fullTime
+  const home = fullTime?.home ?? fullTime?.homeTeam
+  const away = fullTime?.away ?? fullTime?.awayTeam
+  const status = match.status?.toUpperCase() || 'SCHEDULED'
+  const live = status === 'LIVE' || status === 'IN_PLAY' || status === 'PAUSED'
+  const finished = status === 'FINISHED'
+  return {
+    league: match.competition?.name ?? 'Football',
+    home: match.homeTeam?.name ?? '?',
+    away: match.awayTeam?.name ?? '?',
+    score: typeof home === 'number' && typeof away === 'number' ? `${home}-${away}` : '—',
+    minute: live ? (typeof match.minute === 'number' ? `${match.minute}′` : 'Live') : '',
+    status: live ? 'live' : finished ? 'finished' : 'fixture',
   }
 }
 
-type ApiSportsFixture = {
-  league?: { name?: string }
-  teams?: {
-    home?: { name?: string }
-    away?: { name?: string }
-  }
-  goals?: { home?: number | null; away?: number | null }
+async function fetchFootballData(apiKey: string): Promise<FootballScore[]> {
+  const base = (process.env.FOOTBALL_DATA_API_BASE || process.env.FOOTBALL_API_BASE || 'https://api.football-data.org').replace(/\/$/, '')
+  const dateFrom = todayKathmandu()
+  const tomorrow = new Date(Date.now() + 86_400_000)
+  const dateTo = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kathmandu',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(tomorrow)
+  const params = new URLSearchParams({ dateFrom, dateTo })
+  const competitions = process.env.FOOTBALL_COMPETITIONS?.trim()
+  if (competitions) params.set('competitions', competitions)
+  const response = await providerFetch(`${base}/v4/matches?${params}`, {
+    headers: { 'X-Auth-Token': apiKey },
+  })
+  if (!response.ok) throw new Error(`football-data.org returned ${response.status}`)
+  const body = (await response.json()) as { matches?: FootballDataMatch[] }
+  return (body.matches ?? []).slice(0, 12).map(footballDataScore)
+}
+
+type ApiFootballFixture = {
   fixture?: {
-    status?: { short?: string; elapsed?: number | null }
+    status?: { short?: string; long?: string; elapsed?: number | null }
     date?: string
   }
+  league?: { name?: string }
+  teams?: { home?: { name?: string }; away?: { name?: string } }
+  goals?: { home?: number | null; away?: number | null }
 }
 
-/** Cricket live scores with verified manual fallback. */
-export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[]>> {
-  const key = 'cricket'
-  const hit = cached<CricketScore[]>(key)
-  if (hit) return hit
+const API_FOOTBALL_LIVE = new Set(['1H', 'HT', '2H', 'ET', 'BT', 'P', 'SUSP', 'INT', 'LIVE'])
+const API_FOOTBALL_FINISHED = new Set(['FT', 'AET', 'PEN'])
 
-  const apiKey = process.env.CRICKET_API_KEY
-  if (!apiKey) {
-    const manual = await getManualLiveRecord<CricketScore[]>('cricket')
-    if (manual)
-      return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return unavailable<CricketScore>('api-sports')
+function apiFootballScore(match: ApiFootballFixture): FootballScore {
+  const short = match.fixture?.status?.short?.toUpperCase() || 'NS'
+  const elapsed = match.fixture?.status?.elapsed
+  const home = match.goals?.home
+  const away = match.goals?.away
+  const live = API_FOOTBALL_LIVE.has(short)
+  const finished = API_FOOTBALL_FINISHED.has(short)
+  return {
+    league: match.league?.name ?? 'Football',
+    home: match.teams?.home?.name ?? '?',
+    away: match.teams?.away?.name ?? '?',
+    score: typeof home === 'number' && typeof away === 'number' ? `${home}-${away}` : '—',
+    minute: live
+      ? typeof elapsed === 'number'
+        ? `${elapsed}′`
+        : match.fixture?.status?.long || 'Live'
+      : match.fixture?.status?.long || '',
+    status: live ? 'live' : finished ? 'finished' : 'fixture',
   }
+}
+
+async function apiFootballRequest(base: string, apiKey: string, query: string) {
+  const response = await providerFetch(`${base}/fixtures?${query}`, {
+    headers: { 'x-apisports-key': apiKey },
+  })
+  if (!response.ok) throw new Error(`API-Football returned ${response.status}`)
+  const body = (await response.json()) as { response?: ApiFootballFixture[]; errors?: unknown }
+  return body.response ?? []
+}
+
+async function fetchApiFootball(apiKey: string): Promise<FootballScore[]> {
+  const base = (process.env.API_FOOTBALL_API_BASE || process.env.FOOTBALL_API_BASE || 'https://v3.football.api-sports.io').replace(
+    /\/$/,
+    '',
+  )
+  let fixtures = await apiFootballRequest(base, apiKey, 'live=all')
+  if (fixtures.length === 0) {
+    const params = new URLSearchParams({ date: todayKathmandu(), timezone: 'Asia/Kathmandu' })
+    fixtures = await apiFootballRequest(base, apiKey, params.toString())
+  }
+  return fixtures.slice(0, 12).map(apiFootballScore)
+}
+
+export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScore[]>> {
+  const provider = configuredProvider(process.env.FOOTBALL_PROVIDER, 'football-data')
+  const cacheKey = `football:${provider}`
+  const hit = cached<FootballScore[]>(cacheKey)
+  if (hit) return hit
+  const apiKey = process.env.FOOTBALL_API_KEY?.trim()
+  if (!apiKey) return (await manualFootball()) ?? unavailable<FootballScore>(provider)
 
   try {
-    // api-sports cricket. Free tier: 100 req/day. Fetch recent + upcoming fixtures.
-    const base = process.env.CRICKET_API_BASE ?? 'https://v1.cricket.api-sports.io'
-    const url = `${base.replace(/\/$/, '')}/fixtures?timezone=Asia/Kathmandu`
-    const res = await withTimeout(
-      fetch(url, {
-        headers: { 'x-apisports-key': apiKey },
-        next: { revalidate: 60 },
-      }),
-      5000,
-    )
-    if (!res.ok) throw new Error(`cricket http ${res.status}`)
-    const j = (await res.json()) as { response?: ApiSportsFixture[] }
-    const fixtures = j.response ?? []
-    const scores: CricketScore[] = fixtures.slice(0, 10).map((f) => {
-      const hg = f.goals?.home
-      const ag = f.goals?.away
-      const short = f.fixture?.status?.short ?? 'NS'
-      const statusLabel: Record<string, string> = {
-        NS: 'Upcoming',
-        '1H': 'Live',
-        '2H': 'Live',
-        HT: 'Innings break',
-        FT: 'Finished',
-        LIVE: 'Live',
-      }
-      return {
-        league: f.league?.name ?? 'Cricket',
-        home: f.teams?.home?.name ?? '?',
-        away: f.teams?.away?.name ?? '?',
-        score: typeof hg === 'number' && typeof ag === 'number' ? `${hg}/${ag}` : '—',
-        status: statusLabel[short] ?? short,
-      }
-    })
-
-    if (scores.length === 0) throw new Error('cricket empty')
-    return remember(key, {
+    const scores =
+      provider === 'api-football' || provider === 'api-sports'
+        ? await fetchApiFootball(apiKey)
+        : await fetchFootballData(apiKey)
+    if (scores.length === 0) throw new Error('No football fixtures returned for the active window')
+    return remember(cacheKey, {
       status: 'ok',
-      source: 'api-sports.io',
+      source: provider === 'api-football' || provider === 'api-sports' ? 'API-Football' : 'football-data.org',
       updatedAt: new Date().toISOString(),
       data: scores,
     })
   } catch (error) {
-    const manual = await getManualLiveRecord<CricketScore[]>('cricket')
-    if (manual)
-      return { status: 'ok', source: manual.source, updatedAt: manual.updatedAt, data: manual.data }
-    return unavailable<CricketScore>(
-      'Configured cricket provider',
-      error instanceof Error ? error.message : 'Cricket fetch failed',
+    return (
+      (await manualFootball()) ??
+      unavailable<FootballScore>(
+        provider === 'api-football' || provider === 'api-sports' ? 'API-Football' : 'football-data.org',
+        error instanceof Error ? error.message : 'Football provider failed',
+      )
     )
   }
 }
 
-/** Whether external sports providers are configured. Manual newsroom entries may still be available. */
+type CricketDataInnings = {
+  r?: number | null
+  w?: number | null
+  o?: number | null
+  inning?: string
+}
+
+type CricketDataMatch = {
+  name?: string
+  matchType?: string
+  status?: string
+  teams?: string[]
+  score?: CricketDataInnings[]
+}
+
+function inningsValue(innings: CricketDataInnings): string {
+  if (typeof innings.r !== 'number') return '—'
+  const wickets = typeof innings.w === 'number' ? `/${innings.w}` : ''
+  const overs = typeof innings.o === 'number' ? ` (${innings.o})` : ''
+  return `${innings.r}${wickets}${overs}`
+}
+
+function cricketDataSideScore(team: string, scores: CricketDataInnings[]): string | null {
+  const token = team.toLowerCase().split(/\s+/).filter(Boolean)[0]
+  const matching = scores.filter((inning) =>
+    token ? inning.inning?.toLowerCase().includes(token) : false,
+  )
+  if (matching.length === 0) return null
+  return matching.map(inningsValue).join(' & ')
+}
+
+function cricketDataScore(match: CricketDataMatch): CricketScore {
+  const home = match.teams?.[0] ?? 'Team 1'
+  const away = match.teams?.[1] ?? 'Team 2'
+  const scores = match.score ?? []
+  const homeScore = cricketDataSideScore(home, scores)
+  const awayScore = cricketDataSideScore(away, scores)
+  const fallbackScores = scores.slice(-2).map(inningsValue).filter((value) => value !== '—')
+  return {
+    league: match.matchType?.toUpperCase() || 'Cricket',
+    home,
+    away,
+    score:
+      homeScore || awayScore
+        ? `${homeScore ?? '—'} · ${awayScore ?? '—'}`
+        : fallbackScores.join(' · ') || '—',
+    status: match.status?.trim() || match.name?.trim() || 'Scheduled',
+  }
+}
+
+async function fetchCricketData(apiKey: string): Promise<CricketScore[]> {
+  const base = (process.env.CRICKETDATA_API_BASE || process.env.CRICKET_API_BASE || 'https://api.cricapi.com/v1').replace(/\/$/, '')
+  const params = new URLSearchParams({ apikey: apiKey, offset: '0' })
+  const response = await providerFetch(`${base}/currentMatches?${params}`)
+  if (!response.ok) throw new Error(`CricketData returned ${response.status}`)
+  const body = (await response.json()) as { data?: CricketDataMatch[]; status?: string; reason?: string }
+  if (body.status && body.status !== 'success' && !body.data?.length) {
+    throw new Error(body.reason || `CricketData status ${body.status}`)
+  }
+  return (body.data ?? []).slice(0, 12).map(cricketDataScore)
+}
+
+type SportmonksRun = {
+  team_id?: number
+  score?: number | null
+  wickets?: number | null
+  overs?: number | null
+  inning?: number
+}
+
+type SportmonksFixture = {
+  round?: string
+  type?: string
+  status?: string
+  note?: string
+  live?: boolean
+  localteam_id?: number
+  visitorteam_id?: number
+  localteam?: { id?: number; name?: string }
+  visitorteam?: { id?: number; name?: string }
+  league?: { name?: string }
+  runs?: SportmonksRun[]
+}
+
+function sportmonksSideScore(teamId: number | undefined, runs: SportmonksRun[]): string {
+  const innings = runs.filter((run) => run.team_id === teamId)
+  if (innings.length === 0) return '—'
+  return innings
+    .map((run) => {
+      if (typeof run.score !== 'number') return '—'
+      const wickets = typeof run.wickets === 'number' ? `/${run.wickets}` : ''
+      const overs = typeof run.overs === 'number' ? ` (${run.overs})` : ''
+      return `${run.score}${wickets}${overs}`
+    })
+    .join(' & ')
+}
+
+function sportmonksScore(match: SportmonksFixture): CricketScore {
+  const runs = match.runs ?? []
+  const homeId = match.localteam?.id ?? match.localteam_id
+  const awayId = match.visitorteam?.id ?? match.visitorteam_id
+  return {
+    league: match.league?.name || match.round || match.type || 'Cricket',
+    home: match.localteam?.name ?? 'Team 1',
+    away: match.visitorteam?.name ?? 'Team 2',
+    score: `${sportmonksSideScore(homeId, runs)} · ${sportmonksSideScore(awayId, runs)}`,
+    status: match.note || match.status || (match.live ? 'Live' : 'Scheduled'),
+  }
+}
+
+async function fetchSportmonksCricket(apiKey: string): Promise<CricketScore[]> {
+  const base = (process.env.SPORTMONKS_CRICKET_API_BASE || process.env.CRICKET_API_BASE || 'https://cricket.sportmonks.com/api/v2.0').replace(
+    /\/$/,
+    '',
+  )
+  const params = new URLSearchParams({
+    api_token: apiKey,
+    include: 'localteam,visitorteam,runs,league',
+  })
+  const response = await providerFetch(`${base}/livescores?${params}`)
+  if (!response.ok) throw new Error(`Sportmonks Cricket returned ${response.status}`)
+  const body = (await response.json()) as { data?: SportmonksFixture[] }
+  return (body.data ?? []).slice(0, 12).map(sportmonksScore)
+}
+
+export async function getCricketScores(): Promise<LiveDataEnvelope<CricketScore[]>> {
+  const provider = configuredProvider(process.env.CRICKET_PROVIDER, 'cricketdata')
+  const cacheKey = `cricket:${provider}`
+  const hit = cached<CricketScore[]>(cacheKey)
+  if (hit) return hit
+  const apiKey = process.env.CRICKET_API_KEY?.trim()
+  if (!apiKey) return (await manualCricket()) ?? unavailable<CricketScore>(provider)
+
+  try {
+    const scores =
+      provider === 'sportmonks'
+        ? await fetchSportmonksCricket(apiKey)
+        : await fetchCricketData(apiKey)
+    if (scores.length === 0) throw new Error('No cricket matches returned by the provider')
+    return remember(cacheKey, {
+      status: 'ok',
+      source: provider === 'sportmonks' ? 'Sportmonks Cricket' : 'CricketData (CricAPI)',
+      updatedAt: new Date().toISOString(),
+      data: scores,
+    })
+  } catch (error) {
+    return (
+      (await manualCricket()) ??
+      unavailable<CricketScore>(
+        provider === 'sportmonks' ? 'Sportmonks Cricket' : 'CricketData (CricAPI)',
+        error instanceof Error ? error.message : 'Cricket provider failed',
+      )
+    )
+  }
+}
+
 export function sportsConfigured(): { football: boolean; cricket: boolean } {
   return {
-    football: Boolean(process.env.FOOTBALL_API_KEY),
-    cricket: Boolean(process.env.CRICKET_API_KEY),
+    football: Boolean(process.env.FOOTBALL_API_KEY?.trim()),
+    cricket: Boolean(process.env.CRICKET_API_KEY?.trim()),
   }
 }

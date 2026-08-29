@@ -198,7 +198,7 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
   const lang = locale === 'en' ? 'en' : 'ne'
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8 sm:py-12">
+    <div className="search-page mx-auto max-w-page px-4 py-8 sm:py-12">
       <HubIndexHeader
         title={dict.searchHeading}
         lead={

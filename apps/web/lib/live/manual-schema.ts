@@ -1,3 +1,5 @@
+import { bsMonthLength } from '@nagarikwatch/db'
+
 export type ManualLiveKey =
   | 'nepse'
   | 'forex'
@@ -168,25 +170,39 @@ function validateRashifal(data: unknown): ManualValidation {
 
 function validateCalendarSchedule(data: unknown): ManualValidation {
   if (!isRecord(data)) return invalid('Calendar schedule must be a JSON object.')
-  if (!Number.isInteger(data.year) || Number(data.year) < 1970 || Number(data.year) > 2200) {
+  if (!Number.isInteger(data.year) || Number(data.year) < 2000 || Number(data.year) > 2099) {
     return invalid('Calendar schedule needs a valid Bikram Sambat year.')
   }
   if (!Array.isArray(data.events)) return invalid('Calendar schedule events must be an array.')
   if (data.events.length > 500) return invalid('Calendar schedule has too many events.')
+  const seen = new Set<string>()
   for (const event of data.events) {
     if (!isRecord(event)) return invalid('Each calendar event must be an object.')
     if (!Number.isInteger(event.month) || Number(event.month) < 1 || Number(event.month) > 12) {
       return invalid('Calendar event month must be 1–12.')
     }
-    if (!Number.isInteger(event.day) || Number(event.day) < 1 || Number(event.day) > 32) {
-      return invalid('Calendar event day is invalid.')
+    const month = Number(event.month)
+    const day = Number(event.day)
+    let monthLength = 0
+    try {
+      monthLength = bsMonthLength(Number(data.year), month)
+    } catch {
+      return invalid('Calendar event is outside the supported Bikram Sambat range.')
     }
-    if (!isNonEmptyString(event.nameNe, 180) || !isNonEmptyString(event.nameEn, 180)) {
+    if (!Number.isInteger(day) || day < 1 || day > monthLength) {
+      return invalid(`Calendar event day must be valid for B.S. ${data.year}/${month}.`)
+    }
+    const nameNe = event.nameNe
+    const nameEn = event.nameEn
+    if (!isNonEmptyString(nameNe, 180) || !isNonEmptyString(nameEn, 180)) {
       return invalid('Calendar event needs Nepali and English names.')
     }
     if (event.holiday != null && typeof event.holiday !== 'boolean') {
       return invalid('Calendar event holiday must be true or false.')
     }
+    const fingerprint = `${month}:${day}:${nameNe.trim().toLowerCase()}`
+    if (seen.has(fingerprint)) return invalid('Calendar schedule contains a duplicate event.')
+    seen.add(fingerprint)
   }
   return { ok: true }
 }

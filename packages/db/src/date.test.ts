@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { adToBs, bsToAd, formatDate, formatBsFull, toDevanagari } from './date'
+import { adToBs, bsMonthLength, bsToAd, formatDate, formatBsFull, todayBsInKathmandu, toDevanagari } from './date'
 
 describe('toDevanagari', () => {
   it('converts Latin digits to Devanagari numerals', () => {
@@ -86,5 +86,21 @@ describe('formatBsFull', () => {
 
   it('renders English locale with transliterated month and Latin numerals', () => {
     expect(formatBsFull({ year: 2083, month: 3, day: 5 }, 'en')).toBe('5 Asadh 2083')
+  })
+})
+
+
+describe('calendar safety', () => {
+  it('does not fabricate month lengths outside the supported BS range', () => {
+    expect(() => bsMonthLength(2200, 1)).toThrow(RangeError)
+    expect(() => bsMonthLength(2083, 13)).toThrow(RangeError)
+  })
+
+  it('resolves today from the Kathmandu civil date at UTC day boundaries', () => {
+    expect(todayBsInKathmandu(new Date('2026-04-13T19:00:00Z'))).toEqual({
+      year: 2083,
+      month: 1,
+      day: 1,
+    })
   })
 })

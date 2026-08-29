@@ -15,7 +15,7 @@ Nagarik Watch's public Next.js app (`apps/web`) can deploy to **Cloudflare Worke
 
 3. **Postgres for auth/newsroom** — PGlite does not run on Workers. Use a free external Postgres (Neon, Supabase, etc.) and set `DATABASE_URL` as a Worker secret. Cloudflare D1 is another free option with adapter work.
 
-4. **R2 for media (optional)** — enable R2 in the dashboard (free tier includes storage): [R2 Overview](https://dash.cloudflare.com/?to=/:account/r2/overview). Until then, JSON-seed content works without uploads.
+4. **R2 for media (optional)** — enable R2 in the dashboard (free tier includes storage): [R2 Overview](https://dash.cloudflare.com/?to=/:account/r2/overview). Until storage is configured, do not substitute source-code article fixtures for newsroom media.
 
 ## Free-tier limits to know
 
@@ -36,7 +36,7 @@ WSL build (CF_WORKERS=1) → wrangler deploy --minify
     Static assets + slim handler | Postgres (secret) | R2 (optional)
 ```
 
-Payload CMS (`apps/admin`) stays separate until a second Worker is added. Keep `CONTENT_SOURCE=json` on the reader until then.
+Payload CMS (`apps/admin`) stays a separate service. The live reader must reach that service with `CONTENT_SOURCE=payload` (the default); the static Pages export is preview-only and cannot provide live CMS publishing semantics.
 
 ## One-time setup
 
@@ -57,7 +57,7 @@ pnpm exec wrangler secret put REVALIDATE_SECRET
 pnpm exec wrangler secret put DATABASE_URL
 ```
 
-Vars in `wrangler.jsonc`: `CONTENT_SOURCE=json`, `NEXT_PUBLIC_LAUNCH_STATUS=preview`, plus override `NEXT_PUBLIC_SITE_URL` / `BETTER_AUTH_URL` to your real domain after first deploy.
+For the dynamic Worker/app deployment use `CONTENT_SOURCE=payload`. The static Pages preview forces preview mode and must never be the live origin. Override `NEXT_PUBLIC_SITE_URL` / `BETTER_AUTH_URL` to your real domain after first deploy.
 
 ## Cloudflare Workers Builds (this is what is failing)
 

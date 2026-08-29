@@ -10,6 +10,8 @@ Active operator and product docs. Historical plans and audits live under `archiv
 | [architecture.md](./architecture.md)                                              | System overview                        |
 | [content-model.md](./content-model.md)                                            | CMS / edition model                    |
 | [editorial-workflow.md](./editorial-workflow.md)                                  | Desk workflow                          |
+| [calendar-api-setup.md](./calendar-api-setup.md)                                | Automatic BS calendar provider setup   |
+| [sports-api-setup.md](./sports-api-setup.md)                                    | Live football/cricket provider setup   |
 | [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)                                    | Vercel Node deploy                     |
 | [CLOUDFLARE.md](./CLOUDFLARE.md) / [CLOUDFLARE-DOMAIN.md](./CLOUDFLARE-DOMAIN.md) | DNS / CDN                              |
 | [adr/](./adr/)                                                                    | Architecture decisions                 |

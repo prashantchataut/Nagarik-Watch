@@ -49,7 +49,6 @@ export default async function LatestPage({
 
   return (
     <div className="mx-auto max-w-page px-3 py-6 sm:px-4 sm:py-8 lg:py-10">
-      <AdSlot locale={locale} placementKey="latest-top" />
       <HubIndexHeader
         title={english ? 'Latest news' : 'ताजा समाचार'}
         lead={

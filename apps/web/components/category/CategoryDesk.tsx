@@ -123,32 +123,14 @@ function CategoryLead({ story, locale }: { story: StoryCardData; locale: Locale 
         <article
           className={
             imageUrl
-              ? 'group grid gap-4 lg:grid-cols-[minmax(0,1.18fr)_minmax(18rem,0.82fr)] lg:items-center lg:gap-6'
-              : 'group max-w-[52rem]'
+              ? 'group'
+              : 'group mx-auto max-w-[64rem]'
           }
         >
-          {imageUrl ? (
-            <Link
-              href={href}
-              className="relative block aspect-[16/10] overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:aspect-[16/9]"
-              tabIndex={-1}
-              aria-hidden="true"
-            >
-              <Image
-                src={imageUrl}
-                alt=""
-                fill
-                priority
-                sizes="(min-width: 1200px) 700px, (min-width: 1024px) 58vw, 100vw"
-                className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.015]"
-              />
-            </Link>
-          ) : null}
-
-          <div className="min-w-0">
+          <div className="mx-auto max-w-[62rem] pb-5 text-center sm:pb-6">
             <CategoryLabel category={story.category} locale={locale} as="span" className="mb-2" />
             <h2
-              className={`text-pretty font-display text-[clamp(1.8rem,4.1vw,3.15rem)] font-extrabold leading-[1.12] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong ${titleLang === 'en' ? 'tracking-[-0.025em]' : 'tracking-normal'}`}
+              className={`mx-auto max-w-[20ch] text-balance font-display text-[clamp(2rem,4.5vw,3.7rem)] font-extrabold leading-[1.12] text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong ${titleLang === 'en' ? 'tracking-[-0.03em]' : 'tracking-normal'}`}
               lang={titleLang}
             >
               <Link
@@ -160,16 +142,34 @@ function CategoryLead({ story, locale }: { story: StoryCardData; locale: Locale 
             </h2>
             {deck ? (
               <p
-                className="mt-2.5 max-w-[42rem] text-pretty text-body leading-relaxed text-ink-soft sm:text-body-lg"
+                className="mx-auto mt-3 max-w-[54rem] text-pretty text-body leading-[1.7] text-ink-soft sm:text-body-lg"
                 lang={titleLang}
               >
                 {deck}
               </p>
             ) : null}
-            <div className="mt-3.5">
+            <div className="mt-3.5 flex justify-center">
               <Byline authors={story.authors} locale={locale} publishedAt={story.publishedAt} />
             </div>
           </div>
+
+          {imageUrl ? (
+            <Link
+              href={href}
+              className="relative block aspect-[16/10] overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:aspect-[16/9] lg:aspect-[2/1]"
+              tabIndex={-1}
+              aria-hidden="true"
+            >
+              <Image
+                src={imageUrl}
+                alt=""
+                fill
+                priority
+                sizes="(min-width: 1280px) 1280px, calc(100vw - 2rem)"
+                className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.01]"
+              />
+            </Link>
+          ) : null}
         </article>
       </InstrumentedStory>
     </section>

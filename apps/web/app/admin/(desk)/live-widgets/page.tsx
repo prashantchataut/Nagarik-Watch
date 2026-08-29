@@ -5,7 +5,11 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { getProviderHealth } from '@/lib/live/health'
 import { listManualLiveRecords, setManualLiveRecord } from '@/lib/live/manual'
 import { validateManualLiveData } from '@/lib/live/manual-schema'
-import { formatDate } from '@nagarikwatch/db'
+import { formatDate, todayBsInKathmandu } from '@nagarikwatch/db'
+import {
+  getCalendarProviderState,
+  syncCalendarScheduleFromProvider,
+} from '@/lib/calendar-provider'
 import {
   AdminPageHeader,
   AdminCard,
@@ -49,13 +53,6 @@ const MANUAL_KEYS = [
     purpose: 'आजको काठमाडौं मितिका १२ राशिको पूर्ण सम्पादकीय संस्करण।',
     example:
       '{"date":"2026-08-21","signs":[{"slug":"mesha","forecastNe":"सम्पादकले लेखेको आजको पाठ","forecastEn":"Optional English"}]}',
-  },
-  {
-    key: 'calendar-schedule',
-    label: 'BS festival / holiday schedule',
-    purpose: 'एउटै बि.सं. वर्षका स्रोत-प्रमाणित पर्व र बिदा। अर्को वर्षमा स्वतः दोहोरिँदैन।',
-    example:
-      '{"year":2083,"events":[{"month":6,"day":3,"nameNe":"संविधान दिवस","nameEn":"Constitution Day","holiday":true}]}',
   },
   {
     key: 'football',
@@ -123,6 +120,26 @@ async function saveManualLive(formData: FormData) {
   redirect(`/admin/live-widgets?saved=${encodeURIComponent(key)}`)
 }
 
+async function syncCalendar(formData: FormData) {
+  'use server'
+  await requireNewsroomSession()
+  const year = Number(formData.get('year'))
+  if (!Number.isInteger(year) || year < 2000 || year > 2099) {
+    redirect('/admin/live-widgets?error=calendar-year')
+  }
+  try {
+    await syncCalendarScheduleFromProvider(year)
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : 'Calendar provider sync failed'
+    redirect(`/admin/live-widgets?error=calendar-provider&detail=${encodeURIComponent(detail)}`)
+  }
+  revalidatePath('/admin/live-widgets')
+  revalidatePath('/patro')
+  revalidatePath('/ne/patro')
+  revalidatePath('/en/patro')
+  redirect('/admin/live-widgets?saved=calendar-schedule')
+}
+
 export default async function LiveWidgetsPage({
   searchParams,
 }: {
@@ -135,9 +152,18 @@ export default async function LiveWidgetsPage({
     listManualLiveRecords().catch(() => []),
   ])
   const manualByKey = new Map(manualRecords.map((record) => [record.key, record]))
+  const calendarRecord = manualByKey.get('calendar-schedule')
+  const calendarValid = calendarRecord
+    ? validateManualLiveData('calendar-schedule', calendarRecord.data).ok
+    : false
+  const calendarData = calendarValid
+    ? (calendarRecord?.data as { year: number; events: unknown[] })
+    : null
+  const calendarProvider = getCalendarProviderState()
 
   const statusLabel: Record<string, string> = {
     ok: 'सक्रिय',
+    empty: 'डेटा खाली',
     mock: 'गैर-लाइभ',
     unconfigured: 'कन्फिगर छैन',
     error: 'त्रुटि',
@@ -154,6 +180,10 @@ export default async function LiveWidgetsPage({
             ? 'सार्वजनिक live data का लागि स्पष्ट स्रोत label अनिवार्य छ।'
             : params.error === 'shape'
               ? params.detail || 'JSON को संरचना यो widget सँग मिलेन।'
+              : params.error === 'calendar-year'
+                ? 'पात्रो sync का लागि बि.सं. वर्ष २०००–२०९९ बीच हुनुपर्छ।'
+                : params.error === 'calendar-provider'
+                  ? params.detail || 'पात्रो प्रदायकबाट sync हुन सकेन।'
               : null
 
   return (
@@ -177,6 +207,60 @@ export default async function LiveWidgetsPage({
           </p>
         </AdminCallout>
       ) : null}
+
+      <AdminCard className="mb-6">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-end">
+          <div>
+            <p className="text-caption font-extrabold uppercase tracking-[0.12em] text-brand-strong" lang="en">
+              Calendar provider
+            </p>
+            <h2 className="mt-1 font-display text-h2 font-extrabold text-ink" lang="ne">
+              पात्रो स्वतः सिंक
+            </h2>
+            <p className="mt-2 max-w-body text-meta leading-relaxed text-ink-soft" lang="ne">
+              पर्व र सार्वजनिक बिदा अब JSON हातैले लेख्नुपर्दैन। प्रदायकबाट वर्षको पात्रो तानिन्छ,
+              प्रत्येक बि.सं. मिति server मा जाँचिन्छ र सफल sync मात्र सार्वजनिक cache मा सुरक्षित हुन्छ।
+            </p>
+            <dl className="mt-4 grid gap-2 border-y border-rule py-3 text-caption sm:grid-cols-3">
+              <div>
+                <dt className="font-bold text-mute" lang="ne">प्रदायक</dt>
+                <dd className="mt-0.5 font-extrabold text-ink">{calendarProvider.source}</dd>
+              </div>
+              <div>
+                <dt className="font-bold text-mute" lang="ne">स्थिति</dt>
+                <dd className={`mt-0.5 font-extrabold ${calendarProvider.configured ? 'text-success' : 'text-breaking'}`} lang="ne">
+                  {calendarProvider.configured ? 'कन्फिगर गरिएको' : 'API key/URL आवश्यक'}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-bold text-mute" lang="ne">अन्तिम cache</dt>
+                <dd className="mt-0.5 font-extrabold text-ink" lang="ne">
+                  {calendarRecord && calendarData
+                    ? `${calendarData.year} · ${calendarData.events.length} कार्यक्रम · ${formatDate(calendarRecord.updatedAt, 'ne')}`
+                    : 'अहिलेसम्म sync छैन'}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <form action={syncCalendar} className="border-y border-rule py-4">
+            <AdminInput
+              id="calendar-sync-year"
+              label="बि.सं. वर्ष"
+              name="year"
+              type="number"
+              min={2000}
+              max={2099}
+              defaultValue={calendarData?.year ?? todayBsInKathmandu().year}
+              required
+              hint={calendarProvider.detail}
+            />
+            <AdminButton type="submit" className="mt-3" disabled={!calendarProvider.configured}>
+              प्रदायकबाट अहिले sync गर्नुहोस्
+            </AdminButton>
+          </form>
+        </div>
+      </AdminCard>
 
       <AdminCard className="mb-6">
         <h2 className="font-display text-h2 font-extrabold text-ink" lang="ne">

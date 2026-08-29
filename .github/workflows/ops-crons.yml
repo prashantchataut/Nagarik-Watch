@@ -18,6 +18,7 @@ on:
           - scheduled-publish
           - breaking-auto-boost
           - house-ad-promote
+          - calendar-sync
           - all
 
 concurrency:
@@ -38,11 +39,11 @@ jobs:
           case "${SCHEDULE}" in
             '*/5 * * * *') jobs='scheduled-publish' ;;
             '*/15 * * * *') jobs='breaking-auto-boost' ;;
-            '0 */6 * * *') jobs='house-ad-promote' ;;
+            '0 */6 * * *') jobs='house-ad-promote calendar-sync' ;;
             *)
               jobs="${MANUAL_JOB:-all}"
               if [ "$jobs" = 'all' ]; then
-                jobs='scheduled-publish breaking-auto-boost house-ad-promote'
+                jobs='scheduled-publish breaking-auto-boost house-ad-promote calendar-sync'
               fi
               ;;
           esac

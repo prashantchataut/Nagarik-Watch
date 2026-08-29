@@ -26,17 +26,6 @@ export type AdPlacement = {
 }
 
 export const AD_PLACEMENTS = {
-  'masthead-leaderboard': {
-    key: 'masthead-leaderboard',
-    surface: 'home',
-    size: 'leaderboard',
-    width: 728,
-    height: 90,
-    label: 'Masthead leaderboard',
-    descriptionNe: 'लोगो छेउको मास्टहेड 728×90 विज्ञापन स्थान।',
-    descriptionEn: 'Masthead 728×90 placement beside the logo.',
-    position: 'Chrome / masthead beside logo',
-  },
   'home-billboard': {
     key: 'home-billboard',
     surface: 'billboard',
@@ -136,17 +125,6 @@ export const AD_PLACEMENTS = {
     descriptionEn: 'Native placement inside category story lists.',
     position: 'Category / story stream',
   },
-  'latest-top': {
-    key: 'latest-top',
-    surface: 'latest',
-    size: 'leaderboard',
-    width: 728,
-    height: 90,
-    label: 'Latest page leaderboard',
-    descriptionNe: 'ताजा समाचार पृष्ठको शीर्ष 728×90 स्थान।',
-    descriptionEn: 'Top 728×90 placement on the latest page.',
-    position: 'Latest / after header',
-  },
   'latest-inline': {
     key: 'latest-inline',
     surface: 'latest',
@@ -157,17 +135,6 @@ export const AD_PLACEMENTS = {
     descriptionNe: 'ताजा समाचार सूचीमा राखिने native स्थान।',
     descriptionEn: 'Native placement inside the latest-news stream.',
     position: 'Latest / story stream',
-  },
-  'trending-top': {
-    key: 'trending-top',
-    surface: 'trending',
-    size: 'leaderboard',
-    width: 728,
-    height: 90,
-    label: 'Trending page leaderboard',
-    descriptionNe: 'ट्रेन्डिङ पृष्ठको शीर्ष 728×90 स्थान।',
-    descriptionEn: 'Top 728×90 placement on the trending page.',
-    position: 'Trending / after header',
   },
   'trending-inline': {
     key: 'trending-inline',

@@ -76,7 +76,7 @@ export function getLaunchPhases(): LaunchPhase[] {
       id: 'soft',
       title: 'Soft launch (preview)',
       summary:
-        'Real product loops on Vercel Node. Soft path may use Postgres nw_articles / JSON desk; keep NEXT_PUBLIC_LAUNCH_STATUS=preview.',
+        'Real product loops on Vercel Node with Payload as the default newsroom authority; keep NEXT_PUBLIC_LAUNCH_STATUS=preview until launch gates are green.',
       items: [
         {
           id: 'dns-vercel',
@@ -88,13 +88,13 @@ export function getLaunchPhases(): LaunchPhase[] {
           id: 'desk-publish',
           label: 'Desk publish path live',
           detail:
-            'CONTENT_SOURCE=json + DATABASE_URL (nw_articles) for soft launch, or Payload when already cut over.',
+            'Payload is the default publication authority. CONTENT_SOURCE=json is an explicit local/emergency mode, never an automatic fallback.',
           checkKeys: ['content-source', 'database', 'starter-seed'],
         },
         {
           id: 'corpus',
           label: '≥30 real Nepali stories',
-          detail: 'No starter seed on homepage (ALLOW_STARTER_SEED unset).',
+          detail: 'No source-code or runtime article fixtures. The homepage is populated only by the configured newsroom authority.',
           checkKeys: ['content-volume', 'starter-seed'],
         },
         {

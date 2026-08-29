@@ -64,13 +64,13 @@ function configurationCheck(contentSource: string, storage: string): ProbeCheck 
   if (process.env.NODE_ENV === 'production') {
     return {
       status: 'warn',
-      detail: `mode=soft-desk; content=${contentSource || 'json'}; storage=${storage}; launch=${status}; Payload cutover pending (ADR-014)`,
+      detail: `mode=emergency-desk; content=${contentSource}; storage=${storage}; launch=${status}; explicit compatibility mode (ADR-014)`,
     }
   }
 
   return {
     status: 'pass',
-    detail: `mode=dev; content=${contentSource || 'json'}; storage=${storage}`,
+    detail: `mode=dev; content=${contentSource}; storage=${storage}`,
   }
 }
 
@@ -95,7 +95,7 @@ async function timed(name: string, fn: () => Promise<string>): Promise<[string, 
 
 export async function collectWebHealth(): Promise<WebHealthSnapshot> {
   const contentSource =
-    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'json'
+    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'payload'
   const checks: Record<string, ProbeCheck> = {}
   checks.configuration = configurationCheck(contentSource, operationalStorageMode())
 
@@ -141,7 +141,7 @@ export async function collectWebHealth(): Promise<WebHealthSnapshot> {
       })
     : Promise.resolve([
         'payload',
-        { status: 'skip', detail: 'Payload source not selected (soft desk)' } satisfies ProbeCheck,
+        { status: 'skip', detail: 'Payload source not selected (explicit emergency/local desk mode)' } satisfies ProbeCheck,
       ])
 
   const migrationsPromise = getOpsMigrationStatus()

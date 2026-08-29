@@ -25,6 +25,7 @@ const RESERVED = new Set([
   'ethics',
   'fact-check-policy',
   'how-recommendations-work',
+  'help',
   'journalist',
   'live',
   'live-scores',

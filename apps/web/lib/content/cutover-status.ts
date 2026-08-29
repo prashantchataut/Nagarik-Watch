@@ -6,7 +6,7 @@
 import 'server-only'
 import { getOperationalPool, type Queryable } from '@/lib/ops-db'
 import { getPayloadCutoverChecklist } from '@/lib/content/payload-cutover'
-import { isPayloadCanonical } from '@/lib/content/payload-admin-client'
+import { declaredContentSource, isPayloadCanonical } from '@/lib/content/payload-admin-client'
 
 export type CutoverStatus = {
   contentSource: string
@@ -34,8 +34,7 @@ async function ensureArticlesReadable(pool: Queryable): Promise<boolean> {
 }
 
 export async function getCutoverStatus(): Promise<CutoverStatus> {
-  const contentSource =
-    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'json'
+  const contentSource = declaredContentSource()
   const checklist = getPayloadCutoverChecklist()
   const migrationMarkedComplete =
     process.env.DESK_TO_PAYLOAD_MIGRATED?.trim().toLowerCase() === 'true' ||

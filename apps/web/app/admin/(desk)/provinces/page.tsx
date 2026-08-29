@@ -15,8 +15,8 @@ export const dynamic = 'force-dynamic'
 /**
  * Provinces. Nepal's seven provinces (lib/site.ts). The article-count
  * column is a best-effort match against the article's optional `province`
- * field — the seed articles do not yet carry that field for every story,
- * so the count is honest (it may read 0). The intent is to surface the
+ * field. Not every CMS story is required to carry that field, so the count
+ * is honest (it may read 0). The intent is to surface the
  * future province-editor workflow, not to fake coverage numbers.
  */
 export default async function ProvincesPage() {

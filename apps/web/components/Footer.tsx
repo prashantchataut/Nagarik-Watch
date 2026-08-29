@@ -59,6 +59,7 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
 
   const trustLinks: FooterLink[] = [
     { href: localizeHref(locale, '/about'), label: dict.footerAbout },
+    { href: localizeHref(locale, '/help'), label: en ? 'Help' : 'सहायता' },
     { href: localizeHref(locale, '/team'), label: en ? 'Team' : 'टोली' },
     { href: localizeHref(locale, '/editorial-policy'), label: en ? 'Editorial policy' : 'सम्पादकीय नीति' },
     { href: localizeHref(locale, '/corrections-policy'), label: en ? 'Corrections' : 'सच्याइ नीति' },

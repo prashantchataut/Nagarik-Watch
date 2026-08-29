@@ -52,7 +52,7 @@ to the project. `/healthz` currently returns 503 until operator sets `DATABASE_U
 
 Use only when Payload is down **and** `nw_articles` still holds a usable corpus.
 
-1. Set web `CONTENT_SOURCE=json` (or unset) and redeploy. Do **not** dual-write to Payload.
+1. Set web `CONTENT_SOURCE=json` explicitly and redeploy. Do **not** dual-write to Payload.
 2. Desk uploads/edits write `nw_articles` / `nw_media_items` only.
 3. Media URL registrations require `https://` (or `http://localhost` in non-production).
 4. After Payload recovers: migrate desk delta if needed, then restore `CONTENT_SOURCE=payload`.
