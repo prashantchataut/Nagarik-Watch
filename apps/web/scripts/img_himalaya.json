@@ -1,0 +1,33 @@
+🚀 Initializing Z-AI SDK...
+🔎 Searching images: "Nepal Himalaya Annapurna mountains landscape"
+✅ Got 3 images
+{
+  "success": true,
+  "query": "Nepal Himalaya Annapurna mountains landscape",
+  "count": 3,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/4b22122234bf.png",
+      "caption": "",
+      "source": "TrekNomads",
+      "original_width": "1600px",
+      "original_height": "900px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/53e0be8704dd.jpg",
+      "caption": "",
+      "source": "YouTube",
+      "original_width": "1280px",
+      "original_height": "720px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/7419f3dc4d6c.jpg",
+      "caption": "",
+      "source": "from Sunrise to Sunset",
+      "original_width": "2560px",
+      "original_height": "1920px"
+    }
+  ]
+}

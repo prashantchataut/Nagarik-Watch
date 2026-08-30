@@ -1,0 +1,15 @@
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/01ccbff8fde8.jpeg" -o public/photos/cricket-1.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/39052d110f7b.jpg" -o public/photos/cricket-2.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/7880d4770fd7.jpg" -o public/photos/cricket-3.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/1ce21bfc11a0.jpg" -o public/photos/patan-1.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/1b5da44a1f1d.jpeg" -o public/photos/patan-2.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/326bd107da1e.jpeg" -o public/photos/patan-3.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/684c881848ba.jpg" -o public/photos/street-1.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/11d8fc9ae4a3.jpg" -o public/photos/street-2.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/d8c691f16920.jpg" -o public/photos/street-3.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/4b22122234bf.png" -o public/photos/himalaya-1.png
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/53e0be8704dd.jpg" -o public/photos/himalaya-2.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/7419f3dc4d6c.jpg" -o public/photos/himalaya-3.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/5c28fc6f3c4f.png" -o public/photos/culture-1.png
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/e6776e9e85b8.jpg" -o public/photos/culture-2.jpg
+curl -sL "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/21b07ffaf2df.jpg" -o public/photos/culture-3.jpg

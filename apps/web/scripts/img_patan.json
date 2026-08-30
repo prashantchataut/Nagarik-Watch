@@ -1,0 +1,33 @@
+🚀 Initializing Z-AI SDK...
+🔎 Searching images: "Patan Durbar Square Nepal pagoda temple"
+✅ Got 3 images
+{
+  "success": true,
+  "query": "Patan Durbar Square Nepal pagoda temple",
+  "count": 3,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/1ce21bfc11a0.jpg",
+      "caption": "",
+      "source": "Ramblin' Boy",
+      "original_width": "1333px",
+      "original_height": "2000px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/1b5da44a1f1d.jpeg",
+      "caption": "",
+      "source": "Pexels",
+      "original_width": "7008px",
+      "original_height": "4672px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/326bd107da1e.jpeg",
+      "caption": "",
+      "source": "World Travel Family",
+      "original_width": "1400px",
+      "original_height": "933px"
+    }
+  ]
+}

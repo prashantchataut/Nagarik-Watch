@@ -1,0 +1,33 @@
+🚀 Initializing Z-AI SDK...
+🔎 Searching images: "Nepal cricket stadium match crowd"
+✅ Got 3 images
+{
+  "success": true,
+  "query": "Nepal cricket stadium match crowd",
+  "count": 3,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/01ccbff8fde8.jpeg",
+      "caption": "",
+      "source": "India Today",
+      "original_width": "2048px",
+      "original_height": "1365px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/39052d110f7b.jpg",
+      "caption": "",
+      "source": "Ratopati",
+      "original_width": "1200px",
+      "original_height": "800px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/7880d4770fd7.jpg",
+      "caption": "",
+      "source": "Enewspolar",
+      "original_width": "2048px",
+      "original_height": "1365px"
+    }
+  ]
+}

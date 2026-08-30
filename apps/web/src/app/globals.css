@@ -1,0 +1,302 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------- Nagarik Watch design tokens (DESIGN.md §2–3) ---------- */
+:root {
+  --paper: #f4f1ec;
+  --surface: #ffffff;
+  --surface-soft: #faf8f4;
+  --ink: #1a1012;
+  --ink-soft: #5c5148;
+  --ink-faint: #8a7d72;
+  --crimson: #c02a2a;
+  --crimson-deep: #8e1f22;
+  --crimson-wash: #f7e7e4;
+  --rule: #e2dcd2;
+  --rule-strong: #cfc7ba;
+  --gold: #b98a2f;
+  --green: #1e7a46;
+}
+
+.dark {
+  --paper: #17120f;
+  --surface: #211a16;
+  --surface-soft: #1b1512;
+  --ink: #ede6dc;
+  --ink-soft: #a99d91;
+  --ink-faint: #7c7168;
+  --crimson: #e8484b;
+  --crimson-deep: #a32528;
+  --crimson-wash: #3a1d1a;
+  --rule: #322a24;
+  --rule-strong: #45392f;
+  --gold: #d3a94e;
+  --green: #4fbf7d;
+}
+
+@theme inline {
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--ink);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--ink);
+  --color-primary: var(--crimson);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--surface-soft);
+  --color-secondary-foreground: var(--ink);
+  --color-muted: var(--surface-soft);
+  --color-muted-foreground: var(--ink-soft);
+  --color-accent: var(--crimson-wash);
+  --color-accent-foreground: var(--crimson-deep);
+  --color-destructive: var(--crimson);
+  --color-border: var(--rule);
+  --color-input: var(--rule);
+  --color-ring: var(--crimson);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-crimson: var(--crimson);
+  --color-crimson-deep: var(--crimson-deep);
+  --color-crimson-wash: var(--crimson-wash);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-gold: var(--gold);
+  --color-market-green: var(--green);
+  --font-sans: "Noto Sans Devanagari", "Mukta", system-ui, sans-serif;
+  --font-headline: "Mukta", "Noto Sans Devanagari", system-ui, sans-serif;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- Newspaper utilities ---------- */
+.font-headline {
+  font-family: var(--font-headline);
+}
+
+.kicker {
+  font-family: var(--font-headline);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--crimson);
+}
+
+.headline-lead {
+  font-family: var(--font-headline);
+  font-weight: 800;
+  font-size: clamp(34px, 5.4vw, 56px);
+  line-height: 1.16;
+}
+
+.headline-support {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: clamp(20px, 2.6vw, 28px);
+  line-height: 1.28;
+}
+
+.headline-card {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  line-height: 1.32;
+}
+
+.article-measure {
+  max-width: 680px;
+  margin-inline: auto;
+}
+
+.article-body {
+  font-size: 18.5px;
+  line-height: 1.95;
+}
+
+@media (min-width: 768px) {
+  .article-body {
+    font-size: 19px;
+  }
+}
+
+.article-body p {
+  margin-block: 1.15em;
+}
+
+.article-body h2 {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.35;
+  margin-block: 1.6em 0.6em;
+  padding-top: 0.4em;
+  border-top: 1px solid var(--rule);
+}
+
+.article-body h3 {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: 20px;
+  margin-block: 1.4em 0.5em;
+}
+
+.article-body ul {
+  margin-block: 1.15em;
+  padding-inline-start: 0;
+  list-style: none;
+}
+
+.article-body ul li {
+  position: relative;
+  padding-inline-start: 1.4em;
+  margin-block: 0.5em;
+}
+
+.article-body ul li::before {
+  content: "";
+  position: absolute;
+  left: 0.15em;
+  top: 0.72em;
+  width: 7px;
+  height: 7px;
+  background: var(--crimson);
+}
+
+.pull-quote {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: clamp(22px, 3vw, 28px);
+  line-height: 1.5;
+  padding-block: 0.2em;
+  padding-inline-start: 1.1em;
+  border-left: 4px solid var(--crimson);
+  margin-block: 1.5em;
+  color: var(--ink);
+}
+
+/* Crimson rail + masthead surfaces */
+.crimson-band {
+  background: linear-gradient(90deg, var(--crimson) 0%, var(--crimson-deep) 100%);
+}
+
+.rail-link {
+  position: relative;
+  white-space: nowrap;
+  font-family: var(--font-headline);
+  font-weight: 600;
+}
+
+.rail-link[data-active='true']::after {
+  content: "";
+  position: absolute;
+  left: 0.5em;
+  right: 0.5em;
+  bottom: 0.15em;
+  height: 3px;
+  background: #fff;
+  border-radius: 2px;
+}
+
+/* Hide scrollbars on swipe rails while keeping scroll */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Paper card texture */
+.paper-card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+}
+
+.hairline {
+  border-color: var(--rule);
+}
+
+/* Focus visibility per DESIGN.md §8 */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--crimson);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Lead photograph gradient scrim */
+.lead-scrim {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 8, 9, 0.08) 0%,
+    rgba(16, 8, 9, 0.18) 30%,
+    rgba(16, 8, 9, 0.62) 58%,
+    rgba(16, 8, 9, 0.93) 100%
+  );
+}
+
+/* Keyboard focus — visible ring for all interactive elements */
+:focus-visible {
+  outline: 2px solid var(--crimson);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Marquee ticker */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  display: inline-flex;
+  min-width: 200%;
+  animation: ticker-scroll 48s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+/* Reading progress hairline */
+.progress-hairline {
+  height: 3px;
+  background: var(--crimson);
+  transform-origin: 0 50%;
+  transition: transform 120ms linear;
+}
+
+/* Print: articles only */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .article-body {
+    font-size: 12pt;
+  }
+}

@@ -1,0 +1,27 @@
+{
+ "cricket": [
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/01ccbff8fde8.jpeg",
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/39052d110f7b.jpg",
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/7880d4770fd7.jpg"
+ ],
+ "patan": [
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/1ce21bfc11a0.jpg",
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/1b5da44a1f1d.jpeg",
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/326bd107da1e.jpeg"
+ ],
+ "street": [
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/684c881848ba.jpg",
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/11d8fc9ae4a3.jpg",
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/d8c691f16920.jpg"
+ ],
+ "himalaya": [
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/4b22122234bf.png",
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/53e0be8704dd.jpg",
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/7419f3dc4d6c.jpg"
+ ],
+ "culture": [
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/5c28fc6f3c4f.png",
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/e6776e9e85b8.jpg",
+  "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/21b07ffaf2df.jpg"
+ ]
+}

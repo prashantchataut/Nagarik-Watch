@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Reader (पाठक) account — email + password, separate from journalists by design.
+model Reader {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  sessions     Session[]
+}
+
+/// Journalist (पत्रकार) account — newsroom login, distinct from reader accounts.
+model Journalist {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  /// Desk slug this journalist covers, e.g. "politics", "business".
+  desk         String
+  /// Short public bio (Ne).
+  bio          String?
+  phone        String?
+  active       Boolean  @default(true)
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  sessions     Session[]
+  pitches      DeskPitch[]
+}
+
+/// Login session — one row per login, referenced by an httpOnly cookie token.
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  kind      String // "reader" | "journalist"
+  readerId  String?
+  reader    Reader?  @relation(fields: [readerId], references: [id], onDelete: Cascade)
+  journalistId String?
+  journalist Journalist? @relation(fields: [journalistId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+}
+
+/// Newsletter subscription (साँझ ब्रिफिङ).
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+/// Story pitch / draft submitted by a journalist through the mini desk.
+model DeskPitch {
+  id          String   @id @default(cuid())
+  journalistId String
+  journalist  Journalist @relation(fields: [journalistId], references: [id], onDelete: Cascade)
+  headline    String
+  desk        String
+  summary     String
+  body        String
+  status      String   @default("submitted") // submitted | in_review | accepted | declined
+  editorNote  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([journalistId])
+}

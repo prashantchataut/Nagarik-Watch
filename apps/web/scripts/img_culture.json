@@ -1,0 +1,33 @@
+🚀 Initializing Z-AI SDK...
+🔎 Searching images: "Nepali traditional festival culture celebration"
+✅ Got 3 images
+{
+  "success": true,
+  "query": "Nepali traditional festival culture celebration",
+  "count": 3,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/5c28fc6f3c4f.png",
+      "caption": "",
+      "source": "Altitude Himalaya",
+      "original_width": "1920px",
+      "original_height": "980px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/e6776e9e85b8.jpg",
+      "caption": "",
+      "source": "Vajra Adventure",
+      "original_width": "5040px",
+      "original_height": "3360px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/21b07ffaf2df.jpg",
+      "caption": "",
+      "source": "LinkedIn",
+      "original_width": "1280px",
+      "original_height": "720px"
+    }
+  ]
+}
