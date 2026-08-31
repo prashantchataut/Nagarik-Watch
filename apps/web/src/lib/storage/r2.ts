@@ -1,17 +1,23 @@
 /**
- * Cloudflare R2 storage (S3-compatible) — zero-dependency AWS SigV4 client.
+ * S3-compatible storage — zero-dependency AWS SigV4 client.
+ * Supports Cloudflare R2 and Void Drive (or any S3 provider) via generic STORAGE_* vars.
  *
- * Env:
- *   R2_ACCOUNT_ID        (required)  → endpoint https://{id}.r2.cloudflarestorage.com
- *   R2_ACCESS_KEY_ID     (required)
- *   R2_SECRET_ACCESS_KEY (required)
- *   R2_BUCKET            (required)  bucket name (path-style addressing)
- *   R2_PUBLIC_BASE_URL   (required for public URLs) e.g. https://cdn.nagarikwatch.com
- *                                     or the r2.dev public URL. Must NOT end with '/'.
+ * Env (Void Drive / generic S3 — preferred):
+ *   STORAGE_ENDPOINT          → e.g. https://s3.void.dev or https://gateway.voiddrive.com
+ *   STORAGE_ACCESS_KEY_ID     (required)
+ *   STORAGE_SECRET_ACCESS_KEY (required)
+ *   STORAGE_BUCKET            (required)
+ *   STORAGE_PUBLIC_BASE_URL   (required for public URLs) e.g. https://cdn.nagarikwatch.com
  *
- * When any variable is missing the module reports "not configured" and the
- * upload API returns a clear 501 — the site keeps working with local media.
- * This replaces the earlier Cloudinary/Payload-Blob plan: user chose R2.
+ * Env (Cloudflare R2 — legacy compat):
+ *   R2_ACCOUNT_ID        → endpoint https://{id}.r2.cloudflarestorage.com
+ *   R2_ACCESS_KEY_ID
+ *   R2_SECRET_ACCESS_KEY
+ *   R2_BUCKET
+ *   R2_PUBLIC_BASE_URL
+ *
+ * When no group is fully configured the module reports "not configured".
+ * Keys are never logged — errors redact credentials.
  */
 
 import { createHash, createHmac } from 'node:crypto'
@@ -25,6 +31,31 @@ export interface R2Config {
   secretAccessKey: string
   bucket: string
   publicBaseUrl: string
+  /** Resolved HTTPS host for SigV4, e.g. gateway.voiddrive.com or {id}.r2.cloudflarestorage.com */
+  host: string
+  region: string
+}
+
+// Generic S3 config (Void Drive) — preferred when STORAGE_* is set
+export interface GenericS3Config {
+  endpoint: string
+  accessKeyId: string
+  secretAccessKey: string
+  bucket: string
+  publicBaseUrl: string
+  host: string
+  region: string
+}
+
+export type StorageConfig = (R2Config & { kind: 'r2' }) | (GenericS3Config & { kind: 'void' })
+
+function hostFromEndpoint(endpoint: string): { host: string; region: string } {
+  try {
+    const u = new URL(endpoint)
+    return { host: u.hostname, region: u.hostname.includes('r2.cloudflarestorage.com') ? 'auto' : 'us-east-1' }
+  } catch {
+    return { host: endpoint.replace(/^https?:\/\//, '').replace(/\/+$/, ''), region: 'us-east-1' }
+  }
 }
 
 export function getR2Config(): R2Config | null {
@@ -40,11 +71,40 @@ export function getR2Config(): R2Config | null {
     secretAccessKey,
     bucket,
     publicBaseUrl: publicBaseUrl.replace(/\/+$/, ''),
+    host: `${accountId}.r2.cloudflarestorage.com`,
+    region: R2_REGION,
+    kind: 'r2' as const,
+  } as R2Config & { kind: 'r2' }
+}
+
+function getVoidConfig(): (GenericS3Config & { kind: 'void' }) | null {
+  const endpoint = process.env.STORAGE_ENDPOINT?.trim()
+  const accessKeyId = process.env.STORAGE_ACCESS_KEY_ID?.trim()
+  const secretAccessKey = process.env.STORAGE_SECRET_ACCESS_KEY?.trim()
+  const bucket = process.env.STORAGE_BUCKET?.trim()
+  const publicBaseUrl = (
+    process.env.STORAGE_PUBLIC_BASE_URL?.trim() || process.env.R2_PUBLIC_BASE_URL?.trim() || ''
+  ).trim()
+  if (!endpoint || !accessKeyId || !secretAccessKey || !bucket || !publicBaseUrl) return null
+  const { host, region } = hostFromEndpoint(endpoint)
+  return {
+    endpoint: endpoint.replace(/\/+$/, ''),
+    accessKeyId,
+    secretAccessKey,
+    bucket,
+    publicBaseUrl: publicBaseUrl.replace(/\/+$/, ''),
+    host,
+    region,
+    kind: 'void' as const,
   }
 }
 
+export function getStorageConfig(): StorageConfig | null {
+  return getVoidConfig() ?? (getR2Config() as StorageConfig | null)
+}
+
 export function isR2Configured(): boolean {
-  return getR2Config() !== null
+  return getStorageConfig() !== null
 }
 
 /* ----------------------------- SigV4 helpers ----------------------------- */
@@ -142,18 +202,18 @@ export function buildObjectKey(desk: string, fileName: string, type: string): st
 }
 
 /**
- * PUT an object to R2 using S3 SigV4 (path-style).
- * Throws Error with a Nepali-readable message on failure.
+ * PUT an object using S3 SigV4 (path-style). Works for R2 and Void Drive.
+ * Throws Error with a Nepali-readable message on failure — never includes credentials.
  */
 export async function putObject(
   key: string,
   body: Buffer,
   contentType: string,
 ): Promise<UploadResult> {
-  const cfg = getR2Config()
-  if (!cfg) throw new Error('R2 सेटअप नपुगेको — परिवेश चरहरू हेर्नुहोस्।')
+  const cfg = getStorageConfig() ?? getR2Config()
+  if (!cfg) throw new Error('स्टोरेज सेटअप नपुगेको — STORAGE_* वा R2_* परिवेश चरहरू हेर्नुहोस्।')
 
-  const host = `${cfg.accountId}.r2.cloudflarestorage.com`
+  const host = (cfg as { host: string }).host
   const payloadHash = sha256Hex(body)
   const now = new Date()
   const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '') // 20260831T041530Z
@@ -169,11 +229,12 @@ export async function putObject(
   const canonicalUri = canonicalUriPath(`${cfg.bucket}/${key}`)
   const canonicalRequest = `PUT\n${canonicalUri}\n\n${canonical}\n${signedList}\n${payloadHash}`
 
-  const scope = `${dateStamp}/${R2_REGION}/${SERVICE}/aws4_request`
+  const region = (cfg as { region: string }).region || R2_REGION
+  const scope = `${dateStamp}/${region}/${SERVICE}/aws4_request`
   const stringToSign = `AWS4-HMAC-SHA256\n${amzDate}\n${scope}\n${sha256Hex(canonicalRequest)}`
 
   const kDate = hmac(`AWS4${cfg.secretAccessKey}`, dateStamp)
-  const kRegion = hmac(kDate, R2_REGION)
+  const kRegion = hmac(kDate, region)
   const kService = hmac(kRegion, SERVICE)
   const kSigning = hmac(kService, 'aws4_request')
   const signature = createHmac('sha256', kSigning).update(stringToSign, 'utf8').digest('hex')
@@ -196,7 +257,7 @@ export async function putObject(
 
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    throw new Error(`R2 अपलोड असफल (HTTP ${res.status}) ${text.slice(0, 160)}`)
+    throw new Error(`स्टोरेज अपलोड असफल (HTTP ${res.status}) ${text.slice(0, 160)}`)
   }
 
   return {
@@ -209,7 +270,7 @@ export async function putObject(
 
 /** Public URL for an existing key (assumes bucket is exposed publicly). */
 export function publicUrl(key: string): string | null {
-  const cfg = getR2Config()
+  const cfg = getStorageConfig() ?? getR2Config()
   if (!cfg) return null
   return `${cfg.publicBaseUrl}/${key}`
 }
