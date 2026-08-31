@@ -102,9 +102,3 @@ export function validPassword(password: string): string | null {
   if (password.length < 6) return 'पासवर्ड कम्तीमा ६ अक्षरको हुनुपर्छ।'
   return null
 }
-
-// Re-export better-auth instance for routes that import from '@/lib/auth'.
-// The canonical implementation lives in apps/web/lib/auth/index.ts (Better Auth + Aiven).
-// src/lib/auth.ts is the simple session helper; this re-export makes `@/lib/auth` resolve
-// correctly regardless of whether tsconfig prefers src/* or lib/*.
-export { getAuth } from '../../lib/auth/index'
