@@ -1,5 +1,3 @@
 packages:
-  # The single canonical application. apps/admin (Payload CMS) and packages/*
-  # were retired in the 2083-Bhadra consolidation — the portal ships its own
-  # newsroom CMS at /journalist (reporter + editor roles).
   - 'apps/web'
+  - 'packages/*'
