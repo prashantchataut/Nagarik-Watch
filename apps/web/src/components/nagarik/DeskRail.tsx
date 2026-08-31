@@ -4,6 +4,8 @@ import { desks } from '@/lib/news/data'
 import { href, type Route } from '@/lib/news/router'
 
 const RAIL_DESKS = [
+  'disaster',
+  'fact-check',
   'politics',
   'society',
   'business',

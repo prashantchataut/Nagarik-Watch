@@ -17,6 +17,10 @@ import {
 } from '@/lib/news/utils'
 import { usePoll } from '@/lib/news/poll-store'
 import { dbArticleToStory, useDbArticles } from '@/lib/news/article-store'
+import { useReadHistory } from '@/lib/news/read-history'
+import { recommendFor } from '@/lib/news/recommend'
+import { useTrendingMap } from '@/lib/news/trending-store'
+import { AdSlot as LiveAdSlot } from './monetize'
 import { href } from '@/lib/news/router'
 import {
   HeroImage,
@@ -337,6 +341,107 @@ function LatestBlock() {
         ))}
       </div>
     </div>
+  )
+}
+
+/* ------------------- विपद् विशेष (Disaster special) ----------------------- */
+
+function DisasterSpecial() {
+  const items = useMemo(() => {
+    const flood = stories
+      .filter((s) => s.desk === 'disaster')
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+      .slice(0, 3)
+    return flood
+  }, [])
+  if (items.length === 0) return null
+  const [top, ...rest] = items
+  return (
+    <section className="border-y-2 border-crimson bg-crimson/5 py-7" aria-label="विपद् विशेष कभरेज">
+      <div className={container}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="kicker !text-crimson">विपद् विशेष · भोटेकोशी बाढी</p>
+          <a href={href('/disaster')} className="font-headline text-[13.5px] font-bold text-crimson hover:underline">
+            विपद् केन्द्र खोल्नुहोस् →
+          </a>
+        </div>
+        <div className="mt-4 grid gap-6 lg:grid-cols-[1.35fr_1fr]">
+          <a href={href(`/${top.desk}/${top.slug}`)} className="group block">
+            { }
+            <img
+              src={top.hero}
+              alt={top.heroCaption}
+              className="aspect-[16/9] w-full rounded-md object-cover"
+              loading="lazy"
+            />
+            <h2 className="mt-3 font-headline text-[22px] font-extrabold leading-tight text-ink group-hover:text-crimson sm:text-[26px]">
+              {top.titleNe}
+            </h2>
+            <p className="mt-1.5 text-[14px] leading-relaxed text-ink-soft">{top.deckNe}</p>
+          </a>
+          <ul className="divide-y divide-crimson/25 border-t border-crimson/25">
+            {rest.map((s) => (
+              <li key={s.slug}>
+                <a href={href(`/${s.desk}/${s.slug}`)} className="group block py-3.5">
+                  <h3 className="font-headline text-[16.5px] font-bold leading-snug text-ink group-hover:text-crimson">
+                    {s.titleNe}
+                  </h3>
+                  <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-ink-soft">{s.deckNe}</p>
+                </a>
+              </li>
+            ))}
+            <li className="py-3.5">
+              <a
+                href={href('/fact-check')}
+                className="font-headline text-[14px] font-bold text-ink-soft hover:text-crimson"
+              >
+                बाढीबीच फैलिरहेका गलत खबरको तथ्य जाँच →
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ---------------------- तपाईंका लागि (Recommended) ------------------------ */
+
+function RecommendedRail() {
+  const { dbArticles } = useDbArticles()
+  const history = useReadHistory()
+  const trending = useTrendingMap()
+  const picks = useMemo(() => {
+    const all = [...stories, ...dbArticles.map((a) => dbArticleToStory(a))]
+    return recommendFor(all, { history, trending, limit: 4 })
+  }, [dbArticles, history, trending])
+
+  if (picks.length === 0) return null
+  return (
+    <section className="py-7 md:py-9" aria-label="तपाईंका लागि सिफारिस">
+      <div className={container}>
+        <SectionHeader title="तपाईंका लागि" />
+        <p className="mt-1 text-[12px] text-ink-faint">
+          तपाईंको पढाइ-इतिहासमा आधारित (यन्त्रमा मात्र) — डेस्क रुचि, विषय मिलान, ताजा र चर्चा।{' '}
+          <a href={href('/feed')} className="text-crimson hover:underline">
+            सबै समाचारमा जानुहोस्
+          </a>
+        </p>
+        <div className="mt-4 grid gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+          {picks.map((s) => (
+            <article key={s.slug} className="group">
+              <Kicker desk={s.desk} />
+              <a href={href(`/${s.desk}/${s.slug}`)} className="mt-1 block">
+                <h3 className="headline-card text-[16.5px] text-ink group-hover:text-crimson transition-colors">
+                  {s.titleNe}
+                </h3>
+                <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-ink-soft">{s.deckNe}</p>
+              </a>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -681,7 +786,7 @@ function AdSlot() {
             </p>
           </div>
           <a
-            href={href('/page/advertise')}
+            href={href('/advertise')}
             className="rounded-sm bg-crimson px-5 py-2.5 font-headline text-[15px] font-bold text-white transition-transform hover:-translate-y-px"
           >
             जानकारी लिनुहोस्
@@ -787,6 +892,12 @@ export default function HomeEdition() {
     <main id="main">
       <Lead />
       <SupportPair excludeSlug={lead.slug} />
+      <DisasterSpecial />
+      <div className="border-b border-rule py-5">
+        <div className={container}>
+          <LiveAdSlot placement="leaderboard" />
+        </div>
+      </div>
 
       <section className="border-b border-rule py-7 md:py-9" aria-label="ताजा समाचार र उपकरण">
         <div className={container}>
@@ -801,6 +912,7 @@ export default function HomeEdition() {
       </section>
 
       <TrendingStrip />
+      <RecommendedRail />
 
       <NewsDeskSection desk="politics" />
       <MarketDeskSection />

@@ -2,6 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from 'react'
 import type { Story } from '@/lib/news/data'
+import { dbArticleToStory } from '@/lib/news/cms'
 import type { PublicArticle } from '@/lib/news/cms'
 import { apiGet } from './api-client'
 
@@ -66,30 +67,10 @@ export function useDbArticles(): { dbArticles: PublicArticle[]; ready: boolean }
 }
 
 /** Convert a public CMS article to the common Story shape. */
-export function dbArticleToStory(a: PublicArticle): Story {
-  return {
-    slug: a.slug,
-    desk: a.desk,
-    titleNe: a.titleNe,
-    titleEn: a.titleEn,
-    deckNe: a.deckNe,
-    deckEn: a.deckEn,
-    bodyNe: a.bodyNe,
-    bodyEn: a.bodyEn,
-    publishedAt: a.publishedAt,
-    readingMinutes: a.readingMinutes,
-    featured: 'none',
-    location: a.location,
-    province: a.province,
-    hero: a.hero,
-    heroCaption: a.heroCaption,
-    heroCredit: a.heroCredit,
-    tags: a.tags,
-    author: a.author,
-  }
-}
 
 /** Look up a live CMS article by desk + slug from the store (sync). */
 export function findDbArticle(desk: string, slug: string): PublicArticle | undefined {
   return cache?.find((a) => a.desk === desk && a.slug === slug)
 }
+
+export { dbArticleToStory }

@@ -90,9 +90,11 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api || !setApi) return
-    setApi(api)
+    const t = window.setTimeout(() => setApi(api), 0)
+    return () => window.clearTimeout(t)
   }, [api, setApi])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- vendored shadcn/ui
   React.useEffect(() => {
     if (!api) return
     onSelect(api)

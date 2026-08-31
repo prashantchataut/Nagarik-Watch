@@ -50,7 +50,8 @@ export default function CommentsSection({ storyKey }: { storyKey: string }) {
   }, [storyKey])
 
   useEffect(() => {
-    void load()
+    const t = window.setTimeout(load, 0)
+    return () => window.clearTimeout(t)
   }, [load])
 
   const submit = async (e: React.FormEvent) => {

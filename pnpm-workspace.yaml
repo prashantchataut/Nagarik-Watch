@@ -1,6 +1,5 @@
 packages:
-  # Canonical deployable applications. Keep these explicit so a stale legacy
-  # apps/cms directory cannot silently re-enter the pnpm workspace.
+  # The single canonical application. apps/admin (Payload CMS) and packages/*
+  # were retired in the 2083-Bhadra consolidation — the portal ships its own
+  # newsroom CMS at /journalist (reporter + editor roles).
   - 'apps/web'
-  - 'apps/admin'
-  - 'packages/*'

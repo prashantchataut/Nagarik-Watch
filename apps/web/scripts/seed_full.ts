@@ -171,6 +171,95 @@ async function main() {
   }
   console.log('seeded 7-day pageviews for trending')
 
+  /* ---- ad campaigns (demo, editor-manageable) ---- */
+  const adCount = await db.adCampaign.count()
+  if (adCount === 0) {
+    await db.adCampaign.createMany({
+      data: [
+        {
+          name: 'गृह लिडरबोर्ड — सहकारी प्रवर्धन',
+          placement: 'leaderboard',
+          title: 'नेपाल सहकारी महासङ्घको वार्षिक बैठक',
+          body: 'सहकारीको आर्थिक समृद्धि — सदस्यहरूको सहभागिता बढाउन आगामी कार्यक्रम घोषणा।',
+          ctaLabel: 'कार्यक्रम हेर्नुहोस्',
+          link: '/page/advertise',
+          accent: 'crimson',
+          priority: 5,
+          impressions: 1240,
+          clicks: 58,
+        },
+        {
+          name: 'फिड इन-फिड — साँझ ब्रिफिङ अभियान',
+          placement: 'infeed',
+          title: 'साँझ ब्रिफिङ: दिनका ५ मुख्य समाचार, इमेलमा',
+          body: 'हरेक साँझ ६ बजे — निःशुल्क सदस्यता, कुनै पनि बेला निकाल्न सकिने।',
+          ctaLabel: 'सदस्यता',
+          link: '#footer-newsletter',
+          accent: 'ink',
+          priority: 3,
+          impressions: 860,
+          clicks: 41,
+        },
+        {
+          name: 'साइडबार — सदस्यता प्रवर्धन',
+          placement: 'sidebar',
+          title: 'विज्ञापन न्यून, पत्रकारिता प्रबल',
+          body: 'पाठक-सहयोगमा चल्ने समाचार सञ्चालनका लागि रु. ३००/महिना।',
+          ctaLabel: 'सदस्य बन्नुहोस्',
+          link: '/subscribe',
+          accent: 'crimson',
+          priority: 4,
+          impressions: 520,
+          clicks: 37,
+        },
+      ],
+    })
+    console.log('seeded 3 ad campaigns')
+  }
+
+  /* ---- demo subscription + paywall setting ---- */
+  const existingSub = await db.subscription.findFirst({ where: { readerId: reader.id } })
+  if (!existingSub) {
+    const renews = new Date()
+    renews.setUTCMonth(renews.getUTCMonth() + 1)
+    await db.subscription.create({
+      data: {
+        readerId: reader.id,
+        plan: 'monthly',
+        status: 'active',
+        method: 'demo',
+        priceNpr: 300,
+        renewsAt: renews,
+      },
+    })
+    console.log('seeded demo subscription (demo.reader)')
+  }
+  await db.siteSetting.upsert({
+    where: { key: 'paywall_free_limit' },
+    create: { key: 'paywall_free_limit', value: '8' },
+    update: {},
+  })
+
+  /* ---- fact-check claims (triage demo) ---- */
+  const claimCount = await db.factClaim.count()
+  if (claimCount === 0) {
+    await db.factClaim.createMany({
+      data: [
+        {
+          claim: 'सामाजिक सञ्जालमा आएको भिडियोमा काठमाडौंको बागमती "फुटेर" घर बगेको देखिएको छ भनिएको छ।',
+          sourceUrl: 'https://facebook.com/example',
+          email: 'reader@example.com',
+          status: 'reviewing',
+        },
+        {
+          claim: 'नेपाल राष्ट्र बैंकले ५०० को नोट फिर्ता बोलाउने भन्ने खबर चलिरहेको छ।',
+          status: 'new',
+        },
+      ],
+    })
+    console.log('seeded 2 fact-check claims')
+  }
+
   await db.$disconnect()
 }
 

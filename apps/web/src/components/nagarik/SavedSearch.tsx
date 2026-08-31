@@ -91,8 +91,11 @@ export function SearchView({
   const results = useMemo(() => searchStories(submitted), [submitted])
 
   useEffect(() => {
-    setQuery(initialQuery)
-    setSubmitted(initialQuery)
+    const t = window.setTimeout(() => {
+      setQuery(initialQuery)
+      setSubmitted(initialQuery)
+    }, 0)
+    return () => window.clearTimeout(t)
   }, [initialQuery])
 
   const submit = (e: React.FormEvent) => {

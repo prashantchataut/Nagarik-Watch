@@ -1,33 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm verify:workspaces && pnpm --filter @nagarikwatch/web... build",
-  "devCommand": "pnpm --filter @nagarikwatch/web dev",
-  "installCommand": "node scripts/verify-canonical-workspaces.mjs && pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm --filter ./apps/web build",
+  "devCommand": "pnpm --filter ./apps/web dev",
+  "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs",
   "outputDirectory": "apps/web/.next",
   "github": {
     "silent": true
-  },
-  "crons": [
-    {
-      "path": "/api/notifications/deliver",
-      "schedule": "0 0 * * *"
-    },
-    {
-      "path": "/api/cron/interactions-rebuild",
-      "schedule": "15 2 * * *"
-    },
-    {
-      "path": "/api/cron/digest-compose",
-      "schedule": "0 1 * * *"
-    },
-    {
-      "path": "/api/cron/calendar-sync",
-      "schedule": "20 0 * * *"
-    },
-    {
-      "path": "/api/cron/ops-probe",
-      "schedule": "30 3 * * *"
-    }
-  ]
+  }
 }

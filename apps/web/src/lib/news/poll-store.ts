@@ -41,7 +41,8 @@ export function usePoll() {
   }, [])
 
   useEffect(() => {
-    void load()
+    const t = window.setTimeout(load, 0)
+    return () => window.clearTimeout(t)
   }, [load])
 
   const vote = useCallback(

@@ -7,6 +7,9 @@
 const VIEW_SESSION_KEY = 'nagarikwatch:views:v1'
 const VOTER_KEY = 'nagarikwatch:voter:v1'
 
+// Analytics beacons require the "all" consent choice (see consent.ts).
+import { analyticsAllowed } from './consent'
+
 function readViewed(): Set<string> {
   try {
     const raw = window.sessionStorage.getItem(VIEW_SESSION_KEY)
@@ -18,6 +21,7 @@ function readViewed(): Set<string> {
 
 /** Count one article view per browser session (beacon, fire-and-forget). */
 export function trackView(storyKey: string): void {
+  if (!analyticsAllowed()) return
   try {
     const viewed = readViewed()
     if (viewed.has(storyKey)) return

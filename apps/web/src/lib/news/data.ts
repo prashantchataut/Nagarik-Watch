@@ -27,6 +27,10 @@ export interface Story {
   heroCredit: string
   tags: string[]
   author: string
+  /// Metered paywall: premium stories require a subscription after the free quota.
+  premium?: boolean
+  /// Fact-check verdict chip (सही | मिश्रित | गलत | सन्दर्भ चाहिन्छ).
+  factVerdict?: 'verified' | 'mixed' | 'false' | 'context'
 }
 
 export interface Desk { slug: string; nameNe: string; nameEn: string; descriptionNe: string; descriptionEn: string; navOrder: number }
@@ -47,6 +51,8 @@ export const desks: Desk[] = [
   { slug: "photo-story", nameNe: "फोटो फिचर", nameEn: "Photo Story", descriptionNe: "तस्वीरमार्फत भनिएका सार्वजनिक जीवन, संस्कृति र घटनाका कथा।", descriptionEn: "Visual reporting on public life, culture and events.", navOrder: 13 },
   { slug: "video", nameNe: "भिडियो", nameEn: "Video", descriptionNe: "भिडियो रिपोर्ट, व्याख्या, अन्तर्वार्ता र मल्टिमिडिया सामग्री।", descriptionEn: "Video reports, explainers, interviews and multimedia stories.", navOrder: 14 },
   { slug: "diaspora", nameNe: "प्रवास", nameEn: "Diaspora", descriptionNe: "विदेशमा रहेका नेपालीहरूका समाचार र अनुभव।", descriptionEn: "News and voices of Nepalis living abroad.", navOrder: 15 },
+  { slug: "disaster", nameNe: "विपद्", nameEn: "Disaster", descriptionNe: "बाढी, पहिरो, भूकम्प र आपत्कालीन अवस्थाका समाचार, तथ्याङ्क र सुरक्षा जानकारी।", descriptionEn: "Floods, landslides, earthquakes and emergency reporting with data and safety information.", navOrder: 16 },
+  { slug: "fact-check", nameNe: "तथ्य जाँच", nameEn: "Fact Check", descriptionNe: "भाइरल दाबीहरूको प्रमाणसँग जाँच र निर्णय — सही, मिश्रित, गलत वा सन्दर्भ चाहिन्छ।", descriptionEn: "Viral claims checked against evidence: verified, mixed, false or needing context.", navOrder: 17 },
 ]
 
 export const deskBySlug = new Map(desks.map((d) => [d.slug, d]))
@@ -4684,3 +4690,11 @@ export const stories: Story[] = [
     author: "नागरिक वाच डेस्क",
   },
 ]
+
+// ---------------------------------------------------------------------------
+// विपद् विशेष + तथ्य जाँच coverage (added भद्र १५, २०८३).
+// Real events of २६ अगस्ट २०२६ (Bhote Koshi glacial flood) and the monsoon
+// disaster season, merged into the live archive at module load.
+// ---------------------------------------------------------------------------
+import { floodStories } from './flood-stories'
+floodStories.forEach((s) => stories.push(s))

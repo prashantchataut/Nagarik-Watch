@@ -1,20 +1,23 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Bookmark,
   BookmarkCheck,
   Check,
+  Crown,
+  Eye,
   Facebook,
   Link2,
   Printer,
   Share2,
 } from 'lucide-react'
 import type { Story } from '@/lib/news/data'
-import { desks } from '@/lib/news/data'
+import { desks, stories } from '@/lib/news/data'
 import { heroFor } from '@/lib/news/photos'
 import { href } from '@/lib/news/router'
-import { deskName, relatedStories, storyUrl } from '@/lib/news/utils'
+import { deskName, storyUrl } from '@/lib/news/utils'
+import { relatedFor } from '@/lib/news/recommend'
 import {
   adToBs,
   formatBsFull,
@@ -23,6 +26,11 @@ import {
 } from '@/lib/news/patro'
 import { useSaved } from '@/lib/news/storage'
 import { trackView } from '@/lib/news/engagement'
+import { logRead } from '@/lib/news/read-history'
+import { useMe } from '@/lib/news/auth-store'
+import { usePaywall } from '@/lib/news/paywall-store'
+import { usePaywallGate, PaywallWall, AdSlot } from './monetize'
+import { formatDevanagariCount } from '@/lib/news/ad-store'
 import CommentsSection from './CommentsSection'
 import { HeroImage, Kicker, SectionHeader } from './cards'
 
@@ -206,15 +214,39 @@ export function ArticleNotFound({ desk }: { desk: string }) {
 }
 
 export default function ArticleView({ story }: { story: Story }) {
-  const related = useMemo(() => relatedStories(story, 4), [story])
+  const related = useMemo(() => relatedFor(story, [...stories], 4), [story])
   const deskInfo = desks.find((d) => d.slug === story.desk)
   const heroSrc = heroFor(story.slug, story.hero, story.desk)
   const isSvg = heroSrc.startsWith('data:image/svg')
   const storyKey = `${story.desk}/${story.slug}`
+  const [viewCount, setViewCount] = useState<number | null>(null)
+  const { me } = useMe()
+  const paywall = usePaywall()
+  const gate = usePaywallGate(storyKey, Boolean(story.premium))
+  const gatedStory = useMemo<Story | null>(() => {
+    if (!gate.blocked) return null
+    const cut = Math.max(3, Math.floor(story.bodyNe.length * 0.3))
+    return { ...story, bodyNe: story.bodyNe.slice(0, cut) }
+  }, [gate.blocked, story])
 
-  // Count one view per browser session for the trending engine.
+  // Count one view per browser session for the trending engine,
+  // log to the reading history for personalization, and show the count.
   useEffect(() => {
     trackView(storyKey)
+    logRead(storyKey, story.desk, story.tags, me?.id ?? null)
+  }, [storyKey, story.desk, story.tags, me?.id])
+
+  useEffect(() => {
+    let cancelled = false
+    void fetch(`/api/views?keys=${encodeURIComponent(storyKey)}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { views?: Record<string, number> } | null) => {
+        if (!cancelled && data?.views) setViewCount(data.views[storyKey] ?? 0)
+      })
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+    }
   }, [storyKey])
 
   return (
@@ -234,6 +266,11 @@ export default function ArticleView({ story }: { story: Story }) {
         </nav>
 
         <Kicker desk={story.desk} />
+        {story.premium && (
+          <span className="ml-2 inline-flex items-center gap-1 rounded-sm bg-ink px-2 py-0.5 align-middle font-headline text-[11px] font-bold uppercase text-paper">
+            <Crown className="size-3" aria-hidden /> प्रिमियम
+          </span>
+        )}
         <h1 className="mt-2 font-headline text-[clamp(28px,4.4vw,44px)] font-extrabold leading-[1.22] text-ink">
           {story.titleNe}
         </h1>
@@ -250,6 +287,11 @@ export default function ArticleView({ story }: { story: Story }) {
             <p>
               {story.location} · <BsDateline iso={story.publishedAt} /> ·{' '}
               {toDevanagari(story.readingMinutes)} मिनेट पढाइ
+              {viewCount !== null && viewCount > 0 && (
+                <span className="ml-2 inline-flex items-center gap-1 text-crimson-deep">
+                  <Eye className="size-3.5" aria-hidden /> {formatDevanagariCount(viewCount)} पटक पढिएको
+                </span>
+              )}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -280,7 +322,20 @@ export default function ArticleView({ story }: { story: Story }) {
           </figcaption>
         </figure>
 
-        <BodyBlocks story={story} />
+        {gatedStory ? (
+          <>
+            <BodyBlocks story={gatedStory} />
+            <PaywallWall premium={Boolean(story.premium)} remaining={paywall.remaining} />
+          </>
+        ) : (
+          <>
+            <BodyBlocks story={story} />
+            {/* Inline ad after the body (labeled, skippable by design) */}
+            <div className="my-10 no-print">
+              <AdSlot placement="article_inline" />
+            </div>
+          </>
+        )}
 
         {/* Tags */}
         {story.tags.length > 0 && (

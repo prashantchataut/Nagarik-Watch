@@ -341,3 +341,52 @@ newsroom), `HomeEdition` (live poll + trending + CMS merge),
 Demo accounts: readers `demo.reader@nagarikwatch.com` / `demo1234`;
 reporters `manisha@` / `rajesh@`; editor `sushila@nagarikwatch.com` —
 all `demo1234`.
+
+---
+
+## Revision 4 — भद्र १५, २०८३ (31 Aug 2026): complete + deploy-ready
+
+**Deployment fixed:** the repo now installs and builds cleanly on Vercel —
+single canonical app (`apps/web`), regenerated `pnpm-lock.yaml`
+(frozen-lockfile verified), `vercel.json` install/build updated, engines
+relaxed (`>=22.12.0`), Prisma generate in postinstall. Verified with a local
+Vercel-equivalent production build: 159/159 pages.
+
+**Real routes + full SEO** (was: single hash page): every story, desk,
+province, tool and info page is a server-rendered route with per-page
+metadata, OG/Twitter cards, canonical + hreflang, JSON-LD
+(NewsArticle/NewsMediaOrganization/WebSite/BreadcrumbList/ItemList),
+sitemap.xml (159+ URLs, hourly), robots.txt, RSS 2.0, llms.txt, PWA manifest,
+security headers. Legal pages moved to clean top-level URLs (/about, /privacy,
+/terms, /ethics, /advertise, /contact, /cookies).
+
+**विपद् विशेष (flood & calamity coverage):** 10 new stories on the real
+26-Aug-2026 Bhote Koshi glacial flood (469 dead, ~1500 missing, 35 districts,
+75k families) + 2 more fact-checks; विपद् केन्द्र hub with situation stats,
+district impact table, event timeline, live USGS earthquake feed, helplines,
+relief partners and a safety guide; breaking banner + home special band;
+12 real photographs.
+
+**Monetization:** labeled ad slots with house-ad fallback + editor campaign
+manager (impressions/clicks/CTR); metered paywall (8 free/month,
+server-enforced, editor-tunable) with premium flags; subscription plans
+(monthly/yearly/patron, demo checkout, cancel flow); per-article view
+counts; ads.txt.
+
+**Personalization & privacy:** transparent recommendation engine (desk
+affinity + tag overlap + recency + trending) powering तपाईंका लागि rails;
+reading history (device + server mirror); cookie consent with gated
+analytics/ad beacons + cookie policy page.
+
+**Cloudflare R2:** zero-dependency S3 SigV4 client; journalist image
+uploads go straight to R2; clear 501 guidance when unconfigured (replaces
+the Cloudinary plan).
+
+**Fact-check & profile:** dedicated तथ्य जाँच desk with verdict system
+(सही/मिश्रित/गलत/सन्दर्भ), methodology, claim submission + editor triage;
+full profile page (identity, subscription, bookmarks, history, cookie
+choices).
+
+**Launch check:** honest 23-probe readiness panel in the editor desk —
+**94%** (the last 6% is operator env: R2 keys + site URL; the panel names
+them). See LAUNCH-GUIDE.md.

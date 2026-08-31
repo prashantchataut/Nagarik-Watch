@@ -19,6 +19,7 @@ model Reader {
   comments     Comment[]
   bookmarks    Bookmark[]
   pollVotes    PollVote[]
+  subscriptions Subscription[]
 }
 
 /// Journalist (पत्रकार) account — newsroom login, distinct from reader accounts.
@@ -201,4 +202,95 @@ model Pageview {
 
   @@unique([storyKey, day])
   @@index([day])
+}
+
+/// Reading log per subject (anonymous device key or reader id) — powers the
+/// personalised feed / recommendation engine and the profile reading history.
+model ReadLog {
+  id        String   @id @default(cuid())
+  subject   String
+  readerId  String?
+  storyKey  String
+  day       String   // YYYY-MM-DD
+
+  @@unique([subject, storyKey, day])
+  @@index([subject, day])
+}
+
+/// Metered-paywall counter — one row per (subject, story, day), counted per month.
+model PaywallEvent {
+  id        String   @id @default(cuid())
+  subject   String   // anon device key or "r:<readerId>"
+  storyKey  String
+  day       String   // YYYY-MM-DD
+
+  @@unique([subject, storyKey, day])
+  @@index([subject])
+  @@index([day])
+}
+
+/// Reader subscription (सदस्यता) — monetization tier for the paywall.
+model Subscription {
+  id          String    @id @default(cuid())
+  readerId    String
+  reader      Reader    @relation(fields: [readerId], references: [id], onDelete: Cascade)
+  /// monthly | yearly | patron
+  plan        String
+  /// active | cancelled
+  status      String    @default("active")
+  /// demo | esewa | khalti | bank
+  method      String    @default("demo")
+  priceNpr    Int
+  startedAt   DateTime  @default(now())
+  renewsAt    DateTime
+  cancelledAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([readerId])
+  @@index([status])
+}
+
+/// Ad campaign (विज्ञापन) served into the labeled ad slots. Editors manage these.
+model AdCampaign {
+  id          String   @id @default(cuid())
+  name        String
+  /// leaderboard | infeed | sidebar | article_inline
+  placement   String
+  /// House-ad copy (Ne). Used when image is empty.
+  title       String
+  body        String?
+  ctaLabel    String?
+  link        String?
+  /// Image path under /public or an R2 URL.
+  image       String?
+  /// Accent for house ads: "crimson" | "ink".
+  accent      String   @default("crimson")
+  active      Boolean  @default(true)
+  priority    Int      @default(0)
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([placement, active, priority])
+}
+
+/// Fact-check claim submitted by readers ("तपाईंको दाबी पठाउनुहोस्").
+model FactClaim {
+  id        String   @id @default(cuid())
+  claim     String
+  sourceUrl String?
+  email     String?
+  /// new | reviewing | published
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+
+  @@index([status])
+}
+
+/// Simple key/value settings the editor desk can flip (paywall limit, launch flags…).
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }

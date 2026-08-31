@@ -1,49 +1,37 @@
-# Nagarik Watch — redesign deliverable (revision 3)
+# नागरिक वाच — Nagarik Watch
 
-This archive mirrors the Nagarik-Watch repository layout:
+> नेपालको डेवनागरी-प्रथम डिजिटल समाचार पोर्टल — Devanagari-first digital newsroom for Nepal.
 
-```
-Nagarik-Watch/
-├── apps/
-│   └── web/        The complete full-stack portal (Next.js 16, standalone)
-│       ├── src/    app routes, 20+ API routes, components, newsroom libraries
-│       ├── public/ photos, desk illustrations, OG image, media archive
-│       ├── prisma/ schema (Reader/Journalist/Session/Newsletter/Pitch/Article/
-│       │           Comment/Bookmark/Poll/PollVote/Contact/Breaking/Pageview)
-│       ├── db/     seeded SQLite (demo editor, reporters, reader, poll,
-│       │           breaking banner, published CMS article, pageviews)
-│       └── scripts/ seed + maintenance scripts
-├── DESIGN.md       The design contract (incl. revision 3 newsroom loop)
-└── CHANGES.md      Everything that changed (revisions 1–3)
+**Structure:** one canonical app — `apps/web` (Next.js 16, App Router, real routes, SSG + ISR).
+
+## Quick start
+
+```bash
+pnpm install                      # uses the committed pnpm-lock.yaml
+pnpm db:push                      # create the SQLite schema (dev)
+pnpm seed                         # demo journalists/reader/ads/poll/breaking
+pnpm dev                          # http://localhost:3000
 ```
 
-## What's inside apps/web
+Demo accounts (password `demo1234`): `sushila@nagarikwatch.com` (editor), `manisha@`/`rajesh@` (reporters), `demo.reader@nagarikwatch.com` (subscriber).
 
-A self-contained full-stack build of the portal: the two-band chrome, the
-edition homepage (breaking banner, trending rail, live poll), all 15 desks,
-87 archive stories + the live CMS layer, article comments, the astronomical
-पात्रो, the live बजार dashboard, reader + journalist accounts, the full
-newsroom pipeline (pitch → draft → review → publish → analytics),
-साँझ ब्रिफिङ newsletter with CSV export, and the Preeti/date tools.
+## Deploy to Vercel
 
-## Demo accounts (password: demo1234)
+1. Import the repo — root directory stays the repo root; `vercel.json` already sets install/build (`pnpm install --frozen-lockfile` + `pnpm --filter ./apps/web build`).
+2. Set env vars (see `.env.example`): `DATABASE_URL` (Postgres for serverless), `NEXT_PUBLIC_SITE_URL`, and the R2 keys when you want uploads.
+3. For Postgres: flip `provider` in `apps/web/prisma/schema.prisma` to `postgresql`, run `pnpm db:push` once against the production URL.
+4. `launch check` → log in as the editor at `/journalist` → **सम्पादक डेस्क → लन्च चेक** — the score explains exactly which env items remain.
 
-- Editor (सम्पादक): `sushila@nagarikwatch.com`
-- Reporters: `manisha@nagarikwatch.com`, `rajesh@nagarikwatch.com`
-- Reader: `demo.reader@nagarikwatch.com`
+Full walkthrough: [`LAUNCH-GUIDE.md`](./LAUNCH-GUIDE.md) · Design contract: [`DESIGN.md`](./DESIGN.md) · Change log: [`CHANGES.md`](./CHANGES.md)
 
-## Integrating with the production monorepo
+## What's inside
 
-The current repository's `apps/web` is a [locale]-routed app wired to the
-Payload CMS. This build is a standalone redesign that keeps the same design
-system and all 87 archive stories in `src/lib/news/data.ts`. Two paths:
-
-1. **Adopt directly** — replace `apps/web` with this build and re-point its
-   story layer (`src/lib/news/data.ts` + the CMS article store) at Payload's
-   REST/GraphQL API; the component tree expects the same `Story` shape.
-2. **Cherry-pick** — copy `src/components/nagarik/*`, `src/lib/news/*`,
-   `src/app/api/*`, `prisma/schema.prisma`, `public/photos/` and
-   `DESIGN.md` into the existing app and mount the components in your
-   routes.
-
-Either way, keep `DESIGN.md` as the source of truth for visual decisions.
+- **99 stories** across 17 desks (incl. विपद् disaster hub + तथ्य जाँच fact-check), full Nepali + English bodies, real Aug-2026 Bhote Koshi flood coverage.
+- **Real routes + SEO**: per-article metadata/OG, JSON-LD (NewsArticle, NewsMediaOrganization, BreadcrumbList, ItemList), sitemap.xml (159+ URLs), robots.txt, RSS, llms.txt, PWA manifest.
+- **Newsroom CMS**: pitch → draft → review → publish → analytics; reporter/editor roles; breaking-news control.
+- **Readers**: accounts, synced bookmarks, comments, live polls, saved pages, reading history.
+- **Monetization**: labeled ad slots (house-ad fallback, editor-managed campaigns with CTR), metered paywall (8 free stories/month, editor-tunable), subscriptions (monthly/yearly/patron, demo checkout, gateway-ready), view counts + trending.
+- **Personalization**: transparent recommendation engine (desk affinity + tags + recency + trending).
+- **Privacy**: cookie consent (necessary/analytics), cookie policy, gated beacons.
+- **Live data**: BS पात्रो + panchanga (astronomy engine), NRB forex, gold/silver, NEPSE (labelled fallback), USGS earthquake feed.
+- **Media**: Cloudflare R2 uploads (S3-compatible, SigV4, zero-dependency).

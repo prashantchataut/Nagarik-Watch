@@ -173,6 +173,12 @@ export default function Masthead({
             )}
           </a>
           <a
+            href={href('/disaster')}
+            className="ml-1 hidden rounded-sm border border-crimson px-3 py-2.5 font-headline text-[14px] font-bold text-crimson transition-colors hover:bg-crimson-wash lg:inline-flex"
+          >
+            विपद् केन्द्र
+          </a>
+          <a
             href={href('/patro')}
             className="ml-1 rounded-sm bg-crimson px-3.5 py-2.5 font-headline text-[15px] font-bold text-white shadow-sm transition-transform hover:-translate-y-px active:translate-y-0"
           >
@@ -253,6 +259,18 @@ export function MenuSheet({ open, onClose }: { open: boolean; onClose: () => voi
             </a>
           ))}
           <div className="my-2 border-t border-rule" />
+          <a href={href('/feed')} className={linkClass} onClick={onClose}>
+            सबै समाचार (फिड) <span className="text-ink-faint">→</span>
+          </a>
+          <a href={href('/fact-check')} className={linkClass} onClick={onClose}>
+            तथ्य जाँच <span className="text-ink-faint">→</span>
+          </a>
+          <a href={href('/disaster')} className={linkClass} onClick={onClose}>
+            विपद् केन्द्र <span className="text-ink-faint">→</span>
+          </a>
+          <a href={href('/subscribe')} className={linkClass} onClick={onClose}>
+            सदस्यता <span className="text-ink-faint">→</span>
+          </a>
           <a href={href('/province')} className={linkClass} onClick={onClose}>
             सात प्रदेश <span className="text-ink-faint">→</span>
           </a>

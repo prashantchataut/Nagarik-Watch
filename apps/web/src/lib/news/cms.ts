@@ -1,5 +1,5 @@
 import { blocksFromJson, readingMinutesOf } from '@/lib/blocks'
-import type { Block } from '@/lib/news/data'
+import type { Block, Story } from '@/lib/news/data'
 
 /**
  * Shared mapper: DB article row → public article shape that mirrors the static
@@ -78,5 +78,29 @@ export function toPublicArticle(a: ArticleRow): PublicArticle {
     author: a.author.name,
     views: a.views,
     fromDb: true,
+  }
+}
+
+/** Map a public CMS article to the static Story shape (server + client safe). */
+export function dbArticleToStory(a: PublicArticle): Story {
+  return {
+    slug: a.slug,
+    desk: a.desk,
+    titleNe: a.titleNe,
+    titleEn: a.titleEn,
+    deckNe: a.deckNe,
+    deckEn: a.deckEn,
+    bodyNe: a.bodyNe,
+    bodyEn: a.bodyEn,
+    publishedAt: a.publishedAt,
+    readingMinutes: a.readingMinutes,
+    featured: 'none',
+    location: a.location,
+    province: a.province,
+    hero: a.hero,
+    heroCaption: a.heroCaption,
+    heroCredit: a.heroCredit,
+    tags: a.tags,
+    author: a.author,
   }
 }

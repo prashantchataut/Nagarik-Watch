@@ -11,6 +11,7 @@ import {
   Send,
   Trash2,
   Undo2,
+  UploadCloud,
 } from 'lucide-react'
 import { desks, stories, type Block } from '@/lib/news/data'
 import { href } from '@/lib/news/router'
@@ -137,8 +138,11 @@ export default function JournalistView() {
 
   useEffect(() => {
     if (!isJournalist) return
-    void loadPitches()
-    void loadMine()
+    const t = window.setTimeout(() => {
+      void loadPitches()
+      void loadMine()
+    }, 0)
+    return () => window.clearTimeout(t)
   }, [isJournalist, loadPitches, loadMine])
 
   const login = async (e: React.FormEvent) => {
@@ -689,22 +693,13 @@ export default function JournalistView() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
                       <span className="mb-1.5 block font-headline text-[13px] font-bold text-ink-soft">
-                        तस्वीर (डेस्क चित्र वा URL)
+                        तस्वीर (डेस्क चित्र, अपलोड वा URL)
                       </span>
-                      <select
-                        value={draft.hero.startsWith('/photos/desks/') ? draft.hero : ''}
-                        onChange={(e) =>
-                          setDraft((d) => ({ ...d, hero: e.target.value || d.hero }))
-                        }
-                        className={inputClass}
-                      >
-                        <option value="">— स्वत: डेस्क चित्र —</option>
-                        {desks.map((d) => (
-                          <option key={d.slug} value={`/photos/desks/${d.slug}.jpg`}>
-                            {d.nameNe} (सम्पादकीय चित्र)
-                          </option>
-                        ))}
-                      </select>
+                      <R2UploadHero
+                        desk={draft.desk}
+                        value={draft.hero}
+                        onUploaded={(url) => setDraft((d) => ({ ...d, hero: url }))}
+                      />
                     </label>
                     <label className="block">
                       <span className="mb-1.5 block font-headline text-[13px] font-bold text-ink-soft">
@@ -955,5 +950,97 @@ export default function JournalistView() {
         </div>
       </div>
     </main>
+  )
+}
+
+/* ----------------------- R2 hero upload (Cloudflare) --------------------- */
+
+function R2UploadHero({
+  desk,
+  value,
+  onUploaded,
+}: {
+  desk: string
+  value: string
+  onUploaded: (url: string) => void
+}) {
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [custom, setCustom] = useState(!value.startsWith('/photos/desks/') && value ? value : '')
+
+  async function upload(file: File) {
+    setBusy(true)
+    setMessage(null)
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      form.append('desk', desk || 'desk')
+      const res = await fetch('/api/uploads', { method: 'POST', body: form })
+      const data = (await res.json()) as { ok?: boolean; url?: string; error?: string }
+      if (!res.ok || !data.url) {
+        setMessage(data.error ?? 'अपलोड असफल।')
+        return
+      }
+      onUploaded(data.url)
+      setCustom(data.url)
+      setMessage('अपलोड भयो — R2 URL जोडियो।')
+    } catch {
+      setMessage('सञ्जाल त्रुटि — फेरि प्रयास गर्नुहोस्।')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <select
+        value={value.startsWith('/photos/desks/') ? value : ''}
+        onChange={(e) => {
+          const v = e.target.value
+          if (v) {
+            setCustom('')
+            onUploaded(v)
+          }
+        }}
+        className="w-full rounded-sm border border-rule bg-surface px-3 py-2 text-[14px] text-ink focus:border-crimson focus:outline-none"
+      >
+        <option value="">— स्वत: डेस्क चित्र / URL तल —</option>
+        {desks.map((d) => (
+          <option key={d.slug} value={`/photos/desks/${d.slug}.jpg`}>
+            {d.nameNe} (सम्पादकीय चित्र)
+          </option>
+        ))}
+      </select>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-sm border border-crimson px-3.5 py-1.5 font-headline text-[13px] font-bold text-crimson hover:bg-crimson-wash">
+          <UploadCloud className="size-4" aria-hidden />
+          {busy ? 'अपलोडिङ…' : 'R2 मा तस्वीर अपलोड'}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+            className="hidden"
+            disabled={busy}
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) void upload(file)
+            }}
+          />
+        </label>
+        <span className="text-[11.5px] text-ink-faint">JPEG/PNG/WebP · अधिकतम ८ MB</span>
+      </div>
+
+      <input
+        value={custom}
+        onChange={(e) => {
+          setCustom(e.target.value)
+          if (e.target.value) onUploaded(e.target.value)
+        }}
+        placeholder="वा तस्वीर URL टाँस्नुहोस् (R2 वा https://…)"
+        className="w-full rounded-sm border border-rule bg-surface px-3 py-2 text-[13px] text-ink focus:border-crimson focus:outline-none"
+      />
+
+      {message && <p className="text-[12px] font-bold text-crimson">{message}</p>}
+    </div>
   )
 }

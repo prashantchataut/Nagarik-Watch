@@ -1,66 +1,43 @@
 import { db } from '@/lib/db'
-import { ok, parseBody, requireReader, limitOr429 } from '@/lib/api'
+import { currentUser } from '@/lib/auth'
+import { fail, ok, parseBody, requireJournalist } from '@/lib/api'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
 
-/** Public: visible comments for one story, keyed "desk/slug". */
-export async function GET(req: Request) {
-  const url = new URL(req.url)
-  const key = url.searchParams.get('key') ?? ''
-  if (!key || key.length > 200) return ok({ comments: [], total: 0 })
+type Ctx = { params: Promise<{ id: string }> }
 
-  const rows = await db.comment.findMany({
-    where: { storyKey: key, status: 'visible' },
-    orderBy: { createdAt: 'desc' },
-    take: 50,
-  })
-  return ok({
-    comments: rows.map((c) => ({
-      id: c.id,
-      authorName: c.authorName,
-      body: c.body,
-      createdAt: c.createdAt.toISOString(),
-    })),
-    total: rows.length,
-  })
-}
-
-const postSchema = z.object({
-  key: z.string().trim().min(1, 'कुनै समाचार छानिएको छैन।').max(200),
-  body: z
-    .string()
-    .trim()
-    .min(3, 'प्रतिक्रिया कम्तीमा ३ अक्षरको हुनुपर्छ।')
-    .max(1000, 'प्रतिक्रिया १००० अक्षरभित्र राख्नुहोस्।'),
+const patchSchema = z.object({
+  status: z.enum(['visible', 'hidden'], { message: 'अमान्य स्थिति।' }),
 })
 
-/** Reader: post a comment (moderated after publication; editors can hide). */
-export async function POST(req: Request) {
-  const limited = limitOr429(req, 'comment', 5, 10 * 60 * 1000)
-  if (limited) return limited
-
-  const guard = await requireReader()
+/** Editor: moderate a comment (hide / restore). */
+export async function PATCH(req: Request, ctx: Ctx) {
+  const guard = await requireJournalist()
   if ('error' in guard) return guard.error
+  if (guard.journalist.role !== 'editor') return fail('प्रतिक्रिया नियन्त्रण सम्पादकको अधिकार हो।', 403)
 
-  const { data, error } = await parseBody(req, postSchema)
+  const { id } = await ctx.params
+  const { data, error } = await parseBody(req, patchSchema)
   if (error) return error
 
-  const comment = await db.comment.create({
-    data: {
-      storyKey: data.key,
-      readerId: guard.reader.id,
-      authorName: guard.reader.name,
-      body: data.body,
-      status: 'visible',
-    },
-  })
-  return ok({
-    comment: {
-      id: comment.id,
-      authorName: comment.authorName,
-      body: comment.body,
-      createdAt: comment.createdAt.toISOString(),
-    },
-  })
+  const updated = await db.comment.updateMany({ where: { id }, data: { status: data.status } })
+  if (!updated.count) return fail('प्रतिक्रिया भेटिएन।', 404)
+  return ok({ status: data.status })
+}
+
+/** Reader deletes own comment; editors may delete any. */
+export async function DELETE(_req: Request, ctx: Ctx) {
+  const { id } = await ctx.params
+  const me = await currentUser()
+
+  const comment = await db.comment.findUnique({ where: { id } })
+  if (!comment) return fail('प्रतिक्रिया भेटिएन।', 404)
+
+  const isOwn = me?.kind === 'reader' && me.id === comment.readerId
+  const isEditor = me?.kind === 'journalist' && me.role === 'editor'
+  if (!isOwn && !isEditor) return fail('मेट्ने अनुमति छैन।', 403)
+
+  await db.comment.delete({ where: { id } })
+  return ok({ deleted: true })
 }

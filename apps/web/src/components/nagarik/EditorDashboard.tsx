@@ -18,6 +18,7 @@ import { toDevanagari } from '@/lib/news/patro'
 import { blocksFromJson } from '@/lib/blocks'
 import { apiDelete, apiGet, apiPatch, apiPut } from '@/lib/news/api-client'
 import { refreshArticles } from '@/lib/news/article-store'
+import { LaunchCheckPanel, AdsManagerPanel } from './EditorExtras'
 
 /**
  * सम्पादक डेस्क (editor-only dashboard): review queue, pitch triage,
@@ -157,7 +158,8 @@ export default function EditorDashboard({ onPublished }: { onPublished: () => vo
   }, [])
 
   useEffect(() => {
-    void load()
+    const t = window.setTimeout(load, 0)
+    return () => window.clearTimeout(t)
   }, [load])
 
   const reviewArticle = async (slug: string, action: 'publish' | 'decline') => {
@@ -430,8 +432,9 @@ export default function EditorDashboard({ onPublished }: { onPublished: () => vo
           )}
         </div>
 
-        {/* right rail: breaking + analytics + subscribers */}
+        {/* right rail: launch check + breaking + analytics + ads + subscribers */}
         <div className="space-y-8">
+          <LaunchCheckPanel />
           <div className="paper-card rounded-sm p-5">
             <p className="flex items-center gap-2 font-headline text-[15px] font-extrabold text-ink">
               <Megaphone className="size-4 text-crimson" /> तत्काल समाचार
@@ -567,6 +570,8 @@ export default function EditorDashboard({ onPublished }: { onPublished: () => vo
               </ul>
             )}
           </div>
+
+          <AdsManagerPanel />
 
           <div className="paper-card rounded-sm p-5">
             <p className="flex items-center gap-2 font-headline text-[15px] font-extrabold text-ink">
