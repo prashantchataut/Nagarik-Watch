@@ -6,6 +6,7 @@ import { byDesk, latest, leadStory, storyUrl, supportPair } from '@/lib/news/uti
 import { href } from '@/lib/news/router'
 import { nepseSnapshot } from '@/lib/news/nepse'
 import { adToBs, formatBsFull } from '@/lib/news/patro'
+import { dbArticleToStory, useDbArticles } from '@/lib/news/article-store'
 import { HeroImage, SectionHeader } from './cards'
 import { useSaved } from '@/lib/news/storage'
 
@@ -55,14 +56,25 @@ function EnRowCard({ story }: { story: Story }) {
 export default function EnglishHome() {
   const lead = useMemo(() => leadStory(), [])
   const pair = useMemo(() => supportPair(lead.slug), [lead.slug])
-  const latestItems = useMemo(
-    () => latest(8, [lead.slug, ...pair.map((p) => p.slug)]),
-    [lead.slug, pair],
-  )
-  const topDesks = useMemo(
-    () => ['politics', 'business', 'society', 'sports'].map((d) => ({ d, items: byDesk(d) })),
-    [],
-  )
+  const { dbArticles } = useDbArticles()
+
+  const latestItems = useMemo(() => {
+    const exclusions = new Set([lead.slug, ...pair.map((p) => p.slug)])
+    const live = dbArticles
+      .filter((a) => !exclusions.has(a.slug))
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+      .slice(0, 3)
+      .map(dbArticleToStory)
+    return [...live, ...latest(8 - live.length, [...exclusions])]
+  }, [lead.slug, pair, dbArticles])
+
+  const topDesks = useMemo(() => {
+    const byDeskLive = (d: string) => [
+      ...dbArticles.filter((a) => a.desk === d).map(dbArticleToStory),
+      ...byDesk(d),
+    ]
+    return ['politics', 'business', 'society', 'sports'].map((d) => ({ d, items: byDeskLive(d) }))
+  }, [dbArticles])
   const { saved } = useSaved()
   const bsToday = useMemo(() => formatBsFull(adToBs(new Date())), [])
   const { index } = nepseSnapshot
@@ -77,7 +89,7 @@ export default function EnglishHome() {
           </p>
           <a
             href={href('/')}
-            className="rounded-sm border border-crimson/50 px-2.5 py-1 font-headline text-[12.5px] font-bold uppercasest text-crimson transition-colors hover:bg-crimson hover:text-white"
+            className="rounded-sm border border-crimson/50 px-2.5 py-1 font-headline text-[12.5px] font-bold uppercase text-crimson transition-colors hover:bg-crimson hover:text-white"
           >
             नेपाली संस्करण
           </a>

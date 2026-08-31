@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { createSession, verifyPassword } from '@/lib/auth'
+import { limitOr429 } from '@/lib/api'
 
 /**
  * Journalist login — deliberately separate from reader login.
  * Only active journalist accounts can enter the newsroom desk.
  */
 export async function POST(req: Request) {
+  const limited = limitOr429(req, 'login-journalist', 10, 5 * 60 * 1000)
+  if (limited) return limited
+
   try {
     const body = (await req.json()) as { email?: string; password?: string }
     const email = (body.email ?? '').trim().toLowerCase()
@@ -23,7 +27,13 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       kind: 'journalist',
-      profile: { name: journalist.name, email: journalist.email, desk: journalist.desk, bio: journalist.bio },
+      profile: {
+        name: journalist.name,
+        email: journalist.email,
+        desk: journalist.desk,
+        role: journalist.role,
+        bio: journalist.bio,
+      },
     })
   } catch {
     return NextResponse.json({ error: 'लगइन गर्न सकिएन। पुनः प्रयास गर्नुहोस्।' }, { status: 500 })

@@ -46,7 +46,15 @@ export async function createSession(kind: 'reader' | 'journalist', id: string) {
 
 export type Me =
   | { kind: 'reader'; id: string; name: string; email: string }
-  | { kind: 'journalist'; id: string; name: string; email: string; desk: string; bio: string | null }
+  | {
+      kind: 'journalist'
+      id: string
+      name: string
+      email: string
+      desk: string
+      role: string // "reporter" | "editor"
+      bio: string | null
+    }
   | null
 
 export async function currentUser(): Promise<Me> {
@@ -68,6 +76,7 @@ export async function currentUser(): Promise<Me> {
       name: session.journalist.name,
       email: session.journalist.email,
       desk: session.journalist.desk,
+      role: session.journalist.role,
       bio: session.journalist.bio,
     }
   }

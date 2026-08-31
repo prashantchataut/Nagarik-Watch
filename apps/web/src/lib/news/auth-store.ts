@@ -10,7 +10,15 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react'
 
 export type Me =
   | { kind: 'reader'; id: string; name: string; email: string }
-  | { kind: 'journalist'; id: string; name: string; email: string; desk: string; bio: string | null }
+  | {
+      kind: 'journalist'
+      id: string
+      name: string
+      email: string
+      desk: string
+      role: string // "reporter" | "editor"
+      bio: string | null
+    }
   | null
 
 let cached: { me: Me; version: number } | null = null
@@ -69,6 +77,16 @@ export async function logout() {
 function subscribe(callback: () => void) {
   listeners.add(callback)
   return () => listeners.delete(callback)
+}
+
+/** Subscribe to session changes (login / logout / refresh). */
+export function onAuthChange(callback: () => void): () => void {
+  return subscribe(callback)
+}
+
+/** Current cached session (may be null before the first /api/auth/me). */
+export function currentMe(): Me {
+  return cached?.me ?? null
 }
 
 const serverSnapshot = { me: null as Me, version: 0 }

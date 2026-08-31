@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "seed": "bun run scripts/seed_auth.ts"
+    "seed": "bun run scripts/seed_auth.ts && bun run scripts/seed_full.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

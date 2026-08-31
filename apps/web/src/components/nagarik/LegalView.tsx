@@ -125,6 +125,107 @@ const NAV = [
   ['terms', 'प्रयोगका सर्तहरू'],
 ]
 
+const inputClass =
+  'w-full rounded-sm border border-rule bg-paper px-3.5 py-2.5 text-[15px] text-ink placeholder:text-ink-faint focus:border-crimson focus:outline-none focus:ring-2 focus:ring-crimson/15'
+
+/** Contact / news-tip form — posts to /api/contact (rate-limited). */
+function ContactForm() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [subject, setSubject] = useState('')
+  const [message, setMessage] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [done, setDone] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setBusy(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, subject, message }),
+      })
+      const json = (await res.json()) as { error?: string }
+      if (!res.ok) throw new Error(json.error ?? 'पठाउन सकिएन।')
+      setDone(true)
+      setName('')
+      setEmail('')
+      setSubject('')
+      setMessage('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'पठाउन सकिएन।')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (done) {
+    return (
+      <div className="paper-card mt-2 rounded-sm p-5">
+        <p className="font-headline text-[17px] font-extrabold text-market-green">
+          सन्देश प्राप्त भयो — धन्यवाद!
+        </p>
+        <p className="mt-1.5 text-[14px] leading-relaxed text-ink-soft">
+          हामी सम्पादकीय टोलीले सन्देश पढ्नेछौँ र आवश्यक भएमा ४८ घण्टाभित्र इमेलमा जवाफ दिनेछौँ।
+        </p>
+        <button
+          type="button"
+          onClick={() => setDone(false)}
+          className="mt-3 rounded-sm border border-rule px-4 py-2 font-headline text-[13.5px] font-bold text-ink-soft hover:border-crimson hover:text-crimson"
+        >
+          अर्को सन्देश पठाउनुहोस्
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <form onSubmit={submit} className="paper-card mt-2 space-y-4 rounded-sm p-5">
+      <p className="font-headline text-[17px] font-extrabold text-ink">सन्देश फारम</p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block">
+          <span className="mb-1.5 block font-headline text-[13px] font-bold text-ink-soft">नाम *</span>
+          <input required minLength={2} value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
+        </label>
+        <label className="block">
+          <span className="mb-1.5 block font-headline text-[13px] font-bold text-ink-soft">इमेल *</span>
+          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+        </label>
+      </div>
+      <label className="block">
+        <span className="mb-1.5 block font-headline text-[13px] font-bold text-ink-soft">विषय *</span>
+        <input required minLength={3} value={subject} onChange={(e) => setSubject(e.target.value)} className={inputClass} placeholder="जस्तै: समाचार सुझाव / त्रुटि सच्याउने / विज्ञापन" />
+      </label>
+      <label className="block">
+        <span className="mb-1.5 block font-headline text-[13px] font-bold text-ink-soft">सन्देश *</span>
+        <textarea
+          required
+          minLength={20}
+          maxLength={3000}
+          rows={5}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className={`${inputClass} resize-y`}
+          placeholder="आफ्नो सुझाव, प्रतिक्रिया वा समाचार टिप विस्तारै लेख्नुहोस्…"
+        />
+      </label>
+      {error && (
+        <p className="rounded-sm bg-crimson-wash px-3 py-2.5 text-[13.5px] font-medium text-crimson-deep">{error}</p>
+      )}
+      <button
+        type="submit"
+        disabled={busy}
+        className="rounded-sm bg-crimson px-5 py-2.5 font-headline text-[15px] font-bold text-white transition-colors hover:bg-crimson-deep disabled:opacity-60"
+      >
+        {busy ? 'पठाँदै…' : 'पठाउनुहोस्'}
+      </button>
+    </form>
+  )
+}
+
 export default function LegalView({ slug }: { slug: string }) {
   const page = INFO_PAGES[slug]
   if (!page) {
@@ -155,6 +256,7 @@ export default function LegalView({ slug }: { slug: string }) {
               </div>
             </section>
           ))}
+          {slug === 'contact' && <ContactForm />}
           <div className="border-t border-rule pt-5">
             <p className="mb-2.5 text-[11px] uppercase text-ink-faint">थप पृष्ठहरू</p>
             <div className="flex flex-wrap gap-2">

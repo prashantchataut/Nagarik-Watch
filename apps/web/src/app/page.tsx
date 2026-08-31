@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRoute } from '@/lib/news/router'
 import { findStory } from '@/lib/news/utils'
 import { useTheme } from '@/lib/news/theme'
+import { dbArticleToStory, useDbArticles } from '@/lib/news/article-store'
+import BreakingBanner from '@/components/nagarik/BreakingBanner'
 import Masthead, { MenuSheet, MobileTopFacts } from '@/components/nagarik/Masthead'
 import DeskRail from '@/components/nagarik/DeskRail'
 import BottomNav from '@/components/nagarik/BottomNav'
@@ -24,6 +26,29 @@ import LegalView, { Footer } from '@/components/nagarik/LegalView'
 
 type Theme = 'light' | 'dark'
 
+/** Resolve an article from the static archive OR the live CMS store. */
+function ArticleRoute({ desk, slug }: { desk: string; slug: string }) {
+  const story = findStory(desk, slug)
+  const { dbArticles, ready } = useDbArticles()
+
+  if (story) return <ArticleView story={story} />
+  const dbMatch = dbArticles.find((a) => a.desk === desk && a.slug === slug)
+  if (dbMatch) return <ArticleView story={dbArticleToStory(dbMatch)} />
+
+  if (!ready) {
+    return (
+      <main id="main" aria-busy="true">
+        <div className="mx-auto flex max-w-[1180px] flex-col items-center gap-4 px-4 py-24">
+          <div className="h-3 w-40 animate-pulse rounded-full bg-rule/60" />
+          <div className="h-8 w-2/3 max-w-[520px] animate-pulse rounded bg-rule/40" />
+          <div className="h-3 w-56 animate-pulse rounded-full bg-rule/30" />
+        </div>
+      </main>
+    )
+  }
+  return <ArticleNotFound desk={desk} />
+}
+
 function View({ route }: { route: ReturnType<typeof useRoute> }) {
   switch (route.name) {
     case 'home':
@@ -32,10 +57,8 @@ function View({ route }: { route: ReturnType<typeof useRoute> }) {
       return <EnglishHome />
     case 'desk':
       return <DeskPage desk={route.desk} />
-    case 'article': {
-      const story = findStory(route.desk, route.slug)
-      return story ? <ArticleView story={story} /> : <ArticleNotFound desk={route.desk} />
-    }
+    case 'article':
+      return <ArticleRoute desk={route.desk} slug={route.slug} />
     case 'province':
       return route.slug ? <ProvincePage slug={route.slug} /> : <ProvinceHub />
     case 'patro':
@@ -88,12 +111,20 @@ export default function Portal() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  // Article comments can request the reader account sheet
+  useEffect(() => {
+    const open = () => setAccountOpen(true)
+    window.addEventListener('nagarikwatch:open-account', open)
+    return () => window.removeEventListener('nagarikwatch:open-account', open)
+  }, [])
+
   useEffect(() => {
     document.documentElement.lang = route.name === 'english' ? 'en' : 'ne'
   }, [route.name])
 
   return (
     <div className="flex min-h-screen flex-col bg-paper">
+      <BreakingBanner />
       <Masthead
         theme={theme}
         onToggleTheme={toggleTheme}

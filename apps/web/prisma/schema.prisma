@@ -16,6 +16,9 @@ model Reader {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   sessions     Session[]
+  comments     Comment[]
+  bookmarks    Bookmark[]
+  pollVotes    PollVote[]
 }
 
 /// Journalist (पत्रकार) account — newsroom login, distinct from reader accounts.
@@ -25,6 +28,8 @@ model Journalist {
   name         String
   /// Desk slug this journalist covers, e.g. "politics", "business".
   desk         String
+  /// Newsroom role: "reporter" files stories, "editor" can also review + publish.
+  role         String   @default("reporter") // reporter | editor
   /// Short public bio (Ne).
   bio          String?
   phone        String?
@@ -34,6 +39,7 @@ model Journalist {
   updatedAt    DateTime @updatedAt
   sessions     Session[]
   pitches      DeskPitch[]
+  articles     Article[]
 }
 
 /// Login session — one row per login, referenced by an httpOnly cookie token.
@@ -73,4 +79,126 @@ model DeskPitch {
   updatedAt   DateTime @updatedAt
 
   @@index([journalistId])
+  @@index([status])
+}
+
+/// Full newsroom article (समाचार) — the CMS pipeline.
+/// Written by journalists, reviewed + published by editors, merged into the
+/// public edition next to the static archive stories.
+model Article {
+  id          String   @id @default(cuid())
+  /// Unique public slug — also used in storyKey "desk/slug" for comments/bookmarks.
+  slug        String   @unique
+  desk        String
+  titleNe     String
+  titleEn     String?
+  deckNe      String
+  deckEn      String?
+  /// JSON-serialized Block[] (Ne) — same discriminated union as the static archive.
+  bodyNe      String
+  /// JSON-serialized Block[] (En) — optional.
+  bodyEn      String?
+  /// Hero image path under /public, if any.
+  hero        String?
+  heroCredit  String?
+  /// JSON-serialized string[] of tags.
+  tags        String   @default("[]")
+  /// draft | submitted | published | declined
+  status      String   @default("draft")
+  editorNote  String?
+  authorId    String
+  author      Journalist @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  publishedAt DateTime?
+  /// Denormalized view counter for trending (also tracked daily in Pageview).
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([desk, status])
+  @@index([authorId])
+}
+
+/// Reader comment on any story (static archive or CMS article), keyed by "desk/slug".
+model Comment {
+  id         String   @id @default(cuid())
+  storyKey   String
+  readerId   String
+  reader     Reader   @relation(fields: [readerId], references: [id], onDelete: Cascade)
+  authorName String
+  body       String
+  /// visible | hidden (moderation by editors)
+  status     String   @default("visible")
+  createdAt  DateTime @default(now())
+
+  @@index([storyKey, status, createdAt])
+}
+
+/// Server-synced bookmark (saved story) for logged-in readers.
+model Bookmark {
+  id        String   @id @default(cuid())
+  readerId  String
+  reader    Reader   @relation(fields: [readerId], references: [id], onDelete: Cascade)
+  storyKey  String
+  createdAt DateTime @default(now())
+
+  @@unique([readerId, storyKey])
+}
+
+/// Poll of the day (मतदान) — one active poll at a time.
+model Poll {
+  id        String   @id @default(cuid())
+  question  String
+  /// JSON-serialized [{id,label}] option list.
+  options   String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  votes     PollVote[]
+}
+
+/// One vote per poll per voter (reader id or anonymous device key).
+model PollVote {
+  id        String   @id @default(cuid())
+  pollId    String
+  poll      Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  optionId  String
+  /// Reader id when logged in, else a client-generated anonymous key.
+  voterKey  String
+  readerId  String?
+  reader    Reader?  @relation(fields: [readerId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@unique([pollId, voterKey])
+}
+
+/// Contact-form / news-tip submission from the contact page.
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+/// Breaking-news banner (तत्काल) — a single active item is shown site-wide.
+model BreakingNews {
+  id        String   @id @default(cuid())
+  textNe    String
+  link      String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Daily pageview counter per storyKey — powers "धेरै पढिएको" (trending).
+model Pageview {
+  id        String   @id @default(cuid())
+  storyKey  String
+  day       String // YYYY-MM-DD
+  count     Int      @default(0)
+
+  @@unique([storyKey, day])
+  @@index([day])
 }

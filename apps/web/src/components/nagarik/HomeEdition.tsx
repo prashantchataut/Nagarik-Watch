@@ -7,13 +7,16 @@ import { useMarket } from '@/lib/news/market-store'
 import { desks, provinces, stories, type Story } from '@/lib/news/data'
 import {
   byDesk,
+  deskName,
   deskRole,
+  findStory,
   latest,
   leadStory,
   storyUrl,
   supportPair,
 } from '@/lib/news/utils'
-import { usePollChoice } from '@/lib/news/storage'
+import { usePoll } from '@/lib/news/poll-store'
+import { dbArticleToStory, useDbArticles } from '@/lib/news/article-store'
 import { href } from '@/lib/news/router'
 import {
   HeroImage,
@@ -112,20 +115,25 @@ function SupportPair({ excludeSlug }: { excludeSlug: string }) {
 /* ------------------------------ Poll ------------------------------------- */
 
 function Poll() {
-  const pollId = 'budget-midyear-2083'
-  const question = 'बजेट कार्यान्वयनमा सबैभन्दा पहिले के सुधार जरुरी छ?'
-  const options = [
-    { key: 'a', label: 'खर्चको पारदर्शिता' },
-    { key: 'b', label: 'प्रोजेक्ट छनोटमा सुधार' },
-    { key: 'c', label: 'स्थानीय तहको क्षमता' },
-  ]
-  const { choice, vote } = usePollChoice(pollId)
-  const [votes] = useState(() => ({
-    a: 412,
-    b: 387,
-    c: 246,
-  }))
-  const total = votes.a + votes.b + votes.c
+  const { poll, loading, voting, error, vote } = usePoll()
+
+  if (loading) {
+    return (
+      <section className="paper-card rounded-sm p-4" aria-label="आजको जनमत" aria-busy="true">
+        <div className="h-4 w-24 animate-pulse rounded-full bg-rule/60" />
+        <div className="mt-3 h-5 w-3/4 animate-pulse rounded bg-rule/40" />
+        <div className="mt-4 space-y-2">
+          <div className="h-11 animate-pulse rounded-sm bg-rule/30" />
+          <div className="h-11 animate-pulse rounded-sm bg-rule/30" />
+          <div className="h-11 animate-pulse rounded-sm bg-rule/30" />
+        </div>
+      </section>
+    )
+  }
+
+  if (!poll) return null
+
+  const total = poll.totalVotes
 
   return (
     <section className="paper-card rounded-sm p-4" aria-label="आजको जनमत">
@@ -135,28 +143,30 @@ function Poll() {
           {toDevanagari(total)} मत
         </span>
       </div>
-      <p className="mt-1.5 text-[14.5px] font-medium leading-relaxed text-ink">{question}</p>
-      {!choice ? (
+      <p className="mt-1.5 text-[14.5px] font-medium leading-relaxed text-ink">{poll.question}</p>
+      {poll.myVote === null ? (
         <div className="mt-3 space-y-2">
-          {options.map((opt) => (
+          {poll.options.map((opt) => (
             <button
-              key={opt.key}
+              key={opt.id}
               type="button"
-              onClick={() => vote(opt.key)}
-              className="flex min-h-[44px] w-full items-center justify-between rounded-sm border border-rule px-3 py-2 text-left font-headline text-[15px] font-semibold text-ink transition-colors hover:border-crimson hover:bg-crimson-wash"
+              disabled={voting}
+              onClick={() => void vote(opt.id)}
+              className="flex min-h-[44px] w-full items-center justify-between rounded-sm border border-rule px-3 py-2 text-left font-headline text-[15px] font-semibold text-ink transition-colors hover:border-crimson hover:bg-crimson-wash disabled:opacity-60"
             >
               {opt.label}
-              <span className="text-crimson">मत दिनुहोस्</span>
+              <span className="text-crimson">{voting ? '…' : 'मत दिनुहोस्'}</span>
             </button>
           ))}
+          {error && <p className="text-[12.5px] font-medium text-crimson">{error}</p>}
         </div>
       ) : (
         <div className="mt-3 space-y-2.5">
-          {options.map((opt) => {
-            const pct = Math.round((votes[opt.key as keyof typeof votes] / total) * 100)
-            const mine = choice === opt.key
+          {poll.options.map((opt) => {
+            const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0
+            const mine = poll.myVote === opt.id
             return (
-              <div key={opt.key}>
+              <div key={opt.id}>
                 <div className="mb-1 flex items-center justify-between text-[13.5px]">
                   <span className={`font-semibold ${mine ? 'text-crimson' : 'text-ink'}`}>
                     {opt.label}
@@ -176,7 +186,7 @@ function Poll() {
             )
           })}
           <p className="pt-1 text-[11.5px] text-ink-faint">
-            मत यसै यन्त्रमा मात्र राखिन्छ — परिणाम नमूना गणनामा आधारित छन्।
+            मत सर्भरमा गणना हुन्छ — प्रत्येक व्यक्तिले एक पटक मात्र मत दिन सक्छ।
           </p>
         </div>
       )}
@@ -305,19 +315,101 @@ function PatroMini() {
 function LatestBlock() {
   const lead = useMemo(() => leadStory(), [])
   const pair = useMemo(() => supportPair(lead.slug), [lead.slug])
-  const items = useMemo(
-    () => latest(9, [lead.slug, ...pair.map((p) => p.slug)]),
-    [lead.slug, pair],
-  )
+  const { dbArticles } = useDbArticles()
+
+  const items = useMemo(() => {
+    const exclusions = new Set([lead.slug, ...pair.map((p) => p.slug)])
+    const live = dbArticles
+      .filter((a) => !exclusions.has(a.slug))
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+      .slice(0, 3)
+      .map((a) => ({ story: dbArticleToStory(a), fresh: true }))
+    const archive = latest(9 - live.length, [...exclusions]).map((s) => ({ story: s, fresh: false }))
+    return [...live, ...archive]
+  }, [lead.slug, pair, dbArticles])
+
   return (
     <div>
       <SectionHeader title="ताजा समाचार" />
       <div>
-        {items.map((story, i) => (
-          <LatestItem key={story.slug} story={story} index={i} />
+        {items.map(({ story, fresh }, i) => (
+          <LatestItem key={story.slug} story={story} index={i} fresh={fresh} />
         ))}
       </div>
     </div>
+  )
+}
+
+/* ------------------------- Trending strip -------------------------------- */
+
+interface TrendingRow {
+  storyKey: string
+  views: number
+}
+
+function TrendingStrip() {
+  const { dbArticles } = useDbArticles()
+  const [rows, setRows] = useState<TrendingRow[] | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/trending', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : { trending: [] }))
+      .then((j: { trending: TrendingRow[] }) => {
+        if (!cancelled) setRows(j.trending ?? [])
+      })
+      .catch(() => {
+        if (!cancelled) setRows([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const resolved = useMemo(() => {
+    if (!rows) return null
+    return rows
+      .map((r) => {
+        const [desk, slug] = r.storyKey.split('/')
+        const story = findStory(desk ?? '', slug ?? '')
+        const dbMatch = dbArticles.find((a) => a.desk === desk && a.slug === slug)
+        const storyObj = story ?? (dbMatch ? dbArticleToStory(dbMatch) : undefined)
+        return storyObj ? { story: storyObj, views: r.views } : null
+      })
+      .filter((x): x is { story: Story; views: number } => x !== null)
+      .slice(0, 4)
+  }, [rows, dbArticles])
+
+  if (resolved === null || resolved.length === 0) return null
+
+  return (
+    <section className="border-b border-rule bg-surface-soft py-6 md:py-7" aria-label="धेरै पढिएको">
+      <div className={container}>
+        <div className="flex items-center gap-3">
+          <h2 className="font-headline text-[18px] font-extrabold text-ink">धेरै पढिएको</h2>
+          <span className="text-[11px] uppercase text-ink-faint">पछिल्लो ७ दिन</span>
+        </div>
+        <ol className="mt-4 grid gap-x-6 gap-y-0 sm:grid-cols-2">
+          {resolved.map(({ story, views }, i) => (
+            <li key={story.slug} className="border-b border-rule/70 py-3 last:border-b-0 sm:odd:border-b sm:[&:nth-last-child(-n+2)]:border-b-0">
+              <a href={href(`/${story.desk}/${story.slug}`)} className="group flex items-start gap-3">
+                <span className="font-headline text-[24px] font-extrabold leading-none text-crimson/80">
+                  {toDevanagari(i + 1)}
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-headline text-[15.5px] font-bold leading-snug text-ink transition-colors group-hover:text-crimson">
+                    {story.titleNe}
+                  </span>
+                  <span className="mt-0.5 block text-[11.5px] text-ink-faint">
+                    {deskName(story.desk)} · {toDevanagari(views)} पटक पढिएको
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
   )
 }
 
@@ -707,6 +799,8 @@ export default function HomeEdition() {
           </div>
         </div>
       </section>
+
+      <TrendingStrip />
 
       <NewsDeskSection desk="politics" />
       <MarketDeskSection />

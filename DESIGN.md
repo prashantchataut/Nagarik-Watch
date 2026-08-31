@@ -173,3 +173,61 @@ Never fake a live feed; every panel names its source.
 Nepali first, Devanagari numerals for Nepali surfaces, Latin numerals for
 market/technical data. English edition mirrors the Nepali one at `#/en`.
 Demo/live data is labelled honestly — never fake a live feed.
+
+---
+
+## Revision 3 additions — the full newsroom loop
+
+### Breaking news (तत्काल)
+
+- A crimson-deep full-width strip sits **above the masthead** (the only band
+  allowed above the paper masthead): white "तत्काल" tab with a pulsing dot,
+  bold headline, optional link, dismiss (per browser session).
+- Controlled exclusively from the सम्पादक डेस्क (`/api/editor/breaking`);
+  readers get `GET /api/breaking`. Dismissal never removes the news — only
+  hides the strip for that session.
+
+### The live edition layer (CMS merge)
+
+- Published CMS articles merge into the same visual grammar as the 87-story
+  archive: latest rail (with a small crimson **ताजा** badge), desk pages,
+  English edition. No third card style — they reuse every existing card.
+- Article heroes: CMS photo if provided, else the desk editorial
+  illustration (`heroFor` never returns an empty src).
+
+### Reader engagement surfaces
+
+- **Comments** at the end of every article (archive + CMS alike, keyed
+  `desk/slug`): paper-card list, composer for logged-in readers only,
+  anonymous visitors get a login prompt; editors hide/delete from the
+  सम्पादक डेस्क.
+- **Poll of the day** — server counts, one vote per person (account for
+  readers, device key for anonymous), crimson bars with Devanagari
+  percentages; honest label: "मत सर्भरमा गणना हुन्छ".
+- **धेरै पढिएको** — numbered most-read rail (7-day window) from the
+  pageview engine; hidden when there is no data.
+- **Saved stories** — localStorage for anonymous readers, account-synced
+  (merge on login) for readers.
+
+### The newsroom (#/journalist)
+
+- Tabbed desk: **पिच तथा डेस्क** (pitches + desk content) ·
+  **लेख लेख्नुहोस्** (markdown-lite editor, live preview with word count
+  and reading time) · **मेरा लेखहरू** (pipeline with status chips:
+  ड्राफ्ट / समीक्षामा / प्रकाशित / अस्वीकार + edit / submit / retract / delete) ·
+  **सम्पादक डेस्क** (editors only, marked with a badge).
+- Editor dashboard keeps the paper aesthetic: stat cards, review queue with
+  expandable body preview, pitch triage, तत्काल control, 7-day traffic
+  chart, top stories, subscribers + CSV, comment moderation.
+- Roles: `reporter` files and edits own unpublished work; `editor`
+  publishes/declines, moderates, controls तत्काल. Enforced server-side,
+  never by hiding buttons.
+
+### Data honesty (unchanged contract)
+
+- Live: NRB forex, metals, पात्रो panchanga, poll counts, pageviews,
+  breaking news, CMS pipeline. Demo-labelled: NEPSE fallback snapshot,
+  scores fixtures, rashifal.
+- Sensitive APIs are rate-limited and validated (zod, Nepali error
+  messages); private surfaces (`/api/editor/*`, auth, bookmarks) are
+  disallowed in robots.txt.

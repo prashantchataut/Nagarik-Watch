@@ -35,7 +35,7 @@ export function heroFor(slug: string, fallback: string, desk?: string): string {
   const assigned = photoAssignments[slug]
   if (assigned) return assigned
   // real photograph (from the newsroom archive) beats a generic desk card
-  if (!fallback.startsWith('data:')) return fallback
+  if (fallback && !fallback.startsWith('data:')) return fallback
   return deskHeroes[desk ?? 'politics'] ?? deskHeroes.politics!
 }
 

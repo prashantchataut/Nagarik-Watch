@@ -7,6 +7,7 @@ import { byDesk, deskRole, storyUrl } from '@/lib/news/utils'
 import { href } from '@/lib/news/router'
 import { toDevanagari } from '@/lib/news/patro'
 import { useMarket } from '@/lib/news/market-store'
+import { dbArticleToStory, useDbArticles } from '@/lib/news/article-store'
 import {
   HeroImage,
   Kicker,
@@ -183,7 +184,19 @@ export function DeskNotFound() {
 }
 
 export default function DeskPage({ desk }: { desk: string }) {
-  const items = useMemo(() => byDesk(desk), [desk])
+  const archive = useMemo(() => byDesk(desk), [desk])
+  const { dbArticles } = useDbArticles()
+
+  // Merge live CMS journalism into the desk listing (newest first).
+  const items = useMemo(() => {
+    const live = dbArticles
+      .filter((a) => a.desk === desk)
+      .map(dbArticleToStory)
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+    const merged = [...live, ...archive]
+    return merged
+  }, [archive, dbArticles, desk])
+
   const info = desks.find((d) => d.slug === desk)
   const role = deskRole(desk)
 

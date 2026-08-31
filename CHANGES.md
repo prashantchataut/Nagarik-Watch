@@ -187,3 +187,157 @@ live market well), `photos.ts` (desk hero fallbacks), `layout.tsx` metadata.
 
 Removed: `src/lib/news/calendar-events.ts` fixed-date table (superseded by
 the festival engine).
+
+---
+
+# Revision 3 (August 2026) — full-stack completion
+
+The portal is now a complete three-tier product: **backend (Prisma + 20 API
+routes), middle-end (typed API client, live stores, server-synced reader
+state, CMS merge layer) and frontend (article CMS, editor newsroom,
+reader engagement)**.
+
+## 1. Backend — CMS pipeline (समाचार प्रकाशन प्रणाली)
+
+New `Article` model with the full editorial workflow:
+`draft → submitted → published / declined`, editor notes, slugs
+(Devanagari-safe slugify with collision checks against the 87 archive
+stories), denormalized view counters, and a markdown-lite body syntax
+(`##` उपशीर्षक, `###` उप-उपशीर्षक, `>` उद्धरण, `-` बुँदा) parsed and
+validated server-side into the same discriminated-union `Block[]` used by
+the archive (`src/lib/blocks.ts`).
+
+- `GET /api/articles` — public published list (merged into the edition)
+- `GET /api/articles/[slug]` — single article (drafts visible to author/editor only)
+- `POST /api/articles` — journalist creates draft/submission
+- `PATCH /api/articles/[slug]` — author edits/submits/retracts; editor
+  publishes/declines with a note (ownership + role enforced server-side)
+- `DELETE /api/articles/[slug]` — author deletes own unpublished work, editor anything
+- `GET /api/articles/mine` — my pipeline list
+
+`Journalist` gained a `role` field: **reporter** files, **editor** decides.
+`Sushila@nagarikwatch.com` is the demo chief editor (band badge, extra tab).
+
+## 2. Backend — reader engagement
+
+- **Comments** (`Comment`): reader-accounts-only, keyed by `desk/slug` so
+  archive stories and CMS articles share one system; instant publish,
+  editor hide/delete moderation. `GET/POST /api/comments`,
+  `PATCH/DELETE /api/comments/[id]`.
+- **Server-synced bookmarks** (`Bookmark`): anonymous readers keep
+  localStorage; logged-in readers get a merge-on-login + full-list PUT sync
+  (`GET/PUT /api/bookmarks`) — your saved stories follow your account.
+- **Poll of the day** (`Poll`/`PollVote`): real server counts, one vote per
+  person per poll (readers by account, everyone else by device key).
+  The homepage poll is now live data — no more demo counts.
+- **Trending engine** (`Pageview`): session-deduped view beacon
+  (`sendBeacon`) increments daily counters + article views;
+  `GET /api/trending` powers the धेरै पढिएको rail.
+- **Contact form** (`ContactMessage`): `POST /api/contact`, rate-limited.
+
+## 3. Backend — newsroom operations (editor-only)
+
+- `GET /api/editor/queue` — review queue: submitted articles (with parsed
+  body preview), open pitches, recent comments, pipeline counts.
+- `PATCH /api/editor/pitches/[id]` — pitch triage (समीक्षामा / स्वीकार / अस्वीकार + note).
+- `GET /api/editor/analytics` — traffic (today/7-day series), top stories,
+  pipeline, audience, recent subscribers.
+- `GET /api/editor/subscribers[?format=csv]` — साँझ ब्रिफिङ list + CSV export.
+- `PUT/DELETE /api/editor/breaking` — set/clear the तत्काल banner; readers
+  see it instantly site-wide (public `GET /api/breaking`).
+
+## 4. Security hardening
+
+- In-memory sliding-window **rate limiter** on every sensitive route:
+  logins 10/5min, signup 6/h, comments 5/10min, contact 3/h, votes 20/min,
+  pageviews 120/min (verified: 12 rapid logins → 429 after the 8th).
+- **zod validation** on every POST/PATCH body with Nepali error messages.
+- Ownership/role guards: `requireReader` / `requireJournalist` /
+  `requireEditor` (verified: reader-publish → 401, reporter-editor-route → 403,
+  anonymous comment → 401).
+- `robots.ts` disallows `/api/editor`, `/api/auth`, `/api/bookmarks`;
+  static `public/robots.txt` removed (was conflicting).
+
+## 5. Middle-end
+
+- `src/lib/news/api-client.ts` — typed fetch wrapper + ApiError.
+- `article-store.ts` — shared live store of published CMS articles
+  (useSyncExternalStore, 2-min refresh, cold-failure → empty, not stuck spinners).
+- `poll-store.ts`, `breaking-store.ts` — live data hooks.
+- `storage.ts` `useSaved` — transparent server sync when logged in.
+- `engagement.ts` — view beacon + anonymous voter identity.
+- **Story merge layer**: CMS articles surface in the home latest rail
+  (ताजा badge), desk pages and the English edition — resolved through one
+  `dbArticleToStory` mapper; the article route falls back archive → CMS → 404.
+
+## 6. Frontend — new surfaces
+
+- **BreakingBanner** — crimson तत्काल strip above the masthead with pulsing
+  dot, link, per-session dismissal; fed by the editor desk.
+- **धेरै पढिएको trending rail** — numbered 7-day most-read strip.
+- **Article comments** — composer for logged-in readers, seeded discussion,
+  login-prompt for anonymous visitors, moderation note.
+- **JournalistView (tabbed newsroom)** — पिच तथा डेस्क · लेख लेख्नुहोस्
+  (markdown-lite editor with live preview, word count, reading time, desk
+  hero picker, EN version) · मेरा लेखहरू (status chips, edit/submit/retract/
+  delete/view) · सम्पादक डेस्क (editors only).
+- **EditorDashboard** — stat cards, publish/decline review with expandable
+  body preview, pitch triage, breaking-banner control, 7-day traffic chart,
+  top stories, subscriber list + CSV, comment moderation.
+- Contact page now has a real (API-wired) सन्देश फारम.
+
+## 7. Fixes found during verification
+
+- `heroFor('')` returned an empty `src` for CMS articles without a photo →
+  now falls back to the desk illustration (console error eliminated).
+- Stale Prisma client in the dev server after `db push` → restart required.
+- Rate limiter correctly blocked the test browser after 12 failed logins
+  (working as intended — reset by restart).
+
+## 8. Verification (this revision)
+
+- `tsc --noEmit`: 0 errors · `eslint`: 0 errors (1 pre-existing font warning).
+- **API smoke suite (curl)**: full pipeline — reporter login → create →
+  submit → editor queue → publish → public list; reader signup → bookmark
+  PUT/GET → comment POST/GET; poll vote (+409 duplicate); pageview →
+  trending; contact; analytics; subscribers CSV; RSS XML; guards; rate-limit
+  429s — all green.
+- **Browser E2E (agent-browser)**: home (banner + live poll vote 781→782 with
+  Devanagari percentages + trending rail + 2-3 ताजा badges); article
+  comments (login prompt → reader login → composer → posted live); reporter
+  flow (login → editor tab → live preview render → submit → my-articles
+  status समीक्षामा); editor flow (login → dashboard → expand preview →
+  publish with note → article on technology desk + home rail); breaking
+  banner set from dashboard → live on home; mobile 390px: no horizontal
+  overflow, banner + comments visible.
+- VLM visual review: home 7-8/10, article 8/10, dashboard data confirmed
+  fully rendered after load (early screenshot caught skeletons).
+- Test artifacts cleaned (smoke reader/comments/contact removed).
+
+## 9. Files touched (this revision)
+
+New: `src/lib/api.ts`, `src/lib/rate-limit.ts`, `src/lib/blocks.ts`,
+`src/lib/news/cms.ts`, `src/lib/news/api-client.ts`,
+`src/lib/news/article-store.ts`, `src/lib/news/poll-store.ts`,
+`src/lib/news/breaking-store.ts`, `src/lib/news/engagement.ts`,
+`src/components/nagarik/BreakingBanner.tsx`,
+`src/components/nagarik/CommentsSection.tsx`,
+`src/components/nagarik/EditorDashboard.tsx`,
+`src/app/api/articles/**`, `src/app/api/bookmarks/**`,
+`src/app/api/comments/**`, `src/app/api/poll/**`,
+`src/app/api/trending/**`, `src/app/api/pageview/**`,
+`src/app/api/contact/**`, `src/app/api/breaking/**`,
+`src/app/api/editor/**`, `src/app/api/rss/route.ts`,
+`src/app/sitemap.ts`, `src/app/robots.ts`, `scripts/seed_full.ts`,
+`scripts/cleanup_smoke.ts`.
+
+Rewritten: `prisma/schema.prisma` (7 new models), `JournalistView` (tabbed
+newsroom), `HomeEdition` (live poll + trending + CMS merge),
+`ArticleView` (comments + view beacon), `LegalView` (contact form),
+`page.tsx` (breaking banner + CMS article routing), `DeskPage` /
+`EnglishHome` (CMS merge), `storage.ts` (server-synced bookmarks),
+`auth.ts` / `auth-store.ts` (role + onAuthChange).
+
+Demo accounts: readers `demo.reader@nagarikwatch.com` / `demo1234`;
+reporters `manisha@` / `rajesh@`; editor `sushila@nagarikwatch.com` —
+all `demo1234`.

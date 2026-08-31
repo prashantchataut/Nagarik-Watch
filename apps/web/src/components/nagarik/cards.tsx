@@ -119,7 +119,7 @@ export function RowCard({ story, showDeck = true }: { story: Story; showDeck?: b
 }
 
 /** Dense latest-rail item: crimson index numeral + timestamp. */
-export function LatestItem({ story, index }: { story: Story; index: number }) {
+export function LatestItem({ story, index, fresh }: { story: Story; index: number; fresh?: boolean }) {
   return (
     <article className="group flex gap-3.5 border-b border-rule py-3 first:pt-0 last:border-b-0">
       <span className="font-headline text-[22px] font-extrabold leading-none text-crimson/85 tabular-nums">
@@ -128,6 +128,11 @@ export function LatestItem({ story, index }: { story: Story; index: number }) {
       <div className="min-w-0">
         <a href={href(`/${story.desk}/${story.slug}`)} className="block">
           <h3 className="headline-card text-[16px] leading-snug text-ink group-hover:text-crimson transition-colors">
+            {fresh && (
+              <span className="mr-1.5 inline-block rounded-sm bg-crimson px-1.5 py-0.5 align-middle font-headline text-[10.5px] font-bold uppercase text-white">
+                ताजा
+              </span>
+            )}
             {story.titleNe}
           </h3>
           <p className="mt-0.5 text-[12.5px] text-ink-faint">

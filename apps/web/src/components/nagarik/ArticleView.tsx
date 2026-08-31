@@ -22,6 +22,8 @@ import {
   WEEKDAYS_FULL_NE,
 } from '@/lib/news/patro'
 import { useSaved } from '@/lib/news/storage'
+import { trackView } from '@/lib/news/engagement'
+import CommentsSection from './CommentsSection'
 import { HeroImage, Kicker, SectionHeader } from './cards'
 
 function BsDateline({ iso }: { iso: string }) {
@@ -208,6 +210,12 @@ export default function ArticleView({ story }: { story: Story }) {
   const deskInfo = desks.find((d) => d.slug === story.desk)
   const heroSrc = heroFor(story.slug, story.hero, story.desk)
   const isSvg = heroSrc.startsWith('data:image/svg')
+  const storyKey = `${story.desk}/${story.slug}`
+
+  // Count one view per browser session for the trending engine.
+  useEffect(() => {
+    trackView(storyKey)
+  }, [storyKey])
 
   return (
     <main id="main">
@@ -319,6 +327,9 @@ export default function ArticleView({ story }: { story: Story }) {
           </div>
         </section>
       )}
+
+      {/* Reader comments */}
+      <CommentsSection storyKey={storyKey} />
     </main>
   )
 }

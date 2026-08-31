@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { createSession, verifyPassword } from '@/lib/auth'
+import { limitOr429 } from '@/lib/api'
 
 export async function POST(req: Request) {
+  const limited = limitOr429(req, 'login-reader', 10, 5 * 60 * 1000)
+  if (limited) return limited
+
   try {
     const body = (await req.json()) as { email?: string; password?: string }
     const email = (body.email ?? '').trim().toLowerCase()
