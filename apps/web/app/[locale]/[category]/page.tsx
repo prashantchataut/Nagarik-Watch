@@ -13,6 +13,7 @@ import { canonicalCategoryBySlug } from '@/lib/site'
 
 // Must be a string literal for Next segment config.
 export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export function generateStaticParams() {
   return staticCategoryParams()

@@ -34,6 +34,7 @@ import { staticArticleParams } from '@/lib/static-export-params'
 
 // Must be a string literal — Next rejects ConditionalExpression segment config.
 export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export function generateStaticParams() {
   return staticArticleParams()
