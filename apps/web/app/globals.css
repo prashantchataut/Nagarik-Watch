@@ -1,9 +1,6 @@
 /* Font faces are self-hosted by next/font and exposed through CSS variables from app/fonts.ts. */
+@import "tailwindcss";
 @import '@nagarikwatch/ui/tokens.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 /*
  * apps/web base layer. Civic Crimson palette comes from tokens.css; this file only adds
