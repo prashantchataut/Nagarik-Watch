@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation'
+import type { Metadata } from 'next'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import { canonicalAlternates } from '@/lib/seo/canonical'
 import { staticUtilityToolParams } from '@/lib/static-export-params'
 import { notFound } from 'next/navigation'
 import { UtilityPageShell } from '@/components/utilities/UtilityPageShell'
@@ -49,6 +51,24 @@ const meta = {
     'लम्बाइ, तौल र तापक्रम रूपान्तरण गर्नुहोस्।',
   ],
 } as const
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; tool: string }>
+}): Promise<Metadata> {
+  const { locale: raw, tool } = await params
+  const locale = asLocale(raw)
+  const item = meta[tool as keyof typeof meta]
+  // `calendar` redirects to /patro and unknown tools 404; neither should claim a canonical.
+  if (!item) return {}
+  const en = locale === 'en'
+  return {
+    title: en ? item[0] : item[1],
+    description: en ? item[2] : item[3],
+    alternates: canonicalAlternates(locale, `/utilities/${tool}`),
+  }
+}
 
 export default async function UtilityToolPage({
   params,
