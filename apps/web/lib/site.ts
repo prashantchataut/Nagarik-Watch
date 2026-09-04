@@ -252,7 +252,7 @@ export const STATIC_HUBS: StaticHub[] = [
   },
   {
     key: 'sports-live',
-    path: '/sports/live',
+    path: '/live-scores',
     titleNe: 'लाइभ खेल',
     titleEn: 'Live Sports',
     leadNe: 'क्रिकेट र फुटबल पछ्याउने नेपाली पाठकका लागि स्कोर, फिक्स्चर र खेल व्याख्या।',
