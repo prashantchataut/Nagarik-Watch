@@ -41,8 +41,13 @@ export function MegaStoryBlock({
   const lead = size === 'lead'
   const author = story.authors[0]
   const byline = author?.name || story.byline || (locale === 'en' ? 'Nagarik Watch' : 'नागरिक वाच')
+  // `ch` resolves against the element that declares it, so the measure must live on the
+  // headline itself. On a bare wrapper it would inherit 16px body text and clamp the
+  // display headline to ~164px, towering it into 10+ lines.
   const headlineClass = `text-balance font-display font-black text-ink ${
-    lead ? 'text-[clamp(2.35rem,5.5vw,4.5rem)]' : 'text-[clamp(1.85rem,3.4vw,2.8rem)]'
+    lead
+      ? 'mx-auto max-w-[19ch] text-[clamp(2.35rem,5.5vw,4.5rem)]'
+      : 'max-w-[24ch] text-[clamp(1.85rem,3.4vw,2.8rem)]'
   } ${titleLang === 'en' ? 'leading-[1.02] tracking-[-0.035em]' : 'leading-[1.12] tracking-normal'}`
 
   const headline = priority ? (
@@ -70,7 +75,7 @@ export function MegaStoryBlock({
       <article className={`group min-w-0 ${className}`.trim()}>
         <div className={lead ? 'mx-auto max-w-[68rem] pb-5 pt-3 text-center sm:pb-7 sm:pt-5' : 'pb-4'}>
           <CategoryLabel category={story.category} locale={locale} as="span" />
-          <div className={lead ? 'mx-auto mt-2 max-w-[19ch]' : 'mt-2'}>{headline}</div>
+          <div className="mt-2">{headline}</div>
           {deck ? (
             <p
               className={
