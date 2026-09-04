@@ -9,6 +9,16 @@ export default defineConfig({
       '@': path.resolve(__dirname, '.'),
     },
   },
+  /*
+   * An inline (empty) PostCSS config stops Vite from discovering
+   * `postcss.config.mjs`, whose Tailwind v4 string plugin (`"@tailwindcss/postcss"`)
+   * Vite's own PostCSS loader rejects with "Invalid PostCSS Plugin found at:
+   * plugins[0]" before a single test runs. These are node-environment unit tests
+   * over lib/ modules; none of them import or assert on CSS.
+   */
+  css: {
+    postcss: { plugins: [] },
+  },
   test: {
     environment: 'node',
   },

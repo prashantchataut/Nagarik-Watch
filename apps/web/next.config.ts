@@ -48,9 +48,8 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // No `eslint` key: Next 16 removed the option and `next build` no longer lints.
+  // Linting runs through the ESLint CLI (`pnpm lint`) instead.
   typescript: {
     ignoreBuildErrors: true,
   },
