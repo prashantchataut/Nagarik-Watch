@@ -4,7 +4,7 @@ import path from 'node:path'
 import type { Locale } from '@nagarikwatch/db'
 import { authors } from './content/seed/authors'
 import { tags } from './content/seed/tags'
-import { FALLBACK_NAV_CATEGORIES, PROVINCES } from './site'
+import { FALLBACK_NAV_CATEGORIES, PROVINCES, DISTRICT_SLUGS, UTILITY_TOOL_SLUGS } from './site'
 
 const LOCALES: Locale[] = ['ne', 'en']
 
@@ -22,16 +22,8 @@ export function staticArticleParams(): Array<{ locale: Locale; category: string;
   return []
 }
 
-const UTILITY_TOOLS = [
-  'calendar',
-  'date-converter',
-  'preeti-unicode',
-  'currency',
-  'age-calculator',
-  'unit-converter',
-] as const
-
-const DISTRICT_SLUGS = ['kathmandu', 'lalitpur', 'pokhara', 'biratnagar', 'bharatpur'] as const
+/** `calendar` redirects to /patro; it needs a prerendered path but never a sitemap entry. */
+const UTILITY_TOOLS = ['calendar', ...UTILITY_TOOL_SLUGS] as const
 
 function localeFieldParams<T extends string>(
   field: T,

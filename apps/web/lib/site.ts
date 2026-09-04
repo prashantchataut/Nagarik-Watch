@@ -394,6 +394,16 @@ export const TRUST_PAGES = [
   },
 ] as const
 
+/** Utility tools with a real /utilities/[tool] page. `calendar` is intentionally
+ *  absent: it redirects to /patro, so it must never enter the sitemap. */
+export const UTILITY_TOOL_SLUGS = [
+  'date-converter',
+  'preeti-unicode',
+  'currency',
+  'age-calculator',
+  'unit-converter',
+] as const
+
 export function hubByPath(path: string): StaticHub | undefined {
   return STATIC_HUBS.find((hub) => hub.path === path)
 }
@@ -412,6 +422,16 @@ export const PROVINCES = [
   { slug: 'lumbini', nameNe: 'लुम्बिनी', nameEn: 'Lumbini' },
   { slug: 'karnali', nameNe: 'कर्णाली', nameEn: 'Karnali' },
   { slug: 'sudurpashchim', nameNe: 'सुदूरपश्चिम', nameEn: 'Sudurpashchim' },
+] as const
+
+/** District desks that ship with the build. /district/[slug] prerenders these and
+ *  the sitemap advertises them, so the two lists must stay one source. */
+export const DISTRICT_SLUGS = [
+  'kathmandu',
+  'lalitpur',
+  'pokhara',
+  'biratnagar',
+  'bharatpur',
 ] as const
 
 /** Secondary nav rail — utility hubs a national portal surfaces above the

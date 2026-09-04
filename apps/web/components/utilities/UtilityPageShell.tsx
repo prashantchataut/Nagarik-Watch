@@ -7,7 +7,7 @@ import { HubIndexHeader } from '@/components/HubIndexHeader'
 export const UTILITY_LINKS = [
   { path: '/patro', ne: 'नेपाली पात्रो', en: 'Nepali calendar', noteNe: 'पर्व, बिदा र बि.सं. महिना', noteEn: 'BS months, festivals and holidays' },
   { path: '/utilities/date-converter', ne: 'मिति रूपान्तरण', en: 'Date converter', noteNe: 'बि.सं. र इस्वी संवत्', noteEn: 'Bikram Sambat and Gregorian' },
-  { path: '/preeti-unicode', ne: 'प्रिती युनिकोड', en: 'Preeti Unicode', noteNe: 'पुरानो फन्टबाट युनिकोड', noteEn: 'Legacy font to Unicode' },
+  { path: '/utilities/preeti-unicode', ne: 'प्रिती युनिकोड', en: 'Preeti Unicode', noteNe: 'पुरानो फन्टबाट युनिकोड', noteEn: 'Legacy font to Unicode' },
   { path: '/market', ne: 'सेयर बजार र सुनचाँदी', en: 'Markets & Gold', noteNe: 'NEPSE, सुनचाँदी र विनिमय दर', noteEn: 'NEPSE, Bullion and Forex' },
   { path: '/rashifal', ne: 'दैनिक राशिफल', en: 'Daily Horoscope', noteNe: '१२ राशिको दैनिक भविष्यवाणी', noteEn: '12-Zodiac sign forecasts' },
   { path: '/utilities/currency', ne: 'मुद्रा रूपान्तरण', en: 'Currency converter', noteNe: 'NPR र प्रमुख मुद्राहरू', noteEn: 'NPR and major currencies' },

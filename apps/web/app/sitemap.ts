@@ -2,7 +2,17 @@ export const dynamic = 'force-static'
 import type { MetadataRoute } from 'next'
 import { getAuthors, getNavCategories, getStories, getTags } from '@/lib/content'
 import { isPublicMembershipEnabled } from '@/lib/membership'
-import { SITE_URL, STATIC_HUBS, TRUST_PAGES } from '@/lib/site'
+import { epaperEnabled } from '@/lib/epaper'
+import { listLiveBlogs } from '@/lib/live-blog-admin'
+import { listNewsletterIssues } from '@/lib/newsletter-admin'
+import {
+  DISTRICT_SLUGS,
+  PROVINCES,
+  SITE_URL,
+  STATIC_HUBS,
+  TRUST_PAGES,
+  UTILITY_TOOL_SLUGS,
+} from '@/lib/site'
 import { newsSitemapPriority } from '@/lib/algorithms/product/seo-dist'
 
 /**
@@ -47,11 +57,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'contact',
     'rss',
     'sitemap',
+    // Reader-facing trust and utility surfaces that render but are not in a registry.
+    'help',
+    'cookies',
+    'how-recommendations-work',
+    'columns',
+    'patro',
+    'province',
+    'newsletter/archive',
+    ...PROVINCES.map((province) => `province/${province.slug}`),
+    ...DISTRICT_SLUGS.map((slug) => `district/${slug}`),
+    ...UTILITY_TOOL_SLUGS.map((tool) => `utilities/${tool}`),
+    // The replica reader 404s its own editions when disabled; don't advertise it then.
+    ...(epaperEnabled() ? ['epaper'] : []),
     ...STATIC_HUBS.filter((hub) => membershipPublic || hub.key !== 'membership').map((hub) =>
       hub.path.replace(/^\//, ''),
     ),
     ...TRUST_PAGES.map((page) => page.path.replace(/^\//, '')),
-  ] as const
+  ]
   for (const locale of LOCALES) {
     for (const page of STATIC_PAGES) {
       entries.push({
@@ -152,5 +175,77 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  return entries
+  // Photo galleries. /photos/[slug] renders gallery stories on its own URL, so the
+  // gallery gets a second indexable address alongside its article URL.
+  const galleries = await getStories({ locale: 'ne', hasGallery: true, perPage: 200 }).catch(
+    () => null,
+  )
+  for (const story of (galleries?.items ?? []).filter((s) => s.noIndex !== true)) {
+    const languages: Record<string, string> = { ne: `${SITE_URL}/photos/${story.slug}` }
+    if (story.hasEnglish) languages.en = `${SITE_URL}/en/photos/${story.slug}`
+    for (const locale of LOCALES) {
+      if (locale === 'en' && !story.hasEnglish) continue
+      entries.push({
+        url: `${SITE_URL}${prefix(locale)}/photos/${story.slug}`,
+        lastModified: new Date(story.publishedAt),
+        changeFrequency: 'weekly',
+        priority: 0.5,
+        alternates: { languages },
+      })
+    }
+  }
+
+  // Live blogs. Scheduled blogs are not public yet, so only live/closed are advertised.
+  // A store read failure degrades to omitting them, never to a broken sitemap.
+  const liveBlogs = (await listLiveBlogs().catch(() => [])).filter(
+    (blog) => blog.status !== 'scheduled',
+  )
+  for (const blog of liveBlogs) {
+    for (const locale of LOCALES) {
+      entries.push({
+        url: `${SITE_URL}${prefix(locale)}/live/${blog.slug}`,
+        lastModified: new Date(blog.updatedAt),
+        changeFrequency: blog.status === 'live' ? 'hourly' : 'monthly',
+        priority: blog.status === 'live' ? 0.8 : 0.4,
+        alternates: {
+          languages: {
+            ne: `${SITE_URL}/live/${blog.slug}`,
+            en: `${SITE_URL}/en/live/${blog.slug}`,
+          },
+        },
+      })
+    }
+  }
+
+  // Newsletter issues. Only sent issues have a public archive page.
+  const issues = (await listNewsletterIssues().catch(() => [])).filter(
+    (issue) => issue.status === 'sent',
+  )
+  for (const issue of issues) {
+    for (const locale of LOCALES) {
+      entries.push({
+        url: `${SITE_URL}${prefix(locale)}/newsletter/archive/${issue.id}`,
+        lastModified: new Date(issue.updatedAt),
+        changeFrequency: 'monthly',
+        priority: 0.3,
+        alternates: {
+          languages: {
+            ne: `${SITE_URL}/newsletter/archive/${issue.id}`,
+            en: `${SITE_URL}/en/newsletter/archive/${issue.id}`,
+          },
+        },
+      })
+    }
+  }
+
+  // Some paths live in two registries at once (e.g. `video` and `photo-story` are both
+  // STATIC_HUBS entries and nav categories). Emitting a URL twice is a sitemap defect,
+  // so keep the first occurrence, which carries the more specific priority.
+  const seen = new Set<string>()
+  return entries.filter((entry) => {
+    const url = String(entry.url)
+    if (seen.has(url)) return false
+    seen.add(url)
+    return true
+  })
 }

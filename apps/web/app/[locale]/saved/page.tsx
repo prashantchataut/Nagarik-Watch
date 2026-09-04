@@ -9,6 +9,9 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const locale = asLocale((await params).locale)
   return {
     title: locale === 'en' ? 'Saved stories' : 'सुरक्षित समाचार',
+    // Per-reader list held in local storage. Nothing here is shareable or
+    // crawlable, so keep it out of the index like the other reader surfaces.
+    robots: { index: false, follow: false },
   }
 }
 
