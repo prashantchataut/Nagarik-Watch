@@ -55,7 +55,7 @@ export default async function NewsletterIssuePage({
       <time className="mt-3 block text-meta text-mute" dateTime={issue.createdAt}>
         {new Date(issue.createdAt).toLocaleString(en ? 'en-GB' : 'ne-NP')}
       </time>
-      <div className="prose mt-8 whitespace-pre-wrap text-body leading-relaxed text-ink">
+      <div className="mt-8 whitespace-pre-wrap text-body leading-relaxed text-ink">
         {issue.body}
       </div>
       <p className="mt-10">

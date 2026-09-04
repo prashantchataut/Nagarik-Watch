@@ -3,6 +3,15 @@
 @import '@nagarikwatch/ui/tokens.css';
 
 /*
+ * Tailwind v4 does not auto-load a JS config. Without this directive the whole
+ * design system (text-ink, bg-surface, border-rule, font-display, text-h1..h3,
+ * text-display-*, text-body, text-meta, text-caption) compiles to nothing and
+ * every element silently falls back to unstyled 16px body text. Keep this in
+ * sync with apps/web/tailwind.config.ts.
+ */
+@config "../tailwind.config.ts";
+
+/*
  * apps/web base layer. Civic Crimson palette comes from tokens.css; this file only adds
  * element-level resets and component utilities that map onto those tokens.
  * Light and dark share the same structure: flat page wash, black chrome, crimson desk.
