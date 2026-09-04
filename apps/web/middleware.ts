@@ -20,6 +20,47 @@ function firstSegment(pathname: string): string {
   return pathname.split('/').filter(Boolean)[0] ?? ''
 }
 
+/**
+ * Static files under `public/` (logo.svg, og-image.jpg, photos/desks/*.jpg) must never
+ * enter the locale rewrite. Without this guard `/logo.svg` is rewritten to `/ne/logo.svg`
+ * and `looksLikeCategorySlug` rejects the dot, producing a hard 404 for a file that
+ * exists on disk.
+ *
+ * Matched against an explicit extension set rather than a generic `\.\w+$` so an article
+ * slug that happens to contain a dot still resolves through the normal locale tree.
+ */
+const STATIC_ASSET_EXTENSIONS = new Set([
+  'avif',
+  'css',
+  'gif',
+  'ico',
+  'jpeg',
+  'jpg',
+  'js',
+  'json',
+  'map',
+  'mp3',
+  'mp4',
+  'pdf',
+  'png',
+  'svg',
+  'txt',
+  'webm',
+  'webmanifest',
+  'webp',
+  'woff',
+  'woff2',
+  'xml',
+])
+
+function isStaticAssetPath(pathname: string): boolean {
+  const last = pathname.split('/').filter(Boolean).at(-1)
+  if (!last) return false
+  const dot = last.lastIndexOf('.')
+  if (dot <= 0 || dot === last.length - 1) return false
+  return STATIC_ASSET_EXTENSIONS.has(last.slice(dot + 1).toLowerCase())
+}
+
 function hardNotFound(request: NextRequest, locale: 'ne' | 'en'): NextResponse {
   const destination = request.nextUrl.clone()
   destination.pathname = locale === 'en' ? '/en/__not-found' : '/ne/__not-found'
@@ -52,6 +93,10 @@ export function middleware(request: NextRequest) {
   }
 
   let pathname = request.nextUrl.pathname
+
+  // Serve `public/` files untouched: no locale rewrite, no allowlist check.
+  if (isStaticAssetPath(pathname)) return NextResponse.next()
+
   if (calendarHost) pathname = withCalendarRoot(pathname)
 
   if (pathname === '/ne' || pathname.startsWith('/ne/')) {
