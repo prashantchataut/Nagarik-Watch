@@ -20,7 +20,8 @@ import { DenseStoryItem } from '@/components/home/DenseStoryItem'
 import { AdSlot } from '@/components/AdSlot'
 import { CommentSection } from '@/components/article/CommentSection'
 import { SpeculationRules } from '@/components/SpeculationRules'
-import { SpeakableJsonLd } from '@/components/seo/Schema'
+import { BreadcrumbJsonLd, FaqJsonLd, HowToJsonLd, SpeakableJsonLd } from '@/components/seo/Schema'
+import { extractFaqPairs, extractHowTo } from '@/lib/seo/structured-content'
 import { DocumentLang } from '@/components/DocumentLang'
 import { PrintButton } from '@/components/article/PrintButton'
 import { ReactionBar } from '@/components/article/ReactionBar'
@@ -186,6 +187,10 @@ export default async function ArticlePage({
   const relatedHrefs = related.map((story) =>
     localizeHref(readingLocale, `/${story.category.slug}/${story.slug}`),
   )
+  // Derived from `visibleBody`, not `body`: structured data has to describe what
+  // the page actually shows, and a paywalled story shows a preview.
+  const faqPairs = extractFaqPairs(visibleBody)
+  const howTo = extractHowTo(visibleBody)
 
   return (
     <article className="article-page pb-12 print:pb-0" lang={readingEnglish ? 'en' : 'ne'}>
@@ -199,6 +204,21 @@ export default async function ArticlePage({
         siteName={PUBLICATION.publisherName}
       />
       <SpeakableJsonLd url={canonical} cssSelectors={['article h1', 'article .article-deck']} />
+      <BreadcrumbJsonLd
+        locale={readingLocale}
+        crumbs={[
+          {
+            name:
+              readingEnglish && article.category.nameEn
+                ? article.category.nameEn
+                : article.category.nameNe,
+            path: localizeHref(readingLocale, `/${category}`),
+          },
+          { name: title, path: href },
+        ]}
+      />
+      <FaqJsonLd faqs={faqPairs} />
+      {howTo ? <HowToJsonLd name={howTo.name} steps={howTo.steps} url={canonical} /> : null}
 
       <div className="mx-auto max-w-page px-3 pt-5 sm:px-4 sm:pt-7">
         <header

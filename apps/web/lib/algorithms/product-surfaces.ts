@@ -83,6 +83,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'alt-text-quality',
+    module: 'lib/a11y/alt-text.ts',
+    entrypoint: 'app/admin/(desk)/media/page.tsx',
+    surface: 'newsroom',
+  },
+  {
     id: 'attention-metric-scoring',
     module: 'components/ads/AdTracker.tsx',
     entrypoint: 'app/[locale]/[category]/[slug]/page.tsx',
@@ -290,6 +296,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     id: 'fact-consistency-check',
     module: 'lib/ai/index.ts',
     entrypoint: 'app/api/journalist/ai/route.ts',
+    surface: 'reader',
+  },
+  {
+    id: 'faq-howto-schema',
+    module: 'lib/seo/structured-content.ts',
+    entrypoint: 'app/[locale]/[category]/[slug]/page.tsx',
     surface: 'reader',
   },
   {

@@ -2399,8 +2399,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'explainer pages',
     status: 'live',
     summary:
-      'NewsArticle schema exists, but FAQ and HowTo blocks are not generated from verified structured content.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:faq-howto-schema',
+      'Question subheads and ordered step lists in a published body are turned into FAQPage and HowTo JSON-LD on the article page, from the blocks the reader can actually see. Google now shows FAQ rich results only for authoritative government and health sites and retired HowTo rich results in 2023, so the win here is valid schema for other engines and AI crawlers, not a Google SERP change.',
+    implementation:
+      'apps/web/lib/seo/structured-content.ts#extractFaqPairs · apps/web/components/seo/Schema.tsx#FaqJsonLd · apps/web/app/[locale]/[category]/[slug]/page.tsx',
     priority: 3,
   },
   {
@@ -2646,8 +2647,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'nlp',
     surface: 'accessibility / CMS',
     status: 'live',
-    summary: 'Scores image alt text for emptiness, filename dumps, and insufficient length.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:alt-text-quality',
+    summary:
+      'Scores every image in the media library for missing alt text, pasted filenames, "photo of" prefixes a screen reader already announces, alt text duplicated from the caption, and length at both ends. The media page shows the failing queue worst-first; nothing is blocked, because alt text is a judgement call.',
+    implementation:
+      'apps/web/lib/a11y/alt-text.ts#auditAltText · apps/web/app/admin/(desk)/media/page.tsx',
     priority: 1,
   },
   {

@@ -20,6 +20,17 @@ import {
   AdminTextarea,
 } from '@/components/admin/primitives'
 import { MediaUploadForm } from '@/components/admin/MediaUploadForm'
+import { assessAltText, auditAltText, type AltTextIssueCode } from '@/lib/a11y/alt-text'
+
+/** Editor-facing wording for each issue the scorer can raise. */
+const ALT_ISSUE_NE: Record<AltTextIssueCode, string> = {
+  missing: 'Alt text छैन',
+  filename: 'फाइलको नाम राखिएको',
+  'redundant-prefix': '“तस्बिर:” उपसर्ग हटाउनुहोस्',
+  'too-short': 'धेरै छोटो',
+  'too-long': 'धेरै लामो — caption मा सार्नुहोस्',
+  'duplicates-caption': 'Caption सँग उस्तै',
+}
 
 export const metadata: Metadata = { title: 'मिडिया', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
@@ -52,6 +63,7 @@ export default async function MediaPage() {
   if (isPayloadSourceMisconfigured()) redirect('/admin/launch')
   if (isPayloadCanonical()) redirect(payloadCollectionAdminUrl('media'))
   const items = await listMediaItems({ limit: 72 })
+  const altAudit = auditAltText(items)
   const persistentStorage = Boolean(
     process.env.BLOB_READ_WRITE_TOKEN?.trim() ||
     (process.env.CF_WORKERS === '1' &&
@@ -68,6 +80,33 @@ export default async function MediaPage() {
             Persistent media storage कन्फिगर छैन। उत्पादनमा Vercel Blob वा canonical Payload Media
             प्रयोग गर्नुहोस्।
           </p>
+        </AdminCallout>
+      ) : null}
+
+      {altAudit.failing > 0 || altAudit.weak > 0 ? (
+        <AdminCallout tone={altAudit.failing > 0 ? 'danger' : 'attention'} className="mb-5">
+          <p className="text-meta text-ink-soft" lang="ne">
+            Alt text जाँच: {altAudit.failing} फाइल स्क्रिन रिडरका लागि असफल, {altAudit.weak} कमजोर
+            (औसत {Math.round(altAudit.meanScore * 100)}%).
+          </p>
+          <ul className="mt-2 space-y-1">
+            {altAudit.worst.map((entry) => (
+              <li key={entry.id} className="text-meta text-ink-soft">
+                <span lang="en">{entry.alt || '—'}</span>{' '}
+                {entry.assessment.issues.map((issue) => (
+                  <span
+                    key={issue.code}
+                    className={`admin-status admin-status--${
+                      issue.severity === 'error' ? 'danger' : 'attention'
+                    }`}
+                    lang="ne"
+                  >
+                    {ALT_ISSUE_NE[issue.code]}
+                  </span>
+                ))}
+              </li>
+            ))}
+          </ul>
         </AdminCallout>
       ) : null}
 
@@ -100,17 +139,38 @@ export default async function MediaPage() {
 
           {items.length ? (
             <div className="admin-media-grid">
-              {items.map((item) => (
-                <figure key={item.id} className="admin-media-item">
-                  <div className="admin-media-item__image">
-                    <Image src={item.url} alt={item.alt} fill className="object-cover" unoptimized />
-                  </div>
-                  <figcaption>
-                    <strong>{item.alt}</strong>
-                    <span>{item.credit || 'Credit missing'}</span>
-                  </figcaption>
-                </figure>
-              ))}
+              {items.map((item) => {
+                const alt = assessAltText(item.alt, item.caption)
+                const worst =
+                  alt.issues.find((issue) => issue.severity === 'error') ?? alt.issues[0]
+                return (
+                  <figure key={item.id} className="admin-media-item">
+                    <div className="admin-media-item__image">
+                      <Image
+                        src={item.url}
+                        alt={item.alt}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                    <figcaption>
+                      <strong>{item.alt}</strong>
+                      <span>{item.credit || 'Credit missing'}</span>
+                      {worst ? (
+                        <span
+                          className={`admin-status admin-status--${
+                            worst.severity === 'error' ? 'danger' : 'attention'
+                          }`}
+                          lang="ne"
+                        >
+                          {ALT_ISSUE_NE[worst.code]}
+                        </span>
+                      ) : null}
+                    </figcaption>
+                  </figure>
+                )
+              })}
             </div>
           ) : (
             <div className="admin-empty">
