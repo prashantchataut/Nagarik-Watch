@@ -64,7 +64,9 @@ async function payloadList<T>(params: URLSearchParams): Promise<PayloadList<T>> 
   }
   if (!response.ok) {
     throw new Error(
-      body.errors?.[0]?.message || body.message || `Payload dashboard query failed: ${response.status}`,
+      body.errors?.[0]?.message ||
+        body.message ||
+        `Payload dashboard query failed: ${response.status}`,
     )
   }
   return body

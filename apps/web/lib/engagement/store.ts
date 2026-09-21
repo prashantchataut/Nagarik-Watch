@@ -2,6 +2,7 @@ import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 import type { Pool } from 'pg'
 import {
   moderateComment,
@@ -110,7 +111,7 @@ type LocalEngagementStore = {
   readings: Record<string, StoredReading>
 }
 
-const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'engagement.json')
+const LOCAL_FILE = localStorePath('engagement.json')
 let localCache: LocalEngagementStore | null = null
 let localWrite: Promise<void> = Promise.resolve()
 let schemaReady: Promise<void> | null = null

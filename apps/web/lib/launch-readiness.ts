@@ -46,7 +46,8 @@ function overlayModuleProbes(checks: LaunchCheck[]): LaunchCheck[] {
   const adsMode = getAdMode()
   const captcha = getCaptchaState()
   const paymentAdapter = getPaymentAdapterState()
-  const launchLive = (envValue(process.env, 'NEXT_PUBLIC_LAUNCH_STATUS') || 'preview').toLowerCase() === 'live'
+  const launchLive =
+    (envValue(process.env, 'NEXT_PUBLIC_LAUNCH_STATUS') || 'preview').toLowerCase() === 'live'
   const contentSource =
     envValue(process.env, 'CONTENT_SOURCE') ||
     envValue(process.env, 'PAYLOAD_CONTENT_SOURCE') ||
@@ -73,7 +74,8 @@ function overlayModuleProbes(checks: LaunchCheck[]): LaunchCheck[] {
   next = replaceCheck(next, 'newsroom-contact', {
     key: 'newsroom-contact',
     label: 'Newsroom address',
-    status: newsroomAddress && !looksUnverified(newsroomAddress) ? 'pass' : launchLive ? 'fail' : 'warn',
+    status:
+      newsroomAddress && !looksUnverified(newsroomAddress) ? 'pass' : launchLive ? 'fail' : 'warn',
     detail:
       newsroomAddress && !looksUnverified(newsroomAddress)
         ? 'Verified newsroom address is configured'
@@ -82,7 +84,12 @@ function overlayModuleProbes(checks: LaunchCheck[]): LaunchCheck[] {
   next = replaceCheck(next, 'database', {
     key: 'database',
     label: 'Persistent database',
-    status: dbMode === 'postgres' ? 'pass' : launchLive ? 'fail' : checks.find((c) => c.key === 'database')?.status ?? 'warn',
+    status:
+      dbMode === 'postgres'
+        ? 'pass'
+        : launchLive
+          ? 'fail'
+          : (checks.find((c) => c.key === 'database')?.status ?? 'warn'),
     detail:
       dbMode === 'postgres'
         ? 'DATABASE_URL points to Postgres'
@@ -106,18 +113,27 @@ function overlayModuleProbes(checks: LaunchCheck[]): LaunchCheck[] {
           : launchLive
             ? 'fail'
             : 'warn'
-        : checks.find((check) => check.key === 'storage')?.status ?? 'warn',
+        : (checks.find((check) => check.key === 'storage')?.status ?? 'warn'),
     detail:
       contentSource === 'payload'
         ? isPayloadStorageWired()
           ? 'Payload media uploads use durable object storage'
           : 'Payload still uses local ephemeral uploads; wire a supported storage adapter and credentials'
-        : (checks.find((check) => check.key === 'storage')?.detail ?? 'Media storage not configured'),
+        : (checks.find((check) => check.key === 'storage')?.detail ??
+          'Media storage not configured'),
   })
   next = replaceCheck(next, 'error-monitoring', {
     key: 'error-monitoring',
     label: 'Error monitoring (Sentry)',
-    status: sentry.ready ? 'pass' : sentry.dsnConfigured ? (launchLive ? 'fail' : 'warn') : launchLive ? 'fail' : 'warn',
+    status: sentry.ready
+      ? 'pass'
+      : sentry.dsnConfigured
+        ? launchLive
+          ? 'fail'
+          : 'warn'
+        : launchLive
+          ? 'fail'
+          : 'warn',
     detail: sentry.detail,
   })
   next = replaceCheck(next, 'network-ads', {
@@ -221,11 +237,7 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
   checks = replaceCheck(checks, 'security-headers', {
     key: 'security-headers',
     label: 'Security response headers',
-    status: !securityHeaders
-      ? 'warn'
-      : securityHeaders.missing.length === 0
-        ? 'pass'
-        : 'fail',
+    status: !securityHeaders ? 'warn' : securityHeaders.missing.length === 0 ? 'pass' : 'fail',
     detail: !securityHeaders
       ? 'Security header configuration not probed'
       : securityHeaders.missing.length === 0

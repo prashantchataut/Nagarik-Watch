@@ -94,7 +94,8 @@ export function getLaunchPhases(): LaunchPhase[] {
         {
           id: 'corpus',
           label: '≥30 real Nepali stories',
-          detail: 'No source-code or runtime article fixtures. The homepage is populated only by the configured newsroom authority.',
+          detail:
+            'No source-code or runtime article fixtures. The homepage is populated only by the configured newsroom authority.',
           checkKeys: ['content-volume', 'starter-seed'],
         },
         {
@@ -157,7 +158,8 @@ export function getLaunchPhases(): LaunchPhase[] {
         {
           id: 'ops-secrets',
           label: 'Ops secrets and boot passwords',
-          detail: 'Submission salt, auth auto-migrate off, boot passwords cleared, ad sales identity.',
+          detail:
+            'Submission salt, auth auto-migrate off, boot passwords cleared, ad sales identity.',
           checkKeys: [
             'submission-ip-salt',
             'auth-auto-migrate',

@@ -1,16 +1,39 @@
 import 'server-only'
 import type { ArticleBlock, WorkflowStage } from '@nagarikwatch/db'
-import {
-  canActorTransition,
-  isValidHttpUrl,
-  reporterMayEditDraft,
-} from '@nagarikwatch/db'
+import { canActorTransition, isValidHttpUrl, reporterMayEditDraft } from '@nagarikwatch/db'
 
+function hasPayloadOrigin(): boolean {
+  return Boolean(
+    process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim() || process.env.PAYLOAD_ADMIN_URL?.trim(),
+  )
+}
+
+/**
+ * Which backend the reader uses.
+ *
+ * An explicit `CONTENT_SOURCE` / `PAYLOAD_CONTENT_SOURCE` always wins. When the
+ * operator declares nothing we fall back to Payload only if a CMS origin is
+ * actually configured, so a fresh clone / CI can build and serve the desk store
+ * instead of failing at `next build` with "PAYLOAD_PUBLIC_SERVER_URL missing".
+ * A production *runtime* still fails closed: with no origin configured the
+ * declaration resolves to `payload`, which `isPayloadSourceMisconfigured()`
+ * reports and `resolveContentSource()` refuses to serve. Operators who really
+ * want the emergency desk store in production set `CONTENT_SOURCE=json`
+ * explicitly (ADR-014), exactly as before.
+ */
 export function declaredContentSource(): 'payload' | 'json' {
   const raw = (
-    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'payload'
+    process.env.CONTENT_SOURCE?.trim() ||
+    process.env.PAYLOAD_CONTENT_SOURCE?.trim() ||
+    ''
   ).toLowerCase()
-  return raw === 'json' ? 'json' : 'payload'
+  if (raw === 'json') return 'json'
+  if (raw === 'payload') return 'payload'
+
+  if (hasPayloadOrigin()) return 'payload'
+  const buildPhase = process.env.NEXT_PHASE === 'phase-production-build'
+  if (process.env.NODE_ENV === 'production' && !buildPhase) return 'payload'
+  return 'json'
 }
 
 export function isPayloadDeclared(): boolean {
@@ -21,9 +44,7 @@ export function isPayloadCanonical(): boolean {
   if (!isPayloadDeclared()) return false
   // Payload is canonical only with a configured origin; a missing origin is a
   // blocking configuration error unless CONTENT_SOURCE=json was explicitly chosen.
-  return Boolean(
-    process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim() || process.env.PAYLOAD_ADMIN_URL?.trim(),
-  )
+  return hasPayloadOrigin()
 }
 
 /**
@@ -406,9 +427,7 @@ export async function updatePayloadJournalistDraft(
   }
 
   const reporterEmail = input.reporterEmail.trim().toLowerCase()
-  const authorEmails = (live.authors ?? [])
-    .map((row) => authorEmail(row.author))
-    .filter(Boolean)
+  const authorEmails = (live.authors ?? []).map((row) => authorEmail(row.author)).filter(Boolean)
   if (authorEmails.length > 0 && !authorEmails.includes(reporterEmail)) {
     throw new PayloadJournalistEditBlockedError(
       'Only the assigned Payload author can update this journalist draft.',

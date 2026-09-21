@@ -1,10 +1,6 @@
 import 'server-only'
 import type { HomepageData, StoryCardData } from '@nagarikwatch/db'
-import {
-  ensureOperationalSchema,
-  runSchemaStatements,
-  type Queryable,
-} from '@/lib/ops-db'
+import { ensureOperationalSchema, runSchemaStatements, type Queryable } from '@/lib/ops-db'
 
 const HOMEPAGE_KEY = 'homepage:v1'
 const SCHEMA_VERSION = 1
@@ -32,7 +28,9 @@ async function snapshotPool(): Promise<Queryable | null> {
 }
 
 function snapshotMaxAgeSeconds(): number {
-  const configured = Number(process.env.NW_PUBLIC_SNAPSHOT_MAX_AGE_SECONDS ?? DEFAULT_MAX_AGE_SECONDS)
+  const configured = Number(
+    process.env.NW_PUBLIC_SNAPSHOT_MAX_AGE_SECONDS ?? DEFAULT_MAX_AGE_SECONDS,
+  )
   if (!Number.isFinite(configured)) return DEFAULT_MAX_AGE_SECONDS
   return Math.max(60, Math.min(MAX_ALLOWED_AGE_SECONDS, Math.floor(configured)))
 }

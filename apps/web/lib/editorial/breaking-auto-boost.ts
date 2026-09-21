@@ -143,7 +143,9 @@ export async function runBreakingAutoBoost(): Promise<BreakingBoostResult> {
     .slice(0, MAX_BOOSTS_PER_RUN)
 
   const boosted: BreakingBoostResult['boosted'] = []
-  const bySlug = new Map(adminList.map((article) => [article.slug, article]))
+  const bySlug = new Map<string, (typeof adminList)[number]>(
+    adminList.map((article): [string, (typeof adminList)[number]] => [article.slug, article]),
+  )
 
   for (const { story, reason } of candidates) {
     const stored = bySlug.get(story.slug)

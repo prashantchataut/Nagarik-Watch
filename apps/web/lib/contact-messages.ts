@@ -2,6 +2,7 @@ import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 import {
   cleanMultiline,
   cleanText,
@@ -38,8 +39,7 @@ type ContactRow = {
 
 type LocalStore = { messages: ContactMessage[] }
 
-const LOCAL_STORE_PATH =
-  process.env.CONTACT_STORE_PATH ?? path.join(process.cwd(), '.data', 'contact-messages.json')
+const LOCAL_STORE_PATH = localStorePath('contact-messages.json', 'CONTACT_STORE_PATH')
 let localWriteQueue = Promise.resolve()
 
 function isProductionRuntime(): boolean {

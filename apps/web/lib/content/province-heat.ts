@@ -28,7 +28,9 @@ export async function resolveProvinceHeat(options?: {
     getMostReadStats(options?.windowDays ?? 7, 120).catch(() => []),
   ])
 
-  const readersBySlug = new Map(stats.map((row) => [row.articleSlug, row.uniqueReaders]))
+  const readersBySlug = new Map<string, number>(
+    stats.map((row): [string, number] => [row.articleSlug, row.uniqueReaders]),
+  )
   const byProvince = new Map<string, { readers: number; stories: number }>()
 
   for (const story of items) {

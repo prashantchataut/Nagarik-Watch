@@ -1,5 +1,6 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
 
 type RumSample = {
@@ -10,7 +11,7 @@ type RumSample = {
 }
 
 const SCHEMA_KEY = 'nw-rum-samples-v1'
-const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'rum-samples.json')
+const LOCAL_FILE = localStorePath('rum-samples.json')
 let localCache: RumSample[] | null = null
 let localWrite: Promise<void> = Promise.resolve()
 

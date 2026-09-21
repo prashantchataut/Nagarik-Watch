@@ -2,6 +2,7 @@ import 'server-only'
 import { createHmac } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
 import { analyzeWithModes, assignVariant, type ExperimentAnalysisWithModes } from './core'
 import { getExperimentDefinition, getExperimentDefinitions } from './definitions'
@@ -16,7 +17,7 @@ type LocalEvent = {
   at: string
 }
 
-const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'experiment-events.json')
+const LOCAL_FILE = localStorePath('experiment-events.json')
 const SCHEMA_KEY = 'nw-experiments-v1'
 let localCache: LocalEvent[] | null = null
 let localWrite = Promise.resolve()

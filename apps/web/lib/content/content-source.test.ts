@@ -21,11 +21,32 @@ describe('content source resolution', () => {
     expect(isPayloadCanonical()).toBe(true)
   })
 
-  it('defaults to Payload and fail-closes when its origin is missing', async () => {
+  it('defaults to the desk store when nothing is declared and no CMS origin exists', async () => {
     delete process.env.CONTENT_SOURCE
     delete process.env.PAYLOAD_CONTENT_SOURCE
     delete process.env.PAYLOAD_PUBLIC_SERVER_URL
     delete process.env.PAYLOAD_ADMIN_URL
+    delete process.env.NEXT_PHASE
+
+    const { declaredContentSource, isPayloadCanonical, isPayloadSourceMisconfigured } =
+      await import('./payload-admin-client')
+    const { resolveContentSource } = await import('./resolve-content-source')
+
+    // Dev/CI/build must be able to run without a Payload deployment. This is the
+    // documented escape hatch that keeps `pnpm build` working on a fresh clone.
+    expect(declaredContentSource()).toBe('json')
+    expect(isPayloadCanonical()).toBe(false)
+    expect(isPayloadSourceMisconfigured()).toBe(false)
+    await expect(resolveContentSource()).resolves.toBeDefined()
+  })
+
+  it('still fail-closes on a production runtime with no CMS origin', async () => {
+    delete process.env.CONTENT_SOURCE
+    delete process.env.PAYLOAD_CONTENT_SOURCE
+    delete process.env.PAYLOAD_PUBLIC_SERVER_URL
+    delete process.env.PAYLOAD_ADMIN_URL
+    delete process.env.NEXT_PHASE
+    process.env = { ...process.env, NODE_ENV: 'production' }
 
     const { declaredContentSource, isPayloadCanonical, isPayloadSourceMisconfigured } =
       await import('./payload-admin-client')
@@ -35,6 +56,17 @@ describe('content source resolution', () => {
     expect(isPayloadCanonical()).toBe(false)
     expect(isPayloadSourceMisconfigured()).toBe(true)
     await expect(resolveContentSource()).rejects.toThrow(/PAYLOAD_PUBLIC_SERVER_URL/)
+  })
+
+  it('resolves to Payload when only the CMS origin is configured', async () => {
+    delete process.env.CONTENT_SOURCE
+    delete process.env.PAYLOAD_CONTENT_SOURCE
+    delete process.env.NEXT_PHASE
+    process.env.PAYLOAD_PUBLIC_SERVER_URL = 'https://cms.example.test'
+
+    const { declaredContentSource, isPayloadCanonical } = await import('./payload-admin-client')
+    expect(declaredContentSource()).toBe('payload')
+    expect(isPayloadCanonical()).toBe(true)
   })
 
   it('fail-closes when CONTENT_SOURCE=payload but CMS URL is missing', async () => {

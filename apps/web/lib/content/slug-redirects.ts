@@ -2,6 +2,7 @@ import 'server-only'
 import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 
 export type SlugRedirect = {
   fromCategory: string
@@ -12,7 +13,7 @@ export type SlugRedirect = {
 }
 
 const SCHEMA_KEY = 'nw-slug-redirects-v1'
-const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'slug-redirects.json')
+const LOCAL_FILE = localStorePath('slug-redirects.json')
 let localCache: SlugRedirect[] | null = null
 let localWrite = Promise.resolve()
 

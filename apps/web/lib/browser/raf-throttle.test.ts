@@ -21,7 +21,10 @@ describe('rafThrottle', () => {
     throttled('b')
     throttled('c')
     expect(spy).not.toHaveBeenCalled()
-    rafCb?.(0)
+    // Read through a helper: TS narrows the outer `let` to `null` because the
+    // only assignment happens inside the stubbed rAF callback.
+    const runPendingFrame = () => rafCb?.(0)
+    runPendingFrame()
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledWith('c')
   })

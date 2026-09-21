@@ -90,12 +90,7 @@ export type StoredArticle = {
   editorPick?: boolean
   dataStory?: boolean
   factCheckStatus?:
-    | 'not_fact_check'
-    | 'in_review'
-    | 'verified'
-    | 'false'
-    | 'mixed'
-    | 'context_needed'
+    'not_fact_check' | 'in_review' | 'verified' | 'false' | 'mixed' | 'context_needed'
 }
 
 /** ADR-007: public English only when englishStatus is published (never titleEn presence alone). */

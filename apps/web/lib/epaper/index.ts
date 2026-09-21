@@ -10,6 +10,7 @@
 import 'server-only'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 import type { ReaderSession } from '@/lib/auth/session'
 import { isPremiumSubscriber, isPublicMembershipEnabled } from '@/lib/membership'
 import {
@@ -62,7 +63,12 @@ async function loadConfiguredEditions(): Promise<ReplicaEdition[]> {
   const configPath = process.env.EPAPER_CONFIG_PATH?.trim()
   if (!configPath) return []
   try {
-    const raw = await fs.readFile(path.resolve(process.cwd(), configPath), 'utf-8')
+    const raw = await fs.readFile(
+      path.isAbsolute(configPath)
+        ? configPath
+        : path.resolve(/* turbopackIgnore: true */ process.cwd(), configPath),
+      'utf-8',
+    )
     const parsed = JSON.parse(raw) as { editions?: unknown }
     if (!Array.isArray(parsed.editions)) return []
     return parsed.editions.filter(isValidEdition)

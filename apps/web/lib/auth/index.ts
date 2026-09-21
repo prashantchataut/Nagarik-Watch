@@ -28,11 +28,7 @@ import { sendEmail } from '@/lib/email-provider'
 import { isUserDisabledById } from './disabled-users'
 import { ensureNewsroomBootAccounts, hasConfiguredNewsroomBootAccounts } from './boot-accounts'
 import { isGoogleAuthPublicEnabled } from './flags'
-import {
-  isProductionSafeOrigin,
-  normalizeAuthOrigin,
-  resolveAuthBaseUrl,
-} from './origin-config'
+import { isProductionSafeOrigin, normalizeAuthOrigin, resolveAuthBaseUrl } from './origin-config'
 
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET
 
@@ -123,9 +119,7 @@ function staticTrustedOrigins(): string[] {
       candidates
         .map((value) => normalizeAuthOrigin(value))
         .filter((value): value is string => Boolean(value))
-        .filter(
-          (value) => process.env.NODE_ENV !== 'production' || isProductionSafeOrigin(value),
-        ),
+        .filter((value) => process.env.NODE_ENV !== 'production' || isProductionSafeOrigin(value)),
     ),
   )
 }

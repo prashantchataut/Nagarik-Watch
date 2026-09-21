@@ -1,5 +1,8 @@
 import { bsToAd, todayBsInKathmandu } from '@nagarikwatch/db'
-import { fetchCalendarScheduleFromProvider, getCalendarProviderState } from '@/lib/calendar-provider'
+import {
+  fetchCalendarScheduleFromProvider,
+  getCalendarProviderState,
+} from '@/lib/calendar-provider'
 import { getManualLiveRecord } from '@/lib/live/manual'
 import { validateManualLiveData } from '@/lib/live/manual-schema'
 import type { PublishedCalendarEvent, PublishedCalendarSchedule } from '@/lib/calendar-view'
@@ -11,7 +14,9 @@ export type {
 } from '@/lib/calendar-view'
 export { upcomingFromSchedule } from '@/lib/calendar-view'
 
-function storedSchedule(record: Awaited<ReturnType<typeof getManualLiveRecord<unknown>>>): PublishedCalendarSchedule | null {
+function storedSchedule(
+  record: Awaited<ReturnType<typeof getManualLiveRecord<unknown>>>,
+): PublishedCalendarSchedule | null {
   if (!record) return null
   if (!validateManualLiveData('calendar-schedule', record.data).ok) return null
   if (!isMeaningfulSource(record.source)) return null
@@ -32,7 +37,9 @@ export async function getPublishedCalendarSchedule(): Promise<PublishedCalendarS
   const stored = storedSchedule(record)
   const currentStored = stored?.year === year ? stored : null
   const maxAgeHours = Math.max(1, Number(process.env.CALENDAR_MAX_STALE_HOURS || 36))
-  const storedAgeMs = currentStored ? Date.now() - new Date(currentStored.updatedAt).getTime() : Number.POSITIVE_INFINITY
+  const storedAgeMs = currentStored
+    ? Date.now() - new Date(currentStored.updatedAt).getTime()
+    : Number.POSITIVE_INFINITY
   if (currentStored && Number.isFinite(storedAgeMs) && storedAgeMs <= maxAgeHours * 3_600_000) {
     return currentStored
   }
@@ -48,5 +55,10 @@ export async function getPublishedCalendarSchedule(): Promise<PublishedCalendarS
 
 function isMeaningfulSource(source: string): boolean {
   const value = source.trim().toLowerCase()
-  return Boolean(value) && value !== 'newsroom manual update' && value !== 'manual' && value !== 'unknown'
+  return (
+    Boolean(value) &&
+    value !== 'newsroom manual update' &&
+    value !== 'manual' &&
+    value !== 'unknown'
+  )
 }

@@ -3,6 +3,8 @@
  * Does not flip CONTENT_SOURCE; operators set env after each gate passes.
  * See docs/launch-runbook.md Phase 1.
  */
+import { declaredContentSource } from './payload-admin-client'
+
 export type CutoverCheck = {
   key: string
   label: string
@@ -31,7 +33,7 @@ export function getPayloadCutoverChecklist(): {
   currentlyCanonical: boolean
   checks: CutoverCheck[]
 } {
-  const contentSource = value('CONTENT_SOURCE') || value('PAYLOAD_CONTENT_SOURCE') || 'payload'
+  const contentSource = declaredContentSource()
   const payloadUrl = value('PAYLOAD_PUBLIC_SERVER_URL') || value('PAYLOAD_ADMIN_URL')
   const token = value('PAYLOAD_API_TOKEN')
   const secret = value('PAYLOAD_SECRET')

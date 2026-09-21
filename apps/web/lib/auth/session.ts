@@ -79,6 +79,9 @@ export const getSession = cache(async (): Promise<ReaderSession | null> => {
   // Playwright reader-only builds skip Better Auth so public pages stay up without Postgres.
   if (process.env.E2E_TEST === 'true' && process.env.E2E_NEWSROOM !== 'true') return null
   if (process.env.CF_PAGES_STATIC === '1') return null
+  // Nothing to read while prerendering: no request, no cookie, and calling
+  // headers() here only produces a "Dynamic server usage" error in the build log.
+  if (process.env.NEXT_PHASE === 'phase-production-build') return null
   try {
     const requestHeaders = await headers()
     if (!hasBetterAuthSessionCookie(requestHeaders.get('cookie'))) return null
@@ -105,10 +108,12 @@ export const getSession = cache(async (): Promise<ReaderSession | null> => {
       twoFactorEnabled: user.twoFactorEnabled === true,
     }
   } catch (error) {
-    console.error(
-      '[auth-session] session read failed',
-      error instanceof Error ? error.message : String(error),
-    )
+    const message = error instanceof Error ? error.message : String(error)
+    // Static prerendering legitimately cannot read request headers; that is a
+    // framework signal, not a session failure, so it must not be logged as one.
+    if (!/Dynamic server usage|couldn't be rendered statically/i.test(message)) {
+      console.error('[auth-session] session read failed', message)
+    }
     return null
   }
 })

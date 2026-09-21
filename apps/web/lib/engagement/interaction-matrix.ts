@@ -11,12 +11,13 @@
  */
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 
 export type InteractionMatrix = Record<string, Record<string, number>>
 
 type LocalRow = { ownerKey: string; articleSlug: string; weight: number; updatedAt: string }
 
-const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'interactions.json')
+const LOCAL_FILE = localStorePath('interactions.json')
 let localCache: LocalRow[] | null = null
 let localWrite: Promise<void> = Promise.resolve()
 

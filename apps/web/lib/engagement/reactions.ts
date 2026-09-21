@@ -2,6 +2,7 @@ import 'server-only'
 import { createHash } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 import { getSharedPool } from '@/lib/pg-pool'
 import { shouldApplyLivePathDdl } from '@/lib/ops-db'
 
@@ -18,7 +19,7 @@ type LocalStore = {
   votes: Array<{ commentId: string; visitorHash: string }>
 }
 
-const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'reactions-votes.json')
+const LOCAL_FILE = localStorePath('reactions-votes.json')
 let cache: LocalStore | null = null
 let writeQueue = Promise.resolve()
 

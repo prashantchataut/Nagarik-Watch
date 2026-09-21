@@ -6,6 +6,7 @@ import 'server-only'
 import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 
 export type RankingEventType = 'impression' | 'click' | 'share'
 
@@ -30,7 +31,7 @@ type LocalEvent = {
 }
 
 const SCHEMA_KEY = 'nw-ranking-events-v1'
-const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'ranking-events.json')
+const LOCAL_FILE = localStorePath('ranking-events.json')
 let localCache: LocalEvent[] | null = null
 let localWrite: Promise<void> = Promise.resolve()
 

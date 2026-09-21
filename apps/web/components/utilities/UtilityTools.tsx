@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { adToBs, bsToAd, formatBsFull, preetiToUnicode, unicodeToPreeti } from '@nagarikwatch/db'
+import { useHydrated } from '@/lib/browser/use-browser-store'
+import { formatAdDate } from '@/lib/format/ad-date'
 
 type ForexRate = {
   iso3: string
@@ -97,12 +99,15 @@ function PrimaryButton({
 
 export function DateConverterTool({ locale }: { locale: Locale }) {
   const en = locale === 'en'
-  const [ad, setAd] = useState('')
+  const [adOverride, setAdOverride] = useState<string | null>(null)
   const [year, setYear] = useState('2083')
   const [month, setMonth] = useState('1')
   const [day, setDay] = useState('1')
 
-  useEffect(() => setAd(new Date().toISOString().slice(0, 10)), [])
+  // "Today" comes from the reader's clock, so the default is derived after
+  // hydration instead of being written into state by an effect.
+  const hydrated = useHydrated()
+  const ad = adOverride ?? (hydrated ? new Date().toISOString().slice(0, 10) : '')
 
   const bs = useMemo(() => {
     if (!ad) return ''
@@ -118,17 +123,11 @@ export function DateConverterTool({ locale }: { locale: Locale }) {
   const gregorian = useMemo(() => {
     try {
       const result = bsToAd(Number(year), Number(month), Number(day))
-      return result
-        ? result.toLocaleDateString(en ? 'en-GB' : 'ne-NP', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })
-        : ''
+      return result ? formatAdDate(result, locale, 'long') : ''
     } catch {
       return ''
     }
-  }, [year, month, day, en])
+  }, [year, month, day, locale])
 
   return (
     <ToolWorkspace
@@ -145,7 +144,7 @@ export function DateConverterTool({ locale }: { locale: Locale }) {
             type="date"
             className={fieldInputClass}
             value={ad}
-            onChange={(event) => setAd(event.target.value)}
+            onChange={(event) => setAdOverride(event.target.value)}
           />
         </Field>
         <Result
@@ -315,11 +314,10 @@ export function CurrencyConverterTool({
   const [iso, setIso] = useState('USD')
   const [amount, setAmount] = useState('100')
   const [direction, setDirection] = useState<'foreign-to-npr' | 'npr-to-foreign'>('foreign-to-npr')
-  const rate = rates.find((item) => item.iso3 === iso) ?? rates[0]
-
-  useEffect(() => {
-    if (rates.length && !rates.some((item) => item.iso3 === iso)) setIso(rates[0]!.iso3)
-  }, [rates, iso])
+  // If the stored ISO is not in the current rate table, fall back to the first
+  // row during render rather than correcting state from an effect.
+  const selectedIso = rates.some((item) => item.iso3 === iso) ? iso : (rates[0]?.iso3 ?? iso)
+  const rate = rates.find((item) => item.iso3 === selectedIso) ?? rates[0]
 
   const value = useMemo(() => {
     if (!rate) return ''
@@ -407,9 +405,11 @@ export function CurrencyConverterTool({
 export function AgeCalculatorTool({ locale }: { locale: Locale }) {
   const en = locale === 'en'
   const [birth, setBirth] = useState('')
-  const [today, setToday] = useState('')
+  const [todayOverride, setTodayOverride] = useState<string | null>(null)
 
-  useEffect(() => setToday(new Date().toISOString().slice(0, 10)), [])
+  // Same as the date converter: default to the reader's today after hydration.
+  const hydrated = useHydrated()
+  const today = todayOverride ?? (hydrated ? new Date().toISOString().slice(0, 10) : '')
 
   const age = useMemo(() => {
     if (!birth || !today) return null
@@ -457,7 +457,7 @@ export function AgeCalculatorTool({ locale }: { locale: Locale }) {
                 type="date"
                 className={fieldInputClass}
                 value={today}
-                onChange={(event) => setToday(event.target.value)}
+                onChange={(event) => setTodayOverride(event.target.value)}
               />
             </Field>
           </div>
@@ -509,15 +509,13 @@ export function UnitConverterTool({ locale }: { locale: Locale }) {
   const en = locale === 'en'
   const [group, setGroup] = useState<UnitGroup>('length')
   const keys = Object.keys(unitGroups[group].units)
-  const [from, setFrom] = useState('metre')
-  const [to, setTo] = useState('kilometre')
+  const [fromOverride, setFromOverride] = useState<string | null>(null)
+  const [toOverride, setToOverride] = useState<string | null>(null)
   const [amount, setAmount] = useState('1')
-
-  useEffect(() => {
-    const next = Object.keys(unitGroups[group].units)
-    setFrom(next[0]!)
-    setTo(next[1]!)
-  }, [group])
+  // Default unit pair follows the active group. Derived during render, so
+  // switching groups never needs a corrective effect.
+  const from = fromOverride && keys.includes(fromOverride) ? fromOverride : (keys[0] ?? '')
+  const to = toOverride && keys.includes(toOverride) ? toOverride : (keys[1] ?? keys[0] ?? '')
 
   const result = useMemo(() => {
     const number = Number(amount)
@@ -562,7 +560,7 @@ export function UnitConverterTool({ locale }: { locale: Locale }) {
               <select
                 className={fieldInputClass}
                 value={from}
-                onChange={(event) => setFrom(event.target.value)}
+                onChange={(event) => setFromOverride(event.target.value)}
               >
                 {keys.map((key) => (
                   <option key={key}>{key}</option>
@@ -573,7 +571,7 @@ export function UnitConverterTool({ locale }: { locale: Locale }) {
               <select
                 className={fieldInputClass}
                 value={to}
-                onChange={(event) => setTo(event.target.value)}
+                onChange={(event) => setToOverride(event.target.value)}
               >
                 {keys.map((key) => (
                   <option key={key}>{key}</option>

@@ -147,7 +147,8 @@ async function fetchBizzPatroSchedule(year: number): Promise<PublishedCalendarSc
   for (const response of responses) {
     const month = Number(response.data?.bs_month)
     const generatedAt = response.meta?.generated_at
-    if (generatedAt && (!updatedAt || Date.parse(generatedAt) > Date.parse(updatedAt))) updatedAt = generatedAt
+    if (generatedAt && (!updatedAt || Date.parse(generatedAt) > Date.parse(updatedAt)))
+      updatedAt = generatedAt
     for (const day of response.data?.days ?? []) {
       const dayNumber = Number(day.bs_day)
       if (!Number.isInteger(month) || !Number.isInteger(dayNumber)) continue
@@ -192,7 +193,9 @@ async function fetchNormalizedSchedule(year: number): Promise<PublishedCalendarS
   return validateSchedule({
     year: Number(payload.year ?? year),
     source:
-      payload.source?.trim() || process.env.CALENDAR_SOURCE_NAME?.trim() || 'Configured calendar API',
+      payload.source?.trim() ||
+      process.env.CALENDAR_SOURCE_NAME?.trim() ||
+      'Configured calendar API',
     updatedAt: payload.updatedAt || new Date().toISOString(),
     events: Array.isArray(payload.events) ? payload.events : [],
   })
@@ -209,7 +212,9 @@ function validateSchedule(schedule: PublishedCalendarSchedule): PublishedCalenda
   if (!validation.ok) throw new Error(validation.message)
   for (const event of schedule.events) {
     if (!bsToAd(schedule.year, event.month, event.day)) {
-      throw new Error(`Calendar provider returned invalid BS date ${schedule.year}/${event.month}/${event.day}`)
+      throw new Error(
+        `Calendar provider returned invalid BS date ${schedule.year}/${event.month}/${event.day}`,
+      )
     }
   }
   if (!schedule.source.trim()) throw new Error('Calendar provider did not identify its source')

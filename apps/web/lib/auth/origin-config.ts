@@ -27,10 +27,7 @@ export function isProductionSafeOrigin(origin: string): boolean {
   }
 }
 
-export function resolveAuthBaseUrl(
-  env: AuthOriginEnv,
-  fallbackSiteUrl: string,
-): string {
+export function resolveAuthBaseUrl(env: AuthOriginEnv, fallbackSiteUrl: string): string {
   const production = env.NODE_ENV === 'production'
   const candidates = [env.BETTER_AUTH_URL, env.NEXT_PUBLIC_SITE_URL, env.SITE_URL, fallbackSiteUrl]
   for (const candidate of candidates) {

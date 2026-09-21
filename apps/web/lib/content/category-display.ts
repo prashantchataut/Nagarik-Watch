@@ -12,8 +12,8 @@ export function displayCategoryName(
   const seeded = categoryBySlug.get(category.slug)
   const preferEn = locale === 'en'
   const raw = preferEn
-    ? (category.nameEn?.trim() || category.nameNe?.trim() || '')
-    : (category.nameNe?.trim() || category.nameEn?.trim() || '')
+    ? category.nameEn?.trim() || category.nameNe?.trim() || ''
+    : category.nameNe?.trim() || category.nameEn?.trim() || ''
 
   if (raw && !isSlugishLabel(raw, category.slug)) {
     return raw

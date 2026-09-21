@@ -143,7 +143,7 @@ function adsMode(env: LaunchGateEnv): 'off' | 'house' | 'network' {
 function emailReady(env: LaunchGateEnv): boolean {
   return Boolean(
     envValue(env, 'RESEND_API_KEY') ||
-      (envValue(env, 'NEWSLETTER_API_KEY') && envValue(env, 'NEWSLETTER_API_BASE')),
+    (envValue(env, 'NEWSLETTER_API_KEY') && envValue(env, 'NEWSLETTER_API_BASE')),
   )
 }
 
@@ -178,8 +178,8 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
   const webMediaUploadReady = blobReady || (storageCredentialsPresent && objectStoragePublicBase)
   const pushConfigured = Boolean(
     envValue(env, 'NEXT_PUBLIC_WEB_PUSH_VAPID_KEY') &&
-      envValue(env, 'WEB_PUSH_VAPID_PRIVATE_KEY') &&
-      envValue(env, 'WEB_PUSH_SUBJECT'),
+    envValue(env, 'WEB_PUSH_VAPID_PRIVATE_KEY') &&
+    envValue(env, 'WEB_PUSH_SUBJECT'),
   )
   const payloadRequired = live || contentSource === 'payload'
   const sentryDsn = envValue(env, 'SENTRY_DSN') || envValue(env, 'NEXT_PUBLIC_SENTRY_DSN')
@@ -230,10 +230,10 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
           : contentSource === 'payload'
             ? 'pass'
             : contentSource === 'json'
-            ? dbOk
-              ? 'pass'
-              : 'warn'
-            : 'fail',
+              ? dbOk
+                ? 'pass'
+                : 'warn'
+              : 'fail',
       detail:
         contentSource === 'payload'
           ? 'Payload CMS is canonical'
@@ -247,11 +247,7 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
       key: 'starter-seed',
       label: 'Starter seed inventory',
       status:
-        starterSeed === 'true' || starterSeed === '1'
-          ? live || dbOk
-            ? 'fail'
-            : 'warn'
-          : 'pass',
+        starterSeed === 'true' || starterSeed === '1' ? (live || dbOk ? 'fail' : 'warn') : 'pass',
       detail:
         starterSeed === 'true' || starterSeed === '1'
           ? 'Legacy ALLOW_STARTER_SEED is set. Source-code article fixtures have been removed; delete this obsolete flag.'
@@ -275,7 +271,10 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
     {
       key: 'schema-migrations',
       label: 'Database migration mode',
-      status: contentSource !== 'payload' || envValue(env, 'PAYLOAD_DB_PUSH') === 'false' ? 'pass' : 'fail',
+      status:
+        contentSource !== 'payload' || envValue(env, 'PAYLOAD_DB_PUSH') === 'false'
+          ? 'pass'
+          : 'fail',
       detail:
         contentSource !== 'payload'
           ? 'In-app article store does not require Payload migrations'
@@ -287,14 +286,27 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
       key: 'ops-migrations',
       label: 'Operational schema migrations',
       status: 'warn',
-      detail: 'Ops migration status not probed — run pnpm migrate:ops against Postgres before launch',
+      detail:
+        'Ops migration status not probed — run pnpm migrate:ops against Postgres before launch',
     },
-    verifiedSetting('legal-name', 'Legal publisher identity', env, 'NEXT_PUBLIC_PUBLICATION_LEGAL_NAME', {
-      required: live,
-    }),
-    verifiedSetting('editor-in-chief', 'Editor-in-chief identity', env, 'NEXT_PUBLIC_EDITOR_IN_CHIEF', {
-      required: live,
-    }),
+    verifiedSetting(
+      'legal-name',
+      'Legal publisher identity',
+      env,
+      'NEXT_PUBLIC_PUBLICATION_LEGAL_NAME',
+      {
+        required: live,
+      },
+    ),
+    verifiedSetting(
+      'editor-in-chief',
+      'Editor-in-chief identity',
+      env,
+      'NEXT_PUBLIC_EDITOR_IN_CHIEF',
+      {
+        required: live,
+      },
+    ),
     verifiedSetting('registration', 'Publication registration', env, 'NEXT_PUBLIC_DOIB_NUMBER', {
       required: live,
     }),
@@ -376,8 +388,7 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
     {
       key: 'network-ads',
       label: 'Network advertising credentials',
-      status:
-        ads !== 'network' ? 'pass' : networkAdsReady ? 'pass' : live ? 'fail' : 'warn',
+      status: ads !== 'network' ? 'pass' : networkAdsReady ? 'pass' : live ? 'fail' : 'warn',
       detail:
         ads !== 'network'
           ? ads === 'house'
@@ -417,7 +428,8 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
     {
       key: 'tts-provider',
       label: 'Article TTS provider',
-      status: envValue(env, 'TTS_API_KEY') || envValue(env, 'NEXT_PUBLIC_TTS_PROVIDER') ? 'pass' : 'warn',
+      status:
+        envValue(env, 'TTS_API_KEY') || envValue(env, 'NEXT_PUBLIC_TTS_PROVIDER') ? 'pass' : 'warn',
       detail:
         envValue(env, 'TTS_API_KEY') || envValue(env, 'NEXT_PUBLIC_TTS_PROVIDER')
           ? 'TTS provider env is present'
@@ -426,7 +438,8 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
     {
       key: 'semantic-search',
       label: 'Semantic search provider',
-      status: envValue(env, 'OPENAI_API_KEY') || envValue(env, 'SEMANTIC_SEARCH_URL') ? 'pass' : 'warn',
+      status:
+        envValue(env, 'OPENAI_API_KEY') || envValue(env, 'SEMANTIC_SEARCH_URL') ? 'pass' : 'warn',
       detail:
         envValue(env, 'OPENAI_API_KEY') || envValue(env, 'SEMANTIC_SEARCH_URL')
           ? 'Semantic search provider env is present'
@@ -465,7 +478,12 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
     {
       key: 'staff-mfa',
       label: 'Staff multi-factor authentication',
-      status: envValue(env, 'STAFF_MFA_ENABLED').toLowerCase() === 'true' ? 'pass' : live ? 'fail' : 'warn',
+      status:
+        envValue(env, 'STAFF_MFA_ENABLED').toLowerCase() === 'true'
+          ? 'pass'
+          : live
+            ? 'fail'
+            : 'warn',
       detail:
         envValue(env, 'STAFF_MFA_ENABLED').toLowerCase() === 'true'
           ? 'Staff MFA is configured and enforced'
@@ -497,7 +515,12 @@ export function evaluateLaunchEnvChecks(env: LaunchGateEnv = process.env): Launc
     {
       key: 'auth-auto-migrate',
       label: 'Auth schema auto-migration',
-      status: envValue(env, 'AUTH_AUTO_MIGRATE').toLowerCase() === 'true' ? (live ? 'fail' : 'warn') : 'pass',
+      status:
+        envValue(env, 'AUTH_AUTO_MIGRATE').toLowerCase() === 'true'
+          ? live
+            ? 'fail'
+            : 'warn'
+          : 'pass',
       detail:
         envValue(env, 'AUTH_AUTO_MIGRATE').toLowerCase() === 'true'
           ? 'AUTH_AUTO_MIGRATE must be false in production; migrate auth schema before serve'

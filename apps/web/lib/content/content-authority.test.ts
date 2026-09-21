@@ -31,9 +31,8 @@ describe('content authority / emergency fallback', () => {
     process.env.CONTENT_SOURCE = 'payload'
     process.env.PAYLOAD_PUBLIC_SERVER_URL = 'https://admin.example.com'
     process.env.NEXT_PUBLIC_LAUNCH_STATUS = 'preview'
-    const { isPayloadCanonical, shouldBlockLocalContentWrites } = await import(
-      '@/lib/content/payload-admin-client'
-    )
+    const { isPayloadCanonical, shouldBlockLocalContentWrites } =
+      await import('@/lib/content/payload-admin-client')
     expect(isPayloadCanonical()).toBe(true)
     expect(shouldBlockLocalContentWrites()).toBe(true)
   })
@@ -43,9 +42,8 @@ describe('content authority / emergency fallback', () => {
     delete process.env.PAYLOAD_PUBLIC_SERVER_URL
     delete process.env.PAYLOAD_ADMIN_URL
     process.env.NEXT_PUBLIC_LAUNCH_STATUS = 'live'
-    const { isPayloadSourceMisconfigured, shouldBlockLocalContentWrites } = await import(
-      '@/lib/content/payload-admin-client'
-    )
+    const { isPayloadSourceMisconfigured, shouldBlockLocalContentWrites } =
+      await import('@/lib/content/payload-admin-client')
     expect(isPayloadSourceMisconfigured()).toBe(true)
     expect(shouldBlockLocalContentWrites()).toBe(true)
   })

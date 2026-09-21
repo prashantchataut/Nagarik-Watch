@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  canActorTransition,
-  isValidHttpUrl,
-  reporterMayEditDraft,
-} from '@nagarikwatch/db'
+import { canActorTransition, isValidHttpUrl, reporterMayEditDraft } from '@nagarikwatch/db'
 
 /**
  * Contract for the journalist→Payload bridge lock.

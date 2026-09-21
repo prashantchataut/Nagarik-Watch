@@ -100,7 +100,9 @@ async function ensureSchema(): Promise<Queryable | null> {
 }
 
 function optionalText(value: unknown, maxLength: number): string | undefined {
-  const normalized = String(value ?? '').trim().slice(0, maxLength)
+  const normalized = String(value ?? '')
+    .trim()
+    .slice(0, maxLength)
   return normalized || undefined
 }
 
@@ -118,9 +120,7 @@ function normalizeCreative(input: HouseAdCreative): HouseAdCreative {
 }
 
 function isCompleteCreative(input: HouseAdCreative | null | undefined): input is HouseAdCreative {
-  return Boolean(
-    input?.title.trim() && input.body.trim() && input.cta.trim() && input.href.trim(),
-  )
+  return Boolean(input?.title.trim() && input.body.trim() && input.cta.trim() && input.href.trim())
 }
 
 function parseChallenger(raw: string | null | undefined): HouseAdCreative | undefined {

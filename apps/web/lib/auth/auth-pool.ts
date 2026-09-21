@@ -1,17 +1,15 @@
 import 'server-only'
-import path from 'node:path'
 import { PostgresDialect, PGliteDialect } from 'kysely'
 import type { Dialect } from 'kysely'
 import { getSharedPool } from '@/lib/pg-pool'
 import { resolveDatabaseUrl } from '@/lib/db-url'
+import { localStorePath } from '@/lib/ops/local-store-path'
 
 let cached: Dialect | null = null
 let cachedPglite: import('@electric-sql/pglite').PGlite | null = null
 
 function pgliteDataDir(): string {
-  const configured = process.env.PGLITE_DATA_DIR?.trim()
-  const value = configured || path.join(process.cwd(), '.data', 'auth-pglite')
-  return path.isAbsolute(value) ? value : path.resolve(process.cwd(), value)
+  return localStorePath('auth-pglite', 'PGLITE_DATA_DIR')
 }
 
 export async function createDialect(): Promise<Dialect> {

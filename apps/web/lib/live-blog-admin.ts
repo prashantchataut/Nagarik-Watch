@@ -2,6 +2,7 @@ import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 import {
   asSlug,
   cleanMultiline,
@@ -68,8 +69,7 @@ type LocalStore = {
   updates: LiveBlogUpdateRecord[]
 }
 
-const LOCAL_STORE_PATH =
-  process.env.LIVE_BLOG_STORE_PATH ?? path.join(process.cwd(), '.data', 'live-blogs.json')
+const LOCAL_STORE_PATH = localStorePath('live-blogs.json', 'LIVE_BLOG_STORE_PATH')
 let localWriteQueue = Promise.resolve()
 
 function isProductionRuntime(): boolean {
