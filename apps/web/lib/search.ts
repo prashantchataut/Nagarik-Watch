@@ -1,5 +1,5 @@
 import type { StoryCardData } from '@nagarikwatch/db'
-import { nearestByEmbedding } from './algorithms/product/local-embeddings'
+import { buildTermVectors, termNeighbors, type TermVectors } from './search-semantics'
 import { CIVIC_QUERY_LEXICON, lexiconExpandTerm, type QueryLexicon } from './search-lexicon'
 import { stemToken } from './nlp/stemmer'
 
@@ -67,6 +67,8 @@ export type SearchIndex = {
   vocabulary: string[]
   trie: TrieNode
   docCount: number
+  /** Co-occurrence vectors over title+deck terms; see `lib/search-semantics`. */
+  semantics: TermVectors
 }
 
 const FIELDS: Field[] = ['title', 'deck', 'author', 'category']
@@ -262,6 +264,10 @@ export function buildIndex(stories: SearchableStory[]): SearchIndex {
   const sumLen: Record<Field, number> = { title: 0, deck: 0, author: 0, category: 0 }
   const trie = emptyTrie()
   const vocabSet = new Set<string>()
+  // One term set per story, for the co-occurrence vectors. Author and category
+  // are left out on purpose: every story in a section shares its category
+  // label, so including it would make "politics" everyone's nearest neighbour.
+  const semanticDocs: Array<Set<string>> = []
 
   docs.forEach((doc, docIndex) => {
     const fieldText: Record<Field, string> = {
@@ -271,6 +277,7 @@ export function buildIndex(stories: SearchableStory[]): SearchIndex {
       category: `${doc.categoryLabelNe} ${doc.categoryLabelEn}`,
     }
     const lengths: Record<Field, number> = { title: 0, deck: 0, author: 0, category: 0 }
+    const topicalTerms = new Set<string>()
 
     for (const field of FIELDS) {
       const tokens = tokenize(fieldText[field])
@@ -282,6 +289,7 @@ export function buildIndex(stories: SearchableStory[]): SearchIndex {
         if (!key) continue
         tf.set(key, (tf.get(key) ?? 0) + 1)
         vocabSet.add(key)
+        if (field === 'title' || field === 'deck') topicalTerms.add(key)
       }
       for (const [token, count] of tf) {
         let posting = inverted.get(token)
@@ -296,6 +304,7 @@ export function buildIndex(stories: SearchableStory[]): SearchIndex {
     }
 
     docLen.push(lengths)
+    semanticDocs.push(topicalTerms)
 
     trieInsert(trie, doc.titleNe)
     if (doc.titleEn) trieInsert(trie, doc.titleEn)
@@ -318,6 +327,7 @@ export function buildIndex(stories: SearchableStory[]): SearchIndex {
     vocabulary: [...vocabSet],
     trie,
     docCount: docs.length,
+    semantics: buildTermVectors(semanticDocs),
   }
 }
 
@@ -397,10 +407,10 @@ export function search(
       // Quadratic in coverage so three-of-four beats two-of-four decisively.
       union.set(docIndex, score * covered * covered)
     }
-    return finalizeResults(index, union, rawQuery, limit)
+    return finalizeResults(index, union, terms, limit)
   }
 
-  return finalizeResults(index, candidateScores, rawQuery, limit)
+  return finalizeResults(index, candidateScores, terms, limit)
 }
 
 /** BM25 every document reachable from one query term's expansion set. */
@@ -458,7 +468,7 @@ function intersectTerms(perTerm: Array<Map<number, number>>): Map<number, number
 function finalizeResults(
   index: SearchIndex,
   candidateScores: Map<number, number>,
-  rawQuery: string,
+  terms: string[],
   limit: number,
 ): SearchResult[] {
   const scored: SearchResult[] = []
@@ -477,41 +487,68 @@ function finalizeResults(
 
   scored.sort((a, b) => b.score - a.score || b.publishedAt.localeCompare(a.publishedAt))
 
-  if (process.env.SEARCH_SEMANTIC_LOCAL === '1' && rawQuery.trim()) {
-    return blendLocalSemantic(index, rawQuery, scored, limit)
+  // Semantic recall runs only when the lexical page came back thin, appends
+  // rather than re-ranks, and is bounded below the weakest real hit.
+  // `SEARCH_SEMANTIC_LOCAL=0` is the kill switch.
+  if (process.env.SEARCH_SEMANTIC_LOCAL !== '0' && terms.length > 0) {
+    return semanticFill(index, terms, scored, limit)
   }
   return scored.slice(0, limit)
 }
 
-/** Optional local term-vector blend — never replaces BM25 as primary. */
-function blendLocalSemantic(
+/** Below this many lexical hits, the page reads as a dead end worth filling. */
+const SEMANTIC_FILL_BELOW = 3
+/** How many learned neighbours each query term may contribute. */
+const SEMANTIC_NEIGHBORS_PER_TERM = 2
+
+/**
+ * Corpus-learned recall, used only to rescue a thin result page.
+ *
+ * The predecessor of this function scored the query against hashed
+ * term-frequency vectors and called the result semantic. It was not: hashing
+ * preserves token identity and nothing else, so every document it could reach
+ * was one the inverted index had already reached, and the fill never fired on
+ * real queries. What replaces it asks a different question — which *terms* the
+ * archive uses interchangeably — and then searches for those terms. That can
+ * reach a story with no word in common with the query, which is the whole
+ * point of the feature.
+ *
+ * The AND-ing in `search` is deliberate and stays untouched: neighbours never
+ * join the intersection, they only append underneath it.
+ */
+function semanticFill(
   index: SearchIndex,
-  rawQuery: string,
-  bm25Hits: SearchResult[],
+  terms: string[],
+  lexicalHits: SearchResult[],
   limit: number,
 ): SearchResult[] {
-  const candidates = index.docs.map((doc) => ({
-    id: doc.story.id,
-    text: `${doc.titleNe} ${doc.titleEn} ${doc.deckNe} ${doc.deckEn}`,
-  }))
-  const semantic = nearestByEmbedding(rawQuery, candidates, Math.max(limit, 12))
-  const byId = new Map(bm25Hits.map((hit) => [hit.id, hit]))
-  const storyById = new Map(index.docs.map((doc) => [doc.story.id, doc.story]))
-  const maxBm25 = bm25Hits[0]?.score ?? 1
-  for (const item of semantic) {
-    const story = storyById.get(item.id)
-    if (!story) continue
-    const existing = byId.get(item.id)
-    const semanticBoost = Math.max(0, item.score) * maxBm25 * 0.35
-    if (existing) {
-      byId.set(item.id, { ...existing, score: existing.score + semanticBoost })
-    } else {
-      byId.set(item.id, { ...story, score: semanticBoost })
+  if (lexicalHits.length >= SEMANTIC_FILL_BELOW) return lexicalHits.slice(0, limit)
+
+  const expansions: Array<{ term: string; boost: number }> = []
+  for (const term of terms) {
+    const stem = stemToken(term)
+    for (const neighbor of termNeighbors(index.semantics, stem, SEMANTIC_NEIGHBORS_PER_TERM)) {
+      expansions.push({ term: neighbor.term, boost: neighbor.score })
     }
   }
-  return [...byId.values()]
-    .sort((a, b) => b.score - a.score || b.publishedAt.localeCompare(a.publishedAt))
-    .slice(0, limit)
+  if (expansions.length === 0) return lexicalHits.slice(0, limit)
+
+  const seen = new Set(lexicalHits.map((hit) => hit.id))
+  // Everything lexical outranks everything semantic, so the fill starts below
+  // the weakest real hit rather than competing with it.
+  const ceiling = (lexicalHits.at(-1)?.score ?? 1) * 0.5
+
+  const fill: SearchResult[] = []
+  for (const [docIndex, score] of scoreTerm(index, expansions)) {
+    const story = index.docs[docIndex]?.story
+    if (!story || seen.has(story.id) || score <= 0) continue
+    seen.add(story.id)
+    // Squash BM25 into (0,1) before scaling, so the ordering among fill items
+    // survives but none of them can climb into the lexical band.
+    fill.push({ ...story, score: ceiling * (score / (score + 1)) })
+  }
+  fill.sort((a, b) => b.score - a.score || b.publishedAt.localeCompare(a.publishedAt))
+  return [...lexicalHits, ...fill].slice(0, limit)
 }
 
 /** Prefix autocomplete from the title/author/category trie. */

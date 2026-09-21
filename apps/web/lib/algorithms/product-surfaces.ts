@@ -218,7 +218,19 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'embedding-similarity',
+    module: 'lib/search-semantics.ts',
+    entrypoint: 'app/[locale]/search/page.tsx',
+    surface: 'reader',
+  },
+  {
     id: 'epaper-entitlement',
+    module: 'lib/epaper/index.ts',
+    entrypoint: 'app/[locale]/epaper/[date]/page.tsx',
+    surface: 'reader',
+  },
+  {
+    id: 'epaper-replica',
     module: 'lib/epaper/index.ts',
     entrypoint: 'app/[locale]/epaper/[date]/page.tsx',
     surface: 'reader',
@@ -356,6 +368,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'news-sitemap-priority',
+    module: 'app/news-sitemap.xml/route.ts',
+    entrypoint: 'app/news-sitemap.xml/route.ts',
+    surface: 'reader',
+  },
+  {
     id: 'notification-batching',
     module: 'lib/notifications/deliver-run.ts',
     entrypoint: 'app/api/cron/notifications-deliver/route.ts',
@@ -377,6 +395,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     id: 'offline-first-articles',
     module: 'app/sw.js/route.ts',
     entrypoint: 'app/sw.js/route.ts',
+    surface: 'reader',
+  },
+  {
+    id: 'og-image-dimension-check',
+    module: 'lib/seo/share-image.ts',
+    entrypoint: 'app/[locale]/[category]/[slug]/page.tsx',
     surface: 'reader',
   },
   {
@@ -485,6 +509,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     id: 'scroll-depth-quality',
     module: 'lib/reader/signals.ts',
     entrypoint: 'app/[locale]/reader-corner/page.tsx',
+    surface: 'reader',
+  },
+  {
+    id: 'semantic-search',
+    module: 'lib/search.ts',
+    entrypoint: 'app/[locale]/search/page.tsx',
     surface: 'reader',
   },
   {

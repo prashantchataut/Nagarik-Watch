@@ -210,10 +210,12 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'recommendation',
     surface: 'related / semantic modules',
     status: 'live',
-    summary: 'Vector embeddings + cosine ANN.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:embedding-similarity',
+    summary:
+      'PPMI-weighted co-occurrence vectors learned from the published corpus, compared by cosine. Two words are near when the archive uses them for the same stories — no vendor, no index to keep warm.',
+    implementation:
+      'apps/web/lib/search-semantics.ts#termNeighbors · apps/web/lib/search.ts#semanticFill · apps/web/lib/algorithms/product/local-embeddings.ts#textSimilarity',
     dependency:
-      'Embedding provider or local model + vector index — enhances when configured; local runtime path still runs',
+      'A learned sentence embedding would generalise past co-occurrence; the local path ships without one',
     priority: 4,
   },
   {
@@ -324,9 +326,12 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'search',
     surface: 'search',
     status: 'live',
-    summary: 'Meaning-based retrieval for paraphrases.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:semantic-search',
-    dependency: 'Embeddings + ANN index — enhances when configured; local runtime path still runs',
+    summary:
+      'When BM25 returns a thin page, the query is expanded with terms the archive itself treats as interchangeable (co-occurrence vectors, PPMI + cosine), so a story sharing no word with the query can still be reached. Append-only — it never reorders the lexical ranking. Set SEARCH_SEMANTIC_LOCAL=0 to turn it off.',
+    implementation:
+      'apps/web/lib/search.ts#semanticFill · apps/web/lib/search-semantics.ts#termNeighbors · apps/web/app/api/search/route.ts',
+    dependency:
+      'A hosted embedding model + ANN index would raise recall further; the local expansion ships without one',
     priority: 4,
   },
   {
@@ -1414,8 +1419,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'epaper',
     surface: 'e-paper edition',
     status: 'live',
-    summary: 'Paginated replica edition — separate product module.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:epaper-replica',
+    summary:
+      'Replica edition pagination, entitlement and offline-cache health, running on the public e-paper pages.',
+    implementation:
+      'apps/web/lib/algorithms/product/epaper.ts · apps/web/lib/epaper/index.ts · apps/web/app/[locale]/epaper/[date]/page.tsx',
     priority: 4,
   },
 
@@ -2606,8 +2613,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'distribution',
     surface: 'news-sitemap.xml',
     status: 'live',
-    summary: 'Assigns sitemap priority from publish age, breaking flag, and category weight.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:news-sitemap-priority',
+    summary:
+      'Orders the news sitemap and weights the standard sitemap from publish age, the breaking flag and category weight — crawlers read top-down under a fixed budget, so order is the whole point.',
+    implementation:
+      'apps/web/lib/algorithms/product/seo-dist.ts#newsSitemapPriority · apps/web/app/news-sitemap.xml/route.ts · apps/web/app/sitemap.ts',
     priority: 1,
   },
   {
@@ -2662,8 +2671,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'distribution',
     surface: 'social cards',
     status: 'live',
-    summary: 'Validates Open Graph image dimensions against platform-safe minimums.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:og-image-dimension-check',
+    summary:
+      'Every share card is checked against the 1200x630 minimum before it is emitted; an undersized hero falls back to the site OG asset rather than shipping a cropped card.',
+    implementation:
+      'apps/web/lib/algorithms/product/seo-dist.ts#ogImageDimensionOk · apps/web/lib/seo/share-image.ts#publicShareImageUrl · article/section generateMetadata',
     priority: 2,
   },
   {
