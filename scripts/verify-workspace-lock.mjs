@@ -1,23 +1,50 @@
 #!/usr/bin/env node
+/**
+ * Workspace lockfile verification.
+ *
+ * Only packages that are actually workspace members (`pnpm-workspace.yaml`) are
+ * checked. Previously this walked every directory under `apps/` and `packages/`,
+ * so `apps/admin` — which the workspace deliberately excludes — was reported as
+ * "missing importer" forever. That disagreement with
+ * `verify-canonical-workspaces.mjs` is what made CI fail on every push.
+ */
 import { readFileSync, readdirSync, statSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import { join } from 'node:path'
 
 const root = process.cwd()
 const lockPath = join(root, 'pnpm-lock.yaml')
 const lockText = readFileSync(lockPath, 'utf8')
 
-function packageDirs() {
-  const dirs = [root]
-  for (const parent of ['apps', 'packages']) {
-    const base = join(root, parent)
-    for (const name of readdirSync(base)) {
-      const dir = join(base, name)
-      if (statSync(dir).isDirectory()) dirs.push(dir)
-    }
+/** Expand the workspace globs in pnpm-workspace.yaml into package directories. */
+function workspaceDirs() {
+  const workspaceText = readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8')
+  const patterns = []
+  for (const line of workspaceText.split(/\r?\n/)) {
+    const match = line.match(/^\s*-\s*['"]?([^'"\s]+)['"]?\s*$/)
+    if (match) patterns.push(match[1])
   }
+
+  const dirs = ['.']
+  for (const pattern of patterns) {
+    if (!pattern.includes('*')) {
+      dirs.push(pattern)
+      continue
+    }
+    // Single-level glob, which is all this workspace uses (packages/*).
+    const prefix = pattern.slice(0, pattern.indexOf('*')).replace(/\/$/, '')
+    const base = join(root, prefix)
+    let names = []
+    try {
+      names = readdirSync(base)
+    } catch {
+      continue
+    }
+    for (const name of names) dirs.push(`${prefix}/${name}`)
+  }
+
   return dirs.filter((dir) => {
     try {
-      return statSync(join(dir, 'package.json')).isFile()
+      return statSync(join(root, dir, 'package.json')).isFile()
     } catch {
       return false
     }
@@ -75,10 +102,10 @@ const importers = parseImporters(lockText)
 const expectedImporterKeys = new Set()
 const errors = []
 
-for (const dir of packageDirs()) {
-  const key = dir === root ? '.' : relative(root, dir).replaceAll('\\', '/')
+for (const dir of workspaceDirs()) {
+  const key = dir === '.' ? '.' : dir.replaceAll('\\', '/')
   expectedImporterKeys.add(key)
-  const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+  const manifest = JSON.parse(readFileSync(join(root, dir, 'package.json'), 'utf8'))
   const expected = {
     ...(manifest.dependencies ?? {}),
     ...(manifest.devDependencies ?? {}),

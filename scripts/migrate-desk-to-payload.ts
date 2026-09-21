@@ -244,11 +244,7 @@ async function upsertArticle(article: DeskArticle): Promise<'created' | 'updated
   const heroImageId = await ensureHeroMedia(article)
 
   let { workflowStage, status } = publicWorkflow(article.workflowStage)
-  if (
-    (workflowStage === 'published' || workflowStage === 'updated') &&
-    !heroImageId &&
-    apply
-  ) {
+  if ((workflowStage === 'published' || workflowStage === 'updated') && !heroImageId && apply) {
     console.warn(
       `demoting ${article.slug} to draft/ready: published desk story has no transferable heroImage`,
     )
@@ -293,8 +289,7 @@ async function upsertArticle(article: DeskArticle): Promise<'created' | 'updated
     seoDescription: article.seoDescriptionNe,
     heroCaption: article.heroCaptionNe,
     heroCredit: article.heroCredit,
-    heroImage:
-      heroImageId && !String(heroImageId).startsWith('dry-run-') ? heroImageId : undefined,
+    heroImage: heroImageId && !String(heroImageId).startsWith('dry-run-') ? heroImageId : undefined,
     mediaReferenceUrl:
       !heroImageId && isHttpUrl(article.heroImageUrl) ? article.heroImageUrl : undefined,
     _status: status,
