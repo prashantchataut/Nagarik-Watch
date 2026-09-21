@@ -260,8 +260,8 @@ function Embed({
           </span>
           <span className="text-caption text-ink-soft" lang={lang}>
             {locale === 'en'
-              ? 'Embed not loaded (data saver on) — open it at the source'
-              : 'डाटा बचत सक्रिय छ — भिडियो लोड गरिएको छैन, स्रोतमा खोल्नुहोस्'}
+              ? 'Embed not loaded (data saver on). Open it at the source.'
+              : 'डाटा बचत सक्रिय छ, भिडियो लोड गरिएको छैन। स्रोतमा खोल्नुहोस्।'}
           </span>
         </a>
         {block.caption && (
