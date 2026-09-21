@@ -5,6 +5,7 @@ import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { NewsletterInline } from '@/components/NewsletterInline'
 import { listNewsletterIssues } from '@/lib/newsletter-admin'
 import { SITE_URL } from '@/lib/site'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export const dynamic = 'force-static'
 
@@ -41,9 +42,7 @@ export default async function NewsletterArchivePage({
 }) {
   const locale = asLocale((await params).locale)
   const en = locale === 'en'
-  const issues = (await listNewsletterIssues().catch(() => [])).filter(
-    (issue) => issue.status === 'sent',
-  )
+  const issues = (await orEmpty(listNewsletterIssues())).filter((issue) => issue.status === 'sent')
 
   return (
     <div className="mx-auto max-w-page px-4 pb-16 pt-10">
@@ -73,10 +72,15 @@ export default async function NewsletterArchivePage({
                 <p className="text-caption font-bold text-brand-strong" lang={en ? 'en' : 'ne'}>
                   {en ? 'What each edition carries' : 'हरेक संस्करणमा के आउँछ'}
                 </p>
-                <ul className="mt-2 grid gap-1.5 text-meta leading-relaxed text-ink-soft" lang={en ? 'en' : 'ne'}>
+                <ul
+                  className="mt-2 grid gap-1.5 text-meta leading-relaxed text-ink-soft"
+                  lang={en ? 'en' : 'ne'}
+                >
                   {EDITION_SECTIONS[en ? 'en' : 'ne'].map((item) => (
                     <li key={item} className="grid grid-cols-[1rem_1fr] gap-2">
-                      <span className="font-bold text-brand" aria-hidden="true">·</span>
+                      <span className="font-bold text-brand" aria-hidden="true">
+                        ·
+                      </span>
                       <span>{item}</span>
                     </li>
                   ))}

@@ -1,11 +1,12 @@
 import { getAuthors } from '@/lib/content'
 import { PUBLICATION, SITE_URL, isPublicPublicationValue } from '@/lib/site'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export const dynamic = 'force-static'
 export const revalidate = 3600
 
 export async function GET() {
-  const authors = await getAuthors().catch(() => [])
+  const authors = await orEmpty(getAuthors())
   const lines = [
     '/* TEAM */',
     `Publisher: ${PUBLICATION.publisherName}`,

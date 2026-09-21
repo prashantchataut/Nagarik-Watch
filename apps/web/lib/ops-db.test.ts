@@ -1,27 +1,24 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { shouldApplyLivePathDdl } from './ops-db'
 
+// `process.env.NODE_ENV` is readonly to TypeScript, and hand-rolled
+// save/restore leaks into sibling tests when an assertion throws.
+// `vi.stubEnv` types cleanly and unwinds in afterEach either way.
 describe('operational schema bootstrap', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
   it('skips live-path DDL in production (migrations must be pre-applied)', () => {
-    const previous = process.env.NODE_ENV
-    const previousPhase = process.env.NEXT_PHASE
-    const previousE2e = process.env.E2E_TEST
-    process.env.NODE_ENV = 'production'
-    delete process.env.NEXT_PHASE
-    delete process.env.E2E_TEST
-    delete process.env.E2E_NEWSROOM
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.stubEnv('NEXT_PHASE', undefined)
+    vi.stubEnv('E2E_TEST', undefined)
+    vi.stubEnv('E2E_NEWSROOM', undefined)
     expect(shouldApplyLivePathDdl()).toBe(false)
-    process.env.NODE_ENV = previous
-    if (previousPhase === undefined) delete process.env.NEXT_PHASE
-    else process.env.NEXT_PHASE = previousPhase
-    if (previousE2e === undefined) delete process.env.E2E_TEST
-    else process.env.E2E_TEST = previousE2e
   })
 
   it('allows development bootstrap DDL', () => {
-    const previous = process.env.NODE_ENV
-    process.env.NODE_ENV = 'development'
+    vi.stubEnv('NODE_ENV', 'development')
     expect(shouldApplyLivePathDdl()).toBe(true)
-    process.env.NODE_ENV = previous
   })
 })

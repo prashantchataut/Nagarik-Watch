@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { enforceRateLimit } from '@/lib/rate-limit'
 import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canEdit, canModerateComments } from '@/lib/admin-roles'
@@ -11,6 +12,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (!isTrustedWriteRequest(request)) {
     return NextResponse.json({ error: 'Cross-site request rejected.' }, { status: 403 })
   }
+
+  // Session-gated; the cap bounds damage from a hijacked desk session.
+  const limited = await enforceRateLimit(request, 'admin-submission-status', 40, 60_000)
+  if (limited) return limited
 
   const session = await requireNewsroomSession()
   if (!canEdit(session.newsroomRole) && !canModerateComments(session.newsroomRole)) {

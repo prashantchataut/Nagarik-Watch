@@ -3,6 +3,7 @@ import { requireNewsroomSession } from '@/lib/auth/session'
 import { SITE_URL } from '@/lib/site'
 import { AdminPageHeader, AdminCard, OpsCheckBadge } from '@/components/admin/primitives'
 import { sampleSyndicationReadiness } from '@/lib/syndication/readiness'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export const metadata: Metadata = { title: 'एसइओ', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
@@ -16,7 +17,7 @@ export default async function SeoPage() {
     ['RSS', `${SITE_URL}/rss.xml`],
     ['Robots', `${SITE_URL}/robots.txt`],
   ] as const
-  const samples = await sampleSyndicationReadiness(3).catch(() => [])
+  const samples = await orEmpty(sampleSyndicationReadiness(3))
   return (
     <div>
       <AdminPageHeader subtitle="क्यानोनिकल, साइटम्याप र सिन्डिकेसन तयारी" />

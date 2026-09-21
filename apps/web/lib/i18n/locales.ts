@@ -52,7 +52,7 @@ export function localizeHref(locale: Locale, path: string): string {
   const prefix = localePrefix(locale)
   if (path === '/') return prefix ? `${prefix}/` : '/'
   const normalized = path.startsWith('/') ? path : `/${path}`
-  let href = `${prefix}${normalized}`
+  const href = `${prefix}${normalized}`
   // Keep query/hash intact; otherwise match trailingSlash static export.
   const hashIdx = href.indexOf('#')
   const queryIdx = href.indexOf('?')

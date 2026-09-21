@@ -24,6 +24,9 @@ export default async function AdminDeskLayout({ children }: { children: ReactNod
         <p className="mt-4 text-body text-ink-soft">
           Set ENABLE_WEB_ADMIN_SCAFFOLD=true to enable protected newsroom routes.
         </p>
+        {/* Full navigation on purpose: the scaffold is disabled, so this route
+            group's client bundle should not be kept alive across the jump. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/admin/login"
           className="mt-7 inline-flex min-h-11 items-center justify-center rounded-sm bg-brand px-5 font-semibold text-paper"

@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { adToBs, bsToAd, formatBsFull, preetiToUnicode, unicodeToPreeti } from '@nagarikwatch/db'
+import { useClientState } from '@/lib/browser/use-client-state'
 
 type ForexRate = {
   iso3: string
@@ -95,14 +96,17 @@ function PrimaryButton({
   )
 }
 
+/** The browser's current date. Server-rendered markup must not contain it. */
+function today(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
 export function DateConverterTool({ locale }: { locale: Locale }) {
   const en = locale === 'en'
-  const [ad, setAd] = useState('')
+  const [ad, setAd] = useClientState(today, '')
   const [year, setYear] = useState('2083')
   const [month, setMonth] = useState('1')
   const [day, setDay] = useState('1')
-
-  useEffect(() => setAd(new Date().toISOString().slice(0, 10)), [])
 
   const bs = useMemo(() => {
     if (!ad) return ''
@@ -312,14 +316,15 @@ export function CurrencyConverterTool({
   source?: string
 }) {
   const en = locale === 'en'
-  const [iso, setIso] = useState('USD')
+  const [chosenIso, setIso] = useState('USD')
   const [amount, setAmount] = useState('100')
   const [direction, setDirection] = useState<'foreign-to-npr' | 'npr-to-foreign'>('foreign-to-npr')
+  // A refreshed rate table can drop the selected currency; fall back to the
+  // first published rate rather than rendering a stale selection.
+  const iso = rates.some((item) => item.iso3 === chosenIso)
+    ? chosenIso
+    : (rates[0]?.iso3 ?? chosenIso)
   const rate = rates.find((item) => item.iso3 === iso) ?? rates[0]
-
-  useEffect(() => {
-    if (rates.length && !rates.some((item) => item.iso3 === iso)) setIso(rates[0]!.iso3)
-  }, [rates, iso])
 
   const value = useMemo(() => {
     if (!rate) return ''
@@ -407,14 +412,12 @@ export function CurrencyConverterTool({
 export function AgeCalculatorTool({ locale }: { locale: Locale }) {
   const en = locale === 'en'
   const [birth, setBirth] = useState('')
-  const [today, setToday] = useState('')
-
-  useEffect(() => setToday(new Date().toISOString().slice(0, 10)), [])
+  const [asOf, setAsOf] = useClientState(today, '')
 
   const age = useMemo(() => {
-    if (!birth || !today) return null
+    if (!birth || !asOf) return null
     const start = new Date(`${birth}T00:00:00`)
-    const end = new Date(`${today}T00:00:00`)
+    const end = new Date(`${asOf}T00:00:00`)
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start > end) return null
 
     let years = end.getFullYear() - start.getFullYear()
@@ -429,7 +432,7 @@ export function AgeCalculatorTool({ locale }: { locale: Locale }) {
       months += 12
     }
     return { years, months, days }
-  }, [birth, today])
+  }, [birth, asOf])
 
   return (
     <ToolWorkspace
@@ -456,8 +459,8 @@ export function AgeCalculatorTool({ locale }: { locale: Locale }) {
               <input
                 type="date"
                 className={fieldInputClass}
-                value={today}
-                onChange={(event) => setToday(event.target.value)}
+                value={asOf}
+                onChange={(event) => setAsOf(event.target.value)}
               />
             </Field>
           </div>
@@ -509,15 +512,14 @@ export function UnitConverterTool({ locale }: { locale: Locale }) {
   const en = locale === 'en'
   const [group, setGroup] = useState<UnitGroup>('length')
   const keys = Object.keys(unitGroups[group].units)
-  const [from, setFrom] = useState('metre')
-  const [to, setTo] = useState('kilometre')
+  // Units belong to a group, so the selection is stored with the group it was
+  // made in; switching groups falls back to that group's first two units.
+  const [picked, setPicked] = useState<{ group: UnitGroup; from: string; to: string } | null>(null)
+  const from = picked?.group === group ? picked.from : keys[0]!
+  const to = picked?.group === group ? picked.to : keys[1]!
+  const setFrom = (next: string) => setPicked({ group, from: next, to })
+  const setTo = (next: string) => setPicked({ group, from, to: next })
   const [amount, setAmount] = useState('1')
-
-  useEffect(() => {
-    const next = Object.keys(unitGroups[group].units)
-    setFrom(next[0]!)
-    setTo(next[1]!)
-  }, [group])
 
   const result = useMemo(() => {
     const number = Number(amount)

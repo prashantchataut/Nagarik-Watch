@@ -18,6 +18,7 @@ import {
   isPayloadSourceMisconfigured,
   payloadAdminUrl,
 } from '@/lib/content/payload-admin-client'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export const dynamic = 'force-dynamic'
 
@@ -77,7 +78,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
       ),
       safeAdminLoad('edit-tags', () => getTags(), []),
       safeAdminLoad('edit-authors', () => getAuthors(), []),
-      listMediaItems({ limit: 60 }).catch(() => []),
+      orEmpty(listMediaItems({ limit: 60 })),
       safeAdminLoad('edit-article', () => findArticleForAdmin(id), null),
     ])
   const loadError = firstAdminLoadError(categoriesResult, tagsResult, authorsResult, articleResult)

@@ -14,6 +14,7 @@ import {
   UTILITY_TOOL_SLUGS,
 } from '@/lib/site'
 import { newsSitemapPriority } from '@/lib/algorithms/product/seo-dist'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 /**
  * Dynamic sitemap. Emits one <url> per locale (ne at root, en under /en) for every article,
@@ -197,9 +198,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Live blogs. Scheduled blogs are not public yet, so only live/closed are advertised.
   // A store read failure degrades to omitting them, never to a broken sitemap.
-  const liveBlogs = (await listLiveBlogs().catch(() => [])).filter(
-    (blog) => blog.status !== 'scheduled',
-  )
+  const liveBlogs = (await orEmpty(listLiveBlogs())).filter((blog) => blog.status !== 'scheduled')
   for (const blog of liveBlogs) {
     for (const locale of LOCALES) {
       entries.push({
@@ -218,9 +217,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Newsletter issues. Only sent issues have a public archive page.
-  const issues = (await listNewsletterIssues().catch(() => [])).filter(
-    (issue) => issue.status === 'sent',
-  )
+  const issues = (await orEmpty(listNewsletterIssues())).filter((issue) => issue.status === 'sent')
   for (const issue of issues) {
     for (const locale of LOCALES) {
       entries.push({

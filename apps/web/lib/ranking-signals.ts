@@ -7,6 +7,7 @@ import {
   getTrendingSamples,
 } from '@/lib/engagement/store'
 import { getRankingEventStats } from '@/lib/engagement/ranking-events'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export type StoryEngagementIndex = {
   bySlug: Map<
@@ -63,10 +64,10 @@ export async function buildStoryEngagementIndex(
   }
 
   const [samples, mostRead, ranking, bookmarks] = await Promise.all([
-    getTrendingSamples(windowMinutes).catch(() => []),
-    getMostReadStats(7, 80).catch(() => []),
-    getRankingEventStats(windowMinutes).catch(() => []),
-    getBookmarkVelocityStats(windowMinutes, 80).catch(() => []),
+    orEmpty(getTrendingSamples(windowMinutes)),
+    orEmpty(getMostReadStats(7, 80)),
+    orEmpty(getRankingEventStats(windowMinutes)),
+    orEmpty(getBookmarkVelocityStats(windowMinutes, 80)),
   ])
 
   const now = Date.now()

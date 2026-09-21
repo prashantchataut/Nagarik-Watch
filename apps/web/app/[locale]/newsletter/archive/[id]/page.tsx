@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { listNewsletterIssues } from '@/lib/newsletter-admin'
 import { SITE_URL } from '@/lib/site'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export function generateStaticParams() {
   return staticNewsletterIssueParams()
@@ -19,7 +20,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale: raw, id } = await params
   const locale = asLocale(raw)
-  const issue = (await listNewsletterIssues().catch(() => [])).find(
+  const issue = (await orEmpty(listNewsletterIssues())).find(
     (item) => item.id === id && item.status === 'sent',
   )
   if (!issue) return {}
@@ -39,7 +40,7 @@ export default async function NewsletterIssuePage({
   const { locale: raw, id } = await params
   const locale = asLocale(raw)
   const en = locale === 'en'
-  const issue = (await listNewsletterIssues().catch(() => [])).find(
+  const issue = (await orEmpty(listNewsletterIssues())).find(
     (item) => item.id === id && item.status === 'sent',
   )
   if (!issue) notFound()

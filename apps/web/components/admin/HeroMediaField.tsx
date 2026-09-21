@@ -159,7 +159,6 @@ export function HeroMediaField({ url, alt, caption, credit, library, onChange }:
                     className="group relative aspect-video w-full overflow-hidden rounded border border-rule bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                     title={item.alt}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={item.url}
                       alt=""

@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import { computeStreak, streakRisk, type StreakSummary } from '@/lib/reader/streaks'
 import type { ReadingHistoryRecord } from '@/lib/reader/state'
+import { useHydrated } from '@/lib/browser/use-client-state'
 
 export function ReadingStreakBadge({
   locale,
@@ -11,14 +12,15 @@ export function ReadingStreakBadge({
   locale: 'ne' | 'en'
   history: ReadingHistoryRecord[]
 }) {
-  const [summary, setSummary] = useState<StreakSummary | null>(null)
-  const [riskHours, setRiskHours] = useState(0)
-
-  useEffect(() => {
-    const next = computeStreak(history)
-    setSummary(next)
-    setRiskHours(streakRisk(next).hoursRemaining)
-  }, [history])
+  // `computeStreak` and `streakRisk` both key off the reader's local calendar
+  // day, which the server does not know — stay blank until hydration rather
+  // than prerendering a streak computed in UTC.
+  const hydrated = useHydrated()
+  const summary = useMemo<StreakSummary | null>(
+    () => (hydrated ? computeStreak(history) : null),
+    [hydrated, history],
+  )
+  const riskHours = summary ? streakRisk(summary).hoursRemaining : 0
 
   if (!summary || summary.current <= 0) return null
 

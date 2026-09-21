@@ -12,6 +12,9 @@ import {
  * receives an explicit /ne segment so one typed route tree can render both languages.
  * Admin requests also receive a stable pathname header for the protected admin layout.
  *
+ * Next 16 renamed the `middleware` file convention to `proxy`; the export name and
+ * the file name must match, the rest of the contract is unchanged.
+ *
  * पात्रो subdomain (`patro.*`, `calendar.*`, or NEXT_PUBLIC_CALENDAR_HOST): bare `/`
  * and `/en` map to the पात्रो desk so the utility product can live on its own host.
  * When the env host is set, apex `/patro` permanently redirects to that subdomain.
@@ -78,7 +81,7 @@ function withCalendarRoot(pathname: string): string {
   return pathname
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const host = request.headers.get('host')
   const calendarHost = isCalendarHostname(host)
   const calendarOrigin = getCalendarOrigin()

@@ -2,7 +2,7 @@
  * Report or delete expired operational analytics rows.
  * Dry-run is the default; pass --execute to commit deletions.
  */
-import { loadOpsMigrationEnv, withCliMigrationClient } from '../lib/ops-migrations-runner'
+import { loadOpsMigrationEnv, withCliMigrationClient } from '../lib/ops-migrations-cli'
 
 type RetentionTarget = {
   table: string

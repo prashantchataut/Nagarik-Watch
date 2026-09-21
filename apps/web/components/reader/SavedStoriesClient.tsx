@@ -8,6 +8,7 @@ import { hasLivePublicApi } from '@/lib/runtime/public-api'
 import { rankSavedForLater, savedEmptyState } from '@/lib/reader/saves'
 import { localizeHref } from '@/lib/i18n/locales'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
+import { useClientState, useHydrated } from '@/lib/browser/use-client-state'
 
 type SavedItem = {
   slug: string
@@ -61,51 +62,52 @@ function mergeItems(local: SavedItem[], account: SavedItem[]): SavedItem[] {
 
 export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
   const ne = locale === 'ne'
-  const [stories, setStories] = useState<SavedItem[]>([])
-  const [ready, setReady] = useState(false)
+  const [stories, setStories] = useClientState<SavedItem[]>(localItems, [])
   const [syncError, setSyncError] = useState(false)
   const [pending, startTransition] = useTransition()
 
+  // Device bookmarks render immediately; the account list merges in when the
+  // API answers. `ready` only gates the empty state, so it waits for the merge.
+  const liveApi = hasLivePublicApi()
+  const hydrated = useHydrated()
+  const [remoteDone, setRemoteDone] = useState(!liveApi)
+  const ready = hydrated && remoteDone
+
   useEffect(() => {
+    if (!liveApi) return
     let cancelled = false
-    const local = localItems()
-    setStories(local)
-    if (!hasLivePublicApi()) {
-      setReady(true)
-      return
-    }
     const fingerprint = getOrCreateReaderId()
-    if (!fingerprint) {
-      setReady(true)
-      return
-    }
-    fetch(`/api/bookmarks?fingerprint=${encodeURIComponent(fingerprint)}`, { cache: 'no-store' })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`Bookmark list failed: ${response.status}`)
-        return response.json() as Promise<{ bookmarks?: ApiBookmark[] }>
-      })
-      .then((body) => {
-        if (cancelled) return
-        const account = (body.bookmarks ?? []).map<SavedItem>((bookmark) => ({
-          slug: bookmark.articleSlug,
-          category: bookmark.articleCategory,
-          titleNe: bookmark.articleTitleNe,
-          savedAt: bookmark.createdAt,
-          source: 'account',
-        }))
-        setStories(mergeItems(local, account))
-        setSyncError(false)
-      })
-      .catch(() => {
-        if (!cancelled) setSyncError(true)
-      })
-      .finally(() => {
-        if (!cancelled) setReady(true)
-      })
+    const load = !fingerprint
+      ? Promise.resolve()
+      : fetch(`/api/bookmarks?fingerprint=${encodeURIComponent(fingerprint)}`, {
+          cache: 'no-store',
+        })
+          .then(async (response) => {
+            if (!response.ok) throw new Error(`Bookmark list failed: ${response.status}`)
+            return response.json() as Promise<{ bookmarks?: ApiBookmark[] }>
+          })
+          .then((body) => {
+            if (cancelled) return
+            const account = (body.bookmarks ?? []).map<SavedItem>((bookmark) => ({
+              slug: bookmark.articleSlug,
+              category: bookmark.articleCategory,
+              titleNe: bookmark.articleTitleNe,
+              savedAt: bookmark.createdAt,
+              source: 'account',
+            }))
+            setStories((current) => mergeItems(current, account))
+            setSyncError(false)
+          })
+          .catch(() => {
+            if (!cancelled) setSyncError(true)
+          })
+    void load.finally(() => {
+      if (!cancelled) setRemoteDone(true)
+    })
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [liveApi, setStories])
 
   const countLabel = useMemo(() => {
     if (!ready) return ne ? 'लोड हुँदै…' : 'Loading…'
@@ -177,7 +179,10 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
   }
 
   return (
-    <main className="saved-library mx-auto max-w-page px-3 py-5 sm:px-4 sm:py-7" lang={ne ? 'ne' : 'en'}>
+    <main
+      className="saved-library mx-auto max-w-page px-3 py-5 sm:px-4 sm:py-7"
+      lang={ne ? 'ne' : 'en'}
+    >
       <HubIndexHeader
         title={ne ? 'सुरक्षित समाचार' : 'Saved stories'}
         lead={
@@ -240,8 +245,11 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
                 </span>
                 <div className="saved-library__story">
                   <p>
-                    {sourceLabel} · {new Date(story.savedAt).toLocaleDateString(ne ? 'ne-NP' : 'en-GB')}
-                    {story.readingMinutes ? ` · ${story.readingMinutes} ${ne ? 'मिनेट' : 'min'}` : ''}
+                    {sourceLabel} ·{' '}
+                    {new Date(story.savedAt).toLocaleDateString(ne ? 'ne-NP' : 'en-GB')}
+                    {story.readingMinutes
+                      ? ` · ${story.readingMinutes} ${ne ? 'मिनेट' : 'min'}`
+                      : ''}
                   </p>
                   <Link href={href}>{title}</Link>
                 </div>
@@ -259,7 +267,9 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
         </ol>
       ) : (
         <section className="saved-library__empty" aria-live="polite">
-          <p>{ready ? (ne ? 'सूची खाली छ' : 'Your list is empty') : ne ? 'लोड हुँदै…' : 'Loading…'}</p>
+          <p>
+            {ready ? (ne ? 'सूची खाली छ' : 'Your list is empty') : ne ? 'लोड हुँदै…' : 'Loading…'}
+          </p>
           <h2>
             {ready
               ? ne

@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getSession } from '@/lib/auth/session'
 import { checkEntitlement, listReplicaPages } from '@/lib/epaper'
+import type { ReplicaPage } from '@/lib/epaper'
 import { LiveDeskShell } from '@/components/public/LiveDeskShell'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 import { staticEpaperDateParams } from '@/lib/static-export-params'
@@ -46,7 +47,8 @@ export default async function EpaperViewerPage({
   const edition = editions.find((item) => item.date === date)
   if (!edition) notFound()
 
-  const visiblePages = []
+  // `const x = []` is `never[]`; only `let`/`var` get an evolving array type.
+  const visiblePages: ReplicaPage[] = []
   for (const page of edition.pages) {
     const check = await checkEntitlement(session, page)
     if (check.allowed) visiblePages.push(page)

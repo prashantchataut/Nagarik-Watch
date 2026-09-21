@@ -21,6 +21,7 @@ import { buildStoryEngagementIndex } from '@/lib/ranking-signals'
 import { firstAdminLoadError, safeAdminLoad } from '@/lib/admin/safe-load'
 import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/CmsCanonicalBanner'
 import { AdminButton, AdminCard, AdminMetric } from '@/components/admin/primitives'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -44,7 +45,7 @@ export default async function DashboardPage() {
       source: 'payload' as const,
     }),
     safeAdminLoad('dashboard-categories', () => getNavCategories(), []),
-    listPendingJournalistReviews().catch(() => []),
+    orEmpty(listPendingJournalistReviews()),
   ])
 
   const snapshot = snapshotResult.value
@@ -302,9 +303,9 @@ export default async function DashboardPage() {
 
 async function DashboardSignals() {
   const [mostRead, trendingSamples, adSummaries, engagement] = await Promise.all([
-    getMostReadStats(7, 8).catch(() => []),
-    getTrendingSamples(120).catch(() => []),
-    getAdEventSummary().catch(() => []),
+    orEmpty(getMostReadStats(7, 8)),
+    orEmpty(getTrendingSamples(120)),
+    orEmpty(getAdEventSummary()),
     buildStoryEngagementIndex(120).catch(() => null),
   ])
   const adImpressions = adSummaries.reduce((sum, row) => sum + row.impressions, 0)

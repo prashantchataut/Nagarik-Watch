@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Category, Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
@@ -14,6 +14,7 @@ import { SearchLauncher } from '@/components/search/SearchLauncher'
 import type { AccountKind } from '@/lib/account-identity'
 import { IconBookmark, IconCalendar, IconUser } from '@/components/icons/PortalIcons'
 import { patroEntryHref } from '@/lib/calendar-host'
+import { useClientValue } from '@/lib/browser/use-client-state'
 
 type MastheadAccount = {
   kind: AccountKind
@@ -44,7 +45,12 @@ function navLinkClass(active: boolean) {
     : 'inline-flex min-h-12 items-center gap-1.5 whitespace-nowrap border-b-[3px] border-transparent px-3 text-caption font-bold text-paper/90 transition-colors duration-fast ease-out-quint hover:bg-paper/10 hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-paper sm:text-body'
 }
 
-export function Masthead({ locale, navCategories, account = null, reference = null }: MastheadProps) {
+export function Masthead({
+  locale,
+  navCategories,
+  account = null,
+  reference = null,
+}: MastheadProps) {
   const dict = getDictionary(locale)
   const pathname = useStablePathname()
   const en = locale === 'en'
@@ -58,11 +64,9 @@ export function Masthead({ locale, navCategories, account = null, reference = nu
   const toggleHref = pathname ? swapLocale(pathname) : localizeHref(en ? 'ne' : 'en', '/')
   const primaryCategories = navCategories.slice(0, PRIMARY_NAV_SLOTS)
   const overflowCategories = navCategories.slice(PRIMARY_NAV_SLOTS)
-  const [dateLabel, setDateLabel] = useState('')
-
-  useEffect(() => {
-    setDateLabel(formatDate(new Date().toISOString(), locale))
-  }, [locale])
+  // The masthead date comes from the reader's clock, so it stays out of the
+  // prerendered HTML — a cached page must not claim yesterday's date.
+  const dateLabel = useClientValue(() => formatDate(new Date().toISOString(), locale), '', [locale])
 
   const accountLabel = account
     ? account.kind === 'reader'
@@ -102,7 +106,11 @@ export function Masthead({ locale, navCategories, account = null, reference = nu
 
           <div className="ml-auto flex min-w-0 items-center justify-end gap-1">
             <div className="mr-2 hidden items-center gap-3 border-r border-chrome-rule pr-3 xl:flex">
-              <span className="whitespace-nowrap text-caption font-bold text-on-chrome" lang={lang} suppressHydrationWarning>
+              <span
+                className="whitespace-nowrap text-caption font-bold text-on-chrome"
+                lang={lang}
+                suppressHydrationWarning
+              >
                 {dateLabel || '\u00a0'}
               </span>
               {reference ? <span className="min-w-0">{reference}</span> : null}
@@ -110,7 +118,12 @@ export function Masthead({ locale, navCategories, account = null, reference = nu
             <Link href={unicodeHref} className={`${factAction} hidden 2xl:inline-flex`} lang={lang}>
               {en ? 'Unicode' : 'युनिकोड'}
             </Link>
-            <Link href={savedHref} className={iconAction} title={dict.navSaved} aria-label={dict.navSaved}>
+            <Link
+              href={savedHref}
+              className={iconAction}
+              title={dict.navSaved}
+              aria-label={dict.navSaved}
+            >
               <IconBookmark width={18} height={18} />
             </Link>
             <Link href={accountHref} className={`${factAction} hidden xl:inline-flex`} lang={lang}>
@@ -172,12 +185,20 @@ export function Masthead({ locale, navCategories, account = null, reference = nu
               )
             })}
             <li className="hidden md:block">
-              <NavLink href={localizeHref(locale, '/province')} active={pathname.includes('/province')} lang={lang}>
+              <NavLink
+                href={localizeHref(locale, '/province')}
+                active={pathname.includes('/province')}
+                lang={lang}
+              >
                 {en ? 'Provinces' : 'प्रदेश'}
               </NavLink>
             </li>
             <li className="hidden xl:block">
-              <NavLink href={localizeHref(locale, '/fact-check')} active={pathname.includes('/fact-check')} lang={lang}>
+              <NavLink
+                href={localizeHref(locale, '/fact-check')}
+                active={pathname.includes('/fact-check')}
+                lang={lang}
+              >
                 {en ? 'Fact check' : 'तथ्य-जाँच'}
               </NavLink>
             </li>
@@ -205,24 +226,67 @@ export function Masthead({ locale, navCategories, account = null, reference = nu
 
 function HomeGlyph() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true" focusable="false">
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path d="M4 11.5 12 4l8 7.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M7 10.5V20h10v-9.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
 
-function NavLink({ href, active, lang, children }: { href: string; active?: boolean; lang?: string; children: ReactNode }) {
+function NavLink({
+  href,
+  active,
+  lang,
+  children,
+}: {
+  href: string
+  active?: boolean
+  lang?: string
+  children: ReactNode
+}) {
   return (
-    <Link href={href} lang={lang} aria-current={active ? 'page' : undefined} className={navLinkClass(Boolean(active))}>
+    <Link
+      href={href}
+      lang={lang}
+      aria-current={active ? 'page' : undefined}
+      className={navLinkClass(Boolean(active))}
+    >
       {children}
     </Link>
   )
 }
 
-function NavMoreMenu({ locale, categories, pathname }: { locale: Locale; categories: Category[]; pathname: string }) {
+function NavMoreMenu({
+  locale,
+  categories,
+  pathname,
+}: {
+  locale: Locale
+  categories: Category[]
+  pathname: string
+}) {
   const en = locale === 'en'
-  const [open, setOpen] = useState(false)
+  // The menu is remembered against the route it was opened on, so navigating
+  // closes it without an effect that resets state after the fact.
+  const [openFor, setOpenFor] = useState<string | null>(null)
+  const open = openFor !== null && openFor === pathname
+  const setOpen = useCallback(
+    (next: boolean | ((value: boolean) => boolean)) =>
+      setOpenFor((current) => {
+        const isOpen = current !== null && current === pathname
+        return (typeof next === 'function' ? next(isOpen) : next) ? pathname : null
+      }),
+    [pathname],
+  )
   const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -239,11 +303,12 @@ function NavMoreMenu({ locale, categories, pathname }: { locale: Locale; categor
       document.removeEventListener('keydown', onKey)
       document.removeEventListener('mousedown', onPointer)
     }
-  }, [open])
+  }, [open, setOpen])
 
-  useEffect(() => setOpen(false), [pathname])
-
-  const hrefs = categories.map((category) => ({ category, href: localizeHref(locale, `/${category.slug}`) }))
+  const hrefs = categories.map((category) => ({
+    category,
+    href: localizeHref(locale, `/${category.slug}`),
+  }))
   const activeInside = hrefs.some((entry) => pathsMatch(pathname, entry.href))
 
   return (

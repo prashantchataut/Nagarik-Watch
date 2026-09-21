@@ -90,12 +90,7 @@ export type StoredArticle = {
   editorPick?: boolean
   dataStory?: boolean
   factCheckStatus?:
-    | 'not_fact_check'
-    | 'in_review'
-    | 'verified'
-    | 'false'
-    | 'mixed'
-    | 'context_needed'
+    'not_fact_check' | 'in_review' | 'verified' | 'false' | 'mixed' | 'context_needed'
 }
 
 /** ADR-007: public English only when englishStatus is published (never titleEn presence alone). */
@@ -631,10 +626,10 @@ export async function getHomepageData(): Promise<{
     published.find((a) => a.isFeatured === 'lead' && placementActive(a)) ?? published[0] ?? null
   const leadId = lead?.id
 
-  let featured = published
+  const featured = published
     .filter((a) => a.isFeatured === 'featured' && a.id !== leadId && placementActive(a))
     .slice(0, 6)
-  let secondary = published
+  const secondary = published
     .filter((a) => a.isFeatured === 'secondary' && a.id !== leadId && placementActive(a))
     .slice(0, 8)
 

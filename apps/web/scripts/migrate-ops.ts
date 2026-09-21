@@ -5,9 +5,8 @@
 import {
   applyPendingOpsMigrationsWithClient,
   getOpsMigrationStatusWithClient,
-  loadOpsMigrationEnv,
-  withCliMigrationClient,
 } from '../lib/ops-migrations-runner'
+import { loadOpsMigrationEnv, withCliMigrationClient } from '../lib/ops-migrations-cli'
 
 async function main() {
   await loadOpsMigrationEnv()

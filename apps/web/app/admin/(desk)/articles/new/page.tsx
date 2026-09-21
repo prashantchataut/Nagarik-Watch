@@ -14,6 +14,7 @@ import {
   isPayloadSourceMisconfigured,
   payloadAdminUrl,
 } from '@/lib/content/payload-admin-client'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export const metadata: Metadata = {
   title: 'नयाँ समाचार',
@@ -59,7 +60,7 @@ export default async function NewArticlePage() {
     ),
     safeAdminLoad('new-tags', () => getTags(), []),
     safeAdminLoad('new-authors', () => getAuthors(), []),
-    listMediaItems({ limit: 60 }).catch(() => []),
+    orEmpty(listMediaItems({ limit: 60 })),
   ])
   const loadError = firstAdminLoadError(categoriesResult, tagsResult, authorsResult)
 

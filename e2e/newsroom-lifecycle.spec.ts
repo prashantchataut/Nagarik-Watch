@@ -6,8 +6,6 @@ const REPORTER = { email: 'reporter@local.test', password: 'local-reporter-only'
 const EDITOR = { email: 'editor@local.test', password: 'local-editor-only' }
 const PUBLISHER = { email: 'publisher@local.test', password: 'local-publisher-only' }
 
-const BASE = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3101'
-
 async function signInWithApi(
   page: import('@playwright/test').Page,
   creds: { email: string; password: string },

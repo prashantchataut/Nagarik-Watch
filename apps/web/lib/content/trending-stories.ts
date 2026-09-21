@@ -1,6 +1,7 @@
 import type { StoryCardData } from '@nagarikwatch/db'
 import { detectTrending } from '@nagarikwatch/db'
 import { getTrendingSamples } from '@/lib/engagement/store'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 /**
  * Resolve homepage trending rail from first-party velocity samples.
@@ -16,7 +17,7 @@ export async function resolveTrendingStories(options: {
   const minLive = options.minLive ?? 2
   const bySlug = new Map(options.catalog.map((story) => [story.slug, story]))
 
-  const samples = await getTrendingSamples(options.windowMinutes ?? 120).catch(() => [])
+  const samples = await orEmpty(getTrendingSamples(options.windowMinutes ?? 120))
   // Samples key articleId by slug; align story.id so detectTrending can join.
   const keyed = options.catalog.map((story) => ({ ...story, id: story.slug }))
   const ranked = detectTrending(keyed, samples)

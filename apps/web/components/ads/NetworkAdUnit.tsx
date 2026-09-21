@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { hasAdvertisingConsent } from '@/lib/reader/consent'
+import { useClientValue } from '@/lib/browser/use-client-state'
 
 type Googletag = {
   cmd: Array<() => void>
@@ -42,12 +43,8 @@ export function NetworkAdUnit({
   const gamRef = useRef<HTMLDivElement>(null)
   const adsenseRef = useRef<HTMLModElement>(null)
   const pushed = useRef(false)
-  const [consentAds, setConsentAds] = useState(false)
+  const consentAds = useClientValue(hasAdvertisingConsent, false)
   const kind = network.trim().toLowerCase()
-
-  useEffect(() => {
-    setConsentAds(hasAdvertisingConsent())
-  }, [])
 
   useEffect(() => {
     if (!consentAds || kind !== 'gam' || !gamPath?.trim() || !gamRef.current) return

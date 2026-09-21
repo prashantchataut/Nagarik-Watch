@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { enforceRateLimit } from '@/lib/rate-limit'
 import { SITE_URL } from '@/lib/site'
 import { confirmSubscriber, getPendingSubscriber, removePendingSubscriber } from '../store'
 
@@ -21,6 +22,10 @@ const TOKEN_TTL_MS = 24 * 60 * 60 * 1000
  *   4. Redirect to the locale-aware confirmation page.
  */
 export async function GET(request: NextRequest) {
+  // Confirmation tokens are bearer credentials; cap guessing attempts.
+  const limited = await enforceRateLimit(request, 'newsletter-confirm', 10, 60_000)
+  if (limited) return limited
+
   const token = request.nextUrl.searchParams.get('token') ?? ''
   const pending = await getPendingSubscriber(token)
 

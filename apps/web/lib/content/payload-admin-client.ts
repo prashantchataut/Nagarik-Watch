@@ -1,16 +1,32 @@
 import 'server-only'
 import type { ArticleBlock, WorkflowStage } from '@nagarikwatch/db'
-import {
-  canActorTransition,
-  isValidHttpUrl,
-  reporterMayEditDraft,
-} from '@nagarikwatch/db'
+import { canActorTransition, isValidHttpUrl, reporterMayEditDraft } from '@nagarikwatch/db'
 
+function payloadOriginConfigured(): boolean {
+  return Boolean(
+    process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim() || process.env.PAYLOAD_ADMIN_URL?.trim(),
+  )
+}
+
+/**
+ * Which store the reader is served from.
+ *
+ * An explicit `CONTENT_SOURCE` is always honoured, including
+ * `payload`-without-an-origin, which `resolveContentSource()` then refuses
+ * rather than silently degrading to the desk store — an operator who declared
+ * Payload must not be handed stale JSON.
+ *
+ * When nothing is declared, the default follows the configuration that exists:
+ * a Payload origin means Payload, no origin means the desk store. Defaulting
+ * unconditionally to `payload` made a zero-config `pnpm build` fail at
+ * prerender, which is the first thing a new contributor runs.
+ */
 export function declaredContentSource(): 'payload' | 'json' {
-  const raw = (
-    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'payload'
-  ).toLowerCase()
-  return raw === 'json' ? 'json' : 'payload'
+  const declared = (
+    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim()
+  )?.toLowerCase()
+  if (declared) return declared === 'json' ? 'json' : 'payload'
+  return payloadOriginConfigured() ? 'payload' : 'json'
 }
 
 export function isPayloadDeclared(): boolean {
@@ -21,9 +37,7 @@ export function isPayloadCanonical(): boolean {
   if (!isPayloadDeclared()) return false
   // Payload is canonical only with a configured origin; a missing origin is a
   // blocking configuration error unless CONTENT_SOURCE=json was explicitly chosen.
-  return Boolean(
-    process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim() || process.env.PAYLOAD_ADMIN_URL?.trim(),
-  )
+  return payloadOriginConfigured()
 }
 
 /**
@@ -406,9 +420,7 @@ export async function updatePayloadJournalistDraft(
   }
 
   const reporterEmail = input.reporterEmail.trim().toLowerCase()
-  const authorEmails = (live.authors ?? [])
-    .map((row) => authorEmail(row.author))
-    .filter(Boolean)
+  const authorEmails = (live.authors ?? []).map((row) => authorEmail(row.author)).filter(Boolean)
   if (authorEmails.length > 0 && !authorEmails.includes(reporterEmail)) {
     throw new PayloadJournalistEditBlockedError(
       'Only the assigned Payload author can update this journalist draft.',

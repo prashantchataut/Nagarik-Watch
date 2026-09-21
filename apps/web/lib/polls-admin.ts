@@ -10,6 +10,7 @@ import {
   type Queryable,
 } from '@/lib/ops-db'
 import { getPollVoteCounts } from '@/lib/engagement/store'
+import { dataPath } from '@/lib/fs/data-path'
 
 export type Poll = {
   id: string
@@ -31,7 +32,7 @@ type Row = {
   updated_at: Date | string
 }
 
-const LOCAL_FILE = path.resolve(process.cwd(), process.env.POLLS_STORE_PATH ?? '.data/polls.json')
+const LOCAL_FILE = dataPath(process.env.POLLS_STORE_PATH, 'polls.json')
 let localCache: Poll[] | null = null
 let localWrite: Promise<void> = Promise.resolve()
 

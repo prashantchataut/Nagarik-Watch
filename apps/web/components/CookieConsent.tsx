@@ -15,35 +15,49 @@ import {
   writeConsent,
 } from '@/lib/reader/consent'
 import { getAdModeClient } from '@/lib/ads-client'
+import { useClientValue, useHydrated } from '@/lib/browser/use-client-state'
 
 type PreferencesSource = 'banner' | 'settings'
+type Toggles = Pick<ConsentChoice, 'personalization' | 'analytics' | 'advertising'>
+
+const NO_CONSENT: Toggles = { personalization: false, analytics: false, advertising: false }
+
+function toggles(choice: ConsentChoice | null): Toggles {
+  if (!choice) return NO_CONSENT
+  return {
+    personalization: choice.personalization,
+    analytics: choice.analytics,
+    advertising: choice.advertising,
+  }
+}
 
 export function CookieConsent({ locale }: { locale: Locale }) {
-  const [bannerVisible, setBannerVisible] = useState(false)
+  // The stored choice is only legible in the browser, so the server renders no
+  // banner and no ticked boxes; both derive from it once hydration lands.
+  const hydrated = useHydrated()
+  const storedChoice = useClientValue<ConsentChoice | null>(readConsent, null)
+  const [bannerOverride, setBannerOverride] = useState<boolean | null>(null)
+  const [togglesOverride, setTogglesOverride] = useState<Toggles | null>(null)
+  const bannerVisible = bannerOverride ?? (hydrated && !storedChoice)
+  const current = togglesOverride ?? toggles(storedChoice)
+  const { personalization, analytics, advertising } = current
   const [preferencesOpen, setPreferencesOpen] = useState(false)
   const [preferencesSource, setPreferencesSource] = useState<PreferencesSource>('banner')
-  const [personalization, setPersonalization] = useState(false)
-  const [analytics, setAnalytics] = useState(false)
-  const [advertising, setAdvertising] = useState(false)
   const dialogId = useId()
   const titleId = useId()
   const descriptionId = useId()
   const lang = locale === 'en' ? 'en' : 'ne'
   const en = locale === 'en'
 
+  // Re-stamp the cookie so the server sees the choice this browser already
+  // holds. Idempotent, and deliberately not part of the render-phase read.
+  useEffect(() => {
+    if (storedChoice) ensureConsentCookie()
+  }, [storedChoice])
+
   useEffect(() => {
     function applyChoice(choice: ConsentChoice) {
-      setPersonalization(choice.personalization)
-      setAnalytics(choice.analytics)
-      setAdvertising(choice.advertising)
-    }
-
-    const choice = readConsent()
-    if (!choice) {
-      setBannerVisible(true)
-    } else {
-      ensureConsentCookie()
-      applyChoice(choice)
+      setTogglesOverride(toggles(choice))
     }
 
     function onOpen(event: Event) {
@@ -53,12 +67,12 @@ export function CookieConsent({ locale }: { locale: Locale }) {
 
       if (detail?.mode === 'banner') {
         setPreferencesOpen(false)
-        setBannerVisible(true)
+        setBannerOverride(true)
         return
       }
 
       setPreferencesSource(existing ? 'settings' : 'banner')
-      setBannerVisible(!existing)
+      setBannerOverride(!existing)
       setPreferencesOpen(true)
     }
 
@@ -75,9 +89,10 @@ export function CookieConsent({ locale }: { locale: Locale }) {
       decidedAt: new Date().toISOString(),
       version: CONSENT_POLICY_VERSION,
     })
+    setTogglesOverride(next)
     setPreferencesSource('settings')
     setPreferencesOpen(false)
-    setBannerVisible(false)
+    setBannerOverride(false)
   }
 
   function openPreferences() {
@@ -87,7 +102,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
 
   function closePreferences() {
     setPreferencesOpen(false)
-    setBannerVisible(preferencesSource === 'banner')
+    setBannerOverride(preferencesSource === 'banner')
   }
 
   return (
@@ -200,7 +215,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
               descEn="Saved stories, interests, continue reading"
               descNe="सुरक्षित लेख, रुचि, जारी पढाइ"
               checked={personalization}
-              onChange={setPersonalization}
+              onChange={(value) => setTogglesOverride({ ...current, personalization: value })}
             />
             <CategoryToggle
               locale={locale}
@@ -209,7 +224,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
               descEn="Privacy-friendly visit counts"
               descNe="गोपनीयता-मैत्री भिजिट गणना"
               checked={analytics}
-              onChange={setAnalytics}
+              onChange={(value) => setTogglesOverride({ ...current, analytics: value })}
             />
             <CategoryToggle
               locale={locale}
@@ -226,7 +241,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
                   : 'घरको विज्ञापन दृश्य/क्लिक मात्र'
               }
               checked={advertising}
-              onChange={setAdvertising}
+              onChange={(value) => setTogglesOverride({ ...current, advertising: value })}
             />
           </div>
 

@@ -15,11 +15,7 @@
 import type { AnalyticsEvent, NotificationPreference } from './types'
 
 export type NotificationKind =
-  | 'breaking'
-  | 'followed_topic'
-  | 'followed_author'
-  | 'daily_digest'
-  | 'marketing'
+  'breaking' | 'followed_topic' | 'followed_author' | 'daily_digest' | 'marketing'
 
 export type NotificationCandidate = {
   userId: string
@@ -87,7 +83,7 @@ export function scoreNotification(
   const ageMinutes = Math.max(0, (now.getTime() - eventTime) / 60_000)
   const freshness = Math.exp(-ageMinutes / 60)
 
-  let reason: ScoredNotification['reason'] =
+  const reason: ScoredNotification['reason'] =
     candidate.kind === 'breaking'
       ? 'breaking'
       : candidate.kind === 'daily_digest'

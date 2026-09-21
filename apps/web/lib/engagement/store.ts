@@ -12,6 +12,7 @@ import {
 import { getSharedPool } from '@/lib/pg-pool'
 import { shouldApplyLivePathDdl } from '@/lib/ops-db'
 import { getRankingShareSamples, getRankingAttentionSamples } from '@/lib/engagement/ranking-events'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 type BookmarkInput = {
   anonymousId: string
@@ -1293,19 +1294,19 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
       comments: 0,
       bookmarks: 1,
     }))
-  const shares: EngagementSample[] = (
-    await getRankingShareSamples(windowMinutes).catch(() => [])
-  ).map((item) => ({
-    articleId: item.articleSlug,
-    categorySlug: item.articleCategory,
-    at: item.at,
-    views: 0,
-    shares: 1,
-    comments: 0,
-    bookmarks: 0,
-  }))
+  const shares: EngagementSample[] = (await orEmpty(getRankingShareSamples(windowMinutes))).map(
+    (item) => ({
+      articleId: item.articleSlug,
+      categorySlug: item.articleCategory,
+      at: item.at,
+      views: 0,
+      shares: 1,
+      comments: 0,
+      bookmarks: 0,
+    }),
+  )
   const attention: EngagementSample[] = (
-    await getRankingAttentionSamples(windowMinutes).catch(() => [])
+    await orEmpty(getRankingAttentionSamples(windowMinutes))
   ).map((item) => ({
     articleId: item.articleSlug,
     categorySlug: item.articleCategory,

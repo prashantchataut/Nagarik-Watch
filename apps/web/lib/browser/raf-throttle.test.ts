@@ -8,9 +8,11 @@ describe('rafThrottle', () => {
   })
 
   it('coalesces multiple calls into one animation frame', () => {
-    let rafCb: FrameRequestCallback | null = null
+    // Collected in an array: a `let cb = null` assigned only inside the stub
+    // stays narrowed to `null` for control-flow analysis at the call site.
+    const frames: FrameRequestCallback[] = []
     vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
-      rafCb = cb
+      frames.push(cb)
       return 1
     })
     vi.stubGlobal('cancelAnimationFrame', () => undefined)
@@ -21,7 +23,8 @@ describe('rafThrottle', () => {
     throttled('b')
     throttled('c')
     expect(spy).not.toHaveBeenCalled()
-    rafCb?.(0)
+    expect(frames).toHaveLength(1)
+    frames[0]!(0)
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledWith('c')
   })

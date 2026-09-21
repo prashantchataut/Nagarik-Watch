@@ -3,6 +3,7 @@ import type { StoryCardData } from '@nagarikwatch/db'
 import { getStories } from '@/lib/content'
 import { getMostReadStats } from '@/lib/engagement/store'
 import { PROVINCES } from '@/lib/site'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export type ProvinceHeatRow = {
   slug: string
@@ -25,7 +26,7 @@ export async function resolveProvinceHeat(options?: {
     options?.catalog
       ? Promise.resolve({ items: options.catalog })
       : getStories({ locale: 'ne', perPage: 120 }),
-    getMostReadStats(options?.windowDays ?? 7, 120).catch(() => []),
+    orEmpty(getMostReadStats(options?.windowDays ?? 7, 120)),
   ])
 
   const readersBySlug = new Map(stats.map((row) => [row.articleSlug, row.uniqueReaders]))

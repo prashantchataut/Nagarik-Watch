@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import type { PublishedCalendarEvent, PublishedCalendarSchedule } from '@/lib/calendar-view'
 import { relativeTime } from '@/lib/live/format'
@@ -15,6 +15,7 @@ import {
   formatBsFull,
   toDevanagari,
 } from '@nagarikwatch/db'
+import { useClientValue, useHydrated } from '@/lib/browser/use-client-state'
 
 const WEEKDAY_NE = ['आइत', 'सोम', 'मंगल', 'बुध', 'बिहि', 'शुक्र', 'शनि']
 const WEEKDAY_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -67,17 +68,15 @@ export function NepaliCalendar({
   schedule: PublishedCalendarSchedule | null
 }) {
   const en = locale === 'en'
+  // `readTodayBs()` is pinned to Asia/Kathmandu, so the server and the browser
+  // normally agree; they can still straddle a Kathmandu midnight, so the
+  // browser re-reads and the "today" highlight waits for hydration.
   const seed = useMemo(() => readTodayBs(), [])
-  const [todayBs, setTodayBs] = useState<BsPoint>(seed)
-  const [mounted, setMounted] = useState(false)
+  const mounted = useHydrated()
+  const todayBs = useClientValue<BsPoint>(readTodayBs, seed)
   const [year, setYear] = useState(seed.year)
   const [month, setMonth] = useState(seed.month)
   const [selectedDay, setSelectedDay] = useState(seed.day)
-
-  useEffect(() => {
-    setTodayBs(readTodayBs())
-    setMounted(true)
-  }, [])
 
   const length = bsMonthLength(year, month)
   const safeSelectedDay = Math.min(selectedDay, length)
@@ -86,12 +85,15 @@ export function NepaliCalendar({
   const startWeekday = firstAd ? kathmanduAdParts(firstAd).weekday : 0
 
   const cells = useMemo(() => {
+    const days = bsMonthLength(year, month)
+    const first = bsToAd(year, month, 1)
+    const offset = first ? kathmanduAdParts(first).weekday : 0
     const out: DayCell[] = []
-    for (let d = 1; d <= length; d++) {
+    for (let d = 1; d <= days; d++) {
       const ad = bsToAd(year, month, d)
       out.push({
         day: d,
-        weekday: ad ? kathmanduAdParts(ad).weekday : (startWeekday + d - 1) % 7,
+        weekday: ad ? kathmanduAdParts(ad).weekday : (offset + d - 1) % 7,
         adDay: ad ? kathmanduAdParts(ad).day : d,
         adDate: ad,
         events:
@@ -101,7 +103,7 @@ export function NepaliCalendar({
       })
     }
     return out
-  }, [length, month, schedule, year, startWeekday])
+  }, [month, schedule, year])
 
   const monthName = en ? BS_MONTHS_EN[month - 1] : BS_MONTHS[month - 1]
   const selected = cells.find((c) => c.day === safeSelectedDay) ?? cells[0]
