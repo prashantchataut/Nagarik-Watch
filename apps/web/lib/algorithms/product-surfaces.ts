@@ -116,6 +116,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'byline-balance-checker',
+    module: 'lib/editorial/byline-balance.ts',
+    entrypoint: 'app/admin/(desk)/dashboard/page.tsx',
+    surface: 'newsroom',
+  },
+  {
     id: 'canonical-url-resolution',
     module: 'lib/seo/canonical.ts',
     entrypoint: 'app/[locale]/[category]/page.tsx',
@@ -150,6 +156,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     module: 'packages/db/src/cf.ts',
     entrypoint: 'app/[locale]/reader-corner/page.tsx',
     surface: 'reader',
+  },
+  {
+    id: 'comment-queue-sla',
+    module: 'lib/engagement/comment-sla.ts',
+    entrypoint: 'app/admin/(desk)/comments/page.tsx',
+    surface: 'newsroom',
   },
   {
     id: 'comment-ranking',

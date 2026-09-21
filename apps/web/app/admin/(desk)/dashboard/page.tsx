@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { getNavCategories } from '@/lib/content'
+import { getNavCategories, getStories } from '@/lib/content'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import type { Locale } from '@nagarikwatch/db'
 import { formatDate } from '@nagarikwatch/db'
@@ -21,6 +21,7 @@ import { buildStoryEngagementIndex } from '@/lib/ranking-signals'
 import { firstAdminLoadError, safeAdminLoad } from '@/lib/admin/safe-load'
 import { AdminLoadErrorBanner, CmsCanonicalBanner } from '@/components/admin/CmsCanonicalBanner'
 import { AdminButton, AdminCard, AdminMetric } from '@/components/admin/primitives'
+import { bylineBalance } from '@/lib/editorial/byline-balance'
 import { orEmpty } from '@/lib/resilience/or-empty'
 
 export const metadata: Metadata = {
@@ -219,6 +220,23 @@ export default async function DashboardPage() {
         <DashboardSignals />
       </Suspense>
 
+      {desk === 'super' || desk === 'admin' || desk === 'editor' ? (
+        <Suspense
+          fallback={
+            <AdminCard>
+              <h3 className="admin-section-title" lang="ne">
+                बाइलाइन सन्तुलन
+              </h3>
+              <p className="mt-2 text-meta text-mute" lang="ne">
+                गणना हुँदैछ…
+              </p>
+            </AdminCard>
+          }
+        >
+          <DeskBalance />
+        </Suspense>
+      ) : null}
+
       {desk === 'editor' && pendingReviews.length > 0 ? (
         <AdminCard>
           <div className="flex items-center justify-between gap-3">
@@ -298,6 +316,96 @@ export default async function DashboardPage() {
         </ul>
       </AdminCard>
     </div>
+  )
+}
+
+/** Window size for the balance read: roughly a fortnight of output. */
+const BALANCE_WINDOW = 60
+
+async function DeskBalance() {
+  const [stories, desks] = await Promise.all([
+    getStories({ locale: 'ne', perPage: BALANCE_WINDOW })
+      .then((page) => page.items)
+      .catch(() => []),
+    orEmpty(getNavCategories()),
+  ])
+  const balance = bylineBalance(
+    stories,
+    desks.map((category) => ({ slug: category.slug, nameNe: category.nameNe })),
+  )
+
+  if (balance.stories === 0) {
+    return (
+      <AdminCard>
+        <h3 className="admin-section-title" lang="ne">
+          बाइलाइन सन्तुलन
+        </h3>
+        <p className="mt-2 text-meta text-ink-soft" lang="ne">
+          मापन गर्न पर्याप्त प्रकाशित सामग्री छैन।
+        </p>
+      </AdminCard>
+    )
+  }
+
+  const effectiveBylines =
+    balance.authorConcentration > 0 ? 1 / balance.authorConcentration : balance.authors.length
+
+  return (
+    <AdminCard>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="admin-section-title" lang="ne">
+          बाइलाइन सन्तुलन (पछिल्ला {balance.stories} समाचार)
+        </h3>
+        <Link href="/admin/articles" className="text-meta font-semibold text-brand" lang="ne">
+          सबै समाचार →
+        </Link>
+      </div>
+      <div className="admin-metric-grid mt-3">
+        <AdminMetric value={balance.authors.length} label="Bylines in window" />
+        <AdminMetric value={effectiveBylines.toFixed(1)} label="Effective bylines" />
+        <AdminMetric value={balance.desks.length} label="Desks filing" />
+        <AdminMetric
+          value={balance.silentDesks.length}
+          label="Silent desks"
+          tone={balance.silentDesks.length > 0 ? 'danger' : 'default'}
+        />
+      </div>
+      {balance.findings.length > 0 ? (
+        <ul className="admin-list mt-3">
+          {balance.findings.map((finding) => (
+            <li key={finding.code}>
+              <span
+                className={`admin-status shrink-0 ${
+                  finding.severity === 'warn' ? 'admin-status--attention' : 'admin-status--neutral'
+                }`}
+                lang="ne"
+              >
+                {finding.severity === 'warn' ? 'ध्यान' : 'सूचना'}
+              </span>
+              <p className="min-w-0 flex-1 text-meta text-ink" lang="en">
+                {finding.detail}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-meta text-ink-soft" lang="ne">
+          यस अवधिमा कुनै बाइलाइन वा डेस्क असन्तुलन देखिएन।
+        </p>
+      )}
+      <ul className="admin-list mt-3">
+        {balance.authors.slice(0, 5).map((author) => (
+          <li key={author.key}>
+            <p className="min-w-0 flex-1 truncate text-meta font-semibold text-ink" lang="ne">
+              {author.label}
+            </p>
+            <span className="shrink-0 text-caption text-mute" lang="en">
+              {author.stories} · {Math.round(author.share * 100)}%
+            </span>
+          </li>
+        ))}
+      </ul>
+    </AdminCard>
   )
 }
 

@@ -1032,8 +1032,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'trust',
     surface: 'desk equity review',
     status: 'live',
-    summary: 'Tracks author and district byline share over a window to surface coverage imbalance.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:byline-balance-checker',
+    summary:
+      'Herfindahl concentration over bylines and desks across the recent window, with silent-desk detection, on the newsroom dashboard.',
+    implementation:
+      'apps/web/lib/editorial/byline-balance.ts#bylineBalance · apps/web/app/admin/(desk)/dashboard/page.tsx',
     priority: 3,
   },
   {
@@ -1250,8 +1252,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'community',
     surface: 'moderation desk',
     status: 'live',
-    summary: 'Scores pending-comment age against moderation SLA targets.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:comment-queue-sla',
+    summary:
+      'Scores each open comment against a target set by its kind and orders the moderation queue by closeness to breach instead of newest-first.',
+    implementation:
+      'apps/web/lib/engagement/comment-sla.ts#sortByModerationUrgency · apps/web/app/admin/(desk)/comments/page.tsx',
     priority: 2,
   },
   {
