@@ -371,6 +371,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'newsroom',
   },
   {
+    id: 'internal-link-authority',
+    module: 'lib/seo/link-graph.ts',
+    entrypoint: 'app/admin/(desk)/seo/page.tsx',
+    surface: 'newsroom',
+  },
+  {
     id: 'inverted-index',
     module: 'lib/search.ts',
     entrypoint: 'app/[locale]/search/page.tsx',
@@ -615,6 +621,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     module: 'lib/nlp/sentiment.ts',
     entrypoint: 'app/api/journalist/ai/route.ts',
     surface: 'reader',
+  },
+  {
+    id: 'seo-indexation-health',
+    module: 'lib/seo/indexation-health.ts',
+    entrypoint: 'app/admin/(desk)/seo/page.tsx',
+    surface: 'newsroom',
   },
   {
     id: 'sequential-ab-testing',

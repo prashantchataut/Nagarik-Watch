@@ -1228,8 +1228,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'distribution',
     surface: 'sitemap / Search Console ops',
     status: 'live',
-    summary: 'Local health score from sitemap freshness and canonical coverage; GSC enhances.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:seo-indexation-health',
+    summary:
+      'Scores the published window for the things that index badly rather than not at all: missing decks, missing hero images, headlines that truncate in the SERP, duplicate headlines competing with each other, and one slug served under two categories. Also reports how long the Google News window has been empty. Search Console still enhances this; none of it needs Search Console to run.',
+    implementation:
+      'apps/web/lib/seo/indexation-health.ts#assessIndexation · apps/web/app/admin/(desk)/seo/page.tsx',
     dependency: 'Search Console enhances; local sitemap checks still run',
     priority: 3,
   },
@@ -2387,8 +2389,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'distribution',
     surface: 'related and evergreen links',
     status: 'live',
-    summary: 'No graph-based audit or authority allocation algorithm controls internal links.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:internal-link-authority',
+    summary:
+      'PageRank over the internal link graph the article pages actually render — the related-stories anchors `relatedByContent` picks — surfacing orphan stories nothing links to and how far authority has pooled (Gini). An audit, not a controller: it does not reorder what a reader is offered in order to spread link equity.',
+    implementation:
+      'apps/web/lib/seo/link-graph.ts#auditLinkGraph · apps/web/app/admin/(desk)/seo/page.tsx',
     priority: 3,
   },
   {
