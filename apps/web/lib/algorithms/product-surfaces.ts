@@ -222,8 +222,8 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
   },
   {
     id: 'crawl-budget-allocation',
-    module: 'app/sitemap.ts',
-    entrypoint: 'app/sitemap.ts',
+    module: 'lib/seo/sitemap-shards.ts',
+    entrypoint: 'app/archive-sitemap.xml/route.ts',
     surface: 'reader',
   },
   {

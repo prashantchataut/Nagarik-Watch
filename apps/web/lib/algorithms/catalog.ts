@@ -2349,9 +2349,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'sitemap',
     status: 'live',
     summary:
-      'Dynamic sitemap priorities and update frequencies exist, but no measured crawl-log feedback loop does.',
+      'The archive is sharded newest-first behind a sitemap index, so recency decides which file a crawler reaches first; priorities and change frequencies are computed per URL. There is still no measured crawl-log feedback loop.',
     implementation:
-      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:crawl-budget-allocation · apps/web/app/sitemap.ts',
+      'apps/web/lib/seo/sitemap-shards.ts#sitemapShardIds · apps/web/lib/seo/archive-urls.ts#collectArchiveUrls · apps/web/app/archive-sitemap.xml/route.ts · apps/web/app/sitemap.ts',
     priority: 2,
   },
   {

@@ -13,7 +13,6 @@ import {
   TRUST_PAGES,
   UTILITY_TOOL_SLUGS,
 } from '@/lib/site'
-import { newsSitemapPriority } from '@/lib/algorithms/product/seo-dist'
 import { orEmpty } from '@/lib/resilience/or-empty'
 
 /**
@@ -115,32 +114,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Articles. ne sees every story; fetch the full set once and emit per-locale URLs, gating
-  // the English URL on hasEnglish so we never advertise a /en page that 404s (ADR-007).
-  const all = await getStories({ locale: 'ne', perPage: 1000 })
-  for (const s of all.items.filter((story) => story.noIndex !== true)) {
-    const lastModified = new Date(s.publishedAt)
-    const ageHours = (Date.now() - lastModified.getTime()) / 3_600_000
-    // News-recency weighting keeps crawl priority honest for fresh/breaking
-    // stories instead of a flat constant across the whole archive.
-    const priority = 0.4 + newsSitemapPriority(ageHours, s.isBreaking, 0.8) * 0.5
-    const languages: Record<string, string> = {
-      ne: `${SITE_URL}/${s.category.slug}/${s.slug}`,
-    }
-    if (s.hasEnglish) {
-      languages.en = `${SITE_URL}/en/${s.category.slug}/${s.slug}`
-    }
-    for (const locale of LOCALES) {
-      if (locale === 'en' && !s.hasEnglish) continue
-      entries.push({
-        url: `${SITE_URL}${prefix(locale)}/${s.category.slug}/${s.slug}`,
-        lastModified,
-        changeFrequency: 'weekly',
-        priority,
-        alternates: { languages },
-      })
-    }
-  }
+  // Articles live in the sharded archive sitemap, not here. This file used to
+  // read `perPage: 1000` and emit whatever came back, which meant story 1,001
+  // onwards silently stopped being advertised — no error, no failing build,
+  // just an archive that quietly left the index. `/archive-sitemap.xml` is an
+  // index over 20,000-URL shards and is named in robots.txt alongside this one.
 
   // Authors.
   for (const locale of LOCALES) {

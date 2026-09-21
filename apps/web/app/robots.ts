@@ -16,7 +16,14 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin/'],
       },
     ],
-    sitemap: [`${SITE_URL}/sitemap.xml`, `${SITE_URL}/news-sitemap.xml`],
+    // Three files, not one: /sitemap.xml is the site's structure, /news-sitemap.xml is the
+    // 48-hour Google News window, and /archive-sitemap.xml is an index over the article
+    // archive, which outgrows a single 50,000-URL file.
+    sitemap: [
+      `${SITE_URL}/sitemap.xml`,
+      `${SITE_URL}/news-sitemap.xml`,
+      `${SITE_URL}/archive-sitemap.xml`,
+    ],
     host: SITE_URL,
   }
 }
