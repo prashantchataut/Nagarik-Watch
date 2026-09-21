@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
+    "algorithms:wiring": "node scripts/generate-algorithm-wiring.mjs",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "seed": "tsx scripts/seed_auth.ts && tsx scripts/seed_full.ts",

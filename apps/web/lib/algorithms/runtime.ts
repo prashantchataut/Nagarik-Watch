@@ -10,7 +10,21 @@
 import { ALGORITHM_CATALOG } from './catalog'
 import { getCapability } from './capabilities/registry'
 import { defaultFixtureFor } from './fixtures'
+import { isNewsroomWired, isProductWired } from './product-surfaces'
 import type { AlgorithmMode } from './types'
+
+/**
+ * Where a run's input came from.
+ *   caller  — the caller supplied the data; the result describes real state
+ *   fixture — nothing was supplied, so `defaultFixtureFor(id)` stood in
+ *   mixed   — the caller supplied some fields, the fixture filled the rest
+ *
+ * `ok: true` says the handler completed. It has never said the numbers mean
+ * anything, and on the admin panel — which passes no input at all — they
+ * mostly do not. Reporting provenance is what lets the panel stop implying
+ * otherwise.
+ */
+export type AlgorithmInputSource = 'caller' | 'fixture' | 'mixed'
 
 export type AlgorithmRunResult = {
   id: string
@@ -23,6 +37,21 @@ export type AlgorithmRunResult = {
   surface?: string
   outputs?: Record<string, unknown>
   reason?: string
+  /** Provenance of the input this result was computed from. */
+  input: AlgorithmInputSource
+  /** True when a reader-facing surface consumes this algorithm in production. */
+  productWired: boolean
+}
+
+function inputSource(id: string, input: Record<string, unknown>): AlgorithmInputSource {
+  const supplied = Object.keys(input)
+  if (supplied.length === 0) return 'fixture'
+  const fixtureKeys = Object.keys(defaultFixtureFor(id))
+  if (fixtureKeys.length === 0) return 'caller'
+  return supplied.some((key) => !fixtureKeys.includes(key)) ||
+    fixtureKeys.every((key) => supplied.includes(key))
+    ? 'caller'
+    : 'mixed'
 }
 
 export function runAlgorithm(id: string, input: Record<string, unknown> = {}): AlgorithmRunResult {
@@ -30,6 +59,8 @@ export function runAlgorithm(id: string, input: Record<string, unknown> = {}): A
   const entry = ALGORITHM_CATALOG.find((item) => item.id === id)
   const number = entry?.number ?? 0
   const capability = getCapability(id)
+  const source = inputSource(id, input)
+  const productWired = isProductWired(id)
 
   if (!capability) {
     return {
@@ -41,6 +72,8 @@ export function runAlgorithm(id: string, input: Record<string, unknown> = {}): A
       reason: 'no dedicated capability handler',
       surface: entry?.surface,
       ms: Math.max(0, Date.now() - started),
+      input: source,
+      productWired,
     }
   }
 
@@ -59,6 +92,8 @@ export function runAlgorithm(id: string, input: Record<string, unknown> = {}): A
       surface: result.surface ?? capability.surface ?? entry?.surface,
       reason: result.reason,
       ms: Math.max(0, Date.now() - started),
+      input: source,
+      productWired,
     }
   } catch (error) {
     // Contract: never throw to callers — but never fake ok:true either.
@@ -72,12 +107,34 @@ export function runAlgorithm(id: string, input: Record<string, unknown> = {}): A
       reason: message,
       surface: capability.surface ?? entry?.surface,
       ms: Math.max(0, Date.now() - started),
+      input: source,
+      productWired,
     }
   }
 }
 
 export function runAllAlgorithms(input: Record<string, unknown> = {}): AlgorithmRunResult[] {
   return ALGORITHM_CATALOG.map((entry) => runAlgorithm(entry.id, input))
+}
+
+/**
+ * The numbers the admin panel should lead with. "232 live, 0 failures" is true
+ * and useless on its own; these say how much of that is real.
+ */
+export function algorithmRuntimeHonesty(results: AlgorithmRunResult[]) {
+  return {
+    total: results.length,
+    ok: results.filter((result) => result.ok).length,
+    productWired: results.filter((result) => result.productWired).length,
+    // Counted separately, never folded into `productWired`: a desk page or an
+    // admin route consuming an algorithm is a real surface, but it is not a
+    // reader, and merging the two would re-inflate the headline.
+    newsroomWired: results.filter((result) => isNewsroomWired(result.id)).length,
+    fixtureOnly: results.filter((result) => result.input === 'fixture').length,
+    withOutputs: results.filter(
+      (result) => result.outputs && Object.keys(result.outputs).length > 0,
+    ).length,
+  }
 }
 
 export function algorithmRuntimeModeCounts(results: AlgorithmRunResult[]) {

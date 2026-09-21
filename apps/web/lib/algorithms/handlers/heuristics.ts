@@ -4,10 +4,19 @@
  */
 import type { AlgorithmHandler } from './utils'
 import { clamp01, hashScore, mean, num, stddev, str, tokenSet, jaccard } from './utils'
+import { scoreNotification } from '@nagarikwatch/db'
 import { newsSitemapPriority, ogImageDimensionOk, ogImageDimensionScore } from '../product/seo-dist'
+import { batchPressure, cooldownRemainingMinutes, isQuietHour } from '../product/notify-policy'
 import { validateAmpHtml, validateInstantArticle } from '../../syndication/validators'
 import { checkPartnerTokenShape, isKnownLicenseTag } from '../../syndication/partner-feed'
 import { lintSecurityHeaders } from '../../security/header-lint'
+import { stripImageMetadata } from '../../storage/exif-strip'
+import {
+  captionQuality,
+  citationCoverage,
+  deckLengthScore,
+  resolveSlug,
+} from '../../journalist/desk-scoring'
 
 function streakFromDays(days: number[]): number {
   if (days.length === 0) return 0
@@ -33,12 +42,6 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     const score = streak > 0 ? clamp01(hoursSinceRead / 24) : 0
     return { score, detail: `nudgeRisk=${score.toFixed(3)} streak=${streak}`, mode: 'heuristic' }
   },
-  'reengagement-ranking': (input) => {
-    const freshness = num(input, 'freshness', 0.7)
-    const affinity = num(input, 'affinity', 0.5)
-    const score = clamp01(freshness * 0.6 + affinity * 0.4)
-    return { score, detail: `reengagement=${score.toFixed(3)}`, mode: 'heuristic' }
-  },
   'digest-story-ranking': (input) => {
     const civic = num(input, 'civicWeight', 0.8)
     const novelty = num(input, 'novelty', 0.5)
@@ -47,10 +50,17 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     return { score, detail: `digestRank=${score.toFixed(3)}`, mode: 'heuristic' }
   },
   'notification-batching': (input) => {
+    // The same pressure figure the delivery cron computes; above 0.9 it caps a
+    // run at five events instead of fanning out the whole backlog.
     const pending = num(input, 'pending', 4)
     const windowMin = num(input, 'windowMinutes', 30)
-    const score = clamp01(pending / Math.max(1, windowMin / 5))
-    return { score, detail: `batchPressure=${score.toFixed(3)}`, mode: 'heuristic' }
+    const score = batchPressure(pending, windowMin)
+    return {
+      score,
+      detail: `batchPressure=${score.toFixed(3)} (${score > 0.9 ? 'run capped at 5' : 'full batch'})`,
+      outputs: { capped: score > 0.9 },
+      mode: 'production',
+    }
   },
   'save-later-ranking': (input) => {
     const remainingMin = num(input, 'remainingMinutes', 8)
@@ -58,54 +68,46 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     const score = clamp01((1 - Math.min(1, remainingMin / 20)) * 0.5 + freshness * 0.5)
     return { score, detail: `saveLater=${score.toFixed(3)}`, mode: 'heuristic' }
   },
-  'continue-reading-ranker': (input) => {
-    const depth = num(input, 'scrollDepth', 55)
-    const hoursAgo = num(input, 'hoursAgo', 6)
-    const score = clamp01((depth / 100) * 0.7 + (1 - Math.min(1, hoursAgo / 48)) * 0.3)
-    return { score, detail: `continueReading=${score.toFixed(3)}`, mode: 'heuristic' }
-  },
-  'topic-follow-ranking': (input) => {
-    const reads = num(input, 'topicReads', 4)
-    const score = clamp01(reads / 10)
-    return { score, detail: `topicFollow=${score.toFixed(3)}`, mode: 'heuristic' }
-  },
-  'author-follow-ranking': (input) => {
-    const completes = num(input, 'completedReads', 3)
-    const score = clamp01(completes / 8)
-    return { score, detail: `authorFollow=${score.toFixed(3)}`, mode: 'heuristic' }
-  },
-  'homepage-slot-diversity': (input) => {
-    const sameCategoryStreak = num(input, 'sameCategoryStreak', 2)
-    const score = clamp01(1 - sameCategoryStreak / 5)
-    return { score, detail: `diversityGuard=${score.toFixed(3)}`, mode: 'heuristic' }
-  },
   'breaking-alert-cooldown': (input) => {
+    // Runs the real per-subscriber gate: `deliverPushEvent` scores every
+    // breaking push through `scoreNotification` with a 15-minute breaking
+    // cooldown against that subscriber's own last send.
     const minutesSince = num(input, 'minutesSinceLast', 45)
-    const cooldown = num(input, 'cooldownMinutes', 30)
-    const score = minutesSince >= cooldown ? 1 : minutesSince / cooldown
+    const cooldown = num(input, 'cooldownMinutes', 15)
+    const now = new Date()
+    const scored = scoreNotification(
+      {
+        userId: 'reader',
+        kind: 'breaking',
+        at: new Date(now.getTime() - 60_000).toISOString(),
+        articleId: 'breaking-1',
+      },
+      {
+        userId: 'reader',
+        breaking: true,
+        followedTopics: true,
+        followedAuthors: true,
+        dailyDigest: false,
+        marketing: false,
+        channels: { push: true, email: false, sms: false },
+      },
+      {
+        userId: 'reader',
+        sent24h: Math.max(0, Math.round(num(input, 'sentToday', 1))),
+        lastSentAt: new Date(now.getTime() - minutesSince * 60_000).toISOString(),
+      },
+      { maxPerDay: 8, breakingCooldownMinutes: cooldown, topicCooldownMinutes: 45 },
+      now,
+    )
+    const remaining = cooldownRemainingMinutes(minutesSince, cooldown)
     return {
-      score: clamp01(score),
-      detail: `cooldownOk=${minutesSince >= cooldown}`,
-      mode: 'heuristic',
+      score: scored.willSend ? 1 : 0,
+      detail: scored.willSend
+        ? `cooldown clear after ${minutesSince.toFixed(0)}m`
+        : `held ${remaining.toFixed(0)}m longer (${scored.reason})`,
+      outputs: { willSend: scored.willSend, remainingMinutes: remaining, reason: scored.reason },
+      mode: 'production',
     }
-  },
-  'locale-preference-scorer': (input) => {
-    const ne = num(input, 'neReads', 7)
-    const en = num(input, 'enReads', 3)
-    const score = ne / Math.max(1, ne + en)
-    return { score, detail: `nePreference=${score.toFixed(3)}`, mode: 'heuristic' }
-  },
-  'scroll-depth-quality': (input) => {
-    const depth = num(input, 'scrollDepth', 70)
-    const dwell = num(input, 'dwellSeconds', 90)
-    const score = clamp01((depth / 100) * 0.6 + Math.min(1, dwell / 180) * 0.4)
-    return { score, detail: `quality=${score.toFixed(3)}`, mode: 'heuristic' }
-  },
-  'return-visit-propensity': (input) => {
-    const sessions = num(input, 'sessions7d', 4)
-    const completion = num(input, 'completionRate', 0.5)
-    const score = clamp01((sessions / 10) * 0.5 + completion * 0.5)
-    return { score, detail: `returnPropensity=${score.toFixed(3)}`, mode: 'heuristic' }
   },
   'onboarding-topic-picker': (input) => {
     const coverage = num(input, 'coverageBreadth', 0.7)
@@ -116,11 +118,21 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     }
   },
   'quiet-hours-scheduler': (input) => {
+    // Same window the delivery cron evaluates, and the same breaking exemption:
+    // during quiet hours the batch narrows to breaking events rather than
+    // skipping, so a disaster is never silenced by a volume throttle.
     const hour = num(input, 'hour', 22)
     const breaking = Boolean(input.breaking)
-    const inQuiet = hour >= 22 || hour < 6
-    const score = breaking ? 1 : inQuiet ? 0 : 1
-    return { score, detail: `allowSend=${score === 1} quiet=${inQuiet}`, mode: 'heuristic' }
+    const inQuiet = isQuietHour(hour, num(input, 'quietStart', 22), num(input, 'quietEnd', 6))
+    const allow = breaking || !inQuiet
+    return {
+      score: allow ? 1 : 0,
+      detail: `hour ${hour} ${inQuiet ? 'in quiet window' : 'outside quiet window'} — ${
+        allow ? 'send' : 'defer'
+      }${breaking && inQuiet ? ' (breaking exemption)' : ''}`,
+      outputs: { allowSend: allow, quiet: inQuiet },
+      mode: 'production',
+    }
   },
   'bookmark-expiry-ranker': (input) => {
     const ageDays = num(input, 'ageDays', 14)
@@ -172,10 +184,14 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     return { score, detail: `cropFit=${score.toFixed(3)}`, mode: 'heuristic' }
   },
   'caption-quality-scorer': (input) => {
+    // Same function the journalist assist route scores a real draft with.
     const caption = str(input, 'caption', 'काठमाडौंमा बाढीपछि सडक')
-    const len = caption.trim().length
-    const score = clamp01(len / 80) * (len < 8 ? 0.2 : 1)
-    return { score, detail: `captionQuality=${score.toFixed(3)} len=${len}`, mode: 'heuristic' }
+    const score = captionQuality(caption)
+    return {
+      score,
+      detail: `captionQuality=${score.toFixed(3)} len=${caption.trim().length}`,
+      mode: 'production',
+    }
   },
   'byline-balance-checker': (input) => {
     const share = num(input, 'authorShare', 0.35)
@@ -196,21 +212,21 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     return { score, detail: `wirePriority=${score.toFixed(3)}`, mode: 'heuristic' }
   },
   'slug-collision-resolver': (input) => {
-    const base = str(input, 'slug', 'kathmandu-flood')
-    const taken = Boolean(input.taken)
-    const resolved = taken ? `${base}-2` : base
-    return { score: taken ? 0.5 : 1, detail: `slug=${resolved}`, mode: 'heuristic' }
+    const resolved = resolveSlug(str(input, 'slug', 'kathmandu-flood'), Boolean(input.taken))
+    return { score: resolved.score, detail: `slug=${resolved.resolved}`, mode: 'production' }
   },
   'deck-length-optimizer': (input) => {
-    const len = str(input, 'deck', 'छोटो डेस्क पाठ').length
-    const score = len >= 40 && len <= 120 ? 1 : clamp01(1 - Math.abs(len - 80) / 80)
-    return { score, detail: `deckLen=${len} score=${score.toFixed(3)}`, mode: 'heuristic' }
+    const deck = str(input, 'deck', 'छोटो डेस्क पाठ')
+    const score = deckLengthScore(deck)
+    return {
+      score,
+      detail: `deckLen=${deck.trim().length} score=${score.toFixed(3)}`,
+      mode: 'production',
+    }
   },
   'source-citation-coverage': (input) => {
-    const claims = num(input, 'claims', 5)
-    const citations = num(input, 'citations', 3)
-    const score = claims === 0 ? 1 : clamp01(citations / claims)
-    return { score, detail: `citationCoverage=${score.toFixed(3)}`, mode: 'heuristic' }
+    const score = citationCoverage(num(input, 'claims', 5), num(input, 'citations', 3))
+    return { score, detail: `citationCoverage=${score.toFixed(3)}`, mode: 'production' }
   },
   'homophone-typo-guard': (input) => {
     const text = str(input, 'text', 'the the flood flood report')
@@ -372,13 +388,32 @@ export const HEURISTIC_HANDLERS: Record<string, AlgorithmHandler> = {
     return { score, detail: `sitemapPriority=${score.toFixed(3)}`, mode: 'heuristic' }
   },
   'image-exif-strip': (input) => {
+    // Builds a JPEG carrying the metadata the flags describe and runs the same
+    // stripper the newsroom upload route runs, so the panel reports what the
+    // upload path actually removes rather than a risk guess.
     const hasGps = Boolean(input.hasGps)
     const hasExif = Boolean(input.hasExif ?? hasGps)
-    const score = hasGps ? 1 : hasExif ? 0.6 : 0
+    const exif = Buffer.from(
+      hasGps ? 'Exif\0\0GPSLatitude 27.7172 GPSLongitude 85.3240' : 'Exif\0\0Make Phone',
+      'latin1',
+    )
+    const parts: Buffer[] = [Buffer.from([0xff, 0xd8])]
+    if (hasExif) {
+      const length = Buffer.alloc(2)
+      length.writeUInt16BE(exif.length + 2)
+      parts.push(Buffer.from([0xff, 0xe1]), length, exif)
+    }
+    parts.push(Buffer.from([0xff, 0xd9]))
+    const image = Buffer.concat(parts)
+    const result = stripImageMetadata(image, 'image/jpeg')
+    const score = image.length > 0 ? clamp01(result.bytesRemoved / image.length) : 0
     return {
       score,
-      detail: `exifRisk=${score.toFixed(3)} recommendStrip=${hasExif}`,
-      mode: 'heuristic',
+      detail: result.removed.length
+        ? `stripped ${result.removed.join(', ')} (${result.bytesRemoved} bytes)`
+        : 'no metadata segments present',
+      outputs: { removed: result.removed, bytesRemoved: result.bytesRemoved },
+      mode: 'production',
     }
   },
   'alt-text-quality': (input) => {

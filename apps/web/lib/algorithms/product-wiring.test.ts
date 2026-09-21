@@ -77,8 +77,17 @@ describe('product wiring + honesty gates', () => {
     expect(weighted?.summary).toMatch(/qualityTrustScore/)
     expect(bandit?.surface).toMatch(/not homepage/)
     expect(virality?.surface).toMatch(/not homepage/)
-    expect(diversity?.surface).toMatch(/not wired on homepage/)
-    expect(continueReading?.surface).toMatch(/not homepage/)
+    // Now genuinely wired: HomePage picks the latest rail through
+    // spaceOutCategories. The claim has to stay backed by that import.
+    expect(diversity?.surface).toMatch(/homepage latest rail/)
+    expect(read('../../components/home/HomePage.tsx')).toContain('spaceOutCategories')
+    // Wired to the reader panels, still not a homepage rail — the claim must
+    // not quietly grow into one.
+    expect(continueReading?.surface).toMatch(/reader activity panel/)
+    expect(continueReading?.surface).not.toMatch(/homepage/)
+    expect(read('../../components/reader/ReaderActivityPanel.tsx')).toContain(
+      'continueReadingForReader',
+    )
   })
 
   it('reports ok:false for unknown ids instead of silent success', () => {

@@ -56,7 +56,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'category / trending / most-read hubs / admin live',
     status: 'live',
     summary:
-      'Combines editorial priority, decay, engagement, and affinity. The trust term exists in weightedScore but production signalsForStory still hardcodes qualityTrustScore to 0 until a reliability pipeline is wired. Homepage rails use dedicated freshness / most-read / trending resolvers instead.',
+      'Combines editorial priority, decay, engagement, and affinity. The qualityTrustScore term is now computed per story by lib/editorial/trust-score from byline attribution, fact-check verdict and desk provenance, so the 9-point trust weight is live rather than a constant 0. Homepage rails use dedicated freshness / most-read / trending resolvers instead.',
     implementation:
       'apps/web/lib/algorithms/runtime.ts#runAlgorithm:weighted-scoring-ranker · apps/web/lib/ranking.ts#weightedScore',
     priority: 1,
@@ -495,7 +495,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     summary:
       'Recommend fatigue windows and push maxPerDay/cooldown caps gate delivery before provider send.',
     implementation:
-      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:fatigue-prevention · packages/db/src/recommend.ts + packages/db/src/notify.ts',
+      'packages/db/src/notify.ts#scoreNotification (maxPerDay) · apps/web/lib/algorithms/product/notify-policy.ts#fatigueHeadroom · apps/web/lib/notifications/deliver-run.ts#runNotificationDelivery',
     priority: 2,
   },
   {
@@ -568,7 +568,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'editorial backend',
     status: 'live',
     summary:
-      'Local reliability flags feed moderation assist; editors still own publish verdicts. Not yet mapped into signalsForStory.qualityTrustScore for live hub ranking.',
+      'Local reliability flags feed moderation assist; editors still own publish verdicts. Hub ranking reads its own qualityTrustScore from lib/editorial/trust-score; this desk scorer is not yet the input to it.',
     implementation:
       'apps/web/lib/algorithms/runtime.ts#runAlgorithm:source-reliability-score · packages/db/src/moderation.ts#sourceReliabilityFlags',
     priority: 2,
@@ -730,8 +730,8 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'win-back digests',
     status: 'live',
     summary:
-      'Ranks catch-up stories for dormant readers using freshness, category affinity, and trust signals.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:reengagement-ranking',
+      'Weights a recommendation by reader drift against topic/author affinity, so catch-up pushes grow as return propensity falls.',
+    implementation: 'apps/web/lib/reader/signals.ts#reengagementWeight',
     priority: 2,
   },
   {
@@ -755,8 +755,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'push planner',
     status: 'live',
     summary:
-      'Chooses batch windows so multiple alerts collapse into one send without exceeding fatigue caps.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:notification-batching',
+      'Measures how much is pending per batch window and caps a delivery run at five events once pressure passes 0.9, so a burst collapses instead of fanning out.',
+    implementation:
+      'apps/web/lib/algorithms/product/notify-policy.ts#batchPressure · apps/web/lib/notifications/deliver-run.ts#runNotificationDelivery',
     priority: 2,
   },
   {
@@ -777,11 +778,12 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     number: 57,
     label: 'Continue-Reading Ranker',
     category: 'retention',
-    surface: 'saved / account resume (not homepage rail yet)',
+    surface: 'reader activity panel / recommended-for-you resume card',
     status: 'live',
     summary:
-      'Ranks in-progress articles by scroll depth, time since last open, and completion likelihood. Homepage does not render a continue-reading rail yet.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:continue-reading-ranker',
+      'Ranks in-progress articles by how much was read, how recently, how often the reader came back, and time invested. continueReadingForReader now returns this pick instead of merely the newest unfinished read.',
+    implementation:
+      'apps/web/lib/reader/signals.ts#rankContinueReading · apps/web/lib/reader/personalize.ts#continueReadingForReader',
     priority: 1,
   },
   {
@@ -789,11 +791,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     number: 58,
     label: 'Topic Follow Ranking',
     category: 'growth',
-    surface: 'follow suggestions',
+    surface: 'recommended for you',
     status: 'live',
     summary:
-      'Suggests districts, parties, and civic topics from reading history without fabricating follows.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:topic-follow-ranking',
+      'Normalizes tag affinity against the reader own strongest signal and upweights matching recommendations, scaled by how deeply that reader actually reads.',
+    implementation: 'apps/web/lib/reader/signals.ts#topicFollowScore',
     priority: 3,
   },
   {
@@ -801,10 +803,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     number: 59,
     label: 'Author Follow Ranking',
     category: 'growth',
-    surface: 'author pages',
+    surface: 'recommended for you',
     status: 'live',
-    summary: 'Ranks journalists to follow based on completed reads and category overlap.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:author-follow-ranking',
+    summary:
+      'Byline affinity from completed reads, normalized per reader and applied as an uplift inside recommendForReader.',
+    implementation: 'apps/web/lib/reader/signals.ts#authorFollowScore',
     priority: 3,
   },
   {
@@ -812,11 +815,12 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     number: 60,
     label: 'Homepage Slot Diversity Guard',
     category: 'ranking',
-    surface: 'admin algorithms / future homepage packing (not wired on homepage yet)',
+    surface: 'homepage latest rail / hub ranking',
     status: 'live',
     summary:
-      'Penalizes consecutive same-category or same-district slots to keep packing pluralistic. Homepage currently uses CMS edition + stream builder, not this guard.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:homepage-slot-diversity',
+      'Caps consecutive same-desk slots. Editorial CMS order above the fold is untouched; the guard picks the homepage latest rail (which is then re-sorted by publish time) and reorders algorithmic hub ranking via rankStories.',
+    implementation:
+      'apps/web/lib/ranking.ts#spaceOutCategories · apps/web/lib/algorithms/runtime.ts#runAlgorithm:homepage-slot-diversity',
     priority: 1,
   },
   {
@@ -826,8 +830,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'notifications',
     surface: 'breaking desk',
     status: 'live',
-    summary: 'Enforces quiet periods between breaking pushes so disasters do not spam readers.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:breaking-alert-cooldown',
+    summary:
+      'Enforces quiet periods between breaking pushes so disasters do not spam readers. Applied per subscriber against that subscriber’s own last send, not globally.',
+    implementation:
+      'packages/db/src/notify.ts#scoreNotification (breakingCooldownMinutes) · apps/web/lib/notifications/subscriptions.ts#deliverPushEvent · apps/web/lib/algorithms/product/notify-policy.ts#cooldownRemainingMinutes',
     priority: 1,
   },
   {
@@ -838,8 +844,8 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'language switcher / for-you',
     status: 'live',
     summary:
-      'Scores Nepali vs English preference from consented reading mix for default locale hints.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:locale-preference-scorer',
+      'Scores Nepali vs English preference from the consented reading mix, and returns null below a three-read sample rather than inventing a 50/50 opinion.',
+    implementation: 'apps/web/lib/reader/signals.ts#localePreference',
     priority: 2,
   },
   {
@@ -849,8 +855,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'growth',
     surface: 'reader analytics',
     status: 'live',
-    summary: 'Maps scroll depth and dwell into a transparent quality score for editorial review.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:scroll-depth-quality',
+    summary:
+      'Maps a reader completion and scroll history into a 0..1 quality score. Recommended-for-you scales every affinity uplift by it, so a history of bounces barely moves the ranking.',
+    implementation: 'apps/web/lib/reader/signals.ts#scrollDepthQuality',
     priority: 2,
   },
   {
@@ -861,8 +868,8 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'retention analytics',
     status: 'live',
     summary:
-      'Heuristic likelihood of a next-day return from recent session count and completion rate.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:return-visit-propensity',
+      'Distinct reading days in the trailing fortnight plus recency. Feeds the re-engagement weight so daily readers are not nudged like drifting ones.',
+    implementation: 'apps/web/lib/reader/signals.ts#returnVisitPropensity',
     priority: 3,
   },
   {
@@ -885,8 +892,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'push policy',
     status: 'live',
     summary:
-      'Defers non-breaking notifications outside Nepal quiet hours while allowing disaster overrides.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:quiet-hours-scheduler',
+      'Defers non-breaking notifications outside Nepal quiet hours while allowing disaster overrides. Evaluated in Asia/Kathmandu, not the server clock, and per reader in their own stored timezone.',
+    implementation:
+      'apps/web/lib/algorithms/product/notify-policy.ts#isQuietHour · apps/web/lib/notifications/deliver-run.ts#runNotificationDelivery',
     priority: 2,
   },
   {
@@ -965,10 +973,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     number: 73,
     label: 'Revision Similarity Check',
     category: 'nlp',
-    surface: 'editor review',
+    surface: 'journalist assist (POST /api/journalist/ai action=analyze)',
     status: 'live',
-    summary: 'Jaccard/token overlap between draft revisions to highlight large silent rewrites.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:revision-similarity',
+    summary:
+      'Token overlap between the previous and current draft text, so a large silent rewrite is visible before publish.',
+    implementation: 'apps/web/lib/journalist/desk-scoring.ts#revisionSimilarity',
     priority: 2,
   },
   {
@@ -999,10 +1008,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     number: 76,
     label: 'Caption Quality Scorer',
     category: 'nlp',
-    surface: 'photo desks',
+    surface: 'journalist assist (POST /api/journalist/ai action=analyze)',
     status: 'live',
-    summary: 'Scores captions for length, who/what/where cues, and missing alt-text risk.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:caption-quality-scorer',
+    summary: 'Scores caption length and flags stubs too short to serve as alt text.',
+    implementation: 'apps/web/lib/journalist/desk-scoring.ts#captionQuality',
     priority: 2,
   },
   {
@@ -1044,10 +1053,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     number: 80,
     label: 'Slug Collision Resolver',
     category: 'infrastructure',
-    surface: 'CMS publish',
+    surface: 'journalist assist (POST /api/journalist/ai action=analyze)',
     status: 'live',
-    summary: 'Suggests disambiguated slugs when title stems collide within a category.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:slug-collision-resolver',
+    summary: 'Returns a disambiguated slug when the requested one is already taken.',
+    implementation: 'apps/web/lib/journalist/desk-scoring.ts#resolveSlug',
     priority: 2,
   },
   {
@@ -1055,10 +1064,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     number: 81,
     label: 'Deck Length Optimizer',
     category: 'nlp',
-    surface: 'article editor',
+    surface: 'journalist assist (POST /api/journalist/ai action=analyze)',
     status: 'live',
-    summary: 'Scores deck length against mobile card truncation budgets for Nepali and English.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:deck-length-optimizer',
+    summary:
+      'Scores deck length against mobile card truncation budgets. Returned to the editor by scoreDraft on every analyze call.',
+    implementation: 'apps/web/lib/journalist/desk-scoring.ts#deckLengthScore',
     priority: 3,
   },
   {
@@ -1066,10 +1076,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     number: 82,
     label: 'Source Citation Coverage',
     category: 'trust',
-    surface: 'fact-check / investigations',
+    surface: 'journalist assist (POST /api/journalist/ai action=analyze)',
     status: 'live',
-    summary: 'Estimates claim-to-citation coverage so editors see unsupported paragraphs.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:source-citation-coverage',
+    summary:
+      'Claim-to-citation coverage, surfaced to editors alongside the rest of the draft score.',
+    implementation: 'apps/web/lib/journalist/desk-scoring.ts#citationCoverage',
     priority: 2,
   },
   {
@@ -2601,10 +2612,11 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     number: 204,
     label: 'Image EXIF Strip Advisor',
     category: 'security',
-    surface: 'media upload',
+    surface: 'newsroom media upload (POST /api/admin/media/upload)',
     status: 'live',
-    summary: 'Scores privacy risk from EXIF presence flags and recommends strip-before-publish.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:image-exif-strip',
+    summary:
+      'Removes EXIF/XMP/IPTC from JPEG, PNG and WebP uploads before the bytes reach R2, Blob, or disk, so a source location in a phone photo is never published. GIF and AVIF pass through untouched and say so.',
+    implementation: 'apps/web/lib/storage/exif-strip.ts#stripImageMetadata',
     priority: 1,
   },
   {
