@@ -87,10 +87,12 @@ export async function runBreakingAutoBoost(): Promise<BreakingBoostResult> {
     }
   }
 
-  const { items: adminList } = await listArticlesForAdmin({ limit: 400 }).catch(() => ({
-    items: [],
-    total: 0,
-  }))
+  const { items: adminList } = await listArticlesForAdmin({ limit: 400 }).catch(
+    (): Awaited<ReturnType<typeof listArticlesForAdmin>> => ({
+      items: [],
+      total: 0,
+    }),
+  )
 
   if (!enabled) {
     const cleared: BreakingBoostResult['cleared'] = []

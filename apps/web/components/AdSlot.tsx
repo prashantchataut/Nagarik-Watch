@@ -142,7 +142,6 @@ export async function AdSlot({
             {creative.imageUrl &&
             !creative.imageUrl.startsWith('data:') &&
             resolvedVariant !== 'mobile' ? (
-              // eslint-disable-next-line @next/next/no-img-element -- remote house-ad creative URL
               <img
                 src={creative.imageUrl}
                 alt=""

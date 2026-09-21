@@ -136,9 +136,11 @@ export default async function AdsPage({
     acc[placement.surface] = [...(acc[placement.surface] ?? []), placement]
     return acc
   }, {})
-  const summaries = await getAdEventSummary().catch(() => [])
+  const summaries: Awaited<ReturnType<typeof getAdEventSummary>> = await getAdEventSummary().catch(
+    () => [],
+  )
   const summaryByPlacement = new Map(summaries.map((summary) => [summary.placementKey, summary]))
-  const houseAds = await listHouseAds().catch(() => [])
+  const houseAds: Awaited<ReturnType<typeof listHouseAds>> = await listHouseAds().catch(() => [])
   const houseByPlacement = new Map(houseAds.map((ad) => [ad.placementKey, ad]))
   const deliveringPlacements = placements.filter(
     (p) => houseByPlacement.get(p.key)?.active || (adMode === 'network' && networkReady),
@@ -212,7 +214,9 @@ export default async function AdsPage({
           </p>
         </div>
         <div className="ad-ops-overview__metrics">
-          <p className="admin-section-title" lang="en">30-day events</p>
+          <p className="admin-section-title" lang="en">
+            30-day events
+          </p>
           <div className="admin-metric-grid">
             <AdminMetric
               value={summaries.reduce((sum, item) => sum + item.impressions, 0)}

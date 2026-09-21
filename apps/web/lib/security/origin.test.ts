@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { NextRequest } from 'next/server'
 import { isTrustedWriteRequest } from './origin'
 
@@ -18,7 +18,7 @@ describe('isTrustedWriteRequest', () => {
   }
 
   afterEach(() => {
-    process.env.NODE_ENV = previous.NODE_ENV
+    vi.unstubAllEnvs()
     if (previous.ALLOW_HOST_ORIGIN_TRUST === undefined) delete process.env.ALLOW_HOST_ORIGIN_TRUST
     else process.env.ALLOW_HOST_ORIGIN_TRUST = previous.ALLOW_HOST_ORIGIN_TRUST
     if (previous.NEXT_PUBLIC_SITE_URL === undefined) delete process.env.NEXT_PUBLIC_SITE_URL
@@ -26,7 +26,7 @@ describe('isTrustedWriteRequest', () => {
   })
 
   it('rejects a spoofed Host origin in production', () => {
-    process.env.NODE_ENV = 'production'
+    vi.stubEnv('NODE_ENV', 'production')
     delete process.env.ALLOW_HOST_ORIGIN_TRUST
     process.env.NEXT_PUBLIC_SITE_URL = 'https://www.nagarikwatch.com'
     expect(
@@ -41,7 +41,7 @@ describe('isTrustedWriteRequest', () => {
   })
 
   it('accepts the configured site origin in production', () => {
-    process.env.NODE_ENV = 'production'
+    vi.stubEnv('NODE_ENV', 'production')
     delete process.env.ALLOW_HOST_ORIGIN_TRUST
     process.env.NEXT_PUBLIC_SITE_URL = 'https://www.nagarikwatch.com'
     expect(
@@ -55,7 +55,7 @@ describe('isTrustedWriteRequest', () => {
   })
 
   it('allows matching Host origins outside production', () => {
-    process.env.NODE_ENV = 'development'
+    vi.stubEnv('NODE_ENV', 'development')
     expect(
       isTrustedWriteRequest(
         requestWith({

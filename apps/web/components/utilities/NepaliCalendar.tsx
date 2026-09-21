@@ -85,7 +85,7 @@ export function NepaliCalendar({
   const lastAd = bsToAd(year, month, length)
   const startWeekday = firstAd ? kathmanduAdParts(firstAd).weekday : 0
 
-  const cells = useMemo(() => {
+  const cells = (() => {
     const out: DayCell[] = []
     for (let d = 1; d <= length; d++) {
       const ad = bsToAd(year, month, d)
@@ -101,12 +101,12 @@ export function NepaliCalendar({
       })
     }
     return out
-  }, [length, month, schedule, year, startWeekday])
+  })()
 
   const monthName = en ? BS_MONTHS_EN[month - 1] : BS_MONTHS[month - 1]
   const selected = cells.find((c) => c.day === safeSelectedDay) ?? cells[0]
 
-  const holidaysThisMonth = useMemo(() => {
+  const holidaysThisMonth = (() => {
     const list: Array<{ day: number; nameNe: string; nameEn: string; holiday?: boolean }> = []
     for (const c of cells) {
       for (const e of c.events) list.push({ ...e, day: c.day })
@@ -115,12 +115,9 @@ export function NepaliCalendar({
       if (Boolean(a.holiday) !== Boolean(b.holiday)) return a.holiday ? -1 : 1
       return a.day - b.day
     })
-  }, [cells])
+  })()
 
-  const holidayCount = useMemo(
-    () => holidaysThisMonth.filter((e) => e.holiday).length,
-    [holidaysThisMonth],
-  )
+  const holidayCount = holidaysThisMonth.filter((event) => event.holiday).length
   const festivalCount = holidaysThisMonth.length
   const hasScheduleForYear = schedule?.year === year
 

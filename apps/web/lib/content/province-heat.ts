@@ -25,7 +25,9 @@ export async function resolveProvinceHeat(options?: {
     options?.catalog
       ? Promise.resolve({ items: options.catalog })
       : getStories({ locale: 'ne', perPage: 120 }),
-    getMostReadStats(options?.windowDays ?? 7, 120).catch(() => []),
+    getMostReadStats(options?.windowDays ?? 7, 120).catch(
+      (): Awaited<ReturnType<typeof getMostReadStats>> => [],
+    ),
   ])
 
   const readersBySlug = new Map(stats.map((row) => [row.articleSlug, row.uniqueReaders]))

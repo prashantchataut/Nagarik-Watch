@@ -36,7 +36,7 @@ async function run(request: NextRequest) {
   }
 
   const deliverable = pressure > 0.9 ? events.slice(0, 5) : events
-  const results = []
+  const results: Array<{ eventId: string } & Awaited<ReturnType<typeof deliverPushEvent>>> = []
   for (const event of deliverable) {
     results.push({ eventId: event.id, ...(await deliverPushEvent(event)) })
   }

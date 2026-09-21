@@ -6,10 +6,7 @@ import { getProviderHealth } from '@/lib/live/health'
 import { listManualLiveRecords, setManualLiveRecord } from '@/lib/live/manual'
 import { validateManualLiveData } from '@/lib/live/manual-schema'
 import { formatDate, todayBsInKathmandu } from '@nagarikwatch/db'
-import {
-  getCalendarProviderState,
-  syncCalendarScheduleFromProvider,
-} from '@/lib/calendar-provider'
+import { getCalendarProviderState, syncCalendarScheduleFromProvider } from '@/lib/calendar-provider'
 import {
   AdminPageHeader,
   AdminCard,
@@ -147,7 +144,10 @@ export default async function LiveWidgetsPage({
 }) {
   await requireNewsroomSession()
   const params = await searchParams
-  const [providers, manualRecords] = await Promise.all([
+  const [providers, manualRecords]: [
+    Awaited<ReturnType<typeof getProviderHealth>>,
+    Awaited<ReturnType<typeof listManualLiveRecords>>,
+  ] = await Promise.all([
     getProviderHealth().catch(() => []),
     listManualLiveRecords().catch(() => []),
   ])
@@ -184,7 +184,7 @@ export default async function LiveWidgetsPage({
                 ? 'पात्रो sync का लागि बि.सं. वर्ष २०००–२०९९ बीच हुनुपर्छ।'
                 : params.error === 'calendar-provider'
                   ? params.detail || 'पात्रो प्रदायकबाट sync हुन सकेन।'
-              : null
+                  : null
 
   return (
     <div>
@@ -211,7 +211,10 @@ export default async function LiveWidgetsPage({
       <AdminCard className="mb-6">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-end">
           <div>
-            <p className="text-caption font-extrabold uppercase tracking-[0.12em] text-brand-strong" lang="en">
+            <p
+              className="text-caption font-extrabold uppercase tracking-[0.12em] text-brand-strong"
+              lang="en"
+            >
               Calendar provider
             </p>
             <h2 className="mt-1 font-display text-h2 font-extrabold text-ink" lang="ne">
@@ -219,21 +222,31 @@ export default async function LiveWidgetsPage({
             </h2>
             <p className="mt-2 max-w-body text-meta leading-relaxed text-ink-soft" lang="ne">
               पर्व र सार्वजनिक बिदा अब JSON हातैले लेख्नुपर्दैन। प्रदायकबाट वर्षको पात्रो तानिन्छ,
-              प्रत्येक बि.सं. मिति server मा जाँचिन्छ र सफल sync मात्र सार्वजनिक cache मा सुरक्षित हुन्छ।
+              प्रत्येक बि.सं. मिति server मा जाँचिन्छ र सफल sync मात्र सार्वजनिक cache मा सुरक्षित
+              हुन्छ।
             </p>
             <dl className="mt-4 grid gap-2 border-y border-rule py-3 text-caption sm:grid-cols-3">
               <div>
-                <dt className="font-bold text-mute" lang="ne">प्रदायक</dt>
+                <dt className="font-bold text-mute" lang="ne">
+                  प्रदायक
+                </dt>
                 <dd className="mt-0.5 font-extrabold text-ink">{calendarProvider.source}</dd>
               </div>
               <div>
-                <dt className="font-bold text-mute" lang="ne">स्थिति</dt>
-                <dd className={`mt-0.5 font-extrabold ${calendarProvider.configured ? 'text-success' : 'text-breaking'}`} lang="ne">
+                <dt className="font-bold text-mute" lang="ne">
+                  स्थिति
+                </dt>
+                <dd
+                  className={`mt-0.5 font-extrabold ${calendarProvider.configured ? 'text-success' : 'text-breaking'}`}
+                  lang="ne"
+                >
                   {calendarProvider.configured ? 'कन्फिगर गरिएको' : 'API key/URL आवश्यक'}
                 </dd>
               </div>
               <div>
-                <dt className="font-bold text-mute" lang="ne">अन्तिम cache</dt>
+                <dt className="font-bold text-mute" lang="ne">
+                  अन्तिम cache
+                </dt>
                 <dd className="mt-0.5 font-extrabold text-ink" lang="ne">
                   {calendarRecord && calendarData
                     ? `${calendarData.year} · ${calendarData.events.length} कार्यक्रम · ${formatDate(calendarRecord.updatedAt, 'ne')}`

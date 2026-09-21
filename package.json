@@ -8,17 +8,38 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "pnpm --filter ./apps/web dev",
-    "build": "pnpm --filter ./apps/web build",
-    "start": "pnpm --filter ./apps/web start",
-    "lint": "pnpm --filter ./apps/web lint",
-    "typecheck": "pnpm --filter ./apps/web typecheck",
-    "db:push": "pnpm --filter ./apps/web db:push",
-    "seed": "pnpm --filter ./apps/web seed",
-    "format": "prettier --write ."
+    "dev": "corepack pnpm --filter ./apps/web dev",
+    "build": "corepack pnpm build:web",
+    "build:web": "corepack pnpm --filter @nagarikwatch/web build",
+    "build:admin": "corepack pnpm --filter @nagarikwatch/admin build",
+    "start": "corepack pnpm --filter ./apps/web start",
+    "lint": "corepack pnpm --filter @nagarikwatch/web lint && corepack pnpm --filter @nagarikwatch/admin lint",
+    "typecheck": "corepack pnpm --filter @nagarikwatch/web typecheck && corepack pnpm --filter @nagarikwatch/admin typecheck",
+    "test": "corepack pnpm -r --if-present test",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test e2e/a11y.spec.ts",
+    "test:e2e:newsroom": "playwright test --config playwright.newsroom.config.ts",
+    "db:push": "corepack pnpm --filter ./apps/web db:push",
+    "seed": "corepack pnpm --filter ./apps/web seed",
+    "format": "prettier --write .",
+    "format:check": "node scripts/check-format-changed.mjs",
+    "verify:static": "node scripts/audit-architecture.mjs && node scripts/audit-public-surface.mjs && node scripts/audit-ui-bans.mjs && node scripts/route-matrix.mjs && node scripts/internal-links.mjs",
+    "perf:budget": "node scripts/perf-budget.mjs",
+    "perf:budget:test": "node scripts/perf-budget.mjs --self-test",
+    "launch:gate": "node scripts/launch-gate.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "prettier": "^3.4.2",
     "next": "^16.1.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "deepmerge-ts": "^8.0.0",
+      "js-yaml": "^4.3.2",
+      "postcss": "^8.5.18",
+      "sharp": "^0.35.4",
+      "vite": "^6.4.3"
+    }
   }
 }

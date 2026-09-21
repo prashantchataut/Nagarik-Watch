@@ -273,7 +273,9 @@ export function JournalistArticleDraftForm({
       }
     })
   }
-  saveRef.current = submit
+  useEffect(() => {
+    saveRef.current = submit
+  })
 
   async function requestAssistance(action: AssistanceAction) {
     if (!draft.bodyNe.trim()) {
@@ -881,7 +883,7 @@ export function JournalistArticleDraftForm({
             </div>
             {draft.heroImageUrl ? (
               <figure className="newsroom-hero-preview">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {}
                 <img src={draft.heroImageUrl} alt="" />
                 <figcaption>{ne ? 'सन्दर्भ पूर्वावलोकन' : 'Reference preview'}</figcaption>
               </figure>
