@@ -1,28 +1,30 @@
 # What to build next
 
-Written 2026-09-21, after the site-readiness pass. Ordered by what blocks the most
-downstream work, not by effort. Each item says why it matters here specifically, so
+Written 2026-09-21, after the site-readiness pass. Revised 2026-09-22 — the items that
+have since been done say so instead of being deleted, because "why is this no longer a
+problem" is the question a reader of a roadmap actually has. Ordered by what blocks the
+most downstream work, not by effort. Each item says why it matters here specifically, so
 you can drop the ones you disagree with without unpicking the rest.
 
-## 0. The one thing that undercuts everything else
+## 0. Component tests exist now — extend them
 
-**There is no test that renders a React component.** 570 tests pass, and every one of
-them exercises a pure function, a route handler or a library module. The client
-components — the paywall meter, the comment thread, the search view, the reader
-preference panel, the consent gate — have no coverage at all. This pass rewrote a lot
-of their hydration logic; the gates that caught my mistakes were `tsc` and ESLint, not
-tests.
+**Was:** no test rendered a React component. That is fixed for the four where a bug is
+silent rather than loud: `PaywallNotice`, `CookieConsent`, `SearchView` and
+`ArticleBody`.
 
-`happy-dom` is already in the dependency tree. Adding `@testing-library/react` and
-writing tests for the six or seven components that hold real state would change the
-risk profile of every future change more than anything else on this list.
+The harness is deliberately small: `// @vitest-environment happy-dom` at the top of the
+file plus `@/test/render`, which is ~30 lines over `react-dom/server` and a DOM parse.
+There is no `@testing-library/react` and no jsdom, and adding either is a decision, not
+a detail — the current setup renders the server output a reader receives, which for an
+app that is mostly server components is the thing worth asserting.
 
-Start with the ones where a bug is silent rather than loud:
+Still uncovered, in rough order of how much state they hold:
 
-- `MeteredPaywall` — an off-by-one in the free-article count is invisible until a
-  reader complains, and it directly affects revenue.
-- `CookieConsent` — a regression here is a legal problem, not a UX problem.
-- `SearchView` — the most stateful component in the app.
+- `UtilityTools` (14 `useState`) and `NepaliCalendar` — the BS/AD conversion is the
+  kind of arithmetic that is wrong silently and for one month only.
+- `ReaderArticleControls` and `NotificationCenter` — both write to `localStorage`, so a
+  regression persists across reloads for the reader who hit it.
+- `CommentSection` — the only reader-facing component that posts.
 
 ## 1. Content authority: finish the Payload cutover
 
@@ -51,12 +53,17 @@ keeping forex, NEPSE and the earthquake feed fresh — if one starts failing you
 find out from a reader noticing a stale number, which is the worst possible detection
 channel for a news site.
 
-## 3. The R2 binding is documented but not declared
+## 3. R2 — no longer silent, still one command from working
 
-`saveR2MediaFile` expects a Workers `MEDIA_BUCKET` binding. `apps/web/wrangler.jsonc`
-declares no `r2_buckets` entry, so on the Cloudflare path the function returns `null`
-and uploads silently fall through to Vercel Blob or local disk. Either declare the
-binding or delete the R2 path — the current state reads like a working feature.
+`saveR2MediaFile` expects a Workers `MEDIA_BUCKET` binding and `apps/web/wrangler.jsonc`
+still declares no live `r2_buckets` entry. What changed is that it no longer *reads like
+a working feature*: `wrangler.jsonc` carries the three enable steps in a comment above
+the commented-out block, and `app/api/admin/media/upload/route.ts` returns 503 naming
+the missing binding instead of falling through to local disk.
+
+So this is a deployment step, not a code gap: create the bucket, uncomment the block,
+redeploy. Leaving it off is a valid choice — Vercel Blob is the configured path — but
+then `BLOB_READ_WRITE_TOKEN` has to be set, and today it is not.
 
 ## 4. Split `globals.css`
 
@@ -75,7 +82,9 @@ Fixed here: reduced motion, two missing focus indicators, the media dialog's foc
 an admin skip link. Still open:
 
 - **No axe run in CI.** `pnpm test:a11y` exists and is not in `.github/workflows/ci.yml`.
-  Wiring it would have caught the dialog and the focus indicators automatically.
+  Wiring it would have caught the dialog and the focus indicators automatically. This is
+  a two-line change to the workflow file and has to be made by a human or a token with
+  the `workflow` scope; agent pushes to `.github/workflows/**` are rejected.
 - **Colour contrast is unverified.** The Civic Crimson palette against `--surface` and
   `--mute` text has never been measured. This is a Devanagari-first site, and Devanagari
   matras are thin strokes — contrast that passes for Latin can still be hard to read
@@ -93,15 +102,19 @@ sliding window is enough. No new infrastructure required.
 
 ## 7. Editorial workflow gaps worth closing
 
-- **No scheduled publishing.** Articles go live the moment an editor hits publish.
-  A newsroom wants a 6am embargo.
-- **No revision history.** `nw_articles` stores current state. If an editor overwrites a
-  reporter's copy there is no way back, and for a fact-check desk the absence of an
-  audit trail on the article body is a credibility risk. The `audit-log` covers actions,
-  not content.
-- **No corrections workflow.** The ethics page promises corrections; there is no UI for
-  issuing one, and no structured `correction` field that could surface on the article
-  and in the RSS feed.
+- ~~**No scheduled publishing.**~~ Done, and it was already done when this was written.
+  `lib/editorial/scheduled-publish.ts` promotes `workflowStage=scheduled` rows whose
+  `publishedAt` has passed, `app/api/cron/scheduled-publish/route.ts` runs it every five
+  minutes off `CRON_SECRET`, and it is idempotent. The 6am embargo works.
+- **Revision history exists only on the Payload path.** `apps/admin` declares
+  `versions.drafts` on the Articles collection, so Payload keeps the audit trail. The
+  JSON desk stores current state and nothing else, and it is still the default. This is
+  a second reason to finish §1: for a fact-check desk, the absence of an audit trail on
+  the article body is a credibility risk, and right now which path you are on decides
+  whether you have one.
+- **Corrections are half-built.** `Correction` is a real type in `packages/db`, the
+  article page renders `CorrectionNotice`, and an editor still has no way to issue one —
+  nothing writes `corrections[]`, and the RSS feed does not carry it.
 
 That last one matters more than its size suggests. A Devanagari-first independent
 outlet's main asset is trust, and a visible corrections policy that the software
@@ -110,14 +123,25 @@ actually implements is the cheapest trust you will ever buy.
 ## 8. Performance, once there is content
 
 The perf budget passes at 66 chunks under 500 KiB, but it is measuring an empty site.
-Re-measure with 500 published articles before drawing conclusions. Specific things that
-will bite at volume:
+Re-measure with 500 published articles before drawing conclusions.
 
-- `sitemap.ts` builds every URL in one pass. Split it at 1,000 URLs.
-- The search index is built client-side from the full corpus. That does not survive a
-  real archive; move to a server-side endpoint with pagination.
-- `trending-stories.ts` and `ranking-signals.ts` recompute per request. Cache them on
-  the same revalidate cadence as the homepage.
+The three specific items that were listed here are done, and the way each was wrong is
+worth keeping:
+
+- **The sitemap was not slow, it was lying.** `sitemap.ts` read `perPage: 1000` and
+  emitted whatever came back, so story 1,001 onwards simply stopped being advertised —
+  no error, no failing build. Articles now live in `/archive-sitemap.xml`, an index over
+  20,000-URL shards sorted newest-first, and `/sitemap.xml` carries structure only.
+- **Search is already server-side.** `app/api/search/route.ts` calls
+  `searchStoriesRanked` in `lib/search-server.ts`, rate-limited, with the index built on
+  the server. Nothing ships the corpus to the browser.
+- **`trending-stories.ts` does not exist**, and `lib/ranking-signals.ts` already caches
+  engagement at `ENGAGEMENT_TTL_MS = 30_000`.
+
+What is still unmeasured at volume: the admin SEO page rebuilds the related-story graph
+for its PageRank pass, which is O(n²) in the window. It is capped at 120 stories for
+that reason. If you want it over the whole archive, it needs the edges persisted rather
+than recomputed.
 
 ## 9. Housekeeping
 
