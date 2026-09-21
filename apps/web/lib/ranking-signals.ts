@@ -7,6 +7,7 @@ import {
   getTrendingSamples,
 } from '@/lib/engagement/store'
 import { getRankingEventStats } from '@/lib/engagement/ranking-events'
+import { editorialTrustScore } from '@/lib/editorial/trust-score'
 import { orEmpty } from '@/lib/resilience/or-empty'
 
 export type StoryEngagementIndex = {
@@ -166,8 +167,12 @@ export function signalsForStory(
     bookmarkVelocity: activity.bookmarkVelocity,
     readingCompletion: activity.readingCompletion,
     dwellTimeSeconds: activity.dwellTimeSeconds,
-    // Trust stays at 0 until a real source/reliability pipeline populates it.
-    qualityTrustScore: 0,
+    // Computed from the story's own editorial metadata — byline, fact-check
+    // verdict, desk provenance. This used to be a literal 0, which silently
+    // deleted a 9-point term from `weightedScore` on every hub.
+    qualityTrustScore: editorialTrustScore(story).score,
+    // Left at 0 so `weightedScore` derives it from measured dwell/completion
+    // via `ltvEngagementScore`; there is no separate LTV model to read.
     ltvScore: 0,
     premium: Boolean(story.premium),
   }

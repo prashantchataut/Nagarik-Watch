@@ -1142,7 +1142,7 @@ export async function getBookmarkVelocityStats(
 }
 
 /** Recent reader activity shaped for the shared trending detector. No identity leaves the store. */
-export async function getTrendingSamples(windowMinutes = 120): Promise<EngagementSample[]> {
+async function loadTrendingSamples(windowMinutes = 120): Promise<EngagementSample[]> {
   const cutoff = new Date(Date.now() - Math.max(15, windowMinutes) * 60_000)
   const cutoffIso = cutoff.toISOString()
   const database = await getPool()
@@ -1317,4 +1317,49 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
     bookmarks: 0,
   }))
   return [...readings, ...comments, ...bookmarks, ...shares, ...attention]
+}
+
+/**
+ * Trending samples are five table scans over the engagement window, and a
+ * single homepage render asks for them from two places (the engagement index
+ * and the trending rail) while /trending and /most-read ask again. Memoize per
+ * window for a slice of the 60s page revalidate, and collapse concurrent
+ * callers onto one query so a cold cache does not fan out.
+ *
+ * Stale samples move a velocity score by a few seconds of reads; a duplicated
+ * table scan per request costs a lot more than that is worth.
+ */
+const TRENDING_SAMPLE_TTL_MS = 30_000
+const trendingSampleCache = new Map<number, { at: number; value: EngagementSample[] }>()
+const trendingSampleInFlight = new Map<number, Promise<EngagementSample[]>>()
+
+export async function getTrendingSamples(windowMinutes = 120): Promise<EngagementSample[]> {
+  const cached = trendingSampleCache.get(windowMinutes)
+  if (cached && Date.now() - cached.at < TRENDING_SAMPLE_TTL_MS) return cached.value
+
+  const pending = trendingSampleInFlight.get(windowMinutes)
+  if (pending) return pending
+
+  const request = loadTrendingSamples(windowMinutes)
+    .then((value) => {
+      trendingSampleCache.set(windowMinutes, { at: Date.now(), value })
+      return value
+    })
+    .catch((error) => {
+      // Serve the last good window rather than blanking every trending surface.
+      console.error('[trending] sample load failed', error instanceof Error ? error.message : error)
+      return cached?.value ?? []
+    })
+    .finally(() => {
+      trendingSampleInFlight.delete(windowMinutes)
+    })
+
+  trendingSampleInFlight.set(windowMinutes, request)
+  return request
+}
+
+/** Test seam — drops the memo so a suite can observe a fresh query. */
+export function resetTrendingSampleCache(): void {
+  trendingSampleCache.clear()
+  trendingSampleInFlight.clear()
 }

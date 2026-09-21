@@ -5,6 +5,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { SearchView } from '@/components/search/SearchView'
 import type { SearchableStory } from '@/lib/search'
+import { toSearchableStory } from '@/lib/search-server'
 
 type Params = { locale: string }
 
@@ -22,22 +23,7 @@ export default async function SearchPage({ params }: { params: Promise<Params> }
   const SEARCH_CORPUS_CAP = 120
   const { items } = await getStories({ perPage: SEARCH_CORPUS_CAP, limit: SEARCH_CORPUS_CAP })
 
-  const corpus: SearchableStory[] = items.map((s) => ({
-    id: s.id,
-    slug: s.slug,
-    category: s.category,
-    categoryLabel: s.categoryLabel,
-    titleNe: s.titleNe,
-    titleEn: s.titleEn,
-    deckNe: s.deckNe,
-    deckEn: s.deckEn,
-    byline: s.byline,
-    publishedAt: s.publishedAt,
-    hasEnglish: s.hasEnglish,
-    isBreaking: s.isBreaking,
-    authors: s.authors.map((a) => ({ name: a.name, slug: a.slug })),
-    heroImage: s.heroImage ? { url: s.heroImage.url, alt: s.heroImage.alt } : null,
-  }))
+  const corpus: SearchableStory[] = items.map(toSearchableStory)
 
   return <SearchView locale={locale} corpus={corpus} corpusCap={SEARCH_CORPUS_CAP} />
 }
