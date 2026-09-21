@@ -14,11 +14,11 @@ bun run dev               # http://localhost:3000
 
 Demo journalist logins (after seeding):
 
-| email | password | desk |
-|---|---|---|
+| email                    | password | desk    |
+| ------------------------ | -------- | ------- |
 | sushila@nagarikwatch.com | demo1234 | राजनीति |
-| rajesh@nagarikwatch.com | demo1234 | बजार |
-| manisha@nagarikwatch.com | demo1234 | विचार |
+| rajesh@nagarikwatch.com  | demo1234 | बजार    |
+| manisha@nagarikwatch.com | demo1234 | विचार   |
 
 Reader accounts are created in-app from the masthead **लगइन** button
 (signup tab). Reader and journalist logins are deliberately separate systems.

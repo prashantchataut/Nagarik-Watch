@@ -22,3 +22,17 @@ graphify-out/
 # Local dev artifacts — HTML/CSS dumps saved for inspection, not part of the app
 live-home.html
 live.css
+
+# Agent / session scratch and archives
+.audit/
+.tmp-*/
+tmp-*/
+*.zip
+
+# Next.js-generated, rewritten on every build
+apps/web/next-env.d.ts
+
+# Legacy monolith stylesheet (~190 KB). It predates the format gate and its
+# reformatting churn is deferred to a dedicated CSS pass rather than mixed into
+# a behaviour change.
+apps/web/app/globals.css

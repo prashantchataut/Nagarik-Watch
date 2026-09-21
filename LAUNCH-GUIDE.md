@@ -77,9 +77,9 @@ The subscription flow is complete with a demo checkout. To go live:
 
 ## 7. The last 6% (why 94%)
 
-| Check | What completes it |
-|---|---|
-| Cloudflare R2 (4 pts) | The five `R2_*` env vars above |
+| Check                       | What completes it                    |
+| --------------------------- | ------------------------------------ |
+| Cloudflare R2 (4 pts)       | The five `R2_*` env vars above       |
 | Production site URL (2 pts) | `NEXT_PUBLIC_SITE_URL` + real domain |
 
 Set those two and the panel reads **100%**.

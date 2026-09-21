@@ -46,7 +46,7 @@ export default async function EpaperViewerPage({
   const edition = editions.find((item) => item.date === date)
   if (!edition) notFound()
 
-  const visiblePages = []
+  const visiblePages: (typeof edition.pages)[number][] = []
   for (const page of edition.pages) {
     const check = await checkEntitlement(session, page)
     if (check.allowed) visiblePages.push(page)

@@ -69,7 +69,12 @@ export async function generateMetadata({
   const { locale: raw, category, slug } = await params
   const locale = asLocale(raw)
   const article = await getArticleBySlug(category, slug, locale)
-  if (!article) return {}
+  if (!article) {
+    // The locale rewrite means an unknown slug renders the not-found UI with an
+    // HTTP 200, so the slug space is effectively infinite. Tell crawlers not to
+    // index it rather than relying on the status code alone.
+    return { robots: { index: false, follow: false } }
+  }
   const useEnglish = locale === 'en' && Boolean(article.hasEnglish)
   const titleRaw =
     useEnglish && article.seoTitleEn
@@ -210,7 +215,9 @@ export default async function ArticlePage({
           </div>
           <h1
             className={`mx-auto mt-4 max-w-[20ch] text-balance font-display text-[clamp(2.55rem,6vw,5rem)] font-black text-ink ${
-              readingEnglish ? 'leading-[1.03] tracking-[-0.035em]' : 'leading-[1.12] tracking-normal'
+              readingEnglish
+                ? 'leading-[1.03] tracking-[-0.035em]'
+                : 'leading-[1.12] tracking-normal'
             }`}
           >
             {title}

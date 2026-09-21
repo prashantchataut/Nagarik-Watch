@@ -36,7 +36,9 @@ export default async function StaffMfaSetupPage({
         >
           <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} />
         </Link>
-        <span className="newsroom-login__badge">{ne ? 'न्यूजरुम सुरक्षा' : 'Newsroom security'}</span>
+        <span className="newsroom-login__badge">
+          {ne ? 'न्यूजरुम सुरक्षा' : 'Newsroom security'}
+        </span>
       </div>
 
       <div className="newsroom-login__grid">
@@ -49,9 +51,21 @@ export default async function StaffMfaSetupPage({
               : 'Add an authenticator app as a second factor for your newsroom account.'}
           </p>
           <ul className="newsroom-login__points">
-            <li>{ne ? 'QR code authenticator app मा स्क्यान गर्नुहोस्' : 'Scan the QR code in an authenticator app'}</li>
-            <li>{ne ? 'Recovery codes सुरक्षित स्थानमा राख्नुहोस्' : 'Store recovery codes somewhere secure'}</li>
-            <li>{ne ? '६-अङ्कको code पुष्टि गरेर डेस्कमा फर्कनुहोस्' : 'Verify a 6-digit code to return to the desk'}</li>
+            <li>
+              {ne
+                ? 'QR code authenticator app मा स्क्यान गर्नुहोस्'
+                : 'Scan the QR code in an authenticator app'}
+            </li>
+            <li>
+              {ne
+                ? 'Recovery codes सुरक्षित स्थानमा राख्नुहोस्'
+                : 'Store recovery codes somewhere secure'}
+            </li>
+            <li>
+              {ne
+                ? '६-अङ्कको code पुष्टि गरेर डेस्कमा फर्कनुहोस्'
+                : 'Verify a 6-digit code to return to the desk'}
+            </li>
           </ul>
         </section>
 

@@ -1,36 +1,58 @@
-# Repo Declutter — what was removed & what you should delete locally
+# Repo declutter — current, verified state
 
-The repo was carrying a parallel legacy application (old `apps/web/app/`,
-Payload CMS `apps/admin`, five workspace packages, ~15 deployment scripts and
-99 vendored skill folders). That is what bloated it and what broke the Vercel
-install (lockfile drift). The consolidation already removed them **in this
-package**. If your local clone still has them, delete with:
+> **Previous version of this file was dangerous.** It instructed readers to run
+> `git rm -r apps/web/app apps/web/components apps/web/lib …`, which deletes the
+> entire reader application. Do not follow any instruction that removes those
+> paths: they are the product. That list was written for an older consolidation
+> attempt that was never applied, and it was left in the repo root where a human
+> or an agent could have executed it.
+
+## What is actually canonical
+
+| Path                | Status                                                                                   |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| `apps/web`          | **The reader app.** Next.js 16 App Router, real routes, SSG + ISR. Owns the public site. |
+| `apps/admin`        | Payload CMS. **Separate deployable, outside the root pnpm workspace.** Not built by CI.  |
+| `packages/db`       | Shared types, BS↔AD date maths, workflow rules. Used by `apps/web`.                      |
+| `packages/ui`       | Design tokens and shared reader components.                                              |
+| `packages/infra`    | Deployment/infra helpers.                                                                |
+| `packages/ingest`   | Wire/ingest helpers.                                                                     |
+| `packages/tsconfig` | Shared TypeScript config.                                                                |
+| `design-system/`    | Token source of truth referenced by `packages/ui`.                                       |
+| `scripts/`          | Repo-native gates: workspace/lock verification, static audits, perf budget, launch gate. |
+| `docs/`             | Product, architecture, runbooks, audits.                                                 |
+
+`pnpm-workspace.yaml` lists `apps/web` and `packages/*` only. That is deliberate:
+`apps/admin` has no `pnpm-lock.yaml` importer, so adding it to the workspace would
+make `pnpm install --frozen-lockfile` fail for everyone. `scripts/verify-canonical-workspaces.mjs`
+and `scripts/verify-workspace-lock.mjs` now assert exactly this and fail loudly if
+the two files drift apart again.
+
+## Cleaned up in this pass
+
+Removed from git (recoverable via `git log --follow`):
+
+- `.tmp-assessment-b/`, `.tmp-chrome/` — ~5.5 MB of agent screenshot scratch at the repo root.
+- `apps/web/tsconfig.zip` — a 1.9 MB stray archive.
+- `apps/web/bun.lock` — a second package manager's lockfile competing with `pnpm-lock.yaml`.
+- `apps/web/scripts/*.png`, `img_*.json`, `img_err.txt` — one-off capture dumps.
+
+`.gitignore` and `.prettierignore` now ignore `.audit/`, `.tmp-*/`, `*.zip` and stray
+`bun.lock` files so scratch cannot be committed again.
+
+## Safe local cleanups (not committed)
 
 ```bash
-git rm -r apps/admin packages .agents .belt .cursor .opencode \
-  .tmp-assessment-b .tmp-chrome e2e skills prompts design-system \
-  mini-services docs .github scripts 2>/dev/null
-
-# root files no longer referenced:
-git rm turbo.json playwright.config.ts playwright.newsroom.config.ts \
-  docker-compose.yml wrangler.jsonc eslint.config.mjs skills-lock.json \
-  AGENT.md AGENTS.md MANUAL.md PRODUCT.md SPEC.md ROADMAP.md 2>/dev/null
-
-# legacy leftovers inside apps/web (if present):
-git rm -r apps/web/app apps/web/components apps/web/lib apps/web/hooks \
-  apps/web/test apps/web/migrations apps/web/scripts/e2e_*.{png,json,txt} \
-  apps/web/middleware.ts apps/web/middleware.admin-slim.ts \
-  apps/web/next.config.mjs apps/web/sentry.*.ts apps/web/instrumentation*.ts \
-  apps/web/open-next.config.ts apps/web/wrangler*.jsonc apps/web/tsconfig.zip \
-  apps/web/vitest.config.ts apps/web/bun.lock 2>/dev/null
-
-git add -A && git commit -m "consolidate to single Next.js app; regenerate lockfile"
+rm -rf apps/web/.next .turbo coverage playwright-report test-results
 ```
 
-**Safe because:** everything removed lives in git history (`git log --follow`
-recovers any file), and the new build does not reference any of it
-(`pnpm --filter ./apps/web build` passes from a clean checkout — verified).
+## Verification
 
-Keep: `apps/web`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `vercel.json`,
-`package.json`, `README.md`, `LAUNCH-GUIDE.md`, `CLEANUP.md`, `DESIGN.md`,
-`CHANGES.md`, `.env.example`, `.gitignore`, `.editorconfig`, `.prettierrc.json`.
+The repo has one command for the whole gate:
+
+```bash
+pnpm verify      # workspaces → lock → format → lint → typecheck → tests → audits → build → budget → db tests
+```
+
+It must pass from a clean checkout with no `.env` file. If it does not, that is a
+bug in the repo, not in your environment.

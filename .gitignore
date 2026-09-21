@@ -79,3 +79,10 @@ VERIFICATION_TSC_WEB.log
 RECOVERY_*.json
 worklog.md
 
+# Agent / session scratch (screenshots, DOM dumps, capture scripts). Never product source.
+.audit/
+.tmp-*/
+tmp-*/
+*.zip
+apps/web/bun.lock
+bun.lock

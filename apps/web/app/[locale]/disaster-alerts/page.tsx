@@ -137,7 +137,11 @@ export default async function DisasterAlertsPage({
       {/* Always-useful furniture: emergency contacts stay on this page in every state. */}
       <section className="mt-9" aria-labelledby="emergency-contacts-title">
         <div className="flex items-baseline justify-between gap-3 border-b border-rule pb-2.5">
-          <h2 id="emergency-contacts-title" className="font-display text-h3 font-extrabold text-ink" lang={en ? 'en' : 'ne'}>
+          <h2
+            id="emergency-contacts-title"
+            className="font-display text-h3 font-extrabold text-ink"
+            lang={en ? 'en' : 'ne'}
+          >
             {en ? 'Emergency contacts' : 'आपत्कालीन सम्पर्क'}
           </h2>
           <span className="text-caption text-mute" lang={en ? 'en' : 'ne'}>
@@ -155,7 +159,10 @@ export default async function DisasterAlertsPage({
               <p className="text-caption font-semibold text-ink-soft" lang={en ? 'en' : 'ne'}>
                 {en ? contact.en : contact.ne}
               </p>
-              <p className="mt-1 font-display text-[1.9rem] font-black tabular-nums leading-none text-brand-strong" lang="en">
+              <p
+                className="mt-1 font-display text-[1.9rem] font-black tabular-nums leading-none text-brand-strong"
+                lang="en"
+              >
                 {contact.num}
               </p>
             </div>

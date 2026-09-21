@@ -16,15 +16,15 @@ to the rail, kickers, and links.
 
 ## 2. Surface
 
-| Token | Light (paper) | Dark (ink) |
-|---|---|---|
-| `--paper` | `#F4F1EC` warm paper | `#17120F` deep ink |
-| `--surface` | `#FFFFFF` card | `#211A16` card |
-| `--ink` | `#1A1012` | `#EDE6DC` |
-| `--ink-soft` | `#5C5148` | `#A99D91` |
-| `--crimson` | `#C02A2A` | `#E8484B` |
-| `--crimson-deep` | `#8E1F22` | — rail gradient |
-| `--rule` | `#E2DCD2` hairlines | `#322A24` |
+| Token            | Light (paper)        | Dark (ink)         |
+| ---------------- | -------------------- | ------------------ |
+| `--paper`        | `#F4F1EC` warm paper | `#17120F` deep ink |
+| `--surface`      | `#FFFFFF` card       | `#211A16` card     |
+| `--ink`          | `#1A1012`            | `#EDE6DC`          |
+| `--ink-soft`     | `#5C5148`            | `#A99D91`          |
+| `--crimson`      | `#C02A2A`            | `#E8484B`          |
+| `--crimson-deep` | `#8E1F22`            | — rail gradient    |
+| `--rule`         | `#E2DCD2` hairlines  | `#322A24`          |
 
 Warm paper everywhere; pure white only for cards. Dark mode is the same
 newspaper printed at night — deep ink, warm cream text, crimson unchanged in
@@ -41,7 +41,7 @@ spirit.
   spaced-out wordmarks, in either Devanagari or Latin. Devanagari conjuncts
   and matras require zero inter-glyph spacing to render correctly, and
   spaced Latin small caps read as artificial. Hierarchy comes from weight,
-  size and color only. ("NAGARIK WATCH", never "N A G A R I K  W A T C H".)
+  size and color only. ("NAGARIK WATCH", never "N A G A R I K W A T C H".)
 
 Measure: article body **680px, centered**. Homepage edition container
 **1180px**. Never justify body text; ragged right.
@@ -52,7 +52,7 @@ Measure: article body **680px, centered**. Homepage edition container
    to the right, facts: BS date, काठमाडौं weather, NEPSE close, and पात्रो as
    the single solid crimson button. Search + theme + सेभ as quiet icons.
 2. **Sticky crimson desk rail** — full-width crimson band (`crimson →
-   crimson-deep` gradient), white Mukta desk labels, active desk underlined
+crimson-deep` gradient), white Mukta desk labels, active desk underlined
    with a white caret. Sticks below the masthead on desktop.
 
 Mobile: one masthead row (logo + पात्रो + menu), the crimson rail becomes a

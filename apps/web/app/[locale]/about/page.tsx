@@ -81,7 +81,10 @@ export default async function AboutPage({ params }: { params: Promise<Params> })
             <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               {model.map((item) => (
-                <div key={item.title} className="border-t-2 border-brand bg-surface-raised px-4 py-4">
+                <div
+                  key={item.title}
+                  className="border-t-2 border-brand bg-surface-raised px-4 py-4"
+                >
                   <h3 className="font-display text-body font-extrabold text-ink" lang={lang}>
                     {item.title}
                   </h3>
@@ -126,7 +129,8 @@ export default async function AboutPage({ params }: { params: Promise<Params> })
               <div className="mt-4 grid gap-2 border-t border-rule pt-3 text-caption text-ink-soft">
                 {legalName ? (
                   <p lang={lang}>
-                    {en ? 'Registered as' : 'दर्ता नाम'}: <span className="font-semibold text-ink">{legalName}</span>
+                    {en ? 'Registered as' : 'दर्ता नाम'}:{' '}
+                    <span className="font-semibold text-ink">{legalName}</span>
                   </p>
                 ) : null}
                 {editorInChief ? (
@@ -138,7 +142,9 @@ export default async function AboutPage({ params }: { params: Promise<Params> })
                 {registrationNumber ? (
                   <p lang={lang}>
                     {en ? 'DoIB registration' : 'विभाग दर्ता नं'}:{' '}
-                    <span className="font-semibold tabular-nums text-ink">{registrationNumber}</span>
+                    <span className="font-semibold tabular-nums text-ink">
+                      {registrationNumber}
+                    </span>
                   </p>
                 ) : null}
               </div>

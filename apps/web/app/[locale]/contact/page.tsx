@@ -8,15 +8,7 @@ import { NEWSROOM_DESKS, PUBLICATION, isPublicPublicationValue } from '@/lib/sit
 
 type Params = { locale: string }
 
-function DeskRow({
-  label,
-  value,
-  lang,
-}: {
-  label: string
-  value: string
-  lang: string
-}) {
+function DeskRow({ label, value, lang }: { label: string; value: string; lang: string }) {
   return (
     <div className="min-w-0">
       <p className="text-caption font-semibold text-ink-soft" lang={lang}>
@@ -70,7 +62,11 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
               </p>
               <p className="mt-3 text-caption text-mute" lang={lang}>
                 {en ? 'Fastest route: ' : 'छिटो बाटो: '}
-                <a href={`mailto:${NEWSROOM_DESKS.news}`} className="font-semibold text-brand" lang="en">
+                <a
+                  href={`mailto:${NEWSROOM_DESKS.news}`}
+                  className="font-semibold text-brand"
+                  lang="en"
+                >
                   {NEWSROOM_DESKS.news}
                 </a>
               </p>
@@ -103,10 +99,7 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
             </section>
           </div>
 
-          <section
-            className="mt-8 border-t border-rule pt-8"
-            aria-labelledby="contact-form-title"
-          >
+          <section className="mt-8 border-t border-rule pt-8" aria-labelledby="contact-form-title">
             <h2 id="contact-form-title" className="font-display text-h2 text-ink" lang={lang}>
               {en ? 'Send a message' : 'सन्देश पठाउनुहोस्'}
             </h2>
@@ -129,54 +122,53 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
             <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
             <div className="mt-4 grid gap-4">
               {generalEmail ? (
-                <DeskRow
-                  label={en ? 'General' : 'सामान्य'}
-                  value={generalEmail}
-                  lang={lang}
-                />
+                <DeskRow label={en ? 'General' : 'सामान्य'} value={generalEmail} lang={lang} />
               ) : null}
-                <DeskRow
-                  label={en ? 'News tips' : 'समाचार टिप'}
-                  value={NEWSROOM_DESKS.news}
-                  lang={lang}
-                />
-                <DeskRow
-                  label={en ? 'Corrections' : 'सच्याउ अनुरोध'}
-                  value={NEWSROOM_DESKS.corrections}
-                  lang={lang}
-                />
-                <DeskRow
-                  label={en ? 'Advertising' : 'विज्ञापन'}
-                  value={NEWSROOM_DESKS.advertising}
-                  lang={lang}
-                />
-                {phone ? (
-                  <div className="min-w-0">
-                    <p className="text-caption font-semibold text-ink-soft" lang={lang}>
-                      {en ? 'Phone' : 'फोन'}
-                    </p>
-                    <p className="text-meta font-bold tabular-nums text-ink" lang="en">
-                      {phone}
-                    </p>
-                  </div>
-                ) : null}
-                {address ? (
-                  <div className="min-w-0">
-                    <p className="text-caption font-semibold text-ink-soft" lang={lang}>
-                      {en ? 'Address' : 'ठेगाना'}
-                    </p>
-                    <p className="text-meta leading-relaxed text-ink" lang={lang}>
-                      {address}
-                    </p>
-                  </div>
-                ) : null}
-              </div>
-              <p className="mt-4 border-t border-rule pt-3 text-caption leading-relaxed text-mute" lang={lang}>
-                {en
-                  ? 'Messages are reviewed on working days within two to three days.'
-                  : 'सन्देश कार्यदिनमा दुई तीन दिनभित्र समीक्षा हुन्छ।'}
-              </p>
+              <DeskRow
+                label={en ? 'News tips' : 'समाचार टिप'}
+                value={NEWSROOM_DESKS.news}
+                lang={lang}
+              />
+              <DeskRow
+                label={en ? 'Corrections' : 'सच्याउ अनुरोध'}
+                value={NEWSROOM_DESKS.corrections}
+                lang={lang}
+              />
+              <DeskRow
+                label={en ? 'Advertising' : 'विज्ञापन'}
+                value={NEWSROOM_DESKS.advertising}
+                lang={lang}
+              />
+              {phone ? (
+                <div className="min-w-0">
+                  <p className="text-caption font-semibold text-ink-soft" lang={lang}>
+                    {en ? 'Phone' : 'फोन'}
+                  </p>
+                  <p className="text-meta font-bold tabular-nums text-ink" lang="en">
+                    {phone}
+                  </p>
+                </div>
+              ) : null}
+              {address ? (
+                <div className="min-w-0">
+                  <p className="text-caption font-semibold text-ink-soft" lang={lang}>
+                    {en ? 'Address' : 'ठेगाना'}
+                  </p>
+                  <p className="text-meta leading-relaxed text-ink" lang={lang}>
+                    {address}
+                  </p>
+                </div>
+              ) : null}
             </div>
+            <p
+              className="mt-4 border-t border-rule pt-3 text-caption leading-relaxed text-mute"
+              lang={lang}
+            >
+              {en
+                ? 'Messages are reviewed on working days within two to three days.'
+                : 'सन्देश कार्यदिनमा दुई तीन दिनभित्र समीक्षा हुन्छ।'}
+            </p>
+          </div>
         </aside>
       </div>
     </div>

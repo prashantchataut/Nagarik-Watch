@@ -13,7 +13,16 @@ function adSalesEmail(): string {
 
 type Placement = (typeof AD_PLACEMENTS)[keyof typeof AD_PLACEMENTS]
 
-const GROUP_ORDER = ['home', 'article', 'category', 'latest', 'trending', 'hub', 'public', 'mobile'] as const
+const GROUP_ORDER = [
+  'home',
+  'article',
+  'category',
+  'latest',
+  'trending',
+  'hub',
+  'public',
+  'mobile',
+] as const
 
 function groupKey(key: string): (typeof GROUP_ORDER)[number] {
   const first = key.split('-')[0] ?? ''
@@ -45,11 +54,7 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
   const placements = Object.values(AD_PLACEMENTS)
   const salesEmail = adSalesEmail()
 
-  const featuredKeys = new Set([
-    'home-billboard',
-    'article-sidebar-sticky',
-    'mobile-sticky',
-  ])
+  const featuredKeys = new Set(['home-billboard', 'article-sidebar-sticky', 'mobile-sticky'])
   const featured = placements.filter((p) => featuredKeys.has(p.key))
   const rest = placements
     .filter((p) => !featuredKeys.has(p.key))
@@ -175,7 +180,10 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
         <div className="mt-4 grid gap-x-8 gap-y-6 md:grid-cols-2">
           {[...groups.entries()].map(([group, list]) => (
             <div key={group} className="min-w-0">
-              <h3 className="text-meta font-extrabold uppercase tracking-[0.06em] text-mute" lang={lang}>
+              <h3
+                className="text-meta font-extrabold uppercase tracking-[0.06em] text-mute"
+                lang={lang}
+              >
                 {groupLabel(group, en)}
               </h3>
               <ul className="mt-2 divide-y divide-rule border-y border-rule">

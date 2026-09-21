@@ -72,9 +72,13 @@ export default async function CategoryPage({
   // desk shell (and a real empty state) instead of a 404/500. Partial records
   // with empty names also fall back.
   const fallback = canonicalCategoryBySlug(slug)
-  const category = categoryResult ??
-    (fallback ? { slug, nameNe: fallback.nameNe, nameEn: fallback.nameEn } : null)
-  const resolvedName = category ? (english ? category.nameEn || category.nameNe : category.nameNe || category.nameEn) : ''
+  const category =
+    categoryResult ?? (fallback ? { slug, nameNe: fallback.nameNe, nameEn: fallback.nameEn } : null)
+  const resolvedName = category
+    ? english
+      ? category.nameEn || category.nameNe
+      : category.nameNe || category.nameEn
+    : ''
   if (!category || !resolvedName || !result || page > result.totalPages) notFound()
   const name = resolvedName
   const description = english ? categoryResult?.descriptionEn : categoryResult?.descriptionNe

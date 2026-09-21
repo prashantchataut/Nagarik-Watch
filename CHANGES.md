@@ -8,7 +8,7 @@ contract.
 
 ## 1. Typography — spaced letters abandoned completely
 
-The single biggest complaint: spaced-out letters ("N A G A R I K  W A T C H")
+The single biggest complaint: spaced-out letters ("N A G A R I K W A T C H")
 in both the Latin eyebrow and Devanagari labels.
 
 - Removed **every** `letter-spacing` declaration and Tailwind `tracking-*`
@@ -26,13 +26,13 @@ in both the Latin eyebrow and Devanagari labels.
 
 The app is no longer a pure front-end. Prisma (SQLite) + a real API surface:
 
-| Model | Purpose |
-|---|---|
-| `Reader` | पाठक accounts (email, scrypt password hash) |
-| `Journalist` | पत्रकार accounts — **a separate table/login** with desk, bio |
-| `Session` | httpOnly cookie sessions (30 days), kind = reader \| journalist |
-| `NewsletterSubscriber` | साँझ ब्रिफिङ email list |
-| `DeskPitch` | story pitches from journalists (status + editor notes) |
+| Model                  | Purpose                                                         |
+| ---------------------- | --------------------------------------------------------------- |
+| `Reader`               | पाठक accounts (email, scrypt password hash)                     |
+| `Journalist`           | पत्रकार accounts — **a separate table/login** with desk, bio    |
+| `Session`              | httpOnly cookie sessions (30 days), kind = reader \| journalist |
+| `NewsletterSubscriber` | साँझ ब्रिफिङ email list                                         |
+| `DeskPitch`            | story pitches from journalists (status + editor notes)          |
 
 API routes (all server-side, cookie auth):
 

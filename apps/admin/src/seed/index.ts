@@ -36,7 +36,9 @@ async function main() {
   await seedAuthors(payload)
   await seedTags(payload)
 
-  payload.logger.info('Seed complete: taxonomy and desk identities are ready. No articles were created.')
+  payload.logger.info(
+    'Seed complete: taxonomy and desk identities are ready. No articles were created.',
+  )
   process.exit(0)
 }
 
