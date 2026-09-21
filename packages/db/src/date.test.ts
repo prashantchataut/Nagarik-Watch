@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { adToBs, bsMonthLength, bsToAd, formatDate, formatBsFull, todayBsInKathmandu, toDevanagari } from './date'
+import {
+  adToBs,
+  bsMonthLength,
+  bsToAd,
+  formatDate,
+  formatBsFull,
+  todayBsInKathmandu,
+  toDevanagari,
+} from './date'
 
 describe('toDevanagari', () => {
   it('converts Latin digits to Devanagari numerals', () => {
@@ -88,7 +96,6 @@ describe('formatBsFull', () => {
     expect(formatBsFull({ year: 2083, month: 3, day: 5 }, 'en')).toBe('5 Asadh 2083')
   })
 })
-
 
 describe('calendar safety', () => {
   it('does not fabricate month lengths outside the supported BS range', () => {

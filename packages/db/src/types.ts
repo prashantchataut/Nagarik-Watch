@@ -97,12 +97,7 @@ export interface StoryCardData {
   hasVideo?: boolean
   /** Fact-check desk status when this is a fact-check piece. */
   factCheckStatus?:
-    | 'not_fact_check'
-    | 'in_review'
-    | 'verified'
-    | 'false'
-    | 'mixed'
-    | 'context_needed'
+    'not_fact_check' | 'in_review' | 'verified' | 'false' | 'mixed' | 'context_needed'
 }
 
 // ---------------------------------------------------------------------------
@@ -214,13 +209,7 @@ export interface AdSlotBlock {
 }
 
 export type ArticleBlock =
-  | ParagraphBlock
-  | HeadingBlock
-  | ImageBlock
-  | PullQuoteBlock
-  | EmbedBlock
-  | ListBlock
-  | AdSlotBlock
+  ParagraphBlock | HeadingBlock | ImageBlock | PullQuoteBlock | EmbedBlock | ListBlock | AdSlotBlock
 
 /** A full article. The page-level shape returned by getArticleBySlug(). */
 export interface Article extends StoryCardData {
@@ -247,12 +236,7 @@ export interface Article extends StoryCardData {
   /** Suppress display ads for sensitive reporting. */
   adFree?: boolean
   factCheckStatus?:
-    | 'not_fact_check'
-    | 'in_review'
-    | 'verified'
-    | 'false'
-    | 'mixed'
-    | 'context_needed'
+    'not_fact_check' | 'in_review' | 'verified' | 'false' | 'mixed' | 'context_needed'
   aiSummaryApproved?: boolean
   keyPoints?: string[]
   summary?: string

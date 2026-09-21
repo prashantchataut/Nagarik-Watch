@@ -12,7 +12,7 @@ and `pnpm launch:gate`.
 | ------------------------------------------------------------------------------ | ------------ |
 | In-repo (code, gates, ADR-004, honesty, CI smoke, comments, partner feed auth) | **Complete** |
 | Operator Phase 0 (DNS → Vercel, Postgres, email, Blob)                         | Remaining    |
-| Operator Phase Preview (Payload CMS + ≥30 reviewed stories + cron) | Remaining    |
+| Operator Phase Preview (Payload CMS + ≥30 reviewed stories + cron)             | Remaining    |
 | Operator Phase Hard (`CONTENT_SOURCE=payload` cutover + `live`)                | Remaining    |
 
 `/admin/launch` shows an env **readiness %**, soft/hard phase badges wired to probes, and a
@@ -56,7 +56,7 @@ APIs (`scripts/build-pages-static.mjs`).
 | Syndication   | `PARTNER_FEED_TOKENS` (comma-separated `nw_partner_…` tokens)                                    |
 | Submissions   | `SUBMISSION_IP_SALT` ≥32                                                                         |
 | Legal         | `NEXT_PUBLIC_PUBLICATION_LEGAL_NAME`, `EDITOR_IN_CHIEF`, `DOIB_NUMBER`, address, phone, email    |
-| Fixtures      | Runtime article fixtures are not shipped; remove legacy `ALLOW_STARTER_SEED` if present            |
+| Fixtures      | Runtime article fixtures are not shipped; remove legacy `ALLOW_STARTER_SEED` if present          |
 | Admin nav     | Soft preview hides algorithms/experiments extras; set `NEXT_PUBLIC_ADMIN_FULL_NAV=1` to show all |
 
 ## Phase 0 — Topology
@@ -112,11 +112,11 @@ Exit: reader journeys work; do **not** claim hard live yet.
 
 ## Health probes
 
-| Probe | Path | Meaning |
-| ----- | ---- | ------- |
-| Liveness | `GET /api/health/live` | Process can answer. Always 200 if Node is up. |
-| Readiness | `GET /api/health/ready` | 200 only if database is up, ops migrations are applied, and Payload is reachable when required. |
-| Diagnostics | `GET /api/health` | Full check map. `degraded` returns 503. Soft-desk in production returns `ok-soft` (200) until cutover. |
+| Probe       | Path                    | Meaning                                                                                                |
+| ----------- | ----------------------- | ------------------------------------------------------------------------------------------------------ |
+| Liveness    | `GET /api/health/live`  | Process can answer. Always 200 if Node is up.                                                          |
+| Readiness   | `GET /api/health/ready` | 200 only if database is up, ops migrations are applied, and Payload is reachable when required.        |
+| Diagnostics | `GET /api/health`       | Full check map. `degraded` returns 503. Soft-desk in production returns `ok-soft` (200) until cutover. |
 
 ## First-hour checks (after flipping `live`)
 

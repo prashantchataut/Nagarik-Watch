@@ -61,7 +61,20 @@ export function formatDate(iso: string, locale: 'ne' | 'en'): string {
   if (Number.isNaN(date.getTime())) return ''
   const calendar = kathmanduCalendarDate(date)
   if (locale === 'en') {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ] as const
     return `${calendar.day} ${months[calendar.month - 1]} ${calendar.year}`
   }
   try {
@@ -93,11 +106,15 @@ export function bsMonthLength(year: number, month: number): number {
 
 export function adToBs(date: Date): BsDate {
   if (Number.isNaN(date.getTime())) throw new RangeError('Invalid Gregorian date.')
-  const stable = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 12, 0, 0))
+  const stable = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 12, 0, 0),
+  )
   const bs = new NepaliDate(stable)
   const value = { year: bs.getYear(), month: bs.getMonth() + 1, day: bs.getDate() }
   if (value.year < BS_YEAR_MIN || value.year > BS_YEAR_MAX || value.month < 1 || value.month > 12) {
-    throw new RangeError(`Gregorian date falls outside supported Bikram Sambat range ${BS_YEAR_MIN}-${BS_YEAR_MAX}.`)
+    throw new RangeError(
+      `Gregorian date falls outside supported Bikram Sambat range ${BS_YEAR_MIN}-${BS_YEAR_MAX}.`,
+    )
   }
   return value
 }

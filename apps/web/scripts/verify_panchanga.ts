@@ -37,8 +37,41 @@ function sunrise(y: number, m: number, d: number): Date {
 function check(label: string, y: number, m: number, d: number, expectTithi: number) {
   const sr = sunrise(y, m, d)
   const idx = tithiIndex(sr)
-  const names = ['Shukla Pratipada','Dwitiya','Tritiya','Chaturthi','Panchami','Shashthi','Saptami','Ashtami','Navami','Dashami','Ekadashi','Dwadashi','Trayodashi','Chaturdashi','Purnima','Krishna Pratipada','K Dwitiya','K Tritiya','K Chaturthi','K Panchami','K Shashthi','K Saptami','K Ashtami','K Navami','K Dashami','K Ekadashi','K Dwadashi','K Trayodashi','K Chaturdashi','Amavasya']
-  console.log(`${label}: ${y}-${m}-${d} sunrise ${sr.toISOString().slice(11,16)}Z -> tithi ${idx} (${names[idx]}) | expected ${expectTithi} (${names[expectTithi]}) | ${idx === expectTithi ? 'OK' : 'MISMATCH'}`)
+  const names = [
+    'Shukla Pratipada',
+    'Dwitiya',
+    'Tritiya',
+    'Chaturthi',
+    'Panchami',
+    'Shashthi',
+    'Saptami',
+    'Ashtami',
+    'Navami',
+    'Dashami',
+    'Ekadashi',
+    'Dwadashi',
+    'Trayodashi',
+    'Chaturdashi',
+    'Purnima',
+    'Krishna Pratipada',
+    'K Dwitiya',
+    'K Tritiya',
+    'K Chaturthi',
+    'K Panchami',
+    'K Shashthi',
+    'K Saptami',
+    'K Ashtami',
+    'K Navami',
+    'K Dashami',
+    'K Ekadashi',
+    'K Dwadashi',
+    'K Trayodashi',
+    'K Chaturdashi',
+    'Amavasya',
+  ]
+  console.log(
+    `${label}: ${y}-${m}-${d} sunrise ${sr.toISOString().slice(11, 16)}Z -> tithi ${idx} (${names[idx]}) | expected ${expectTithi} (${names[expectTithi]}) | ${idx === expectTithi ? 'OK' : 'MISMATCH'}`,
+  )
 }
 
 // Anchor 1: Vijaya Dashami 2083 = Oct 21, 2026 -> Ashwin Shukla Dashami = tithi 9
@@ -50,7 +83,14 @@ check('Buddha Jayanti 2083', 2026, 5, 1, 14)
 // Today check
 const now = new Date()
 const bs = new NepaliDate(now)
-console.log('Today AD:', now.toISOString().slice(0, 10), '-> BS:', bs.getYear(), bs.getMonth() + 1, bs.getDate())
+console.log(
+  'Today AD:',
+  now.toISOString().slice(0, 10),
+  '-> BS:',
+  bs.getYear(),
+  bs.getMonth() + 1,
+  bs.getDate(),
+)
 console.log('Today tithi idx (at sunrise):', tithiIndex(sunrise(2026, 8, 30)))
 
 // Moon phase check

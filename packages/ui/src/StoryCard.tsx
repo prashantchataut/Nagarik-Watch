@@ -269,11 +269,7 @@ export function StoryCard({
   return (
     <article className={cn('group relative flex flex-col', className)}>
       {showFeaturedPhoto || (!isFeatured && story.heroImage && !placeholderMedia) ? (
-        <div
-          className={cn(
-            'relative mb-3 block overflow-hidden bg-surface-raised aspect-[3/2]',
-          )}
-        >
+        <div className={cn('relative mb-3 block overflow-hidden bg-surface-raised aspect-[3/2]')}>
           <Image
             src={story.heroImage!.url}
             alt=""

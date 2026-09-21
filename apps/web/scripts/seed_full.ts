@@ -59,7 +59,11 @@ async function main() {
       }
       i++
     }
-    console.log('seeded poll +', seedVotes.reduce((s, [, c]) => s + c, 0), 'votes')
+    console.log(
+      'seeded poll +',
+      seedVotes.reduce((s, [, c]) => s + c, 0),
+      'votes',
+    )
   }
 
   /* ---- breaking banner ---- */
@@ -67,7 +71,8 @@ async function main() {
   if (breakingCount === 0) {
     await db.breakingNews.create({
       data: {
-        textNe: 'मनसुन सक्रिय: कोशी र बागमती प्रदेशमा आजभोलि भारी वर्षाको सम्भावना — यातायातमा सतर्क रहनुहोस्',
+        textNe:
+          'मनसुन सक्रिय: कोशी र बागमती प्रदेशमा आजभोलि भारी वर्षाको सम्भावना — यातायातमा सतर्क रहनुहोस्',
         link: 'province',
         active: true,
       },
@@ -115,12 +120,28 @@ async function main() {
   const articleCount = await db.article.count()
   if (manisha && articleCount === 0) {
     const blocks = [
-      { k: 'p', text: 'नागरिक वाच अनुसन्धान कक्षको अध्ययनले देखाएको छ — शनिबार–आइतबार दुई दिने साप्ताहिक बिदा लागू भएपछि सार्वजनिक कार्यालयमा आउने नागरिकको संख्या बढेको छ, तर सेवा घण्टा व्यवस्थापनमा चुनौती पनि थपिएको छ।' },
-      { k: 'p', text: 'बिदाका दिन विरामी जाँच र अत्यावश्यक सेवा निरन्तर चल्ने व्यवस्था भए पनि जनचेतना अपर्याप्त रहेको अध्ययनमा उल्लेख छ। ग्रामीण क्षेत्रका नागरिकले भने हप्ताको बीचमा मात्र सेवा लिन सक्ने अवस्था सिर्जना भएको गुनासो गरेका छन्।' },
+      {
+        k: 'p',
+        text: 'नागरिक वाच अनुसन्धान कक्षको अध्ययनले देखाएको छ — शनिबार–आइतबार दुई दिने साप्ताहिक बिदा लागू भएपछि सार्वजनिक कार्यालयमा आउने नागरिकको संख्या बढेको छ, तर सेवा घण्टा व्यवस्थापनमा चुनौती पनि थपिएको छ।',
+      },
+      {
+        k: 'p',
+        text: 'बिदाका दिन विरामी जाँच र अत्यावश्यक सेवा निरन्तर चल्ने व्यवस्था भए पनि जनचेतना अपर्याप्त रहेको अध्ययनमा उल्लेख छ। ग्रामीण क्षेत्रका नागरिकले भने हप्ताको बीचमा मात्र सेवा लिन सक्ने अवस्था सिर्जना भएको गुनासो गरेका छन्।',
+      },
       { k: 'h2', text: 'तथ्यांकले के भन्छ' },
-      { k: 'list', items: ['बिदा पछाडिको पहिलो कार्यदिनमा भीड ३०–४० प्रतिशतले बढेको', 'अत्यावश्यक सेवाका लागि कर्मचारी थप तालिम माग', 'अनलाइन सेवा विस्तारले भीड न्यून गर्न सहयोग गरेको'] },
+      {
+        k: 'list',
+        items: [
+          'बिदा पछाडिको पहिलो कार्यदिनमा भीड ३०–४० प्रतिशतले बढेको',
+          'अत्यावश्यक सेवाका लागि कर्मचारी थप तालिम माग',
+          'अनलाइन सेवा विस्तारले भीड न्यून गर्न सहयोग गरेको',
+        ],
+      },
       { k: 'quote', text: 'बिदा जनताको सुविधाका लागि हो, असुविधाका लागि होइन।' },
-      { k: 'p', text: 'स्थानीय तहका प्रमुखहरूले भीड व्यवस्थापनका लागि फर्मवार सेवा र अगाडि बुक गर्ने प्रणाली लागू गर्न थालेका छन्। नागरिक वाचले यो अभ्यासको प्रभावकारिता आगामी दिनमा निरन्तर अनुगमन गर्नेछ।' },
+      {
+        k: 'p',
+        text: 'स्थानीय तहका प्रमुखहरूले भीड व्यवस्थापनका लागि फर्मवार सेवा र अगाडि बुक गर्ने प्रणाली लागू गर्न थालेका छन्। नागरिक वाचले यो अभ्यासको प्रभावकारिता आगामी दिनमा निरन्तर अनुगमन गर्नेछ।',
+      },
     ]
     await db.article.create({
       data: {
@@ -128,12 +149,19 @@ async function main() {
         desk: 'society',
         titleNe: 'दुई दिने साप्ताहिक बिदापछि सार्वजनिक सेवाको गति: अनुभव र चुनौती',
         titleEn: 'Two-day weekend: public services adapt, citizens adjust',
-        deckNe: 'शनिबार–आइतबार बिदा लागू भएपछि सेवा वितरणको गति र नागरिक अनुभवमा आएको परिवर्तनको जगेडा।',
-        deckEn: 'How Nepal\'s two-day weekend is reshaping citizen experience of public services.',
+        deckNe:
+          'शनिबार–आइतबार बिदा लागू भएपछि सेवा वितरणको गति र नागरिक अनुभवमा आएको परिवर्तनको जगेडा।',
+        deckEn: "How Nepal's two-day weekend is reshaping citizen experience of public services.",
         bodyNe: JSON.stringify(blocks),
         bodyEn: JSON.stringify([
-          { k: 'p', text: 'Nagarik Watch desk reporting: since the two-day weekend took effect, service counters report higher footfall on working days, while essential services continue through weekends with thinner staffing.' },
-          { k: 'p', text: 'Local governments are responding with appointment systems and expanded online services to smooth the peaks.' },
+          {
+            k: 'p',
+            text: 'Nagarik Watch desk reporting: since the two-day weekend took effect, service counters report higher footfall on working days, while essential services continue through weekends with thinner staffing.',
+          },
+          {
+            k: 'p',
+            text: 'Local governments are responding with appointment systems and expanded online services to smooth the peaks.',
+          },
         ]),
         hero: '/photos/desks/society.jpg',
         tags: JSON.stringify(['सार्वजनिक सेवा', 'साप्ताहिक बिदा']),
@@ -246,7 +274,8 @@ async function main() {
     await db.factClaim.createMany({
       data: [
         {
-          claim: 'सामाजिक सञ्जालमा आएको भिडियोमा काठमाडौंको बागमती "फुटेर" घर बगेको देखिएको छ भनिएको छ।',
+          claim:
+            'सामाजिक सञ्जालमा आएको भिडियोमा काठमाडौंको बागमती "फुटेर" घर बगेको देखिएको छ भनिएको छ।',
           sourceUrl: 'https://facebook.com/example',
           email: 'reader@example.com',
           status: 'reviewing',

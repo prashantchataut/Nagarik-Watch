@@ -50,22 +50,26 @@ test.describe('automated accessibility audit', () => {
     )
   })
 
-  test('public routes have no critical or serious WCAG A/AA violations', async ({ page }) => {
-    test.setTimeout(120_000)
+  // One test per route: a slow route cannot fail the whole audit, failures name
+  // the offending URL, and Playwright can run the scans across workers.
+  for (const path of REQUIRED_ROUTES) {
+    test(`no critical or serious WCAG A/AA violations: ${path}`, async ({ page }) => {
+      await scanPage(page, path)
+    })
+  }
+
+  test('no critical or serious WCAG A/AA violations: first published article', async ({ page }) => {
+    test.setTimeout(90_000)
     await page.goto('/', { waitUntil: 'domcontentloaded' })
-    const firstArticlePath = await page
-      .locator('#main article a[href]')
-      .first()
-      .getAttribute('href')
 
-    const routes = firstArticlePath
-      ? [...REQUIRED_ROUTES, new URL(firstArticlePath, 'http://localhost').pathname]
-      : REQUIRED_ROUTES
+    // An edition with no published stories is a legitimate product state (the
+    // reader gets an honest empty state, not fixtures), so only audit the
+    // article route when one actually exists.
+    const firstArticle = page.locator('#main article a[href]').first()
+    await firstArticle.waitFor({ state: 'attached', timeout: 5_000 }).catch(() => undefined)
+    const firstArticlePath = await firstArticle.getAttribute('href').catch(() => null)
+    test.skip(!firstArticlePath, 'No published stories in the honest empty-store edition')
 
-    for (const path of routes) {
-      await test.step(`scan ${path}`, async () => {
-        await scanPage(page, path)
-      })
-    }
+    await scanPage(page, new URL(firstArticlePath!, 'http://localhost').pathname)
   })
 })

@@ -10,15 +10,40 @@
   "scripts": {
     "dev": "pnpm --filter ./apps/web dev",
     "build": "pnpm --filter ./apps/web build",
+    "build:web": "pnpm --filter ./apps/web build",
     "start": "pnpm --filter ./apps/web start",
     "lint": "pnpm --filter ./apps/web lint",
     "typecheck": "pnpm --filter ./apps/web typecheck",
+    "test": "pnpm --filter ./apps/web test",
+    "test:db": "pnpm --filter @nagarikwatch/db test",
+    "test:a11y": "playwright test --config playwright.config.ts e2e/a11y.spec.ts",
+    "test:e2e": "playwright test --config playwright.config.ts",
+    "test:e2e:newsroom": "playwright test --config playwright.newsroom.config.ts",
     "db:push": "pnpm --filter ./apps/web db:push",
     "seed": "pnpm --filter ./apps/web seed",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify:workspaces": "node scripts/verify-canonical-workspaces.mjs",
+    "verify:lock": "node scripts/verify-workspace-lock.mjs",
+    "verify:static": "node scripts/audit-ui-bans.mjs && node scripts/audit-public-surface.mjs && node scripts/audit-ad-placements.mjs && node scripts/audit-architecture.mjs",
+    "perf:budget": "node scripts/perf-budget.mjs",
+    "perf:budget:test": "node scripts/perf-budget.mjs --self-test",
+    "launch:gate": "node scripts/launch-gate.mjs",
+    "verify": "pnpm verify:workspaces && pnpm verify:lock && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm verify:static && pnpm perf:budget:test && pnpm build:web && pnpm perf:budget && pnpm test:db"
   },
   "devDependencies": {
-    "prettier": "^3.4.2",
-    "next": "^16.1.1"
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "next": "^16.1.1",
+    "prettier": "^3.4.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "js-yaml@<4.3.2": "4.3.2",
+      "deepmerge-ts@<8.0.0": "8.0.0",
+      "vite@<6.4.3": "6.4.3",
+      "esbuild@<0.25.0": "0.25.0",
+      "sharp@<0.35.4": "0.35.4"
+    }
   }
 }

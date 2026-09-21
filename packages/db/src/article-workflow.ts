@@ -117,13 +117,7 @@ export function editorReviewStages(): ReadonlySet<WorkflowStage> {
 
 export function reviewTimestampFieldForStage(
   stage: WorkflowStage,
-):
-  | 'submittedAt'
-  | 'factCheckedAt'
-  | 'copyEditedAt'
-  | 'seoReviewedAt'
-  | 'legalReviewedAt'
-  | null {
+): 'submittedAt' | 'factCheckedAt' | 'copyEditedAt' | 'seoReviewedAt' | 'legalReviewedAt' | null {
   switch (stage) {
     case 'submitted':
       return 'submittedAt'

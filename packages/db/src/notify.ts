@@ -15,11 +15,7 @@
 import type { AnalyticsEvent, NotificationPreference } from './types'
 
 export type NotificationKind =
-  | 'breaking'
-  | 'followed_topic'
-  | 'followed_author'
-  | 'daily_digest'
-  | 'marketing'
+  'breaking' | 'followed_topic' | 'followed_author' | 'daily_digest' | 'marketing'
 
 export type NotificationCandidate = {
   userId: string

@@ -15,6 +15,13 @@ const BASE = `http://localhost:${PORT}`
 
 export default defineConfig({
   testDir: './e2e',
+  /**
+   * The newsroom editorial lifecycle needs a provisioned staff database and the
+   * boot accounts, so it owns `playwright.newsroom.config.ts` (port 3101,
+   * E2E_NEWSROOM=true, PGlite). Sweeping it into the reader suite made it fail
+   * on every run with the wrong environment.
+   */
+  testIgnore: /newsroom-lifecycle\.spec\.ts/,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

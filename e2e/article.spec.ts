@@ -12,7 +12,9 @@ test.describe('article and category pages', () => {
     if (response?.status() === 200) {
       await expect(page.locator('h1')).toContainText(/राजनीति|Politics/)
       const storyLinks = page.locator('#main a[href*="/politics/"]')
-      const empty = page.getByText(/अझै समाचार प्रकाशित गरिएको छैन|No stories have been published/i)
+      const empty = page.getByText(
+        /अझै समीक्षित समाचार प्रकाशित भएका छैनन्|No reviewed stories are published/i,
+      )
       const hasStory = await storyLinks
         .first()
         .isVisible()
@@ -33,12 +35,14 @@ test.describe('article and category pages', () => {
     page,
   }) => {
     await page.goto('/')
-    const href = await page
+    const storyLink = page
       .locator(
         '#main a[href^="/politics/"], #main a[href^="/society/"], #main a[href^="/economy/"]',
       )
       .first()
-      .getAttribute('href')
+    // Bounded wait: an empty edition must not burn the whole test timeout.
+    await storyLink.waitFor({ state: 'attached', timeout: 5_000 }).catch(() => undefined)
+    const href = await storyLink.getAttribute('href').catch(() => null)
     test.skip(!href, 'No published stories in the honest empty-store fixture')
     // Prefer navigation over click — home rails can animate and fail stability checks.
     await page.goto(href!)
