@@ -49,7 +49,6 @@ function fromEnvelope<T>(value: LiveDataEnvelope<T>): CheckResult {
   }
 }
 
-
 async function calendarHealth(): Promise<CheckResult> {
   const state = getCalendarProviderState()
   if (!state.configured) {

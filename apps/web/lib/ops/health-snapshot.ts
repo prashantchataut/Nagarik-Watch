@@ -7,7 +7,12 @@
 import 'server-only'
 import { getPoolStats } from '@/lib/pg-pool'
 import { cronHealthScore, utilizationScore } from '@/lib/algorithms/product/ops-health'
-import { getCronHeartbeats, getCronRunHistory, minutesSince, type CronHeartbeat } from '@/lib/ops/cron-heartbeat'
+import {
+  getCronHeartbeats,
+  getCronRunHistory,
+  minutesSince,
+  type CronHeartbeat,
+} from '@/lib/ops/cron-heartbeat'
 import { cronGreenWindowHours } from '@/lib/ops/cron-window'
 
 export type CronJobExpectation = { job: string; label: string; intervalMinutes: number }

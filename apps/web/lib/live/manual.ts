@@ -1,6 +1,7 @@
 import 'server-only'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 import { getSharedPool } from '@/lib/pg-pool'
 
 export type ManualLiveRecord<T = unknown> = {
@@ -20,8 +21,7 @@ type Queryable = {
 type Row = { key: string; source: string; data: unknown; updated_at: Date | string }
 type LocalStore = Record<string, ManualLiveRecord>
 
-const LOCAL_STORE_PATH =
-  process.env.LIVE_MANUAL_STORE_PATH ?? path.join(process.cwd(), '.data', 'live-manual.json')
+const LOCAL_STORE_PATH = localStorePath('live-manual.json', 'LIVE_MANUAL_STORE_PATH')
 let schemaReady: Promise<void> | null = null
 let localWriteQueue = Promise.resolve()
 

@@ -170,7 +170,7 @@ describe('isSameOriginUrl', () => {
 describe('buildOfflineWorkerHelpersSource', () => {
   it('embeds helpers that match the TypeScript eligibility rules', () => {
     const scope: Record<string, unknown> = {}
-    // eslint-disable-next-line no-new-func -- evaluate the exact SW helper source under test
+
     const install = new Function(`${buildOfflineWorkerHelpersSource()}; return {
       isOfflineExcludedPath,
       isPublicArticleNavigationPath,

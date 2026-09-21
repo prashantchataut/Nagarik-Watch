@@ -6,12 +6,13 @@
 import 'server-only'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
 
 export type CronHeartbeat = { job: string; lastRunAt: string }
 
 const SCHEMA_KEY = 'nw-cron-heartbeats-v1'
-const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'cron-heartbeats.json')
+const LOCAL_FILE = localStorePath('cron-heartbeats.json')
 let localCache: Record<string, string> | null = null
 let localWrite: Promise<void> = Promise.resolve()
 

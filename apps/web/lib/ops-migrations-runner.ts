@@ -67,12 +67,15 @@ function normalizeUrl(url: string): string {
 
 /** Load `.env` then `.env.local` from package root and monorepo root without dotenv. */
 export async function loadOpsMigrationEnv(cwd = PACKAGE_ROOT): Promise<void> {
-  const roots = [cwd, path.resolve(cwd, '../..')]
+  // Statically scoped on purpose: a dynamic root here makes Turbopack trace the
+  // whole project into the serverless bundle. Callers that pass their own cwd
+  // are operator tooling, so tracing is explicitly opted out for that branch.
+  const roots = [PACKAGE_ROOT, path.resolve(/* turbopackIgnore: true */ cwd, '../..')]
   for (const root of roots) {
     for (const name of ['.env', '.env.local']) {
-      const file = path.join(root, name)
+      const file = path.join(/* turbopackIgnore: true */ root, name)
       try {
-        const text = await fs.readFile(file, 'utf8')
+        const text = await fs.readFile(/* turbopackIgnore: true */ file, 'utf8')
         for (const line of text.split(/\r?\n/)) {
           const trimmed = line.trim()
           if (!trimmed || trimmed.startsWith('#')) continue

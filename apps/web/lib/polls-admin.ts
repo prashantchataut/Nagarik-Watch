@@ -1,6 +1,7 @@
 import 'server-only'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 import {
   cleanMultiline,
   cleanText,
@@ -31,7 +32,7 @@ type Row = {
   updated_at: Date | string
 }
 
-const LOCAL_FILE = path.resolve(process.cwd(), process.env.POLLS_STORE_PATH ?? '.data/polls.json')
+const LOCAL_FILE = localStorePath('polls.json', 'POLLS_STORE_PATH')
 let localCache: Poll[] | null = null
 let localWrite: Promise<void> = Promise.resolve()
 

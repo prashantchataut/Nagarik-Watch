@@ -1,13 +1,7 @@
 import { bsMonthLength } from '@nagarikwatch/db'
 
 export type ManualLiveKey =
-  | 'nepse'
-  | 'forex'
-  | 'gold-silver'
-  | 'football'
-  | 'cricket'
-  | 'rashifal'
-  | 'calendar-schedule'
+  'nepse' | 'forex' | 'gold-silver' | 'football' | 'cricket' | 'rashifal' | 'calendar-schedule'
 
 export type ManualValidation = { ok: true } | { ok: false; message: string }
 

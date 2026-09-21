@@ -4,6 +4,7 @@ import { probeDatabase } from '@/lib/db-url'
 import { getOpsMigrationStatus } from '@/lib/ops-migrations'
 import { getPoolConnectionState } from '@/lib/pg-pool'
 import {
+  declaredContentSource,
   isPayloadCanonical,
   isPayloadSourceMisconfigured,
   payloadServerUrl,
@@ -94,8 +95,9 @@ async function timed(name: string, fn: () => Promise<string>): Promise<[string, 
 }
 
 export async function collectWebHealth(): Promise<WebHealthSnapshot> {
-  const contentSource =
-    process.env.CONTENT_SOURCE?.trim() || process.env.PAYLOAD_CONTENT_SOURCE?.trim() || 'payload'
+  // One resolver for the whole app: never re-derive the default here or the
+  // health report can disagree with what the reader actually gets served.
+  const contentSource = declaredContentSource()
   const checks: Record<string, ProbeCheck> = {}
   checks.configuration = configurationCheck(contentSource, operationalStorageMode())
 
@@ -141,7 +143,10 @@ export async function collectWebHealth(): Promise<WebHealthSnapshot> {
       })
     : Promise.resolve([
         'payload',
-        { status: 'skip', detail: 'Payload source not selected (explicit emergency/local desk mode)' } satisfies ProbeCheck,
+        {
+          status: 'skip',
+          detail: 'Payload source not selected (explicit emergency/local desk mode)',
+        } satisfies ProbeCheck,
       ])
 
   const migrationsPromise = getOpsMigrationStatus()

@@ -90,3 +90,19 @@ export function isAllowedPublicFirstSegment(segment: string): boolean {
   if (ALLOWED_FIRST_SEGMENTS.has(segment)) return true
   return looksLikeCategorySlug(segment)
 }
+
+/**
+ * Strict variant for bare one-segment public URLs (`/politics`, `/not-a-real-route`).
+ *
+ * A bare first segment is always a desk/category, and the taxonomy is a finite
+ * known set. Allowing any slug-shaped segment here produced unbounded soft 404s:
+ * `/not-a-real-route-xyz` answered HTTP 200 with the not-found UI, which search
+ * engines happily index. Deeper paths keep the permissive check because their
+ * slugs are genuinely dynamic (articles, districts, authors).
+ *
+ * A new CMS desk that is not in the shipped taxonomy yet must be published via
+ * `NEXT_PUBLIC_EXTRA_PUBLIC_SEGMENTS=my-new-desk` until the next deploy.
+ */
+export function isKnownPublicFirstSegment(segment: string): boolean {
+  return ALLOWED_FIRST_SEGMENTS.has(segment)
+}

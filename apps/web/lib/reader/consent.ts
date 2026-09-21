@@ -162,6 +162,25 @@ export function hasAdvertisingConsent(): boolean {
   return readConsent()?.advertising === true
 }
 
+/**
+ * Advertising consent read from the `nw_consent` cookie only.
+ *
+ * Server-rendered ad slots cannot see `localStorage`, so the cookie is the
+ * cross-boundary signal. Used by the network-script loader to decide during the
+ * client render (never in an effect) whether it may load third-party code.
+ */
+export function hasAdvertisingCookieConsent(): boolean {
+  if (typeof document === 'undefined') return false
+  try {
+    const match = document.cookie.match(/(?:^|; )nw_consent=([^;]+)/)
+    if (!match?.[1]) return false
+    const parsed = JSON.parse(decodeURIComponent(match[1])) as { advertising?: boolean }
+    return parsed.advertising === true
+  } catch {
+    return false
+  }
+}
+
 /** Analytics or personalization — enough to sync aggregate watch-time / ranking. */
 export function hasEngagementConsent(): boolean {
   return hasAnalyticsConsent() || hasPersonalizationConsent()

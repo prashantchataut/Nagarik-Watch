@@ -97,7 +97,11 @@ function footballDataScore(match: FootballDataMatch): FootballScore {
 }
 
 async function fetchFootballData(apiKey: string): Promise<FootballScore[]> {
-  const base = (process.env.FOOTBALL_DATA_API_BASE || process.env.FOOTBALL_API_BASE || 'https://api.football-data.org').replace(/\/$/, '')
+  const base = (
+    process.env.FOOTBALL_DATA_API_BASE ||
+    process.env.FOOTBALL_API_BASE ||
+    'https://api.football-data.org'
+  ).replace(/\/$/, '')
   const dateFrom = todayKathmandu()
   const tomorrow = new Date(Date.now() + 86_400_000)
   const dateTo = new Intl.DateTimeFormat('en-CA', {
@@ -161,10 +165,11 @@ async function apiFootballRequest(base: string, apiKey: string, query: string) {
 }
 
 async function fetchApiFootball(apiKey: string): Promise<FootballScore[]> {
-  const base = (process.env.API_FOOTBALL_API_BASE || process.env.FOOTBALL_API_BASE || 'https://v3.football.api-sports.io').replace(
-    /\/$/,
-    '',
-  )
+  const base = (
+    process.env.API_FOOTBALL_API_BASE ||
+    process.env.FOOTBALL_API_BASE ||
+    'https://v3.football.api-sports.io'
+  ).replace(/\/$/, '')
   let fixtures = await apiFootballRequest(base, apiKey, 'live=all')
   if (fixtures.length === 0) {
     const params = new URLSearchParams({ date: todayKathmandu(), timezone: 'Asia/Kathmandu' })
@@ -189,7 +194,10 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
     if (scores.length === 0) throw new Error('No football fixtures returned for the active window')
     return remember(cacheKey, {
       status: 'ok',
-      source: provider === 'api-football' || provider === 'api-sports' ? 'API-Football' : 'football-data.org',
+      source:
+        provider === 'api-football' || provider === 'api-sports'
+          ? 'API-Football'
+          : 'football-data.org',
       updatedAt: new Date().toISOString(),
       data: scores,
     })
@@ -197,7 +205,9 @@ export async function getFootballScores(): Promise<LiveDataEnvelope<FootballScor
     return (
       (await manualFootball()) ??
       unavailable<FootballScore>(
-        provider === 'api-football' || provider === 'api-sports' ? 'API-Football' : 'football-data.org',
+        provider === 'api-football' || provider === 'api-sports'
+          ? 'API-Football'
+          : 'football-data.org',
         error instanceof Error ? error.message : 'Football provider failed',
       )
     )
@@ -241,7 +251,10 @@ function cricketDataScore(match: CricketDataMatch): CricketScore {
   const scores = match.score ?? []
   const homeScore = cricketDataSideScore(home, scores)
   const awayScore = cricketDataSideScore(away, scores)
-  const fallbackScores = scores.slice(-2).map(inningsValue).filter((value) => value !== '—')
+  const fallbackScores = scores
+    .slice(-2)
+    .map(inningsValue)
+    .filter((value) => value !== '—')
   return {
     league: match.matchType?.toUpperCase() || 'Cricket',
     home,
@@ -255,11 +268,19 @@ function cricketDataScore(match: CricketDataMatch): CricketScore {
 }
 
 async function fetchCricketData(apiKey: string): Promise<CricketScore[]> {
-  const base = (process.env.CRICKETDATA_API_BASE || process.env.CRICKET_API_BASE || 'https://api.cricapi.com/v1').replace(/\/$/, '')
+  const base = (
+    process.env.CRICKETDATA_API_BASE ||
+    process.env.CRICKET_API_BASE ||
+    'https://api.cricapi.com/v1'
+  ).replace(/\/$/, '')
   const params = new URLSearchParams({ apikey: apiKey, offset: '0' })
   const response = await providerFetch(`${base}/currentMatches?${params}`)
   if (!response.ok) throw new Error(`CricketData returned ${response.status}`)
-  const body = (await response.json()) as { data?: CricketDataMatch[]; status?: string; reason?: string }
+  const body = (await response.json()) as {
+    data?: CricketDataMatch[]
+    status?: string
+    reason?: string
+  }
   if (body.status && body.status !== 'success' && !body.data?.length) {
     throw new Error(body.reason || `CricketData status ${body.status}`)
   }
@@ -315,10 +336,11 @@ function sportmonksScore(match: SportmonksFixture): CricketScore {
 }
 
 async function fetchSportmonksCricket(apiKey: string): Promise<CricketScore[]> {
-  const base = (process.env.SPORTMONKS_CRICKET_API_BASE || process.env.CRICKET_API_BASE || 'https://cricket.sportmonks.com/api/v2.0').replace(
-    /\/$/,
-    '',
-  )
+  const base = (
+    process.env.SPORTMONKS_CRICKET_API_BASE ||
+    process.env.CRICKET_API_BASE ||
+    'https://cricket.sportmonks.com/api/v2.0'
+  ).replace(/\/$/, '')
   const params = new URLSearchParams({
     api_token: apiKey,
     include: 'localteam,visitorteam,runs,league',

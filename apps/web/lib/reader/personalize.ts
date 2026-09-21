@@ -69,14 +69,12 @@ function toProfile(
   const userId = 'browser-reader'
   return {
     userId,
-    bookmarks: bookmarks.map(
-      (item): Bookmark => ({
-        id: `bookmark:${item.articleId}`,
-        userId,
-        articleId: item.articleId,
-        createdAt: item.savedAt,
-      }),
-    ),
+    bookmarks: bookmarks.map((item): Bookmark => ({
+      id: `bookmark:${item.articleId}`,
+      userId,
+      articleId: item.articleId,
+      createdAt: item.savedAt,
+    })),
     follows: [
       ...(preferences?.categories ?? []).map((targetSlug, index) => ({
         id: `follow:category:${index}:${targetSlug}`,
@@ -107,20 +105,18 @@ function toProfile(
         createdAt: preferences?.updatedAt ?? new Date(0).toISOString(),
       })),
     ],
-    history: history.map(
-      (item): ReadingHistory => ({
-        id: `history:${item.articleId}`,
-        userId,
-        articleId: item.articleId,
-        categorySlug: item.categorySlug,
-        tagSlugs: item.tagSlugs,
-        authorSlugs: item.authorSlugs,
-        readAt: item.readAt,
-        scrollDepth: item.scrollDepth,
-        readingSeconds: item.dwellSeconds,
-        completed: item.completed,
-      }),
-    ),
+    history: history.map((item): ReadingHistory => ({
+      id: `history:${item.articleId}`,
+      userId,
+      articleId: item.articleId,
+      categorySlug: item.categorySlug,
+      tagSlugs: item.tagSlugs,
+      authorSlugs: item.authorSlugs,
+      readAt: item.readAt,
+      scrollDepth: item.scrollDepth,
+      readingSeconds: item.dwellSeconds,
+      completed: item.completed,
+    })),
   }
 }
 

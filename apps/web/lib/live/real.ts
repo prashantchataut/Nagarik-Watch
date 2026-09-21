@@ -415,7 +415,9 @@ async function fetchConfiguredNepse(): Promise<LiveValue<NepseReading>> {
       payload.source?.trim() ||
       process.env.NEPSE_SOURCE_NAME?.trim() ||
       'Licensed NEPSE data provider',
-    updatedAt: Number.isNaN(timestamp.getTime()) ? new Date().toISOString() : timestamp.toISOString(),
+    updatedAt: Number.isNaN(timestamp.getTime())
+      ? new Date().toISOString()
+      : timestamp.toISOString(),
     mock: false,
   }
 }
@@ -482,7 +484,9 @@ export async function getRealNepse(_locale: Locale): Promise<LiveValue<NepseRead
       }
     }
     return failedLiveValue<NepseReading>(
-      process.env.NEPSE_API_URL?.trim() ? 'Configured NEPSE provider / nepalstock.com' : 'NEPSE (nepalstock.com)',
+      process.env.NEPSE_API_URL?.trim()
+        ? 'Configured NEPSE provider / nepalstock.com'
+        : 'NEPSE (nepalstock.com)',
       lastError,
     )
   }
@@ -556,7 +560,9 @@ async function fetchConfiguredGoldSilver(): Promise<LiveValue<GoldSilverReading>
       payload.source?.trim() ||
       process.env.GOLD_SILVER_SOURCE_NAME?.trim() ||
       'Licensed Nepal bullion provider',
-    updatedAt: Number.isNaN(timestamp.getTime()) ? new Date().toISOString() : timestamp.toISOString(),
+    updatedAt: Number.isNaN(timestamp.getTime())
+      ? new Date().toISOString()
+      : timestamp.toISOString(),
     mock: false,
     data: candidate,
   }

@@ -1,6 +1,7 @@
 import 'server-only'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { localStorePath } from '@/lib/ops/local-store-path'
 import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
 import {
   normalizeSearchQuery,
@@ -25,7 +26,7 @@ export type SearchAnalyticsSummary = {
 }
 
 const SCHEMA_KEY = 'nw-search-analytics-v1'
-const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'search-analytics.json')
+const LOCAL_FILE = localStorePath('search-analytics.json')
 let localCache: SearchEvent[] | null = null
 let localWrite = Promise.resolve()
 

@@ -58,9 +58,9 @@ describe('checkPartnerTokenShape', () => {
 
 describe('parsePartnerFeedTokens / presentedPartnerToken', () => {
   it('splits comma or whitespace configured tokens', () => {
-    expect(parsePartnerFeedTokens('nw_partner_aaaaaaaaaaaaaaaa, nw_partner_bbbbbbbbbbbbbbbb')).toEqual(
-      ['nw_partner_aaaaaaaaaaaaaaaa', 'nw_partner_bbbbbbbbbbbbbbbb'],
-    )
+    expect(
+      parsePartnerFeedTokens('nw_partner_aaaaaaaaaaaaaaaa, nw_partner_bbbbbbbbbbbbbbbb'),
+    ).toEqual(['nw_partner_aaaaaaaaaaaaaaaa', 'nw_partner_bbbbbbbbbbbbbbbb'])
   })
 
   it('prefers the Authorization bearer over a query token', () => {

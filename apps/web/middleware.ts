@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { isAllowedPublicFirstSegment } from '@/lib/public-path-allowlist'
+import { isAllowedPublicFirstSegment, isKnownPublicFirstSegment } from '@/lib/public-path-allowlist'
 import {
   apexPatroLocale,
   getCalendarOrigin,
@@ -18,6 +18,16 @@ import {
  */
 function firstSegment(pathname: string): string {
   return pathname.split('/').filter(Boolean)[0] ?? ''
+}
+
+/**
+ * A bare one-segment URL is a desk, and the desk taxonomy is finite: unknown
+ * desks get a real 404 instead of a soft one. Anything deeper keeps the
+ * permissive slug check so dynamic article/hub slugs still resolve.
+ */
+function publicSegmentAllowed(pathname: string, segment: string): boolean {
+  const bare = pathname.split('/').filter(Boolean).length === 1
+  return bare ? isKnownPublicFirstSegment(segment) : isAllowedPublicFirstSegment(segment)
 }
 
 /**
@@ -123,8 +133,9 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname === '/en' || pathname.startsWith('/en/')) {
-    const segment = firstSegment(pathname.slice(3) || '/')
-    if (segment && segment !== '__not-found' && !isAllowedPublicFirstSegment(segment)) {
+    const rest = pathname.slice(3) || '/'
+    const segment = firstSegment(rest)
+    if (segment && segment !== '__not-found' && !publicSegmentAllowed(rest, segment)) {
       return hardNotFound(request, 'en')
     }
     const requestHeaders = new Headers(request.headers)
@@ -143,7 +154,7 @@ export function middleware(request: NextRequest) {
   }
 
   const segment = firstSegment(pathname)
-  if (segment && segment !== '__not-found' && !isAllowedPublicFirstSegment(segment)) {
+  if (segment && segment !== '__not-found' && !publicSegmentAllowed(pathname, segment)) {
     return hardNotFound(request, 'ne')
   }
 

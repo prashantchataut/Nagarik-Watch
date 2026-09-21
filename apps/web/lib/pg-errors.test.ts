@@ -8,9 +8,9 @@ describe('isDatabaseInfrastructureError', () => {
         Object.assign(new Error('remaining connection slots are reserved'), { code: '53300' }),
       ),
     ).toBe(true)
-    expect(isDatabaseInfrastructureError(new Error('timeout exceeded when trying to connect'))).toBe(
-      true,
-    )
+    expect(
+      isDatabaseInfrastructureError(new Error('timeout exceeded when trying to connect')),
+    ).toBe(true)
     expect(
       isDatabaseInfrastructureError(
         new Error('boot failed', {
