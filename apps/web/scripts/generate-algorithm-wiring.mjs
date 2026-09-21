@@ -15,10 +15,12 @@ import prettier from 'prettier'
 import {
   buildReaderImportGraph,
   implementationModules,
+  platformModules,
   resolveModule,
 } from '../lib/algorithms/wiring-graph.mjs'
 
 const APP_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const REPO_ROOT = path.resolve(APP_ROOT, '../..')
 const TARGET = path.join(APP_ROOT, 'lib/algorithms/product-surfaces.ts')
 
 const { originsByModule, newsroomOriginsByModule, source } = buildReaderImportGraph(APP_ROOT)
@@ -47,6 +49,13 @@ for (const block of catalog.split(/\n {2}\{\n/).slice(1)) {
       entrypoint: newsroomOriginsByModule.get(newsroom)[0],
       surface: 'newsroom',
     })
+    continue
+  }
+  // Last: config, middleware, stylesheets and CI jobs, which ship without any
+  // module importing them.
+  const platform = platformModules(implementation, REPO_ROOT)[0]
+  if (platform) {
+    rows.push({ id, module: platform, entrypoint: platform, surface: 'platform' })
   }
 }
 rows.sort((a, b) => a.id.localeCompare(b.id))
@@ -77,9 +86,9 @@ writeFileSync(
     filepath: TARGET,
   }),
 )
-const readerCount = rows.filter((row) => row.surface === 'reader').length
+const count = (surface) => rows.filter((row) => row.surface === surface).length
 console.log(
-  `product-surfaces.ts: ${readerCount} reader-wired + ${
-    rows.length - readerCount
-  } newsroom-only of ${catalog.split(/\n {2}\{\n/).length - 1} in the catalog`,
+  `product-surfaces.ts: ${count('reader')} reader-wired + ${count('newsroom')} newsroom-only + ${count(
+    'platform',
+  )} platform of ${catalog.split(/\n {2}\{\n/).length - 1} in the catalog`,
 )

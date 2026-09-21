@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { Byline, CategoryLabel } from '@nagarikwatch/ui'
 import { formatDate, type ArticleBlock } from '@nagarikwatch/db'
@@ -9,6 +9,7 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getArticleBySlug, getStories } from '@/lib/content'
 import { resolveSlugRedirect } from '@/lib/content/slug-redirects'
 import { relatedByContent } from '@/lib/ranking'
+import { requestWantsSaveData } from '@/lib/request/save-data'
 import { ArticleBody, CorrectionNotice, TagRow } from '@/components/article/ArticleBody'
 import { ArticleJsonLd } from '@/components/article/ArticleJsonLd'
 import { PaywallNotice } from '@/components/article/PaywallNotice'
@@ -171,6 +172,8 @@ export default async function ArticlePage({
   }
   const canReadFull = membershipPublic ? !shouldShowPaywall(paywall) : true
   const showAds = !article.adFree
+  // The route is force-dynamic, so reading the header costs nothing extra.
+  const saveData = requestWantsSaveData(await headers())
   const body = readingEnglish && article.bodyEn ? article.bodyEn : article.bodyNe
   const visibleBody = canReadFull ? body : previewBlocks(body)
   const [openingBody, remainingBody] = splitAfterParagraphs(visibleBody)
@@ -351,6 +354,7 @@ export default async function ArticlePage({
                 source={article.source}
                 className="mt-2"
                 suppressAds={!showAds}
+                saveData={saveData}
               />
               {showAds ? (
                 <AdSlot
@@ -366,6 +370,7 @@ export default async function ArticlePage({
                   locale={readingLocale}
                   className="mt-8"
                   suppressAds={!showAds}
+                  saveData={saveData}
                 />
               ) : null}
               <ReactionBar locale={readingLocale} articleSlug={slug} articleCategory={category} />

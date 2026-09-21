@@ -1337,9 +1337,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'retention',
     surface: 'public pages',
     status: 'live',
-    summary: 'Detect data-saver requests and reduce decorative public-page effects.',
+    summary:
+      'Reads Save-Data and the reduced-data client hint on the article route and swaps third-party embeds for a link-out card instead of loading the player.',
     implementation:
-      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:save-data-detection · apps/web/lib/request/save-data.ts',
+      'apps/web/lib/request/save-data.ts#requestWantsSaveData · apps/web/components/article/ArticleBody.tsx · apps/web/app/[locale]/[category]/[slug]/page.tsx',
     priority: 2,
   },
   {

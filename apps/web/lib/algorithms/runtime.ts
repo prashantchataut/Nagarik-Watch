@@ -10,7 +10,7 @@
 import { ALGORITHM_CATALOG } from './catalog'
 import { getCapability } from './capabilities/registry'
 import { defaultFixtureFor } from './fixtures'
-import { isNewsroomWired, isProductWired } from './product-surfaces'
+import { isNewsroomWired, isPlatformWired, isProductWired } from './product-surfaces'
 import type { AlgorithmMode } from './types'
 
 /**
@@ -130,6 +130,10 @@ export function algorithmRuntimeHonesty(results: AlgorithmRunResult[]) {
     // admin route consuming an algorithm is a real surface, but it is not a
     // reader, and merging the two would re-inflate the headline.
     newsroomWired: results.filter((result) => isNewsroomWired(result.id)).length,
+    // Same reasoning again for the ones that ship as config, middleware, CSS or
+    // a CI job: nothing imports them, so the graph cannot see them, but they
+    // are deployed and "panel-only" would be a lie about them too.
+    platformWired: results.filter((result) => isPlatformWired(result.id)).length,
     fixtureOnly: results.filter((result) => result.input === 'fixture').length,
     withOutputs: results.filter(
       (result) => result.outputs && Object.keys(result.outputs).length > 0,

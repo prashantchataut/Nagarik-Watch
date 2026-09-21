@@ -167,6 +167,57 @@ export function implementationModules(implementation) {
   return [...web, ...workspace]
 }
 
+/**
+ * Files that ship but sit outside the TypeScript import graph.
+ *
+ * A dozen catalog entries were reading as "panel-only" for the wrong reason:
+ * their implementation is real and deployed, it just is not a module anything
+ * imports — an `images` block in `next.config.ts`, a rewrite in
+ * `middleware.ts`, a clamp in `globals.css`, a budget job in CI. Calling those
+ * panel-only is the same dishonesty as calling the whole catalog live, pointed
+ * the other way, so they get their own surface.
+ *
+ * The allowlist is narrow on purpose: it must not become a way to claim any
+ * path at all is "platform". Everything here is verified to exist on disk.
+ */
+const PLATFORM_PATTERNS = [
+  /^apps\/web\/next\.config\.(?:ts|mjs|js)$/,
+  /^apps\/web\/middleware\.ts$/,
+  /^apps\/web\/(?:app|components|styles)\/[\w\-./]*\.css$/,
+  /^\.github\/workflows\/[\w.-]+\.ya?ml$/,
+  /^apps\/web\/e2e\/[\w\-./]+\.spec\.ts$/,
+  /^scripts\/[\w\-.]+\.mjs$/,
+  /^apps\/web\/scripts\/[\w\-.]+\.mjs$/,
+]
+
+/**
+ * Platform files named by a catalog entry that exist in the repo.
+ *
+ * @param {string} implementation the catalog `implementation` string
+ * @param {string} repoRoot absolute path to the repo root
+ * @returns {string[]} repo-relative paths, verified present on disk
+ */
+export function platformModules(implementation, repoRoot) {
+  const candidates = implementation
+    .split(/[·+,\s]+/)
+    .map((token) => token.split('#')[0].trim())
+    .filter(Boolean)
+  const seen = new Set()
+  const out = []
+  for (const candidate of candidates) {
+    if (seen.has(candidate)) continue
+    seen.add(candidate)
+    if (!PLATFORM_PATTERNS.some((pattern) => pattern.test(candidate))) continue
+    try {
+      if (statSync(path.join(repoRoot, candidate)).isFile()) out.push(candidate)
+    } catch {
+      // A named platform file that is not there is not a surface. The entry
+      // stays panel-only, which is the honest answer.
+    }
+  }
+  return out
+}
+
 /** Resolve a bare module path to the file that exists on disk. */
 export function resolveModule(source, modulePath) {
   return (

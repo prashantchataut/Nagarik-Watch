@@ -20,13 +20,15 @@
  * and the graph disagree in either direction, so an algorithm cannot be quietly
  * added here, and one that gets unwired cannot quietly stay.
  *
- * Rows are tagged `reader` or `newsroom`. A newsroom row means an editor or
- * journalist surface runs it — the media upload route, a desk page — but no
- * reader-facing render does. That is a real product surface and saying
- * "panel-only" about it would be the opposite error from the one above. The
- * algorithms panel itself is never counted as a surface: it imports the
- * dispatcher, which imports every handler, so counting it would mark the whole
- * catalog wired again.
+ * Rows are tagged `reader`, `newsroom` or `platform`. A newsroom row means an
+ * editor or journalist surface runs it — the media upload route, a desk page —
+ * but no reader-facing render does. A platform row means it ships outside the
+ * module graph entirely: a `next.config.ts` block, a `middleware.ts` rewrite, a
+ * rule in `globals.css`, a budget job in CI. Both are real product surfaces and
+ * saying "panel-only" about them would be the opposite error from the one
+ * above. The algorithms panel itself is never counted as a surface: it imports
+ * the dispatcher, which imports every handler, so counting it would mark the
+ * whole catalog wired again.
  *
  * Entries absent from this table are not broken. They are panel-only: real
  * implementations with no product surface consuming them yet. Saying so is the
@@ -35,16 +37,23 @@
  * Regenerate with: `pnpm algorithms:wiring`
  */
 
-export type WiringSurface = 'reader' | 'newsroom'
+export type WiringSurface = 'reader' | 'newsroom' | 'platform'
 
 export type ProductWiring = {
   /** Catalog id. */
   id: string
-  /** Repo-relative module (from apps/web) implementing the algorithm. */
+  /**
+   * Module implementing the algorithm — relative to apps/web for reader and
+   * newsroom rows, relative to the repo root for platform rows (which may be
+   * config or CI files outside the app).
+   */
   module: string
-  /** A file on `surface` that transitively imports `module`. */
+  /**
+   * A file on `surface` that transitively imports `module`. Platform rows have
+   * no importer, so they name themselves.
+   */
   entrypoint: string
-  /** Who reaches it: a site visitor, or only the newsroom. */
+  /** Who reaches it: a site visitor, the newsroom, or the deployed platform. */
   surface: WiringSurface
 }
 
@@ -54,6 +63,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     module: 'components/experiments/ExperimentExposure.tsx',
     entrypoint: 'app/[locale]/[category]/[slug]/page.tsx',
     surface: 'reader',
+  },
+  {
+    id: 'adaptive-font-layout',
+    module: 'apps/web/app/globals.css',
+    entrypoint: 'apps/web/app/globals.css',
+    surface: 'platform',
   },
   {
     id: 'ads-txt-sellers-json',
@@ -80,10 +95,22 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'auto-generated-csp',
+    module: 'apps/web/next.config.ts',
+    entrypoint: 'apps/web/next.config.ts',
+    surface: 'platform',
+  },
+  {
     id: 'autocomplete-trie',
     module: 'lib/search.ts',
     entrypoint: 'app/[locale]/search/page.tsx',
     surface: 'reader',
+  },
+  {
+    id: 'automated-accessibility-audit',
+    module: '.github/workflows/ci.yml',
+    entrypoint: '.github/workflows/ci.yml',
+    surface: 'platform',
   },
   {
     id: 'bayesian-experimentation',
@@ -144,6 +171,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     module: 'lib/epaper/index.ts',
     entrypoint: 'app/[locale]/epaper/[date]/page.tsx',
     surface: 'reader',
+  },
+  {
+    id: 'cls-budget-gate',
+    module: '.github/workflows/ci.yml',
+    entrypoint: '.github/workflows/ci.yml',
+    surface: 'platform',
   },
   {
     id: 'cls-safe-ad-reservation',
@@ -210,6 +243,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     module: 'lib/journalist/desk-scoring.ts',
     entrypoint: 'app/[locale]/journalist/articles/[id]/edit/page.tsx',
     surface: 'reader',
+  },
+  {
+    id: 'dependency-vulnerability-scanning',
+    module: '.github/workflows/ci.yml',
+    entrypoint: '.github/workflows/ci.yml',
+    surface: 'platform',
   },
   {
     id: 'digest-story-ranking',
@@ -306,6 +345,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     module: 'packages/db/src/recommend.ts',
     entrypoint: 'app/[locale]/reader-corner/page.tsx',
     surface: 'reader',
+  },
+  {
+    id: 'image-cdn-resizing',
+    module: 'apps/web/next.config.ts',
+    entrypoint: 'apps/web/next.config.ts',
+    surface: 'platform',
   },
   {
     id: 'image-exif-strip',
@@ -434,6 +479,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'performance-budgets-ci',
+    module: '.github/workflows/ci.yml',
+    entrypoint: '.github/workflows/ci.yml',
+    surface: 'platform',
+  },
+  {
     id: 'personalized-onboarding',
     module: 'lib/reader/onboarding.ts',
     entrypoint: 'app/[locale]/reader-corner/page.tsx',
@@ -521,6 +572,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     id: 'rss-atom-optimization',
     module: 'app/rss.xml/route.ts',
     entrypoint: 'app/rss.xml/route.ts',
+    surface: 'reader',
+  },
+  {
+    id: 'save-data-detection',
+    module: 'lib/request/save-data.ts',
+    entrypoint: 'app/[locale]/[category]/[slug]/page.tsx',
     surface: 'reader',
   },
   {
@@ -656,6 +713,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'tree-shaking',
+    module: 'apps/web/next.config.ts',
+    entrypoint: 'apps/web/next.config.ts',
+    surface: 'platform',
+  },
+  {
     id: 'trending-detection',
     module: 'lib/engagement/store.ts',
     entrypoint: 'app/[locale]/data-stories/page.tsx',
@@ -728,13 +791,22 @@ export function isNewsroomWired(id: string): boolean {
   return BY_ID.get(id)?.surface === 'newsroom'
 }
 
+/** True when it ships as config, middleware, CSS or CI rather than as a module. */
+export function isPlatformWired(id: string): boolean {
+  return BY_ID.get(id)?.surface === 'platform'
+}
+
 export function productWiringStats(catalogSize: number) {
-  const wired = ALGORITHM_PRODUCT_WIRING.filter((row) => row.surface === 'reader').length
-  const newsroom = ALGORITHM_PRODUCT_WIRING.filter((row) => row.surface === 'newsroom').length
+  const bySurface = (surface: WiringSurface) =>
+    ALGORITHM_PRODUCT_WIRING.filter((row) => row.surface === surface).length
+  const wired = bySurface('reader')
+  const newsroom = bySurface('newsroom')
+  const platform = bySurface('platform')
   return {
     wired,
     newsroom,
-    panelOnly: Math.max(0, catalogSize - wired - newsroom),
+    platform,
+    panelOnly: Math.max(0, catalogSize - wired - newsroom - platform),
     /** Share of the catalog a reader can actually reach, 0–1. */
     coverage: catalogSize > 0 ? wired / catalogSize : 0,
   }

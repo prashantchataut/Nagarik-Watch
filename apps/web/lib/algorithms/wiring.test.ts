@@ -1,13 +1,24 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { ALGORITHM_CATALOG } from './catalog'
-import { ALGORITHM_PRODUCT_WIRING, isProductWired, productWiringStats } from './product-surfaces'
+import {
+  ALGORITHM_PRODUCT_WIRING,
+  isProductWired,
+  productWiringStats,
+  type WiringSurface,
+} from './product-surfaces'
 // Node-only analysis helper; kept as .mjs so nothing can import it into a bundle.
-import { buildReaderImportGraph, implementationModules, resolveModule } from './wiring-graph.mjs'
+import {
+  buildReaderImportGraph,
+  implementationModules,
+  platformModules,
+  resolveModule,
+} from './wiring-graph.mjs'
 
 const APP_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
+const REPO_ROOT = path.resolve(APP_ROOT, '../..')
 
 type Graph = {
   originsByModule: Map<string, string[]>
@@ -24,9 +35,9 @@ type Graph = {
  * Reader wins over newsroom when both reach an algorithm, matching the
  * generator — otherwise the two would disagree about `/search`.
  */
-function computeWiring(graph: Graph): Map<string, 'reader' | 'newsroom'> {
+function computeWiring(graph: Graph): Map<string, WiringSurface> {
   const catalogSource = readFileSync(path.join(APP_ROOT, 'lib/algorithms/catalog.ts'), 'utf8')
-  const wired = new Map<string, 'reader' | 'newsroom'>()
+  const wired = new Map<string, WiringSurface>()
   for (const block of catalogSource.split(/\n {2}\{\n/).slice(1)) {
     const id = /id:\s*'([^']+)'/.exec(block)?.[1]
     if (!id) continue
@@ -38,6 +49,8 @@ function computeWiring(graph: Graph): Map<string, 'reader' | 'newsroom'> {
       wired.set(id, 'reader')
     } else if (modules.some((file) => (graph.newsroomOriginsByModule.get(file)?.length ?? 0) > 0)) {
       wired.set(id, 'newsroom')
+    } else if ((platformModules(implementation, REPO_ROOT) as string[]).length > 0) {
+      wired.set(id, 'platform')
     }
   }
   return wired
@@ -65,6 +78,13 @@ describe('algorithm product wiring', () => {
 
   it('points every declared row at a module that exists and is reachable', () => {
     for (const row of ALGORITHM_PRODUCT_WIRING) {
+      if (row.surface === 'platform') {
+        // No importer to trace: the claim is that the file ships, so that is
+        // what gets checked.
+        expect(existsSync(path.join(REPO_ROOT, row.module)), `${row.id}: ${row.module}`).toBe(true)
+        expect(row.entrypoint).toBe(row.module)
+        continue
+      }
       expect(graph.source.has(row.module), `${row.id}: ${row.module} is missing`).toBe(true)
       const origins =
         row.surface === 'reader'
@@ -91,7 +111,9 @@ describe('algorithm product wiring', () => {
 
   it('reports panel-only coverage rather than implying the whole catalog ships', () => {
     const stats = productWiringStats(ALGORITHM_CATALOG.length)
-    expect(stats.wired + stats.newsroom + stats.panelOnly).toBe(ALGORITHM_CATALOG.length)
+    expect(stats.wired + stats.newsroom + stats.platform + stats.panelOnly).toBe(
+      ALGORITHM_CATALOG.length,
+    )
     // The honest headline number. If this ever reads 232 the gate above is
     // broken, not the site.
     expect(stats.panelOnly).toBeGreaterThan(0)

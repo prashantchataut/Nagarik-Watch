@@ -173,11 +173,12 @@ export default async function AlgorithmsPage() {
             <p className="mt-1 text-caption text-mute">
               Something a reader reaches imports the implementing module — a page they load, a
               public API route their browser calls, or the cron that pushes to their device. A
-              further{' '}
-              {honesty.newsroomWired} are newsroom-facing — a desk page or admin route runs them, no
-              reader render does. The remaining{' '}
-              {honesty.total - honesty.productWired - honesty.newsroomWired} run here and nowhere
-              else. Verified against the import graph by <code>lib/algorithms/wiring.test.ts</code>.
+              further {honesty.newsroomWired} are newsroom-facing — a desk page or admin route runs
+              them, no reader render does — and {honesty.platformWired} ship as platform config
+              (next.config, middleware, CSS, CI) that no module imports. The remaining{' '}
+              {honesty.total - honesty.productWired - honesty.newsroomWired - honesty.platformWired}{' '}
+              run here and nowhere else. Verified against the import graph by{' '}
+              <code>lib/algorithms/wiring.test.ts</code>.
             </p>
           </div>
           <div>
@@ -379,6 +380,9 @@ function CatalogSection({
                 {productWiringFor(algorithm.id)?.surface === 'newsroom' ? (
                   <span className="ml-1 text-caption text-mute">· newsroom-only</span>
                 ) : null}
+                {productWiringFor(algorithm.id)?.surface === 'platform' ? (
+                  <span className="ml-1 text-caption text-mute">· platform</span>
+                ) : null}
                 {productWiringFor(algorithm.id) ? null : (
                   <span className="ml-1 text-caption text-mute">· panel-only</span>
                 )}
@@ -410,6 +414,13 @@ function WiringNote({ id }: { id: string }) {
     return (
       <p className="mt-2 text-caption text-ink-soft">
         Newsroom-facing via <code>{wiring.entrypoint}</code> — no reader render calls it.
+      </p>
+    )
+  }
+  if (wiring.surface === 'platform') {
+    return (
+      <p className="mt-2 text-caption text-ink-soft">
+        Ships as platform config in <code>{wiring.module}</code> — no module imports it.
       </p>
     )
   }
