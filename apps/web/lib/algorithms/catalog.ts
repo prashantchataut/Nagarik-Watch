@@ -679,9 +679,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'revenue',
     surface: 'article gate',
     status: 'live',
-    summary: 'Manual/premium gate live; behavioral meter not personalized yet.',
+    summary:
+      'Session meter and the premium flag gate the article body on the server; the offer itself is not yet personalized.',
     implementation:
-      'apps/web/lib/algorithms/runtime.ts#runAlgorithm:dynamic-paywall · apps/web/lib/membership.ts + paywall admin',
+      'apps/web/lib/paywall/decision.ts#shouldShowPaywall · apps/web/lib/free-article-meter.ts#freeReadsRemainingFor · apps/web/app/[locale]/[category]/[slug]/page.tsx',
     dependency:
       'Payment provider for true dynamic offers — enhances when configured; local runtime path still runs',
     priority: 2,

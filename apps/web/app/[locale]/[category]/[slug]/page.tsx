@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { Byline, CategoryLabel } from '@nagarikwatch/ui'
 import { formatDate, type ArticleBlock } from '@nagarikwatch/db'
@@ -26,7 +27,14 @@ import { ShareBar } from '@/components/article/ShareBar'
 import { NextStoryNavigator } from '@/components/article/NextStoryNavigator'
 import { getSession } from '@/lib/auth/session'
 import { isPremiumSubscriber, isPublicMembershipEnabled } from '@/lib/membership'
-import { shouldShowPaywall } from '@/lib/paywall/decision'
+import { paywallReason, shouldShowPaywall } from '@/lib/paywall/decision'
+import {
+  articleMeterKey,
+  FREE_ARTICLE_METER_COOKIE,
+  FREE_ARTICLE_SESSION_LIMIT,
+  freeReadsRemainingFor,
+  parseMeter,
+} from '@/lib/free-article-meter'
 import { PUBLICATION, SITE_URL } from '@/lib/site'
 import { publicShareImageUrl } from '@/lib/seo/share-image'
 
@@ -143,14 +151,25 @@ export default async function ArticlePage({
   const membershipPublic = isPublicMembershipEnabled()
   const session = membershipPublic ? await getSession() : null
   const premiumReader = membershipPublic ? await isPremiumSubscriber(session) : false
-  // Option A: free-to-read. When membership is public, premium articles may soft-gate.
-  const canReadFull = membershipPublic
-    ? !shouldShowPaywall({
-        isMember: premiumReader,
-        freeRemaining: Infinity,
-        articlePremium: Boolean(article.premium),
-      })
-    : true
+  // Option A: free-to-read. When membership is public, premium articles hard-gate
+  // and everything else is metered. The meter is read from the session cookie
+  // `ReaderArticleControls` mirrors — `sessionStorage` alone would mean the body
+  // had already been streamed by the time anything could count it.
+  // `cookies()` is only touched inside this branch, so a site with membership off
+  // keeps rendering articles statically.
+  const freeRemaining = membershipPublic
+    ? freeReadsRemainingFor(
+        parseMeter((await cookies()).get(FREE_ARTICLE_METER_COOKIE)?.value),
+        articleMeterKey(category, slug),
+        FREE_ARTICLE_SESSION_LIMIT,
+      )
+    : Infinity
+  const paywall = {
+    isMember: premiumReader,
+    freeRemaining,
+    articlePremium: Boolean(article.premium),
+  }
+  const canReadFull = membershipPublic ? !shouldShowPaywall(paywall) : true
   const showAds = !article.adFree
   const body = readingEnglish && article.bodyEn ? article.bodyEn : article.bodyNe
   const visibleBody = canReadFull ? body : previewBlocks(body)
@@ -210,7 +229,9 @@ export default async function ArticlePage({
           </div>
           <h1
             className={`mx-auto mt-4 max-w-[20ch] text-balance font-display text-[clamp(2.55rem,6vw,5rem)] font-black text-ink ${
-              readingEnglish ? 'leading-[1.03] tracking-[-0.035em]' : 'leading-[1.12] tracking-normal'
+              readingEnglish
+                ? 'leading-[1.03] tracking-[-0.035em]'
+                : 'leading-[1.12] tracking-normal'
             }`}
           >
             {title}
@@ -366,7 +387,13 @@ export default async function ArticlePage({
                   className="print:hidden"
                 />
               ) : null}
-              {membershipPublic && !canReadFull ? <PaywallNotice locale={readingLocale} /> : null}
+              {membershipPublic && !canReadFull ? (
+                <PaywallNotice
+                  locale={readingLocale}
+                  reason={paywallReason(paywall)}
+                  limit={FREE_ARTICLE_SESSION_LIMIT}
+                />
+              ) : null}
               {article.corrections?.length ? (
                 <CorrectionNotice
                   corrections={article.corrections}

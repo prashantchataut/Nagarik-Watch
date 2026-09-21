@@ -21,7 +21,13 @@ import {
   trackExperimentConversion,
 } from '@/components/experiments/ExperimentExposure'
 import { rafThrottle } from '@/lib/browser/raf-throttle'
-import { addArticleToSessionMeter, FREE_ARTICLE_METER_KEY } from '@/lib/free-article-meter'
+import {
+  addArticleToSessionMeter,
+  articleMeterKey,
+  FREE_ARTICLE_METER_COOKIE,
+  FREE_ARTICLE_METER_KEY,
+  serializeMeter,
+} from '@/lib/free-article-meter'
 import { canShowWeeklyFeedback } from '@/lib/reader/retention'
 import { ArticleToolsMenu } from '@/components/article/ArticleToolsMenu'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
@@ -114,9 +120,14 @@ export function ReaderArticleControls({
     if (!membershipPublic || premiumReader) return
     const next = addArticleToSessionMeter(
       sessionStorage.getItem(FREE_ARTICLE_METER_KEY),
-      `${story.category.slug}:${story.slug}`,
+      articleMeterKey(story.category.slug, story.slug),
     )
     sessionStorage.setItem(FREE_ARTICLE_METER_KEY, JSON.stringify(next.articles))
+    // Mirror it into a session cookie: the gate itself runs on the server, and
+    // `sessionStorage` is not something the server can read.
+    document.cookie = `${FREE_ARTICLE_METER_COOKIE}=${encodeURIComponent(
+      serializeMeter(next.articles),
+    )}; Path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reports the result of the write above
     setMeter({ count: next.count, limit: next.limit })
   }, [membershipPublic, premiumReader, story.category.slug, story.slug])

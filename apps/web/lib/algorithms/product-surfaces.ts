@@ -213,7 +213,7 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
   },
   {
     id: 'dynamic-paywall',
-    module: 'lib/membership.ts',
+    module: 'lib/paywall/decision.ts',
     entrypoint: 'app/[locale]/[category]/[slug]/page.tsx',
     surface: 'reader',
   },
