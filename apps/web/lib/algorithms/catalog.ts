@@ -1125,8 +1125,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'trust',
     surface: 'corrections desk',
     status: 'live',
-    summary: 'Ranks correction requests by reach of the original story and severity keywords.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:correction-urgency',
+    summary:
+      'Ranks open correction requests by severity read from the reader’s own words, reach of the matched story from the first-party engagement index, and hours unanswered — so a small correction nobody answered still reaches the top. Matching is conservative: a request it cannot tie to a story is flagged rather than guessed at.',
+    implementation:
+      'apps/web/lib/editorial/correction-urgency.ts#rankCorrectionRequests · apps/web/app/admin/(desk)/corrections/page.tsx',
     priority: 1,
   },
 

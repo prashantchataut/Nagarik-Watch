@@ -127,6 +127,14 @@ function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): St
     }),
     hasVideo: storyHasVideo({ bodyNe: a.bodyNe }),
     factCheckStatus: a.factCheckStatus,
+    updatedAt: a.updatedAt,
+    // Free here — the store already holds the whole document — and it is what
+    // lets a correction travel to the RSS feed as well as the article page.
+    corrections: a.corrections?.map((entry) => ({
+      at: entry.at,
+      summaryNe: entry.summaryNe,
+      summaryEn: entry.summaryEn,
+    })),
   } as StoryCardData
 }
 
@@ -165,6 +173,8 @@ function toFullArticle(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatal
     district: a.district,
     exclusive: a.exclusive,
     factCheckStatus: a.factCheckStatus,
+    // `corrections` arrives via the card spread, already narrowed to the public
+    // shape: who signed it and how the desk classified it are newsroom facts.
   } as Article
 }
 

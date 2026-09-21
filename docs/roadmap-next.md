@@ -56,8 +56,8 @@ channel for a news site.
 ## 3. R2 — no longer silent, still one command from working
 
 `saveR2MediaFile` expects a Workers `MEDIA_BUCKET` binding and `apps/web/wrangler.jsonc`
-still declares no live `r2_buckets` entry. What changed is that it no longer *reads like
-a working feature*: `wrangler.jsonc` carries the three enable steps in a comment above
+still declares no live `r2_buckets` entry. What changed is that it no longer _reads like
+a working feature_: `wrangler.jsonc` carries the three enable steps in a comment above
 the commented-out block, and `app/api/admin/media/upload/route.ts` returns 503 naming
 the missing binding instead of falling through to local disk.
 
@@ -135,8 +135,13 @@ worth keeping:
 - **Search is already server-side.** `app/api/search/route.ts` calls
   `searchStoriesRanked` in `lib/search-server.ts`, rate-limited, with the index built on
   the server. Nothing ships the corpus to the browser.
-- **`trending-stories.ts` does not exist**, and `lib/ranking-signals.ts` already caches
-  engagement at `ENGAGEMENT_TTL_MS = 30_000`.
+- **Both ranking passes are cached at the source.** `lib/content/trending-stories.ts`
+  (not `lib/`, which is where this bullet looked for it) recomputes per request, but the
+  query under it does not: `getTrendingSamples` caches at `TRENDING_SAMPLE_TTL_MS =
+30_000` and collapses concurrent callers onto one query. `lib/ranking-signals.ts`
+  caches the engagement index at `ENGAGEMENT_TTL_MS = 30_000`. The ranking arithmetic
+  runs per request and costs microseconds; the database round-trip is what was worth
+  caching, and it is.
 
 What is still unmeasured at volume: the admin SEO page rebuilds the related-story graph
 for its PageRank pass, which is O(n²) in the window. It is capped at 120 stories for

@@ -27,8 +27,10 @@ export async function GET() {
     <title>${escapeXml(story.title)}</title>
     <link href="${escapeXml(story.canonicalUrl)}" rel="alternate" />
     <published>${story.publishedAt}</published>
-    <updated>${story.publishedAt}</updated>
-    <summary>${escapeXml(story.summary)}</summary>
+    <updated>${story.updatedAt ?? story.publishedAt}</updated>
+    <summary>${escapeXml(
+      story.correctionNote ? `${story.summary} — ${story.correctionNote}` : story.summary,
+    )}</summary>
   </entry>`
     })
     .join('\n')}

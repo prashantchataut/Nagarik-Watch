@@ -227,6 +227,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'correction-urgency',
+    module: 'lib/editorial/correction-urgency.ts',
+    entrypoint: 'app/admin/(desk)/corrections/page.tsx',
+    surface: 'newsroom',
+  },
+  {
     id: 'crawl-budget-allocation',
     module: 'lib/seo/sitemap-shards.ts',
     entrypoint: 'app/archive-sitemap.xml/route.ts',

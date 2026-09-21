@@ -16,6 +16,7 @@ import {
   MEDIA_MANAGER_ROLES,
   NEWSLETTER_MANAGER_ROLES,
   NEWSROOM_ROLE_LABELS_NE,
+  PUBLISHER_ROLES,
   resolveAdminDeskVariant,
   SETTINGS_MANAGER_ROLES,
   TAXONOMY_MANAGER_ROLES,
@@ -98,6 +99,12 @@ const NAV_GROUPS: {
         roles: COMMUNITY_MANAGER_ROLES,
       },
       { label: 'टिप', href: '/admin/submissions', icon: 'tip', roles: COMMUNITY_MANAGER_ROLES },
+      {
+        label: 'सच्याइएका विवरण',
+        href: '/admin/corrections',
+        icon: 'tip',
+        roles: PUBLISHER_ROLES,
+      },
       { label: 'सम्पर्क', href: '/admin/contact', icon: 'comment', roles: COMMUNITY_MANAGER_ROLES },
       { label: 'मतदान', href: '/admin/polls', icon: 'poll', roles: COMMUNITY_MANAGER_ROLES },
       {
@@ -569,6 +576,7 @@ function pageTitle(pathname: string): string {
     '/admin/comments': 'टिप्पणी',
     '/admin/contact': 'सम्पर्क',
     '/admin/submissions': 'टिप',
+    '/admin/corrections': 'सच्याइएका विवरण',
     '/admin/polls': 'मतदान',
     '/admin/newsletter': 'न्युजलेटर',
     '/admin/live-blogs': 'लाइभ ब्लग',

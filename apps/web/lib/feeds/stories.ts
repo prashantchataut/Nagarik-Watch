@@ -12,6 +12,20 @@ export async function getDistributionStories(locale: Locale, limit = 50): Promis
 
 export function distributionStory(story: StoryCardData, locale: Locale) {
   const path = localizeHref(locale, `/${story.category.slug}/${story.slug}`)
+  // Newest first: a feed item shows one line, and the newest correction is the
+  // one that describes the story as it stands now.
+  const latestCorrection = [...(story.corrections ?? [])].sort((a, b) =>
+    a.at < b.at ? 1 : a.at > b.at ? -1 : 0,
+  )[0]
+  const correctionNote = latestCorrection
+    ? locale === 'en'
+      ? `Correction: ${latestCorrection.summaryEn || latestCorrection.summaryNe}`
+      : `सच्याइएको: ${latestCorrection.summaryNe}`
+    : undefined
+  const updated =
+    story.updatedAt && story.updatedAt !== story.publishedAt
+      ? new Date(story.updatedAt).toISOString()
+      : undefined
   return {
     title: locale === 'en' ? story.titleEn || story.titleNe : story.titleNe,
     summary:
@@ -20,5 +34,8 @@ export function distributionStory(story: StoryCardData, locale: Locale) {
         : story.deckNe || story.titleNe,
     canonicalUrl: `${SITE_URL}${path}`,
     publishedAt: new Date(story.publishedAt).toISOString(),
+    updatedAt: updated,
+    /** Appended to the feed description so the correction travels with the story. */
+    correctionNote,
   }
 }
