@@ -5,6 +5,7 @@ import { canonicalAlternates } from '@/lib/seo/canonical'
 import { dedupeHomepage } from '@/lib/content/homepage-dedup'
 import { getHomepage } from '@/lib/content'
 import { getActivePoll } from '@/lib/polls-admin'
+import { spaceOutCategories } from '@/lib/ranking'
 import { EditorialSpotlight } from '@/components/home/EditorialSpotlight'
 import { HomeBillboardAd } from '@/components/home/HomeBillboardAd'
 import { HomeClosingDesk } from '@/components/home/HomeClosingDesk'
@@ -153,10 +154,16 @@ export async function HomePage({ locale }: { locale: Locale }) {
     ...spotlightIds,
     ...edition.breaking.map((story) => story.id),
   ])
-  const latest = [...catalog]
+  // The rail used to be "ten newest, whatever they are", which on a busy
+  // politics day meant ten politics stories. Space the desks out while
+  // choosing the ten, then put them back in publish order — it is still the
+  // latest rail, it just is not one desk's rail.
+  const latestPool = [...catalog]
     .filter((story) => !aboveFoldExclude.has(story.id))
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
+  const latest = spaceOutCategories(latestPool, 2)
     .slice(0, 10)
+    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
 
   const today = new Date()
   const monthDay = monthDayInKathmandu(today)

@@ -11,6 +11,14 @@ import {
 } from '@nagarikwatch/db'
 import type { BookmarkRecord, ReadingHistoryRecord } from './state'
 import type { ReaderPreferences } from './preferences-store'
+import {
+  authorFollowScore,
+  rankContinueReading,
+  reengagementWeight,
+  returnVisitPropensity,
+  scrollDepthQuality,
+  topicFollowScore,
+} from './signals'
 
 export type ReaderAffinity = {
   categories: Map<string, number>
@@ -69,14 +77,12 @@ function toProfile(
   const userId = 'browser-reader'
   return {
     userId,
-    bookmarks: bookmarks.map(
-      (item): Bookmark => ({
-        id: `bookmark:${item.articleId}`,
-        userId,
-        articleId: item.articleId,
-        createdAt: item.savedAt,
-      }),
-    ),
+    bookmarks: bookmarks.map((item): Bookmark => ({
+      id: `bookmark:${item.articleId}`,
+      userId,
+      articleId: item.articleId,
+      createdAt: item.savedAt,
+    })),
     follows: [
       ...(preferences?.categories ?? []).map((targetSlug, index) => ({
         id: `follow:category:${index}:${targetSlug}`,
@@ -107,20 +113,18 @@ function toProfile(
         createdAt: preferences?.updatedAt ?? new Date(0).toISOString(),
       })),
     ],
-    history: history.map(
-      (item): ReadingHistory => ({
-        id: `history:${item.articleId}`,
-        userId,
-        articleId: item.articleId,
-        categorySlug: item.categorySlug,
-        tagSlugs: item.tagSlugs,
-        authorSlugs: item.authorSlugs,
-        readAt: item.readAt,
-        scrollDepth: item.scrollDepth,
-        readingSeconds: item.dwellSeconds,
-        completed: item.completed,
-      }),
-    ),
+    history: history.map((item): ReadingHistory => ({
+      id: `history:${item.articleId}`,
+      userId,
+      articleId: item.articleId,
+      categorySlug: item.categorySlug,
+      tagSlugs: item.tagSlugs,
+      authorSlugs: item.authorSlugs,
+      readAt: item.readAt,
+      scrollDepth: item.scrollDepth,
+      readingSeconds: item.dwellSeconds,
+      completed: item.completed,
+    })),
   }
 }
 
@@ -181,23 +185,47 @@ export function recommendForReader(
   )
   const knnBoost = new Map(knn.map((item) => [item.id, item.similarity]))
 
+  // Follow signals ride on top of the hybrid score rather than replacing it:
+  // `recommend` already decides what is a sensible candidate, these decide
+  // which of those this particular reader keeps coming back for. Scaled by
+  // how deeply they actually read, so a history of bounces moves little.
+  const depthQuality = scrollDepthQuality(history)
+  const propensity = returnVisitPropensity(history)
+
   return [...base]
     .map((item) => {
       const boost = knnBoost.get(item.id) ?? 0
-      if (boost <= 0) return item
-      return {
-        ...item,
-        recScore: item.recScore + boost * 0.35,
-      }
+      const topic = topicFollowScore(affinity, item)
+      const author = authorFollowScore(affinity, item)
+      const follow = Math.max(topic, author)
+      const reengage = follow > 0 ? reengagementWeight(propensity, follow) : 0
+      const uplift =
+        boost * 0.35 +
+        (topic * 0.22 + author * 0.18) * depthQuality +
+        reengage * 0.12 * depthQuality
+      if (uplift <= 0) return item
+      return { ...item, recScore: item.recScore + uplift }
     })
     .sort((a, b) => b.recScore - a.recScore)
     .slice(0, limit)
 }
 
+/**
+ * Best unfinished read, not merely the most recent one.
+ *
+ * `continueReading` from @nagarikwatch/db returns the latest incomplete
+ * article; `rankContinueReading` weighs how much was read, how recently, and
+ * how often the reader came back. The db pick stays as the fallback so a
+ * history the ranker rejects (everything bounced, or nothing left in the
+ * catalog) still resolves the way it always did.
+ */
 export function continueReadingForReader(
   catalog: StoryCardData[],
   history: ReadingHistoryRecord[],
+  now = new Date(),
 ): StoryCardData | null {
+  const best = rankContinueReading(catalog, history, now)[0]
+  if (best) return best.story
   const articleId = continueReading(toProfile([], history))
   return articleId ? (catalog.find((story) => story.id === articleId) ?? null) : null
 }
