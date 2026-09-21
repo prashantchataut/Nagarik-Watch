@@ -7,11 +7,13 @@ import {
   moderateComment,
   rankComment,
   reputationScore,
+  trollRiskScore,
   type EngagementSample,
 } from '@nagarikwatch/db'
 import { getSharedPool } from '@/lib/pg-pool'
 import { shouldApplyLivePathDdl } from '@/lib/ops-db'
 import { getRankingShareSamples, getRankingAttentionSamples } from '@/lib/engagement/ranking-events'
+import { triageComment, type CommentStatus } from '@/lib/engagement/comment-triage'
 import { orEmpty } from '@/lib/resilience/or-empty'
 
 type BookmarkInput = {
@@ -65,7 +67,7 @@ export type ReadingHistoryItem = {
   readAt: string
 }
 
-export type CommentStatus = 'pending' | 'approved' | 'rejected' | 'flagged'
+export type { CommentStatus } from '@/lib/engagement/comment-triage'
 export type ModerationComment = CommentInput & {
   id: string
   status: CommentStatus
@@ -415,29 +417,46 @@ export async function getBookmarks(anonymousId: string, userId?: string) {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
-async function commentAuthorReputation(
+/**
+ * What this commenter has done before, and how fast they are going right now.
+ *
+ * The approve/reject split feeds `reputationScore`; the ten-minute count feeds
+ * `trollRiskScore`, which is the only signal here that catches a clean-looking
+ * flood — a burst of individually polite comments reads as fine one at a time.
+ * An anonymous commenter has no history, so they get the neutral 0.5 and a
+ * zero burst rather than an invented one.
+ */
+type CommentAuthorHistory = { approved: number; rejected: number; recentTenMinutes: number }
+
+async function commentAuthorHistory(
   input: Pick<CommentInput, 'authorUserId' | 'authorEmail'>,
   database: Pool | null,
-): Promise<number> {
+): Promise<CommentAuthorHistory | null> {
   const userId = input.authorUserId?.trim() ?? ''
   const email = input.authorEmail?.trim().toLowerCase() ?? ''
-  if (!userId && !email) return 0.5
+  if (!userId && !email) return null
 
   if (database) {
     const result = await database.query<{
       approved: number | string
       rejected: number | string
+      recent: number | string
     }>(
       `SELECT
          COUNT(*) FILTER (WHERE status='approved')::int AS approved,
-         COUNT(*) FILTER (WHERE status IN ('rejected','flagged'))::int AS rejected
+         COUNT(*) FILTER (WHERE status IN ('rejected','flagged'))::int AS rejected,
+         COUNT(*) FILTER (WHERE created_at > now() - interval '10 minutes')::int AS recent
        FROM nw_comments
        WHERE ($1 <> '' AND author_user_id=$1)
           OR ($1 = '' AND $2 <> '' AND LOWER(author_email)=LOWER($2))`,
       [userId, email],
     )
     const row = result.rows[0]
-    return reputationScore(Number(row?.approved ?? 0), Number(row?.rejected ?? 0))
+    return {
+      approved: Number(row?.approved ?? 0),
+      rejected: Number(row?.rejected ?? 0),
+      recentTenMinutes: Number(row?.recent ?? 0),
+    }
   }
 
   const comments = (await readLocal()).comments.filter((comment) =>
@@ -445,28 +464,45 @@ async function commentAuthorReputation(
       ? comment.authorUserId === userId
       : Boolean(email && comment.authorEmail?.toLowerCase() === email),
   )
-  const approved = comments.filter((comment) => comment.status === 'approved').length
-  const rejected = comments.filter(
-    (comment) => comment.status === 'rejected' || comment.status === 'flagged',
-  ).length
-  return reputationScore(approved, rejected)
+  const since = Date.now() - 600_000
+  return {
+    approved: comments.filter((comment) => comment.status === 'approved').length,
+    rejected: comments.filter(
+      (comment) => comment.status === 'rejected' || comment.status === 'flagged',
+    ).length,
+    recentTenMinutes: comments.filter((comment) => Date.parse(comment.createdAt) >= since).length,
+  }
 }
 
 export async function createComment(input: CommentInput): Promise<ModerationComment> {
   const id = randomUUID()
   const database = await getPool()
   if (database) await ensureSchema()
-  const reputation = await commentAuthorReputation(input, database)
+  const history = await commentAuthorHistory(input, database)
+  const reputation = history ? reputationScore(history.approved, history.rejected) : 0.5
   const moderation = moderateComment({ id, body: input.bodyNe }, reputation, await bannedWordList())
-  const status = statusFromModeration(moderation.verdict)
+  // Text-level moderation reads one comment at a time and so cannot see a
+  // flood. Troll risk can: reject history, link density and a ten-minute
+  // burst. A high score does not reject anything — it moves the comment from
+  // the ordinary pending queue to flagged, where the moderation desk sorts it
+  // first. Text-level auto_reject / auto_hide decisions still win.
+  const troll = history
+    ? trollRiskScore({
+        approvedComments: history.approved,
+        rejectedComments: history.rejected,
+        commentsLastTenMinutes: history.recentTenMinutes,
+        text: input.bodyNe,
+      })
+    : null
+  const triage = triageComment(statusFromModeration(moderation.verdict), moderation.flags, troll)
   const item: ModerationComment = {
     id,
     ...input,
-    status,
+    status: triage.status,
     createdAt: new Date().toISOString(),
     toxicityScore: moderation.toxicityScore,
     spamScore: moderation.spamScore,
-    moderationFlags: moderation.flags,
+    moderationFlags: triage.flags,
     moderationVerdict: moderation.verdict,
     reputationUsed: moderation.reputationUsed,
   }
@@ -490,7 +526,7 @@ export async function createComment(input: CommentInput): Promise<ModerationComm
         status,
         moderation.toxicityScore,
         moderation.spamScore,
-        moderation.flags,
+        item.moderationFlags,
         moderation.verdict,
         moderation.reputationUsed,
       ],

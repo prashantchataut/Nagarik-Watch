@@ -39,6 +39,7 @@ import {
   topicFollowScore,
 } from '../../reader/signals'
 import { fatigueHeadroom } from '../product/notify-policy'
+import { triageComment } from '../../engagement/comment-triage'
 import type { ReadingHistoryRecord } from '../../reader/state'
 import { revisionSimilarity } from '../../journalist/desk-scoring'
 import { autocomplete, buildIndex, fuzzyExpandTerm, search } from '../../search'
@@ -518,7 +519,17 @@ export const CORE_HANDLERS: Record<string, AlgorithmHandler> = {
       commentsLastTenMinutes: num(input, 'recentRejects', 3),
       text: str(input, 'text', 'see http://spam.example'),
     })
-    return { score: result.score, detail: `troll=${result.score.toFixed(3)}`, mode: 'production' }
+    // Reports the decision the comment path would actually make, not just the
+    // number: this score alone never rejects, it only escalates the queue.
+    const triage = triageComment('pending', [], result)
+    return {
+      score: result.score,
+      detail: `troll=${result.score.toFixed(3)} → ${triage.status}${
+        triage.escalated ? ` (${triage.flags.join(', ')})` : ''
+      }`,
+      outputs: { status: triage.status, flags: triage.flags },
+      mode: 'production',
+    }
   },
   'comment-ranking': (input) => {
     const ranked = rankComment({

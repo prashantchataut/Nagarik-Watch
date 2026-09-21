@@ -12,8 +12,10 @@
  * load, a public API route their browser calls, or the delivery cron that
  * pushes to their device. It does not mean "a React render", and the
  * distinction matters for the notification policy algorithms, whose only
- * entrypoint is the cron that sends the push. It is a declaration because the admin page has to render it in a
- * Workers runtime with no filesystem — but it is not a claim. `wiring.test.ts`
+ * entrypoint is the cron that sends the push.
+ *
+ * It is a declaration because the admin page has to render it in a Workers
+ * runtime with no filesystem — but it is not a claim. `wiring.test.ts`
  * rebuilds the import graph from source on every run and fails if this table
  * and the graph disagree in either direction, so an algorithm cannot be quietly
  * added here, and one that gets unwired cannot quietly stay.
@@ -602,6 +604,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
   {
     id: 'trending-detection',
     module: 'lib/engagement/store.ts',
+    entrypoint: 'app/[locale]/data-stories/page.tsx',
+    surface: 'reader',
+  },
+  {
+    id: 'troll-probability',
+    module: 'lib/engagement/comment-triage.ts',
     entrypoint: 'app/[locale]/data-stories/page.tsx',
     surface: 'reader',
   },

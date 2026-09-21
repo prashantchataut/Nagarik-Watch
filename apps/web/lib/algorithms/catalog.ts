@@ -529,10 +529,12 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     number: 38,
     label: 'Troll Probability',
     category: 'community',
-    surface: 'moderation',
+    surface: 'comment submission (POST /api/comments) / moderation desk',
     status: 'live',
-    summary: 'Behavioral analysis across threads; needs history features.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:troll-probability',
+    summary:
+      'Reject history, link density and a ten-minute posting burst. Runs on every submitted comment: a high score moves it from the pending queue to flagged so the desk sees it first. It never rejects on its own — only the text-level verdict does that.',
+    implementation:
+      'packages/db/src/moderation.ts#trollRiskScore · apps/web/lib/engagement/comment-triage.ts#triageComment · apps/web/lib/engagement/store.ts#createComment',
     priority: 4,
   },
   {
