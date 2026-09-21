@@ -14,13 +14,20 @@ export function RouteSkeleton({ variant = 'hub', label = 'Loading' }: RouteSkele
 
 function HubSkeleton({ label }: { label: string }) {
   return (
-    <div className="mx-auto max-w-page px-3 py-5 sm:px-4 sm:py-7" aria-busy="true" aria-label={label}>
+    <div
+      className="mx-auto max-w-page px-3 py-5 sm:px-4 sm:py-7"
+      aria-busy="true"
+      aria-label={label}
+    >
       <header className="border-b border-rule pb-4" aria-hidden="true">
         <div className={`${shape} h-3 w-20`} />
         <div className={`${shape} mt-3 h-9 w-56 max-w-[72vw]`} />
         <div className={`${shape} mt-3 h-4 w-full max-w-lg`} />
       </header>
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(18rem,0.65fr)] lg:gap-8" aria-hidden="true">
+      <div
+        className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(18rem,0.65fr)] lg:gap-8"
+        aria-hidden="true"
+      >
         <div>
           <div className={`${shape} aspect-[16/9] w-full`} />
           <div className={`${shape} mt-4 h-8 w-11/12`} />
@@ -41,7 +48,11 @@ function HubSkeleton({ label }: { label: string }) {
 
 function ArticleSkeleton({ label }: { label: string }) {
   return (
-    <article className="mx-auto max-w-page px-3 py-5 sm:px-4 sm:py-7" aria-busy="true" aria-label={label}>
+    <article
+      className="mx-auto max-w-page px-3 py-5 sm:px-4 sm:py-7"
+      aria-busy="true"
+      aria-label={label}
+    >
       <header className="mx-auto max-w-[72rem]" aria-hidden="true">
         <div className={`${shape} h-3 w-24`} />
         <div className={`${shape} mt-4 h-12 w-full sm:h-16`} />
@@ -64,7 +75,11 @@ function ArticleSkeleton({ label }: { label: string }) {
 
 function SearchSkeleton({ label }: { label: string }) {
   return (
-    <div className="mx-auto max-w-page px-3 py-6 sm:px-4 sm:py-8" aria-busy="true" aria-label={label}>
+    <div
+      className="mx-auto max-w-page px-3 py-6 sm:px-4 sm:py-8"
+      aria-busy="true"
+      aria-label={label}
+    >
       <div className="border-b border-rule pb-5" aria-hidden="true">
         <div className={`${shape} h-9 w-44`} />
         <div className={`${shape} mt-3 h-4 w-full max-w-lg`} />
@@ -102,7 +117,10 @@ function AdminSkeleton({ label }: { label: string }) {
       </div>
       <div className="border border-rule bg-surface-raised p-4" aria-hidden="true">
         {Array.from({ length: 6 }).map((_, index) => (
-          <div key={index} className="flex items-center gap-4 border-b border-rule py-3 last:border-b-0">
+          <div
+            key={index}
+            className="flex items-center gap-4 border-b border-rule py-3 last:border-b-0"
+          >
             <div className={`${shape} h-4 w-1/2`} />
             <div className={`${shape} ml-auto h-4 w-24`} />
           </div>

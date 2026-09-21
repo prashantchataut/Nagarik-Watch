@@ -63,7 +63,9 @@ export function ReaderProfileClient({
       href: localizeHref(locale, '/auth/signup'),
       eyebrow: english ? 'Account' : 'खाता',
       title: english ? 'Create account' : 'खाता बनाउनुहोस्',
-      body: english ? 'Free. Reading stays open either way.' : 'निःशुल्क। समाचार पढ्न खाता चाहिँदैन।',
+      body: english
+        ? 'Free. Reading stays open either way.'
+        : 'निःशुल्क। समाचार पढ्न खाता चाहिँदैन।',
     })
   }
 
@@ -94,7 +96,10 @@ export function ReaderProfileClient({
 
             {session ? (
               <div className="flex min-w-0 items-center gap-3 border-l border-rule pl-4">
-                <span className="grid h-12 w-12 shrink-0 place-items-center bg-brand font-display text-xl font-black text-paper" aria-hidden="true">
+                <span
+                  className="grid h-12 w-12 shrink-0 place-items-center bg-brand font-display text-xl font-black text-paper"
+                  aria-hidden="true"
+                >
                   {initial}
                 </span>
                 <div className="min-w-0">
@@ -126,10 +131,16 @@ export function ReaderProfileClient({
                     : 'अहिले यही उपकरणमा समाचार सुरक्षित गर्नुहोस्। अर्को उपकरणमा सिङ्क गर्न चाहिँदा मात्र लगइन गर्नुहोस्।'}
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <Link href={localizeHref(locale, '/auth/login')} className="account-btn account-btn--primary">
+                  <Link
+                    href={localizeHref(locale, '/auth/login')}
+                    className="account-btn account-btn--primary"
+                  >
                     {english ? 'Sign in' : 'लगइन'}
                   </Link>
-                  <Link href={localizeHref(locale, '/auth/signup')} className="account-btn account-btn--ghost">
+                  <Link
+                    href={localizeHref(locale, '/auth/signup')}
+                    className="account-btn account-btn--ghost"
+                  >
                     {english ? 'Create account' : 'खाता बनाउनुहोस्'}
                   </Link>
                 </div>
@@ -137,7 +148,10 @@ export function ReaderProfileClient({
             )}
           </section>
 
-          <nav className="reader-profile-links" aria-label={english ? 'Account links' : 'खाता लिंक'}>
+          <nav
+            className="reader-profile-links"
+            aria-label={english ? 'Account links' : 'खाता लिंक'}
+          >
             <p className="mb-2 text-caption font-extrabold text-mute">
               {english ? 'ACCOUNT DESK' : 'खाता डेस्क'}
             </p>
@@ -151,7 +165,9 @@ export function ReaderProfileClient({
                   <span className="reader-profile-link__title">{item.title}</span>
                   <span className="reader-profile-link__body">{item.body}</span>
                 </span>
-                <span className="reader-profile-link__arrow" aria-hidden="true">→</span>
+                <span className="reader-profile-link__arrow" aria-hidden="true">
+                  →
+                </span>
               </Link>
             ))}
           </nav>

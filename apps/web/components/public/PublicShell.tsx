@@ -65,7 +65,10 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
           </Suspense>
         }
       />
-      <main id="main" className="min-h-[55vh] pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0">
+      <main
+        id="main"
+        className="min-h-[55vh] pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0"
+      >
         {children}
       </main>
       <Footer locale={locale} navCategories={navCategories} />

@@ -8,6 +8,7 @@ import { StoryBodyEditor } from '@/components/newsroom/StoryBodyEditor'
 import { MediaGalleryPicker, type GalleryMediaItem } from '@/components/newsroom/MediaGalleryPicker'
 import { RichInlineText } from '@/components/article/RichInlineText'
 import type { EditorPreferences } from '@/lib/editor-preferences-types'
+import { createBrowserStore, useBrowserStore } from '@/lib/browser/use-browser-store'
 
 type DraftValues = {
   titleNe: string
@@ -273,7 +274,11 @@ export function JournalistArticleDraftForm({
       }
     })
   }
-  saveRef.current = submit
+  // Keep the imperative-save ref in sync in an effect: writing a ref during
+  // render is not allowed (it breaks concurrent rendering and the React Compiler).
+  useEffect(() => {
+    saveRef.current = submit
+  })
 
   async function requestAssistance(action: AssistanceAction) {
     if (!draft.bodyNe.trim()) {
@@ -359,23 +364,43 @@ export function JournalistArticleDraftForm({
     setAssistance(null)
   }
 
-  useEffect(() => {
-    if (mode !== 'create' || initial) return
+  // Tab-local working copy. Read through an external store (string snapshot, so
+  // the value is stable), then applied once during render. No setState in an
+  // effect, and nothing is read during SSR.
+  const recoveryStore = useMemo(
+    () =>
+      createBrowserStore<string | null>({
+        read: () => {
+          try {
+            return sessionStorage.getItem(localRecoveryKey)
+          } catch {
+            return null
+          }
+        },
+        serverValue: null,
+      }),
+    [localRecoveryKey],
+  )
+  const rawRecovered = useBrowserStore(recoveryStore)
+  const [recoveryApplied, setRecoveryApplied] = useState(false)
+  if (!recoveryApplied && rawRecovered && mode === 'create' && !initial) {
+    setRecoveryApplied(true)
     try {
-      const recovered = sessionStorage.getItem(localRecoveryKey)
-      if (!recovered) return
-      const parsed = JSON.parse(recovered) as Partial<DraftValues>
-      if (!parsed.titleNe && !parsed.bodyNe) return
-      setDraft((current) => ({ ...current, ...parsed }))
-      setDirty(true)
-      setStatus({
-        type: 'ok',
-        message: ne
-          ? 'यस ट्याबको सुरक्षित कार्य प्रति पुनः खोलियो।'
-          : 'Recovered the working copy from this tab.',
-      })
-    } catch {}
-  }, [initial, localRecoveryKey, mode, ne])
+      const parsed = JSON.parse(rawRecovered) as Partial<DraftValues>
+      if (parsed.titleNe || parsed.bodyNe) {
+        setDraft((current) => ({ ...current, ...parsed }))
+        setDirty(true)
+        setStatus({
+          type: 'ok',
+          message: ne
+            ? 'यस ट्याबको सुरक्षित कार्य प्रति पुनः खोलियो।'
+            : 'Recovered the working copy from this tab.',
+        })
+      }
+    } catch {
+      // Corrupt working copy: ignore it and keep the empty form.
+    }
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -881,7 +906,7 @@ export function JournalistArticleDraftForm({
             </div>
             {draft.heroImageUrl ? (
               <figure className="newsroom-hero-preview">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {}
                 <img src={draft.heroImageUrl} alt="" />
                 <figcaption>{ne ? 'सन्दर्भ पूर्वावलोकन' : 'Reference preview'}</figcaption>
               </figure>

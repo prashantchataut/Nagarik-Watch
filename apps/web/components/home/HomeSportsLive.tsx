@@ -45,13 +45,19 @@ export async function HomeSportsLive({ locale }: { locale: Locale }) {
 
   const ne = locale === 'ne'
   return (
-    <section className="mt-7 border-y border-rule py-5 sm:mt-9 sm:py-6" aria-labelledby="home-live-sports-title">
+    <section
+      className="mt-7 border-y border-rule py-5 sm:mt-9 sm:py-6"
+      aria-labelledby="home-live-sports-title"
+    >
       <header className="flex items-end justify-between gap-4 border-b-2 border-ink pb-2.5">
         <div>
           <p className="text-caption font-extrabold uppercase tracking-[0.12em] text-brand-strong">
             {ne ? 'प्रदायक फिड' : 'Provider feed'}
           </p>
-          <h2 id="home-live-sports-title" className="mt-1 font-display text-h2 font-black leading-none text-ink">
+          <h2
+            id="home-live-sports-title"
+            className="mt-1 font-display text-h2 font-black leading-none text-ink"
+          >
             {ne ? 'लाइभ खेल' : 'Live sport'}
           </h2>
         </div>
@@ -155,7 +161,9 @@ function HomeScoreRow({
 }) {
   return (
     <li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 py-3">
-      <p className="truncate text-[0.68rem] font-bold uppercase tracking-[0.08em] text-mute">{league}</p>
+      <p className="truncate text-[0.68rem] font-bold uppercase tracking-[0.08em] text-mute">
+        {league}
+      </p>
       <span className={`text-[0.68rem] font-extrabold ${live ? 'text-breaking' : 'text-mute'}`}>
         {status}
       </span>

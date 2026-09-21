@@ -22,16 +22,7 @@ type Props = {
 }
 
 type Tool =
-  | 'bold'
-  | 'italic'
-  | 'highlight'
-  | 'link'
-  | 'h2'
-  | 'h3'
-  | 'quote'
-  | 'list'
-  | 'image'
-  | 'embed'
+  'bold' | 'italic' | 'highlight' | 'link' | 'h2' | 'h3' | 'quote' | 'list' | 'image' | 'embed'
 
 /**
  * Shared shorthand body editor for journalist + admin desks.

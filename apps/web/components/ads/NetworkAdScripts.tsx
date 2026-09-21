@@ -1,7 +1,8 @@
 'use client'
 
 import Script from 'next/script'
-import { useEffect, useState } from 'react'
+import { useHydrated } from '@/lib/browser/use-browser-store'
+import { hasAdvertisingCookieConsent } from '@/lib/reader/consent'
 
 type Network = 'adsense' | 'gam' | ''
 
@@ -20,18 +21,10 @@ export function NetworkAdScripts({
   adsenseClient?: string
   gamNetworkCode?: string
 }) {
-  const [consentAds, setConsentAds] = useState(false)
-
-  useEffect(() => {
-    try {
-      const match = document.cookie.match(/(?:^|; )nw_consent=([^;]+)/)
-      if (!match?.[1]) return
-      const parsed = JSON.parse(decodeURIComponent(match[1])) as { advertising?: boolean }
-      setConsentAds(Boolean(parsed.advertising))
-    } catch {
-      setConsentAds(false)
-    }
-  }, [])
+  // The consent cookie is unreadable during SSR. Gating on hydration keeps the
+  // server and first client render identical without a mount effect.
+  const hydrated = useHydrated()
+  const consentAds = hydrated && hasAdvertisingCookieConsent()
 
   if (mode !== 'network' || !consentAds) return null
 

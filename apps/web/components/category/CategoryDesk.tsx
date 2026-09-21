@@ -120,13 +120,7 @@ function CategoryLead({ story, locale }: { story: StoryCardData; locale: Locale 
       aria-label={english ? 'Lead story' : 'मुख्य समाचार'}
     >
       <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
-        <article
-          className={
-            imageUrl
-              ? 'group'
-              : 'group mx-auto max-w-[64rem]'
-          }
-        >
+        <article className={imageUrl ? 'group' : 'group mx-auto max-w-[64rem]'}>
           <div className="mx-auto max-w-[62rem] pb-5 text-center sm:pb-6">
             <CategoryLabel category={story.category} locale={locale} as="span" className="mb-2" />
             <h2

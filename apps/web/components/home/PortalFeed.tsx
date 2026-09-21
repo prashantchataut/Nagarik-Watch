@@ -66,7 +66,11 @@ function PortalFeature({ story, locale }: { story: StoryCardData; locale: Locale
               {deck}
             </p>
           ) : null}
-          <Dateline iso={story.publishedAt} locale={locale} className="mt-2 block text-caption text-mute" />
+          <Dateline
+            iso={story.publishedAt}
+            locale={locale}
+            className="mt-2 block text-caption text-mute"
+          />
         </div>
       </article>
     </InstrumentedStory>
@@ -111,7 +115,9 @@ export function PortalFeed({ stories, locale }: PortalFeedProps) {
       <MegaStoryBlock story={lead} locale={locale} priority size="lead" />
 
       {supporting.length > 0 ? (
-        <div className={`mt-7 grid gap-6 border-b border-rule pb-7 sm:mt-9 sm:pb-9 ${supporting.length > 1 ? 'md:grid-cols-2 md:gap-7' : ''}`}>
+        <div
+          className={`mt-7 grid gap-6 border-b border-rule pb-7 sm:mt-9 sm:pb-9 ${supporting.length > 1 ? 'md:grid-cols-2 md:gap-7' : ''}`}
+        >
           {supporting.map((story) => (
             <PortalFeature key={story.id} story={story} locale={locale} />
           ))}
@@ -119,7 +125,9 @@ export function PortalFeed({ stories, locale }: PortalFeedProps) {
       ) : null}
 
       {picks.length > 0 ? (
-        <div className={`mt-5 grid gap-4 sm:mt-6 ${picks.length > 1 ? 'sm:grid-cols-2 sm:gap-0' : ''}`}>
+        <div
+          className={`mt-5 grid gap-4 sm:mt-6 ${picks.length > 1 ? 'sm:grid-cols-2 sm:gap-0' : ''}`}
+        >
           {picks.map((story) => (
             <PortalPick key={story.id} story={story} locale={locale} />
           ))}

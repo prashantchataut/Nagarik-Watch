@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
+import { useHydrated } from '@/lib/browser/use-browser-store'
+import { formatAdDate, formatAdDateRange } from '@/lib/format/ad-date'
 import type { PublishedCalendarEvent, PublishedCalendarSchedule } from '@/lib/calendar-view'
 import { relativeTime } from '@/lib/live/format'
 import {
@@ -43,14 +45,6 @@ function kathmanduAdParts(date: Date): { day: number; weekday: number } {
   return { day, weekday }
 }
 
-function formatKathmanduAdDate(
-  date: Date,
-  locale: string,
-  options: Intl.DateTimeFormatOptions,
-): string {
-  return new Intl.DateTimeFormat(locale, { ...options, timeZone: 'Asia/Kathmandu' }).format(date)
-}
-
 function readTodayBs(): BsPoint {
   return todayBsInKathmandu()
 }
@@ -68,16 +62,13 @@ export function NepaliCalendar({
 }) {
   const en = locale === 'en'
   const seed = useMemo(() => readTodayBs(), [])
-  const [todayBs, setTodayBs] = useState<BsPoint>(seed)
-  const [mounted, setMounted] = useState(false)
+  // "Today" in BS depends on the reader's clock; it is derived after hydration
+  // so the server and first client render agree without a corrective effect.
+  const mounted = useHydrated()
+  const todayBs = mounted ? readTodayBs() : seed
   const [year, setYear] = useState(seed.year)
   const [month, setMonth] = useState(seed.month)
   const [selectedDay, setSelectedDay] = useState(seed.day)
-
-  useEffect(() => {
-    setTodayBs(readTodayBs())
-    setMounted(true)
-  }, [])
 
   const length = bsMonthLength(year, month)
   const safeSelectedDay = Math.min(selectedDay, length)
@@ -85,8 +76,14 @@ export function NepaliCalendar({
   const lastAd = bsToAd(year, month, length)
   const startWeekday = firstAd ? kathmanduAdParts(firstAd).weekday : 0
 
-  const cells = useMemo(() => {
+  // No manual memoization: the React Compiler could not preserve it (and a
+  // 32-cell loop is cheap), so the grid is built during render.
+  const cells: DayCell[] = (() => {
     const out: DayCell[] = []
+    // Derived inside the memo so every dependency is a plain, stable value
+    // (the React Compiler cannot prove an outer derived value is stable).
+    const firstAdOfMonth = bsToAd(year, month, 1)
+    const startWeekday = firstAdOfMonth ? kathmanduAdParts(firstAdOfMonth).weekday : 0
     for (let d = 1; d <= length; d++) {
       const ad = bsToAd(year, month, d)
       out.push({
@@ -101,26 +98,39 @@ export function NepaliCalendar({
       })
     }
     return out
-  }, [length, month, schedule, year, startWeekday])
+  })()
+
+  // Rows for the ARIA grid: leading blanks plus the month's days, seven per row.
+  const dayRows: Array<Array<DayCell | null>> = []
+  {
+    const flat: Array<DayCell | null> = [
+      ...Array.from({ length: startWeekday }, () => null),
+      ...cells,
+    ]
+    while (flat.length % 7 !== 0) flat.push(null)
+    for (let i = 0; i < flat.length; i += 7) dayRows.push(flat.slice(i, i + 7))
+  }
 
   const monthName = en ? BS_MONTHS_EN[month - 1] : BS_MONTHS[month - 1]
   const selected = cells.find((c) => c.day === safeSelectedDay) ?? cells[0]
 
-  const holidaysThisMonth = useMemo(() => {
-    const list: Array<{ day: number; nameNe: string; nameEn: string; holiday?: boolean }> = []
-    for (const c of cells) {
-      for (const e of c.events) list.push({ ...e, day: c.day })
-    }
-    return list.sort((a, b) => {
-      if (Boolean(a.holiday) !== Boolean(b.holiday)) return a.holiday ? -1 : 1
-      return a.day - b.day
-    })
-  }, [cells])
+  // Plain derivations: cheap (a handful of events per month) and free of the
+  // manual memoization the React Compiler cannot preserve here.
+  const holidaysThisMonth: Array<{
+    day: number
+    nameNe: string
+    nameEn: string
+    holiday?: boolean
+  }> = []
+  for (const c of cells) {
+    for (const e of c.events) holidaysThisMonth.push({ ...e, day: c.day })
+  }
+  holidaysThisMonth.sort((a, b) => {
+    if (Boolean(a.holiday) !== Boolean(b.holiday)) return a.holiday ? -1 : 1
+    return a.day - b.day
+  })
 
-  const holidayCount = useMemo(
-    () => holidaysThisMonth.filter((e) => e.holiday).length,
-    [holidaysThisMonth],
-  )
+  const holidayCount = holidaysThisMonth.filter((e) => e.holiday).length
   const festivalCount = holidaysThisMonth.length
   const hasScheduleForYear = schedule?.year === year
 
@@ -159,20 +169,10 @@ export function NepaliCalendar({
   const canPrevYear = year > BS_YEAR_MIN
   const canNextYear = year < BS_YEAR_MAX
 
-  const adRangeLabel = (() => {
-    if (!firstAd || !lastAd) return ''
-    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' }
-    const loc = en ? 'en-GB' : 'ne-NP'
-    return `${formatKathmanduAdDate(firstAd, loc, opts)} – ${formatKathmanduAdDate(lastAd, loc, opts)}`
-  })()
+  const adRangeLabel = firstAd && lastAd ? formatAdDateRange(firstAd, lastAd, locale, 'short') : ''
 
   const selectedAdLabel = selected?.adDate
-    ? formatKathmanduAdDate(selected.adDate, en ? 'en-GB' : 'ne-NP', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
+    ? formatAdDate(selected.adDate, locale, 'weekday-long')
     : ''
 
   const selectedBsLabel = selected ? formatBsFull({ year, month, day: selected.day }, locale) : ''
@@ -268,70 +268,43 @@ export function NepaliCalendar({
           role="grid"
           aria-label={en ? `${monthName} ${year}` : `${monthName} ${toDevanagari(year)}`}
         >
-          {(en ? WEEKDAY_EN : WEEKDAY_NE).map((w, i) => (
-            <div
-              key={w}
-              className={`calendar-weekday${i === 6 ? ' is-saturday' : ''}`}
-              role="columnheader"
-            >
-              {w}
+          {/* ARIA grid semantics require rows: columnheaders and gridcells are
+              only valid inside role="row". Rows use `display: contents` so the
+              seven-column CSS grid layout is unchanged. */}
+          <div className="calendar-grid__row" role="row">
+            {(en ? WEEKDAY_EN : WEEKDAY_NE).map((w, i) => (
+              <div
+                key={w}
+                className={`calendar-weekday${i === 6 ? ' is-saturday' : ''}`}
+                role="columnheader"
+                aria-label={w}
+              >
+                {w}
+              </div>
+            ))}
+          </div>
+          {dayRows.map((row, rowIndex) => (
+            <div className="calendar-grid__row" role="row" key={`row-${rowIndex}`}>
+              {row.map((entry, entryIndex) =>
+                entry === null ? (
+                  <div
+                    key={`pad-${rowIndex}-${entryIndex}`}
+                    className="calendar-blank"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <DayCellButton
+                    key={entry.day}
+                    cell={entry}
+                    en={en}
+                    isToday={mounted && entry.day === todayBs.day && viewingTodayMonth}
+                    isSelected={entry.day === safeSelectedDay}
+                    onSelect={setSelectedDay}
+                  />
+                ),
+              )}
             </div>
           ))}
-          {Array.from({ length: startWeekday }).map((_, i) => (
-            <div key={`pad-${i}`} className="calendar-blank" aria-hidden="true" />
-          ))}
-          {cells.map((c) => {
-            const isToday = mounted && c.day === todayBs.day && viewingTodayMonth
-            const isSelected = c.day === safeSelectedDay
-            const hasHoliday = c.events.some((e) => e.holiday)
-            const primaryEvent = c.events[0]
-            const label = [
-              en ? String(c.day) : toDevanagari(c.day),
-              primaryEvent ? (en ? primaryEvent.nameEn : primaryEvent.nameNe) : null,
-              isToday ? (en ? 'today' : 'आज') : null,
-            ]
-              .filter(Boolean)
-              .join(', ')
-
-            return (
-              <button
-                key={c.day}
-                type="button"
-                role="gridcell"
-                aria-selected={isSelected}
-                aria-current={isToday ? 'date' : undefined}
-                aria-label={label}
-                onClick={() => setSelectedDay(c.day)}
-                className={[
-                  'calendar-day',
-                  isToday ? 'is-today' : '',
-                  isSelected ? 'is-selected' : '',
-                  hasHoliday ? 'is-holiday' : c.events.length ? 'has-event' : '',
-                  c.weekday === 6 ? 'is-saturday' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {hasHoliday ? <span className="calendar-day__corner" aria-hidden="true" /> : null}
-                <span className="calendar-day__nums">
-                  <strong>{en ? c.day : toDevanagari(c.day)}</strong>
-                  <span className="calendar-day__ad" aria-hidden="true">
-                    {c.adDay}
-                  </span>
-                </span>
-                {c.events.length > 0 ? (
-                  <span className="calendar-day__dots" aria-hidden="true">
-                    {c.events.slice(0, 3).map((_, i) => (
-                      <i key={i} className={c.events[i]?.holiday ? 'is-holiday' : undefined} />
-                    ))}
-                  </span>
-                ) : null}
-                {primaryEvent ? (
-                  <small>{en ? primaryEvent.nameEn : primaryEvent.nameNe}</small>
-                ) : null}
-              </button>
-            )
-          })}
         </div>
 
         <aside className="calendar-rail">
@@ -417,5 +390,65 @@ export function NepaliCalendar({
         </aside>
       </div>
     </section>
+  )
+}
+
+function DayCellButton({
+  cell: c,
+  en,
+  isToday,
+  isSelected,
+  onSelect,
+}: {
+  cell: DayCell
+  en: boolean
+  isToday: boolean
+  isSelected: boolean
+  onSelect: (day: number) => void
+}) {
+  const hasHoliday = c.events.some((e) => e.holiday)
+  const primaryEvent = c.events[0]
+  const label = [
+    en ? String(c.day) : toDevanagari(c.day),
+    primaryEvent ? (en ? primaryEvent.nameEn : primaryEvent.nameNe) : null,
+    isToday ? (en ? 'today' : 'आज') : null,
+  ]
+    .filter(Boolean)
+    .join(', ')
+
+  return (
+    <button
+      type="button"
+      role="gridcell"
+      aria-selected={isSelected}
+      aria-current={isToday ? 'date' : undefined}
+      aria-label={label}
+      onClick={() => onSelect(c.day)}
+      className={[
+        'calendar-day',
+        isToday ? 'is-today' : '',
+        isSelected ? 'is-selected' : '',
+        hasHoliday ? 'is-holiday' : c.events.length ? 'has-event' : '',
+        c.weekday === 6 ? 'is-saturday' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      {hasHoliday ? <span className="calendar-day__corner" aria-hidden="true" /> : null}
+      <span className="calendar-day__nums">
+        <strong>{en ? c.day : toDevanagari(c.day)}</strong>
+        <span className="calendar-day__ad" aria-hidden="true">
+          {c.adDay}
+        </span>
+      </span>
+      {c.events.length > 0 ? (
+        <span className="calendar-day__dots" aria-hidden="true">
+          {c.events.slice(0, 3).map((_, i) => (
+            <i key={i} className={c.events[i]?.holiday ? 'is-holiday' : undefined} />
+          ))}
+        </span>
+      ) : null}
+      {primaryEvent ? <small>{en ? primaryEvent.nameEn : primaryEvent.nameNe}</small> : null}
+    </button>
   )
 }

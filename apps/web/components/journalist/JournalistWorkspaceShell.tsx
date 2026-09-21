@@ -65,7 +65,10 @@ export function JournalistWorkspaceShell({
                 key={key}
                 href={localizeHref(locale, href)}
                 aria-current={active === key ? 'page' : undefined}
-                className={`${active === key ? 'is-active ' : ''}${key === 'new' ? 'is-primary' : ''}`.trim() || undefined}
+                className={
+                  `${active === key ? 'is-active ' : ''}${key === 'new' ? 'is-primary' : ''}`.trim() ||
+                  undefined
+                }
               >
                 {label}
               </Link>
@@ -89,7 +92,9 @@ export function JournalistWorkspaceShell({
         <div className="newsroom-sidebar__identity">
           <strong>{name}</strong>
           <span>{roleLabel}</span>
-          <Link href={localizeHref(locale, '/')}>{ne ? 'सार्वजनिक साइट खोल्नुहोस्' : 'Open public site'}</Link>
+          <Link href={localizeHref(locale, '/')}>
+            {ne ? 'सार्वजनिक साइट खोल्नुहोस्' : 'Open public site'}
+          </Link>
           <JournalistSignOutButton locale={locale} />
         </div>
       </aside>

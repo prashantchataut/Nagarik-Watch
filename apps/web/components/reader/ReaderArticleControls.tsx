@@ -1,4 +1,10 @@
 'use client'
+import {
+  createBrowserStore,
+  notifyBrowserStore,
+  useBrowserStore,
+  useHydrated,
+} from '@/lib/browser/use-browser-store'
 
 import { useEffect, useMemo, useState } from 'react'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
@@ -25,6 +31,28 @@ import { addArticleToSessionMeter, FREE_ARTICLE_METER_KEY } from '@/lib/free-art
 import { canShowWeeklyFeedback } from '@/lib/reader/retention'
 import { ArticleToolsMenu } from '@/components/article/ArticleToolsMenu'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
+
+const FREE_METER_EVENT = 'nw:free-meter'
+const FEEDBACK_EVENT = 'nw:reader-feedback'
+const FEEDBACK_KEY = 'nw:reader-feedback:last-shown'
+
+const freeMeterStore = createBrowserStore<{ count: number; limit: number } | null>({
+  read: () => {
+    const next = addArticleToSessionMeter(sessionStorage.getItem(FREE_ARTICLE_METER_KEY), '')
+    return next.count > 0 ? { count: next.count, limit: next.limit } : null
+  },
+  serverValue: null,
+  customEvents: [FREE_METER_EVENT],
+})
+
+const feedbackStore = createBrowserStore<boolean>({
+  read: () => {
+    const stored = localStorage.getItem(FEEDBACK_KEY)
+    return Boolean(stored) && !canShowWeeklyFeedback(stored)
+  },
+  serverValue: false,
+  customEvents: [FEEDBACK_EVENT],
+})
 
 type ReaderArticleControlsProps = {
   story: StoryCardData
@@ -55,12 +83,23 @@ export function ReaderArticleControls({
   const [readingMode, setReadingMode] = useState(false)
   const [scrollDepth, setScrollDepth] = useState(0)
   const [personalized, setPersonalized] = useState(false)
-  const [speechSupported, setSpeechSupported] = useState(false)
+  // Speech synthesis support is a browser capability: derived, not state.
+  const hydrated = useHydrated()
+  const speechSupported =
+    hydrated &&
+    typeof window !== 'undefined' &&
+    'speechSynthesis' in window &&
+    'SpeechSynthesisUtterance' in window
   const [speaking, setSpeaking] = useState(false)
   const [speechHint, setSpeechHint] = useState<string | null>(null)
   const [historySyncFailed, setHistorySyncFailed] = useState(false)
-  const [meter, setMeter] = useState<{ count: number; limit: number } | null>(null)
-  const [showFeedback, setShowFeedback] = useState(false)
+  // Both the session meter and the "was feedback shown" flag are external-store
+  // values (sessionStorage / localStorage). They are read through stores so the
+  // recording effect only writes, and the UI re-renders from the store.
+  const meter = useBrowserStore(freeMeterStore)
+  const feedbackShown = useBrowserStore(feedbackStore)
+  const [feedbackDismissed, setFeedbackDismissed] = useState(false)
+  const showFeedback = feedbackShown && !feedbackDismissed
   const [readingSessionId] = useState(
     () =>
       globalThis.crypto?.randomUUID?.() ??
@@ -70,24 +109,12 @@ export function ReaderArticleControls({
   const lang = english ? 'en' : 'ne'
 
   useEffect(() => {
-    const supported =
-      typeof window !== 'undefined' &&
-      'speechSynthesis' in window &&
-      'SpeechSynthesisUtterance' in window
-    setSpeechSupported(supported)
-    if (!supported) {
-      setSpeechHint(
-        english
-          ? 'Listen is not available in this browser.'
-          : 'यो ब्राउजरमा सुन्ने सुविधा उपलब्ध छैन।',
-      )
-    }
     return () => {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel()
       }
     }
-  }, [english])
+  }, [])
 
   useEffect(() => {
     document.documentElement.classList.toggle('reader-focus-mode', readingMode)
@@ -105,7 +132,8 @@ export function ReaderArticleControls({
       `${story.category.slug}:${story.slug}`,
     )
     sessionStorage.setItem(FREE_ARTICLE_METER_KEY, JSON.stringify(next.articles))
-    setMeter({ count: next.count, limit: next.limit })
+    // The write is the side effect; the store above picks the new value up.
+    notifyBrowserStore(FREE_METER_EVENT)
   }, [membershipPublic, premiumReader, story.category.slug, story.slug])
 
   useEffect(() => {
@@ -113,7 +141,7 @@ export function ReaderArticleControls({
     const key = 'nw:reader-feedback:last-shown'
     if (!canShowWeeklyFeedback(localStorage.getItem(key))) return
     localStorage.setItem(key, new Date().toISOString())
-    setShowFeedback(true)
+    notifyBrowserStore(FEEDBACK_EVENT)
   }, [scrollDepth])
 
   useEffect(() => {
@@ -452,7 +480,7 @@ export function ReaderArticleControls({
             type="button"
             onClick={() => {
               localStorage.setItem('nw:reader-feedback:last-answer', 'useful')
-              setShowFeedback(false)
+              setFeedbackDismissed(true)
             }}
           >
             {locale === 'en' ? 'Yes' : 'भयो'}
@@ -461,7 +489,7 @@ export function ReaderArticleControls({
             type="button"
             onClick={() => {
               localStorage.setItem('nw:reader-feedback:last-answer', 'not-useful')
-              setShowFeedback(false)
+              setFeedbackDismissed(true)
             }}
           >
             {locale === 'en' ? 'Not really' : 'खासै भएन'}

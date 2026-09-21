@@ -17,6 +17,7 @@ import {
 } from '@/lib/search'
 import { hasAnalyticsConsent } from '@/lib/reader/consent'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
+import { useHydrated } from '@/lib/browser/use-browser-store'
 
 type SearchViewProps = {
   locale: Locale
@@ -35,15 +36,40 @@ const RECENT_MAX = 6
  * + Enter + Escape keyboard control, recent-search chips (sessionStorage), and the three empty
  * states (no query / no results / recents).
  */
+function readRecentSearches(): string[] {
+  try {
+    const raw = sessionStorage.getItem(RECENT_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? (parsed as string[]) : []
+  } catch {
+    // sessionStorage unavailable (private mode) — recents are a progressive enhancement.
+    return []
+  }
+}
+
 export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const dict = getDictionary(locale)
   const prefix = localePrefix(locale)
 
-  const [archiveCorpus, setArchiveCorpus] = useState<SearchableStory[]>([])
-  const [archiveLoading, setArchiveLoading] = useState(false)
-  const [archiveUnavailable, setArchiveUnavailable] = useState(false)
+  // One state object per request, tagged with the query it belongs to. Values
+  // for a stale query are ignored during render, so no effect needs to reset
+  // state synchronously when the query changes.
+  const [query, setQuery] = useState(searchParams.get('q') ?? '')
+  const [debounced, setDebounced] = useState(searchParams.get('q') ?? '')
+  const [archive, setArchive] = useState<{
+    query: string
+    items: SearchableStory[]
+    loading: boolean
+    unavailable: boolean
+  }>({ query: '', items: [], loading: false, unavailable: false })
+  const archiveCurrent = archive.query === debounced.trim() ? archive : null
+  const archiveCorpus = archiveCurrent?.items ?? []
+  const archiveUnavailable = archiveCurrent?.unavailable ?? false
+  const archiveLoading = archiveCurrent ? archiveCurrent.loading : debounced.trim().length >= 2
+
   const mergedCorpus = useMemo(() => {
     const byId = new Map<string, SearchableStory>()
     for (const story of [...corpus, ...archiveCorpus]) byId.set(String(story.id), story)
@@ -51,30 +77,25 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
   }, [archiveCorpus, corpus])
   const index = useMemo(() => buildIndex(mergedCorpus), [mergedCorpus])
 
-  const [query, setQuery] = useState(searchParams.get('q') ?? '')
-  const [debounced, setDebounced] = useState(searchParams.get('q') ?? '')
-  const [results, setResults] = useState<SearchResult[]>([])
-  const [active, setActive] = useState(-1)
-  const [recents, setRecents] = useState<string[]>([])
+  // Recent searches live in sessionStorage; read after hydration, overridden
+  // locally as the reader searches in this session.
+  const hydrated = useHydrated()
+  const [recentOverride, setRecentOverride] = useState<string[] | null>(null)
+  const recents = recentOverride ?? (hydrated ? readRecentSearches() : [])
+  const setRecents = setRecentOverride
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
   const lastTrackedSearch = useRef('')
 
   useEffect(() => {
     inputRef.current?.focus()
-    try {
-      const raw = sessionStorage.getItem(RECENT_KEY)
-      if (raw) setRecents(JSON.parse(raw))
-    } catch {
-      // sessionStorage unavailable (private mode) — recents are a progressive enhancement.
-    }
   }, [])
 
   const pushRecent = useCallback((q: string) => {
     const trimmed = q.trim()
     if (!trimmed) return
-    setRecents((prev) => {
-      const next = [trimmed, ...prev.filter((r) => r !== trimmed)].slice(0, RECENT_MAX)
+    setRecents((prev: string[] | null) => {
+      const next = [trimmed, ...(prev ?? []).filter((r) => r !== trimmed)].slice(0, RECENT_MAX)
       try {
         sessionStorage.setItem(RECENT_KEY, JSON.stringify(next))
       } catch {
@@ -102,40 +123,55 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
   }, [query, searchParams, router, prefix, pushRecent])
 
   // Expand beyond the recent client corpus through the bounded server-side content source.
+  // Only promise callbacks touch state; the pending/empty states are derived above.
   useEffect(() => {
     const q = debounced.trim()
-    if (q.length < 2) {
-      setArchiveCorpus([])
-      setArchiveUnavailable(false)
-      return
-    }
+    if (q.length < 2) return
     const controller = new AbortController()
-    setArchiveCorpus([])
-    setArchiveLoading(true)
-    setArchiveUnavailable(false)
     const params = new URLSearchParams({ q, locale })
     void fetch(`/api/search?${params.toString()}`, { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error(`Search service returned ${response.status}`)
         return (await response.json()) as { items?: SearchableStory[] }
       })
-      .then((payload) => setArchiveCorpus(Array.isArray(payload.items) ? payload.items : []))
+      .then((payload) =>
+        setArchive({
+          query: q,
+          items: Array.isArray(payload.items) ? payload.items : [],
+          loading: false,
+          unavailable: false,
+        }),
+      )
       .catch((error: unknown) => {
         if ((error as { name?: string }).name === 'AbortError') return
-        setArchiveCorpus([])
-        setArchiveUnavailable(true)
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setArchiveLoading(false)
+        setArchive({ query: q, items: [], loading: false, unavailable: true })
       })
     return () => controller.abort()
   }, [debounced, locale])
 
-  // Re-run the scorer whenever the debounced query changes.
+  // Results are a pure function of the corpus and the debounced query, so they
+  // are derived during render; the effect below only reports the search.
+  const results = useMemo(() => search(index, debounced), [index, debounced])
+  const [activeOverride, setActiveOverride] = useState<{ key: string; index: number } | null>(null)
+  const active =
+    activeOverride?.key === debounced
+      ? Math.min(activeOverride.index, results.length - 1)
+      : results.length > 0
+        ? 0
+        : -1
+  const setActive = useCallback(
+    (next: number | ((current: number) => number)) => {
+      setActiveOverride((current) => {
+        const base = current?.key === debounced ? current.index : results.length > 0 ? 0 : -1
+        const value = typeof next === 'function' ? next(base) : next
+        return { key: debounced, index: value }
+      })
+    },
+    [debounced, results.length],
+  )
+
   useEffect(() => {
-    const next = search(index, debounced)
-    setResults(next)
-    setActive(next.length > 0 ? 0 : -1)
+    const next = results
     const normalized = debounced.trim().toLocaleLowerCase()
     const trackingKey = `${locale}:${normalized}`
     if (
@@ -151,7 +187,7 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
         keepalive: true,
       }).catch(() => undefined)
     }
-  }, [index, debounced, locale])
+  }, [results, debounced, locale])
 
   const suggestions = useMemo(() => {
     const q = query.trim()
@@ -162,8 +198,7 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
   const clear = useCallback(() => {
     setQuery('')
     setDebounced('')
-    setResults([])
-    setActive(-1)
+    setActiveOverride(null)
     inputRef.current?.focus()
   }, [])
 
@@ -255,7 +290,10 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
               onClick={() => setQuery(r)}
               className="inline-flex min-h-9 items-center gap-1.5 border border-dashed border-rule px-3 text-caption font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong"
             >
-              <span aria-hidden="true" className="text-mute">↺</span> {r}
+              <span aria-hidden="true" className="text-mute">
+                ↺
+              </span>{' '}
+              {r}
             </button>
           ))}
         </div>
@@ -284,12 +322,7 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
         <div className="min-w-0">
           {/* Results */}
           {hasQuery && results.length > 0 && (
-            <ul
-              ref={listRef}
-              className="grid gap-3"
-              role="listbox"
-              aria-label={dict.searchHeading}
-            >
+            <ul ref={listRef} className="grid gap-3" role="listbox" aria-label={dict.searchHeading}>
               {results.map((r, i) => {
                 const title = titleFor(r)
                 const segs = highlightSegments(title, debounced)
@@ -320,14 +353,19 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
                         ) : null}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <span className="text-caption font-bold text-brand-strong">{r.categoryLabel}</span>
+                        <span className="text-caption font-bold text-brand-strong">
+                          {r.categoryLabel}
+                        </span>
                         <span
                           className="mt-1 block font-display text-body-lg font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong"
                           lang={locale === 'en' && r.titleEn ? 'en' : 'ne'}
                         >
                           {segs.map((s, idx) =>
                             s.match ? (
-                              <mark key={idx} className="bg-transparent font-black text-brand-strong">
+                              <mark
+                                key={idx}
+                                className="bg-transparent font-black text-brand-strong"
+                              >
                                 {s.text}
                               </mark>
                             ) : (
@@ -360,8 +398,12 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
           {hasQuery && results.length === 0 && (
             <div lang={lang}>
               <div className="border border-rule bg-surface-raised px-4 py-5">
-                <p className="font-display text-h3 font-extrabold text-ink">{dict.searchNoResults}</p>
-                <p className="mt-2 max-w-[55ch] text-body leading-relaxed text-ink-soft">{dict.searchNoResultsHint}</p>
+                <p className="font-display text-h3 font-extrabold text-ink">
+                  {dict.searchNoResults}
+                </p>
+                <p className="mt-2 max-w-[55ch] text-body leading-relaxed text-ink-soft">
+                  {dict.searchNoResultsHint}
+                </p>
               </div>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {[
@@ -377,7 +419,9 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
                     lang={lang}
                   >
                     {locale === 'en' ? desk.en : desk.ne}
-                    <span aria-hidden="true" className="text-brand-strong">→</span>
+                    <span aria-hidden="true" className="text-brand-strong">
+                      →
+                    </span>
                   </Link>
                 ))}
               </div>
@@ -388,8 +432,12 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
           {!hasQuery && recents.length === 0 && suggestions.length === 0 && (
             <div lang={lang}>
               <div className="border border-rule bg-surface-raised px-4 py-5">
-                <p className="font-display text-h3 font-extrabold text-ink">{dict.searchEmptyQuery}</p>
-                <p className="mt-2 max-w-[55ch] text-body leading-relaxed text-ink-soft">{dict.searchEmptyHint}</p>
+                <p className="font-display text-h3 font-extrabold text-ink">
+                  {dict.searchEmptyQuery}
+                </p>
+                <p className="mt-2 max-w-[55ch] text-body leading-relaxed text-ink-soft">
+                  {dict.searchEmptyHint}
+                </p>
               </div>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {[
@@ -405,7 +453,9 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
                     lang={lang}
                   >
                     {locale === 'en' ? desk.en : desk.ne}
-                    <span aria-hidden="true" className="text-brand-strong">→</span>
+                    <span aria-hidden="true" className="text-brand-strong">
+                      →
+                    </span>
                   </Link>
                 ))}
               </div>
@@ -414,17 +464,38 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
         </div>
 
         {/* Rail */}
-        <aside className="hidden min-w-0 lg:block" aria-label={locale === 'en' ? 'Search help' : 'खोज सहायता'}>
+        <aside
+          className="hidden min-w-0 lg:block"
+          aria-label={locale === 'en' ? 'Search help' : 'खोज सहायता'}
+        >
           <div className="sticky top-24 space-y-5">
             <section className="border border-rule bg-surface-raised px-3.5 py-3.5">
               <p className="font-display text-meta font-extrabold text-ink" lang={lang}>
                 {locale === 'en' ? 'Search tips' : 'खोज सुझाव'}
               </p>
               <span className="mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden="true" />
-              <ul className="mt-2.5 grid gap-1.5 text-caption leading-relaxed text-ink-soft" lang={lang}>
-                <li>· {locale === 'en' ? 'Try a reporter name or a topic' : 'पत्रकारको नाम वा विषय प्रयोग गर्नुहोस्'}</li>
-                <li>· {locale === 'en' ? 'Nepali and English both work' : 'नेपाली र अङ्ग्रेजी दुवै चल्छ'}</li>
-                <li>· {locale === 'en' ? 'Shorter queries match more stories' : 'छोटो शब्दले बढी समाचार मिल्छ'}</li>
+              <ul
+                className="mt-2.5 grid gap-1.5 text-caption leading-relaxed text-ink-soft"
+                lang={lang}
+              >
+                <li>
+                  ·{' '}
+                  {locale === 'en'
+                    ? 'Try a reporter name or a topic'
+                    : 'पत्रकारको नाम वा विषय प्रयोग गर्नुहोस्'}
+                </li>
+                <li>
+                  ·{' '}
+                  {locale === 'en'
+                    ? 'Nepali and English both work'
+                    : 'नेपाली र अङ्ग्रेजी दुवै चल्छ'}
+                </li>
+                <li>
+                  ·{' '}
+                  {locale === 'en'
+                    ? 'Shorter queries match more stories'
+                    : 'छोटो शब्दले बढी समाचार मिल्छ'}
+                </li>
               </ul>
             </section>
             <section className="border border-rule bg-surface-raised px-3.5 py-3.5">

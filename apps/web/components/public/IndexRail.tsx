@@ -7,16 +7,13 @@ import { NewsletterInline } from '@/components/NewsletterInline'
  * fewer than two modules (plan rule 1.4) — the newsletter module is always
  * included as the floor.
  */
-export function IndexRail({
-  locale,
-  children,
-}: {
-  locale: Locale
-  children?: ReactNode
-}) {
+export function IndexRail({ locale, children }: { locale: Locale; children?: ReactNode }) {
   const en = locale === 'en'
   return (
-    <aside className="hidden min-w-0 xl:block" aria-label={en ? 'More from the newsroom' : 'थप सामग्री'}>
+    <aside
+      className="hidden min-w-0 xl:block"
+      aria-label={en ? 'More from the newsroom' : 'थप सामग्री'}
+    >
       <div className="sticky top-24 space-y-5">
         {children}
         <section className="border-y border-rule py-4">
@@ -34,13 +31,7 @@ export function IndexRail({
 }
 
 /** Standard rail module shell for explainer / stats cards. */
-export function RailModule({
-  title,
-  children,
-}: {
-  title: string
-  children: ReactNode
-}) {
+export function RailModule({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="border-y border-rule py-4">
       <p className="font-display text-meta font-extrabold text-ink">{title}</p>

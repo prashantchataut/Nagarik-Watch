@@ -47,8 +47,13 @@ export function DeskHoldingPage({
   return (
     <div className="mt-6">
       <section className="border-y border-rule py-7 text-center" aria-label={kicker}>
-        <p className="text-caption font-bold uppercase tracking-[0.12em] text-brand-strong">{kicker}</p>
-        <p className="mx-auto mt-2 max-w-[60ch] text-body-lg leading-relaxed text-ink-soft" lang={en ? 'en' : 'ne'}>
+        <p className="text-caption font-bold uppercase tracking-[0.12em] text-brand-strong">
+          {kicker}
+        </p>
+        <p
+          className="mx-auto mt-2 max-w-[60ch] text-body-lg leading-relaxed text-ink-soft"
+          lang={en ? 'en' : 'ne'}
+        >
           {note}
         </p>
         {ctaHref && ctaLabel ? (
@@ -111,7 +116,11 @@ export function DeskHoldingPage({
                       {titleFor(story, locale)}
                     </Link>
                   </h3>
-                  <Dateline iso={story.publishedAt} locale={locale} className="mt-1 block text-caption text-mute" />
+                  <Dateline
+                    iso={story.publishedAt}
+                    locale={locale}
+                    className="mt-1 block text-caption text-mute"
+                  />
                 </article>
               </InstrumentedStory>
             ))}

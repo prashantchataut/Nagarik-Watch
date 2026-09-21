@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { computeStreak, streakRisk, type StreakSummary } from '@/lib/reader/streaks'
+import { computeStreak, streakRisk } from '@/lib/reader/streaks'
 import type { ReadingHistoryRecord } from '@/lib/reader/state'
+import { useHydrated } from '@/lib/browser/use-browser-store'
 
 export function ReadingStreakBadge({
   locale,
@@ -11,16 +11,15 @@ export function ReadingStreakBadge({
   locale: 'ne' | 'en'
   history: ReadingHistoryRecord[]
 }) {
-  const [summary, setSummary] = useState<StreakSummary | null>(null)
-  const [riskHours, setRiskHours] = useState(0)
+  // The streak is computed against "now" and the reader's local midnight, so it
+  // is a client-only value: render nothing until hydration instead of computing
+  // it in an effect and forcing a second render.
+  const hydrated = useHydrated()
+  if (!hydrated) return null
 
-  useEffect(() => {
-    const next = computeStreak(history)
-    setSummary(next)
-    setRiskHours(streakRisk(next).hoursRemaining)
-  }, [history])
-
-  if (!summary || summary.current <= 0) return null
+  const summary = computeStreak(history)
+  if (summary.current <= 0) return null
+  const riskHours = streakRisk(summary).hoursRemaining
 
   const english = locale === 'en'
   return (

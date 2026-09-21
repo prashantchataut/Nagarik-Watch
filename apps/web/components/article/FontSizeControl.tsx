@@ -1,8 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
+import {
+  createBrowserStore,
+  notifyBrowserStore,
+  useBrowserStore,
+} from '@/lib/browser/use-browser-store'
 
 /**
  * FontSizeControl — three-step reader text resize (A− / A / A+), spec Phase 5 "font size
@@ -23,34 +28,51 @@ const SIZES = ['sm', 'base', 'lg'] as const
 type Size = (typeof SIZES)[number]
 const STORAGE_KEY = 'nw-reading-size'
 
+function readStoredSize(): Size {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY) as Size | null
+    return stored && SIZES.includes(stored) ? stored : 'base'
+  } catch {
+    // localStorage unavailable (private mode); fall back to the default size.
+    return 'base'
+  }
+}
+
 function apply(size: Size) {
   document.documentElement.setAttribute('data-reading-size', size)
 }
 
+const READING_SIZE_EVENT = 'nw:reading-size-change'
+
+/**
+ * The chosen reading size is browser state (a stored preference reflected on
+ * <html>), read through an external store so the server snapshot is always
+ * `base` and the client snapshot is the reader's real choice.
+ */
+const readingSizeStore = createBrowserStore<Size>({
+  read: readStoredSize,
+  serverValue: 'base',
+  events: ['storage'],
+  customEvents: [READING_SIZE_EVENT],
+})
+
 export function FontSizeControl({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale)
-  const [size, setSize] = useState<Size>('base')
+  const size = useBrowserStore(readingSizeStore)
 
+  // Apply the stored size to <html> after mount. Side effect only, no setState.
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY) as Size | null
-      if (stored && SIZES.includes(stored)) {
-        setSize(stored)
-        apply(stored)
-      }
-    } catch {
-      // localStorage unavailable (private mode); fall back to default size silently.
-    }
+    apply(readStoredSize())
   }, [])
 
   function choose(next: Size) {
-    setSize(next)
     apply(next)
     try {
       localStorage.setItem(STORAGE_KEY, next)
     } catch {
       // ignore persistence failure
     }
+    notifyBrowserStore(READING_SIZE_EVENT)
   }
 
   const steps: { value: Size; label: string; aria: string; cls: string }[] = [

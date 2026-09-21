@@ -9,7 +9,13 @@ export function PaywallNotice({ locale }: { locale: Locale }) {
       className="mt-8 border-y border-brand/25 bg-surface-raised px-1 py-6 sm:px-5"
       lang={ne ? 'ne' : 'en'}
     >
-      <p className={ne ? 'font-display text-meta font-bold tracking-normal text-brand-strong' : 'text-meta font-bold uppercase tracking-wide text-brand-strong'}>
+      <p
+        className={
+          ne
+            ? 'font-display text-meta font-bold tracking-normal text-brand-strong'
+            : 'text-meta font-bold uppercase tracking-wide text-brand-strong'
+        }
+      >
         {ne ? 'सदस्य सामग्री' : 'Member story'}
       </p>
       <h2 className="mt-2 font-display text-h1 leading-tight text-ink">

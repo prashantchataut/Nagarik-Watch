@@ -14,6 +14,7 @@ import { completedReadingDays, currentReadingStreak } from '@/lib/reader/retenti
 import { computeStreak, streakRisk } from '@/lib/reader/streaks'
 import { loyaltyFromLifetimeReads } from '@/lib/reader/loyalty'
 import { continueReadingForReader } from '@/lib/reader/personalize'
+import { formatAdDate } from '@/lib/format/ad-date'
 
 type ApiHistory = {
   articleSlug: string
@@ -284,9 +285,11 @@ export function ReaderActivityPanel({
               title={`${day.date}: ${day.completed}`}
             >
               <span>
-                {new Date(`${day.date}T12:00:00`).toLocaleDateString(english ? 'en-GB' : 'ne-NP', {
-                  weekday: 'narrow',
-                })}
+                {formatAdDate(
+                  new Date(`${day.date}T12:00:00`),
+                  english ? 'en' : 'ne',
+                  'weekday-narrow',
+                )}
               </span>
               <i aria-hidden="true" />
             </li>

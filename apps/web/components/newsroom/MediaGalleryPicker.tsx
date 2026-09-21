@@ -41,10 +41,20 @@ export function MediaGalleryPicker({
   const [query, setQuery] = useState('')
   const [alt, setAlt] = useState('')
 
+  // Reset the dialog's transient state on open instead of in an effect that
+  // renders twice. `open` is controlled by the parent, so this keyed reset runs
+  // once per open transition during render.
+  const [resetForOpen, setResetForOpen] = useState(open)
+  if (open !== resetForOpen) {
+    setResetForOpen(open)
+    if (open) {
+      setError(null)
+      setCmsUrl(null)
+    }
+  }
+
   useEffect(() => {
     if (!open) return
-    setError(null)
-    setCmsUrl(null)
     startTransition(() => {
       void (async () => {
         const res = await fetch('/api/admin/media', { credentials: 'include' })

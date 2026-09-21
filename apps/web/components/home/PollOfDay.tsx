@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
 import { TurnstileField } from '@/components/forms/TurnstileField'
+import { useHydrated } from '@/lib/browser/use-browser-store'
 
 const VOTE_KEY = 'nw-poll-votes'
 const FINGERPRINT_KEY = 'nw-poll-fingerprint'
@@ -70,14 +71,14 @@ export function PollOfDay({
   const instanceId = useId().replace(/:/g, '')
   const labelledBy = headingId ?? `poll-${poll.id}-label-${instanceId}`
   const questionId = `poll-${poll.id}-q-${instanceId}`
-  const [myVote, setMyVote] = useState<VoteRecord | null>(null)
+  // Votes live in localStorage, so the reader's own vote is only knowable after
+  // hydration. `override` carries the vote cast in this session.
+  const hydrated = useHydrated()
+  const [override, setOverride] = useState<VoteRecord | null>(null)
+  const myVote = override ?? (hydrated ? (readVotes()[poll.id] ?? null) : null)
   const [results, setResults] = useState<Record<string, number>>(poll.results)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    setMyVote(readVotes()[poll.id] ?? null)
-  }, [poll.id])
 
   const optionEntries = useMemo(
     () => poll.options.map((label, index) => ({ id: String(index), label })),
@@ -116,7 +117,7 @@ export function PollOfDay({
       if (!response.ok) throw new Error(body.error || 'Vote failed')
       const record = { pollId: poll.id, optionId, at: new Date().toISOString() }
       persistVote(record)
-      setMyVote(record)
+      setOverride(record)
       if (body.results) setResults(body.results)
     } catch {
       setError(

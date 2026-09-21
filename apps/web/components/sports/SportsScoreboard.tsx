@@ -197,19 +197,15 @@ function ScoreSection({
                   timeZone: 'Asia/Kathmandu',
                 })}
               </>
+            ) : ne ? (
+              'प्रमाणित प्रदायक'
             ) : (
-              (ne ? 'प्रमाणित प्रदायक' : 'Verified provider')
+              'Verified provider'
             )}
           </p>
         </div>
         <span data-live={available ? 'true' : 'false'}>
-          {available
-            ? ne
-              ? 'सत्यापित'
-              : 'Verified'
-            : ne
-              ? 'उपलब्ध छैन'
-              : 'No feed'}
+          {available ? (ne ? 'सत्यापित' : 'Verified') : ne ? 'उपलब्ध छैन' : 'No feed'}
         </span>
       </header>
       {available ? (

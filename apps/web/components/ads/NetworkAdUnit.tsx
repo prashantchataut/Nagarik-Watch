@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { hasAdvertisingConsent } from '@/lib/reader/consent'
+import { useHydrated } from '@/lib/browser/use-browser-store'
 
 type Googletag = {
   cmd: Array<() => void>
@@ -42,12 +43,9 @@ export function NetworkAdUnit({
   const gamRef = useRef<HTMLDivElement>(null)
   const adsenseRef = useRef<HTMLModElement>(null)
   const pushed = useRef(false)
-  const [consentAds, setConsentAds] = useState(false)
+  const hydrated = useHydrated()
+  const consentAds = hydrated && hasAdvertisingConsent()
   const kind = network.trim().toLowerCase()
-
-  useEffect(() => {
-    setConsentAds(hasAdvertisingConsent())
-  }, [])
 
   useEffect(() => {
     if (!consentAds || kind !== 'gam' || !gamPath?.trim() || !gamRef.current) return

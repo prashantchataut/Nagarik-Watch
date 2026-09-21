@@ -124,28 +124,50 @@ export function ReaderAuthShell({
           </div>
         </aside>
 
-        <section className="flex min-w-0 flex-col bg-surface px-4 py-5 sm:px-8 sm:py-7 lg:px-10 lg:py-8" aria-labelledby="reader-auth-title">
+        <section
+          className="flex min-w-0 flex-col bg-surface px-4 py-5 sm:px-8 sm:py-7 lg:px-10 lg:py-8"
+          aria-labelledby="reader-auth-title"
+        >
           <div className="flex items-center justify-between gap-4 border-b border-rule pb-4 lg:hidden">
-            <Link href={localizeHref(locale, '/')} aria-label={ne ? 'नागरिक वाच गृहपृष्ठ' : 'Nagarik Watch home'}>
+            <Link
+              href={localizeHref(locale, '/')}
+              aria-label={ne ? 'नागरिक वाच गृहपृष्ठ' : 'Nagarik Watch home'}
+            >
               <Logo siteName={ne ? 'नागरिक वाच' : 'Nagarik Watch'} compact />
             </Link>
-            <span className="text-caption font-bold text-mute">{ne ? 'पाठक सेवा' : 'Reader service'}</span>
+            <span className="text-caption font-bold text-mute">
+              {ne ? 'पाठक सेवा' : 'Reader service'}
+            </span>
           </div>
 
           {showRoleSwitch ? (
-            <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-caption font-bold lg:mt-0" aria-label={ne ? 'खाता प्रकार' : 'Account type'}>
-              <Link href={localizeHref(locale, '/auth/login')} className="text-brand-strong underline decoration-2 underline-offset-4">
+            <nav
+              className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-caption font-bold lg:mt-0"
+              aria-label={ne ? 'खाता प्रकार' : 'Account type'}
+            >
+              <Link
+                href={localizeHref(locale, '/auth/login')}
+                className="text-brand-strong underline decoration-2 underline-offset-4"
+              >
                 {ne ? 'पाठक' : 'Reader'}
               </Link>
-              <Link href={localizeHref(locale, '/journalist/login')} className="text-ink-soft hover:text-ink">
+              <Link
+                href={localizeHref(locale, '/journalist/login')}
+                className="text-ink-soft hover:text-ink"
+              >
                 {ne ? 'पत्रकार डेस्क' : 'Reporter desk'}
               </Link>
             </nav>
           ) : null}
 
           <div className="my-auto py-8 sm:py-12">
-            <p className="text-caption font-bold text-mute">{ne ? 'नागरिक वाच खाता' : 'Nagarik Watch account'}</p>
-            <h1 id="reader-auth-title" className="mt-2 text-pretty font-display text-[clamp(2.15rem,5vw,3.6rem)] font-black leading-[1.08] text-ink">
+            <p className="text-caption font-bold text-mute">
+              {ne ? 'नागरिक वाच खाता' : 'Nagarik Watch account'}
+            </p>
+            <h1
+              id="reader-auth-title"
+              className="mt-2 text-pretty font-display text-[clamp(2.15rem,5vw,3.6rem)] font-black leading-[1.08] text-ink"
+            >
               {ne ? content.formTitleNe : content.formTitleEn}
             </h1>
             <p className="mt-3 max-w-[44ch] text-body leading-relaxed text-ink-soft">
@@ -156,7 +178,10 @@ export function ReaderAuthShell({
 
           <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-4 text-caption text-mute">
             <p>{ne ? 'समाचार पढ्न खाता चाहिँदैन।' : 'No account is required to read the news.'}</p>
-            <Link href={localizeHref(locale, '/privacy')} className="font-bold text-ink-soft hover:text-brand-strong">
+            <Link
+              href={localizeHref(locale, '/privacy')}
+              className="font-bold text-ink-soft hover:text-brand-strong"
+            >
               {ne ? 'गोपनीयता' : 'Privacy'}
             </Link>
           </footer>

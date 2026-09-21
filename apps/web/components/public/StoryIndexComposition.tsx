@@ -121,7 +121,11 @@ export function StoryIndexComposition({
                 {deckFor(lead, locale)}
               </p>
             ) : null}
-            <Dateline iso={lead.publishedAt} locale={locale} className="mt-2.5 block text-caption text-mute" />
+            <Dateline
+              iso={lead.publishedAt}
+              locale={locale}
+              className="mt-2.5 block text-caption text-mute"
+            />
           </div>
         </article>
       </InstrumentedStory>
@@ -157,11 +161,18 @@ export function StoryIndexComposition({
                   </Link>
                 ) : null}
                 <h3 className="mt-2 text-pretty font-display text-[1.12rem] font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong">
-                  <Link href={hrefFor(story, locale)} lang={locale === 'en' && story.titleEn ? 'en' : 'ne'}>
+                  <Link
+                    href={hrefFor(story, locale)}
+                    lang={locale === 'en' && story.titleEn ? 'en' : 'ne'}
+                  >
                     {titleFor(story, locale)}
                   </Link>
                 </h3>
-                <Dateline iso={story.publishedAt} locale={locale} className="mt-1.5 block text-caption text-mute" />
+                <Dateline
+                  iso={story.publishedAt}
+                  locale={locale}
+                  className="mt-1.5 block text-caption text-mute"
+                />
               </article>
             </InstrumentedStory>
           ))}
@@ -200,11 +211,18 @@ export function StoryIndexComposition({
                     <Kicker story={story} locale={locale} />
                   </div>
                   <h3 className="mt-1.5 line-clamp-2 text-pretty font-display text-body font-extrabold leading-snug text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong">
-                    <Link href={hrefFor(story, locale)} lang={locale === 'en' && story.titleEn ? 'en' : 'ne'}>
+                    <Link
+                      href={hrefFor(story, locale)}
+                      lang={locale === 'en' && story.titleEn ? 'en' : 'ne'}
+                    >
                       {titleFor(story, locale)}
                     </Link>
                   </h3>
-                  <Dateline iso={story.publishedAt} locale={locale} className="mt-1 block text-caption text-mute" />
+                  <Dateline
+                    iso={story.publishedAt}
+                    locale={locale}
+                    className="mt-1 block text-caption text-mute"
+                  />
                 </article>
               </InstrumentedStory>
             ))}

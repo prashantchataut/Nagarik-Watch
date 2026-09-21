@@ -29,9 +29,7 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
           body: JSON.stringify({ password, issuer: 'Nagarik Watch' }),
         })
         const body = (await response.json().catch(() => null)) as
-          | Enrollment
-          | { message?: string }
-          | null
+          Enrollment | { message?: string } | null
         if (!response.ok || !body || !('totpURI' in body)) {
           setError(
             (body && 'message' in body && body.message) ||

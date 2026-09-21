@@ -24,7 +24,9 @@ export function HomeEmptyEdition({ locale }: { locale: Locale }) {
           id="empty-edition-title"
           className="mt-2 font-display text-h3 font-extrabold leading-snug text-ink"
         >
-          {english ? 'Homepage stories cannot be shown right now.' : 'मुखपृष्ठका समाचार अहिले देखाउन सकिएन।'}
+          {english
+            ? 'Homepage stories cannot be shown right now.'
+            : 'मुखपृष्ठका समाचार अहिले देखाउन सकिएन।'}
         </h1>
         <p className="mt-2 text-body leading-relaxed text-ink-soft">
           {english

@@ -30,7 +30,9 @@ export function CommentSection({
   commentsEnabled: boolean
 }) {
   const [comments, setComments] = useState<Comment[]>([])
-  const [loading, setLoading] = useState(true)
+  // Loading can only be true when there is actually something to fetch, so it is
+  // derived up front instead of being corrected inside the effect body.
+  const [loading, setLoading] = useState(() => commentsEnabled && hasLivePublicApi())
   const [error, setError] = useState<string | null>(null)
   const [replyTo, setReplyTo] = useState<Comment | null>(null)
   const [signedIn, setSignedIn] = useState(false)
@@ -41,20 +43,17 @@ export function CommentSection({
   const ne = locale === 'ne'
   const lang = ne ? 'ne' : 'en'
 
+  // Static hosts cannot serve comments: that is a property of the deployment,
+  // so it is derived during render instead of written into state by an effect.
+  const unavailableNotice =
+    commentsEnabled && hasLivePublicApi()
+      ? null
+      : ne
+        ? 'टिप्पणी यस स्थिर होस्टमा उपलब्ध छैन।'
+        : 'Comments are not available on this static host.'
+
   useEffect(() => {
-    if (!commentsEnabled) {
-      setLoading(false)
-      return
-    }
-    if (!hasLivePublicApi()) {
-      setLoading(false)
-      setError(
-        ne
-          ? 'टिप्पणी यस स्थिर होस्टमा उपलब्ध छैन।'
-          : 'Comments are not available on this static host.',
-      )
-      return
-    }
+    if (!commentsEnabled || !hasLivePublicApi()) return
 
     let stopped = false
     let inFlight = false

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
 import { readLocalReaderPreferences, writeLocalReaderPreferences } from '@/lib/reader/preferences'
 import type { ReaderPreferences } from '@/lib/reader/preferences-store'
+import { useHydrated } from '@/lib/browser/use-browser-store'
 
 type Props = {
   locale: Locale
@@ -36,7 +37,12 @@ function toggle(list: string[], value: string) {
 
 export function ReaderPreferencePanel({ locale, categories, tags, authors }: Props) {
   const english = locale === 'en'
-  const [preferences, setPreferences] = useState<ReaderPreferences>(fallback)
+  // Local preferences are the device-of-record until the server answers, so they
+  // are derived after hydration rather than pushed in from a mount effect.
+  const hydrated = useHydrated()
+  const localPreferences = hydrated ? readLocalReaderPreferences() : null
+  const [serverPreferences, setServerPreferences] = useState<ReaderPreferences | null>(null)
+  const preferences = serverPreferences ?? localPreferences ?? fallback
   const [active, setActive] = useState<'categories' | 'tags' | 'authors'>('categories')
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<'loading' | 'saved' | 'device' | 'saving'>('loading')
@@ -44,8 +50,6 @@ export function ReaderPreferencePanel({ locale, categories, tags, authors }: Pro
 
   useEffect(() => {
     let cancelled = false
-    const local = readLocalReaderPreferences()
-    if (local) setPreferences(local)
     const fp = getOrCreateReaderId()
     fetch(`/api/preferences?fingerprint=${encodeURIComponent(fp)}`, { cache: 'no-store' })
       .then(async (response) => {
@@ -54,12 +58,12 @@ export function ReaderPreferencePanel({ locale, categories, tags, authors }: Pro
       })
       .then((body) => {
         if (cancelled) return
-        setPreferences(body.preferences)
+        setServerPreferences(body.preferences)
         writeLocalReaderPreferences(body.preferences)
         setStatus('saved')
       })
       .catch(() => {
-        if (!cancelled) setStatus(local ? 'device' : 'saved')
+        if (!cancelled) setStatus(localPreferences ? 'device' : 'saved')
       })
     return () => {
       cancelled = true
@@ -93,7 +97,7 @@ export function ReaderPreferencePanel({ locale, categories, tags, authors }: Pro
   function update(next: ReaderPreferences) {
     const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
     if (browserTimeZone) next = { ...next, timeZone: browserTimeZone }
-    setPreferences(next)
+    setServerPreferences(next)
     writeLocalReaderPreferences(next)
     setStatus('saving')
     startTransition(async () => {
@@ -105,7 +109,7 @@ export function ReaderPreferencePanel({ locale, categories, tags, authors }: Pro
         })
         if (!response.ok) throw new Error(`Preference save failed: ${response.status}`)
         const body = (await response.json()) as { preferences: ReaderPreferences }
-        setPreferences(body.preferences)
+        setServerPreferences(body.preferences)
         writeLocalReaderPreferences(body.preferences)
         setStatus('saved')
       } catch {

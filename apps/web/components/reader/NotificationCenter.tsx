@@ -9,6 +9,7 @@ import {
   writeLocalReaderPreferences,
 } from '@/lib/reader/preferences'
 import type { ReaderPreferences } from '@/lib/reader/preferences-store'
+import { useHydrated } from '@/lib/browser/use-browser-store'
 
 type AlertItem = {
   id: string
@@ -23,8 +24,9 @@ type AlertItem = {
 }
 
 export function NotificationCenter({ locale, className }: { locale: Locale; className?: string }) {
-  const [supported, setSupported] = useState(false)
-  const [permission, setPermission] = useState<NotificationPermission>('default')
+  const hydrated = useHydrated()
+  const supported = hydrated && typeof window !== 'undefined' && 'Notification' in window
+  const [permissionOverride, setPermissionOverride] = useState<NotificationPermission | null>(null)
   const [preferences, setPreferences] = useState<ReaderPreferences | null>(null)
   const [alerts, setAlerts] = useState<AlertItem[]>([])
   const [unread, setUnread] = useState(0)
@@ -34,17 +36,19 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
   const pushPublicKey = process.env.NEXT_PUBLIC_WEB_PUSH_VAPID_KEY?.trim() ?? ''
   const english = locale === 'en'
 
+  // Browser capability + permission are readable during the client render once
+  // hydrated; only the async service-worker probe belongs in an effect, and it
+  // sets state from a promise callback (not synchronously).
+  const browserPermission: NotificationPermission =
+    supported && 'Notification' in window ? Notification.permission : 'default'
+  const permission = permissionOverride ?? browserPermission
   useEffect(() => {
-    const ok = typeof window !== 'undefined' && 'Notification' in window
-    setSupported(ok)
-    if (ok) setPermission(Notification.permission)
-    if (ok && 'serviceWorker' in navigator && 'PushManager' in window) {
-      navigator.serviceWorker.ready
-        .then((registration) => registration.pushManager.getSubscription())
-        .then((subscription) => setPushRegistered(Boolean(subscription)))
-        .catch(() => undefined)
-    }
-  }, [])
+    if (!supported || !('serviceWorker' in navigator) || !('PushManager' in window)) return
+    navigator.serviceWorker.ready
+      .then((registration) => registration.pushManager.getSubscription())
+      .then((subscription) => setPushRegistered(Boolean(subscription)))
+      .catch(() => undefined)
+  }, [supported])
 
   useEffect(() => {
     let cancelled = false
@@ -123,7 +127,7 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
     }
     const nextPermission = await Notification.requestPermission()
     setShowPrimer(false)
-    setPermission(nextPermission)
+    setPermissionOverride(nextPermission)
     if (nextPermission !== 'granted') return
     let registered = false
     if (pushPublicKey && 'serviceWorker' in navigator && 'PushManager' in window) {

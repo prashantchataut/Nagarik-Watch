@@ -10,6 +10,7 @@ import {
 } from '@/lib/reader/state'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
+import { useHydrated } from '@/lib/browser/use-browser-store'
 
 type BookmarkStory = Pick<StoryCardData, 'id' | 'slug' | 'category' | 'titleNe'> &
   Partial<StoryCardData>
@@ -23,15 +24,22 @@ export function BookmarkButton({
   locale: Locale
   variant?: 'icon' | 'pill'
 }) {
-  const [bookmarked, setBookmarked] = useState(false)
+  const hydrated = useHydrated()
+  /** Local user intent for this session; null means "use what storage says". */
+  const [override, setOverride] = useState<boolean | null>(null)
   const [pending, startTransition] = useTransition()
   const [syncError, setSyncError] = useState(false)
 
+  // localStorage is unreadable during SSR, so the saved state is derived after
+  // hydration rather than pushed into state from a mount effect.
+  const storedBookmarked = hydrated
+    ? safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY)).some(
+        (record) => record.articleId === story.id || record.story.slug === story.slug,
+      )
+    : false
+  const bookmarked = override ?? storedBookmarked
+
   useEffect(() => {
-    const local = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))
-    setBookmarked(
-      local.some((record) => record.articleId === story.id || record.story.slug === story.slug),
-    )
     if (!hasLivePublicApi()) return
     const fp = getOrCreateReaderId()
     if (!fp) return
@@ -40,7 +48,7 @@ export function BookmarkButton({
       .then((data: { bookmarks?: { articleSlug: string }[] } | null) => {
         if (!data) return
         if (!(data.bookmarks ?? []).some((b) => b.articleSlug === story.slug)) return
-        setBookmarked(true)
+        setOverride(true)
         if ('authors' in story && 'publishedAt' in story) {
           const records = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))
           localStorage.setItem(
@@ -65,7 +73,7 @@ export function BookmarkButton({
             (record) => record.articleId !== story.id && record.story.slug !== story.slug,
           )
     localStorage.setItem(READER_BOOKMARKS_KEY, JSON.stringify(next))
-    setBookmarked(nextBookmarked)
+    setOverride(nextBookmarked)
     window.dispatchEvent(new Event('nw-reader-state-change'))
   }
 
