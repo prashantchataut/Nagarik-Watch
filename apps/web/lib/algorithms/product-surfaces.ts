@@ -239,6 +239,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'credential-stuffing-detection',
+    module: 'lib/security/credential-stuffing.ts',
+    entrypoint: 'app/api/auth/[...all]/route.ts',
+    surface: 'reader',
+  },
+  {
     id: 'cron-miss-detector',
     module: 'lib/ops/health-snapshot.ts',
     entrypoint: 'app/api/cron/ops-probe/route.ts',
@@ -491,6 +497,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'onboarding-topic-picker',
+    module: 'lib/reader/onboarding.ts',
+    entrypoint: 'app/[locale]/reader-corner/page.tsx',
+    surface: 'reader',
+  },
+  {
     id: 'open-graph-previews',
     module: 'app/[locale]/[category]/[slug]/page.tsx',
     entrypoint: 'app/[locale]/[category]/[slug]/page.tsx',
@@ -617,6 +629,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'security-header-lint',
+    module: 'lib/security/header-lint.ts',
+    entrypoint: 'components/LaunchReadinessBanner.tsx',
+    surface: 'reader',
+  },
+  {
     id: 'semantic-search',
     module: 'lib/search.ts',
     entrypoint: 'app/[locale]/search/page.tsx',
@@ -644,6 +662,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     id: 'sequential-prediction',
     module: 'packages/db/src/recommend.ts',
     entrypoint: 'app/[locale]/reader-corner/page.tsx',
+    surface: 'reader',
+  },
+  {
+    id: 'series-continue-scorer',
+    module: 'lib/content/series.ts',
+    entrypoint: 'app/[locale]/[category]/[slug]/page.tsx',
     surface: 'reader',
   },
   {
@@ -710,6 +734,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     id: 'tf-idf',
     module: 'lib/search.ts',
     entrypoint: 'app/[locale]/search/page.tsx',
+    surface: 'reader',
+  },
+  {
+    id: 'thumbnail-salience',
+    module: 'lib/seo/thumbnail-salience.ts',
+    entrypoint: 'app/[locale]/[category]/[slug]/page.tsx',
     surface: 'reader',
   },
   {

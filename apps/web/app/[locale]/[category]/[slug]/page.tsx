@@ -9,6 +9,7 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getArticleBySlug, getStories } from '@/lib/content'
 import { resolveSlugRedirect } from '@/lib/content/slug-redirects'
 import { relatedByContent } from '@/lib/ranking'
+import { findSeriesContinuation, findSeriesPrevious } from '@/lib/content/series'
 import { requestWantsSaveData } from '@/lib/request/save-data'
 import { ArticleBody, CorrectionNotice, TagRow } from '@/components/article/ArticleBody'
 import { ArticleJsonLd } from '@/components/article/ArticleJsonLd'
@@ -22,6 +23,7 @@ import { CommentSection } from '@/components/article/CommentSection'
 import { SpeculationRules } from '@/components/SpeculationRules'
 import { BreadcrumbJsonLd, FaqJsonLd, HowToJsonLd, SpeakableJsonLd } from '@/components/seo/Schema'
 import { extractFaqPairs, extractHowTo } from '@/lib/seo/structured-content'
+import { collectThumbnailCandidates, pickShareImage } from '@/lib/seo/thumbnail-salience'
 import { DocumentLang } from '@/components/DocumentLang'
 import { PrintButton } from '@/components/article/PrintButton'
 import { ReactionBar } from '@/components/article/ReactionBar'
@@ -93,9 +95,13 @@ export async function generateMetadata({
       ? article.seoDescriptionEn
       : article.seoDescriptionNe || (useEnglish ? article.deckEn : article.deckNe)
   const canonical = `${SITE_URL}${localizeHref(useEnglish ? 'en' : 'ne', `/${category}/${slug}`)}`
-  const shareImage = publicShareImageUrl(article.heroImage?.url, SITE_URL, {
-    width: article.heroImage?.width,
-    height: article.heroImage?.height,
+  // The hero is the usual answer but not always the right one: a story can have
+  // no hero and three photographs, or a hero that is an SVG chart the crawlers
+  // will not rasterise. Rank everything the story carries and share the best.
+  const bestThumbnail = pickShareImage(collectThumbnailCandidates(article))
+  const shareImage = publicShareImageUrl(bestThumbnail?.candidate.url, SITE_URL, {
+    width: bestThumbnail?.candidate.width,
+    height: bestThumbnail?.candidate.height,
   })
   const nePath = `/${category}/${slug}`
   const enPath = `/en/${category}/${slug}`
@@ -117,7 +123,7 @@ export async function generateMetadata({
       locale: useEnglish ? 'en_NP' : 'ne_NP',
       publishedTime: article.publishedAt,
       modifiedTime: article.updatedAt,
-      images: [{ url: shareImage, alt: article.heroImage?.alt || title }],
+      images: [{ url: shareImage, alt: bestThumbnail?.candidate.alt || title }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -184,6 +190,11 @@ export default async function ArticlePage({
   const canonical = `${SITE_URL}${href}`
   const relatedPool = await getStories({ locale: readingLocale, limit: 40 })
   const related = relatedByContent(article, relatedPool.items, 5)
+  // A reader who has just finished part two wants part three, and the closest
+  // content match is usually part one again. Only overrides the navigator when
+  // the headline actually carries a part marker.
+  const seriesNext = findSeriesContinuation(article, relatedPool.items)
+  const seriesPrev = findSeriesPrevious(article, relatedPool.items)
   const relatedHrefs = related.map((story) =>
     localizeHref(readingLocale, `/${story.category.slug}/${story.slug}`),
   )
@@ -450,8 +461,8 @@ export default async function ArticlePage({
                 className="mt-8 border-t border-rule pt-6"
               />
               <NextStoryNavigator
-                nextStory={related[0]}
-                prevStory={related[1]}
+                nextStory={seriesNext ?? related[0]}
+                prevStory={seriesPrev ?? related[1]}
                 locale={readingLocale}
               />
               <div className="print:hidden">

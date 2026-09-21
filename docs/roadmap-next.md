@@ -92,13 +92,21 @@ an admin skip link. Still open:
 - **Touch targets.** Most controls use `min-h-11` (44px), but the ticker links, the
   calendar day cells and the tag chips do not.
 
-## 6. Rate limiting is per-instance
+## 6. Rate limiting is shared now — the gap that remains is a different one
 
-`enforceRateLimit` holds counters in process memory. On Vercel that means each
-serverless instance has its own budget, so the effective limit is your limit times the
-number of warm instances. For comments and submissions on a news site that will be
-abused, this needs a shared store — Postgres is already there, and a small table with a
-sliding window is enough. No new infrastructure required.
+**Was:** "counters in process memory, so the effective limit is your limit times the
+number of warm instances." That is no longer true. `lib/rate-limit.ts` runs a token
+bucket in `nw_rate_limits` in Postgres, refilled continuously rather than as a fixed
+window (which would let 2× through at a boundary), and in production it **fails closed**
+— if the store is unreachable the limiter throws rather than falling back to the
+per-instance map.
+
+What a shared limiter still cannot do is see an attack that is *spread* rather than
+fast. That is what `lib/security/credential-stuffing.ts` and `nw_auth_attempts` were
+added for: one attempt each against forty accounts stays under every per-key limit by
+design. It is wired into `app/api/auth/[...all]/route.ts` and reported on the launch
+desk. The same shape of blind spot still exists for comments and submissions — one post
+each from a thousand addresses — and the ledger is the pattern to copy when it matters.
 
 ## 7. Editorial workflow gaps worth closing
 

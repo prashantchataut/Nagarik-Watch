@@ -5,6 +5,7 @@ import { getLaunchPhases, getLaunchStatusSummary } from '@/lib/launch-phases'
 import { getOpsHealthSnapshot } from '@/lib/ops/health-snapshot'
 import { getPayloadCutoverChecklist } from '@/lib/content/payload-cutover'
 import { getCutoverStatus } from '@/lib/content/cutover-status'
+import { recentStuffingPressure, STUFFING_WINDOW_MINUTES } from '@/lib/security/auth-attempts'
 import {
   AdminPageHeader,
   AdminCard,
@@ -25,10 +26,11 @@ function pct(value: number): string {
 
 export default async function LaunchPage() {
   await requireNewsroomSession()
-  const [checks, ops, cutoverStatus] = await Promise.all([
+  const [checks, ops, cutoverStatus, signInPressure] = await Promise.all([
     getLaunchChecksAsync(),
     getOpsHealthSnapshot(),
     getCutoverStatus(),
+    recentStuffingPressure(),
   ])
   const cutover = getPayloadCutoverChecklist()
   const score = launchScore(checks)
@@ -68,6 +70,32 @@ export default async function LaunchPage() {
           Runbook: <code className="text-caption">docs/launch-runbook.md</code>
         </p>
       </AdminCallout>
+
+      <h2 className="admin-section-title mb-3">Sign-in pressure</h2>
+      <AdminCard className="mb-8">
+        {signInPressure ? (
+          <>
+            <p className="text-meta text-ink-soft" lang="en">
+              {signInPressure.failures} failed sign-ins from {signInPressure.origins} origins
+              against {signInPressure.identifiers} accounts in the last{' '}
+              {signInPressure.windowMinutes} minutes.
+            </p>
+            <p className="mt-2 text-caption text-mute" lang="en">
+              More origins than accounts means one account is being worked from many places; more
+              accounts than origins means one place is spraying the newsroom. Either shape blocks
+              the attempt before Better Auth sees it. Origins and usernames are stored salted and
+              hashed — this table is never a record of who signed in from where.
+            </p>
+          </>
+        ) : (
+          <p className="text-meta text-ink-soft" lang="en">
+            No sign-in ledger yet. The table is created on the first sign-in attempt once the
+            operational Postgres store is reachable; until then credential-stuffing detection
+            abstains rather than locking the newsroom out. Window: {STUFFING_WINDOW_MINUTES}{' '}
+            minutes.
+          </p>
+        )}
+      </AdminCard>
 
       <h2 className="admin-section-title mb-3">Soft → hard phases</h2>
       <div className="mb-8 grid gap-4 lg:grid-cols-2">

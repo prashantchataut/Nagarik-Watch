@@ -890,8 +890,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'first-run preferences',
     status: 'live',
     summary:
-      'Orders onboarding chips (politics, districts, disaster, sports) by civic coverage breadth.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:onboarding-topic-picker',
+      'Orders the first-visit topic chips by how much the desk has actually published in each category recently, blended with civic weight so governance, health and education surface ahead of niche desks when volume ties. The top three are marked recommended.',
+    implementation:
+      'apps/web/lib/reader/onboarding.ts#scoreOnboardingTopics · apps/web/components/reader/ReaderTopicOnboarding.tsx',
     priority: 3,
   },
   {
@@ -938,8 +939,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'retention',
     surface: 'investigation series',
     status: 'live',
-    summary: 'Scores next installment priority for multi-part civic investigations and explainers.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:series-continue-scorer',
+    summary:
+      'Detects a multi-part investigation from the headline convention the desk already uses — (भाग २), तेस्रो भाग, Part 4, in Devanagari or Arabic numerals — and points the article navigator at the actual next installment instead of the closest content match. Skips a gap when a part is unpublished, and never crosses between two series.',
+    implementation:
+      'apps/web/lib/content/series.ts#findSeriesContinuation · apps/web/app/[locale]/[category]/[slug]/page.tsx',
     priority: 3,
   },
   {
@@ -2548,8 +2551,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'authentication',
     status: 'live',
     summary:
-      'Rate limits protect writes, but breached-credential and distributed-attempt detection are not wired.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:credential-stuffing-detection',
+      'Scores the shape of a sign-in attempt against a shared 15-minute ledger in Postgres: many accounts from one origin (spray), one account from many origins (botnet), near-total failure ratio, machine-speed velocity. Catches what per-key rate limiting cannot — a spray stays under every individual limit by design. Blocks at 0.7 before Better Auth sees the request. Origins and usernames are salted and hashed, so the ledger is never a record of who signed in from where.',
+    implementation:
+      'apps/web/lib/security/credential-stuffing.ts#scoreCredentialStuffing · apps/web/lib/security/auth-attempts.ts · apps/web/app/api/auth/[...all]/route.ts',
     priority: 2,
   },
   {
@@ -2735,8 +2739,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'ranking',
     surface: 'card / social thumbs',
     status: 'live',
-    summary: 'Ranks thumbnail candidates by contrast proxy and subject-centered crop fitness.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:thumbnail-salience',
+    summary:
+      'Chooses the share image from every photograph a story carries, not just the hero: candidates are ranked by how much of the frame survives the 1.91:1 social crop, whether the file is large enough for a crawler to use, and whether a human wrote alt text and a credit for it. SVGs, logos and placeholders are disqualified outright. A story with no hero but photographs in the body now gets a real card instead of the site default.',
+    implementation:
+      'apps/web/lib/seo/thumbnail-salience.ts#pickShareImage · apps/web/app/[locale]/[category]/[slug]/page.tsx',
     priority: 3,
   },
   {
@@ -2768,8 +2774,10 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'security',
     surface: 'response headers',
     status: 'live',
-    summary: 'Scores presence of CSP, HSTS, X-Content-Type-Options, and Referrer-Policy hints.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:security-header-lint',
+    summary:
+      'Lints the headers the app actually serves — `next.config.ts` and the lint read the same `baselineSecurityHeaders()` source, so the launch gate can no longer report a CSP the edge does not send. Also flags headers that are present but weak: unsafe-inline, a bare wildcard source, an HSTS max-age too short to matter.',
+    implementation:
+      'apps/web/lib/security/header-lint.ts#lintSecurityHeaders · apps/web/lib/launch-readiness.ts · apps/web/next.config.ts',
     priority: 1,
   },
 
