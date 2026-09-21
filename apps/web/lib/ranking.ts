@@ -367,6 +367,66 @@ function tagOverlap(source: StoryCardData, candidate: StoryCardData): number {
   return Math.min(1, shared / sourceTags.size)
 }
 
+/** No more than this many related picks may come from the source's own desk. */
+export const RELATED_SAME_CATEGORY_CAP = 3
+/** Two picks this alike are the same story told twice. */
+export const RELATED_REDUNDANCY_CEILING = 0.68
+
+/**
+ * Stop the related rail from becoming a corridor.
+ *
+ * Ranking by similarity alone converges: the six most similar stories to a
+ * budget story are six budget stories, often the same development filed on six
+ * days, and a reader who follows them reaches the end of the thread without
+ * ever being offered a way out of it. This keeps the ordering the ranker chose
+ * but caps how much of the rail one desk may hold and drops a pick that is
+ * mostly a repeat of one already taken — then backfills from what it skipped,
+ * so a thin pool still fills the rail rather than returning three items.
+ *
+ * Similarity here is measured candidate-to-candidate, not candidate-to-source:
+ * the source is what they are all supposed to resemble.
+ */
+export function limitRelatedDepth<T extends StoryCardData>(
+  source: StoryCardData,
+  ranked: T[],
+  limit: number,
+): T[] {
+  const terms = new Map(ranked.map((candidate) => [candidate.slug, textTerms(candidate)]))
+  const idf = inverseDocumentFrequency([...terms.values()])
+  const picked: T[] = []
+  const deferred: T[] = []
+  let sameCategory = 0
+
+  for (const candidate of ranked) {
+    if (picked.length >= limit) break
+    const isSameDesk = candidate.category.slug === source.category.slug
+    if (isSameDesk && sameCategory >= RELATED_SAME_CATEGORY_CAP) {
+      deferred.push(candidate)
+      continue
+    }
+    const candidateTerms = terms.get(candidate.slug) ?? new Set<string>()
+    const redundant = picked.some(
+      (chosen) =>
+        weightedSimilarity(terms.get(chosen.slug) ?? new Set(), candidateTerms, idf) >=
+        RELATED_REDUNDANCY_CEILING,
+    )
+    if (redundant) {
+      deferred.push(candidate)
+      continue
+    }
+    picked.push(candidate)
+    if (isSameDesk) sameCategory += 1
+  }
+
+  // A rail with three slots empty is a worse answer than one with a near-repeat
+  // in slot five, so the skipped candidates come back in their original order.
+  for (const candidate of deferred) {
+    if (picked.length >= limit) break
+    picked.push(candidate)
+  }
+  return picked
+}
+
 export function relatedByContent(
   story: StoryCardData,
   candidates: StoryCardData[],
@@ -377,7 +437,7 @@ export function relatedByContent(
   const candidateTerms = new Map(pool.map((candidate) => [candidate.slug, textTerms(candidate)]))
   const idf = inverseDocumentFrequency([sourceTerms, ...candidateTerms.values()])
 
-  return rankStories(pool, (candidate, index) => {
+  const ranked = rankStories(pool, (candidate, index) => {
     const terms = candidateTerms.get(candidate.slug) ?? new Set<string>()
     const lexical = weightedSimilarity(sourceTerms, terms, idf)
     // The newsroom's own topic tags are a stronger statement about what a story
@@ -399,8 +459,8 @@ export function relatedByContent(
       doNotRecommend: Boolean(flags.doNotRecommend),
     }
   })
-    .slice(0, limit)
-    .map(({ rankScore: _rankScore, rankSignals: _rankSignals, ...ranked }) => ranked)
+  const limited = limitRelatedDepth(story, ranked, limit)
+  return limited.map(({ rankScore: _rankScore, rankSignals: _rankSignals, ...rest }) => rest)
 }
 
 export {

@@ -84,4 +84,51 @@ describe('reader personalization', () => {
     })
     expect(recommended.length).toBeGreaterThan(0)
   })
+
+  it('lets latent factors lift the cohort a folded-in reader belongs to', () => {
+    // Two cohorts, disjoint reading. `newcomer` has read only politics, so the
+    // fold-in should place it in the politics cohort — and the uplift it adds
+    // to a politics candidate should exceed what it adds to a sports one.
+    const catalog = [
+      ...Array.from({ length: 6 }, (_, index) => story(`pol-${index}`, 'politics', `a${index}`)),
+      ...Array.from({ length: 6 }, (_, index) => story(`spo-${index}`, 'sports', `b${index}`)),
+    ]
+    const interactions: Record<string, Record<string, number>> = {}
+    for (let reader = 0; reader < 16; reader += 1) {
+      const politics: Record<string, number> = {}
+      const sports: Record<string, number> = {}
+      for (let item = 0; item < 6; item += 1) {
+        if (item !== reader % 6) politics[`pol-${item}`] = 3
+        if (item !== reader % 6) sports[`spo-${item}`] = 3
+      }
+      interactions[`p${reader}`] = politics
+      interactions[`s${reader}`] = sports
+    }
+
+    const readerHistory = [history('pol-1', 'politics'), history('pol-2', 'politics')]
+    const withFactors = recommendForReader(catalog, [], readerHistory, {
+      limit: 12,
+      interactions,
+      readerId: 'newcomer',
+    })
+    const withoutFactors = recommendForReader(catalog, [], readerHistory, { limit: 12 })
+
+    const scoreOf = (items: typeof withFactors, id: string) =>
+      items.find((item) => item.id === id)?.recScore ?? 0
+    const shared = withFactors
+      .map((item) => item.id)
+      .filter((id) => withoutFactors.some((item) => item.id === id))
+    const uplift = new Map(
+      shared.map((id) => [id, scoreOf(withFactors, id) - scoreOf(withoutFactors, id)]),
+    )
+
+    const politicsUplift = Math.max(
+      ...shared.filter((id) => id.startsWith('pol-')).map((id) => uplift.get(id) ?? 0),
+    )
+    const sportsUplift = Math.max(
+      ...shared.filter((id) => id.startsWith('spo-')).map((id) => uplift.get(id) ?? 0),
+    )
+    expect(politicsUplift).toBeGreaterThan(0)
+    expect(politicsUplift).toBeGreaterThan(sportsUplift)
+  })
 })

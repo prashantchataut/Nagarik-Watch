@@ -338,6 +338,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     surface: 'reader',
   },
   {
+    id: 'matrix-factorization',
+    module: 'lib/reader/matrix-factorization.ts',
+    entrypoint: 'app/[locale]/reader-corner/page.tsx',
+    surface: 'reader',
+  },
+  {
     id: 'mfa-self-screening',
     module: 'components/AdSlot.tsx',
     entrypoint: 'app/[locale]/[category]/[slug]/page.tsx',
@@ -473,6 +479,12 @@ export const ALGORITHM_PRODUCT_WIRING: readonly ProductWiring[] = [
     id: 'reengagement-ranking',
     module: 'lib/reader/signals.ts',
     entrypoint: 'app/[locale]/reader-corner/page.tsx',
+    surface: 'reader',
+  },
+  {
+    id: 'related-depth-limiter',
+    module: 'lib/ranking.ts',
+    entrypoint: 'app/[locale]/[category]/[slug]/page.tsx',
     surface: 'reader',
   },
   {

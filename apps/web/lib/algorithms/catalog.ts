@@ -183,10 +183,12 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     category: 'recommendation',
     surface: 'offline recommender training',
     status: 'live',
-    summary: 'Advanced collaborative model; not justified until CF baseline exists.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:matrix-factorization',
+    summary:
+      'Implicit-feedback ALS over the consented reader x article matrix, fitted in-process and cached. Readers the fit has not seen are folded in from their own history. Refuses to run below 12 readers / 8 articles, where the factors would describe noise; the personalized rail then falls back to co-read and affinity.',
+    implementation:
+      'apps/web/lib/reader/matrix-factorization.ts#factorizeInteractions · apps/web/lib/reader/personalize.ts#recommendForReader · apps/web/app/api/recommendations/personalized/route.ts',
     dependency:
-      'Offline training job + interaction logs — enhances when configured; local runtime path still runs',
+      'An offline training job would allow more factors and longer histories; the in-process fit ships without one',
     priority: 5,
   },
   {
@@ -924,8 +926,9 @@ export const ALGORITHM_CATALOG: readonly AlgorithmEntry[] = [
     surface: 'article related rail',
     status: 'live',
     summary:
-      'Caps related-story rabbit holes by similarity decay so readers are not looped endlessly.',
-    implementation: 'apps/web/lib/algorithms/runtime.ts#runAlgorithm:related-depth-limiter',
+      'Caps how much of the article related rail one desk may hold and drops a pick that mostly repeats one already taken, measured candidate-to-candidate. Backfills from what it skipped so a thin pool still fills the rail.',
+    implementation:
+      'apps/web/lib/ranking.ts#limitRelatedDepth · apps/web/lib/ranking.ts#relatedByContent · apps/web/app/[locale]/[category]/[slug]/page.tsx',
     priority: 3,
   },
   {

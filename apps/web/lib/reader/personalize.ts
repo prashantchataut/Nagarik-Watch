@@ -11,6 +11,7 @@ import {
 } from '@nagarikwatch/db'
 import type { BookmarkRecord, ReadingHistoryRecord } from './state'
 import type { ReaderPreferences } from './preferences-store'
+import { factorizeInteractionsCached, factorizedScores, foldInReader } from './matrix-factorization'
 import {
   authorFollowScore,
   rankContinueReading,
@@ -192,6 +193,14 @@ export function recommendForReader(
   const depthQuality = scrollDepthQuality(history)
   const propensity = returnVisitPropensity(history)
 
+  // Latent-factor uplift. Co-read inside `recommend` can only link two stories
+  // one reader opened together; the factors generalise across a cohort, so a
+  // reader whose history rhymes with others inherits their taste for a story
+  // nobody in their own history touched. Returns an empty map — contributing
+  // nothing — whenever the matrix is too thin to fit, which is most of the
+  // time before launch.
+  const factorScores = collaborativeFactorScores(interactions, profile.userId, history, base)
+
   return [...base]
     .map((item) => {
       const boost = knnBoost.get(item.id) ?? 0
@@ -202,12 +211,46 @@ export function recommendForReader(
       const uplift =
         boost * 0.35 +
         (topic * 0.22 + author * 0.18) * depthQuality +
-        reengage * 0.12 * depthQuality
+        reengage * 0.12 * depthQuality +
+        (factorScores.get(item.id) ?? 0) * 0.25 * depthQuality
       if (uplift <= 0) return item
       return { ...item, recScore: item.recScore + uplift }
     })
     .sort((a, b) => b.recScore - a.recScore)
     .slice(0, limit)
+}
+
+/**
+ * Latent-factor scores for this reader over the candidate set, or an empty map.
+ *
+ * A reader the model was fitted on uses their own factors. One who arrived
+ * since the last rebuild is folded in from their reading history, which is the
+ * same data the matrix is built from — no second source, no new collection.
+ */
+function collaborativeFactorScores(
+  interactions: Record<string, Record<string, number>> | undefined,
+  readerId: string,
+  history: ReadingHistoryRecord[],
+  candidates: PersonalizedStory[],
+): Map<string, number> {
+  if (!interactions) return new Map()
+  const model = factorizeInteractionsCached(interactions)
+  if (!model) return new Map()
+
+  let readerFactors = model.readers.get(readerId)
+  if (!readerFactors) {
+    const weights: Record<string, number> = {}
+    for (const record of history) {
+      const weight = record.completed ? 2 : Math.max(0.25, (record.scrollDepth ?? 0) / 100)
+      weights[record.articleId] = Math.max(weights[record.articleId] ?? 0, weight)
+    }
+    readerFactors = foldInReader(model, weights)
+  }
+  return factorizedScores(
+    model,
+    readerFactors,
+    candidates.map((candidate) => candidate.id),
+  )
 }
 
 /**

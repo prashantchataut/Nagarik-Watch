@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { StoryCardData } from '@nagarikwatch/db'
 import {
+  RELATED_SAME_CATEGORY_CAP,
   banditExplorationScore,
   rankStories,
   relatedByContent,
@@ -165,6 +166,32 @@ describe('relatedByContent', () => {
     const source = topical('source', 'बजेट अधिवेशन')
     const related = relatedByContent(source, [source, topical('a', 'बजेट बहस')])
     expect(related.map((item) => item.id)).not.toContain('source')
+  })
+
+  it('caps how much of the rail one desk can hold', () => {
+    const source = topical('source', 'बजेट अधिवेशन सुरु', { category: 'economy' })
+    const pool = [
+      ...Array.from({ length: 6 }, (_, index) =>
+        topical(`econ-${index}`, `बजेट बहस ${index} चरण`, { category: 'economy' }),
+      ),
+      topical('other', 'मनसुन बाढी जोखिम', { category: 'world' }),
+    ]
+    const related = relatedByContent(source, pool, 4)
+    const sameDesk = related.filter((item) => item.category.slug === 'economy')
+
+    expect(sameDesk).toHaveLength(RELATED_SAME_CATEGORY_CAP)
+    // The reader is offered a way out of the thread, not a fourth budget story.
+    expect(related.map((item) => item.id)).toContain('other')
+  })
+
+  it('still fills the rail when there is nothing else to offer', () => {
+    const source = topical('source', 'बजेट अधिवेशन सुरु', { category: 'economy' })
+    const pool = Array.from({ length: 5 }, (_, index) =>
+      topical(`econ-${index}`, `बजेट बहस ${index} चरण`, { category: 'economy' }),
+    )
+    // Every candidate is from the source's own desk, so the cap would empty the
+    // rail. A short rail is worse than a repetitive one.
+    expect(relatedByContent(source, pool, 5)).toHaveLength(5)
   })
 
   it('prefers the better-sourced story when topical similarity ties', () => {
