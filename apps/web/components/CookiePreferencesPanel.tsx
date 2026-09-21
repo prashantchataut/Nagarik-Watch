@@ -9,16 +9,17 @@ import {
   readConsent,
   writeConsent,
 } from '@/lib/reader/consent'
+import { useHydrated } from '@/lib/browser/use-browser-store'
 
 export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
-  const [choice, setChoice] = useState<ConsentChoice>(defaultConsent())
+  // Stored consent is browser state: derived after hydration, with a session
+  // override once the reader edits the panel.
+  const hydrated = useHydrated()
+  const [override, setOverride] = useState<ConsentChoice | null>(null)
+  const choice = override ?? (hydrated ? (readConsent() ?? defaultConsent()) : defaultConsent())
   const [saved, setSaved] = useState(false)
   const lang = locale === 'en' ? 'en' : 'ne'
   const en = locale === 'en'
-
-  useEffect(() => {
-    setChoice(readConsent() ?? defaultConsent())
-  }, [])
 
   function save(next: ConsentChoice) {
     writeConsent({
@@ -27,7 +28,7 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
       version: CONSENT_POLICY_VERSION,
       decidedAt: new Date().toISOString(),
     })
-    setChoice(next)
+    setOverride(next)
     setSaved(true)
     window.setTimeout(() => setSaved(false), 2500)
   }
@@ -75,7 +76,7 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
             type="checkbox"
             checked={choice.personalization}
             onChange={(event) =>
-              setChoice((prev) => ({ ...prev, personalization: event.currentTarget.checked }))
+              setOverride({ ...choice, personalization: event.currentTarget.checked })
             }
             className="mt-1 h-5 w-5 accent-brand"
             aria-label={en ? 'Allow personalisation' : 'व्यक्तिगत अनुमति'}
@@ -93,9 +94,7 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
           <input
             type="checkbox"
             checked={choice.analytics}
-            onChange={(event) =>
-              setChoice((prev) => ({ ...prev, analytics: event.currentTarget.checked }))
-            }
+            onChange={(event) => setOverride({ ...choice, analytics: event.currentTarget.checked })}
             className="mt-1 h-5 w-5 accent-brand"
             aria-label={en ? 'Allow analytics' : 'एनालिटिक्स अनुमति'}
           />
@@ -115,7 +114,7 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
             type="checkbox"
             checked={choice.advertising}
             onChange={(event) =>
-              setChoice((prev) => ({ ...prev, advertising: event.currentTarget.checked }))
+              setOverride({ ...choice, advertising: event.currentTarget.checked })
             }
             className="mt-1 h-5 w-5 accent-brand"
             aria-label={en ? 'Allow advertising measurement' : 'विज्ञापन मापन अनुमति'}

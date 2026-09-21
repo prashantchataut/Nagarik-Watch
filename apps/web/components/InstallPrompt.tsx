@@ -3,6 +3,11 @@
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { IconClose } from '@/components/icons/PortalIcons'
+import {
+  createBrowserStore,
+  notifyBrowserStore,
+  useBrowserStore,
+} from '@/lib/browser/use-browser-store'
 
 type InstallChoice = { outcome: 'accepted' | 'dismissed'; platform: string }
 
@@ -17,6 +22,9 @@ const SNOOZE_UNTIL_KEY = 'nw:pwa:snooze-until'
 const DISMISSED_UNTIL_KEY = 'nw:pwa:dismissed-until'
 const ARTICLE_THRESHOLD = 3
 const DAY = 86_400_000
+/** The visit-counting effect records its decision here so render can read it. */
+const ELIGIBLE_KEY = 'nw:pwa:eligible'
+const ELIGIBLE_EVENT = 'nw:pwa:eligible-change'
 
 function isArticlePath(pathname: string) {
   const parts = pathname.split('/').filter(Boolean)
@@ -47,11 +55,35 @@ function dataSaverEnabled() {
   return document.documentElement.dataset.saveData === '1'
 }
 
+/** Recorded by the visit-counting effect: "this reader has come back / read enough". */
+const eligibleStore = createBrowserStore<boolean>({
+  read: () => sessionStorage.getItem(ELIGIBLE_KEY) === '1',
+  serverValue: false,
+  customEvents: [ELIGIBLE_EVENT],
+})
+
+/** A snooze or dismissal hides the prompt until its timestamp passes. */
+function snoozedOut(): boolean {
+  try {
+    const blockedUntil = Math.max(
+      Number(localStorage.getItem(SNOOZE_UNTIL_KEY) ?? 0),
+      Number(localStorage.getItem(DISMISSED_UNTIL_KEY) ?? 0),
+    )
+    return blockedUntil > Date.now()
+  } catch {
+    return false
+  }
+}
+
 export function InstallPrompt() {
   const pathname = usePathname()
   const [deferredPrompt, setDeferredPrompt] = useState<DeferredInstallPrompt | null>(null)
-  const [eligible, setEligible] = useState(false)
-  const [visible, setVisible] = useState(false)
+  const [dismissed, setDismissed] = useState(false)
+  const eligible = useBrowserStore(eligibleStore)
+  // `deferredPrompt` only ever exists in the browser, so this is false during
+  // SSR and cannot cause a hydration mismatch.
+  const visible =
+    Boolean(deferredPrompt) && eligible && !dismissed && !dataSaverEnabled() && !snoozedOut()
   const english = pathname === '/en' || pathname.startsWith('/en/')
 
   useEffect(() => {
@@ -80,23 +112,19 @@ export function InstallPrompt() {
         localStorage.setItem(ARTICLE_OPENS_KEY, String(opens))
       }
     }
-    setEligible(returnVisit || opens >= ARTICLE_THRESHOLD)
+    // Record the decision for the render-time read above; this effect only
+    // writes to storage and never sets component state.
+    try {
+      sessionStorage.setItem(ELIGIBLE_KEY, returnVisit || opens >= ARTICLE_THRESHOLD ? '1' : '0')
+    } catch {
+      // Storage unavailable (private mode): the prompt simply stays hidden.
+    }
+    notifyBrowserStore(ELIGIBLE_EVENT)
   }, [pathname])
-
-  useEffect(() => {
-    if (!deferredPrompt || !eligible || dataSaverEnabled()) return
-    const now = Date.now()
-    const blockedUntil = Math.max(
-      Number(localStorage.getItem(SNOOZE_UNTIL_KEY) ?? 0),
-      Number(localStorage.getItem(DISMISSED_UNTIL_KEY) ?? 0),
-    )
-    if (blockedUntil > now) return
-    setVisible(true)
-  }, [deferredPrompt, eligible])
 
   async function install() {
     if (!deferredPrompt) return
-    setVisible(false)
+    setDismissed(true)
     await deferredPrompt.prompt()
     const choice = await deferredPrompt.userChoice
     if (choice.outcome === 'dismissed') {
@@ -107,17 +135,13 @@ export function InstallPrompt() {
 
   function postpone(days: number, key: string) {
     localStorage.setItem(key, String(Date.now() + days * DAY))
-    setVisible(false)
+    setDismissed(true)
   }
 
   if (!visible) return null
 
   return (
-    <aside
-      className="install-prompt"
-      role="region"
-      aria-labelledby="install-prompt-title"
-    >
+    <aside className="install-prompt" role="region" aria-labelledby="install-prompt-title">
       <div>
         <strong id="install-prompt-title">
           {english

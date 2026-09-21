@@ -8,11 +8,7 @@ type LogoMarkProps = SVGProps<SVGSVGElement> & { title: string; tone?: LogoTone 
 export function LogoMark({ title, className, tone = 'default', ...props }: LogoMarkProps) {
   const nColor = 'var(--brand)'
   const wColor =
-    tone === 'onDark'
-      ? 'var(--paper)'
-      : tone === 'chrome'
-        ? 'var(--on-chrome)'
-        : 'var(--ink)'
+    tone === 'onDark' ? 'var(--paper)' : tone === 'chrome' ? 'var(--on-chrome)' : 'var(--ink)'
 
   return (
     <svg
@@ -85,14 +81,12 @@ export function Logo({
         tone={tone}
         className={cn(
           'shrink-0',
-          stacked
-            ? 'h-12 w-12 sm:h-14 sm:w-14'
-            : compact
-              ? 'h-8 w-8'
-              : 'h-10 w-10 sm:h-12 sm:w-12',
+          stacked ? 'h-12 w-12 sm:h-14 sm:w-14' : compact ? 'h-8 w-8' : 'h-10 w-10 sm:h-12 sm:w-12',
         )}
       />
-      <span className={cn('flex min-w-0 flex-col leading-none', stacked && 'items-center text-center')}>
+      <span
+        className={cn('flex min-w-0 flex-col leading-none', stacked && 'items-center text-center')}
+      >
         <span
           className={cn(
             'font-display font-black leading-[1.04]',

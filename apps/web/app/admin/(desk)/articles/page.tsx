@@ -175,32 +175,32 @@ export default async function ArticlesPage({
 
       <div className="admin-list-toolbar">
         <form method="get" className="admin-list-toolbar__search" role="search">
-        {status ? <input type="hidden" name="status" value={status} /> : null}
-        <label className="min-w-[12rem] flex-1">
-          <span className="sr-only">खोज</span>
-          <input
-            type="search"
-            name="q"
-            defaultValue={sp.q ?? ''}
-            placeholder="शीर्षक, स्लग वा विभाग खोज्नुहोस्"
-            lang="ne"
-            className="admin-field-control w-full"
-          />
-        </label>
-        <AdminButton type="submit" variant="secondary">
-          खोज
-        </AdminButton>
-        {query ? (
-          <AdminButton href={listHref({ q: '', page: 1 })} variant="ghost">
-            खाली
+          {status ? <input type="hidden" name="status" value={status} /> : null}
+          <label className="min-w-[12rem] flex-1">
+            <span className="sr-only">खोज</span>
+            <input
+              type="search"
+              name="q"
+              defaultValue={sp.q ?? ''}
+              placeholder="शीर्षक, स्लग वा विभाग खोज्नुहोस्"
+              lang="ne"
+              className="admin-field-control w-full"
+            />
+          </label>
+          <AdminButton type="submit" variant="secondary">
+            खोज
           </AdminButton>
-        ) : null}
+          {query ? (
+            <AdminButton href={listHref({ q: '', page: 1 })} variant="ghost">
+              खाली
+            </AdminButton>
+          ) : null}
         </form>
 
         <nav className="admin-list-toolbar__filters" aria-label="समाचार स्थिति फिल्टर">
           <AdminFilterLink href={listHref({ status: '', page: 1 })} active={!status}>
-          सबै
-        </AdminFilterLink>
+            सबै
+          </AdminFilterLink>
           {FILTER_STAGES.map((key) => (
             <AdminFilterLink
               key={key}

@@ -13,7 +13,7 @@ export async function BottomChrome({
   accountHref?: string
   adsOn?: boolean
 }) {
-  const adsOn = adsOnProp ?? (getAdMode() !== 'off')
+  const adsOn = adsOnProp ?? getAdMode() !== 'off'
 
   return (
     <div

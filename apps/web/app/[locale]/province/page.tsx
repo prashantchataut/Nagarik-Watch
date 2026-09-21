@@ -22,9 +22,7 @@ export default async function ProvincesPage({ params }: { params: Promise<{ loca
     total: perProvince[index]?.total ?? 0,
     latest: perProvince[index]?.items[0],
   }))
-  const recent = (recentResult?.items ?? [])
-    .filter((story) => Boolean(story.province))
-    .slice(0, 8)
+  const recent = (recentResult?.items ?? []).filter((story) => Boolean(story.province)).slice(0, 8)
 
   return <ProvinceIndex locale={locale} desks={desks} recent={recent} />
 }

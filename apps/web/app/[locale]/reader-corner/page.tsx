@@ -46,7 +46,10 @@ export default async function ReaderCornerPage({
   ])
 
   return (
-    <main className="reader-desk mx-auto max-w-page px-4 py-8 sm:py-10" lang={english ? 'en' : 'ne'}>
+    <main
+      className="reader-desk mx-auto max-w-page px-4 py-8 sm:py-10"
+      lang={english ? 'en' : 'ne'}
+    >
       <div>
         <HubIndexHeader
           title={english ? 'Reading desk' : 'पढाइ डेस्क'}
@@ -63,10 +66,7 @@ export default async function ReaderCornerPage({
           kicker={english ? 'Reader account' : 'पाठक खाता'}
         />
         <nav className="reader-desk__nav" aria-label={english ? 'Desk links' : 'डेस्क लिंक'}>
-          <Link
-            href={localizeHref(locale, '/saved')}
-            className="reader-desk__nav-link"
-          >
+          <Link href={localizeHref(locale, '/saved')} className="reader-desk__nav-link">
             {english ? 'Saved' : 'सुरक्षित'}
           </Link>
           <Link

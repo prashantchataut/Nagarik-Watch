@@ -240,9 +240,13 @@ export function AdminShell({
       clientPath,
     )
 
-  useEffect(() => {
+  // Documented React pattern for "reset state when a prop changes": compare
+  // during render instead of running an effect that renders twice.
+  const [lastNavPath, setLastNavPath] = useState(clientPath)
+  if (lastNavPath !== clientPath) {
+    setLastNavPath(clientPath)
     setNavPendingHref(null)
-  }, [clientPath])
+  }
 
   const role = session.newsroomRole
   const roleLabel = NEWSROOM_ROLE_LABELS_NE[role] ?? role

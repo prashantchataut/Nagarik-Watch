@@ -117,6 +117,13 @@ body {
   background: var(--surface-raised);
 }
 
+/* ARIA grid rows wrap the weekday headers and each week of day cells. They carry
+   no box of their own (`display: contents`) so the seven-column grid in
+   globals.css keeps laying out the cells. */
+.calendar-grid__row {
+  display: contents;
+}
+
 .calendar-day {
   background: var(--surface-raised);
 }
@@ -280,7 +287,6 @@ body {
   }
 }
 
-
 .contact-page section[aria-labelledby='contact-tip-title'],
 .contact-page section[aria-labelledby='contact-correction-title'] {
   border: 0;
@@ -430,4 +436,3 @@ body {
     padding-left: 1.5rem;
   }
 }
-

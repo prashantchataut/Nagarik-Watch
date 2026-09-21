@@ -154,17 +154,20 @@ export function ArticleEditor({
   > | null>(null)
   const prefsApplied = useRef(false)
 
-  useEffect(() => {
-    if (isNew && draft.titleNe && !draft.slug) {
-      const slug = draft.titleNe
-        .toLowerCase()
-        .replace(/[^\u0900-\u097Fa-z0-9\s-]/g, '')
-        .trim()
-        .replace(/\s+/g, '-')
-        .slice(0, 80)
-      setDraft((d) => ({ ...d, slug }))
-    }
-  }, [isNew, draft.titleNe, draft.slug])
+  // Derive the slug from the headline for new articles. Done during render with
+  // a guard so it happens once per headline, instead of in an effect that
+  // renders the editor twice on every keystroke in the title.
+  const [autoSlugFrom, setAutoSlugFrom] = useState<string | null>(null)
+  if (isNew && draft.titleNe && !draft.slug && autoSlugFrom !== draft.titleNe) {
+    setAutoSlugFrom(draft.titleNe)
+    const slug = draft.titleNe
+      .toLowerCase()
+      .replace(/[^\u0900-\u097Fa-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .slice(0, 80)
+    setDraft((d) => ({ ...d, slug }))
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -281,10 +284,7 @@ export function ArticleEditor({
             sourceUrl: read('sourceUrl', draft.sourceUrl) || undefined,
             isBreaking: draft.isBreaking,
             isFeatured: read('featuredState', draft.featuredState) as
-              | 'lead'
-              | 'featured'
-              | 'secondary'
-              | 'none',
+              'lead' | 'featured' | 'secondary' | 'none',
             featuredExpiresAt: (() => {
               const raw = read('featuredExpiresAt', draft.featuredExpiresAt)
               if (!raw) return undefined

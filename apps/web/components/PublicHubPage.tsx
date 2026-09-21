@@ -88,7 +88,9 @@ export async function PublicHubPage({
   // A sparse specialty desk must never disguise unrelated reporting as desk
   // inventory. Fetch a separate, clearly labelled newsroom continuation instead.
   if (rankedTop.length < 6) {
-    const fill = await getStories({ locale, perPage: 12 }).catch(() => ({ items: [] as StoryCardData[] }))
+    const fill = await getStories({ locale, perPage: 12 }).catch(() => ({
+      items: [] as StoryCardData[],
+    }))
     const seen = new Set(stories.map((story) => story.id))
     latestFallback = fill.items.filter((story) => !seen.has(story.id)).slice(0, 6)
   }
@@ -175,7 +177,13 @@ async function EmptyHubHolding({ hub, locale }: { hub: StaticHub; locale: Locale
       fallbackStories={fallback.items}
       fallbackLabel={en ? 'Latest from the newsroom' : 'न्युजरुमबाट ताजा'}
       ctaHref={hub.key === 'exclusive' ? '/submit-story' : undefined}
-      ctaLabel={hub.key === 'exclusive' ? (en ? 'Send an investigation tip' : 'खोजमूलक टिप पठाउनुहोस्') : undefined}
+      ctaLabel={
+        hub.key === 'exclusive'
+          ? en
+            ? 'Send an investigation tip'
+            : 'खोजमूलक टिप पठाउनुहोस्'
+          : undefined
+      }
     />
   )
 }

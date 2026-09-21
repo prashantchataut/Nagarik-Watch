@@ -15,16 +15,24 @@ import {
   writeConsent,
 } from '@/lib/reader/consent'
 import { getAdModeClient } from '@/lib/ads-client'
+import { useHydrated } from '@/lib/browser/use-browser-store'
 
 type PreferencesSource = 'banner' | 'settings'
 
 export function CookieConsent({ locale }: { locale: Locale }) {
-  const [bannerVisible, setBannerVisible] = useState(false)
+  // Stored consent is browser state. It is read after hydration (server snapshot
+  // is "no consent yet"), and every later change is a session override.
+  const hydrated = useHydrated()
+  const storedChoice = hydrated ? readConsent() : null
+  const [bannerOverride, setBannerOverride] = useState<boolean | null>(null)
+  const bannerVisible = bannerOverride ?? (hydrated && !storedChoice)
   const [preferencesOpen, setPreferencesOpen] = useState(false)
   const [preferencesSource, setPreferencesSource] = useState<PreferencesSource>('banner')
-  const [personalization, setPersonalization] = useState(false)
-  const [analytics, setAnalytics] = useState(false)
-  const [advertising, setAdvertising] = useState(false)
+  const [choiceOverride, setChoiceOverride] = useState<ConsentChoice | null>(null)
+  const effectiveChoice = choiceOverride ?? storedChoice
+  const personalization = effectiveChoice?.personalization ?? false
+  const analytics = effectiveChoice?.analytics ?? false
+  const advertising = effectiveChoice?.advertising ?? false
   const dialogId = useId()
   const titleId = useId()
   const descriptionId = useId()
@@ -32,33 +40,23 @@ export function CookieConsent({ locale }: { locale: Locale }) {
   const en = locale === 'en'
 
   useEffect(() => {
-    function applyChoice(choice: ConsentChoice) {
-      setPersonalization(choice.personalization)
-      setAnalytics(choice.analytics)
-      setAdvertising(choice.advertising)
-    }
-
-    const choice = readConsent()
-    if (!choice) {
-      setBannerVisible(true)
-    } else {
-      ensureConsentCookie()
-      applyChoice(choice)
-    }
+    // Side effects only: mirror the stored consent into the cookie so the
+    // server-side ad slots can see it. No setState in the effect body.
+    if (readConsent()) ensureConsentCookie()
 
     function onOpen(event: Event) {
       const detail = (event as CustomEvent<{ mode?: string }>).detail
       const existing = readConsent()
-      if (existing) applyChoice(existing)
+      if (existing) setChoiceOverride(existing)
 
       if (detail?.mode === 'banner') {
         setPreferencesOpen(false)
-        setBannerVisible(true)
+        setBannerOverride(true)
         return
       }
 
       setPreferencesSource(existing ? 'settings' : 'banner')
-      setBannerVisible(!existing)
+      setBannerOverride(!existing)
       setPreferencesOpen(true)
     }
 
@@ -77,7 +75,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
     })
     setPreferencesSource('settings')
     setPreferencesOpen(false)
-    setBannerVisible(false)
+    setBannerOverride(false)
   }
 
   function openPreferences() {
@@ -87,7 +85,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
 
   function closePreferences() {
     setPreferencesOpen(false)
-    setBannerVisible(preferencesSource === 'banner')
+    setBannerOverride(preferencesSource === 'banner')
   }
 
   return (
@@ -200,7 +198,12 @@ export function CookieConsent({ locale }: { locale: Locale }) {
               descEn="Saved stories, interests, continue reading"
               descNe="सुरक्षित लेख, रुचि, जारी पढाइ"
               checked={personalization}
-              onChange={setPersonalization}
+              onChange={(value) =>
+                setChoiceOverride({
+                  ...(effectiveChoice ?? {}),
+                  personalization: value,
+                } as ConsentChoice)
+              }
             />
             <CategoryToggle
               locale={locale}
@@ -209,7 +212,9 @@ export function CookieConsent({ locale }: { locale: Locale }) {
               descEn="Privacy-friendly visit counts"
               descNe="गोपनीयता-मैत्री भिजिट गणना"
               checked={analytics}
-              onChange={setAnalytics}
+              onChange={(value) =>
+                setChoiceOverride({ ...(effectiveChoice ?? {}), analytics: value } as ConsentChoice)
+              }
             />
             <CategoryToggle
               locale={locale}
@@ -226,7 +231,12 @@ export function CookieConsent({ locale }: { locale: Locale }) {
                   : 'घरको विज्ञापन दृश्य/क्लिक मात्र'
               }
               checked={advertising}
-              onChange={setAdvertising}
+              onChange={(value) =>
+                setChoiceOverride({
+                  ...(effectiveChoice ?? {}),
+                  advertising: value,
+                } as ConsentChoice)
+              }
             />
           </div>
 

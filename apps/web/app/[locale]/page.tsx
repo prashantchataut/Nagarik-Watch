@@ -12,10 +12,6 @@ export async function generateMetadata({
   return homeMetadata(asLocale((await params).locale))
 }
 
-export default async function LocaleHomePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function LocaleHomePage({ params }: { params: Promise<{ locale: string }> }) {
   return <HomePage locale={asLocale((await params).locale)} />
 }

@@ -11,8 +11,7 @@ export function RumBoot() {
     function report() {
       if (sent) return
       const navigation = performance.getEntriesByType('navigation')[0] as
-        | PerformanceNavigationTiming
-        | undefined
+        PerformanceNavigationTiming | undefined
       if (!navigation) return
       const metric: RumMetric = {
         name: 'page-load',

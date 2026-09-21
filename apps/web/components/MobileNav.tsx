@@ -343,7 +343,10 @@ function UtilityLink({
       onClick={onClick}
       className="flex min-h-12 items-center gap-2.5 border-b border-rule px-2 py-2 text-meta font-extrabold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand"
     >
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center text-brand-strong" aria-hidden="true">
+      <span
+        className="flex h-6 w-6 shrink-0 items-center justify-center text-brand-strong"
+        aria-hidden="true"
+      >
         {icon}
       </span>
       <span className="min-w-0 leading-snug">{label}</span>

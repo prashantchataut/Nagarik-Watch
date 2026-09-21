@@ -80,7 +80,10 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
           return (
             <li key={item.key} className="relative flex-1">
               {active ? (
-                <span className="absolute inset-x-3 top-0 h-0.5 bg-brand-strong" aria-hidden="true" />
+                <span
+                  className="absolute inset-x-3 top-0 h-0.5 bg-brand-strong"
+                  aria-hidden="true"
+                />
               ) : null}
               <Link
                 href={item.href}

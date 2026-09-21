@@ -26,7 +26,7 @@ export default async function HelpPage({ params }: { params: Promise<{ locale: s
   const locale: Locale = asLocale((await params).locale)
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
-  const groups = [
+  const groups: { title: string; links: readonly (readonly [string, string])[] }[] = [
     {
       title: en ? 'Reading & account' : 'पढाइ र खाता',
       links: [
@@ -44,7 +44,7 @@ export default async function HelpPage({ params }: { params: Promise<{ locale: s
         ['/utilities', en ? 'All utilities' : 'सबै उपयोगी उपकरण'],
       ],
     },
-  ] as const
+  ]
 
   return (
     <div className="help-page mx-auto max-w-page px-4 py-10 sm:py-14" lang={lang}>
@@ -88,7 +88,11 @@ export default async function HelpPage({ params }: { params: Promise<{ locale: s
                 : 'तथ्यगत सच्याइका लागि समाचार र सच्याउनुपर्ने ठ्याक्कै दाबी उल्लेख गर्नुहोस्। गोप्य समाचार टिपमा स्वतन्त्र रूपमा पुष्टि गर्न सकिने विवरण र न्युजरुमले तपाईंलाई सम्पर्क गर्ने माध्यम दिनुहोस्।'}
             </p>
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-meta font-bold">
-              <a className="text-brand-strong" href={`mailto:${NEWSROOM_DESKS.corrections}`} lang="en">
+              <a
+                className="text-brand-strong"
+                href={`mailto:${NEWSROOM_DESKS.corrections}`}
+                lang="en"
+              >
                 {NEWSROOM_DESKS.corrections}
               </a>
               <a className="text-brand-strong" href={`mailto:${NEWSROOM_DESKS.news}`} lang="en">
@@ -98,7 +102,10 @@ export default async function HelpPage({ params }: { params: Promise<{ locale: s
           </InfoSection>
         </div>
 
-        <aside className="border-t border-rule pt-5 lg:sticky lg:top-24 lg:self-start" aria-label={en ? 'Need more help' : 'थप सहायता'}>
+        <aside
+          className="border-t border-rule pt-5 lg:sticky lg:top-24 lg:self-start"
+          aria-label={en ? 'Need more help' : 'थप सहायता'}
+        >
           <p className="font-display text-h3 font-extrabold text-ink">
             {en ? 'Still need a person?' : 'अझै प्रत्यक्ष सहयोग चाहिन्छ?'}
           </p>

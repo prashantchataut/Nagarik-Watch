@@ -1,11 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
+import {
+  createBrowserStore,
+  notifyBrowserStore,
+  useBrowserStore,
+} from '@/lib/browser/use-browser-store'
 
 type ThemeToggleProps = { locale: Locale; className?: string }
 const STORAGE_KEY = 'nw-theme'
+const THEME_EVENT = 'nw:theme-change'
 type Theme = 'light' | 'dark'
 
 function readAppliedTheme(): Theme {
@@ -24,43 +30,55 @@ function storedTheme(): Theme | null {
 function applyTheme(theme: Theme, persist = false) {
   document.documentElement.setAttribute('data-theme', theme)
   document.documentElement.style.colorScheme = theme
-  if (!persist) return
-  try {
-    localStorage.setItem(STORAGE_KEY, theme)
-  } catch {
-    // The visible preference remains applied when storage is unavailable.
+  if (persist) {
+    try {
+      localStorage.setItem(STORAGE_KEY, theme)
+    } catch {
+      // The visible preference remains applied when storage is unavailable.
+    }
   }
+  notifyBrowserStore(THEME_EVENT)
 }
+
+/**
+ * The applied theme is browser state (an attribute on <html> plus a stored
+ * preference), so it is read through an external store instead of a mount
+ * effect: the server snapshot is `light`, the client snapshot is the real
+ * attribute, and system/storage changes keep every toggle in sync.
+ */
+const themeStore = createBrowserStore<Theme>({
+  read: readAppliedTheme,
+  serverValue: 'light',
+  events: ['storage'],
+  customEvents: [THEME_EVENT],
+  mediaQueries: ['(prefers-color-scheme: dark)'],
+})
 
 export function ThemeToggle({ locale, className }: ThemeToggleProps) {
   const dict = getDictionary(locale)
-  const [theme, setTheme] = useState<Theme>('light')
+  const theme = useBrowserStore(themeStore)
 
+  // Side effects only: apply the OS preference when the reader has not chosen a
+  // theme, and mirror another tab's choice. No setState here — the store above
+  // is the single source of truth for the rendered theme.
   useEffect(() => {
-    setTheme(readAppliedTheme())
     const media = window.matchMedia('(prefers-color-scheme: dark)')
-
     function onSystemTheme(event: MediaQueryListEvent) {
       if (storedTheme()) return
-      const next = event.matches ? 'dark' : 'light'
-      applyTheme(next)
-      setTheme(next)
+      applyTheme(event.matches ? 'dark' : 'light')
     }
-
     function onStorage(event: StorageEvent) {
       if (event.key !== STORAGE_KEY) return
-      const next =
+      applyTheme(
         event.newValue === 'dark'
           ? 'dark'
           : event.newValue === 'light'
             ? 'light'
             : media.matches
               ? 'dark'
-              : 'light'
-      applyTheme(next)
-      setTheme(next)
+              : 'light',
+      )
     }
-
     media.addEventListener('change', onSystemTheme)
     window.addEventListener('storage', onStorage)
     return () => {
@@ -75,10 +93,7 @@ export function ThemeToggle({ locale, className }: ThemeToggleProps) {
   return (
     <button
       type="button"
-      onClick={() => {
-        applyTheme(next, true)
-        setTheme(next)
-      }}
+      onClick={() => applyTheme(next, true)}
       aria-label={label}
       aria-pressed={theme === 'dark'}
       title={label}

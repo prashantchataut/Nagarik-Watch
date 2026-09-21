@@ -48,7 +48,7 @@ export default async function PatroPage({ params }: { params: Promise<{ locale: 
     // then drop synthetic media so broken thumb boxes never render.
     const normalized =
       rawThumb && !rawThumb.startsWith('data:')
-        ? normalizeLegacyHeroUrl(rawThumb, story.slug) ?? rawThumb
+        ? (normalizeLegacyHeroUrl(rawThumb, story.slug) ?? rawThumb)
         : null
     const thumb = normalized && !normalized.startsWith('data:') ? normalized : null
     const path = `/${story.category.slug}/${story.slug}`

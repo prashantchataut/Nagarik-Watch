@@ -7,7 +7,10 @@ type HubIndexHeaderProps = {
 
 export function HubIndexHeader({ title, lead, lang, kicker }: HubIndexHeaderProps) {
   return (
-    <header className="hub-index-head mx-auto max-w-[64rem] border-b border-rule pb-7 text-center sm:pb-9" lang={lang}>
+    <header
+      className="hub-index-head mx-auto max-w-[64rem] border-b border-rule pb-7 text-center sm:pb-9"
+      lang={lang}
+    >
       <div className="flex items-center justify-center gap-2.5">
         <span className="h-[2px] w-8 shrink-0 bg-brand" aria-hidden="true" />
         <p className="text-caption font-extrabold text-brand-strong">

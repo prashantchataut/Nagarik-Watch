@@ -11,7 +11,10 @@ export function InfoPageHeader({ kicker, title, lead, lang }: InfoPageHeaderProp
   const english = lang === 'en'
 
   return (
-    <header className="mx-auto max-w-[64rem] border-b border-rule pb-8 text-center sm:pb-10" lang={lang}>
+    <header
+      className="mx-auto max-w-[64rem] border-b border-rule pb-8 text-center sm:pb-10"
+      lang={lang}
+    >
       {kicker ? (
         <p
           className={

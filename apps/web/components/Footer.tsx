@@ -40,7 +40,10 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
     { href: localizeHref(locale, '/latest'), label: en ? 'Latest' : 'ताजा' },
     { href: localizeHref(locale, '/trending'), label: en ? 'Trending' : 'ट्रेन्डिङ' },
     { href: localizeHref(locale, '/most-read'), label: en ? 'Most read' : 'धेरै पढिएको' },
-    { href: localizeHref(locale, '/editor-picks'), label: en ? "Editor's picks" : 'सम्पादकीय छनोट' },
+    {
+      href: localizeHref(locale, '/editor-picks'),
+      label: en ? "Editor's picks" : 'सम्पादकीय छनोट',
+    },
     { href: localizeHref(locale, '/fact-check'), label: en ? 'Fact check' : 'तथ्य-जाँच' },
     { href: localizeHref(locale, '/exclusive'), label: en ? 'Exclusive' : 'विशेष' },
     { href: localizeHref(locale, '/photos'), label: en ? 'Photos' : 'फोटो' },
@@ -52,8 +55,14 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
     { href: localizeHref(locale, '/market'), label: en ? 'Markets' : 'बजार' },
     { href: localizeHref(locale, '/nepse'), label: 'NEPSE', lang: 'en' },
     { href: localizeHref(locale, '/rashifal'), label: en ? 'Horoscope' : 'राशिफल' },
-    { href: localizeHref(locale, '/preeti-unicode'), label: en ? 'Preeti to Unicode' : 'प्रीति–युनिकोड' },
-    { href: localizeHref(locale, '/utilities/date-converter'), label: en ? 'Date converter' : 'मिति रूपान्तरण' },
+    {
+      href: localizeHref(locale, '/preeti-unicode'),
+      label: en ? 'Preeti to Unicode' : 'प्रीति–युनिकोड',
+    },
+    {
+      href: localizeHref(locale, '/utilities/date-converter'),
+      label: en ? 'Date converter' : 'मिति रूपान्तरण',
+    },
     { href: localizeHref(locale, '/live-scores'), label: en ? 'Live scores' : 'लाइभ स्कोर' },
   ]
 
@@ -61,8 +70,14 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
     { href: localizeHref(locale, '/about'), label: dict.footerAbout },
     { href: localizeHref(locale, '/help'), label: en ? 'Help' : 'सहायता' },
     { href: localizeHref(locale, '/team'), label: en ? 'Team' : 'टोली' },
-    { href: localizeHref(locale, '/editorial-policy'), label: en ? 'Editorial policy' : 'सम्पादकीय नीति' },
-    { href: localizeHref(locale, '/corrections-policy'), label: en ? 'Corrections' : 'सच्याइ नीति' },
+    {
+      href: localizeHref(locale, '/editorial-policy'),
+      label: en ? 'Editorial policy' : 'सम्पादकीय नीति',
+    },
+    {
+      href: localizeHref(locale, '/corrections-policy'),
+      label: en ? 'Corrections' : 'सच्याइ नीति',
+    },
     { href: localizeHref(locale, '/ethics'), label: dict.footerEthics },
     { href: localizeHref(locale, '/privacy'), label: dict.footerPrivacy },
     { href: localizeHref(locale, '/cookies'), label: en ? 'Cookies' : 'कुकी' },
@@ -75,7 +90,10 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
   if (hasLivePublicApi()) {
     trustLinks.push(
       { href: localizeHref(locale, '/submit-story'), label: en ? 'Send a tip' : 'टिप पठाउनुहोस्' },
-      { href: localizeHref(locale, '/journalist/login'), label: en ? 'Reporter desk' : 'पत्रकार डेस्क' },
+      {
+        href: localizeHref(locale, '/journalist/login'),
+        label: en ? 'Reporter desk' : 'पत्रकार डेस्क',
+      },
     )
   }
 
@@ -114,12 +132,18 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
             </div>
 
             {hasContact ? (
-              <address className="mt-5 not-italic text-caption leading-relaxed text-on-chrome-soft" lang={lang}>
+              <address
+                className="mt-5 not-italic text-caption leading-relaxed text-on-chrome-soft"
+                lang={lang}
+              >
                 {hasAddress ? <span className="block">{PUBLICATION.address}</span> : null}
                 <span className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
                   {hasPhone ? <span>{PUBLICATION.phone}</span> : null}
                   {hasEmail ? (
-                    <a href={`mailto:${PUBLICATION.email}`} className="hover:text-on-chrome hover:underline">
+                    <a
+                      href={`mailto:${PUBLICATION.email}`}
+                      className="hover:text-on-chrome hover:underline"
+                    >
                       {PUBLICATION.email}
                     </a>
                   ) : null}
@@ -129,9 +153,24 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-x-5 gap-y-7 sm:grid-cols-3">
-            <FooterGroup label={en ? 'Sections' : 'समाचार'} links={sections} linkClass={linkClass} lang={lang} />
-            <FooterGroup label={en ? 'Useful' : 'उपयोगी'} links={utilityLinks} linkClass={linkClass} lang={lang} />
-            <FooterGroup label={en ? 'Trust & access' : 'विश्वास र पहुँच'} links={trustLinks} linkClass={linkClass} lang={lang} />
+            <FooterGroup
+              label={en ? 'Sections' : 'समाचार'}
+              links={sections}
+              linkClass={linkClass}
+              lang={lang}
+            />
+            <FooterGroup
+              label={en ? 'Useful' : 'उपयोगी'}
+              links={utilityLinks}
+              linkClass={linkClass}
+              lang={lang}
+            />
+            <FooterGroup
+              label={en ? 'Trust & access' : 'विश्वास र पहुँच'}
+              links={trustLinks}
+              linkClass={linkClass}
+              lang={lang}
+            />
           </div>
         </div>
 
@@ -147,7 +186,9 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
             ) : null}
             {isPublicPublicationValue(PUBLICATION.editorInChief) ? (
               <p className="mt-1">
-                <span className="font-bold text-on-chrome">{en ? 'Responsible editor' : 'जिम्मेवार सम्पादक'}: </span>
+                <span className="font-bold text-on-chrome">
+                  {en ? 'Responsible editor' : 'जिम्मेवार सम्पादक'}:{' '}
+                </span>
                 {PUBLICATION.editorInChief}
               </p>
             ) : null}

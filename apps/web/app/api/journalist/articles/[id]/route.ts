@@ -114,7 +114,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
   } else {
     const existingArticle = await findArticleForAdmin(articleId)
-    currentStage = (existingArticle?.workflowStage ?? meta.workflowStage ?? 'draft') as import('@nagarikwatch/db').WorkflowStage
+    currentStage = (existingArticle?.workflowStage ??
+      meta.workflowStage ??
+      'draft') as import('@nagarikwatch/db').WorkflowStage
   }
 
   const isReporter = JOURNALIST_DESK_ROLES.has(session.newsroomRole)

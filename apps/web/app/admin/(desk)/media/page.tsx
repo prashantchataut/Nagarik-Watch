@@ -103,7 +103,13 @@ export default async function MediaPage() {
               {items.map((item) => (
                 <figure key={item.id} className="admin-media-item">
                   <div className="admin-media-item__image">
-                    <Image src={item.url} alt={item.alt} fill className="object-cover" unoptimized />
+                    <Image
+                      src={item.url}
+                      alt={item.alt}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
                   </div>
                   <figcaption>
                     <strong>{item.alt}</strong>

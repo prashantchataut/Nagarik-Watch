@@ -64,7 +64,9 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
               <p className="market-board__value">
                 {localizeNumber(nepse.data.index.toFixed(2), locale)}
               </p>
-              <p className={nepseUp ? 'market-board__change is-up' : 'market-board__change is-down'}>
+              <p
+                className={nepseUp ? 'market-board__change is-up' : 'market-board__change is-down'}
+              >
                 <span aria-hidden="true">{nepseUp ? '▲' : '▼'}</span>{' '}
                 {localizeNumber(Math.abs(nepse.data.change).toFixed(2), locale)} (
                 {localizeNumber(Math.abs(nepse.data.changePercent).toFixed(2), locale)}%)
@@ -115,7 +117,9 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
           <div className="market-forex__table-wrap">
             <table>
               <caption className="sr-only">
-                {en ? 'Official foreign exchange buy and sell rates' : 'आधिकारिक विदेशी मुद्रा खरिद र बिक्री दर'}
+                {en
+                  ? 'Official foreign exchange buy and sell rates'
+                  : 'आधिकारिक विदेशी मुद्रा खरिद र बिक्री दर'}
               </caption>
               <thead>
                 <tr>
@@ -161,7 +165,11 @@ export default async function MarketPage({ params }: { params: Promise<{ locale:
       {newsItems.length > 0 ? (
         <section className="mt-9" aria-labelledby="market-news-title">
           <div className="flex items-baseline justify-between gap-3 border-b border-rule pb-2.5">
-            <h2 id="market-news-title" className="font-display text-h3 font-extrabold text-ink" lang={lang}>
+            <h2
+              id="market-news-title"
+              className="font-display text-h3 font-extrabold text-ink"
+              lang={lang}
+            >
               {en ? 'Market news' : 'बजार समाचार'}
             </h2>
             <Link

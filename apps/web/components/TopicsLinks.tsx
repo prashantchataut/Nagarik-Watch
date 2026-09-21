@@ -23,7 +23,10 @@ export function TopicsLinks({ locale, topics }: { locale: Locale; topics: TopicL
       className="nw-masthead__topics hidden border-b border-rule bg-surface lg:block"
     >
       <div className="mx-auto flex min-h-9 max-w-page items-center gap-3 px-4">
-        <span className="shrink-0 font-display text-caption font-extrabold text-brand-strong" lang={en ? 'en' : 'ne'}>
+        <span
+          className="shrink-0 font-display text-caption font-extrabold text-brand-strong"
+          lang={en ? 'en' : 'ne'}
+        >
           {en ? 'Trending' : 'ट्रेन्डिङ'}
         </span>
         <ul className="flex min-w-0 flex-1 items-center overflow-hidden text-caption text-ink-soft">
@@ -32,7 +35,9 @@ export function TopicsLinks({ locale, topics }: { locale: Locale; topics: TopicL
             return (
               <li
                 key={`${topic.href}-${topic.label}`}
-                className={index === 0 ? 'min-w-0 shrink' : 'min-w-0 shrink border-l border-rule pl-3 ml-3'}
+                className={
+                  index === 0 ? 'min-w-0 shrink' : 'min-w-0 shrink border-l border-rule pl-3 ml-3'
+                }
               >
                 <Link
                   href={topic.href}

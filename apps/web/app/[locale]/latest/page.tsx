@@ -63,8 +63,18 @@ export default async function LatestPage({
       {result.items.length > 0 ? (
         <div className="mt-1 grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(15rem,0.3fr)] xl:items-start">
           <div className="min-w-0">
-            <StoryIndexComposition stories={result.items} locale={locale} mode="latest" startRank={(result.page - 1) * PER_PAGE + 1} />
-            <AdSlot locale={locale} placementKey="latest-inline" variant="inline" className="mt-6" />
+            <StoryIndexComposition
+              stories={result.items}
+              locale={locale}
+              mode="latest"
+              startRank={(result.page - 1) * PER_PAGE + 1}
+            />
+            <AdSlot
+              locale={locale}
+              placementKey="latest-inline"
+              variant="inline"
+              className="mt-6"
+            />
             <Pagination
               page={result.page}
               totalPages={result.totalPages}

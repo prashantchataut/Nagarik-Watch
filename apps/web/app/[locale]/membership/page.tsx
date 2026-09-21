@@ -38,7 +38,10 @@ export default async function MembershipPage({ params }: { params: Promise<Param
 
   if (!isPublicMembershipEnabled()) {
     return (
-      <main className="membership-holding mx-auto max-w-page px-4 py-10 sm:py-12" lang={ne ? 'ne' : 'en'}>
+      <main
+        className="membership-holding mx-auto max-w-page px-4 py-10 sm:py-12"
+        lang={ne ? 'ne' : 'en'}
+      >
         <InfoPageHeader
           kicker={ne ? 'पाठक सहयोग' : 'Reader support'}
           title={ne ? 'सदस्यता चरण तयारीमा छ।' : 'Membership is being prepared.'}
@@ -101,7 +104,11 @@ export default async function MembershipPage({ params }: { params: Promise<Param
           aria-label={ne ? 'सक्रियता अवस्था' : 'Activation status'}
         >
           <p
-            className={ne ? 'font-display text-meta font-bold tracking-normal text-ink-soft' : 'text-caption font-bold uppercase tracking-[0.14em] text-ink-soft'}
+            className={
+              ne
+                ? 'font-display text-meta font-bold tracking-normal text-ink-soft'
+                : 'text-caption font-bold uppercase tracking-[0.14em] text-ink-soft'
+            }
             lang={ne ? 'ne' : 'en'}
           >
             {ne ? 'हालको सक्रियता' : 'Current activation'}
@@ -119,7 +126,9 @@ export default async function MembershipPage({ params }: { params: Promise<Param
       </header>
 
       <section className="mt-10 border-t border-rule" aria-labelledby="membership-options">
-        <div className={`grid border-b border-rule py-4 font-bold text-ink-soft md:grid-cols-[1fr_12rem_1.35fr_12rem] ${ne ? 'font-display text-meta tracking-normal' : 'text-caption uppercase tracking-[0.14em]'}`}>
+        <div
+          className={`grid border-b border-rule py-4 font-bold text-ink-soft md:grid-cols-[1fr_12rem_1.35fr_12rem] ${ne ? 'font-display text-meta tracking-normal' : 'text-caption uppercase tracking-[0.14em]'}`}
+        >
           <h2 id="membership-options" className="font-inherit">
             {ne ? 'सदस्यता' : 'Membership'}
           </h2>
