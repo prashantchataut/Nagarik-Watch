@@ -34,7 +34,7 @@
       "dependsOn": ["^build"]
     },
     "lint": {
-      "dependsOn": ["^build"]
+      "inputs": ["$TURBO_DEFAULT$", "eslint.config.*", "../../eslint.config.mjs"]
     },
     "test": {
       "dependsOn": ["^build"],

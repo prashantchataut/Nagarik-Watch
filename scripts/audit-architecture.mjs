@@ -112,8 +112,8 @@ if (!/storage:\s*'database'/.test(auth) || !/ipAddressHeaders/.test(auth)) {
   )
 }
 
-const middleware = readFileSync(join(root, 'apps/web/middleware.ts'), 'utf8')
-if (!/NextResponse\.next\(\{ request: \{ headers: requestHeaders \} \}\)/.test(middleware)) {
+const proxy = readFileSync(join(root, 'apps/web/proxy.ts'), 'utf8')
+if (!/NextResponse\.next\(\{ request: \{ headers: requestHeaders \} \}\)/.test(proxy)) {
   failures.push('Admin pathname stamping is not applied to request headers.')
 }
 
