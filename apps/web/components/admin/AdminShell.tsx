@@ -4,7 +4,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { AdminWorkflowStrip } from '@/components/admin/AdminWorkflowStrip'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { useCallback, useRef, useState, useTransition } from 'react'
 import type { NewsroomSession } from '@/lib/auth/session'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import {
@@ -22,6 +22,7 @@ import {
   type AdminDeskVariant,
 } from '@/lib/admin-roles'
 import { signOutRequest } from '@/lib/auth/sign-out-client'
+import { useFocusTrap } from '@/lib/browser/use-focus-trap'
 import { LogoMark } from '@/components/Logo'
 
 type NavItem = {
@@ -240,10 +241,6 @@ export function AdminShell({
       clientPath,
     )
 
-  useEffect(() => {
-    setNavPendingHref(null)
-  }, [clientPath])
-
   const role = session.newsroomRole
   const roleLabel = NEWSROOM_ROLE_LABELS_NE[role] ?? role
   const desk = resolveAdminDeskVariant(role)
@@ -284,48 +281,10 @@ export function AdminShell({
     })
   }
 
-  useEffect(() => {
-    if (!drawerOpen) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setDrawerOpen(false)
-    }
-    window.addEventListener('keydown', onKey)
-
-    const drawer = drawerRef.current
-    const focusables = drawer
-      ? Array.from(
-          drawer.querySelectorAll<HTMLElement>(
-            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-          ),
-        ).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1)
-      : []
-    const first = focusables[0]
-    const last = focusables[focusables.length - 1]
-    first?.focus()
-
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key !== 'Tab' || focusables.length === 0) return
-      if (e.shiftKey) {
-        if (document.activeElement === first) {
-          e.preventDefault()
-          last?.focus()
-        }
-      } else if (document.activeElement === last) {
-        e.preventDefault()
-        first?.focus()
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-
-    return () => {
-      document.body.style.overflow = prev
-      window.removeEventListener('keydown', onKey)
-      window.removeEventListener('keydown', onKeyDown)
-      menuButtonRef.current?.focus()
-    }
-  }, [drawerOpen])
+  const closeDrawer = useCallback(() => setDrawerOpen(false), [])
+  // Scroll lock, Escape, Tab containment and focus restore — shared with the
+  // newsroom media dialog so both behave the same way.
+  useFocusTrap(drawerOpen, drawerRef, closeDrawer)
 
   function resolveHref(href: string) {
     const payloadPath = contentAdminUrl ? PAYLOAD_CONTENT_PATHS[href] : undefined
@@ -353,6 +312,11 @@ export function AdminShell({
 
   return (
     <div className="admin-shell-surface flex min-h-screen bg-surface" data-desk={desk}>
+      {/* The desk sidebar is ~30 links deep and repeats on every page; without
+          this a keyboard user tabs the whole newsroom nav to reach the page. */}
+      <a className="skip-link" href="#admin-main">
+        मुख्य सामग्रीमा जानुहोस्
+      </a>
       <div className="hidden lg:block lg:sticky lg:top-0 lg:h-screen">
         <AdminSidebar {...sidebarProps} />
       </div>
@@ -424,7 +388,7 @@ export function AdminShell({
           </p>
         ) : null}
 
-        <main className="admin-main">
+        <main id="admin-main" tabIndex={-1} className="admin-main">
           {showWorkflow ? <AdminWorkflowStrip role={role} /> : null}
           {children}
         </main>
