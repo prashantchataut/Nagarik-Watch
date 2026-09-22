@@ -76,7 +76,7 @@ export default async function VideoPage({ params }: { params: Promise<{ locale: 
               <div className="relative aspect-video overflow-hidden bg-surface-raised">
                 <RealImage story={lead} locale={locale} priority />
                 <span
-                  className="absolute bottom-0 left-0 grid h-14 w-14 place-items-center bg-brand text-paper"
+                  className="absolute bottom-0 left-0 grid h-14 w-14 place-items-center bg-brand text-on-brand"
                   aria-hidden="true"
                 >
                   <span className="translate-x-[1px] text-lg">▶</span>

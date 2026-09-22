@@ -1,0 +1,271 @@
+/* Masthead, ticker, dialogs, bottom nav, save-data and reduced-motion chrome. */
+@layer components {
+  /* A reserved-size, labeled ad container. Size is fixed up front so filling it can never
+     cause layout shift (SPEC.md CLS budget). The label is reader-facing per ADR-006. */
+  .ad-slot {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-2);
+  }
+
+  /* Editorial kicker: category is a typographic signal, not a repeated UI badge. */
+  .category-pill {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    color: var(--brand-strong);
+    border-radius: 0;
+    padding: 0;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.035em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .category-pill[lang='ne'] {
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 800;
+  }
+
+  a.category-pill:hover {
+    background: transparent;
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  /* Reader text-resize (FontSizeControl). The control sets data-reading-size on <html>. */
+  .reading-scale {
+    --reading-scale: 1;
+  }
+  .reading-scale p,
+  .reading-scale li,
+  .reading-scale blockquote {
+    font-size: calc(1.125rem * var(--reading-scale, 1));
+    line-height: 1.75;
+  }
+  :root[data-reading-size='sm'] {
+    --reading-scale: 0.92;
+  }
+  :root[data-reading-size='lg'] {
+    --reading-scale: 1.18;
+  }
+  :root[data-reading-size='sm'] .reading-scale p,
+  :root[data-reading-size='sm'] .reading-scale li,
+  :root[data-reading-size='sm'] .reading-scale blockquote {
+    font-size: calc(1.125rem * 0.92);
+  }
+  :root[data-reading-size='lg'] .reading-scale p,
+  :root[data-reading-size='lg'] .reading-scale li,
+  :root[data-reading-size='lg'] .reading-scale blockquote {
+    font-size: calc(1.125rem * 1.18);
+  }
+
+  /* Theme toggle: both icons render in the DOM, CSS picks the visible one from data-theme.
+     No JS is needed to decide which icon shows, so there is no first-paint flash or
+     hydration mismatch (the inline head script sets data-theme before body paints). */
+  .theme-icon-sun {
+    display: none;
+  }
+  .theme-icon-moon {
+    display: inline-block;
+  }
+  :root[data-theme='dark'] .theme-icon-sun {
+    display: inline-block;
+  }
+  :root[data-theme='dark'] .theme-icon-moon {
+    display: none;
+  }
+
+  /* Reader focus mode: calm column, quieter chrome and ads. */
+  html.reader-focus-mode .nw-masthead__topics,
+  html.reader-focus-mode .nw-masthead__chrome .nw-masthead__utility,
+  body.reader-focus-mode .nw-masthead__topics {
+    display: none;
+  }
+  html.reader-focus-mode #article-reading-column,
+  body.reader-focus-mode #article-reading-column {
+    max-width: 42rem;
+    margin-inline: auto;
+  }
+  html.reader-focus-mode article aside,
+  html.reader-focus-mode .ad-slot,
+  body.reader-focus-mode article aside,
+  body.reader-focus-mode [data-ad-slot] {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  html.reader-focus-mode article figure,
+  body.reader-focus-mode article figure {
+    opacity: 0.85;
+  }
+}
+
+/* Breaking ticker: horizontal scroll via transform (never animate layout properties).
+   Pauses on hover/focus; under reduced-motion the marquee stops and the items stack. */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: ticker-scroll var(--ticker-duration, 40s) linear infinite;
+}
+
+.ticker-host:hover .ticker-track,
+.ticker-host:focus-within .ticker-track {
+  animation-play-state: paused;
+}
+
+/* The SaveDataBoot client hint removes decorative paint and motion without changing
+   editorial content. Optional decorations can opt in to being omitted entirely. */
+:root[data-save-data='1'] body {
+  background-image: none;
+}
+
+:root[data-save-data='1'] .ticker-track {
+  animation: none;
+  transform: none;
+}
+
+:root[data-save-data='1'] [data-save-data-decorative='true'] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+}
+
+@supports (padding: max(0px)) {
+  .safe-bottom {
+    padding-bottom: max(4rem, env(safe-area-inset-bottom));
+  }
+}
+
+.nw-masthead {
+  box-shadow: 0 1px 0 var(--chrome-rule);
+}
+.nw-masthead__primary {
+  display: block;
+}
+
+html.nw-dialog-open {
+  overflow: hidden;
+}
+
+@layer components {
+  .nw-dialog {
+    position: fixed;
+    margin: 0;
+    max-width: none;
+    max-height: none;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    color: var(--ink);
+    padding: 0;
+    box-shadow: var(--shadow-overlay);
+  }
+  .nw-dialog::backdrop {
+    background: var(--scrim);
+  }
+  .nw-dialog[open] {
+    animation: nw-dialog-enter var(--dur-slow) var(--ease-out-quint) both;
+  }
+  .nw-bottom-chrome {
+    --nw-bottom-nav-height: calc(3.5rem + env(safe-area-inset-bottom));
+    --nw-bottom-ad-height: 0rem;
+  }
+  .nw-bottom-chrome[data-sticky-ad='true'] {
+    --nw-bottom-ad-height: 5.75rem;
+  }
+  .nw-bottom-chrome__ad {
+    bottom: var(--nw-bottom-nav-height);
+  }
+  .nw-cookie-banner {
+    bottom: calc(var(--nw-bottom-nav-height) + var(--nw-bottom-ad-height));
+  }
+  .nw-bottom-chrome:has([data-cookie-banner='compact']),
+  .nw-bottom-chrome:has(.nw-cookie-preferences[open]) {
+    --nw-bottom-ad-height: 0rem;
+  }
+  .nw-bottom-chrome:has([data-cookie-banner='compact']) .nw-bottom-chrome__ad,
+  .nw-bottom-chrome:has(.nw-cookie-preferences[open]) .nw-bottom-chrome__ad,
+  .nw-bottom-chrome:has([data-cookie-banner='compact']) .nw-bottom-chrome__spacer,
+  .nw-bottom-chrome:has(.nw-cookie-preferences[open]) .nw-bottom-chrome__spacer {
+    display: none;
+  }
+}
+
+@keyframes nw-dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 639px) {
+  .nw-dialog[data-variant='navigation'],
+  .nw-dialog[data-variant='search'],
+  .nw-dialog[data-variant='preferences'] {
+    inset: auto 0 0;
+    width: 100%;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: var(--radius-3) var(--radius-3) 0 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .nw-dialog[data-variant='navigation'] {
+    inset: 0 auto 0 0;
+    width: min(28rem, 92vw);
+    height: 100dvh;
+    border-top: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+  .nw-dialog[data-variant='search'],
+  .nw-dialog[data-variant='preferences'] {
+    inset: 0;
+    width: min(36rem, calc(100vw - 3rem));
+    margin: auto;
+    border-radius: var(--radius-3);
+  }
+  .nw-cookie-banner {
+    bottom: 1.5rem;
+    border-radius: var(--radius-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nw-dialog[open] {
+    animation: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .reading-scale p,
+  .reading-scale li {
+    font-size: calc(1.08rem * var(--reading-scale, 1));
+    line-height: 1.9;
+  }
+}

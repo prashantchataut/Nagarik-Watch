@@ -1,0 +1,171 @@
+/* Devanagari heading tuning, print styles, skeletons and reader profile links. */
+.article-inline-highlight {
+  background: color-mix(in oklch, var(--brand) 18%, var(--surface));
+  color: inherit;
+  padding: 0 0.12em;
+}
+.article-inline-link {
+  color: var(--brand-strong);
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+/* Devanagari glyph shaping needs natural tracking; component-specific negative tracking
+   remains available for English/Latin headlines only. */
+:is(h1, h2, h3, h4, h5, h6):lang(ne) {
+  letter-spacing: normal;
+}
+
+/* Print-friendly article surface */
+@media print {
+  .skip-link,
+  .nw-masthead,
+  footer,
+  [data-bottom-chrome],
+  .print\:hidden,
+  nav[aria-label],
+  aside {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #111 !important;
+    font-size: 11pt;
+  }
+  #main {
+    padding: 0 !important;
+  }
+  article h1 {
+    break-after: avoid;
+  }
+  article p,
+  article li,
+  article blockquote,
+  article figure {
+    break-inside: avoid;
+  }
+  a[href]::after {
+    content: none !important;
+  }
+}
+
+/* Shared redesign states: match the destination geometry without decorative shimmer noise. */
+@keyframes nw-skeleton-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+.nw-skeleton {
+  animation: nw-skeleton-breathe 1.35s ease-in-out infinite;
+  background: color-mix(in oklch, var(--ink) 7%, var(--surface-raised));
+}
+
+.reader-auth-shell input:not([type='checkbox']):not([type='radio']),
+.reader-auth-shell select,
+.reader-auth-shell textarea {
+  min-height: 3rem;
+  border-radius: 0.55rem;
+}
+
+.reader-auth-shell button[type='submit'],
+.reader-auth-shell input[type='submit'] {
+  min-height: 3rem;
+  border-radius: 0.55rem;
+}
+
+.article-page {
+  background: var(--surface);
+}
+
+.article-head h1:lang(ne) {
+  letter-spacing: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nw-skeleton {
+    animation: none;
+    opacity: 0.72;
+  }
+}
+
+.reader-profile-links {
+  align-self: start;
+  border-top: 1px solid var(--rule);
+}
+
+.reader-profile-link {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: start;
+  min-height: 5.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.reader-profile-link:hover .reader-profile-link__title,
+.reader-profile-link:focus-visible .reader-profile-link__title {
+  color: var(--brand-strong);
+}
+
+.reader-profile-link:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
+.reader-profile-link__index {
+  padding-top: 0.18rem;
+  color: var(--mute);
+  font-family: ui-monospace, monospace;
+  font-size: 0.68rem;
+}
+
+.reader-profile-link__eyebrow,
+.reader-profile-link__title,
+.reader-profile-link__body {
+  display: block;
+}
+
+.reader-profile-link__eyebrow {
+  color: var(--brand-strong);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.reader-profile-link__title {
+  margin-top: 0.18rem;
+  font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+  font-size: 1.1rem;
+  font-weight: 820;
+  line-height: 1.25;
+}
+
+.reader-profile-link__body {
+  margin-top: 0.2rem;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.reader-profile-link__arrow {
+  padding-top: 1.3rem;
+  color: var(--brand-strong);
+  font-size: 1.15rem;
+}
+
+.reader-auth-shell .password-field__control[data-variant='reader'] {
+  overflow: hidden;
+  border-radius: 0.55rem;
+}
+
+.newsroom-login .password-field__control[data-variant='newsroom'] {
+  overflow: hidden;
+  border-radius: 0.55rem;
+}

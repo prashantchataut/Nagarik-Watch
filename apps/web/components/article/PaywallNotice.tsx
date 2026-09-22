@@ -57,7 +57,7 @@ export function PaywallNotice({
       <div className="mt-5 flex flex-wrap gap-3">
         <Link
           href={localizeHref(locale, '/membership')}
-          className="inline-flex h-11 items-center bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong"
+          className="inline-flex h-11 items-center bg-brand px-5 text-body font-bold text-on-brand hover:bg-brand-strong"
         >
           {ne ? 'सदस्यता हेर्नुहोस्' : 'View membership'}
         </Link>

@@ -193,7 +193,7 @@ export function ReaderSubmissionForm({ locale }: Props) {
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:opacity-60"
+        className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-5 text-body font-bold text-on-brand hover:bg-brand-strong disabled:opacity-60"
       >
         {pending
           ? ne

@@ -29,7 +29,7 @@ export default async function AdminDeskLayout({ children }: { children: ReactNod
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/admin/login"
-          className="mt-7 inline-flex min-h-11 items-center justify-center rounded-sm bg-brand px-5 font-semibold text-paper"
+          className="mt-7 inline-flex min-h-11 items-center justify-center rounded-sm bg-brand px-5 font-semibold text-on-brand"
         >
           Open login
         </a>

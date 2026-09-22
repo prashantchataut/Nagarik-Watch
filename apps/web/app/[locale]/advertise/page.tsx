@@ -215,7 +215,7 @@ export default async function AdvertisePage({ params }: { params: Promise<{ loca
           <div className="flex shrink-0 flex-wrap gap-3">
             <a
               href={`mailto:${salesEmail}`}
-              className="inline-flex min-h-10 items-center bg-brand px-4 text-meta font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong"
+              className="inline-flex min-h-10 items-center bg-brand px-4 text-meta font-bold text-on-brand transition-colors duration-fast ease-out-quint hover:bg-brand-strong"
               lang="en"
             >
               {salesEmail}

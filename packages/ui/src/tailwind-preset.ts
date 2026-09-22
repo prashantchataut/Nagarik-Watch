@@ -28,6 +28,11 @@ const tailwindPreset: Partial<Config> = {
           raised: 'var(--surface-raised)',
         },
         paper: 'var(--paper)',
+        // Text that sits on a --brand / --brand-strong / --breaking fill. It is
+        // not `paper`: the brand is mid crimson in light and bright coral in
+        // dark, so the text on it flips. See tokens.css and `pnpm audit:contrast`.
+        'on-brand': 'var(--on-brand)',
+        'on-accent': 'var(--on-accent)',
         chrome: {
           DEFAULT: 'var(--chrome)',
           rule: 'var(--chrome-rule)',
@@ -42,7 +47,13 @@ const tailwindPreset: Partial<Config> = {
           soft: 'var(--ink-soft)',
         },
         mute: 'var(--mute)',
-        rule: 'var(--rule)',
+        rule: {
+          DEFAULT: 'var(--rule)',
+          // --rule-strong existed in tokens.css but was never exposed here, so
+          // `border-rule-strong` in ProvinceDesk compiled to nothing and the
+          // hover affordance on the province tabs simply did not appear.
+          strong: 'var(--rule-strong)',
+        },
         breaking: 'var(--breaking)',
         link: 'var(--link)',
         gold: 'var(--accent-gold)',

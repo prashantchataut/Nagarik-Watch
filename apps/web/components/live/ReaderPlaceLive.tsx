@@ -177,7 +177,10 @@ export function ReaderPlaceLive({ locale, variant = 'board' }: ReaderPlaceLivePr
           ) : error ? (
             <p className="mt-2 text-body-sm text-ink-soft">{error}</p>
           ) : (
-            <p className="mt-2 font-display text-display-sm font-extrabold tabular-nums text-ink">
+            // The class here was a type step the scale never defined, so it
+            // compiled to nothing and the temperature rendered at inherited
+            // body size. h1 is the nearest real step.
+            <p className="mt-2 font-display text-h1 font-extrabold tabular-nums text-ink">
               {tempC}°C
               <span className="ml-2 text-body-lg font-bold text-ink-soft">{placeLabel}</span>
             </p>

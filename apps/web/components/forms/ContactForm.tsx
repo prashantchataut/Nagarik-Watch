@@ -116,7 +116,7 @@ export function ContactForm({ locale }: { locale: Locale }) {
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex h-11 min-w-[11rem] w-fit items-center justify-center bg-brand px-6 text-body font-bold text-paper hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint focus:ring-offset-2 disabled:cursor-wait disabled:opacity-60"
+        className="inline-flex h-11 min-w-[11rem] w-fit items-center justify-center bg-brand px-6 text-body font-bold text-on-brand hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand-tint focus:ring-offset-2 disabled:cursor-wait disabled:opacity-60"
       >
         {pending
           ? english

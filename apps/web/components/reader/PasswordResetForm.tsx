@@ -84,7 +84,7 @@ export function PasswordResetForm({
         </div>
         <Link
           href={`${ne ? '' : '/en'}/auth/forgot-password${safeNext(next) ? `?next=${encodeURIComponent(safeNext(next)!)}` : ''}`}
-          className="inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong"
+          className="inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-on-brand hover:bg-brand-strong"
         >
           {ne ? 'नयाँ लिंक माग्नुहोस्' : 'Request a new link'}
         </Link>
@@ -128,7 +128,7 @@ export function PasswordResetForm({
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-on-brand hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span lang={ne ? 'ne' : 'en'}>
           {pending

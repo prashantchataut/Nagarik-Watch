@@ -48,7 +48,7 @@ export function PublicErrorState({
               <button
                 type="button"
                 onClick={onRetry}
-                className="inline-flex min-h-11 items-center bg-brand px-4 text-meta font-extrabold text-paper transition-colors hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="inline-flex min-h-11 items-center bg-brand px-4 text-meta font-extrabold text-on-brand transition-colors hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 {en ? 'Try again' : 'फेरि प्रयास'}
               </button>

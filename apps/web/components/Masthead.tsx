@@ -146,7 +146,7 @@ export function Masthead({
             <Link
               href={patroHref}
               lang={lang}
-              className="ml-2 inline-flex min-h-10 items-center gap-2 bg-brand px-4 text-body font-extrabold text-paper transition-colors hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              className="ml-2 inline-flex min-h-10 items-center gap-2 bg-brand px-4 text-body font-extrabold text-on-brand transition-colors hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
               <IconCalendar width={17} height={17} />
               {en ? 'Patro' : 'पात्रो'}

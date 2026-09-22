@@ -107,7 +107,7 @@ export function SearchLauncher({ locale, className, iconSize = 18 }: SearchLaunc
               </div>
               <button
                 type="submit"
-                className="inline-flex min-h-12 items-center justify-center rounded border border-brand bg-brand px-5 text-meta font-extrabold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="inline-flex min-h-12 items-center justify-center rounded border border-brand bg-brand px-5 text-meta font-extrabold text-on-brand transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 {en ? 'Search' : 'खोज्नुहोस्'}
               </button>

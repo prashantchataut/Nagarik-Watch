@@ -99,7 +99,7 @@ export function Footer({ locale, navCategories = [] }: FooterProps) {
             <div className="mt-5 flex flex-wrap gap-2">
               <Link
                 href={localizeHref(locale, '/newsletter/archive')}
-                className="inline-flex min-h-10 items-center bg-brand px-3.5 text-caption font-extrabold text-paper transition-colors hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="inline-flex min-h-10 items-center bg-brand px-3.5 text-caption font-extrabold text-on-brand transition-colors hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 lang={lang}
               >
                 {en ? 'Newsletter' : 'न्युजलेटर'}

@@ -108,7 +108,7 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
           </p>
         ) : null}
         <button
-          className="min-h-11 border border-brand bg-brand px-5 font-bold text-paper hover:bg-brand-strong"
+          className="min-h-11 border border-brand bg-brand px-5 font-bold text-on-brand hover:bg-brand-strong"
           disabled={pending}
         >
           {pending
@@ -170,7 +170,7 @@ export function StaffMfaSetup({ locale }: { locale: 'ne' | 'en' }) {
           </p>
         ) : null}
         <button
-          className="min-h-11 border border-brand bg-brand px-5 font-bold text-paper hover:bg-brand-strong"
+          className="min-h-11 border border-brand bg-brand px-5 font-bold text-on-brand hover:bg-brand-strong"
           disabled={pending}
         >
           {pending

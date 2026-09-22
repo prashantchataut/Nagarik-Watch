@@ -89,7 +89,7 @@ function PrimaryButton({
     <button
       type={type}
       onClick={onClick}
-      className="inline-flex min-h-11 items-center justify-center rounded-md border border-brand bg-brand px-4 text-meta font-bold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong active:scale-[0.98]"
+      className="inline-flex min-h-11 items-center justify-center rounded-md border border-brand bg-brand px-4 text-meta font-bold text-on-brand transition-colors duration-fast ease-out-quint hover:bg-brand-strong active:scale-[0.98]"
     >
       {children}
     </button>

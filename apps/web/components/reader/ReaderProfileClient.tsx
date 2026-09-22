@@ -94,7 +94,7 @@ export function ReaderProfileClient({
 
             {session ? (
               <div className="flex min-w-0 items-center gap-3 border-l border-rule pl-4">
-                <span className="grid h-12 w-12 shrink-0 place-items-center bg-brand font-display text-xl font-black text-paper" aria-hidden="true">
+                <span className="grid h-12 w-12 shrink-0 place-items-center bg-brand font-display text-xl font-black text-on-brand" aria-hidden="true">
                   {initial}
                 </span>
                 <div className="min-w-0">
