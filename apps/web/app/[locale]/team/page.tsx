@@ -62,7 +62,7 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
                       lang={lang}
                     >
                       <span
-                        className="flex h-12 w-12 shrink-0 items-center justify-center bg-brand font-display text-body font-extrabold text-paper"
+                        className="flex h-12 w-12 shrink-0 items-center justify-center bg-brand font-display text-body font-extrabold text-on-brand"
                         aria-hidden="true"
                       >
                         {monogram(author.name)}
@@ -106,7 +106,7 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
                       lang={lang}
                     >
                       <span
-                        className="flex h-6 w-6 shrink-0 items-center justify-center bg-brand text-[0.65rem] font-extrabold text-paper"
+                        className="flex h-6 w-6 shrink-0 items-center justify-center bg-brand text-[0.65rem] font-extrabold text-on-brand"
                         aria-hidden="true"
                       >
                         {monogram(author.name)}

@@ -103,14 +103,18 @@ export function TagRow({
       aria-label={label}
       lang={lang}
     >
-      <span className="mr-2 text-meta font-semibold text-ink-soft">{label}</span>
+      <span className="mr-1 text-meta font-semibold text-ink-soft">{label}</span>
       {tags.map((tag) => {
         const name = locale === 'en' && tag.nameEn ? tag.nameEn : tag.nameNe
         return (
           <Link
             key={tag.slug}
             href={localizeHref(locale, `/tag/${tag.slug}`)}
-            className="border-b border-transparent text-body font-semibold text-ink-soft transition hover:border-brand hover:text-brand-strong"
+            // Chips rather than underlined words: these sit in a nav, not a
+            // sentence, so the inline exemption to SC 2.5.8 does not apply and
+            // a bare text link was about 20px tall. The border also stops them
+            // reading as body copy that happens to be a different colour.
+            className="inline-flex min-h-8 items-center rounded-full border border-rule px-3 text-meta font-semibold text-ink-soft transition-colors duration-fast ease-out-quint hover:border-brand hover:bg-brand-tint hover:text-brand-strong"
           >
             {name}
           </Link>

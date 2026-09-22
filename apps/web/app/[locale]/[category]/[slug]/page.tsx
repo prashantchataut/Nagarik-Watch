@@ -278,7 +278,7 @@ export default async function ArticlePage({
           <div className="article-trust-ledger mx-auto mt-6 max-w-[55rem] text-left">
             <div className="flex items-center gap-3">
               <span
-                className="flex h-11 w-11 shrink-0 items-center justify-center bg-brand font-display text-body font-extrabold text-paper"
+                className="flex h-11 w-11 shrink-0 items-center justify-center bg-brand font-display text-body font-extrabold text-on-brand"
                 aria-hidden="true"
               >
                 {article.authors[0]

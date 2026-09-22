@@ -1,0 +1,255 @@
+/* Sports reporting, score boards and the reader desk. */
+@layer components {
+  .sports-board {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .sports-score-section {
+    min-width: 0;
+    border-block: 1px solid var(--rule);
+    background: var(--surface-raised);
+  }
+  .sports-score-section > header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .sports-score-section > header h2 {
+    color: var(--ink);
+    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-size: clamp(1.35rem, 2.5vw, 1.7rem);
+    font-weight: 850;
+    line-height: 1.05;
+  }
+  .sports-score-section > header p {
+    margin-top: 0.18rem;
+    color: var(--mute);
+    font-size: 0.68rem;
+    line-height: 1.4;
+  }
+  .sports-score-section > header > span {
+    flex: 0 0 auto;
+    padding-top: 0.15rem;
+    color: var(--mute);
+    font-size: 0.68rem;
+    font-weight: 800;
+  }
+  .sports-score-section > header > span[data-live='true'] {
+    color: var(--success);
+  }
+  .sports-score-section > ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .sports-score-row {
+    display: grid;
+    gap: 0.4rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .sports-score-row:last-child {
+    border-bottom: 0;
+  }
+  .sports-score-row > p,
+  .sports-score-row > small {
+    color: var(--mute);
+    font-size: 0.68rem;
+    line-height: 1.35;
+  }
+  .sports-score-row > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--ink);
+    font-size: 0.92rem;
+    font-weight: 750;
+  }
+  .sports-score-row > div span:last-child {
+    text-align: right;
+  }
+  .sports-score-row strong {
+    min-width: 3.5rem;
+    text-align: center;
+    color: var(--brand-strong);
+    font-family: var(--font-source-sans), sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .sports-score-section__empty {
+    padding: 1rem 0;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+  .sports-reporting {
+    margin-top: clamp(2rem, 5vw, 3.5rem);
+    padding-top: 0.9rem;
+    border-top: 2px solid var(--ink);
+  }
+  .sports-reporting > header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+  }
+  .sports-reporting > header p {
+    color: var(--brand-strong);
+    font-size: 0.68rem;
+    font-weight: 850;
+  }
+  .sports-reporting > header h2 {
+    margin-top: 0.1rem;
+    color: var(--ink);
+    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-size: clamp(1.65rem, 3.6vw, 2.35rem);
+    font-weight: 900;
+    line-height: 1.05;
+  }
+  .sports-reporting > header > a {
+    color: var(--ink-soft);
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .sports-reporting__grid {
+    display: grid;
+    gap: 1.35rem;
+  }
+  .sports-reporting__lead {
+    display: block;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+  }
+  .sports-reporting__lead-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--surface-raised);
+  }
+  .sports-reporting__lead > p {
+    margin-top: 0.65rem;
+    color: var(--brand-strong);
+    font-size: 0.69rem;
+    font-weight: 850;
+  }
+  .sports-reporting__lead > h3 {
+    margin-top: 0.22rem;
+    color: var(--ink);
+    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-size: clamp(1.55rem, 3.6vw, 2.6rem);
+    font-weight: 900;
+    line-height: 1.08;
+  }
+  .sports-reporting__lead > span {
+    display: block;
+    margin-top: 0.45rem;
+    max-width: 64ch;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .sports-reporting__lead > small {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--mute);
+    font-size: 0.68rem;
+  }
+  .sports-reporting__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--rule);
+  }
+  .sports-reporting__list li {
+    display: grid;
+    grid-template-columns: 2.2rem minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .sports-reporting__list li > span {
+    color: var(--brand-strong);
+    font-family: var(--font-source-sans), sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+  .sports-reporting__list a {
+    color: var(--ink);
+    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.25;
+    text-decoration: none;
+  }
+  .sports-reporting__list a:hover,
+  .sports-reporting__list a:focus-visible {
+    color: var(--brand-strong);
+  }
+  .sports-reporting__list p {
+    margin-top: 0.2rem;
+    color: var(--mute);
+    font-size: 0.66rem;
+  }
+  .sports-reporting__empty {
+    padding: 1.2rem 0;
+    border-block: 1px solid var(--rule);
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+  }
+  @media (min-width: 860px) {
+    .sports-board {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+    .sports-reporting__grid {
+      grid-template-columns: minmax(0, 1.28fr) minmax(18rem, 0.72fr);
+      gap: 2rem;
+    }
+  }
+
+  .reader-desk__nav {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.8rem;
+    padding-block: 0.65rem;
+    border-block: 1px solid var(--rule);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .reader-desk__nav::-webkit-scrollbar {
+    display: none;
+  }
+  .reader-desk__nav-link {
+    display: inline-flex;
+    min-height: 2.5rem;
+    flex: 0 0 auto;
+    align-items: center;
+    padding-inline: 0.7rem;
+    color: var(--ink-soft);
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .reader-desk__nav-link:hover,
+  .reader-desk__nav-link:focus-visible {
+    color: var(--brand-strong);
+    background: var(--brand-tint);
+  }
+  .reader-desk__content {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3.5rem);
+    margin-top: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  .reader-desk__content > * {
+    min-width: 0;
+  }
+}

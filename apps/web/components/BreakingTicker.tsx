@@ -31,12 +31,17 @@ export function BreakingTicker({ stories, locale, className }: BreakingTickerPro
     return { slug: s.slug, title, href, lang: locale === 'en' && s.titleEn ? 'en' : 'ne' }
   })
 
+  // The marquee needs a second copy of the list so the strip never shows a gap
+  // as it wraps. That copy is a visual device only: it is hidden from assistive
+  // technology and taken out of the tab order, or every breaking headline would
+  // be announced twice and tabbed through twice.
+  const duplicateStart = items.length
   const loop = [...items, ...items]
 
   return (
     <div
       className={cn(
-        'ticker-host flex items-stretch border-b border-breaking/30 bg-breaking text-paper',
+        'ticker-host flex items-stretch border-b border-breaking/30 bg-breaking text-on-brand',
         className,
       )}
       role="region"
@@ -45,34 +50,45 @@ export function BreakingTicker({ stories, locale, className }: BreakingTickerPro
       <span
         className={
           locale === 'en'
-            ? 'z-10 flex shrink-0 items-center gap-2 bg-breaking px-4 py-2 text-meta font-bold uppercase tracking-wide text-paper'
-            : 'z-10 flex shrink-0 items-center gap-2 bg-breaking px-4 py-2 text-meta font-bold tracking-normal text-paper'
+            ? 'z-10 flex shrink-0 items-center gap-2 bg-breaking px-4 py-2 text-meta font-bold uppercase tracking-wide text-on-brand'
+            : 'z-10 flex shrink-0 items-center gap-2 bg-breaking px-4 py-2 text-meta font-bold tracking-normal text-on-brand'
         }
         lang={locale === 'en' ? 'en' : 'ne'}
       >
         {/* Pulsing live dot — the "this is happening now" affordance. */}
         <span className="relative flex h-2 w-2" aria-hidden="true">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-surface opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-surface" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-on-brand opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-on-brand" />
         </span>
         {label}
       </span>
       <div className="relative flex-1 overflow-hidden">
-        <ul className="ticker-track py-2">
-          {loop.map((item, i) => (
-            <li key={`${item.slug}-${i}`} className="mx-4 inline-flex items-center">
-              <span aria-hidden="true" className="mr-2 text-paper/50">
-                •
-              </span>
-              <Link
-                href={item.href}
-                className="text-meta font-medium text-paper transition-opacity duration-fast ease-out-quint hover:opacity-80"
-                lang={item.lang}
+        <ul className="ticker-track items-center py-1">
+          {loop.map((item, i) => {
+            const isDuplicate = i >= duplicateStart
+            return (
+              <li
+                key={`${item.slug}-${i}`}
+                className="mx-4 inline-flex items-center"
+                aria-hidden={isDuplicate || undefined}
               >
-                {item.title}
-              </Link>
-            </li>
-          ))}
+                <span aria-hidden="true" className="mr-2 text-on-brand/60">
+                  •
+                </span>
+                <Link
+                  href={item.href}
+                  // min-h-6 keeps the hit area at the 24px floor of SC 2.5.8
+                  // without making the strip tall enough to push the front
+                  // page down; mx-4 on the item supplies the spacing exception.
+                  className="inline-flex min-h-6 items-center text-meta font-medium text-on-brand transition-opacity duration-fast ease-out-quint hover:opacity-80"
+                  lang={item.lang}
+                  tabIndex={isDuplicate ? -1 : undefined}
+                >
+                  {item.title}
+                </Link>
+              </li>
+            )
+          })}
         </ul>
       </div>
     </div>

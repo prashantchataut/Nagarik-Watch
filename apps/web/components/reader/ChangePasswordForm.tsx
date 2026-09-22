@@ -130,7 +130,7 @@ export function ChangePasswordForm({ locale }: { locale: 'ne' | 'en' }) {
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-2 inline-flex h-11 w-full items-center justify-center border border-brand bg-brand px-5 text-body font-bold text-on-brand hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span lang={ne ? 'ne' : 'en'}>
           {pending

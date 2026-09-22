@@ -152,7 +152,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
                 onClick={() =>
                   decide({ personalization: true, analytics: true, advertising: true })
                 }
-                className="inline-flex min-h-11 items-center justify-center border border-brand bg-brand px-2 text-caption font-extrabold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:px-3 sm:text-meta"
+                className="inline-flex min-h-11 items-center justify-center border border-brand bg-brand px-2 text-caption font-extrabold text-on-brand transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:px-3 sm:text-meta"
               >
                 {en ? 'Accept optional' : 'वैकल्पिक स्वीकार'}
               </button>
@@ -249,7 +249,7 @@ export function CookieConsent({ locale }: { locale: Locale }) {
             <button
               type="button"
               onClick={() => decide({ personalization, analytics, advertising })}
-              className="inline-flex min-h-11 w-full items-center justify-center border border-brand bg-brand px-4 text-meta font-extrabold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              className="inline-flex min-h-11 w-full items-center justify-center border border-brand bg-brand px-4 text-meta font-extrabold text-on-brand transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
               {en ? 'Save choices' : 'छनोट सुरक्षित गर्नुहोस्'}
             </button>

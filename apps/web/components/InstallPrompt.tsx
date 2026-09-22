@@ -135,7 +135,7 @@ export function InstallPrompt() {
       <div className="install-prompt__actions">
         <button
           type="button"
-          className="inline-flex min-h-11 items-center justify-center border border-brand bg-brand px-3 text-caption font-extrabold text-paper transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          className="inline-flex min-h-11 items-center justify-center border border-brand bg-brand px-3 text-caption font-extrabold text-on-brand transition-colors duration-fast ease-out-quint hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           onClick={() => void install()}
         >
           {english ? 'Install' : 'स्थापना'}

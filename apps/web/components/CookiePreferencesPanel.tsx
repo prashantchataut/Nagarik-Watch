@@ -127,7 +127,7 @@ export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
         <button
           type="button"
           onClick={() => save(choice)}
-          className="inline-flex min-h-11 items-center rounded-md border border-brand bg-brand px-4 text-meta font-bold text-paper hover:bg-brand-strong"
+          className="inline-flex min-h-11 items-center rounded-md border border-brand bg-brand px-4 text-meta font-bold text-on-brand hover:bg-brand-strong"
         >
           {en ? 'Save preferences' : 'रोजाइ सुरक्षित गर्नुहोस्'}
         </button>

@@ -5,7 +5,7 @@ import { useState, useTransition } from 'react'
 import { signOutRequest } from '@/lib/auth/sign-out-client'
 
 const btnPrimary =
-  'inline-flex h-12 items-center justify-center bg-brand px-5 text-body font-bold text-paper hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex h-12 items-center justify-center bg-brand px-5 text-body font-bold text-on-brand hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60'
 const btnGhost =
   'inline-flex h-12 items-center justify-center border border-rule px-5 text-body font-bold text-ink hover:border-brand hover:text-brand-strong'
 

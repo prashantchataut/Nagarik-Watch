@@ -3,14 +3,32 @@
  * Palette: A (Civic Crimson) — CHOSEN, see DESIGN.md §2.
  * Light: paper masthead/footer + crimson category desk + warm paper page.
  * Dark: true black chrome + crimson desk + OLED true-black page.
- * High-contrast WCAG AAA/AA compliant across all themes.
+ *
+ * Contrast is measured, not asserted: `pnpm audit:contrast` resolves every
+ * token below to sRGB and checks each rendered pair against WCAG 2.2 AA. It
+ * runs in `verify:static` and exits non-zero, so a token cannot drift under
+ * the threshold without failing the build. This file used to claim AAA in a
+ * comment; six pairs were in fact below AA. Run the audit before editing a
+ * colour, and again after.
+ *
+ * Two roles are deliberately split, because one token cannot do both jobs:
+ *   --brand / --on-brand    — a fill and the text that sits on it. --brand is
+ *                             mid crimson in light and bright coral in dark,
+ *                             so its text flips from paper to near-black.
+ *   --accent-gold / --on-accent — gold is light in both themes, so its text is
+ *                             dark in both.
+ * A component must never put --paper or --ink on a brand or gold fill.
  */
 
 :root {
   /* Typography Stacks */
-  --font-mukta: var(--font-mukta-face), 'Mukta', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
-  --font-devanagari: var(--font-devanagari-face), 'Noto Sans Devanagari', 'Mukta', system-ui, -apple-system, sans-serif;
-  --font-source-sans: var(--font-source-sans-face), 'Source Sans 3', system-ui, -apple-system, sans-serif;
+  --font-mukta:
+    var(--font-mukta-face), 'Mukta', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+  --font-devanagari:
+    var(--font-devanagari-face), 'Noto Sans Devanagari', 'Mukta', system-ui, -apple-system,
+    sans-serif;
+  --font-source-sans:
+    var(--font-source-sans-face), 'Source Sans 3', system-ui, -apple-system, sans-serif;
 
   /* Brand — Civic Crimson */
   --brand: oklch(0.55 0.18 25);
@@ -18,6 +36,8 @@
   --brand-tint: oklch(0.96 0.015 25);
   --brand-bar: oklch(0.42 0.18 25);
   --brand-bar-active: oklch(0.32 0.16 25);
+  /* Text on a --brand or --brand-strong fill. Light crimson takes paper. */
+  --on-brand: #f7f3ed;
 
   /* Masthead / footer chrome — light is warm paper, dark is black */
   --chrome: #f8f5f0;
@@ -37,15 +57,19 @@
   --mute: oklch(0.5 0.012 25);
 
   --rule: #d9d3cb;
-  --rule-strong: oklch(0.72 0.012 25);
+  /* --rule-strong carries meaning (input borders, strong separators), so it is
+     held to the 3:1 non-text threshold. It was 0.72 — 2.21:1 — i.e. invisible
+     to a low-vision reader looking for a field edge. */
+  --rule-strong: oklch(0.58 0.012 25);
 
   --breaking: oklch(0.5 0.22 27);
   --link: var(--brand);
   --focus-ring: oklch(0.55 0.18 25);
 
-  /* High utility accent gold (for पात्रो / special badges) */
+  /* High utility accent gold (for पात्रो / special badges) — a fill, never text */
   --accent-gold: oklch(0.78 0.14 85);
   --accent-gold-bg: oklch(0.94 0.08 85);
+  --on-accent: oklch(0.22 0.04 85);
 
   --up: oklch(0.5 0.14 150);
   --down: oklch(0.52 0.18 25);
@@ -90,6 +114,8 @@
     --brand-tint: oklch(0.18 0.02 25);
     --brand-bar: oklch(0.38 0.18 25);
     --brand-bar-active: oklch(0.28 0.16 25);
+    /* Dark --brand is a bright coral; paper on it is 2.4:1. Text flips. */
+    --on-brand: oklch(0.16 0.02 25);
 
     --chrome: oklch(0 0 0);
     --on-chrome: oklch(0.98 0 0);
@@ -106,13 +132,14 @@
     --mute: oklch(0.65 0 0);
 
     --rule: oklch(0.24 0 0);
-    --rule-strong: oklch(0.38 0 0);
-    --breaking: oklch(0.55 0.2 27);
+    --rule-strong: oklch(0.52 0 0);
+    --breaking: oklch(0.66 0.19 27);
     --focus-ring: oklch(0.74 0.16 25);
     --link: oklch(0.74 0.16 25);
 
     --accent-gold: oklch(0.82 0.14 85);
     --accent-gold-bg: oklch(0.24 0.06 85);
+    --on-accent: oklch(0.22 0.04 85);
 
     --up: oklch(0.72 0.14 150);
     --down: oklch(0.7 0.16 25);
@@ -132,6 +159,7 @@
   --brand-tint: oklch(0.18 0.02 25);
   --brand-bar: oklch(0.38 0.18 25);
   --brand-bar-active: oklch(0.28 0.16 25);
+  --on-brand: oklch(0.16 0.02 25);
   --chrome: oklch(0 0 0);
   --on-chrome: oklch(0.98 0 0);
   --on-chrome-soft: oklch(0.8 0 0);
@@ -144,12 +172,13 @@
   --ink-soft: oklch(0.8 0 0);
   --mute: oklch(0.65 0 0);
   --rule: oklch(0.24 0 0);
-  --rule-strong: oklch(0.38 0 0);
-  --breaking: oklch(0.55 0.2 27);
+  --rule-strong: oklch(0.52 0 0);
+  --breaking: oklch(0.66 0.19 27);
   --focus-ring: oklch(0.74 0.16 25);
   --link: oklch(0.74 0.16 25);
   --accent-gold: oklch(0.82 0.14 85);
   --accent-gold-bg: oklch(0.24 0.06 85);
+  --on-accent: oklch(0.22 0.04 85);
   --up: oklch(0.72 0.14 150);
   --down: oklch(0.7 0.16 25);
   --aqi-good: oklch(0.72 0.13 150);
@@ -166,6 +195,7 @@
   --brand-tint: oklch(0.96 0.015 25);
   --brand-bar: oklch(0.42 0.18 25);
   --brand-bar-active: oklch(0.32 0.16 25);
+  --on-brand: #f7f3ed;
   --chrome: #f8f5f0;
   --on-chrome: oklch(0.2 0.012 25);
   --on-chrome-soft: oklch(0.38 0.014 25);
@@ -178,12 +208,13 @@
   --ink-soft: oklch(0.38 0.014 25);
   --mute: oklch(0.5 0.012 25);
   --rule: #d9d3cb;
-  --rule-strong: oklch(0.72 0.012 25);
+  --rule-strong: oklch(0.58 0.012 25);
   --breaking: oklch(0.5 0.22 27);
   --focus-ring: oklch(0.55 0.18 25);
   --link: var(--brand);
   --accent-gold: oklch(0.78 0.14 85);
   --accent-gold-bg: oklch(0.94 0.08 85);
+  --on-accent: oklch(0.22 0.04 85);
   --up: oklch(0.5 0.14 150);
   --down: oklch(0.52 0.18 25);
   --aqi-good: oklch(0.55 0.12 150);

@@ -6,6 +6,11 @@ problem" is the question a reader of a roadmap actually has. Ordered by what blo
 most downstream work, not by effort. Each item says why it matters here specifically, so
 you can drop the ones you disagree with without unpicking the rest.
 
+This file is the **platform** axis — content authority, observability, workflow, debt.
+The reader-facing axis is a separate list: [`roadmap-reader-first.md`](./roadmap-reader-first.md),
+written 2026-09-22, covering the font payload, romanised search, offline UX and the
+design-system work the new contrast and token gates make possible.
+
 ## 0. Component tests exist now — extend them
 
 **Was:** no test rendered a React component. That is fixed for the four where a bug is
@@ -65,16 +70,27 @@ So this is a deployment step, not a code gap: create the bucket, uncomment the b
 redeploy. Leaving it off is a valid choice — Vercel Blob is the configured path — but
 then `BLOB_READ_WRITE_TOKEN` has to be set, and today it is not.
 
-## 4. Split `globals.css`
+## 4. Split `globals.css` — done
 
-7,600 lines and 190 KB in one file. This pass had to add a separate stylesheet for the
-reduced-motion rules rather than extend it. Nobody can hold that file in their head,
-which is why the same patterns (focus rings, card chrome) are redefined at several
-depths with slightly different values.
+**Was:** 8,010 lines in one file, which is why the same patterns (focus rings, card
+chrome) were redefined at several depths with slightly different values.
 
-Suggested seams, roughly by surface: `base`, `public-chrome`, `admin`, `utilities`
-(patro/calendar/market), `editorial`. Do it mechanically, one section at a time, with a
-visual diff after each — no rewriting while you move.
+It is now 37 lines of imports over 14 partials in `apps/web/app/styles/`, numbered
+`01-base.css` … `14-sports.css`. **The numbering is the cascade**: the partials are
+imported in the order the rules were in, so moving one moves the rule it overrides. Add
+a new surface as a new file at the end rather than appending to an existing one.
+
+The move was mechanical and is provably a no-op in two ways worth repeating if you ever
+re-cut the seams:
+
+- the concatenated partials reproduce the original byte for byte (the split script
+  aborts otherwise), and
+- a production build from the split file emits compiled CSS with **identical sha256** to
+  a build from the monolith — `2035f32af895357a` and `94a4fc51dd2080a1` for the two
+  chunks.
+
+That is the bar for this kind of change: zero rendered difference, demonstrated rather
+than eyeballed.
 
 ## 5. Accessibility: finish what this pass started
 
@@ -85,12 +101,49 @@ an admin skip link. Still open:
   Wiring it would have caught the dialog and the focus indicators automatically. This is
   a two-line change to the workflow file and has to be made by a human or a token with
   the `workflow` scope; agent pushes to `.github/workflows/**` are rejected.
-- **Colour contrast is unverified.** The Civic Crimson palette against `--surface` and
-  `--mute` text has never been measured. This is a Devanagari-first site, and Devanagari
-  matras are thin strokes — contrast that passes for Latin can still be hard to read
-  here. Measure it, and treat 4.5:1 as the floor for body text.
-- **Touch targets.** Most controls use `min-h-11` (44px), but the ticker links, the
-  calendar day cells and the tag chips do not.
+- ~~**Colour contrast is unverified.**~~ Measured, fixed and gated.
+  `scripts/audit-contrast.mjs` resolves every token in `packages/ui/src/tokens.css` to
+  sRGB (the palette is authored in oklch, so this does the conversion rather than
+  trusting a comment) and checks 64 rendered pairs across both themes at WCAG 2.2 AA. It
+  runs in `verify:static` and exits non-zero, which is the difference between an audit
+  and a guarantee.
+
+  Six pairs were below AA. Two mattered a great deal: the **dark-theme primary button**
+  was `--paper` on `--brand-strong` at **2.37:1**, and `--rule-strong` — which draws
+  input borders — was 2.21:1 in light and 2.10:1 in dark, so a low-vision reader
+  hunting for a field edge could not see one.
+
+  The button was a _role_ problem, not a value problem: `--brand` cannot be darkened
+  because it is also the link colour on black, so the text on it has to flip. Hence two
+  new tokens, `--on-brand` and `--on-accent`, and a rule that is now worth enforcing in
+  review: **a component must never put `--paper` or `--ink` on a brand or gold fill.**
+  Repointing 22 CSS rules and 34 JSX class strings at `--on-brand` fixed every filled
+  control at once.
+
+  The four theme blocks (`:root`, the `prefers-color-scheme` copy, and the two
+  `[data-theme]` selectors) are now diffed for drift by the same script. `light-dark()`
+  would collapse the duplication and was deliberately rejected: a browser that does not
+  know the function drops the declaration entirely and the site renders unstyled, which
+  is not a trade worth making for an audience on older Android WebViews.
+
+- **Tailwind fails silently, so that now fails the build too.** A utility naming a token
+  that does not exist emits no CSS at all and the element just inherits. Three were live
+  in the tree — `text-body-sm` (×3) and `text-display-sm`, both undefined type steps,
+  and `border-rule-strong` (×2), where the token existed in `tokens.css` but was never
+  exposed in the preset, so the hover affordance on the province tabs simply did not
+  appear. `scripts/audit-design-tokens.mjs` now checks all 757 files against the 29
+  colour and 11 type tokens the system actually defines.
+- ~~**Touch targets.**~~ Ticker links and tag chips are fixed — the ticker links carry
+  `min-h-6` (the 24px floor of SC 2.5.8) with the strip's own `mx-4` supplying the
+  spacing exception, and the tag links became `min-h-8` chips, because they sit in a nav
+  rather than a sentence and so the inline exemption never applied to them. The calendar
+  day cells were already at `min-height: 4.25rem`; that sub-item was stale when written.
+- **No screen-reader or keyboard pass has been done.** Automated checks catch the
+  mechanical third of WCAG. The honest claim today is "the token layer is AA-verified",
+  not "the site is accessible". One real defect of this kind was found and fixed by
+  hand — the breaking ticker duplicates its list so the marquee has no gap when it
+  wraps, and that duplicate was being announced and tabbed through a second time — which
+  is exactly the class of bug no colour audit will ever surface.
 
 ## 6. Rate limiting is shared now — the gap that remains is a different one
 
@@ -101,7 +154,7 @@ window (which would let 2× through at a boundary), and in production it **fails
 — if the store is unreachable the limiter throws rather than falling back to the
 per-instance map.
 
-What a shared limiter still cannot do is see an attack that is *spread* rather than
+What a shared limiter still cannot do is see an attack that is _spread_ rather than
 fast. That is what `lib/security/credential-stuffing.ts` and `nw_auth_attempts` were
 added for: one attempt each against forty accounts stays under every per-key limit by
 design. It is wired into `app/api/auth/[...all]/route.ts` and reported on the launch

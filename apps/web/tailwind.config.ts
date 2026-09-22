@@ -42,6 +42,11 @@ const config: Config = {
         h3: ['1.25rem', { lineHeight: '1.3', fontWeight: '600' }], // 20px
         'body-lg': ['1.1875rem', { lineHeight: '1.7', fontWeight: '400' }], // 19px
         body: ['1rem', { lineHeight: '1.65', fontWeight: '400' }], // 16px
+        // `text-body-sm` was in use in three components before it existed here,
+        // so it compiled to nothing and those elements inherited their size.
+        // 15px is the step between body copy and metadata; the leading stays
+        // generous because that is what Devanagari matras need, not the size.
+        'body-sm': ['0.9375rem', { lineHeight: '1.6', fontWeight: '400' }], // 15px
         meta: ['0.8125rem', { lineHeight: '1.4', fontWeight: '500' }], // 13px
         caption: ['0.75rem', { lineHeight: '1.35', fontWeight: '400' }], // 12px
       },
