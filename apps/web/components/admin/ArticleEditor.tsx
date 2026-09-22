@@ -155,18 +155,6 @@ export function ArticleEditor({
   const prefsApplied = useRef(false)
 
   useEffect(() => {
-    if (isNew && draft.titleNe && !draft.slug) {
-      const slug = draft.titleNe
-        .toLowerCase()
-        .replace(/[^\u0900-\u097Fa-z0-9\s-]/g, '')
-        .trim()
-        .replace(/\s+/g, '-')
-        .slice(0, 80)
-      setDraft((d) => ({ ...d, slug }))
-    }
-  }, [isNew, draft.titleNe, draft.slug])
-
-  useEffect(() => {
     let cancelled = false
     void (async () => {
       try {
@@ -207,8 +195,23 @@ export function ArticleEditor({
   const canManageHomepage =
     canPublish(role) || role === 'admin' || role === 'super_admin' || role === 'seo_manager'
 
+  /** Slug suggestion for a new article; Devanagari is kept, everything else dropped. */
+  function slugify(title: string): string {
+    return title
+      .toLowerCase()
+      .replace(/[^\u0900-\u097Fa-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .slice(0, 80)
+  }
+
   function update<K extends keyof ArticleDraft>(key: K, value: ArticleDraft[K]) {
-    setDraft((d) => ({ ...d, [key]: value }))
+    setDraft((d) => {
+      const next = { ...d, [key]: value }
+      // A new article's slug tracks the title until an editor types their own.
+      if (key === 'titleNe' && isNew && !d.slug) next.slug = slugify(String(value))
+      return next
+    })
   }
 
   function toggleTag(slug: string) {
@@ -281,10 +284,7 @@ export function ArticleEditor({
             sourceUrl: read('sourceUrl', draft.sourceUrl) || undefined,
             isBreaking: draft.isBreaking,
             isFeatured: read('featuredState', draft.featuredState) as
-              | 'lead'
-              | 'featured'
-              | 'secondary'
-              | 'none',
+              'lead' | 'featured' | 'secondary' | 'none',
             featuredExpiresAt: (() => {
               const raw = read('featuredExpiresAt', draft.featuredExpiresAt)
               if (!raw) return undefined

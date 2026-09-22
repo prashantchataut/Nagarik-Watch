@@ -173,3 +173,46 @@ describe('highlightSegments', () => {
     expect(segs.every((s) => !s.match)).toBe(true)
   })
 })
+
+describe('morphology-aware matching', () => {
+  it('matches an inflected query against an inflected headline', () => {
+    // बजेटको (query) and बजेटमा (title of "budget") share the stem बजेट.
+    const r = search(index, 'बजेटको')
+    expect(r.map((s) => s.slug)).toContain('budget')
+  })
+
+  it('still matches while the reader is mid-word', () => {
+    const r = search(index, 'बजे')
+    expect(r.map((s) => s.slug)).toContain('budget')
+  })
+
+  it('ranks a full-word hit above a mid-word prefix guess', () => {
+    const exact = search(index, 'बजेट')[0]?.score ?? 0
+    const partial = search(index, 'बजे')[0]?.score ?? 0
+    expect(exact).toBeGreaterThan(partial)
+  })
+
+  it('indexes one key per token instead of every prefix of it', () => {
+    // The old index stored ब, बज, बजे, बजेट… for every Devanagari token, which
+    // multiplied its size by the average token length and gave the short keys a
+    // document frequency near the corpus size — a dead IDF term.
+    const fragments = ['बज', 'बजे', 'पूर', 'पूर्वा', 'समी', 'समीक्ष']
+    for (const fragment of fragments) {
+      expect(index.vocabulary).not.toContain(fragment)
+    }
+    // …while the stem each of those tokens reduces to is present exactly once.
+    expect(index.vocabulary.filter((term) => term === 'बजेट')).toHaveLength(1)
+  })
+
+  it('falls back to partial coverage rather than returning nothing', () => {
+    // "पूर्वाधार" is only in the budget story; "मस्को" is only in the Putin
+    // story. No document has both, and an empty page is the wrong answer.
+    const r = search(index, 'पूर्वाधार मस्को')
+    expect(r.length).toBeGreaterThan(0)
+  })
+
+  it('keeps a document covering both terms ahead of one covering either', () => {
+    const r = search(index, 'बजेट समीक्षा')
+    expect(r[0]?.slug).toBe('opinion-budget')
+  })
+})

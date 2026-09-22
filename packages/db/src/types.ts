@@ -97,12 +97,16 @@ export interface StoryCardData {
   hasVideo?: boolean
   /** Fact-check desk status when this is a fact-check piece. */
   factCheckStatus?:
-    | 'not_fact_check'
-    | 'in_review'
-    | 'verified'
-    | 'false'
-    | 'mixed'
-    | 'context_needed'
+    'not_fact_check' | 'in_review' | 'verified' | 'false' | 'mixed' | 'context_needed'
+  /**
+   * Issued corrections, carried on the card projection so syndication can
+   * repeat them. A correction that only exists on our own page does not reach
+   * the reader who saw the story in a feed reader or an aggregator, which is
+   * most of the readers a correction is for.
+   */
+  corrections?: Correction[]
+  /** Last edit, when it differs from publication. Drives `<atom:updated>`. */
+  updatedAt?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -148,6 +152,13 @@ export interface Tag {
   descriptionNe?: string
   descriptionEn?: string
 }
+
+/**
+ * How wrong the story was. Lives with the content model rather than with the
+ * desk that scores it, because the newsroom store persists it and the urgency
+ * scorer only reads it.
+ */
+export type CorrectionSeverity = 'retraction' | 'factual' | 'attribution' | 'clarification' | 'typo'
 
 /** A reader-visible correction. Maps to content-model.md §1 corrections[]. */
 export interface Correction {
@@ -214,13 +225,7 @@ export interface AdSlotBlock {
 }
 
 export type ArticleBlock =
-  | ParagraphBlock
-  | HeadingBlock
-  | ImageBlock
-  | PullQuoteBlock
-  | EmbedBlock
-  | ListBlock
-  | AdSlotBlock
+  ParagraphBlock | HeadingBlock | ImageBlock | PullQuoteBlock | EmbedBlock | ListBlock | AdSlotBlock
 
 /** A full article. The page-level shape returned by getArticleBySlug(). */
 export interface Article extends StoryCardData {
@@ -247,12 +252,7 @@ export interface Article extends StoryCardData {
   /** Suppress display ads for sensitive reporting. */
   adFree?: boolean
   factCheckStatus?:
-    | 'not_fact_check'
-    | 'in_review'
-    | 'verified'
-    | 'false'
-    | 'mixed'
-    | 'context_needed'
+    'not_fact_check' | 'in_review' | 'verified' | 'false' | 'mixed' | 'context_needed'
   aiSummaryApproved?: boolean
   keyPoints?: string[]
   summary?: string

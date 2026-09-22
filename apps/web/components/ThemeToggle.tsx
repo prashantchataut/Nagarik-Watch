@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
+import { useClientState } from '@/lib/browser/use-client-state'
 
 type ThemeToggleProps = { locale: Locale; className?: string }
 const STORAGE_KEY = 'nw-theme'
@@ -34,10 +35,11 @@ function applyTheme(theme: Theme, persist = false) {
 
 export function ThemeToggle({ locale, className }: ThemeToggleProps) {
   const dict = getDictionary(locale)
-  const [theme, setTheme] = useState<Theme>('light')
+  // The inline boot script sets `data-theme` before React runs, so the applied
+  // theme is already on <html> at hydration; 'light' is only the server value.
+  const [theme, setTheme] = useClientState<Theme>(readAppliedTheme, 'light')
 
   useEffect(() => {
-    setTheme(readAppliedTheme())
     const media = window.matchMedia('(prefers-color-scheme: dark)')
 
     function onSystemTheme(event: MediaQueryListEvent) {
@@ -67,7 +69,7 @@ export function ThemeToggle({ locale, className }: ThemeToggleProps) {
       media.removeEventListener('change', onSystemTheme)
       window.removeEventListener('storage', onStorage)
     }
-  }, [])
+  }, [setTheme])
 
   const next = theme === 'dark' ? 'light' : 'dark'
   const label = next === 'light' ? dict.themeToggleToLight : dict.themeToggleToDark

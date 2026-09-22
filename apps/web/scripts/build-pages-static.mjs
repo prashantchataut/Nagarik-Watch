@@ -16,8 +16,10 @@ import { buildStaffAdminHtml } from './staff-admin-gateway.mjs'
 import { buildPublicDeskHtml } from './static-desk-gateway.mjs'
 
 const appDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
-const middlewarePath = path.join(appDir, 'middleware.ts')
-const middlewareBak = path.join(appDir, 'middleware.ts.pages-bak')
+// Next 16: the `middleware` convention is now `proxy`. The static Pages export
+// has no edge runtime, so the file is moved aside for the duration of the build.
+const proxyPath = path.join(appDir, 'proxy.ts')
+const proxyBak = path.join(appDir, 'proxy.ts.pages-bak')
 const outDir = path.join(appDir, 'out')
 const stashed = []
 
@@ -154,7 +156,7 @@ try {
   }
 
   run('node', ['scripts/patch-page-dynamic.mjs'])
-  if (existsSync(middlewarePath)) renameSync(middlewarePath, middlewareBak)
+  if (existsSync(proxyPath)) renameSync(proxyPath, proxyBak)
   for (const segment of ['api', 'admin']) stashAppSegment(segment)
   for (const segment of ['journalist']) stashLocaleSegment(segment)
   run('pnpm', ['exec', 'next', 'build'])
@@ -192,6 +194,6 @@ try {
     console.log(`Static export: ${outDir}`)
   }
 } finally {
-  if (existsSync(middlewareBak)) renameSync(middlewareBak, middlewarePath)
+  if (existsSync(proxyBak)) renameSync(proxyBak, proxyPath)
   restoreStashed()
 }

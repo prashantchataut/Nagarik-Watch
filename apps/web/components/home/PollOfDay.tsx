@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
 import { TurnstileField } from '@/components/forms/TurnstileField'
+import { useClientState } from '@/lib/browser/use-client-state'
 
 const VOTE_KEY = 'nw-poll-votes'
 const FINGERPRINT_KEY = 'nw-poll-fingerprint'
@@ -70,14 +71,16 @@ export function PollOfDay({
   const instanceId = useId().replace(/:/g, '')
   const labelledBy = headingId ?? `poll-${poll.id}-label-${instanceId}`
   const questionId = `poll-${poll.id}-q-${instanceId}`
-  const [myVote, setMyVote] = useState<VoteRecord | null>(null)
+  // Votes live in localStorage; `null` on the server keeps the ballot rendered
+  // in the prerender and swaps to the result view once the browser confirms.
+  const [myVote, setMyVote] = useClientState<VoteRecord | null>(
+    () => readVotes()[poll.id] ?? null,
+    null,
+    [poll.id],
+  )
   const [results, setResults] = useState<Record<string, number>>(poll.results)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    setMyVote(readVotes()[poll.id] ?? null)
-  }, [poll.id])
 
   const optionEntries = useMemo(
     () => poll.options.map((label, index) => ({ id: String(index), label })),

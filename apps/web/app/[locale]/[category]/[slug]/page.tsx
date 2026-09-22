@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import { cookies, headers } from 'next/headers'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { Byline, CategoryLabel } from '@nagarikwatch/ui'
 import { formatDate, type ArticleBlock } from '@nagarikwatch/db'
@@ -8,6 +9,8 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getArticleBySlug, getStories } from '@/lib/content'
 import { resolveSlugRedirect } from '@/lib/content/slug-redirects'
 import { relatedByContent } from '@/lib/ranking'
+import { findSeriesContinuation, findSeriesPrevious } from '@/lib/content/series'
+import { requestWantsSaveData } from '@/lib/request/save-data'
 import { ArticleBody, CorrectionNotice, TagRow } from '@/components/article/ArticleBody'
 import { ArticleJsonLd } from '@/components/article/ArticleJsonLd'
 import { PaywallNotice } from '@/components/article/PaywallNotice'
@@ -18,7 +21,9 @@ import { DenseStoryItem } from '@/components/home/DenseStoryItem'
 import { AdSlot } from '@/components/AdSlot'
 import { CommentSection } from '@/components/article/CommentSection'
 import { SpeculationRules } from '@/components/SpeculationRules'
-import { SpeakableJsonLd } from '@/components/seo/Schema'
+import { BreadcrumbJsonLd, FaqJsonLd, HowToJsonLd, SpeakableJsonLd } from '@/components/seo/Schema'
+import { extractFaqPairs, extractHowTo } from '@/lib/seo/structured-content'
+import { collectThumbnailCandidates, pickShareImage } from '@/lib/seo/thumbnail-salience'
 import { DocumentLang } from '@/components/DocumentLang'
 import { PrintButton } from '@/components/article/PrintButton'
 import { ReactionBar } from '@/components/article/ReactionBar'
@@ -26,7 +31,14 @@ import { ShareBar } from '@/components/article/ShareBar'
 import { NextStoryNavigator } from '@/components/article/NextStoryNavigator'
 import { getSession } from '@/lib/auth/session'
 import { isPremiumSubscriber, isPublicMembershipEnabled } from '@/lib/membership'
-import { shouldShowPaywall } from '@/lib/paywall/decision'
+import { paywallReason, shouldShowPaywall } from '@/lib/paywall/decision'
+import {
+  articleMeterKey,
+  FREE_ARTICLE_METER_COOKIE,
+  FREE_ARTICLE_SESSION_LIMIT,
+  freeReadsRemainingFor,
+  parseMeter,
+} from '@/lib/free-article-meter'
 import { PUBLICATION, SITE_URL } from '@/lib/site'
 import { publicShareImageUrl } from '@/lib/seo/share-image'
 
@@ -83,9 +95,13 @@ export async function generateMetadata({
       ? article.seoDescriptionEn
       : article.seoDescriptionNe || (useEnglish ? article.deckEn : article.deckNe)
   const canonical = `${SITE_URL}${localizeHref(useEnglish ? 'en' : 'ne', `/${category}/${slug}`)}`
-  const shareImage = publicShareImageUrl(article.heroImage?.url, SITE_URL, {
-    width: article.heroImage?.width,
-    height: article.heroImage?.height,
+  // The hero is the usual answer but not always the right one: a story can have
+  // no hero and three photographs, or a hero that is an SVG chart the crawlers
+  // will not rasterise. Rank everything the story carries and share the best.
+  const bestThumbnail = pickShareImage(collectThumbnailCandidates(article))
+  const shareImage = publicShareImageUrl(bestThumbnail?.candidate.url, SITE_URL, {
+    width: bestThumbnail?.candidate.width,
+    height: bestThumbnail?.candidate.height,
   })
   const nePath = `/${category}/${slug}`
   const enPath = `/en/${category}/${slug}`
@@ -107,7 +123,7 @@ export async function generateMetadata({
       locale: useEnglish ? 'en_NP' : 'ne_NP',
       publishedTime: article.publishedAt,
       modifiedTime: article.updatedAt,
-      images: [{ url: shareImage, alt: article.heroImage?.alt || title }],
+      images: [{ url: shareImage, alt: bestThumbnail?.candidate.alt || title }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -143,15 +159,28 @@ export default async function ArticlePage({
   const membershipPublic = isPublicMembershipEnabled()
   const session = membershipPublic ? await getSession() : null
   const premiumReader = membershipPublic ? await isPremiumSubscriber(session) : false
-  // Option A: free-to-read. When membership is public, premium articles may soft-gate.
-  const canReadFull = membershipPublic
-    ? !shouldShowPaywall({
-        isMember: premiumReader,
-        freeRemaining: Infinity,
-        articlePremium: Boolean(article.premium),
-      })
-    : true
+  // Option A: free-to-read. When membership is public, premium articles hard-gate
+  // and everything else is metered. The meter is read from the session cookie
+  // `ReaderArticleControls` mirrors — `sessionStorage` alone would mean the body
+  // had already been streamed by the time anything could count it.
+  // `cookies()` is only touched inside this branch, so a site with membership off
+  // keeps rendering articles statically.
+  const freeRemaining = membershipPublic
+    ? freeReadsRemainingFor(
+        parseMeter((await cookies()).get(FREE_ARTICLE_METER_COOKIE)?.value),
+        articleMeterKey(category, slug),
+        FREE_ARTICLE_SESSION_LIMIT,
+      )
+    : Infinity
+  const paywall = {
+    isMember: premiumReader,
+    freeRemaining,
+    articlePremium: Boolean(article.premium),
+  }
+  const canReadFull = membershipPublic ? !shouldShowPaywall(paywall) : true
   const showAds = !article.adFree
+  // The route is force-dynamic, so reading the header costs nothing extra.
+  const saveData = requestWantsSaveData(await headers())
   const body = readingEnglish && article.bodyEn ? article.bodyEn : article.bodyNe
   const visibleBody = canReadFull ? body : previewBlocks(body)
   const [openingBody, remainingBody] = splitAfterParagraphs(visibleBody)
@@ -161,9 +190,18 @@ export default async function ArticlePage({
   const canonical = `${SITE_URL}${href}`
   const relatedPool = await getStories({ locale: readingLocale, limit: 40 })
   const related = relatedByContent(article, relatedPool.items, 5)
+  // A reader who has just finished part two wants part three, and the closest
+  // content match is usually part one again. Only overrides the navigator when
+  // the headline actually carries a part marker.
+  const seriesNext = findSeriesContinuation(article, relatedPool.items)
+  const seriesPrev = findSeriesPrevious(article, relatedPool.items)
   const relatedHrefs = related.map((story) =>
     localizeHref(readingLocale, `/${story.category.slug}/${story.slug}`),
   )
+  // Derived from `visibleBody`, not `body`: structured data has to describe what
+  // the page actually shows, and a paywalled story shows a preview.
+  const faqPairs = extractFaqPairs(visibleBody)
+  const howTo = extractHowTo(visibleBody)
 
   return (
     <article className="article-page pb-12 print:pb-0" lang={readingEnglish ? 'en' : 'ne'}>
@@ -177,6 +215,21 @@ export default async function ArticlePage({
         siteName={PUBLICATION.publisherName}
       />
       <SpeakableJsonLd url={canonical} cssSelectors={['article h1', 'article .article-deck']} />
+      <BreadcrumbJsonLd
+        locale={readingLocale}
+        crumbs={[
+          {
+            name:
+              readingEnglish && article.category.nameEn
+                ? article.category.nameEn
+                : article.category.nameNe,
+            path: localizeHref(readingLocale, `/${category}`),
+          },
+          { name: title, path: href },
+        ]}
+      />
+      <FaqJsonLd faqs={faqPairs} />
+      {howTo ? <HowToJsonLd name={howTo.name} steps={howTo.steps} url={canonical} /> : null}
 
       <div className="mx-auto max-w-page px-3 pt-5 sm:px-4 sm:pt-7">
         <header
@@ -210,7 +263,9 @@ export default async function ArticlePage({
           </div>
           <h1
             className={`mx-auto mt-4 max-w-[20ch] text-balance font-display text-[clamp(2.55rem,6vw,5rem)] font-black text-ink ${
-              readingEnglish ? 'leading-[1.03] tracking-[-0.035em]' : 'leading-[1.12] tracking-normal'
+              readingEnglish
+                ? 'leading-[1.03] tracking-[-0.035em]'
+                : 'leading-[1.12] tracking-normal'
             }`}
           >
             {title}
@@ -330,6 +385,7 @@ export default async function ArticlePage({
                 source={article.source}
                 className="mt-2"
                 suppressAds={!showAds}
+                saveData={saveData}
               />
               {showAds ? (
                 <AdSlot
@@ -345,6 +401,7 @@ export default async function ArticlePage({
                   locale={readingLocale}
                   className="mt-8"
                   suppressAds={!showAds}
+                  saveData={saveData}
                 />
               ) : null}
               <ReactionBar locale={readingLocale} articleSlug={slug} articleCategory={category} />
@@ -366,7 +423,13 @@ export default async function ArticlePage({
                   className="print:hidden"
                 />
               ) : null}
-              {membershipPublic && !canReadFull ? <PaywallNotice locale={readingLocale} /> : null}
+              {membershipPublic && !canReadFull ? (
+                <PaywallNotice
+                  locale={readingLocale}
+                  reason={paywallReason(paywall)}
+                  limit={FREE_ARTICLE_SESSION_LIMIT}
+                />
+              ) : null}
               {article.corrections?.length ? (
                 <CorrectionNotice
                   corrections={article.corrections}
@@ -398,8 +461,8 @@ export default async function ArticlePage({
                 className="mt-8 border-t border-rule pt-6"
               />
               <NextStoryNavigator
-                nextStory={related[0]}
-                prevStory={related[1]}
+                nextStory={seriesNext ?? related[0]}
+                prevStory={seriesPrev ?? related[1]}
                 locale={readingLocale}
               />
               <div className="print:hidden">

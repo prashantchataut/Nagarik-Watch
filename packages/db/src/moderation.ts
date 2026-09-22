@@ -94,7 +94,9 @@ export function spamScore(text: string): { score: number; flags: string[] } {
   const linkDensity = links / Math.max(1, len / 100)
   if (linkDensity > 0.5) flags.push('link_density')
 
-  const letters = text.replace(/[^A-Za-z\u0900-\u097F]/gu, '')
+  // `\p{Script=Devanagari}` rather than a \u0900-\u097F range: the range splits
+  // base letters from their matras, which makes the class match half a grapheme.
+  const letters = text.replace(/[^A-Za-z\p{Script=Devanagari}]/gu, '')
   const caps = (letters.match(/[A-Z]/g) ?? []).length
   const capsRatio = letters.length > 0 ? caps / letters.length : 0
   if (capsRatio > 0.6 && len > 20) flags.push('all_caps')

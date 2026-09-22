@@ -1,9 +1,21 @@
 'use client'
 
 import Script from 'next/script'
-import { useEffect, useState } from 'react'
+import { useClientValue } from '@/lib/browser/use-client-state'
 
 type Network = 'adsense' | 'gam' | ''
+
+/** Advertising consent as recorded in the `nw_consent` cookie. */
+function cookieAdConsent(): boolean {
+  try {
+    const match = document.cookie.match(/(?:^|; )nw_consent=([^;]+)/)
+    if (!match?.[1]) return false
+    const parsed = JSON.parse(decodeURIComponent(match[1])) as { advertising?: boolean }
+    return Boolean(parsed.advertising)
+  } catch {
+    return false
+  }
+}
 
 /**
  * Loads third-party ad scripts only when mode=network and the matching
@@ -20,18 +32,8 @@ export function NetworkAdScripts({
   adsenseClient?: string
   gamNetworkCode?: string
 }) {
-  const [consentAds, setConsentAds] = useState(false)
-
-  useEffect(() => {
-    try {
-      const match = document.cookie.match(/(?:^|; )nw_consent=([^;]+)/)
-      if (!match?.[1]) return
-      const parsed = JSON.parse(decodeURIComponent(match[1])) as { advertising?: boolean }
-      setConsentAds(Boolean(parsed.advertising))
-    } catch {
-      setConsentAds(false)
-    }
-  }, [])
+  // No consent in the prerender: third-party ad scripts never ship in static HTML.
+  const consentAds = useClientValue(cookieAdConsent, false)
 
   if (mode !== 'network' || !consentAds) return null
 

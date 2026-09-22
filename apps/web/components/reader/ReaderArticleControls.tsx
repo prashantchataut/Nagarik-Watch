@@ -21,10 +21,18 @@ import {
   trackExperimentConversion,
 } from '@/components/experiments/ExperimentExposure'
 import { rafThrottle } from '@/lib/browser/raf-throttle'
-import { addArticleToSessionMeter, FREE_ARTICLE_METER_KEY } from '@/lib/free-article-meter'
+import {
+  addArticleToSessionMeter,
+  articleMeterKey,
+  FREE_ARTICLE_METER_COOKIE,
+  FREE_ARTICLE_METER_KEY,
+  serializeMeter,
+} from '@/lib/free-article-meter'
 import { canShowWeeklyFeedback } from '@/lib/reader/retention'
 import { ArticleToolsMenu } from '@/components/article/ArticleToolsMenu'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
+import { useClientValue, useHydrated } from '@/lib/browser/use-client-state'
+import { useKeyedState } from '@/lib/react/use-keyed-state'
 
 type ReaderArticleControlsProps = {
   story: StoryCardData
@@ -55,9 +63,7 @@ export function ReaderArticleControls({
   const [readingMode, setReadingMode] = useState(false)
   const [scrollDepth, setScrollDepth] = useState(0)
   const [personalized, setPersonalized] = useState(false)
-  const [speechSupported, setSpeechSupported] = useState(false)
   const [speaking, setSpeaking] = useState(false)
-  const [speechHint, setSpeechHint] = useState<string | null>(null)
   const [historySyncFailed, setHistorySyncFailed] = useState(false)
   const [meter, setMeter] = useState<{ count: number; limit: number } | null>(null)
   const [showFeedback, setShowFeedback] = useState(false)
@@ -69,25 +75,34 @@ export function ReaderArticleControls({
   const english = locale === 'en'
   const lang = english ? 'en' : 'ne'
 
-  useEffect(() => {
-    const supported =
-      typeof window !== 'undefined' &&
-      'speechSynthesis' in window &&
-      'SpeechSynthesisUtterance' in window
-    setSpeechSupported(supported)
-    if (!supported) {
-      setSpeechHint(
-        english
-          ? 'Listen is not available in this browser.'
-          : 'यो ब्राउजरमा सुन्ने सुविधा उपलब्ध छैन।',
-      )
-    }
-    return () => {
+  // Feature detection is a read, not an effect: `useClientValue` serves the
+  // server default through hydration and the real answer from the browser
+  // onward, so the hint never flashes on markup the server could not check.
+  const hydrated = useHydrated()
+  const speechSupported = useClientValue(
+    () => 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window,
+    false,
+  )
+  // The hint starts as the unsupported notice when detection says so, and the
+  // narrator overwrites it with voice-specific messages while it runs. Keying
+  // it on the detection result restores the notice if anything changes.
+  const [speechHint, setSpeechHint] = useKeyedState<string | null>(
+    `${hydrated}:${speechSupported}:${english}`,
+    hydrated && !speechSupported
+      ? english
+        ? 'Listen is not available in this browser.'
+        : 'यो ब्राउजरमा सुन्ने सुविधा उपलब्ध छैन।'
+      : null,
+  )
+
+  useEffect(
+    () => () => {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel()
       }
-    }
-  }, [english])
+    },
+    [],
+  )
 
   useEffect(() => {
     document.documentElement.classList.toggle('reader-focus-mode', readingMode)
@@ -98,21 +113,34 @@ export function ReaderArticleControls({
     }
   }, [readingMode])
 
+  // The meter has to be written before it can be reported: this effect adds the
+  // current article to the session set, then records the resulting count. That
+  // write cannot move into render, so the setState stays here deliberately.
   useEffect(() => {
     if (!membershipPublic || premiumReader) return
     const next = addArticleToSessionMeter(
       sessionStorage.getItem(FREE_ARTICLE_METER_KEY),
-      `${story.category.slug}:${story.slug}`,
+      articleMeterKey(story.category.slug, story.slug),
     )
     sessionStorage.setItem(FREE_ARTICLE_METER_KEY, JSON.stringify(next.articles))
+    // Mirror it into a session cookie: the gate itself runs on the server, and
+    // `sessionStorage` is not something the server can read.
+    document.cookie = `${FREE_ARTICLE_METER_COOKIE}=${encodeURIComponent(
+      serializeMeter(next.articles),
+    )}; Path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reports the result of the write above
     setMeter({ count: next.count, limit: next.limit })
   }, [membershipPublic, premiumReader, story.category.slug, story.slug])
 
+  // Same shape: the weekly gate is claimed by stamping localStorage, and the
+  // prompt opens only if this render won the claim. Deriving it during render
+  // would either re-stamp on every scroll tick or show the prompt twice.
   useEffect(() => {
     if (scrollDepth < 92) return
     const key = 'nw:reader-feedback:last-shown'
     if (!canShowWeeklyFeedback(localStorage.getItem(key))) return
     localStorage.setItem(key, new Date().toISOString())
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- opens the prompt only for the render that claimed the slot
     setShowFeedback(true)
   }, [scrollDepth])
 

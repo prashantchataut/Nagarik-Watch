@@ -10,6 +10,7 @@ import {
   toIso,
   type Queryable,
 } from '@/lib/ops-db'
+import { dataPath } from '@/lib/fs/data-path'
 
 export type LiveBlogStatus = 'scheduled' | 'live' | 'closed'
 
@@ -68,8 +69,7 @@ type LocalStore = {
   updates: LiveBlogUpdateRecord[]
 }
 
-const LOCAL_STORE_PATH =
-  process.env.LIVE_BLOG_STORE_PATH ?? path.join(process.cwd(), '.data', 'live-blogs.json')
+const LOCAL_STORE_PATH = dataPath(process.env.LIVE_BLOG_STORE_PATH, 'live-blogs.json')
 let localWriteQueue = Promise.resolve()
 
 function isProductionRuntime(): boolean {

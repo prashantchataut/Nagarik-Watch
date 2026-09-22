@@ -7,11 +7,14 @@ import {
   moderateComment,
   rankComment,
   reputationScore,
+  trollRiskScore,
   type EngagementSample,
 } from '@nagarikwatch/db'
 import { getSharedPool } from '@/lib/pg-pool'
 import { shouldApplyLivePathDdl } from '@/lib/ops-db'
 import { getRankingShareSamples, getRankingAttentionSamples } from '@/lib/engagement/ranking-events'
+import { triageComment, type CommentStatus } from '@/lib/engagement/comment-triage'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 type BookmarkInput = {
   anonymousId: string
@@ -64,7 +67,7 @@ export type ReadingHistoryItem = {
   readAt: string
 }
 
-export type CommentStatus = 'pending' | 'approved' | 'rejected' | 'flagged'
+export type { CommentStatus } from '@/lib/engagement/comment-triage'
 export type ModerationComment = CommentInput & {
   id: string
   status: CommentStatus
@@ -414,29 +417,46 @@ export async function getBookmarks(anonymousId: string, userId?: string) {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
-async function commentAuthorReputation(
+/**
+ * What this commenter has done before, and how fast they are going right now.
+ *
+ * The approve/reject split feeds `reputationScore`; the ten-minute count feeds
+ * `trollRiskScore`, which is the only signal here that catches a clean-looking
+ * flood — a burst of individually polite comments reads as fine one at a time.
+ * An anonymous commenter has no history, so they get the neutral 0.5 and a
+ * zero burst rather than an invented one.
+ */
+type CommentAuthorHistory = { approved: number; rejected: number; recentTenMinutes: number }
+
+async function commentAuthorHistory(
   input: Pick<CommentInput, 'authorUserId' | 'authorEmail'>,
   database: Pool | null,
-): Promise<number> {
+): Promise<CommentAuthorHistory | null> {
   const userId = input.authorUserId?.trim() ?? ''
   const email = input.authorEmail?.trim().toLowerCase() ?? ''
-  if (!userId && !email) return 0.5
+  if (!userId && !email) return null
 
   if (database) {
     const result = await database.query<{
       approved: number | string
       rejected: number | string
+      recent: number | string
     }>(
       `SELECT
          COUNT(*) FILTER (WHERE status='approved')::int AS approved,
-         COUNT(*) FILTER (WHERE status IN ('rejected','flagged'))::int AS rejected
+         COUNT(*) FILTER (WHERE status IN ('rejected','flagged'))::int AS rejected,
+         COUNT(*) FILTER (WHERE created_at > now() - interval '10 minutes')::int AS recent
        FROM nw_comments
        WHERE ($1 <> '' AND author_user_id=$1)
           OR ($1 = '' AND $2 <> '' AND LOWER(author_email)=LOWER($2))`,
       [userId, email],
     )
     const row = result.rows[0]
-    return reputationScore(Number(row?.approved ?? 0), Number(row?.rejected ?? 0))
+    return {
+      approved: Number(row?.approved ?? 0),
+      rejected: Number(row?.rejected ?? 0),
+      recentTenMinutes: Number(row?.recent ?? 0),
+    }
   }
 
   const comments = (await readLocal()).comments.filter((comment) =>
@@ -444,28 +464,45 @@ async function commentAuthorReputation(
       ? comment.authorUserId === userId
       : Boolean(email && comment.authorEmail?.toLowerCase() === email),
   )
-  const approved = comments.filter((comment) => comment.status === 'approved').length
-  const rejected = comments.filter(
-    (comment) => comment.status === 'rejected' || comment.status === 'flagged',
-  ).length
-  return reputationScore(approved, rejected)
+  const since = Date.now() - 600_000
+  return {
+    approved: comments.filter((comment) => comment.status === 'approved').length,
+    rejected: comments.filter(
+      (comment) => comment.status === 'rejected' || comment.status === 'flagged',
+    ).length,
+    recentTenMinutes: comments.filter((comment) => Date.parse(comment.createdAt) >= since).length,
+  }
 }
 
 export async function createComment(input: CommentInput): Promise<ModerationComment> {
   const id = randomUUID()
   const database = await getPool()
   if (database) await ensureSchema()
-  const reputation = await commentAuthorReputation(input, database)
+  const history = await commentAuthorHistory(input, database)
+  const reputation = history ? reputationScore(history.approved, history.rejected) : 0.5
   const moderation = moderateComment({ id, body: input.bodyNe }, reputation, await bannedWordList())
-  const status = statusFromModeration(moderation.verdict)
+  // Text-level moderation reads one comment at a time and so cannot see a
+  // flood. Troll risk can: reject history, link density and a ten-minute
+  // burst. A high score does not reject anything — it moves the comment from
+  // the ordinary pending queue to flagged, where the moderation desk sorts it
+  // first. Text-level auto_reject / auto_hide decisions still win.
+  const troll = history
+    ? trollRiskScore({
+        approvedComments: history.approved,
+        rejectedComments: history.rejected,
+        commentsLastTenMinutes: history.recentTenMinutes,
+        text: input.bodyNe,
+      })
+    : null
+  const triage = triageComment(statusFromModeration(moderation.verdict), moderation.flags, troll)
   const item: ModerationComment = {
     id,
     ...input,
-    status,
+    status: triage.status,
     createdAt: new Date().toISOString(),
     toxicityScore: moderation.toxicityScore,
     spamScore: moderation.spamScore,
-    moderationFlags: moderation.flags,
+    moderationFlags: triage.flags,
     moderationVerdict: moderation.verdict,
     reputationUsed: moderation.reputationUsed,
   }
@@ -489,7 +526,7 @@ export async function createComment(input: CommentInput): Promise<ModerationComm
         status,
         moderation.toxicityScore,
         moderation.spamScore,
-        moderation.flags,
+        item.moderationFlags,
         moderation.verdict,
         moderation.reputationUsed,
       ],
@@ -1141,7 +1178,7 @@ export async function getBookmarkVelocityStats(
 }
 
 /** Recent reader activity shaped for the shared trending detector. No identity leaves the store. */
-export async function getTrendingSamples(windowMinutes = 120): Promise<EngagementSample[]> {
+async function loadTrendingSamples(windowMinutes = 120): Promise<EngagementSample[]> {
   const cutoff = new Date(Date.now() - Math.max(15, windowMinutes) * 60_000)
   const cutoffIso = cutoff.toISOString()
   const database = await getPool()
@@ -1293,19 +1330,19 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
       comments: 0,
       bookmarks: 1,
     }))
-  const shares: EngagementSample[] = (
-    await getRankingShareSamples(windowMinutes).catch(() => [])
-  ).map((item) => ({
-    articleId: item.articleSlug,
-    categorySlug: item.articleCategory,
-    at: item.at,
-    views: 0,
-    shares: 1,
-    comments: 0,
-    bookmarks: 0,
-  }))
+  const shares: EngagementSample[] = (await orEmpty(getRankingShareSamples(windowMinutes))).map(
+    (item) => ({
+      articleId: item.articleSlug,
+      categorySlug: item.articleCategory,
+      at: item.at,
+      views: 0,
+      shares: 1,
+      comments: 0,
+      bookmarks: 0,
+    }),
+  )
   const attention: EngagementSample[] = (
-    await getRankingAttentionSamples(windowMinutes).catch(() => [])
+    await orEmpty(getRankingAttentionSamples(windowMinutes))
   ).map((item) => ({
     articleId: item.articleSlug,
     categorySlug: item.articleCategory,
@@ -1316,4 +1353,49 @@ export async function getTrendingSamples(windowMinutes = 120): Promise<Engagemen
     bookmarks: 0,
   }))
   return [...readings, ...comments, ...bookmarks, ...shares, ...attention]
+}
+
+/**
+ * Trending samples are five table scans over the engagement window, and a
+ * single homepage render asks for them from two places (the engagement index
+ * and the trending rail) while /trending and /most-read ask again. Memoize per
+ * window for a slice of the 60s page revalidate, and collapse concurrent
+ * callers onto one query so a cold cache does not fan out.
+ *
+ * Stale samples move a velocity score by a few seconds of reads; a duplicated
+ * table scan per request costs a lot more than that is worth.
+ */
+const TRENDING_SAMPLE_TTL_MS = 30_000
+const trendingSampleCache = new Map<number, { at: number; value: EngagementSample[] }>()
+const trendingSampleInFlight = new Map<number, Promise<EngagementSample[]>>()
+
+export async function getTrendingSamples(windowMinutes = 120): Promise<EngagementSample[]> {
+  const cached = trendingSampleCache.get(windowMinutes)
+  if (cached && Date.now() - cached.at < TRENDING_SAMPLE_TTL_MS) return cached.value
+
+  const pending = trendingSampleInFlight.get(windowMinutes)
+  if (pending) return pending
+
+  const request = loadTrendingSamples(windowMinutes)
+    .then((value) => {
+      trendingSampleCache.set(windowMinutes, { at: Date.now(), value })
+      return value
+    })
+    .catch((error) => {
+      // Serve the last good window rather than blanking every trending surface.
+      console.error('[trending] sample load failed', error instanceof Error ? error.message : error)
+      return cached?.value ?? []
+    })
+    .finally(() => {
+      trendingSampleInFlight.delete(windowMinutes)
+    })
+
+  trendingSampleInFlight.set(windowMinutes, request)
+  return request
+}
+
+/** Test seam — drops the memo so a suite can observe a fresh query. */
+export function resetTrendingSampleCache(): void {
+  trendingSampleCache.clear()
+  trendingSampleInFlight.clear()
 }

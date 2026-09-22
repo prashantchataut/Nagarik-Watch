@@ -10,6 +10,7 @@ import {
 } from '@/lib/reader/state'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
+import { useClientState } from '@/lib/browser/use-client-state'
 
 type BookmarkStory = Pick<StoryCardData, 'id' | 'slug' | 'category' | 'titleNe'> &
   Partial<StoryCardData>
@@ -23,15 +24,19 @@ export function BookmarkButton({
   locale: Locale
   variant?: 'icon' | 'pill'
 }) {
-  const [bookmarked, setBookmarked] = useState(false)
+  // The device list answers instantly; the account list can only confirm.
+  const [bookmarked, setBookmarked] = useClientState(
+    () =>
+      safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY)).some(
+        (record) => record.articleId === story.id || record.story.slug === story.slug,
+      ),
+    false,
+    [story.id, story.slug],
+  )
   const [pending, startTransition] = useTransition()
   const [syncError, setSyncError] = useState(false)
 
   useEffect(() => {
-    const local = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))
-    setBookmarked(
-      local.some((record) => record.articleId === story.id || record.story.slug === story.slug),
-    )
     if (!hasLivePublicApi()) return
     const fp = getOrCreateReaderId()
     if (!fp) return
@@ -54,7 +59,11 @@ export function BookmarkButton({
         setSyncError(true)
         void error
       })
-  }, [story.id, story.slug])
+    // `story` is read inside the promise chain but only ever by slug/id, which
+    // are both listed; depending on the object itself would refetch on every
+    // parent render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed by story.id/story.slug on purpose
+  }, [story.id, story.slug, setBookmarked])
 
   function persistLocal(nextBookmarked: boolean) {
     const records = safeParseArray<BookmarkRecord>(localStorage.getItem(READER_BOOKMARKS_KEY))

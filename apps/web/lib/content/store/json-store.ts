@@ -7,7 +7,7 @@
 import 'server-only'
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
-import type { ArticleBlock, Locale, WorkflowStage } from '@nagarikwatch/db'
+import type { ArticleBlock, CorrectionSeverity, Locale, WorkflowStage } from '@nagarikwatch/db'
 import { resolveDatabaseUrl } from '@/lib/db-url'
 import {
   ensureOperationalSchema,
@@ -90,12 +90,25 @@ export type StoredArticle = {
   editorPick?: boolean
   dataStory?: boolean
   factCheckStatus?:
-    | 'not_fact_check'
-    | 'in_review'
-    | 'verified'
-    | 'false'
-    | 'mixed'
-    | 'context_needed'
+    'not_fact_check' | 'in_review' | 'verified' | 'false' | 'mixed' | 'context_needed'
+  /** Reader-visible, dated corrections. Append-only; see `appendCorrection`. */
+  corrections?: StoredCorrection[]
+}
+
+/**
+ * One issued correction. Wider than the public `Correction` type by two fields
+ * the reader never sees: who signed it, and how it was classified, which is
+ * what lets the desk answer "are we mostly fixing typos or mostly fixing
+ * facts" without re-reading every note.
+ */
+export type StoredCorrection = {
+  at: string
+  summaryNe: string
+  summaryEn?: string
+  severity: CorrectionSeverity
+  issuedBy: string
+  /** Submission id, when the correction answers a reader request. */
+  requestId?: string
 }
 
 /** ADR-007: public English only when englishStatus is published (never titleEn presence alone). */
@@ -631,10 +644,10 @@ export async function getHomepageData(): Promise<{
     published.find((a) => a.isFeatured === 'lead' && placementActive(a)) ?? published[0] ?? null
   const leadId = lead?.id
 
-  let featured = published
+  const featured = published
     .filter((a) => a.isFeatured === 'featured' && a.id !== leadId && placementActive(a))
     .slice(0, 6)
-  let secondary = published
+  const secondary = published
     .filter((a) => a.isFeatured === 'secondary' && a.id !== leadId && placementActive(a))
     .slice(0, 8)
 
@@ -938,6 +951,61 @@ export async function updateArticle(
       })
     }
 
+    return updated
+  })
+}
+
+/** Longest a correction note may be. A correction is a sentence, not a rewrite. */
+const MAX_CORRECTION_CHARS = 500
+
+/**
+ * Append a correction to a published article.
+ *
+ * Deliberately not a `updateArticle` patch. Corrections are append-only — an
+ * editor must not be able to quietly rewrite last week's correction, because
+ * the whole value of the notice is that the reader can trust it was not
+ * edited after the fact. Running inside `withArticleMutation` means two
+ * editors filing at once cannot lose one of the two.
+ *
+ * The stage moves to `updated` so the article carries a visible "updated"
+ * state, and `publishedAt` is left alone: a correction is not a republication
+ * and must not re-enter the Google News window.
+ */
+export async function appendCorrection(
+  id: string,
+  correction: Omit<StoredCorrection, 'at'> & { at?: string },
+): Promise<StoredArticle | null> {
+  const summaryNe = correction.summaryNe.trim()
+  if (!summaryNe) throw new Error('सच्याइएको विवरण खाली हुन सक्दैन।')
+  if (summaryNe.length > MAX_CORRECTION_CHARS) {
+    throw new Error(`सच्याइएको विवरण ${MAX_CORRECTION_CHARS} अक्षरभन्दा छोटो हुनुपर्छ।`)
+  }
+  return withArticleMutation(async () => {
+    const store = await read()
+    const idx = store.articles.findIndex((a) => a.id === id)
+    if (idx === -1) return null
+    const existing = store.articles[idx]!
+    if (!isPublicWorkflowStage(existing.workflowStage)) {
+      throw new Error('अप्रकाशित लेखमा सच्याइएको विवरण थप्न मिल्दैन।')
+    }
+    const entry: StoredCorrection = {
+      at: correction.at ?? now(),
+      summaryNe,
+      summaryEn: correction.summaryEn?.trim() || undefined,
+      severity: correction.severity,
+      issuedBy: correction.issuedBy,
+      requestId: correction.requestId,
+    }
+    const updated: StoredArticle = {
+      ...existing,
+      corrections: [...(existing.corrections ?? []), entry],
+      workflowStage: 'updated',
+      updatedAt: entry.at,
+      updatedBy: correction.issuedBy,
+    }
+    const articles = [...store.articles]
+    articles[idx] = updated
+    await writeUnlocked({ ...store, articles }, { type: 'upsert', article: updated })
     return updated
   })
 }

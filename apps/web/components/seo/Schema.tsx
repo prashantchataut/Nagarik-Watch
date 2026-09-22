@@ -66,25 +66,46 @@ export function SpeakableJsonLd({
 }
 
 /**
- * FAQ JSON-LD. For pages that surface a Q&A block (fact-check methodology,
- * about, contact, election process). Pairs with visible FAQ markup so the Q&A
- * is both human- and machine-readable. Eligible for rich results + AI answers.
+ * FAQ JSON-LD. The question and answer text must be the text the page already
+ * shows — `lib/seo/structured-content.ts` derives it from the body blocks being
+ * rendered, so the markup and the visible page cannot drift apart. Renders
+ * nothing when there are no pairs: an empty FAQPage is invalid.
  */
-export function FaqJsonLd({
-  faqs,
-}: {
-  faqs: { questionNe: string; answerNe: string; questionEn?: string; answerEn?: string }[]
-}) {
+export function FaqJsonLd({ faqs }: { faqs: { question: string; answer: string }[] }) {
+  if (faqs.length === 0) return null
   const json = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: faqs.map((f) => ({
       '@type': 'Question',
-      name: f.questionNe,
+      name: f.question,
       acceptedAnswer: {
         '@type': 'Answer',
-        text: f.answerNe,
+        text: f.answer,
       },
+    })),
+  }
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }} />
+  )
+}
+
+/**
+ * HowTo JSON-LD, for an article that walks a reader through a procedure —
+ * registering to vote, filing a right-to-information request. Same rule as the
+ * FAQ above: the steps come from the ordered list the page renders.
+ */
+export function HowToJsonLd({ name, steps, url }: { name: string; steps: string[]; url: string }) {
+  if (steps.length === 0) return null
+  const json = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name,
+    url,
+    step: steps.map((text, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      text,
     })),
   }
   return (

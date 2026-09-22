@@ -11,6 +11,7 @@ import {
   AdminTable,
 } from '@/components/admin/primitives'
 import { JournalistFeedbackActions } from '@/components/admin/JournalistFeedbackActions'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export const metadata: Metadata = {
   title: 'पत्रकार',
@@ -21,7 +22,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdminJournalistsPage() {
   await requireNewsroomSession()
-  const drafts = await listJournalistDraftMeta().catch(() => [])
+  const drafts = await orEmpty(listJournalistDraftMeta())
   const byReporter = new Map<string, number>()
   for (const draft of drafts)
     byReporter.set(draft.reporterId, (byReporter.get(draft.reporterId) ?? 0) + 1)

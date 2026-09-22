@@ -18,6 +18,13 @@ type ArticleBodyProps = {
   className?: string
   /** When true, skip injected and body adSlot blocks (sensitive / adFree articles). */
   suppressAds?: boolean
+  /**
+   * Reader asked for reduced data (`Save-Data: on`). Third-party embeds become
+   * a link-out card instead of an iframe — a YouTube player is a megabyte of
+   * script before anyone presses play, and on a metered Nepali connection that
+   * is the reader's money.
+   */
+  saveData?: boolean
 }
 
 /** Paragraph index after which the in-article ad slot is injected. */
@@ -37,6 +44,7 @@ export function ArticleBody({
   source,
   className,
   suppressAds = false,
+  saveData = false,
 }: ArticleBodyProps) {
   let paragraphCount = 0
   let adInjected = false
@@ -45,7 +53,13 @@ export function ArticleBody({
 
   blocks.forEach((block, i) => {
     out.push(
-      <BlockRenderer key={`b-${i}`} block={block} locale={locale} suppressAds={suppressAds} />,
+      <BlockRenderer
+        key={`b-${i}`}
+        block={block}
+        locale={locale}
+        suppressAds={suppressAds}
+        saveData={saveData}
+      />,
     )
     if (!suppressAds && block.type === 'paragraph') {
       paragraphCount += 1
@@ -110,10 +124,12 @@ function BlockRenderer({
   block,
   locale,
   suppressAds = false,
+  saveData = false,
 }: {
   block: ArticleBlock
   locale: Locale
   suppressAds?: boolean
+  saveData?: boolean
 }) {
   const lang = locale === 'en' ? 'en' : 'ne'
   switch (block.type) {
@@ -182,7 +198,7 @@ function BlockRenderer({
     }
 
     case 'embed':
-      return <Embed block={block} locale={locale} />
+      return <Embed block={block} locale={locale} saveData={saveData} />
 
     case 'list': {
       const items = block.items.map((it, idx) => (
@@ -216,15 +232,46 @@ function BlockRenderer({
 function Embed({
   block,
   locale,
+  saveData = false,
 }: {
   block: Extract<ArticleBlock, { type: 'embed' }>
   locale: Locale
+  saveData?: boolean
 }) {
   const lang = locale === 'en' ? 'en' : 'ne'
   const embedUrl = safeEmbedUrl(block.provider, block.url)
   if (!embedUrl) return null
   const isYouTube = block.provider === 'youtube'
   const title = block.caption ?? (isYouTube ? 'YouTube video' : 'Embedded media')
+  if (saveData) {
+    // Same slot, same aspect ratio, so the page does not shift when a reader
+    // with the preference off sees the player instead. The link opens the
+    // provider directly: the choice to spend the data stays with the reader.
+    return (
+      <figure className="my-2">
+        <a
+          href={block.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex aspect-video flex-col items-center justify-center gap-2 border border-rule bg-brand-tint px-4 text-center transition hover:border-brand"
+        >
+          <span className="text-body font-semibold text-ink" lang={lang}>
+            {title}
+          </span>
+          <span className="text-caption text-ink-soft" lang={lang}>
+            {locale === 'en'
+              ? 'Embed not loaded (data saver on). Open it at the source.'
+              : 'डाटा बचत सक्रिय छ, भिडियो लोड गरिएको छैन। स्रोतमा खोल्नुहोस्।'}
+          </span>
+        </a>
+        {block.caption && (
+          <figcaption className="mt-2 text-caption text-ink-soft" lang={lang}>
+            {block.caption}
+          </figcaption>
+        )}
+      </figure>
+    )
+  }
   return (
     <figure className="my-2">
       <div className="relative aspect-video overflow-hidden border border-rule">

@@ -1,5 +1,7 @@
 import type { StoryCardData } from '@nagarikwatch/db'
 import { wilsonScore } from '@nagarikwatch/db'
+import { stemToken } from './nlp/stemmer'
+import { editorialTrustScore } from './editorial/trust-score'
 
 export { wilsonScore }
 
@@ -233,16 +235,19 @@ export function rankStories<T extends StoryCardData>(
 }
 
 /**
- * Soft diversity pass: penalize long same-category streaks so hubs do not
- * stack five politics stories in a row. Editorial CMS homepage order is
- * unchanged — this applies to algorithmic hub ranking only.
+ * Greedy same-category spacing, order-preserving otherwise.
+ *
+ * Takes the list as given and only moves an item forward when the run of
+ * consecutive stories from one desk would exceed `maxSameCategoryStreak`.
+ * Anything with a `category.slug` works, so the homepage can use it to pick a
+ * rail without dragging in ranking signals it does not compute.
  */
-export function applyHomepageSlotDiversity<T extends RankedStory>(
-  ranked: T[],
+export function spaceOutCategories<T extends { category: { slug: string } }>(
+  items: T[],
   maxSameCategoryStreak = 2,
 ): T[] {
-  if (ranked.length <= 2) return ranked
-  const remaining = [...ranked]
+  if (items.length <= 2) return items
+  const remaining = [...items]
   const ordered: T[] = []
   let streakCategory = ''
   let streak = 0
@@ -250,7 +255,7 @@ export function applyHomepageSlotDiversity<T extends RankedStory>(
   while (remaining.length > 0) {
     let pickIndex = 0
     if (streak >= maxSameCategoryStreak) {
-      const alt = remaining.findIndex((story) => story.category.slug !== streakCategory)
+      const alt = remaining.findIndex((item) => item.category.slug !== streakCategory)
       if (alt >= 0) pickIndex = alt
     }
     const [picked] = remaining.splice(pickIndex, 1)
@@ -260,23 +265,166 @@ export function applyHomepageSlotDiversity<T extends RankedStory>(
       streakCategory = picked.category.slug
       streak = 1
     }
-    const diversityBoost = streak <= maxSameCategoryStreak ? 1 : Math.max(0, 1 - streak / 5)
-    ordered.push({
-      ...picked,
-      rankSignals: { ...picked.rankSignals, diversityBoost },
-    })
+    ordered.push(picked)
   }
   return ordered
 }
 
+/**
+ * Soft diversity pass: penalize long same-category streaks so hubs do not
+ * stack five politics stories in a row. Editorial CMS homepage order is
+ * unchanged — this applies to algorithmic hub ranking only.
+ */
+export function applyHomepageSlotDiversity<T extends RankedStory>(
+  ranked: T[],
+  maxSameCategoryStreak = 2,
+): T[] {
+  if (ranked.length <= 2) return ranked
+  let streakCategory = ''
+  let streak = 0
+
+  return spaceOutCategories(ranked, maxSameCategoryStreak).map((story) => {
+    if (story.category.slug === streakCategory) streak += 1
+    else {
+      streakCategory = story.category.slug
+      streak = 1
+    }
+    const diversityBoost = streak <= maxSameCategoryStreak ? 1 : Math.max(0, 1 - streak / 5)
+    return { ...story, rankSignals: { ...story.rankSignals, diversityBoost } }
+  })
+}
+
+/**
+ * Stemmed content terms for similarity.
+ *
+ * The previous version lowercased, split, and kept tokens longer than three
+ * characters. That discarded short Nepali content words (कर, वन, ऋण) while
+ * keeping long function words, and — because nothing was stemmed — treated
+ * बजेटमा and बजेटको as unrelated. Both sides run through the same stemmer the
+ * search index uses, so "related" and "search" agree on what a word is.
+ */
 function textTerms(story: StoryCardData): Set<string> {
-  return new Set(
-    `${story.titleNe} ${story.titleEn ?? ''} ${story.deckNe ?? ''} ${story.deckEn ?? ''}`
-      .toLowerCase()
-      .split(/[\s\u0964\u0965,.!?;:()"']+|\|/u)
-      .map((term) => term.trim())
-      .filter((term) => term.length > 3),
-  )
+  const text = `${story.titleNe} ${story.titleEn ?? ''} ${story.deckNe ?? ''} ${story.deckEn ?? ''}`
+  const terms = new Set<string>()
+  for (const raw of text.toLowerCase().split(/[\s\u0964\u0965,.!?;:()"']+|\|/u)) {
+    const token = raw.trim()
+    if (token.length < 2) continue
+    const stem = stemToken(token)
+    if (stem.length >= 2) terms.add(stem)
+  }
+  return terms
+}
+
+/**
+ * Inverse document frequency over the candidate pool.
+ *
+ * Without it every shared word counts the same, so नेपाल — which appears in a
+ * large share of Nepali headlines — carries as much similarity as भूकम्प. That
+ * is the difference between "related stories" and "other stories".
+ */
+function inverseDocumentFrequency(termSets: Array<Set<string>>): Map<string, number> {
+  const documentFrequency = new Map<string, number>()
+  for (const terms of termSets) {
+    for (const term of terms) {
+      documentFrequency.set(term, (documentFrequency.get(term) ?? 0) + 1)
+    }
+  }
+  const total = Math.max(1, termSets.length)
+  const idf = new Map<string, number>()
+  for (const [term, frequency] of documentFrequency) {
+    idf.set(term, Math.log(1 + total / frequency))
+  }
+  return idf
+}
+
+/** IDF-weighted overlap, normalised so long stories cannot win on length alone. */
+function weightedSimilarity(
+  source: Set<string>,
+  candidate: Set<string>,
+  idf: Map<string, number>,
+): number {
+  let shared = 0
+  for (const term of candidate) {
+    if (source.has(term)) shared += idf.get(term) ?? 0
+  }
+  if (shared === 0) return 0
+  let sourceMass = 0
+  for (const term of source) sourceMass += idf.get(term) ?? 0
+  let candidateMass = 0
+  for (const term of candidate) candidateMass += idf.get(term) ?? 0
+  const denominator = Math.sqrt(Math.max(1e-9, sourceMass * candidateMass))
+  return Math.min(1, shared / denominator)
+}
+
+/** Share of the source story's tags the candidate also carries. */
+function tagOverlap(source: StoryCardData, candidate: StoryCardData): number {
+  const sourceTags = new Set((source.tags ?? []).map((tag) => tag.slug))
+  if (sourceTags.size === 0) return 0
+  const candidateTags = candidate.tags ?? []
+  if (candidateTags.length === 0) return 0
+  let shared = 0
+  for (const tag of candidateTags) if (sourceTags.has(tag.slug)) shared += 1
+  return Math.min(1, shared / sourceTags.size)
+}
+
+/** No more than this many related picks may come from the source's own desk. */
+export const RELATED_SAME_CATEGORY_CAP = 3
+/** Two picks this alike are the same story told twice. */
+export const RELATED_REDUNDANCY_CEILING = 0.68
+
+/**
+ * Stop the related rail from becoming a corridor.
+ *
+ * Ranking by similarity alone converges: the six most similar stories to a
+ * budget story are six budget stories, often the same development filed on six
+ * days, and a reader who follows them reaches the end of the thread without
+ * ever being offered a way out of it. This keeps the ordering the ranker chose
+ * but caps how much of the rail one desk may hold and drops a pick that is
+ * mostly a repeat of one already taken — then backfills from what it skipped,
+ * so a thin pool still fills the rail rather than returning three items.
+ *
+ * Similarity here is measured candidate-to-candidate, not candidate-to-source:
+ * the source is what they are all supposed to resemble.
+ */
+export function limitRelatedDepth<T extends StoryCardData>(
+  source: StoryCardData,
+  ranked: T[],
+  limit: number,
+): T[] {
+  const terms = new Map(ranked.map((candidate) => [candidate.slug, textTerms(candidate)]))
+  const idf = inverseDocumentFrequency([...terms.values()])
+  const picked: T[] = []
+  const deferred: T[] = []
+  let sameCategory = 0
+
+  for (const candidate of ranked) {
+    if (picked.length >= limit) break
+    const isSameDesk = candidate.category.slug === source.category.slug
+    if (isSameDesk && sameCategory >= RELATED_SAME_CATEGORY_CAP) {
+      deferred.push(candidate)
+      continue
+    }
+    const candidateTerms = terms.get(candidate.slug) ?? new Set<string>()
+    const redundant = picked.some(
+      (chosen) =>
+        weightedSimilarity(terms.get(chosen.slug) ?? new Set(), candidateTerms, idf) >=
+        RELATED_REDUNDANCY_CEILING,
+    )
+    if (redundant) {
+      deferred.push(candidate)
+      continue
+    }
+    picked.push(candidate)
+    if (isSameDesk) sameCategory += 1
+  }
+
+  // A rail with three slots empty is a worse answer than one with a near-repeat
+  // in slot five, so the skipped candidates come back in their original order.
+  for (const candidate of deferred) {
+    if (picked.length >= limit) break
+    picked.push(candidate)
+  }
+  return picked
 }
 
 export function relatedByContent(
@@ -284,31 +432,35 @@ export function relatedByContent(
   candidates: StoryCardData[],
   limit = 6,
 ): StoryCardData[] {
+  const pool = candidates.filter((candidate) => candidate.slug !== story.slug)
   const sourceTerms = textTerms(story)
-  return rankStories(
-    candidates.filter((candidate) => candidate.slug !== story.slug),
-    (candidate, index) => {
-      const candidateTerms = textTerms(candidate)
-      let overlap = 0
-      for (const term of candidateTerms) if (sourceTerms.has(term)) overlap += 1
-      const topicSimilarity = Math.min(
-        1,
-        overlap / Math.max(1, Math.min(sourceTerms.size, candidateTerms.size)),
-      )
-      const flags = candidate as StoryCardData &
-        Pick<RankingSignals, 'sponsored' | 'doNotRecommend'>
-      return {
-        editorialPriority: Math.max(0, 1.5 - index / 10),
-        categorySimilarity: candidate.category.slug === story.category.slug ? 1 : 0,
-        topicSimilarity,
-        qualityTrustScore: 0.8,
-        sponsored: Boolean(flags.sponsored),
-        doNotRecommend: Boolean(flags.doNotRecommend),
-      }
-    },
-  )
-    .slice(0, limit)
-    .map(({ rankScore: _rankScore, rankSignals: _rankSignals, ...ranked }) => ranked)
+  const candidateTerms = new Map(pool.map((candidate) => [candidate.slug, textTerms(candidate)]))
+  const idf = inverseDocumentFrequency([sourceTerms, ...candidateTerms.values()])
+
+  const ranked = rankStories(pool, (candidate, index) => {
+    const terms = candidateTerms.get(candidate.slug) ?? new Set<string>()
+    const lexical = weightedSimilarity(sourceTerms, terms, idf)
+    // The newsroom's own topic tags are a stronger statement about what a story
+    // is about than any term overlap, and were previously ignored entirely.
+    const tags = tagOverlap(story, candidate)
+    const topicSimilarity = Math.min(
+      1,
+      Math.max(lexical, tags * 0.9) + Math.min(lexical, tags) * 0.3,
+    )
+    const flags = candidate as StoryCardData & Pick<RankingSignals, 'sponsored' | 'doNotRecommend'>
+    return {
+      editorialPriority: Math.max(0, 1.5 - index / 10),
+      categorySimilarity: candidate.category.slug === story.category.slug ? 1 : 0,
+      topicSimilarity,
+      // Was a flat 0.8 for every candidate, which cancels out and makes the
+      // term inert. Scored per story from its own editorial metadata.
+      qualityTrustScore: editorialTrustScore(candidate).score,
+      sponsored: Boolean(flags.sponsored),
+      doNotRecommend: Boolean(flags.doNotRecommend),
+    }
+  })
+  const limited = limitRelatedDepth(story, ranked, limit)
+  return limited.map(({ rankScore: _rankScore, rankSignals: _rankSignals, ...rest }) => rest)
 }
 
 export {

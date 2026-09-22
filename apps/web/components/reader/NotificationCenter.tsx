@@ -9,6 +9,7 @@ import {
   writeLocalReaderPreferences,
 } from '@/lib/reader/preferences'
 import type { ReaderPreferences } from '@/lib/reader/preferences-store'
+import { useClientState, useClientValue } from '@/lib/browser/use-client-state'
 
 type AlertItem = {
   id: string
@@ -23,8 +24,14 @@ type AlertItem = {
 }
 
 export function NotificationCenter({ locale, className }: { locale: Locale; className?: string }) {
-  const [supported, setSupported] = useState(false)
-  const [permission, setPermission] = useState<NotificationPermission>('default')
+  // Capability and permission are browser facts; the prerender must assume
+  // neither, which is also the correct fallback for a browser without push.
+  const supported = useClientValue(() => 'Notification' in window, false)
+  const [permission, setPermission] = useClientState<NotificationPermission>(
+    () => (supported ? Notification.permission : 'default'),
+    'default',
+    [supported],
+  )
   const [preferences, setPreferences] = useState<ReaderPreferences | null>(null)
   const [alerts, setAlerts] = useState<AlertItem[]>([])
   const [unread, setUnread] = useState(0)
@@ -35,16 +42,12 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
   const english = locale === 'en'
 
   useEffect(() => {
-    const ok = typeof window !== 'undefined' && 'Notification' in window
-    setSupported(ok)
-    if (ok) setPermission(Notification.permission)
-    if (ok && 'serviceWorker' in navigator && 'PushManager' in window) {
-      navigator.serviceWorker.ready
-        .then((registration) => registration.pushManager.getSubscription())
-        .then((subscription) => setPushRegistered(Boolean(subscription)))
-        .catch(() => undefined)
-    }
-  }, [])
+    if (!supported || !('serviceWorker' in navigator) || !('PushManager' in window)) return
+    navigator.serviceWorker.ready
+      .then((registration) => registration.pushManager.getSubscription())
+      .then((subscription) => setPushRegistered(Boolean(subscription)))
+      .catch(() => undefined)
+  }, [supported])
 
   useEffect(() => {
     let cancelled = false

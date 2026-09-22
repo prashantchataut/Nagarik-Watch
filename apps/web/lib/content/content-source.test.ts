@@ -21,7 +21,10 @@ describe('content source resolution', () => {
     expect(isPayloadCanonical()).toBe(true)
   })
 
-  it('defaults to Payload and fail-closes when its origin is missing', async () => {
+  it('falls back to the desk store when nothing is declared and no CMS is configured', async () => {
+    // A fresh clone has no env at all; defaulting to Payload made the very
+    // first `pnpm build` fail at prerender. Explicit declarations still
+    // fail-close — see the next case.
     delete process.env.CONTENT_SOURCE
     delete process.env.PAYLOAD_CONTENT_SOURCE
     delete process.env.PAYLOAD_PUBLIC_SERVER_URL
@@ -29,12 +32,32 @@ describe('content source resolution', () => {
 
     const { declaredContentSource, isPayloadCanonical, isPayloadSourceMisconfigured } =
       await import('./payload-admin-client')
-    const { resolveContentSource } = await import('./resolve-content-source')
+
+    expect(declaredContentSource()).toBe('json')
+    expect(isPayloadCanonical()).toBe(false)
+    expect(isPayloadSourceMisconfigured()).toBe(false)
+  })
+
+  it('defaults to Payload once a CMS origin is configured, without an explicit flag', async () => {
+    delete process.env.CONTENT_SOURCE
+    delete process.env.PAYLOAD_CONTENT_SOURCE
+    process.env.PAYLOAD_PUBLIC_SERVER_URL = 'https://cms.example.test'
+
+    const { declaredContentSource, isPayloadCanonical } = await import('./payload-admin-client')
 
     expect(declaredContentSource()).toBe('payload')
-    expect(isPayloadCanonical()).toBe(false)
+    expect(isPayloadCanonical()).toBe(true)
+  })
+
+  it('still fail-closes a live launch that has no Payload origin at all', async () => {
+    process.env.NEXT_PUBLIC_LAUNCH_STATUS = 'live'
+    delete process.env.CONTENT_SOURCE
+    delete process.env.PAYLOAD_CONTENT_SOURCE
+    delete process.env.PAYLOAD_PUBLIC_SERVER_URL
+    delete process.env.PAYLOAD_ADMIN_URL
+
+    const { isPayloadSourceMisconfigured } = await import('./payload-admin-client')
     expect(isPayloadSourceMisconfigured()).toBe(true)
-    await expect(resolveContentSource()).rejects.toThrow(/PAYLOAD_PUBLIC_SERVER_URL/)
   })
 
   it('fail-closes when CONTENT_SOURCE=payload but CMS URL is missing', async () => {

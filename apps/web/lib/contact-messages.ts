@@ -9,6 +9,7 @@ import {
   toIso,
   type Queryable,
 } from '@/lib/ops-db'
+import { dataPath } from '@/lib/fs/data-path'
 
 export type ContactMessageStatus = 'unread' | 'in_review' | 'resolved'
 
@@ -38,8 +39,7 @@ type ContactRow = {
 
 type LocalStore = { messages: ContactMessage[] }
 
-const LOCAL_STORE_PATH =
-  process.env.CONTACT_STORE_PATH ?? path.join(process.cwd(), '.data', 'contact-messages.json')
+const LOCAL_STORE_PATH = dataPath(process.env.CONTACT_STORE_PATH, 'contact-messages.json')
 let localWriteQueue = Promise.resolve()
 
 function isProductionRuntime(): boolean {

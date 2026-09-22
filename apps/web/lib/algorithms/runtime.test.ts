@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { ALGORITHM_CATALOG } from './catalog'
 import { listRegisteredIds } from './capabilities/registry'
-import { algorithmRuntimeModeCounts, runAlgorithm, runAllAlgorithms } from './runtime'
+import {
+  algorithmRuntimeHonesty,
+  algorithmRuntimeModeCounts,
+  runAlgorithm,
+  runAllAlgorithms,
+} from './runtime'
 
 describe('algorithm runtime', () => {
   it('registers a dedicated capability handler for every catalog id (no missing)', () => {
@@ -107,5 +112,50 @@ describe('algorithm runtime', () => {
     const result = runAlgorithm('not-a-real-capability-id')
     expect(result.ok).toBe(false)
     expect(result.reason).toBe('no dedicated capability handler')
+  })
+
+  it('marks a no-input run as fixture-fed rather than letting the score pass for real', () => {
+    expect(runAlgorithm('weighted-scoring-ranker').input).toBe('fixture')
+  })
+
+  it('records product wiring so a passing handler is not read as a shipped feature', () => {
+    // Both pass. Only one of them is something a reader can reach.
+    expect(runAlgorithm('bm25-search').productWired).toBe(true)
+    expect(runAlgorithm('topic-modeling-lda').productWired).toBe(false)
+  })
+
+  it('runs the notification policy handlers through the real delivery gates', () => {
+    // These three used to restate the policy in three slightly different ways.
+    // They now call the same functions `deliverPushEvent` and the delivery cron
+    // call, so a change to the policy shows up here instead of drifting.
+    const held = runAlgorithm('breaking-alert-cooldown', { minutesSinceLast: 5 })
+    expect(held.mode).toBe('production')
+    expect(held.outputs?.willSend).toBe(false)
+    expect(held.outputs?.reason).toBe('suppressed-cooldown')
+    expect(runAlgorithm('breaking-alert-cooldown', { minutesSinceLast: 60 }).outputs?.willSend).toBe(
+      true,
+    )
+
+    // Quiet hours never silence breaking — that exemption is the whole reason
+    // the batch narrows instead of skipping.
+    expect(runAlgorithm('quiet-hours-scheduler', { hour: 23 }).outputs?.allowSend).toBe(false)
+    expect(
+      runAlgorithm('quiet-hours-scheduler', { hour: 23, breaking: true }).outputs?.allowSend,
+    ).toBe(true)
+    expect(runAlgorithm('quiet-hours-scheduler', { hour: 10 }).outputs?.allowSend).toBe(true)
+
+    // Past the per-day quota the next push is blocked, not merely scored low.
+    const spent = runAlgorithm('fatigue-prevention', { sentToday: 9, maxPerDay: 8 })
+    expect(spent.score).toBe(0)
+    expect(spent.outputs?.willSend).toBe(false)
+    expect(runAlgorithm('notification-batching', { pending: 40, windowMinutes: 30 }).outputs?.capped)
+      .toBe(true)
+  })
+
+  it('reports the admin panel for what it is: a fixture run of the whole catalog', () => {
+    const honesty = algorithmRuntimeHonesty(runAllAlgorithms())
+    expect(honesty.total).toBe(ALGORITHM_CATALOG.length)
+    expect(honesty.fixtureOnly).toBe(honesty.total)
+    expect(honesty.productWired).toBeLessThan(honesty.total)
   })
 })

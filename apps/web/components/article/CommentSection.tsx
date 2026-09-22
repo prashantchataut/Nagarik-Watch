@@ -6,6 +6,7 @@ import type { Locale } from '@nagarikwatch/db'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
 import { TurnstileField } from '@/components/forms/TurnstileField'
 import { localizeHref } from '@/lib/i18n/locales'
+import { scrollIntoViewRespectingMotion } from '@/lib/browser/scroll'
 
 type Comment = {
   id: string
@@ -29,32 +30,30 @@ export function CommentSection({
   locale: Locale
   commentsEnabled: boolean
 }) {
+  // `hasLivePublicApi()` is baked in at build time, so both of these are the
+  // same on the server and in the browser and can seed the initial state
+  // instead of being corrected by the effect on its first pass.
+  const ne = locale === 'ne'
+  const liveApi = hasLivePublicApi()
   const [comments, setComments] = useState<Comment[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(commentsEnabled && liveApi)
+  const [error, setError] = useState<string | null>(
+    commentsEnabled && !liveApi
+      ? ne
+        ? 'टिप्पणी यस स्थिर होस्टमा उपलब्ध छैन।'
+        : 'Comments are not available on this static host.'
+      : null,
+  )
   const [replyTo, setReplyTo] = useState<Comment | null>(null)
   const [signedIn, setSignedIn] = useState(false)
   const [displayName, setDisplayName] = useState<string | null>(null)
   const [composerOpen, setComposerOpen] = useState(false)
   const [pending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement>(null)
-  const ne = locale === 'ne'
   const lang = ne ? 'ne' : 'en'
 
   useEffect(() => {
-    if (!commentsEnabled) {
-      setLoading(false)
-      return
-    }
-    if (!hasLivePublicApi()) {
-      setLoading(false)
-      setError(
-        ne
-          ? 'टिप्पणी यस स्थिर होस्टमा उपलब्ध छैन।'
-          : 'Comments are not available on this static host.',
-      )
-      return
-    }
+    if (!commentsEnabled || !liveApi) return
 
     let stopped = false
     let inFlight = false
@@ -120,7 +119,7 @@ export function CommentSection({
       window.clearInterval(interval)
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [articleCategory, articleSlug, commentsEnabled, ne])
+  }, [articleCategory, articleSlug, commentsEnabled, liveApi, ne])
 
   const roots = useMemo(() => comments.filter((comment) => !comment.parentId), [comments])
   const approvedCount = useMemo(
@@ -139,7 +138,7 @@ export function CommentSection({
   function chooseReply(comment: Comment) {
     setReplyTo(comment)
     setComposerOpen(true)
-    queueMicrotask(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
+    queueMicrotask(() => scrollIntoViewRespectingMotion(formRef.current, { block: 'center' }))
   }
 
   function submit(event: React.FormEvent<HTMLFormElement>) {

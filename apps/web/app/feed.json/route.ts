@@ -19,8 +19,11 @@ export async function GET() {
         id: story.canonicalUrl,
         url: story.canonicalUrl,
         title: story.title,
-        summary: story.summary,
+        summary: story.correctionNote
+          ? `${story.summary} — ${story.correctionNote}`
+          : story.summary,
         date_published: story.publishedAt,
+        date_modified: story.updatedAt,
         authors: item.authors.map((author) => ({
           name: author.name,
           url: `${SITE_URL}/author/${author.slug}`,

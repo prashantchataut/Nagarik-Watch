@@ -8,6 +8,20 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS",
   },
+  // Media uploads. Without these, POST /api/admin/media/upload answers 503 and
+  // names what is missing — it does not silently accept files. To turn it on:
+  //   1. wrangler r2 bucket create nagarik-watch-media
+  //   2. uncomment the block below (the binding name MEDIA_BUCKET is what
+  //      lib/storage/r2-media-store.ts looks for)
+  //   3. set STORAGE_PUBLIC_BASE_URL to the bucket's public/CDN origin, either
+  //      in "vars" here or as a deployment secret
+  // "r2_buckets": [
+  //   {
+  //     "binding": "MEDIA_BUCKET",
+  //     "bucket_name": "nagarik-watch-media",
+  //     "preview_bucket_name": "nagarik-watch-media-preview",
+  //   },
+  // ],
   "vars": {
     "CONTENT_SOURCE": "json",
     "NEXT_PUBLIC_LAUNCH_STATUS": "preview",

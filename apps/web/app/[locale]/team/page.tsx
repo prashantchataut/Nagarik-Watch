@@ -4,6 +4,7 @@ import type { Locale } from '@nagarikwatch/db'
 import { getAuthors } from '@/lib/content'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export const dynamic = 'force-static'
 
@@ -24,7 +25,7 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
   const locale: Locale = asLocale((await params).locale)
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
-  const authors = (await getAuthors().catch(() => [])).filter((a) => a.isActive)
+  const authors = (await orEmpty(getAuthors())).filter((a) => a.isActive)
   const staff = authors.filter((a) => a.role !== 'columnist' && a.role !== 'contributor')
   const contributors = authors.filter((a) => a.role === 'columnist' || a.role === 'contributor')
 
@@ -44,7 +45,11 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
         <>
           {staff.length > 0 ? (
             <section aria-labelledby="team-staff-title" className="mt-8">
-              <h2 id="team-staff-title" className="font-display text-h3 font-extrabold text-ink" lang={lang}>
+              <h2
+                id="team-staff-title"
+                className="font-display text-h3 font-extrabold text-ink"
+                lang={lang}
+              >
                 {en ? 'Newsroom' : 'समाचार कक्ष'}
               </h2>
               <span className="mt-1.5 block h-0.5 w-10 bg-brand" aria-hidden="true" />
@@ -114,7 +119,10 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
             </section>
           ) : null}
 
-          <section className="mt-9 border-t border-rule pt-6" aria-label={en ? 'Editorial standards' : 'सम्पादकीय मापदण्ड'}>
+          <section
+            className="mt-9 border-t border-rule pt-6"
+            aria-label={en ? 'Editorial standards' : 'सम्पादकीय मापदण्ड'}
+          >
             <div className="grid gap-5 sm:grid-cols-3">
               {[
                 {
@@ -139,7 +147,10 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
                   neBody: 'टिप र सच्याउ अनुरोध सही डेस्कमा पुग्छन्।',
                 },
               ].map((item) => (
-                <div key={item.href} className="border-t-2 border-brand bg-surface-raised px-4 py-4">
+                <div
+                  key={item.href}
+                  className="border-t-2 border-brand bg-surface-raised px-4 py-4"
+                >
                   <Link
                     href={localizeHref(locale, item.href)}
                     className="font-display text-body font-extrabold text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong"

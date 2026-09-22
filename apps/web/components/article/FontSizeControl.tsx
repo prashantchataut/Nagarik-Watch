@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import { getDictionary } from '@/lib/i18n/dictionaries'
+import { useClientState } from '@/lib/browser/use-client-state'
 
 /**
  * FontSizeControl — three-step reader text resize (A− / A / A+), spec Phase 5 "font size
@@ -27,25 +28,29 @@ function apply(size: Size) {
   document.documentElement.setAttribute('data-reading-size', size)
 }
 
+function storedSize(): Size {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY) as Size | null
+    return stored && SIZES.includes(stored) ? stored : 'base'
+  } catch {
+    // localStorage unavailable (private mode); fall back to default size silently.
+    return 'base'
+  }
+}
+
 export function FontSizeControl({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale)
-  const [size, setSize] = useState<Size>('base')
+  // 'base' on the server: the prerendered article always ships the default
+  // scale, then the stored choice is applied in the first browser render.
+  const [size, setSize] = useClientState<Size>(storedSize, 'base')
 
+  // One place writes the attribute, for both the restored and the chosen size.
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY) as Size | null
-      if (stored && SIZES.includes(stored)) {
-        setSize(stored)
-        apply(stored)
-      }
-    } catch {
-      // localStorage unavailable (private mode); fall back to default size silently.
-    }
-  }, [])
+    apply(size)
+  }, [size])
 
   function choose(next: Size) {
     setSize(next)
-    apply(next)
     try {
       localStorage.setItem(STORAGE_KEY, next)
     } catch {

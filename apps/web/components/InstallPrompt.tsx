@@ -80,17 +80,23 @@ export function InstallPrompt() {
         localStorage.setItem(ARTICLE_OPENS_KEY, String(opens))
       }
     }
+    // The counters above have to be written before eligibility can be judged,
+    // so this reports the result of a storage write rather than deriving state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- records the result of the visit/open counter writes
     setEligible(returnVisit || opens >= ARTICLE_THRESHOLD)
   }, [pathname])
 
+  // Whether the snooze has expired depends on the wall clock, which may not be
+  // read during render, so this stays an effect: it compares `Date.now()` with
+  // the snooze keys once the prompt and the eligibility counters are both in.
   useEffect(() => {
     if (!deferredPrompt || !eligible || dataSaverEnabled()) return
-    const now = Date.now()
     const blockedUntil = Math.max(
       Number(localStorage.getItem(SNOOZE_UNTIL_KEY) ?? 0),
       Number(localStorage.getItem(DISMISSED_UNTIL_KEY) ?? 0),
     )
-    if (blockedUntil > now) return
+    if (blockedUntil > Date.now()) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- opens the banner once the wall-clock snooze check passes
     setVisible(true)
   }, [deferredPrompt, eligible])
 
@@ -113,11 +119,7 @@ export function InstallPrompt() {
   if (!visible) return null
 
   return (
-    <aside
-      className="install-prompt"
-      role="region"
-      aria-labelledby="install-prompt-title"
-    >
+    <aside className="install-prompt" role="region" aria-labelledby="install-prompt-title">
       <div>
         <strong id="install-prompt-title">
           {english

@@ -8,6 +8,7 @@ import { StoryBodyEditor } from '@/components/newsroom/StoryBodyEditor'
 import { MediaGalleryPicker, type GalleryMediaItem } from '@/components/newsroom/MediaGalleryPicker'
 import { RichInlineText } from '@/components/article/RichInlineText'
 import type { EditorPreferences } from '@/lib/editor-preferences-types'
+import { useClientState, useClientValue } from '@/lib/browser/use-client-state'
 
 type DraftValues = {
   titleNe: string
@@ -118,16 +119,54 @@ export function JournalistArticleDraftForm({
 }: Props) {
   const ne = locale === 'ne'
   const router = useRouter()
-  const [draft, setDraft] = useState<DraftValues>({
+  const localRecoveryKey = `nw-journalist-working-copy:${locale}:${articleId ?? 'new'}`
+  const base: DraftValues = {
     ...empty,
     categorySlug: categories[0]?.slug ?? '',
     ...initial,
-  })
-  const [tab, setTab] = useState<EditorTab>('story')
-  const [status, setStatus] = useState<{ type: 'ok' | 'error' | 'saving'; message: string } | null>(
+  }
+  // A tab-local working copy left over from a previous visit. sessionStorage is
+  // invisible to the server, so the recovered draft can only join at hydration.
+  const recovered = useClientValue<Partial<DraftValues> | null>(
+    () => {
+      if (mode !== 'create' || initial) return null
+      try {
+        const raw = sessionStorage.getItem(localRecoveryKey)
+        if (!raw) return null
+        const parsed = JSON.parse(raw) as Partial<DraftValues>
+        return parsed.titleNe || parsed.bodyNe ? parsed : null
+      } catch {
+        return null
+      }
+    },
     null,
+    [mode, Boolean(initial), localRecoveryKey],
   )
-  const [dirty, setDirty] = useState(false)
+  const recoveryKey = [localRecoveryKey, Boolean(recovered)]
+
+  const [draft, setDraft] = useClientState<DraftValues>(
+    () => (recovered ? { ...base, ...recovered } : base),
+    base,
+    recoveryKey,
+  )
+  const [tab, setTab] = useState<EditorTab>('story')
+  const [status, setStatus] = useClientState<{
+    type: 'ok' | 'error' | 'saving'
+    message: string
+  } | null>(
+    () =>
+      recovered
+        ? {
+            type: 'ok',
+            message: ne
+              ? 'यस ट्याबको सुरक्षित कार्य प्रति पुनः खोलियो।'
+              : 'Recovered the working copy from this tab.',
+          }
+        : null,
+    null,
+    recoveryKey,
+  )
+  const [dirty, setDirty] = useClientState(() => Boolean(recovered), false, recoveryKey)
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null)
   const [assistance, setAssistance] = useState<Assistance | null>(null)
   const [assistanceBusy, setAssistanceBusy] = useState<AssistanceAction | null>(null)
@@ -164,8 +203,6 @@ export function JournalistArticleDraftForm({
       flags: sourceReliabilityFlags({ url, label: url }),
     }))
   }, [draft.heroImageUrl, draft.sourceNote])
-  const localRecoveryKey = `nw-journalist-working-copy:${locale}:${articleId ?? 'new'}`
-
   function patch<K extends keyof DraftValues>(key: K, value: DraftValues[K]) {
     setDraft((current) => {
       const next = { ...current, [key]: value }
@@ -273,7 +310,11 @@ export function JournalistArticleDraftForm({
       }
     })
   }
-  saveRef.current = submit
+  // Latest-callback ref: assigning during render is not allowed, and the value
+  // only needs to be current by the time an interval or unload handler fires.
+  useEffect(() => {
+    saveRef.current = submit
+  })
 
   async function requestAssistance(action: AssistanceAction) {
     if (!draft.bodyNe.trim()) {
@@ -360,24 +401,6 @@ export function JournalistArticleDraftForm({
   }
 
   useEffect(() => {
-    if (mode !== 'create' || initial) return
-    try {
-      const recovered = sessionStorage.getItem(localRecoveryKey)
-      if (!recovered) return
-      const parsed = JSON.parse(recovered) as Partial<DraftValues>
-      if (!parsed.titleNe && !parsed.bodyNe) return
-      setDraft((current) => ({ ...current, ...parsed }))
-      setDirty(true)
-      setStatus({
-        type: 'ok',
-        message: ne
-          ? 'यस ट्याबको सुरक्षित कार्य प्रति पुनः खोलियो।'
-          : 'Recovered the working copy from this tab.',
-      })
-    } catch {}
-  }, [initial, localRecoveryKey, mode, ne])
-
-  useEffect(() => {
     let cancelled = false
     void (async () => {
       try {
@@ -410,7 +433,7 @@ export function JournalistArticleDraftForm({
     return () => {
       cancelled = true
     }
-  }, [categories, initial?.categorySlug, mode])
+  }, [categories, initial?.categorySlug, mode, setDraft])
 
   useEffect(() => {
     if (mode !== 'create' || !dirty) return
@@ -881,7 +904,7 @@ export function JournalistArticleDraftForm({
             </div>
             {draft.heroImageUrl ? (
               <figure className="newsroom-hero-preview">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {}
                 <img src={draft.heroImageUrl} alt="" />
                 <figcaption>{ne ? 'सन्दर्भ पूर्वावलोकन' : 'Reference preview'}</figcaption>
               </figure>

@@ -58,6 +58,9 @@ export default function GlobalError({
               >
                 Try again
               </button>
+              {/* global-error renders its own <html>/<body> outside the router,
+                  where next/link has no provider to hook into. */}
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a
                 href="/"
                 className="inline-flex min-h-13 items-center border border-rule px-6 text-meta font-bold text-ink hover:border-brand hover:text-brand-strong"

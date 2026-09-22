@@ -7,6 +7,7 @@ import { createMediaItem } from '@/lib/media-library'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { enforceRateLimit } from '@/lib/rate-limit'
 import { validateImageUpload } from '@/lib/storage/media-validation'
+import { stripImageMetadata } from '@/lib/storage/exif-strip'
 import {
   isPayloadCanonical,
   payloadCollectionAdminUrl,
@@ -81,6 +82,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: validated.error }, { status: 400 })
   }
 
+  // Strip camera metadata before anything is persisted. A phone photo from a
+  // source's neighbourhood carries a GPS fix; the uploader cannot be trusted
+  // to have removed it, and once the object is public it is too late.
+  const stripped = stripImageMetadata(buffer, validated.contentType)
+  const bytes = stripped.buffer
+
   const alt =
     String(form.get('alt') ?? '').trim() ||
     file.name
@@ -98,7 +105,7 @@ export async function POST(request: NextRequest) {
   // This legacy web-desk endpoint uses Vercel Blob's server upload API. Vercel
   // request bodies have a lower practical ceiling than our local/R2 validator;
   // canonical Payload uses clientUploads and is the right path for larger media.
-  if (process.env.VERCEL && token && file.size > 4 * 1024 * 1024) {
+  if (process.env.VERCEL && token && bytes.length > 4 * 1024 * 1024) {
     return NextResponse.json(
       {
         error:
@@ -113,7 +120,7 @@ export async function POST(request: NextRequest) {
   try {
     const { saveR2MediaFile } = await import('@/lib/storage/r2-media-store')
     const r2 = await saveR2MediaFile({
-      buffer,
+      buffer: bytes,
       safeFilename: safeName,
       contentType: validated.contentType,
     })
@@ -122,7 +129,7 @@ export async function POST(request: NextRequest) {
       storageProvider = 'r2'
     } else if (token) {
       const pathname = `newsroom/${Date.now().toString(36)}-${safeName}`
-      const blob = await put(pathname, buffer, {
+      const blob = await put(pathname, bytes, {
         access: 'public',
         token,
         contentType: validated.contentType,
@@ -147,7 +154,7 @@ export async function POST(request: NextRequest) {
     } else {
       const { saveLocalMediaFile } = await import('@/lib/storage/local-media-store')
       const saved = await saveLocalMediaFile({
-        buffer,
+        buffer: bytes,
         safeFilename: safeName,
         contentType: validated.contentType,
         requestOrigin,
@@ -216,7 +223,9 @@ export async function POST(request: NextRequest) {
       action: 'create',
       targetType: 'media',
       targetId: item.id,
-      summary: `Media uploaded: ${item.alt}`,
+      summary: stripped.removed.length
+        ? `Media uploaded: ${item.alt} (stripped ${stripped.removed.join(', ')})`
+        : `Media uploaded: ${item.alt}`,
     })
 
     return NextResponse.json(item, { status: 201 })

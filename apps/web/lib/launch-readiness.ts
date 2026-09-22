@@ -6,7 +6,7 @@ import { getPaymentAdapterState } from '@/lib/payments/adapter'
 import { isPayloadStorageWired } from '@/lib/storage-adapter'
 import { twoFactorConfigured } from '@/lib/security/mfa'
 import { getCaptchaState } from '@/lib/security/turnstile'
-import { lintSecurityHeaders } from '@/lib/security/header-lint'
+import { hasWeakDirectives, lintSecurityHeaders } from '@/lib/security/header-lint'
 import { getAdMode, isNetworkAdsReady } from '@/lib/ads'
 import { getSentryState } from '@/lib/observability/sentry'
 import { getTtsState } from '@/lib/ai/tts'
@@ -17,16 +17,24 @@ import {
   looksUnverified,
   type LaunchCheck,
 } from '@/lib/launch-gate-core'
-import baselineSecurityHeaders from '@/lib/security/baseline-headers.json'
+import { baselineSecurityHeaders } from '@/lib/security/response-headers'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export type { LaunchCheck } from '@/lib/launch-gate-core'
 
-/** Lints the shared baseline header list also applied by next.config.mjs. */
-async function configuredSecurityHeaderLint(): Promise<ReturnType<typeof lintSecurityHeaders>> {
+type SecurityHeaderReport = ReturnType<typeof lintSecurityHeaders> & { weak: string[] }
+
+/**
+ * Lints the exact header list `next.config.ts` serves, built from the same
+ * function with the same env. Previously this read a standalone JSON file that
+ * nothing served, so the gate reported "4/4 configured" on a deployment whose
+ * responses carried no CSP and no HSTS.
+ */
+async function configuredSecurityHeaderLint(): Promise<SecurityHeaderReport> {
   const asRecord = Object.fromEntries(
-    baselineSecurityHeaders.map((header) => [header.key.toLowerCase(), header.value]),
+    baselineSecurityHeaders(process.env).map((header) => [header.key.toLowerCase(), header.value]),
   )
-  return lintSecurityHeaders(asRecord)
+  return { ...lintSecurityHeaders(asRecord), weak: hasWeakDirectives(asRecord) }
 }
 
 function replaceCheck(checks: LaunchCheck[], key: string, next: LaunchCheck): LaunchCheck[] {
@@ -46,7 +54,8 @@ function overlayModuleProbes(checks: LaunchCheck[]): LaunchCheck[] {
   const adsMode = getAdMode()
   const captcha = getCaptchaState()
   const paymentAdapter = getPaymentAdapterState()
-  const launchLive = (envValue(process.env, 'NEXT_PUBLIC_LAUNCH_STATUS') || 'preview').toLowerCase() === 'live'
+  const launchLive =
+    (envValue(process.env, 'NEXT_PUBLIC_LAUNCH_STATUS') || 'preview').toLowerCase() === 'live'
   const contentSource =
     envValue(process.env, 'CONTENT_SOURCE') ||
     envValue(process.env, 'PAYLOAD_CONTENT_SOURCE') ||
@@ -73,7 +82,8 @@ function overlayModuleProbes(checks: LaunchCheck[]): LaunchCheck[] {
   next = replaceCheck(next, 'newsroom-contact', {
     key: 'newsroom-contact',
     label: 'Newsroom address',
-    status: newsroomAddress && !looksUnverified(newsroomAddress) ? 'pass' : launchLive ? 'fail' : 'warn',
+    status:
+      newsroomAddress && !looksUnverified(newsroomAddress) ? 'pass' : launchLive ? 'fail' : 'warn',
     detail:
       newsroomAddress && !looksUnverified(newsroomAddress)
         ? 'Verified newsroom address is configured'
@@ -82,7 +92,12 @@ function overlayModuleProbes(checks: LaunchCheck[]): LaunchCheck[] {
   next = replaceCheck(next, 'database', {
     key: 'database',
     label: 'Persistent database',
-    status: dbMode === 'postgres' ? 'pass' : launchLive ? 'fail' : checks.find((c) => c.key === 'database')?.status ?? 'warn',
+    status:
+      dbMode === 'postgres'
+        ? 'pass'
+        : launchLive
+          ? 'fail'
+          : (checks.find((c) => c.key === 'database')?.status ?? 'warn'),
     detail:
       dbMode === 'postgres'
         ? 'DATABASE_URL points to Postgres'
@@ -106,18 +121,27 @@ function overlayModuleProbes(checks: LaunchCheck[]): LaunchCheck[] {
           : launchLive
             ? 'fail'
             : 'warn'
-        : checks.find((check) => check.key === 'storage')?.status ?? 'warn',
+        : (checks.find((check) => check.key === 'storage')?.status ?? 'warn'),
     detail:
       contentSource === 'payload'
         ? isPayloadStorageWired()
           ? 'Payload media uploads use durable object storage'
           : 'Payload still uses local ephemeral uploads; wire a supported storage adapter and credentials'
-        : (checks.find((check) => check.key === 'storage')?.detail ?? 'Media storage not configured'),
+        : (checks.find((check) => check.key === 'storage')?.detail ??
+          'Media storage not configured'),
   })
   next = replaceCheck(next, 'error-monitoring', {
     key: 'error-monitoring',
     label: 'Error monitoring (Sentry)',
-    status: sentry.ready ? 'pass' : sentry.dsnConfigured ? (launchLive ? 'fail' : 'warn') : launchLive ? 'fail' : 'warn',
+    status: sentry.ready
+      ? 'pass'
+      : sentry.dsnConfigured
+        ? launchLive
+          ? 'fail'
+          : 'warn'
+        : launchLive
+          ? 'fail'
+          : 'warn',
     detail: sentry.detail,
   })
   next = replaceCheck(next, 'network-ads', {
@@ -223,14 +247,18 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
     label: 'Security response headers',
     status: !securityHeaders
       ? 'warn'
-      : securityHeaders.missing.length === 0
-        ? 'pass'
-        : 'fail',
+      : securityHeaders.missing.length > 0
+        ? 'fail'
+        : securityHeaders.weak.length > 0
+          ? 'warn'
+          : 'pass',
     detail: !securityHeaders
       ? 'Security header configuration not probed'
-      : securityHeaders.missing.length === 0
-        ? `${securityHeaders.present}/${securityHeaders.needed} baseline security headers configured`
-        : `Missing security headers: ${securityHeaders.missing.join(', ')}`,
+      : securityHeaders.missing.length > 0
+        ? `Missing security headers: ${securityHeaders.missing.join(', ')}`
+        : securityHeaders.weak.length > 0
+          ? `${securityHeaders.present}/${securityHeaders.needed} headers served; known weakness: ${securityHeaders.weak.join('; ')}`
+          : `${securityHeaders.present}/${securityHeaders.needed} baseline security headers served`,
   })
 
   let livePublished = 0
@@ -297,7 +325,7 @@ export async function getLaunchChecksAsync(): Promise<LaunchCheck[]> {
     const adsMode = getAdMode()
     if (adsMode === 'house') {
       const { listHouseAds } = await import('@/lib/house-ads')
-      const ads = await listHouseAds().catch(() => [])
+      const ads = await orEmpty(listHouseAds())
       const active = ads.filter((ad) => ad.active).length
       checks = replaceCheck(checks, 'house-ads-soft', {
         key: 'house-ads-soft',

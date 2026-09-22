@@ -39,11 +39,10 @@ export function PasswordField({
       <label htmlFor={id}>{label}</label>
       <div
         data-variant={variant}
-        className={`password-field__control ${
-          newsroom
-            ? 'flex border border-rule bg-surface focus-within:border-brand'
-            : 'flex border border-rule bg-surface focus-within:border-brand focus-within:ring-2 focus-within:ring-brand-tint'
-        }`}
+        // The newsroom variant used to get only a border-colour change on focus,
+        // which is a weak indicator; both variants now carry the same ring and
+        // differ through `data-variant` alone.
+        className="password-field__control flex border border-rule bg-surface focus-within:border-brand focus-within:ring-2 focus-within:ring-brand-tint"
       >
         <input
           id={id}
@@ -55,11 +54,7 @@ export function PasswordField({
           placeholder={placeholder}
           aria-describedby={helpId}
           inputMode="text"
-          className={
-            newsroom
-              ? 'min-h-11 min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:outline-none disabled:opacity-60'
-              : 'min-h-11 min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:outline-none disabled:opacity-60'
-          }
+          className="min-h-11 min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-body text-ink placeholder:text-mute focus:outline-none disabled:opacity-60"
         />
         <button
           type="button"

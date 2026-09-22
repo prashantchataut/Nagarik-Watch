@@ -21,8 +21,12 @@ export async function GET() {
       <title>${escapeXml(story.title)}</title>
       <link>${escapeXml(story.canonicalUrl)}</link>
       <guid isPermaLink="true">${escapeXml(story.canonicalUrl)}</guid>
-      <pubDate>${new Date(story.publishedAt).toUTCString()}</pubDate>
-      <description>${escapeXml(story.summary)}</description>
+      <pubDate>${new Date(story.publishedAt).toUTCString()}</pubDate>${
+        story.updatedAt ? `\n      <atom:updated>${escapeXml(story.updatedAt)}</atom:updated>` : ''
+      }
+      <description>${escapeXml(
+        story.correctionNote ? `${story.summary} — ${story.correctionNote}` : story.summary,
+      )}</description>
     </item>`
       })
       .join('\n')}

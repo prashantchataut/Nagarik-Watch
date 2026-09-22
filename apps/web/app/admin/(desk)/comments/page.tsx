@@ -3,12 +3,19 @@ import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { canModerateComments } from '@/lib/admin-roles'
 import { listCommentsForModeration, type CommentStatus } from '@/lib/engagement/store'
+import {
+  assessCommentSla,
+  commentSlaSummary,
+  sortByModerationUrgency,
+  type CommentSlaState,
+} from '@/lib/engagement/comment-sla'
 import { analyzeSentiment } from '@/lib/nlp/sentiment'
 import {
   AdminPageHeader,
   AdminEmptyState,
   AdminFilterLink,
   AdminCard,
+  AdminMetric,
   AdminTable,
 } from '@/components/admin/primitives'
 import { CommentModerationActions } from '@/components/admin/CommentModerationActions'
@@ -23,6 +30,20 @@ const allowed = new Set<CommentStatus | 'all'>([
   'flagged',
   'all',
 ])
+
+function slaTone(state: CommentSlaState): 'attention' | 'success' | 'danger' {
+  if (state === 'breached') return 'danger'
+  if (state === 'at-risk') return 'attention'
+  return 'success'
+}
+
+/** "3 घण्टा बाँकी" / "2 घण्टा ढिलो" — the moderator needs the direction, not a timestamp. */
+function slaLabel(minutesRemaining: number): string {
+  const late = minutesRemaining < 0
+  const magnitude = Math.abs(minutesRemaining)
+  const value = magnitude >= 60 ? `${Math.round(magnitude / 60)} घण्टा` : `${magnitude} मिनेट`
+  return late ? `${value} ढिलो` : `${value} बाँकी`
+}
 
 function commentStatusTone(status: CommentStatus): 'attention' | 'success' | 'danger' | 'neutral' {
   if (status === 'pending' || status === 'flagged') return 'attention'
@@ -52,7 +73,12 @@ export default async function CommentsPage({
   const status = allowed.has(requested as CommentStatus | 'all')
     ? (requested as CommentStatus | 'all')
     : 'pending'
-  const comments = await listCommentsForModeration(status)
+  const queue = await listCommentsForModeration(status)
+  // Newest-first is the wrong order for a queue with a service target: it puts
+  // the comment closest to breaching at the bottom of the page.
+  const now = new Date()
+  const comments = sortByModerationUrgency(queue, now)
+  const sla = commentSlaSummary(queue, now)
 
   return (
     <div>
@@ -76,6 +102,29 @@ export default async function CommentsPage({
           </AdminFilterLink>
         ))}
       </nav>
+      {sla.open > 0 ? (
+        <div className="admin-metric-grid mb-5">
+          <AdminMetric value={sla.open} label="खुला टिप्पणी" />
+          <AdminMetric
+            value={sla.breached}
+            label="SLA नाघेको"
+            tone={sla.breached > 0 ? 'danger' : 'default'}
+          />
+          <AdminMetric
+            value={sla.atRisk}
+            label="जोखिममा"
+            tone={sla.atRisk > 0 ? 'brand' : 'default'}
+          />
+          <AdminMetric
+            value={
+              sla.oldestOpenMinutes >= 60
+                ? `${Math.round(sla.oldestOpenMinutes / 60)} घण्टा`
+                : `${sla.oldestOpenMinutes} मिनेट`
+            }
+            label="सबैभन्दा पुरानो"
+          />
+        </div>
+      ) : null}
       <AdminCard className="overflow-hidden !p-0">
         {comments.length === 0 ? (
           <AdminEmptyState title="यो queue खाली छ" body="छानिएको अवस्थामा कुनै टिप्पणी छैन।" />
@@ -87,6 +136,7 @@ export default async function CommentsPage({
                 <th>Comment</th>
                 <th>Article</th>
                 <th>Risk</th>
+                <th>SLA</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -137,6 +187,22 @@ export default async function CommentsPage({
                       <p className="mt-1 text-mute">{comment.moderationFlags.join(', ')}</p>
                     ) : (
                       <p className="mt-1 text-mute">{comment.moderationVerdict || 'scored'}</p>
+                    )}
+                  </td>
+                  <td className="text-caption">
+                    {comment.status === 'pending' || comment.status === 'flagged' ? (
+                      (() => {
+                        const assessment = assessCommentSla(comment, now)
+                        return (
+                          <span
+                            className={`admin-status admin-status--${slaTone(assessment.state)}`}
+                          >
+                            {slaLabel(assessment.minutesRemaining)}
+                          </span>
+                        )
+                      })()
+                    ) : (
+                      <span className="text-mute">—</span>
                     )}
                   </td>
                   <td>

@@ -23,17 +23,31 @@ import {
   burstScore,
   ltvEngagementScore,
   relatedByContent,
+  spaceOutCategories,
   timeDecayScore,
   velocityScore,
   viralityScore,
   weightedScore,
 } from '../../ranking'
+import {
+  authorFollowScore,
+  localePreference,
+  rankContinueReading,
+  reengagementWeight,
+  returnVisitPropensity,
+  scrollDepthQuality,
+  topicFollowScore,
+} from '../../reader/signals'
+import { fatigueHeadroom } from '../product/notify-policy'
+import { triageComment } from '../../engagement/comment-triage'
+import type { ReadingHistoryRecord } from '../../reader/state'
+import { revisionSimilarity } from '../../journalist/desk-scoring'
 import { autocomplete, buildIndex, fuzzyExpandTerm, search } from '../../search'
 import { detectDuplicates, draftHeadlines, draftSummary } from '../../ai'
 import { blocksFromShorthand } from '../../content/blocks'
 import { analyzeExperiment, assignVariant } from '../../experiments/core'
 import type { AlgorithmHandler } from './utils'
-import { clamp01, jaccard, num, str, tokenSet } from './utils'
+import { clamp01, num, str } from './utils'
 
 function sampleStory(overrides: Record<string, unknown> = {}): StoryCardData {
   const id = str(overrides, 'id', 'story-demo')
@@ -61,6 +75,40 @@ function sampleStory(overrides: Record<string, unknown> = {}): StoryCardData {
   }
 }
 
+/** Longest run of identical consecutive values — the thing the guard exists to shorten. */
+function longestRun(slugs: string[]): number {
+  let longest = 0
+  let current = 0
+  let previous = ''
+  for (const slug of slugs) {
+    current = slug === previous ? current + 1 : 1
+    previous = slug
+    if (current > longest) longest = current
+  }
+  return longest
+}
+
+/** Reading history row shaped from panel input, so the reader scorers get real records. */
+function historyRow(
+  articleId: string,
+  overrides: Partial<ReadingHistoryRecord> = {},
+): ReadingHistoryRecord {
+  return {
+    articleId,
+    slug: articleId,
+    categorySlug: 'politics',
+    title: articleId,
+    href: `/ne/politics/${articleId}`,
+    readAt: new Date().toISOString(),
+    firstReadAt: new Date().toISOString(),
+    scrollDepth: 55,
+    completed: false,
+    sessions: 1,
+    dwellSeconds: 90,
+    ...overrides,
+  }
+}
+
 function articleDraft(input: Record<string, unknown>) {
   const body = str(input, 'body', 'पहिलो वाक्य। दोस्रो वाक्य। तेस्रो वाक्य समाचार शरीर।')
   return {
@@ -81,6 +129,150 @@ export const CORE_HANDLERS: Record<string, AlgorithmHandler> = {
       impressions: num(input, 'impressions', 100),
     })
     return { score, detail: `weightedScore=${score.toFixed(3)}`, mode: 'production' }
+  },
+  'continue-reading-ranker': (input) => {
+    // Same ranker the reader activity panel resolves its resume card with.
+    const depth = num(input, 'scrollDepth', 55)
+    const hoursAgo = num(input, 'hoursAgo', 6)
+    const now = new Date()
+    const readAt = new Date(now.getTime() - hoursAgo * 3_600_000).toISOString()
+    const candidate = historyRow('resume', {
+      scrollDepth: depth,
+      readAt,
+      firstReadAt: readAt,
+      sessions: Math.max(1, Math.round(num(input, 'sessions', 1))),
+      dwellSeconds: num(input, 'dwellSeconds', 90),
+    })
+    const catalog = [sampleStory({ ...input, id: 'resume', slug: 'resume' })]
+    const ranked = rankContinueReading(catalog, [candidate], now)
+    const top = ranked[0]
+    return {
+      score: top?.score ?? 0,
+      detail: top
+        ? `resume ${top.story.slug} at ${depth.toFixed(0)}% after ${hoursAgo.toFixed(1)}h`
+        : 'no resumable read (bounced, finished, or older than 14 days)',
+      outputs: { resumable: ranked.length },
+      mode: 'production',
+    }
+  },
+  'scroll-depth-quality': (input) => {
+    const depth = num(input, 'scrollDepth', 70)
+    const completed = Boolean(input.completed)
+    const score = scrollDepthQuality([historyRow('a', { scrollDepth: depth, completed })])
+    return { score, detail: `readQuality=${score.toFixed(3)}`, mode: 'production' }
+  },
+  'return-visit-propensity': (input) => {
+    const days = Math.max(0, Math.round(num(input, 'readingDays14d', 4)))
+    const hoursSinceLast = num(input, 'hoursSinceLast', 12)
+    const now = new Date()
+    const history = Array.from({ length: days }, (_, index) => {
+      const at = new Date(now.getTime() - (hoursSinceLast + index * 24) * 3_600_000).toISOString()
+      return historyRow(`d${index}`, { readAt: at, firstReadAt: at })
+    })
+    const score = returnVisitPropensity(history, now)
+    return {
+      score,
+      detail: `returnPropensity=${score.toFixed(3)} from ${days} reading day(s)`,
+      mode: 'production',
+    }
+  },
+  'reengagement-ranking': (input) => {
+    const propensity = clamp01(num(input, 'returnPropensity', 0.3))
+    const affinity = clamp01(num(input, 'affinity', 0.5))
+    const score = reengagementWeight(propensity, affinity)
+    return {
+      score,
+      detail: `reengagement=${score.toFixed(3)} (drift=${(1 - propensity).toFixed(2)})`,
+      mode: 'production',
+    }
+  },
+  'locale-preference-scorer': (input) => {
+    const ne = Math.max(0, Math.round(num(input, 'neReads', 7)))
+    const en = Math.max(0, Math.round(num(input, 'enReads', 3)))
+    const catalog = [
+      sampleStory({ id: 'ne-only', slug: 'ne-only' }),
+      sampleStory({ id: 'bilingual', slug: 'bilingual' }),
+    ]
+    catalog[0]!.hasEnglish = false
+    catalog[1]!.hasEnglish = true
+    const history = [
+      ...Array.from({ length: ne }, (_, i) =>
+        historyRow(`ne-only`, { slug: 'ne-only', title: `n${i}` }),
+      ),
+      ...Array.from({ length: en }, (_, i) =>
+        historyRow(`bilingual`, { slug: 'bilingual', title: `e${i}` }),
+      ),
+    ]
+    const preference = localePreference(catalog, history)
+    if (!preference) {
+      return {
+        score: 0,
+        detail: `sample of ${ne + en} reads is below the 3-read floor; no locale opinion`,
+        mode: 'production',
+      }
+    }
+    // Reported as Nepali preference, which is what the language hint acts on.
+    const score = clamp01(1 - preference.english)
+    return {
+      score,
+      detail: `nePreference=${score.toFixed(3)} over ${preference.sample} reads`,
+      mode: 'production',
+    }
+  },
+  'topic-follow-ranking': (input) => {
+    const reads = Math.max(0, num(input, 'topicReads', 4))
+    const peak = Math.max(reads, num(input, 'peakTopicReads', 10))
+    const story = sampleStory(input)
+    story.tags = [{ id: 'budget', slug: 'budget', nameNe: 'बजेट' }]
+    const score = topicFollowScore(
+      {
+        topics: new Map([
+          ['budget', reads],
+          ['peak', peak],
+        ]),
+        authors: new Map(),
+      },
+      story,
+    )
+    return { score, detail: `topicFollow=${score.toFixed(3)}`, mode: 'production' }
+  },
+  'author-follow-ranking': (input) => {
+    const completes = Math.max(0, num(input, 'completedReads', 3))
+    const peak = Math.max(completes, num(input, 'peakAuthorReads', 8))
+    const story = sampleStory(input)
+    const score = authorFollowScore(
+      {
+        topics: new Map(),
+        authors: new Map([
+          ['desk', completes],
+          ['peak', peak],
+        ]),
+      },
+      story,
+    )
+    return { score, detail: `authorFollow=${score.toFixed(3)}`, mode: 'production' }
+  },
+  'homepage-slot-diversity': (input) => {
+    // Runs the same spacing pass the homepage latest rail and hub ranking use,
+    // and reports the streak it actually shortened rather than a formula.
+    const slugs = str(input, 'categories', 'politics,politics,politics,politics,economy,sports')
+      .split(',')
+      .map((slug) => slug.trim())
+      .filter(Boolean)
+    const maxStreak = Math.max(1, Math.round(num(input, 'maxSameCategoryStreak', 2)))
+    const stories = slugs.map((slug, index) =>
+      sampleStory({ ...input, id: `slot-${index}`, slug: `slot-${index}`, category: slug }),
+    )
+    const spaced = spaceOutCategories(stories, maxStreak)
+    const before = longestRun(slugs)
+    const after = longestRun(spaced.map((story) => story.category.slug))
+    const score = clamp01(1 - Math.max(0, after - maxStreak) / Math.max(1, slugs.length))
+    return {
+      score,
+      detail: `longestStreak ${before} -> ${after} (limit ${maxStreak})`,
+      outputs: { order: spaced.map((story) => story.category.slug), longestStreak: after },
+      mode: 'production',
+    }
   },
   'time-decay-ranking': (input) => {
     const score = timeDecayScore(str(input, 'publishedAt', new Date().toISOString()))
@@ -327,7 +519,17 @@ export const CORE_HANDLERS: Record<string, AlgorithmHandler> = {
       commentsLastTenMinutes: num(input, 'recentRejects', 3),
       text: str(input, 'text', 'see http://spam.example'),
     })
-    return { score: result.score, detail: `troll=${result.score.toFixed(3)}`, mode: 'production' }
+    // Reports the decision the comment path would actually make, not just the
+    // number: this score alone never rejects, it only escalates the queue.
+    const triage = triageComment('pending', [], result)
+    return {
+      score: result.score,
+      detail: `troll=${result.score.toFixed(3)} → ${triage.status}${
+        triage.escalated ? ` (${triage.flags.join(', ')})` : ''
+      }`,
+      outputs: { status: triage.status, flags: triage.flags },
+      mode: 'production',
+    }
   },
   'comment-ranking': (input) => {
     const ranked = rankComment({
@@ -373,10 +575,34 @@ export const CORE_HANDLERS: Record<string, AlgorithmHandler> = {
     }
   },
   'fatigue-prevention': (input) => {
-    const sent = num(input, 'sentToday', 4)
-    const max = num(input, 'maxPerDay', 5)
-    const score = clamp01(1 - sent / Math.max(1, max))
-    return { score, detail: `fatigueHeadroom=${score.toFixed(3)}`, mode: 'heuristic' }
+    // Two caps, both real: the batch-level headroom the delivery cron reports,
+    // and the per-subscriber `maxPerDay` quota `scoreNotification` enforces
+    // before any push leaves the worker.
+    const sent = Math.max(0, Math.round(num(input, 'sentToday', 4)))
+    const max = Math.max(1, Math.round(num(input, 'maxPerDay', 8)))
+    const score = fatigueHeadroom(sent, max)
+    const quota = scoreNotification(
+      { userId: 'reader', kind: 'breaking', at: new Date().toISOString(), articleId: 'a1' },
+      {
+        userId: 'reader',
+        breaking: true,
+        followedTopics: true,
+        followedAuthors: true,
+        dailyDigest: false,
+        marketing: false,
+        channels: { push: true, email: false, sms: false },
+      },
+      { userId: 'reader', sent24h: sent },
+      { maxPerDay: max, breakingCooldownMinutes: 15, topicCooldownMinutes: 45 },
+    )
+    return {
+      score,
+      detail: `headroom=${score.toFixed(3)} after ${sent}/${max} sends — next push ${
+        quota.willSend ? 'allowed' : `blocked (${quota.reason})`
+      }`,
+      outputs: { headroom: score, willSend: quota.willSend },
+      mode: 'production',
+    }
   },
   'ltv-engagement-score': (input) => {
     const score = ltvEngagementScore({
@@ -430,10 +656,13 @@ export const CORE_HANDLERS: Record<string, AlgorithmHandler> = {
     return { score: 1, detail: 'circuit-breaker module available (sync probe)', mode: 'production' }
   },
   'revision-similarity': (input) => {
-    const a = tokenSet(str(input, 'a', 'draft one text about flood'))
-    const b = tokenSet(str(input, 'b', 'draft two text about flood damage'))
-    const score = jaccard(a, b)
-    return { score, detail: `revisionJaccard=${score.toFixed(3)}`, mode: 'heuristic' }
+    // Delegates to the desk scorer the journalist assist route calls, so the
+    // panel and the newsroom cannot drift to two different definitions.
+    const score = revisionSimilarity(
+      str(input, 'a', 'draft one text about flood'),
+      str(input, 'b', 'draft two text about flood damage'),
+    )
+    return { score, detail: `revisionJaccard=${score.toFixed(3)}`, mode: 'production' }
   },
 }
 

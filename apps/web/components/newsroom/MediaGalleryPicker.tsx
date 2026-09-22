@@ -1,7 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
+import { useFocusTrap } from '@/lib/browser/use-focus-trap'
 import type { Locale } from '@nagarikwatch/db'
 
 export type GalleryMediaItem = {
@@ -40,13 +41,20 @@ export function MediaGalleryPicker({
   const [pending, startTransition] = useTransition()
   const [query, setQuery] = useState('')
   const [alt, setAlt] = useState('')
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  // The dialog announced itself as modal but behaved like inert markup: Escape
+  // did nothing and Tab walked straight out to the editor behind the backdrop.
+  useFocusTrap(open, panelRef, onClose)
 
   useEffect(() => {
     if (!open) return
-    setError(null)
-    setCmsUrl(null)
     startTransition(() => {
       void (async () => {
+        // Cleared inside the transition rather than in the effect body: a
+        // synchronous setState there forces an extra render before the fetch.
+        setError(null)
+        setCmsUrl(null)
         const res = await fetch('/api/admin/media', { credentials: 'include' })
         const data = (await res.json().catch(() => ({}))) as {
           items?: GalleryMediaItem[]
@@ -139,7 +147,7 @@ export function MediaGalleryPicker({
         aria-label={ne ? 'बन्द गर्नुहोस्' : 'Close'}
         onClick={onClose}
       />
-      <div className="media-gallery-picker__panel">
+      <div ref={panelRef} className="media-gallery-picker__panel">
         <header className="media-gallery-picker__header">
           <div>
             <h2>{title ?? (ne ? 'मिडिया ग्यालरी' : 'Media gallery')}</h2>

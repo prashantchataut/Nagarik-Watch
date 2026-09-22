@@ -79,3 +79,12 @@ VERIFICATION_TSC_WEB.log
 RECOVERY_*.json
 worklog.md
 
+# Agent/debug scratch: screenshot runs, chrome traces, and stray lockfiles from
+# package managers this repo does not use (pnpm is the only supported one).
+.tmp-*/
+apps/web/scripts/*.png
+bun.lock
+bun.lockb
+package-lock.json
+yarn.lock
+*.zip

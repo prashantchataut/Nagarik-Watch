@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
 import { readLocalReaderPreferences, writeLocalReaderPreferences } from '@/lib/reader/preferences'
 import type { ReaderPreferences } from '@/lib/reader/preferences-store'
+import { useClientState } from '@/lib/browser/use-client-state'
 
 type Props = {
   locale: Locale
@@ -36,7 +37,12 @@ function toggle(list: string[], value: string) {
 
 export function ReaderPreferencePanel({ locale, categories, tags, authors }: Props) {
   const english = locale === 'en'
-  const [preferences, setPreferences] = useState<ReaderPreferences>(fallback)
+  // Device preferences render first; the account copy replaces them when the
+  // API answers, which is the same order the old mount effect produced.
+  const [preferences, setPreferences] = useClientState<ReaderPreferences>(
+    () => readLocalReaderPreferences() ?? fallback,
+    fallback,
+  )
   const [active, setActive] = useState<'categories' | 'tags' | 'authors'>('categories')
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<'loading' | 'saved' | 'device' | 'saving'>('loading')
@@ -45,7 +51,6 @@ export function ReaderPreferencePanel({ locale, categories, tags, authors }: Pro
   useEffect(() => {
     let cancelled = false
     const local = readLocalReaderPreferences()
-    if (local) setPreferences(local)
     const fp = getOrCreateReaderId()
     fetch(`/api/preferences?fingerprint=${encodeURIComponent(fp)}`, { cache: 'no-store' })
       .then(async (response) => {
@@ -64,7 +69,7 @@ export function ReaderPreferencePanel({ locale, categories, tags, authors }: Pro
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [setPreferences])
 
   const options = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase(english ? 'en' : 'ne')

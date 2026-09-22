@@ -68,7 +68,14 @@ describe('checkEntitlement', () => {
   it('allows premium pages for a subscribed reader when membership is public', async () => {
     process.env.NEXT_PUBLIC_MEMBERSHIP_PUBLIC = 'true'
     const result = await checkEntitlement(
-      { userId: 'u1', email: 'a@b.com', displayName: null, role: 'subscriber', locale: 'en' },
+      {
+        userId: 'u1',
+        email: 'a@b.com',
+        displayName: null,
+        role: 'subscriber',
+        locale: 'en',
+        twoFactorEnabled: false,
+      },
       { premium: true },
     )
     expect(result.allowed).toBe(true)

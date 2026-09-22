@@ -23,11 +23,12 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { HtmlLangSync } from '@/components/HtmlLangSync'
 import { MastheadReference } from '@/components/live/MastheadReference'
 import { FALLBACK_NAV_CATEGORIES, PUBLICATION } from '@/lib/site'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export async function PublicShell({ locale, children }: { locale: Locale; children: ReactNode }) {
   const dict = getDictionary(locale)
   const [sourceNavCategories, session] = await Promise.all([
-    getNavCategories().catch(() => []),
+    orEmpty(getNavCategories()),
     getSession().catch(() => null),
   ])
   const navCategories =
@@ -65,7 +66,10 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
           </Suspense>
         }
       />
-      <main id="main" className="min-h-[55vh] pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0">
+      <main
+        id="main"
+        className="min-h-[55vh] pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0"
+      >
         {children}
       </main>
       <Footer locale={locale} navCategories={navCategories} />

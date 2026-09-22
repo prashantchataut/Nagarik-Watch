@@ -7,6 +7,7 @@ import { listAdminSettings, setAdminSetting } from '@/lib/admin-settings'
 import { listArticlesForAdmin, updateArticle } from '@/lib/content/store/json-store'
 import { isPayloadCanonical } from '@/lib/content/payload-admin-client'
 import { revalidatePublishedArticle } from '@/lib/content/revalidate-published'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 const SETTING_KEY = 'editorial.breakingAutoBoost'
 const MAX_BOOSTS_PER_RUN = 3
@@ -25,7 +26,7 @@ export type BreakingBoostResult = {
 export async function isBreakingAutoBoostEnabled(): Promise<boolean> {
   if (process.env.BREAKING_AUTO_BOOST?.trim().toLowerCase() === 'false') return false
   if (process.env.BREAKING_AUTO_BOOST?.trim().toLowerCase() === 'true') return true
-  const settings = await listAdminSettings().catch(() => [])
+  const settings = await orEmpty(listAdminSettings())
   const row = settings.find((setting) => setting.key === SETTING_KEY)
   if (!row) return false
   const value = row.value.trim().toLowerCase()
@@ -33,7 +34,7 @@ export async function isBreakingAutoBoostEnabled(): Promise<boolean> {
 }
 
 export async function ensureBreakingAutoBoostSetting(): Promise<void> {
-  const settings = await listAdminSettings().catch(() => [])
+  const settings = await orEmpty(listAdminSettings())
   if (settings.some((setting) => setting.key === SETTING_KEY)) return
   await setAdminSetting({
     key: SETTING_KEY,
@@ -87,10 +88,11 @@ export async function runBreakingAutoBoost(): Promise<BreakingBoostResult> {
     }
   }
 
-  const { items: adminList } = await listArticlesForAdmin({ limit: 400 }).catch(() => ({
-    items: [],
-    total: 0,
-  }))
+  // The fallback is typed off the real return type; a bare `{ items: [] }`
+  // infers `never[]` and silently degrades every later `article.slug` read.
+  const { items: adminList } = await listArticlesForAdmin({ limit: 400 }).catch(
+    (): Awaited<ReturnType<typeof listArticlesForAdmin>> => ({ items: [], total: 0 }),
+  )
 
   if (!enabled) {
     const cleared: BreakingBoostResult['cleared'] = []

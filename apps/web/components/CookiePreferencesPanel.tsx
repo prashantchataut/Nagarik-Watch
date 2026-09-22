@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { Locale } from '@nagarikwatch/db'
 import {
   CONSENT_POLICY_VERSION,
@@ -9,16 +9,16 @@ import {
   readConsent,
   writeConsent,
 } from '@/lib/reader/consent'
+import { useClientState } from '@/lib/browser/use-client-state'
 
 export function CookiePreferencesPanel({ locale }: { locale: Locale }) {
-  const [choice, setChoice] = useState<ConsentChoice>(defaultConsent())
+  const [choice, setChoice] = useClientState<ConsentChoice>(
+    () => readConsent() ?? defaultConsent(),
+    defaultConsent(),
+  )
   const [saved, setSaved] = useState(false)
   const lang = locale === 'en' ? 'en' : 'ne'
   const en = locale === 'en'
-
-  useEffect(() => {
-    setChoice(readConsent() ?? defaultConsent())
-  }, [])
 
   function save(next: ConsentChoice) {
     writeConsent({

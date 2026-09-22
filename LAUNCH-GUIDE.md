@@ -1,94 +1,76 @@
-# नागरिक वाच — Launch Guide (how to complete this site properly)
+# नागरिक वाच — Launch Guide
 
-You are at **94% (launch check)**. Everything code-side is done; the last 6%
-is operator configuration only. Follow this in order.
+This is the short version. The maintained operator guide is
+[`docs/launch-runbook.md`](./docs/launch-runbook.md) (topology, full env matrix,
+soft → hard launch phases); the per-variable checklist is
+[`docs/env-launch-checklist.md`](./docs/env-launch-checklist.md) and
+[`.env.example`](./.env.example).
+
+**Readiness is computed, not written down.** Run `pnpm launch:gate`, or open
+`/admin/launch` on the Node host, and work the failing checks. Anything this
+file claims that the gate contradicts — believe the gate: it reads the same
+environment the app does (`apps/web/lib/launch-gate-core.ts`).
 
 ---
 
-## 1. Database (production) — 15 minutes
+## 1. Database — Postgres
 
-The dev app uses SQLite (fine for local + demo). On Vercel the filesystem is
-ephemeral, so production needs Postgres.
+`apps/web/prisma/schema.prisma` is already `provider = "postgresql"`; there is
+nothing to flip. Without `DATABASE_URL` the app falls back to an embedded PGlite
+database, which is fine for local development and is **not** production-safe —
+the launch gate fails on it.
 
-1. Create a free Postgres: [Neon](https://neon.tech) or Vercel Postgres.
-2. `apps/web/prisma/schema.prisma` → change `provider = "sqlite"` to
-   `provider = "postgresql"`.
-3. Locally: `DATABASE_URL="postgres://…" pnpm db:push` (creates all tables).
-4. Seed journalists + demo content (optional): `DATABASE_URL="postgres://…" pnpm seed`.
-5. Add `DATABASE_URL` in Vercel → Settings → Environment Variables, redeploy.
+1. Create a Postgres ([Neon](https://neon.tech), Vercel Postgres, Supabase…).
+2. `DATABASE_URL="postgres://…" pnpm db:push` — auth and engagement tables.
+3. `DATABASE_URL="postgres://…" pnpm migrate:ops` — the ops tables.
+4. Optional demo newsroom data: `DATABASE_URL="postgres://…" pnpm seed`.
+5. Set `DATABASE_URL` and `AUTH_AUTO_MIGRATE=false` on the deployment.
 
-## 2. Cloudflare R2 media uploads — 15 minutes
+## 2. Media uploads
 
-The journalist editor + `/api/uploads` are R2-ready (S3-compatible, SigV4,
-no extra dependencies). Configuration only:
+`POST /api/admin/media/upload` (staff-authenticated) writes through the first
+backend that is configured, in this order:
 
-1. Cloudflare dashboard → **R2 Object Storage** → Create bucket
-   (e.g. `nagarik-watch-media`).
-2. Bucket → Settings → **Public access** → enable the `r2.dev` URL, or
-   (better) attach a custom domain like `media.nagarikwatch.com`.
-3. R2 → **Manage API Tokens** → Create token (Object Read & Write).
-4. Set env vars (Vercel + local `.env`):
-   - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
-   - `R2_BUCKET=nagarik-watch-media`
-   - `R2_PUBLIC_BASE_URL=https://media.nagarikwatch.com` (no trailing slash)
-5. Verify: `/journalist` → लेख लेख्नुहोस् → **"R2 मा तस्वीर अपलोड"** — uploads now
-   return a public CDN URL that is stored on the article.
+1. **Cloudflare R2** — requires an `MEDIA_BUCKET` R2 binding on the Worker
+   (add an `r2_buckets` entry to `apps/web/wrangler.jsonc`) plus
+   `STORAGE_PUBLIC_BASE_URL` for the public object URL. The binding is what
+   authenticates; there are no R2 API keys to set.
+2. **Vercel Blob** — `BLOB_READ_WRITE_TOKEN`.
+3. Local disk — development and E2E only.
 
-No Cloudinary needed anywhere — R2 replaces that plan entirely.
+Partial `STORAGE_*`/`S3_*` values without a public base URL fail the gate
+rather than silently dropping uploads.
 
-## 3. Site URL — 2 minutes
+## 3. Site URL and auth origin
 
-Set `NEXT_PUBLIC_SITE_URL=https://nagarikwatch.com` (Vercel env var + DNS).
-This powers canonical URLs, OG tags, sitemap and RSS links.
+Set `NEXT_PUBLIC_SITE_URL` and `BETTER_AUTH_URL` to the production HTTPS origin.
+These drive canonical URLs, OG tags, sitemap, RSS and the auth cookie domain;
+the gate rejects `localhost` and plain HTTP once `NEXT_PUBLIC_LAUNCH_STATUS=live`.
 
-## 4. Payments (when ready to charge) — optional
+## 4. Content authority
 
-The subscription flow is complete with a demo checkout. To go live:
+Soft launch runs on the JSON/Postgres desk (`CONTENT_SOURCE` unset or `json`).
+Hard launch cuts over to Payload: `CONTENT_SOURCE=payload`, the `PAYLOAD_*`
+variables, `REVALIDATE_SECRET`, and `PAYLOAD_DB_PUSH=false`. See ADR-014 in
+`docs/adr/` and the cutover section of the runbook.
 
-- eSewa / Khalti merchant account → use their "ePay" form redirect flow.
-- Replace the demo branch in `apps/web/src/app/api/subscribe/route.ts`
-  (the `method` field already accepts `esewa | khalti | bank`).
-- Add a webhook route to confirm payments; store the transaction id on
-  `Subscription`. Amounts are already modelled (300/2500/5000 NPR).
+## 5. Origin topology
 
-## 5. SEO — after the first deploy
+Reader → Cloudflare DNS/CDN → **Vercel Node** (`apps/web`). Do not point the
+apex at the static Cloudflare Pages export: static export strips the API routes,
+and `pnpm launch:origin` fails the build when it detects one. See ADR-004.
 
-- **Google Search Console**: add the domain → verify → submit
-  `https://nagarikwatch.com/sitemap.xml`. Request indexing for the home page.
-- **Bing Webmaster Tools** (feeds DuckDuckGo): import from GSC.
-- **Google News Publisher Center**: submit the site (news sitemap is at
-  `/sitemap.xml`; articles carry NewsArticle structured data, which is what
-  Google News parses).
-- **Social**: validate OG with the Meta Sharing Debugger once; the JSON-LD
-  and cards are already emitted.
-- Keep publishing: fresh content + the hourly sitemap revalidation is what
-  actually moves rankings.
+## 6. After the first deploy
 
-## 6. Content operations
+- **Google Search Console** → verify the domain, submit `/sitemap.xml`.
+- **Bing Webmaster Tools** (feeds DuckDuckGo) → import from GSC.
+- **Google News Publisher Center** → articles already carry `NewsArticle`
+  structured data.
+- Validate OG once with the Meta Sharing Debugger.
 
-- Log in at `/journalist` (editor). Tabs: पिच → लेख → मेरा लेख → सम्पादक डेस्क.
-- सम्पादक डेस्क: publish/decline queue, breaking-news banner, ads manager,
-  launch check, analytics, subscribers CSV, comment moderation.
-- विपद् केन्द्र (`/disaster`) is a static-data hub — update the numbers in
-  `apps/web/src/lib/news/disaster.ts` when the situation changes (it has an
-  as-of date label, so readers always see freshness).
-- The static archive (99 stories) lives in `src/lib/news/data.ts` —
-  new daily reporting goes through the CMS, not the archive.
+## 7. Newsroom operations
 
-## 7. The last 6% (why 94%)
-
-| Check | What completes it |
-|---|---|
-| Cloudflare R2 (4 pts) | The five `R2_*` env vars above |
-| Production site URL (2 pts) | `NEXT_PUBLIC_SITE_URL` + real domain |
-
-Set those two and the panel reads **100%**.
-
-## 8. Optional next steps (not required to launch)
-
-- Swap plain `<a>` navigation to `next/link` prefetching for snappier SPA feel.
-- Move the USGS/NRB fetchers to Vercel Cron caching if traffic grows.
-- News sitemap split (`news-sitemap.xml` with `<news:news>` tags) once you
-  publish >1000 URLs.
-- Hire real reporters 🙂 — the desk structure, workflow and ethics pages are
-  waiting for them.
+Staff sign in at `/admin/login`; the desk is `/admin` — dashboard, articles,
+submissions queue, live blogs, media library, ads, polls, comments, newsletter,
+audit log, SEO, roles and the launch panel. Payload's own CMS UI is a separate
+app (`apps/admin`).

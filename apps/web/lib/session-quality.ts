@@ -6,6 +6,7 @@ import {
   type MostReadStat,
 } from '@/lib/engagement/store'
 import { getRankingEventStats, type RankingEventStat } from '@/lib/engagement/ranking-events'
+import { orEmpty } from '@/lib/resilience/or-empty'
 
 export type SessionQualityRow = {
   articleSlug: string
@@ -113,9 +114,9 @@ export function aggregateSessionQuality(
 /** Privacy-preserving 24-hour aggregate; no owner or session identifiers leave storage. */
 export async function getSessionQualityReport(): Promise<SessionQualityReport> {
   const [reading, ranking, bookmarks] = await Promise.all([
-    getMostReadStats(1, 100).catch(() => []),
-    getRankingEventStats(24 * 60).catch(() => []),
-    getBookmarkVelocityStats(24 * 60, 100).catch(() => []),
+    orEmpty(getMostReadStats(1, 100)),
+    orEmpty(getRankingEventStats(24 * 60)),
+    orEmpty(getBookmarkVelocityStats(24 * 60, 100)),
   ])
   return aggregateSessionQuality(reading, ranking, bookmarks)
 }

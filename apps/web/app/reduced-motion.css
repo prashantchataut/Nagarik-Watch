@@ -1,0 +1,30 @@
+/*
+ * Global reduced-motion safety net.
+ *
+ * globals.css honours `prefers-reduced-motion` for exactly three things — the
+ * ticker, the dialog and the calendar day — while the ~277 Tailwind
+ * `transition-*`/`animate-*` utilities across the app and the smooth
+ * `scroll-behavior` on <html> kept animating for readers who asked their OS
+ * not to animate. This file is the catch-all, kept separate because it is a
+ * cross-cutting override rather than part of the design system.
+ *
+ * Near-zero durations rather than `none`: transitions still fire their
+ * `transitionend`, so components that wait on one do not hang.
+ *
+ * Deliberately unlayered — an unlayered rule outranks the `@layer base`
+ * declarations in globals.css regardless of import order.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+}

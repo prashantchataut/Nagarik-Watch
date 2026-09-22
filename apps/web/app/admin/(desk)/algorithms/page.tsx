@@ -10,10 +10,12 @@ import {
   type AlgorithmStatus,
 } from '@/lib/algorithms/catalog'
 import {
+  algorithmRuntimeHonesty,
   algorithmRuntimeModeCounts,
   runAllAlgorithms,
   type AlgorithmRunResult,
 } from '@/lib/algorithms/runtime'
+import { productWiringFor } from '@/lib/algorithms/product-surfaces'
 import {
   bayesianAverage,
   banditExplorationScore,
@@ -68,6 +70,7 @@ export default async function AlgorithmsPage() {
   const numbering = algorithmRoadmapNumberingStats()
   const runtimeResults = runAllAlgorithms()
   const modeCounts = algorithmRuntimeModeCounts(runtimeResults)
+  const honesty = algorithmRuntimeHonesty(runtimeResults)
   const okCount = runtimeResults.filter((r) => r.ok).length
   const failCount = runtimeResults.length - okCount
   const resultsById = new Map(runtimeResults.map((r) => [r.id, r]))
@@ -156,6 +159,51 @@ export default async function AlgorithmsPage() {
           throw. Adapter modes still run local computation; they do not invent CDN/WAF/vendor
           traffic.
         </p>
+        {/*
+          The pass count above is a statement about the handlers, not about the
+          site. These three are the ones an editor should read first.
+        */}
+        <dl className="mt-4 grid gap-3 border-t border-rule pt-3 text-meta sm:grid-cols-3">
+          <div>
+            <dt className="text-mute">Reader-facing</dt>
+            <dd className="font-display text-h3 text-ink">
+              {honesty.productWired}
+              <span className="text-mute">/{honesty.total}</span>
+            </dd>
+            <p className="mt-1 text-caption text-mute">
+              Something a reader reaches imports the implementing module — a page they load, a
+              public API route their browser calls, or the cron that pushes to their device. A
+              further {honesty.newsroomWired} are newsroom-facing — a desk page or admin route runs
+              them, no reader render does — and {honesty.platformWired} ship as platform config
+              (next.config, middleware, CSS, CI) that no module imports. The remaining{' '}
+              {honesty.total - honesty.productWired - honesty.newsroomWired - honesty.platformWired}{' '}
+              run here and nowhere else. Verified against the import graph by{' '}
+              <code>lib/algorithms/wiring.test.ts</code>.
+            </p>
+          </div>
+          <div>
+            <dt className="text-mute">Fixture input</dt>
+            <dd className="font-display text-h3 text-ink">
+              {honesty.fixtureOnly}
+              <span className="text-mute">/{honesty.total}</span>
+            </dd>
+            <p className="mt-1 text-caption text-mute">
+              This panel passes no input, so those ran on <code>defaultFixtureFor(id)</code>. Their
+              scores describe the fixture, not production.
+            </p>
+          </div>
+          <div>
+            <dt className="text-mute">Returned outputs</dt>
+            <dd className="font-display text-h3 text-ink">
+              {honesty.withOutputs}
+              <span className="text-mute">/{honesty.total}</span>
+            </dd>
+            <p className="mt-1 text-caption text-mute">
+              The rest report a score and a detail line only — enough to prove the handler runs, not
+              enough to inspect what it decided.
+            </p>
+          </div>
+        </dl>
         {engagement.sampleCount === 0 ? (
           <p className="mt-3 font-semibold text-amber-900">
             No ranking events were observed in the last two hours. Formula output below is a code
@@ -314,6 +362,7 @@ function CatalogSection({
                 </div>
                 <h3 className="admin-section-title">{algorithm.label}</h3>
                 <p className="mt-2 text-meta text-ink-soft">{algorithm.summary}</p>
+                <WiringNote id={algorithm.id} />
               </AdminCard>
             </div>
           )
@@ -328,11 +377,56 @@ function CatalogSection({
             {rest.map((algorithm) => (
               <li key={algorithm.id}>
                 #{algorithm.number} {algorithm.label}
+                {productWiringFor(algorithm.id)?.surface === 'newsroom' ? (
+                  <span className="ml-1 text-caption text-mute">· newsroom-only</span>
+                ) : null}
+                {productWiringFor(algorithm.id)?.surface === 'platform' ? (
+                  <span className="ml-1 text-caption text-mute">· platform</span>
+                ) : null}
+                {productWiringFor(algorithm.id) ? null : (
+                  <span className="ml-1 text-caption text-mute">· panel-only</span>
+                )}
               </li>
             ))}
           </ul>
         </details>
       ) : null}
     </>
+  )
+}
+
+/**
+ * Says, per entry, who actually reaches this algorithm. Without it the pass
+ * badge above reads as "shipped", which for most of the catalog it is not — and
+ * the newsroom case has to be named separately, because calling the media
+ * upload route "panel-only" would be the same lie in the other direction.
+ */
+function WiringNote({ id }: { id: string }) {
+  const wiring = productWiringFor(id)
+  if (!wiring) {
+    return (
+      <p className="mt-2 text-caption text-mute">
+        Panel-only — no reader or newsroom surface imports it yet.
+      </p>
+    )
+  }
+  if (wiring.surface === 'newsroom') {
+    return (
+      <p className="mt-2 text-caption text-ink-soft">
+        Newsroom-facing via <code>{wiring.entrypoint}</code> — no reader render calls it.
+      </p>
+    )
+  }
+  if (wiring.surface === 'platform') {
+    return (
+      <p className="mt-2 text-caption text-ink-soft">
+        Ships as platform config in <code>{wiring.module}</code> — no module imports it.
+      </p>
+    )
+  }
+  return (
+    <p className="mt-2 text-caption text-ink-soft">
+      Reader-facing via <code>{wiring.entrypoint}</code>
+    </p>
   )
 }

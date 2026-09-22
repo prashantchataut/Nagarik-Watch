@@ -1,6 +1,7 @@
 import type { StoryCardData } from '@nagarikwatch/db'
-import { nearestByEmbedding } from './algorithms/product/local-embeddings'
+import { buildTermVectors, termNeighbors, type TermVectors } from './search-semantics'
 import { CIVIC_QUERY_LEXICON, lexiconExpandTerm, type QueryLexicon } from './search-lexicon'
+import { stemToken } from './nlp/stemmer'
 
 /**
  * Production search stack for the bounded news corpus:
@@ -66,6 +67,8 @@ export type SearchIndex = {
   vocabulary: string[]
   trie: TrieNode
   docCount: number
+  /** Co-occurrence vectors over title+deck terms; see `lib/search-semantics`. */
+  semantics: TermVectors
 }
 
 const FIELDS: Field[] = ['title', 'deck', 'author', 'category']
@@ -98,23 +101,35 @@ function tokenize(text: string): string[] {
     .filter((t) => t.length > 0)
 }
 
-function hasDevanagari(token: string): boolean {
-  return /[\u0900-\u097F]/.test(token)
+/**
+ * Reduce a surface token to the one key it is indexed under.
+ *
+ * This used to emit every prefix of length >= 2 so that बजेटमा and बजेट would
+ * meet. It worked, but it multiplied the index by the average token length and
+ * handed two-letter keys a document frequency close to the corpus size, which
+ * drove their IDF toward zero — the ranking signal those keys existed to feed.
+ * A suffix stripper gets the same collision from a single key (see
+ * `lib/nlp/stemmer`), and matches against a half-typed word are recovered at
+ * query time by `prefixExpandTerm` over the now far smaller vocabulary.
+ */
+function indexKeyForToken(token: string): string {
+  return stemToken(token)
 }
 
 /**
- * Expand a surface token into index keys. Devanagari is agglutinative in news
- * copy (बजेटमा / बजेटको), so we index meaningful prefixes; Latin stays whole-token.
+ * Recover the prefix behaviour the old index gave for free: when a query term
+ * has no posting list of its own, treat it as the start of a word and pull the
+ * stems it could grow into. Scored below an exact hit so a real match always
+ * outranks a guess about what the reader is still typing.
  */
-function indexKeysForToken(token: string): string[] {
-  if (!token) return []
-  if (!hasDevanagari(token)) return [token]
-  const keys = new Set<string>([token])
-  const min = 2
-  for (let len = min; len < token.length; len++) {
-    keys.add(token.slice(0, len))
+function prefixExpandTerm(term: string, vocabulary: readonly string[], limit = 8): string[] {
+  if (term.length < 2) return []
+  const matches: string[] = []
+  for (const candidate of vocabulary) {
+    if (candidate.length > term.length && candidate.startsWith(term)) matches.push(candidate)
   }
-  return [...keys]
+  matches.sort((a, b) => a.length - b.length || a.localeCompare(b))
+  return matches.slice(0, limit)
 }
 
 function emptyFieldFreq(): FieldFreq {
@@ -249,6 +264,10 @@ export function buildIndex(stories: SearchableStory[]): SearchIndex {
   const sumLen: Record<Field, number> = { title: 0, deck: 0, author: 0, category: 0 }
   const trie = emptyTrie()
   const vocabSet = new Set<string>()
+  // One term set per story, for the co-occurrence vectors. Author and category
+  // are left out on purpose: every story in a section shares its category
+  // label, so including it would make "politics" everyone's nearest neighbour.
+  const semanticDocs: Array<Set<string>> = []
 
   docs.forEach((doc, docIndex) => {
     const fieldText: Record<Field, string> = {
@@ -258,6 +277,7 @@ export function buildIndex(stories: SearchableStory[]): SearchIndex {
       category: `${doc.categoryLabelNe} ${doc.categoryLabelEn}`,
     }
     const lengths: Record<Field, number> = { title: 0, deck: 0, author: 0, category: 0 }
+    const topicalTerms = new Set<string>()
 
     for (const field of FIELDS) {
       const tokens = tokenize(fieldText[field])
@@ -265,11 +285,11 @@ export function buildIndex(stories: SearchableStory[]): SearchIndex {
       sumLen[field] += tokens.length
       const tf = new Map<string, number>()
       for (const token of tokens) {
-        for (const key of indexKeysForToken(token)) {
-          // Prefix keys inherit the surface-token hit so Devanagari stems match.
-          tf.set(key, (tf.get(key) ?? 0) + 1)
-          vocabSet.add(key)
-        }
+        const key = indexKeyForToken(token)
+        if (!key) continue
+        tf.set(key, (tf.get(key) ?? 0) + 1)
+        vocabSet.add(key)
+        if (field === 'title' || field === 'deck') topicalTerms.add(key)
       }
       for (const [token, count] of tf) {
         let posting = inverted.get(token)
@@ -284,6 +304,7 @@ export function buildIndex(stories: SearchableStory[]): SearchIndex {
     }
 
     docLen.push(lengths)
+    semanticDocs.push(topicalTerms)
 
     trieInsert(trie, doc.titleNe)
     if (doc.titleEn) trieInsert(trie, doc.titleEn)
@@ -306,27 +327,44 @@ export function buildIndex(stories: SearchableStory[]): SearchIndex {
     vocabulary: [...vocabSet],
     trie,
     docCount: docs.length,
+    semantics: buildTermVectors(semanticDocs),
   }
 }
 
+/** Prefix recoveries rank below exact, fuzzy and lexicon matches. */
+const PREFIX_BOOST = 0.55
+
 function expandQueryTerm(
   term: string,
-  vocabulary: string[],
+  index: SearchIndex,
   lexicon: QueryLexicon,
 ): Array<{ term: string; boost: number }> {
   const variants = new Map<string, number>()
-  variants.set(term, 1)
-  for (const fuzzy of fuzzyExpandTerm(term, vocabulary)) {
-    if (!variants.has(fuzzy)) variants.set(fuzzy, fuzzy === term ? 1 : 0.85)
+  const stem = stemToken(term)
+  variants.set(stem, 1)
+
+  for (const fuzzy of fuzzyExpandTerm(stem, index.vocabulary)) {
+    if (!variants.has(fuzzy)) variants.set(fuzzy, fuzzy === stem ? 1 : 0.85)
   }
-  for (const synonym of lexiconExpandTerm(term, lexicon)) {
-    const normalized = normalize(synonym)
-    if (!normalized || variants.has(normalized)) continue
-    variants.set(normalized, LEXICON_BOOST)
-    for (const key of indexKeysForToken(normalized)) {
-      if (!variants.has(key)) variants.set(key, LEXICON_BOOST * 0.95)
+
+  // Look the lexicon up under both the surface form the reader typed and its
+  // stem, because the curated table is keyed on dictionary forms.
+  const synonyms = [...lexiconExpandTerm(term, lexicon)]
+  if (stem !== term) synonyms.push(...lexiconExpandTerm(stem, lexicon))
+  for (const synonym of synonyms) {
+    const key = stemToken(normalize(synonym))
+    if (!key || variants.has(key)) continue
+    variants.set(key, LEXICON_BOOST)
+  }
+
+  // Nothing in the index yet — the reader is probably still typing the word.
+  const anyPosting = [...variants.keys()].some((variant) => index.inverted.has(variant))
+  if (!anyPosting) {
+    for (const prefixed of prefixExpandTerm(stem, index.vocabulary)) {
+      if (!variants.has(prefixed)) variants.set(prefixed, PREFIX_BOOST)
     }
   }
+
   return [...variants.entries()].map(([variant, boost]) => ({ term: variant, boost }))
 }
 
@@ -343,50 +381,96 @@ export function search(
   const terms = normalize(rawQuery).split(' ').filter(Boolean)
   if (terms.length === 0 || index.docCount === 0) return []
 
-  const expanded = terms.map((term) => expandQueryTerm(term, index.vocabulary, lexicon))
-  const candidateScores = new Map<number, number>()
+  const expanded = terms.map((term) => expandQueryTerm(term, index, lexicon))
+  const perTerm = expanded.map((variants) => scoreTerm(index, variants))
 
-  for (let t = 0; t < expanded.length; t++) {
-    const variants = expanded[t] ?? []
-    const matchedDocs = new Map<number, number>()
+  // Strict AND first: a document that carries every term is what the reader
+  // asked for.
+  const candidateScores = intersectTerms(perTerm)
 
-    for (const variant of variants) {
-      const posting = index.inverted.get(variant.term)
-      if (!posting) continue
-      const docFreq = posting.size
-      for (const [docIndex, freqs] of posting) {
-        let fieldScore = 0
-        for (const field of FIELDS) {
-          fieldScore +=
-            FIELD_WEIGHT[field] *
-            bm25Field(
-              freqs[field],
-              index.docLen[docIndex]?.[field] ?? 0,
-              index.avgdl[field] || 1,
-              docFreq,
-              index.docCount,
-            )
-        }
-        matchedDocs.set(
-          docIndex,
-          Math.max(matchedDocs.get(docIndex) ?? 0, fieldScore * variant.boost),
-        )
+  // Every term matched something, but no single document carried all of them.
+  // Returning nothing here was the old behaviour and it is the wrong answer for
+  // a news archive, where one rare proper noun in a four-word query is enough
+  // to empty the page. Fall back to a union ranked by how much of the query
+  // each document covers, so full matches still sort above partial ones.
+  if (candidateScores.size === 0 && terms.length > 1) {
+    const union = new Map<number, number>()
+    const coverage = new Map<number, number>()
+    for (const matched of perTerm) {
+      for (const [docIndex, score] of matched) {
+        union.set(docIndex, (union.get(docIndex) ?? 0) + score)
+        coverage.set(docIndex, (coverage.get(docIndex) ?? 0) + 1)
       }
     }
-
-    if (matchedDocs.size === 0) return []
-
-    if (t === 0) {
-      for (const [docIndex, score] of matchedDocs) candidateScores.set(docIndex, score)
-    } else {
-      for (const docIndex of [...candidateScores.keys()]) {
-        const termScore = matchedDocs.get(docIndex)
-        if (termScore === undefined) candidateScores.delete(docIndex)
-        else candidateScores.set(docIndex, (candidateScores.get(docIndex) ?? 0) + termScore)
-      }
+    for (const [docIndex, score] of union) {
+      const covered = (coverage.get(docIndex) ?? 1) / terms.length
+      // Quadratic in coverage so three-of-four beats two-of-four decisively.
+      union.set(docIndex, score * covered * covered)
     }
+    return finalizeResults(index, union, terms, limit)
   }
 
+  return finalizeResults(index, candidateScores, terms, limit)
+}
+
+/** BM25 every document reachable from one query term's expansion set. */
+function scoreTerm(
+  index: SearchIndex,
+  variants: Array<{ term: string; boost: number }>,
+): Map<number, number> {
+  const matchedDocs = new Map<number, number>()
+  for (const variant of variants) {
+    const posting = index.inverted.get(variant.term)
+    if (!posting) continue
+    const docFreq = posting.size
+    for (const [docIndex, freqs] of posting) {
+      let fieldScore = 0
+      for (const field of FIELDS) {
+        fieldScore +=
+          FIELD_WEIGHT[field] *
+          bm25Field(
+            freqs[field],
+            index.docLen[docIndex]?.[field] ?? 0,
+            index.avgdl[field] || 1,
+            docFreq,
+            index.docCount,
+          )
+      }
+      // A term's variants are alternatives, not additions: take the best one
+      // rather than letting a word with many synonyms outscore a direct hit.
+      matchedDocs.set(
+        docIndex,
+        Math.max(matchedDocs.get(docIndex) ?? 0, fieldScore * variant.boost),
+      )
+    }
+  }
+  return matchedDocs
+}
+
+/** Documents carrying every query term, scored by the sum of their term scores. */
+function intersectTerms(perTerm: Array<Map<number, number>>): Map<number, number> {
+  const first = perTerm[0]
+  if (!first || first.size === 0) return new Map()
+  const result = new Map(first)
+  for (let t = 1; t < perTerm.length; t += 1) {
+    const matched = perTerm[t]
+    if (!matched || matched.size === 0) return new Map()
+    for (const docIndex of [...result.keys()]) {
+      const termScore = matched.get(docIndex)
+      if (termScore === undefined) result.delete(docIndex)
+      else result.set(docIndex, (result.get(docIndex) ?? 0) + termScore)
+    }
+    if (result.size === 0) return result
+  }
+  return result
+}
+
+function finalizeResults(
+  index: SearchIndex,
+  candidateScores: Map<number, number>,
+  terms: string[],
+  limit: number,
+): SearchResult[] {
   const scored: SearchResult[] = []
   for (const [docIndex, score] of candidateScores) {
     const doc = index.docs[docIndex]
@@ -403,40 +487,68 @@ export function search(
 
   scored.sort((a, b) => b.score - a.score || b.publishedAt.localeCompare(a.publishedAt))
 
-  if (process.env.SEARCH_SEMANTIC_LOCAL === '1' && rawQuery.trim()) {
-    return blendLocalSemantic(index, rawQuery, scored, limit)
+  // Semantic recall runs only when the lexical page came back thin, appends
+  // rather than re-ranks, and is bounded below the weakest real hit.
+  // `SEARCH_SEMANTIC_LOCAL=0` is the kill switch.
+  if (process.env.SEARCH_SEMANTIC_LOCAL !== '0' && terms.length > 0) {
+    return semanticFill(index, terms, scored, limit)
   }
   return scored.slice(0, limit)
 }
 
-/** Optional local term-vector blend — never replaces BM25 as primary. */
-function blendLocalSemantic(
+/** Below this many lexical hits, the page reads as a dead end worth filling. */
+const SEMANTIC_FILL_BELOW = 3
+/** How many learned neighbours each query term may contribute. */
+const SEMANTIC_NEIGHBORS_PER_TERM = 2
+
+/**
+ * Corpus-learned recall, used only to rescue a thin result page.
+ *
+ * The predecessor of this function scored the query against hashed
+ * term-frequency vectors and called the result semantic. It was not: hashing
+ * preserves token identity and nothing else, so every document it could reach
+ * was one the inverted index had already reached, and the fill never fired on
+ * real queries. What replaces it asks a different question — which *terms* the
+ * archive uses interchangeably — and then searches for those terms. That can
+ * reach a story with no word in common with the query, which is the whole
+ * point of the feature.
+ *
+ * The AND-ing in `search` is deliberate and stays untouched: neighbours never
+ * join the intersection, they only append underneath it.
+ */
+function semanticFill(
   index: SearchIndex,
-  rawQuery: string,
-  bm25Hits: SearchResult[],
+  terms: string[],
+  lexicalHits: SearchResult[],
   limit: number,
 ): SearchResult[] {
-  const candidates = index.docs.map((doc) => ({
-    id: doc.story.id,
-    text: `${doc.titleNe} ${doc.titleEn} ${doc.deckNe} ${doc.deckEn}`,
-  }))
-  const semantic = nearestByEmbedding(rawQuery, candidates, Math.max(limit, 12))
-  const byId = new Map(bm25Hits.map((hit) => [hit.id, hit]))
-  const maxBm25 = bm25Hits[0]?.score ?? 1
-  for (const item of semantic) {
-    const story = index.docs.find((doc) => doc.story.id === item.id)?.story
-    if (!story) continue
-    const existing = byId.get(item.id)
-    const semanticBoost = Math.max(0, item.score) * maxBm25 * 0.35
-    if (existing) {
-      byId.set(item.id, { ...existing, score: existing.score + semanticBoost })
-    } else {
-      byId.set(item.id, { ...story, score: semanticBoost })
+  if (lexicalHits.length >= SEMANTIC_FILL_BELOW) return lexicalHits.slice(0, limit)
+
+  const expansions: Array<{ term: string; boost: number }> = []
+  for (const term of terms) {
+    const stem = stemToken(term)
+    for (const neighbor of termNeighbors(index.semantics, stem, SEMANTIC_NEIGHBORS_PER_TERM)) {
+      expansions.push({ term: neighbor.term, boost: neighbor.score })
     }
   }
-  return [...byId.values()]
-    .sort((a, b) => b.score - a.score || b.publishedAt.localeCompare(a.publishedAt))
-    .slice(0, limit)
+  if (expansions.length === 0) return lexicalHits.slice(0, limit)
+
+  const seen = new Set(lexicalHits.map((hit) => hit.id))
+  // Everything lexical outranks everything semantic, so the fill starts below
+  // the weakest real hit rather than competing with it.
+  const ceiling = (lexicalHits.at(-1)?.score ?? 1) * 0.5
+
+  const fill: SearchResult[] = []
+  for (const [docIndex, score] of scoreTerm(index, expansions)) {
+    const story = index.docs[docIndex]?.story
+    if (!story || seen.has(story.id) || score <= 0) continue
+    seen.add(story.id)
+    // Squash BM25 into (0,1) before scaling, so the ordering among fill items
+    // survives but none of them can climb into the lexical band.
+    fill.push({ ...story, score: ceiling * (score / (score + 1)) })
+  }
+  fill.sort((a, b) => b.score - a.score || b.publishedAt.localeCompare(a.publishedAt))
+  return [...lexicalHits, ...fill].slice(0, limit)
 }
 
 /** Prefix autocomplete from the title/author/category trie. */
@@ -453,8 +565,11 @@ export function highlightSegments(
   display: string,
   query: string,
 ): { text: string; match: boolean }[] {
-  const terms = normalize(query)
-    .split(' ')
+  // Highlight the stem as well as the surface form: a reader who searched
+  // बजेटको should see बजेट lit up inside बजेटमा, which is the word the index
+  // actually matched on.
+  const surface = normalize(query).split(' ').filter(Boolean)
+  const terms = [...new Set([...surface, ...surface.map(stemToken)])]
     .filter(Boolean)
     .sort((a, b) => b.length - a.length)
   if (terms.length === 0) return [{ text: display, match: false }]

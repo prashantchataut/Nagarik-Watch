@@ -16,7 +16,7 @@ const READING_WORDS_PER_MINUTE: Record<Locale | 'hi', number> = {
 function tokensFor(text: string): string[] {
   return text
     .trim()
-    .split(/[\s\u0964\u0965,.;:!?()\[\]{}"'“”‘’]+/u)
+    .split(/[\s\u0964\u0965,.;:!?()[\]{}"'“”‘’]+/u)
     .filter(Boolean)
 }
 
