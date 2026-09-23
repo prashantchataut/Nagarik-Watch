@@ -11,6 +11,7 @@ import {
 import { listJournalistDraftMeta } from '@/lib/journalist-workspace'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
+import { formatAdDateTime } from '@nagarikwatch/db'
 
 export const metadata: Metadata = {
   title: 'Editor feedback',
@@ -67,8 +68,8 @@ export default async function JournalistFeedbackPage({
                   <blockquote>{item.editorFeedback}</blockquote>
                   <small>
                     {item.revisionRequestedAt
-                      ? new Date(item.revisionRequestedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')
-                      : new Date(item.updatedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}
+                      ? formatAdDateTime(item.revisionRequestedAt, ne ? 'ne' : 'en')
+                      : formatAdDateTime(item.updatedAt, ne ? 'ne' : 'en')}
                   </small>
                 </div>
                 {item.articleId ? (

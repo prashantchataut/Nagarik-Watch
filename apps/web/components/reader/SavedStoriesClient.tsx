@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
+import { formatAdDate } from '@nagarikwatch/db'
 import { READER_BOOKMARKS_KEY, safeParseArray, type BookmarkRecord } from '@/lib/reader/state'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
@@ -245,8 +246,7 @@ export function SavedStoriesClient({ locale }: { locale: 'ne' | 'en' }) {
                 </span>
                 <div className="saved-library__story">
                   <p>
-                    {sourceLabel} ·{' '}
-                    {new Date(story.savedAt).toLocaleDateString(ne ? 'ne-NP' : 'en-GB')}
+                    {sourceLabel} · {formatAdDate(story.savedAt, ne ? 'ne' : 'en')}
                     {story.readingMinutes
                       ? ` · ${story.readingMinutes} ${ne ? 'मिनेट' : 'min'}`
                       : ''}

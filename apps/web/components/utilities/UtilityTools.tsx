@@ -2,7 +2,14 @@
 
 import { useMemo, useState, type ReactNode } from 'react'
 import type { Locale } from '@nagarikwatch/db'
-import { adToBs, bsToAd, formatBsFull, preetiToUnicode, unicodeToPreeti } from '@nagarikwatch/db'
+import {
+  adToBs,
+  bsToAd,
+  formatAdDate,
+  formatBsFull,
+  preetiToUnicode,
+  unicodeToPreeti,
+} from '@nagarikwatch/db'
 import { useClientState } from '@/lib/browser/use-client-state'
 
 type ForexRate = {
@@ -122,13 +129,7 @@ export function DateConverterTool({ locale }: { locale: Locale }) {
   const gregorian = useMemo(() => {
     try {
       const result = bsToAd(Number(year), Number(month), Number(day))
-      return result
-        ? result.toLocaleDateString(en ? 'en-GB' : 'ne-NP', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })
-        : ''
+      return result ? formatAdDate(result, en ? 'en' : 'ne') : ''
     } catch {
       return ''
     }

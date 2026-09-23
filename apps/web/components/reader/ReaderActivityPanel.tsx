@@ -1,7 +1,12 @@
 ﻿'use client'
 
 import { useEffect, useMemo, useState, useTransition } from 'react'
-import type { Locale, StoryCardData } from '@nagarikwatch/db'
+import {
+  formatAdDateTime,
+  formatAdWeekdayNarrow,
+  type Locale,
+  type StoryCardData,
+} from '@nagarikwatch/db'
 import {
   READER_BOOKMARKS_KEY,
   READER_HISTORY_KEY,
@@ -283,11 +288,7 @@ export function ReaderActivityPanel({
               data-read={day.completed > 0}
               title={`${day.date}: ${day.completed}`}
             >
-              <span>
-                {new Date(`${day.date}T12:00:00`).toLocaleDateString(english ? 'en-GB' : 'ne-NP', {
-                  weekday: 'narrow',
-                })}
-              </span>
+              <span>{formatAdWeekdayNarrow(`${day.date}T12:00:00`, english ? 'en' : 'ne')}</span>
               <i aria-hidden="true" />
             </li>
           ))}
@@ -306,7 +307,7 @@ export function ReaderActivityPanel({
                 <p>
                   {item.scrollDepth}% · {Math.max(1, Math.round(item.dwellSeconds / 60))}{' '}
                   {english ? 'min' : 'मिनेट'} ·{' '}
-                  {new Date(item.readAt).toLocaleString(english ? 'en-GB' : 'ne-NP')}
+                  {formatAdDateTime(item.readAt, english ? 'en' : 'ne')}
                 </p>
               </div>
               <span className="reader-ledger__progress" aria-label={`${item.scrollDepth}%`}>

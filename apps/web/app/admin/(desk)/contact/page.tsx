@@ -9,6 +9,7 @@ import {
 } from '@/lib/contact-messages'
 import { recordAuditEvent } from '@/lib/audit-log'
 import { AdminCard, AdminEmptyState, AdminPageHeader } from '@/components/admin/primitives'
+import { formatAdDateTime } from '@nagarikwatch/db'
 
 export const metadata: Metadata = {
   title: 'सम्पर्क सन्देश',
@@ -37,11 +38,7 @@ async function updateStatus(formData: FormData) {
 }
 
 function formatDate(value: string): string {
-  return new Intl.DateTimeFormat('ne-NP', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Kathmandu',
-  }).format(new Date(value))
+  return formatAdDateTime(value, 'ne')
 }
 
 export default async function ContactInboxPage() {

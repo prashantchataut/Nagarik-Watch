@@ -9,6 +9,7 @@ import type { ReplicaPage } from '@/lib/epaper'
 import { LiveDeskShell } from '@/components/public/LiveDeskShell'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 import { staticEpaperDateParams } from '@/lib/static-export-params'
+import { formatAdDate } from '@nagarikwatch/db'
 
 // Session-aware on the Node origin, but still exportable for the API-less static preview.
 export const dynamic = 'force-dynamic'
@@ -58,7 +59,7 @@ export default async function EpaperViewerPage({
     <LiveDeskShell
       locale={en ? 'en' : 'ne'}
       title={edition.edition}
-      dek={new Date(edition.date).toLocaleDateString(en ? 'en-GB' : 'ne-NP')}
+      dek={formatAdDate(edition.date, en ? 'en' : 'ne')}
       aside={
         <Link
           href={localizeHref(locale, '/epaper')}

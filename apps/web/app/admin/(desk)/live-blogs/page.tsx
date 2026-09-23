@@ -1,3 +1,4 @@
+import { formatAdDateTime } from '@nagarikwatch/db'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { revalidatePath } from 'next/cache'
@@ -102,11 +103,7 @@ async function changeStatus(formData: FormData) {
 
 function formatDate(value?: string): string {
   if (!value) return '—'
-  return new Intl.DateTimeFormat('ne-NP', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Kathmandu',
-  }).format(new Date(value))
+  return formatAdDateTime(value, 'ne')
 }
 
 export default async function LiveBlogsPage() {

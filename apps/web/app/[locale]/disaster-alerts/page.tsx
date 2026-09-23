@@ -3,6 +3,7 @@ import { asLocale } from '@/lib/i18n/locales'
 import { getDisasterAlerts } from '@/lib/live/disaster'
 import { LiveDeskShell } from '@/components/public/LiveDeskShell'
 import { canonicalAlternates } from '@/lib/seo/canonical'
+import { formatAdDateTime } from '@nagarikwatch/db'
 
 export const revalidate = 60
 
@@ -55,7 +56,7 @@ export default async function DisasterAlertsPage({
             <p className="mt-1 text-caption text-mute">
               {en ? 'Source' : 'स्रोत'}: {alerts.source}
               {hasValidUpdate
-                ? ` · ${en ? 'checked' : 'जाँच'} ${updatedAt.toLocaleString(en ? 'en-GB' : 'ne-NP')}`
+                ? ` · ${en ? 'checked' : 'जाँच'} ${formatAdDateTime(updatedAt, en ? 'en' : 'ne')}`
                 : ''}
             </p>
           </div>
@@ -100,7 +101,7 @@ export default async function DisasterAlertsPage({
                 </div>
                 {alert.occurredAt ? (
                   <time dateTime={alert.occurredAt} className="text-caption text-mute">
-                    {new Date(alert.occurredAt).toLocaleString(en ? 'en-GB' : 'ne-NP')}
+                    {formatAdDateTime(alert.occurredAt, en ? 'en' : 'ne')}
                   </time>
                 ) : null}
               </li>
@@ -137,7 +138,11 @@ export default async function DisasterAlertsPage({
       {/* Always-useful furniture: emergency contacts stay on this page in every state. */}
       <section className="mt-9" aria-labelledby="emergency-contacts-title">
         <div className="flex items-baseline justify-between gap-3 border-b border-rule pb-2.5">
-          <h2 id="emergency-contacts-title" className="font-display text-h3 font-extrabold text-ink" lang={en ? 'en' : 'ne'}>
+          <h2
+            id="emergency-contacts-title"
+            className="font-display text-h3 font-extrabold text-ink"
+            lang={en ? 'en' : 'ne'}
+          >
             {en ? 'Emergency contacts' : 'आपत्कालीन सम्पर्क'}
           </h2>
           <span className="text-caption text-mute" lang={en ? 'en' : 'ne'}>
@@ -155,7 +160,10 @@ export default async function DisasterAlertsPage({
               <p className="text-caption font-semibold text-ink-soft" lang={en ? 'en' : 'ne'}>
                 {en ? contact.en : contact.ne}
               </p>
-              <p className="mt-1 font-display text-[1.9rem] font-black tabular-nums leading-none text-brand-strong" lang="en">
+              <p
+                className="mt-1 font-display text-[1.9rem] font-black tabular-nums leading-none text-brand-strong"
+                lang="en"
+              >
                 {contact.num}
               </p>
             </div>

@@ -6,6 +6,7 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { listNewsletterIssues } from '@/lib/newsletter-admin'
 import { SITE_URL } from '@/lib/site'
 import { orEmpty } from '@/lib/resilience/or-empty'
+import { formatAdDateTime } from '@nagarikwatch/db'
 
 export function generateStaticParams() {
   return staticNewsletterIssueParams()
@@ -54,7 +55,7 @@ export default async function NewsletterIssuePage({
         {issue.subject}
       </h1>
       <time className="mt-3 block text-meta text-mute" dateTime={issue.createdAt}>
-        {new Date(issue.createdAt).toLocaleString(en ? 'en-GB' : 'ne-NP')}
+        {formatAdDateTime(issue.createdAt, en ? 'en' : 'ne')}
       </time>
       <div className="mt-8 whitespace-pre-wrap text-body leading-relaxed text-ink">
         {issue.body}

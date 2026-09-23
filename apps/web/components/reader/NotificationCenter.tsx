@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { Locale } from '@nagarikwatch/db'
+import { formatAdDateTime, type Locale } from '@nagarikwatch/db'
 import { getOrCreateReaderId } from '@/lib/reader/consent'
 import {
   READER_PREFERENCES_EVENT,
@@ -342,7 +342,7 @@ export function NotificationCenter({ locale, className }: { locale: Locale; clas
                 </span>
                 <strong>{alert.title}</strong>
                 <small>
-                  {new Date(alert.publishedAt).toLocaleString(english ? 'en-GB' : 'ne-NP')} ·{' '}
+                  {formatAdDateTime(alert.publishedAt, english ? 'en' : 'ne')} ·{' '}
                   {Math.round(alert.score)}
                 </small>
               </button>

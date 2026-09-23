@@ -12,6 +12,7 @@ import {
   AdminTable,
 } from '@/components/admin/primitives'
 import { SubmissionModerationActions } from '@/components/admin/SubmissionModerationActions'
+import { formatAdDateTime } from '@nagarikwatch/db'
 
 export const metadata: Metadata = {
   title: 'टिप',
@@ -44,7 +45,7 @@ function submissionStatusTone(
 function formatDate(value: string) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('ne-NP', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+  return formatAdDateTime(date, 'ne')
 }
 
 export default async function SubmissionsPage({

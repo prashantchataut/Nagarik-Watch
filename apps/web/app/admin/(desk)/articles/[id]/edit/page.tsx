@@ -19,6 +19,7 @@ import {
   payloadAdminUrl,
 } from '@/lib/content/payload-admin-client'
 import { orEmpty } from '@/lib/resilience/or-empty'
+import { formatAdDateTime } from '@nagarikwatch/db'
 
 export const dynamic = 'force-dynamic'
 
@@ -124,7 +125,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   return (
     <div>
       <AdminPageHeader
-        subtitle={`${article.titleNe} · ${article.workflowStage} · अपडेट ${new Date(article.updatedAt).toLocaleString('ne-NP')}`}
+        subtitle={`${article.titleNe} · ${article.workflowStage} · अपडेट ${formatAdDateTime(article.updatedAt, 'ne')}`}
       />
       <CmsCanonicalBanner />
       <AdminLoadErrorBanner message={loadError} />

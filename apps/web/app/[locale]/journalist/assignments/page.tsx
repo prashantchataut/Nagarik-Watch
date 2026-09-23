@@ -11,6 +11,7 @@ import {
 import { listJournalistDraftMeta } from '@/lib/journalist-workspace'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { JournalistWorkspaceShell } from '@/components/journalist/JournalistWorkspaceShell'
+import { formatAdDateTime } from '@nagarikwatch/db'
 
 export const metadata: Metadata = {
   title: 'My drafts',
@@ -115,7 +116,7 @@ export default async function JournalistAssignmentsPage({
                   </p>
                   <small>
                     {ne ? 'अन्तिम परिवर्तन' : 'Last changed'}{' '}
-                    {new Date(draft.updatedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}
+                    {formatAdDateTime(draft.updatedAt, ne ? 'ne' : 'en')}
                   </small>
                 </div>
                 {draft.articleId ? (

@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { readdirSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { describe, expect, it, vi } from 'vitest'
 import { isAllowedPublicFirstSegment } from '@/lib/public-path-allowlist'
 
 describe('public first-segment allowlist', () => {
@@ -26,10 +28,35 @@ describe('public first-segment allowlist', () => {
     expect(isAllowedPublicFirstSegment('a')).toBe(false)
   })
 
-  it('still lets unknown slug-shaped segments through', () => {
-    // Deliberate: a category created in the CMS must not 404 before the seed
-    // list or NEXT_PUBLIC_EXTRA_PUBLIC_SEGMENTS catches up. The App Router
-    // answers with the recovery UI instead.
+  it('rejects unknown slug-shaped segments by default', () => {
+    // This is what makes an unknown URL a real 404 rather than a soft one.
+    expect(isAllowedPublicFirstSegment('brand-new-desk')).toBe(false)
+  })
+
+  it('lets them through when the permissive flag is set', () => {
+    vi.stubEnv('NEXT_PUBLIC_PERMISSIVE_PUBLIC_SEGMENTS', '1')
     expect(isAllowedPublicFirstSegment('brand-new-desk')).toBe(true)
+    vi.unstubAllEnvs()
+  })
+})
+
+describe('allowlist covers every real public route', () => {
+  // Turning `NEXT_PUBLIC_PERMISSIVE_PUBLIC_SEGMENTS` off makes this list
+  // load-bearing: a top-level route directory that is missing from it becomes a
+  // hard 404 for readers. `preeti-unicode` was already in that state and only
+  // worked because the permissive fallback caught it. Read the router tree at
+  // test time so adding a page cannot silently 404 it.
+  const localeDir = resolve(__dirname, '../app/[locale]')
+  const routeSegments = readdirSync(localeDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .filter((name) => !name.startsWith('[') && !name.startsWith('(') && name !== '__not-found')
+
+  it('finds the router tree', () => {
+    expect(routeSegments.length).toBeGreaterThan(20)
+  })
+
+  it.each(routeSegments)('allows /%s', (segment) => {
+    expect(isAllowedPublicFirstSegment(segment)).toBe(true)
   })
 })
