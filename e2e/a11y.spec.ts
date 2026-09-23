@@ -53,10 +53,24 @@ test.describe('automated accessibility audit', () => {
   test('public routes have no critical or serious WCAG A/AA violations', async ({ page }) => {
     test.setTimeout(120_000)
     await page.goto('/', { waitUntil: 'domcontentloaded' })
-    const firstArticlePath = await page
-      .locator('#main article a[href]')
-      .first()
-      .getAttribute('href')
+
+    // Scan a real article too, when the front page has one. `getAttribute` on a
+    // `.first()` locator auto-waits and throws on timeout rather than returning
+    // null, so reaching for the href directly made the `: REQUIRED_ROUTES`
+    // fallback below unreachable and burned the whole 120s budget whenever the
+    // corpus was empty — which it is until the newsroom publishes. Wait
+    // explicitly, briefly, and treat absence as the documented case it is.
+    const articleLink = page.locator('#main article a[href]').first()
+    let firstArticlePath: string | null = null
+    try {
+      await articleLink.waitFor({ state: 'attached', timeout: 5_000 })
+      firstArticlePath = await articleLink.getAttribute('href')
+    } catch {
+      test.info().annotations.push({
+        type: 'skipped-route',
+        description: 'No article link on the front page; scanned the fixed routes only.',
+      })
+    }
 
     const routes = firstArticlePath
       ? [...REQUIRED_ROUTES, new URL(firstArticlePath, 'http://localhost').pathname]
