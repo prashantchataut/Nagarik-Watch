@@ -23,6 +23,7 @@ import {
   withRoles,
 } from '../access/rbac'
 import { revalidatePublishedArticle, revalidateDeletedArticle } from '../hooks/revalidate'
+import { recordArticleAuditEvents } from '../hooks/editorial-audit'
 
 const allowedBlockTypes = new Set([
   'paragraph',
@@ -910,7 +911,9 @@ export const Articles: CollectionConfig = {
         return normalized
       },
     ],
-    afterChange: [revalidatePublishedArticle],
+    // Revalidation first: it is reader-facing, and the ledger must never be able
+    // to hold a published story back. See hooks/editorial-audit.ts.
+    afterChange: [revalidatePublishedArticle, recordArticleAuditEvents],
     afterDelete: [revalidateDeletedArticle],
   },
 }
