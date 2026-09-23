@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import type { PaginatedStories } from '@nagarikwatch/db'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getCategory, getCategoryPage } from '@/lib/content'
 import { Pagination } from '@/components/Pagination'
@@ -79,7 +80,15 @@ export default async function CategoryPage({
       ? category.nameEn || category.nameNe
       : category.nameNe || category.nameEn
     : ''
-  if (!category || !resolvedName || !result || page > result.totalPages) notFound()
+  if (!category || !resolvedName) notFound()
+  // Only an unknown desk is a 404. A known desk whose source read threw, or that
+  // simply has nothing published yet, renders the honest empty state below —
+  // which is what the canonical fallback above promises. Treating a null page as
+  // "not found" turned every desk into a 404 the moment the content source
+  // hiccuped, including through the whole soft-launch window before the corpus
+  // exists.
+  const stories: PaginatedStories = result ?? { items: [], page: 1, totalPages: 1, total: 0 }
+  if (page > stories.totalPages) notFound()
   const name = resolvedName
   const description = english ? categoryResult?.descriptionEn : categoryResult?.descriptionNe
   // Short desk lead only when CMS has real copy; never invent marketing blurb.
@@ -88,13 +97,13 @@ export default async function CategoryPage({
   return (
     <div className="mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5">
       <HubIndexHeader title={name} lead={lead} lang={english ? 'en' : 'ne'} />
-      {result.items.length ? (
+      {stories.items.length ? (
         <>
           <div className="mt-4">
             <AdSlot locale={locale} placementKey="category-top" />
           </div>
           <div className="mt-4">
-            <CategoryDesk stories={result.items} locale={locale} />
+            <CategoryDesk stories={stories.items} locale={locale} />
           </div>
           <AdSlot
             locale={locale}
@@ -103,8 +112,8 @@ export default async function CategoryPage({
             className="mt-4"
           />
           <Pagination
-            page={result.page}
-            totalPages={result.totalPages}
+            page={stories.page}
+            totalPages={stories.totalPages}
             basePath={localizeHref(locale, `/${slug}`)}
             locale={locale}
             className="mt-6"
