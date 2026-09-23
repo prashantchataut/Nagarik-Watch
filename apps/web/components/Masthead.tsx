@@ -115,18 +115,37 @@ export function Masthead({
               </span>
               {reference ? <span className="min-w-0">{reference}</span> : null}
             </div>
-            <Link href={unicodeHref} className={`${factAction} hidden 2xl:inline-flex`} lang={lang}>
+            {/*
+              The utility cluster does not prefetch. These are chrome — Unicode
+              converter, bookmarks, account, locale toggle — and each prefetch of
+              a dynamic route costs a server invocation on every page view. The
+              locale toggle was the worst of them: it pulled the entire English
+              homepage down behind every Nepali page. The desk navigation below
+              keeps its prefetch, because that is where readers actually go.
+            */}
+            <Link
+              href={unicodeHref}
+              prefetch={false}
+              className={`${factAction} hidden 2xl:inline-flex`}
+              lang={lang}
+            >
               {en ? 'Unicode' : 'युनिकोड'}
             </Link>
             <Link
               href={savedHref}
+              prefetch={false}
               className={iconAction}
               title={dict.navSaved}
               aria-label={dict.navSaved}
             >
               <IconBookmark width={18} height={18} />
             </Link>
-            <Link href={accountHref} className={`${factAction} hidden xl:inline-flex`} lang={lang}>
+            <Link
+              href={accountHref}
+              prefetch={false}
+              className={`${factAction} hidden xl:inline-flex`}
+              lang={lang}
+            >
               <IconUser width={17} height={17} />
               <span className="max-w-[8rem] truncate">{accountLabel}</span>
             </Link>
@@ -137,6 +156,7 @@ export function Masthead({
             />
             <Link
               href={toggleHref}
+              prefetch={false}
               className="inline-flex min-h-9 min-w-11 items-center justify-center border border-chrome-rule px-2 text-caption font-extrabold text-on-chrome transition-colors hover:border-brand hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               lang={en ? 'ne' : 'en'}
               aria-label={dict.localeToggleAria}
