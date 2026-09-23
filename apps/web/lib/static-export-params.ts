@@ -18,19 +18,44 @@ export function staticCategoryParams(): Array<{ locale: Locale; category: string
   )
 }
 
+/**
+ * `output: export` rejects an empty `generateStaticParams()` result outright
+ * ("returned an empty array ... at least one route must be generated"), so every
+ * dynamic route in the static preview has to emit at least one path even when the
+ * corpus is empty. `preview` is that path: it renders the normal recovery page,
+ * it is `noindex`, and it never reaches a sitemap (sitemaps are built from the
+ * store, not from these functions). The same rule already applied to
+ * `staticEpaperDateParams`, `staticLiveBlogParams` and
+ * `staticNewsletterIssueParams`; these two were still hardcoded to `[]`, which is
+ * why the Cloudflare preview build could never export.
+ */
+const PREVIEW_SLUG = 'preview'
+
 export function staticArticleParams(): Array<{ locale: Locale; category: string; slug: string }> {
-  return []
+  const category = FALLBACK_NAV_CATEGORIES[0]?.slug
+  if (!category) return []
+  return LOCALES.map((locale) => ({ locale, category, slug: PREVIEW_SLUG }))
 }
 
 /** `calendar` redirects to /patro; it needs a prerendered path but never a sitemap entry. */
 const UTILITY_TOOLS = ['calendar', ...UTILITY_TOOL_SLUGS] as const
 
+/**
+ * Every slug-list route funnels through here, so the "export needs at least one
+ * path" rule lives here instead of in each caller.
+ *
+ * `tags.ts` is intentionally empty (volatile topics are CMS-created), so without
+ * this `[locale]/tag/[slug]` and `[locale]/topic/[slug]` abort the export with
+ * "returned an empty array from generateStaticParams()" — which is how the
+ * Cloudflare preview build kept failing after the other blockers were cleared.
+ */
 function localeFieldParams<T extends string>(
   field: T,
   slugs: readonly string[],
 ): Array<{ locale: Locale } & Record<T, string>> {
+  const values = slugs.length > 0 ? [...slugs] : [PREVIEW_SLUG]
   return LOCALES.flatMap((locale) =>
-    slugs.map((value) => ({ locale, [field]: value }) as { locale: Locale } & Record<T, string>),
+    values.map((value) => ({ locale, [field]: value }) as { locale: Locale } & Record<T, string>),
   )
 }
 
@@ -68,7 +93,8 @@ export function staticUtilityToolParams() {
 }
 
 export function staticPhotoParams(): Array<{ locale: Locale; slug: string }> {
-  return []
+  // Same rule as staticArticleParams above: the export needs one path to exist.
+  return localeFieldParams('slug', [PREVIEW_SLUG])
 }
 
 export function staticLiveBlogParams() {

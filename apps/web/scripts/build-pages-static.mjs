@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readdirSync,
   renameSync,
+  readFileSync,
   rmSync,
   statSync,
   writeFileSync,
@@ -22,6 +23,45 @@ const proxyPath = path.join(appDir, 'proxy.ts')
 const proxyBak = path.join(appDir, 'proxy.ts.pages-bak')
 const outDir = path.join(appDir, 'out')
 const stashed = []
+/** Non-zero when the export failed; the tree is restored before we exit. */
+let failure = 0
+const patchedBackupDir = path.join(appDir, '.pages-build-bak', 'patched')
+
+/**
+ * `scripts/patch-page-dynamic.mjs` rewrites `export const dynamic` in page files
+ * and has no restore of its own, so a build that fails (or is killed) used to
+ * leave the source tree rewritten from `force-dynamic` to `force-static`. That is
+ * how a failed deploy turns into a *confusing* next deploy. Snapshot the files it
+ * will touch and put them back in the `finally` below.
+ */
+function walkPages(dir, files = []) {
+  for (const name of readdirSync(dir)) {
+    const full = path.join(dir, name)
+    if (statSync(full).isDirectory()) walkPages(full, files)
+    else if (name === 'page.tsx') files.push(full)
+  }
+  return files
+}
+
+function backupPatchedPages() {
+  for (const file of walkPages(path.join(appDir, 'app'))) {
+    const src = readFileSync(file, 'utf8')
+    const willPatch =
+      src.includes("export const dynamic = 'force-dynamic'") ||
+      src.includes('export const dynamic = pageDynamic')
+    if (!willPatch) continue
+    const dest = path.join(patchedBackupDir, path.relative(appDir, file))
+    mkdirSync(path.dirname(dest), { recursive: true })
+    cpSync(file, dest, { force: true })
+  }
+}
+
+function restorePatchedPages() {
+  if (!existsSync(patchedBackupDir)) return
+  for (const file of walkPages(patchedBackupDir)) {
+    cpSync(file, path.join(appDir, path.relative(patchedBackupDir, file)), { force: true })
+  }
+}
 
 function stashPath(fromRelative, toRelative) {
   const from = path.join(appDir, fromRelative)
@@ -68,7 +108,17 @@ function run(cmd, args, env = {}) {
     env: { ...process.env, CF_PAGES_STATIC: '1', ...env },
     shell: process.platform === 'win32',
   })
-  if (result.status !== 0) process.exit(result.status ?? 1)
+  if (result.status !== 0) {
+    // Throw instead of `process.exit()`: exiting here skips the `finally` below,
+    // which is what leaves app/api, app/admin, app/feeds and proxy.ts stashed in
+    // `.pages-build-bak/` after a failed build. In CI that is invisible; on a
+    // workstation it silently guts the app until `pnpm restore:stash` is run.
+    const error = new Error(
+      `${cmd} ${args.join(' ')} exited with status ${result.status ?? 'null'}`,
+    )
+    error.exitCode = result.status ?? 1
+    throw error
+  }
 }
 
 function copyIntoRoot(fromDir, toDir) {
@@ -144,7 +194,7 @@ function writeJournalistGateway(siteUrl) {
 
 try {
   console.warn(
-    '[build-pages-static] PREVIEW ONLY — strips app/api + app/admin. Not the launch origin (ADR-004). Use Vercel Node + Cloudflare DNS for production. See docs/launch-runbook.md.',
+    '[build-pages-static] PREVIEW ONLY — strips app/api + app/admin + app/feeds. Not the launch origin (ADR-004). Use Vercel Node + Cloudflare DNS for production. See docs/launch-runbook.md.',
   )
   process.env.CONTENT_SOURCE = process.env.CONTENT_SOURCE || 'json'
   process.env.NEXT_PUBLIC_LAUNCH_STATUS = process.env.NEXT_PUBLIC_LAUNCH_STATUS || 'preview'
@@ -155,9 +205,17 @@ try {
       process.env.CF_PAGES_URL?.trim() || 'https://nagarik-watch.pages.dev'
   }
 
+  backupPatchedPages()
   run('node', ['scripts/patch-page-dynamic.mjs'])
   if (existsSync(proxyPath)) renameSync(proxyPath, proxyBak)
-  for (const segment of ['api', 'admin']) stashAppSegment(segment)
+  // Surfaces a static host cannot serve:
+  //   api    — needs a server (auth, comments, cron, media upload)
+  //   admin  — the web CMS scaffold
+  //   feeds  — /feeds/partner.json is `force-dynamic` + token-gated syndication;
+  //            `output: export` refuses a dynamic route handler outright
+  //            ("export const dynamic = force-dynamic on page ... cannot be
+  //            used with output: export"), so it must be stashed, not patched.
+  for (const segment of ['api', 'admin', 'feeds']) stashAppSegment(segment)
   for (const segment of ['journalist']) stashLocaleSegment(segment)
   run('pnpm', ['exec', 'next', 'build'])
   flattenNepaliRoot()
@@ -193,7 +251,18 @@ try {
   } else {
     console.log(`Static export: ${outDir}`)
   }
+} catch (error) {
+  console.error(
+    `[build-pages-static] FAILED: ${error instanceof Error ? error.message : String(error)}`,
+  )
+  failure = error?.exitCode ?? 1
 } finally {
   if (existsSync(proxyBak)) renameSync(proxyBak, proxyPath)
   restoreStashed()
+  restorePatchedPages()
+  if (existsSync(path.join(appDir, '.pages-build-bak'))) {
+    rmSync(path.join(appDir, '.pages-build-bak'), { recursive: true, force: true })
+  }
 }
+
+process.exit(failure)

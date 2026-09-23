@@ -8,6 +8,7 @@ import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { STATIC_HUBS, localizedTitle } from '@/lib/site'
 import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
 import { formatAdDate } from '@nagarikwatch/db'
+import { isStaticPagesExport } from '@/lib/build-mode'
 
 const hub = STATIC_HUBS.find((item) => item.key === 'archive')!
 
@@ -31,7 +32,10 @@ export default async function ArchivePage({
   searchParams: Promise<Search>
 }) {
   const locale: Locale = asLocale((await params).locale)
-  const query = await searchParams
+  // A static export has no request query: reading searchParams while
+  // prerendering aborts the build (see lib/static-export-params.ts). The hub
+  // then renders its unfiltered first page.
+  const query: Search = isStaticPagesExport ? {} : await searchParams
   const page = Math.max(1, Number(query.page) || 1)
   const lang = locale === 'en' ? 'en' : 'ne'
 

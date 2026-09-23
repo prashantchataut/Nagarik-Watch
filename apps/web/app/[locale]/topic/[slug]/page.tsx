@@ -9,6 +9,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { asLocale, localizeHref, localePrefix } from '@/lib/i18n/locales'
 import { Pagination } from '@/components/Pagination'
 import { staticTopicParams } from '@/lib/static-export-params'
+import { isStaticPagesExport } from '@/lib/build-mode'
 
 export const revalidate = 60
 
@@ -30,7 +31,7 @@ export default async function TopicPage({
 }) {
   const { locale: rawLocale, slug } = await params
   const locale: Locale = asLocale(rawLocale)
-  const sp = await searchParams
+  const sp = isStaticPagesExport ? {} : await searchParams
   const requested = Number.parseInt(sp.page ?? '1', 10)
   const page = Number.isFinite(requested) && requested > 0 ? requested : 1
 
@@ -136,7 +137,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale: rawLocale, slug } = await params
   const locale: Locale = asLocale(rawLocale)
-  const sp = await searchParams
+  const sp = isStaticPagesExport ? {} : await searchParams
   const page = Number.parseInt(sp.page ?? '1', 10)
   const data = await getTag(slug, locale)
   const prefix = localePrefix(locale)
