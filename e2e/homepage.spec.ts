@@ -20,14 +20,34 @@ test.describe('homepage', () => {
     // Main landmark exists and the homepage has one unambiguous editorial thesis.
     const main = page.locator('#main')
     await expect(main).toBeVisible()
-    const topStories = main.getByRole('region', { name: 'मुख्य समाचार' })
-    await expect(topStories).toBeVisible()
+
+    // The front page has two legitimate shapes and this test previously only
+    // knew the populated one. With no published corpus — the repo's standing
+    // policy, see lib/content/seed/README.md — the page renders
+    // HomeEmptyEdition instead, so the `मुख्य समाचार` region is correctly
+    // absent. Both shapes owe the reader exactly one h1.
     await expect(main.locator('h1')).toHaveCount(1)
-    await expect(topStories.getByRole('heading', { level: 1 })).toBeVisible()
+    const emptyEdition = main.locator('#empty-edition-title')
+    if (await emptyEdition.count()) {
+      await expect(emptyEdition).toBeVisible()
+      // The service notice must still offer a way onward.
+      await expect(main.getByRole('link', { name: /ताजा समाचार/ }).first()).toBeVisible()
+    } else {
+      const topStories = main.getByRole('region', { name: 'मुख्य समाचार' })
+      await expect(topStories).toBeVisible()
+      await expect(topStories.getByRole('heading', { level: 1 })).toBeVisible()
+    }
 
     // Footer carries the copyright + registration column (legal norm for Nepali news).
-    await expect(page.getByRole('contentinfo')).toBeVisible()
-    await expect(page.getByText('प्रकाशन दर्ता')).toBeVisible()
+    const footer = page.getByRole('contentinfo')
+    await expect(footer).toBeVisible()
+    await expect(footer.getByText(/© \d{4} नागरिक वाच/)).toBeVisible()
+    // The registration line is rendered only once NEXT_PUBLIC_DOIB_NUMBER holds
+    // a real DoIB number — Footer.tsx gates it on isPublicPublicationValue, so
+    // an unconfigured environment deliberately prints nothing rather than a
+    // placeholder. Assert it when it is configured; do not require a fake one.
+    const registration = footer.getByText('प्रकाशन दर्ता')
+    if (await registration.count()) await expect(registration.first()).toBeVisible()
   })
 
   test('primary nav links to a category page', async ({ page }) => {

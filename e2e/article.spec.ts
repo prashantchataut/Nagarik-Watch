@@ -12,7 +12,11 @@ test.describe('article and category pages', () => {
     if (response?.status() === 200) {
       await expect(page.locator('h1')).toContainText(/राजनीति|Politics/)
       const storyLinks = page.locator('#main a[href*="/politics/"]')
-      const empty = page.getByText(/अझै समाचार प्रकाशित गरिएको छैन|No stories have been published/i)
+      // Match the empty state by test id, not by copy. The Nepali wording has
+      // been reworded since this test was written, so the old text regex
+      // matched neither the story list nor the empty state and the assertion
+      // could only ever fail on an empty corpus.
+      const empty = page.getByTestId('category-empty')
       const hasStory = await storyLinks
         .first()
         .isVisible()
@@ -33,12 +37,22 @@ test.describe('article and category pages', () => {
     page,
   }) => {
     await page.goto('/')
-    const href = await page
+    // `getAttribute` auto-waits and throws on timeout rather than returning
+    // null, so reaching for the href directly made the `test.skip` below
+    // unreachable — the honest-empty case this test names in its own title
+    // could never be taken. Wait explicitly and briefly instead.
+    const storyLink = page
       .locator(
         '#main a[href^="/politics/"], #main a[href^="/society/"], #main a[href^="/economy/"]',
       )
       .first()
-      .getAttribute('href')
+    let href: string | null = null
+    try {
+      await storyLink.waitFor({ state: 'attached', timeout: 5_000 })
+      href = await storyLink.getAttribute('href')
+    } catch {
+      href = null
+    }
     test.skip(!href, 'No published stories in the honest empty-store fixture')
     // Prefer navigation over click — home rails can animate and fail stability checks.
     await page.goto(href!)

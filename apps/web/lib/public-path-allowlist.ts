@@ -71,6 +71,13 @@ const ALLOWED_FIRST_SEGMENTS = new Set<string>([
 ])
 
 /**
+ * Locale codes are never content. `/en/ne` and `/en/en` are locale duplication,
+ * and `en` has to stay in RESERVED for the top-level `/en` tree — so the pair is
+ * rejected here, ahead of the allowlist, rather than by widening RESERVED.
+ */
+const NEVER_A_CATEGORY = new Set(['en', 'ne'])
+
+/**
  * Safe slug-shaped segments (latin kebab) are allowed so newly created category
  * routes are not hard-404'd before seed/env catch up. App Router still 404s
  * unknown pages; this only prevents middleware from inventing a soft 404 rewrite
@@ -87,6 +94,7 @@ function looksLikeCategorySlug(segment: string): boolean {
 }
 
 export function isAllowedPublicFirstSegment(segment: string): boolean {
+  if (NEVER_A_CATEGORY.has(segment)) return false
   if (ALLOWED_FIRST_SEGMENTS.has(segment)) return true
   return looksLikeCategorySlug(segment)
 }

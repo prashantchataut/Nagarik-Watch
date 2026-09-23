@@ -4,3 +4,20 @@ packages:
   - 'apps/web'
   - 'apps/admin'
   - 'packages/*'
+
+# pnpm 10 blocks dependency lifecycle scripts unless they are named here.
+# Without this list CI and Vercel installed prisma, sharp, esbuild and workerd
+# with their postinstall steps skipped, so native binaries and the Prisma
+# client were assembled inconsistently between machines. Keep it explicit:
+# every entry is a package we deliberately allow to execute install scripts.
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@sentry/cli'
+  - '@swc/core'
+  - esbuild
+  - prisma
+  - sharp
+  - unrs-resolver
+  - workerd

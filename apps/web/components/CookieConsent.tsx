@@ -109,7 +109,13 @@ export function CookieConsent({ locale }: { locale: Locale }) {
     <>
       {bannerVisible ? (
         <section
-          className="nw-cookie-banner fixed inset-x-0 bottom-0 z-[35] border-t border-rule bg-surface shadow-overlay sm:inset-x-auto sm:bottom-6 sm:left-6 sm:w-[min(28rem,calc(100vw-3rem))] sm:border"
+          // No `bottom-*` utility here on purpose. `.nw-cookie-banner` in
+          // 02-reader-chrome.css lifts the banner clear of the bottom nav and any
+          // sticky ad via --nw-bottom-nav-height, and Tailwind's utilities layer
+          // outranks its components layer — so a `bottom-0` here silently won and
+          // parked the banner underneath the nav, where its "customise" button
+          // could not be tapped at all below 640px.
+          className="nw-cookie-banner fixed inset-x-0 z-[35] border-t border-rule bg-surface shadow-overlay sm:inset-x-auto sm:left-6 sm:w-[min(28rem,calc(100vw-3rem))] sm:border"
           role="region"
           aria-labelledby={`${dialogId}-banner-title`}
           aria-describedby={`${dialogId}-banner-body`}

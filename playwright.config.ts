@@ -9,6 +9,12 @@ import { defineConfig, devices } from '@playwright/test'
  * `webServer` builds once and reuses the output across workers; `reuseExistingServer` lets a
  * already-running `next start` (or a local dev server on :3000) be reused to keep local
  * iteration fast.
+ *
+ * `newsroom-lifecycle.spec.ts` is excluded here. It signs staff in, and this config sets
+ * E2E_TEST=true without E2E_NEWSROOM, which is exactly the combination that makes
+ * lib/auth/session.ts return a null session and lib/auth/auth-pool.ts refuse a pool. It
+ * has its own runner — playwright.newsroom.config.ts, `pnpm test:e2e:newsroom` — which
+ * provisions PGlite auth and seeds the staff accounts it needs.
  */
 const PORT = 3100
 const BASE = `http://localhost:${PORT}`
@@ -36,7 +42,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 900 },
       },
-      testIgnore: /mobile\.spec\.ts/,
+      testIgnore: [/mobile\.spec\.ts/, /newsroom-lifecycle\.spec\.ts/],
     },
     {
       name: 'laptop-chromium',
@@ -44,7 +50,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1024, height: 768 },
       },
-      testIgnore: /mobile\.spec\.ts/,
+      testIgnore: [/mobile\.spec\.ts/, /newsroom-lifecycle\.spec\.ts/],
     },
     {
       name: 'mobile-chromium',
