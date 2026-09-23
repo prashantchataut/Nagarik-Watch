@@ -15,6 +15,7 @@ import {
   runSchemaStatements,
   type Queryable,
 } from '@/lib/ops-db'
+import { processState } from '@/lib/runtime/process-singleton'
 import { resolveArticleStoreFallback } from './article-store-fallback'
 import { normalizeLegacyHeroUrl } from '../media-compat'
 import type { NewsroomRole } from '@/lib/admin-roles'
@@ -155,10 +156,35 @@ type StoreShape = {
   version: number
 }
 
-let cache: StoreShape | null = null
-let cacheAt = 0
-let lastKnownGood: StoreShape | null = null
-let writeLock: Promise<void> = Promise.resolve()
+type StoreState = {
+  cache: StoreShape | null
+  cacheAt: number
+  lastKnownGood: StoreShape | null
+  /** Serializes read→mutate→write; see `withArticleMutation`. */
+  writeLock: Promise<void>
+}
+
+/**
+ * Process-scoped, not module-scoped -- see `lib/runtime/process-singleton.ts`.
+ * Next emits this file into both the RSC/SSR graph and the route-handler graph,
+ * and both halves of this state break if each layer gets its own copy.
+ *
+ * The cache, because `invalidateArticleStoreCache()` is called from the publish
+ * route handler: it cleared that layer's cache while the reader pages, rendered
+ * in the other layer, kept serving a copy up to the 30s TTL. A story published
+ * from the desk could 404 for half a minute with the invalidation call sitting
+ * right there in the handler, apparently doing its job.
+ *
+ * The write lock, because two locks are no lock. Concurrent desk saves landing
+ * in different layers would interleave read→mutate→write on one JSON file and
+ * silently drop each other's article.
+ */
+const state = processState<StoreState>('json-store:articles', () => ({
+  cache: null,
+  cacheAt: 0,
+  lastKnownGood: null,
+  writeLock: Promise.resolve(),
+}))
 
 /** Short TTL so serverless instances pick up desk publishes without a redeploy.
  * Publish paths call invalidateArticleStoreCache(); 30s is enough for soft lag. */
@@ -167,14 +193,14 @@ function cacheTtlMs(): number {
 }
 
 export function invalidateArticleStoreCache(): void {
-  cache = null
-  cacheAt = 0
+  state.cache = null
+  state.cacheAt = 0
 }
 
 function rememberCache(store: StoreShape): StoreShape {
-  cache = store
-  cacheAt = Date.now()
-  if (store.articles.length > 0) lastKnownGood = store
+  state.cache = store
+  state.cacheAt = Date.now()
+  if (store.articles.length > 0) state.lastKnownGood = store
   return store
 }
 
@@ -338,7 +364,7 @@ async function readFromFile(): Promise<StoreShape> {
 }
 
 async function read(): Promise<StoreShape> {
-  if (cache && Date.now() - cacheAt < cacheTtlMs()) return cache
+  if (state.cache && Date.now() - state.cacheAt < cacheTtlMs()) return state.cache
   const pool = await getArticlesPool()
   if (pool) {
     try {
@@ -353,9 +379,9 @@ async function read(): Promise<StoreShape> {
   const fallback = resolveArticleStoreFallback({
     production: isProductionRuntime(),
     postgresConfigured: Boolean(resolveDatabaseUrl()),
-    hasLastKnownGood: Boolean(lastKnownGood && lastKnownGood.articles.length > 0),
+    hasLastKnownGood: Boolean(state.lastKnownGood && state.lastKnownGood.articles.length > 0),
   })
-  if (fallback === 'stale-cache' && lastKnownGood) return lastKnownGood
+  if (fallback === 'stale-cache' && state.lastKnownGood) return state.lastKnownGood
   if (fallback === 'degraded-empty') {
     console.error(
       '[json-store] Postgres unavailable in production; serving empty public inventory (file fallback disabled)',
@@ -387,17 +413,17 @@ async function writeUnlocked(store: StoreShape, mutation?: StoreMutation): Promi
 async function withArticleMutation<T>(fn: () => Promise<T>): Promise<T> {
   let result!: T
   let error: unknown
-  writeLock = writeLock.then(async () => {
+  state.writeLock = state.writeLock.then(async () => {
     try {
       // Bypass short TTL so we mutate the latest inventory.
-      cache = null
-      cacheAt = 0
+      state.cache = null
+      state.cacheAt = 0
       result = await fn()
     } catch (err) {
       error = err
     }
   })
-  await writeLock
+  await state.writeLock
   if (error) throw error
   return result
 }

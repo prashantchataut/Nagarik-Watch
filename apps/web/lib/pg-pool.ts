@@ -13,6 +13,7 @@
 import 'server-only'
 import type { Pool, PoolClient, PoolConfig, QueryResult, QueryResultRow } from 'pg'
 import { postgresPoolConfig, resolveDatabaseUrl } from '@/lib/db-url'
+import { processState } from '@/lib/runtime/process-singleton'
 
 export type SharedQueryable = {
   query<T extends QueryResultRow = QueryResultRow>(
@@ -25,11 +26,27 @@ export type SharedQueryable = {
   waitingCount: number
 }
 
-let pool: Pool | null = null
-let poolPromise: Promise<Pool | null> | null = null
-/** After a failed connect, skip pool creation briefly to avoid stampedes. */
-let poolCooldownUntil = 0
-let lastPoolError: { message: string; code?: string; at: number } | null = null
+type SharedPoolState = {
+  pool: Pool | null
+  poolPromise: Promise<Pool | null> | null
+  /** After a failed connect, skip pool creation briefly to avoid stampedes. */
+  cooldownUntil: number
+  lastError: { message: string; code?: string; at: number } | null
+}
+
+/**
+ * Held on `globalThis`, not in module scope. Next emits this file into both the
+ * RSC/SSR graph and the route-handler graph, so module-level `let`s give each
+ * layer its own pool -- which quietly doubles a cap that exists specifically
+ * because the production database ran out of slots (53300). The "singleton" in
+ * the header above is only true if the state is process-scoped.
+ */
+const state = processState<SharedPoolState>('pg-pool:shared', () => ({
+  pool: null,
+  poolPromise: null,
+  cooldownUntil: 0,
+  lastError: null,
+}))
 
 /** Vercel can run many warm instances; a max of three per instance still exhausted
  *  the production database (Postgres 53300), so each instance holds a single connection. */
@@ -52,7 +69,7 @@ function sharedPoolConfig(): PoolConfig | null {
 async function createSharedPool(): Promise<Pool | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
   if (!resolveDatabaseUrl()) return null
-  if (Date.now() < poolCooldownUntil) return null
+  if (Date.now() < state.cooldownUntil) return null
 
   const config = sharedPoolConfig()
   if (!config) return null
@@ -69,8 +86,8 @@ async function createSharedPool(): Promise<Pool | null> {
     await next.query('SELECT 1')
   } catch (error) {
     await next.end().catch(() => undefined)
-    poolCooldownUntil = Date.now() + POOL_FAIL_COOLDOWN_MS
-    lastPoolError = {
+    state.cooldownUntil = Date.now() + POOL_FAIL_COOLDOWN_MS
+    state.lastError = {
       message: error instanceof Error ? error.message : String(error),
       code:
         error && typeof error === 'object' && 'code' in error
@@ -84,8 +101,8 @@ async function createSharedPool(): Promise<Pool | null> {
     )
     return null
   }
-  lastPoolError = null
-  poolCooldownUntil = 0
+  state.lastError = null
+  state.cooldownUntil = 0
   return next
 }
 
@@ -95,22 +112,22 @@ async function createSharedPool(): Promise<Pool | null> {
  * Never throws — callers treat null as "skip Postgres this request".
  */
 export async function getSharedPool(): Promise<Pool | null> {
-  if (pool) return pool
-  if (Date.now() < poolCooldownUntil) return null
-  if (!poolPromise) {
-    poolPromise = createSharedPool()
+  if (state.pool) return state.pool
+  if (Date.now() < state.cooldownUntil) return null
+  if (!state.poolPromise) {
+    state.poolPromise = createSharedPool()
       .then((created) => {
-        pool = created
+        state.pool = created
         if (!created) {
-          poolPromise = null
+          state.poolPromise = null
         }
         return created
       })
       .catch((error) => {
-        poolPromise = null
-        pool = null
-        poolCooldownUntil = Date.now() + POOL_FAIL_COOLDOWN_MS
-        lastPoolError = {
+        state.poolPromise = null
+        state.pool = null
+        state.cooldownUntil = Date.now() + POOL_FAIL_COOLDOWN_MS
+        state.lastError = {
           message: error instanceof Error ? error.message : String(error),
           code:
             error && typeof error === 'object' && 'code' in error
@@ -125,7 +142,7 @@ export async function getSharedPool(): Promise<Pool | null> {
         return null
       })
   }
-  return poolPromise
+  return state.poolPromise
 }
 
 export async function getSharedPoolOrThrow(): Promise<Pool> {
@@ -161,32 +178,32 @@ export type PoolConnectionState = {
 
 /** Safe operational state for health diagnostics; contains no credentials. */
 export function getPoolConnectionState(): PoolConnectionState {
-  const remaining = Math.max(0, poolCooldownUntil - Date.now())
+  const remaining = Math.max(0, state.cooldownUntil - Date.now())
   return {
-    connected: Boolean(pool),
+    connected: Boolean(state.pool),
     coolingDown: remaining > 0,
     cooldownRemainingMs: remaining,
-    lastError: lastPoolError,
+    lastError: state.lastError,
   }
 }
 
 /** Read-only snapshot for ops health reporting; never creates a pool as a side effect. */
 export function getPoolStats(): PoolStats | null {
-  if (!pool) return null
+  if (!state.pool) return null
   return {
-    totalCount: pool.totalCount,
-    idleCount: pool.idleCount,
-    waitingCount: pool.waitingCount,
+    totalCount: state.pool.totalCount,
+    idleCount: state.pool.idleCount,
+    waitingCount: state.pool.waitingCount,
     max: SHARED_POOL_MAX_PER_INSTANCE,
   }
 }
 
 /** Test / graceful shutdown only — do not call from request handlers. */
 export async function closeSharedPool(): Promise<void> {
-  const current = pool
-  pool = null
-  poolPromise = null
-  poolCooldownUntil = 0
-  lastPoolError = null
+  const current = state.pool
+  state.pool = null
+  state.poolPromise = null
+  state.cooldownUntil = 0
+  state.lastError = null
   if (current) await current.end().catch(() => undefined)
 }
