@@ -2,7 +2,7 @@
   "name": "nagarik-watch",
   "version": "2.0.0",
   "private": true,
-  "description": "\u0928\u093e\u0917\u0930\u093f\u0915 \u0935\u093e\u091a (Nagarik Watch) \u2014 a modern, Devanagari-first web news portal for Nepal.",
+  "description": "नागरिक वाच (Nagarik Watch) — a modern, Devanagari-first web news portal for Nepal.",
   "packageManager": "pnpm@10.17.1",
   "engines": {
     "node": ">=22.12.0"
@@ -38,8 +38,9 @@
     "audit:design-tokens": "node scripts/audit-design-tokens.mjs",
     "launch:gate": "node scripts/launch-gate.mjs",
     "launch:origin": "node scripts/assert-launch-origin.mjs",
-    "verify:static": "pnpm verify:workspaces && pnpm verify:lockfile && pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm audit:ui-bans && pnpm audit:contrast && pnpm audit:design-tokens && pnpm audit:internal-links && pnpm launch:origin && pnpm launch:gate",
+    "verify:static": "pnpm verify:workspaces && pnpm verify:lockfile && pnpm verify:overrides && pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm audit:ui-bans && pnpm audit:contrast && pnpm audit:design-tokens && pnpm audit:internal-links && pnpm launch:origin && pnpm launch:gate",
     "verify:lockfile": "node scripts/verify-workspace-lock.mjs",
+    "verify:overrides": "node scripts/verify-lockfile-overrides.mjs",
     "perf:budget": "node scripts/perf-budget.mjs",
     "perf:budget:test": "node scripts/perf-budget.mjs --self-test",
     "migrate:ops": "pnpm --filter @nagarikwatch/web migrate:ops",
@@ -81,13 +82,13 @@
       "next>postcss": "^8.5.18",
       "payload>undici": "^7.29.0",
       "miniflare>sharp": "^0.35.4",
-      "vitest>vite": "^6.4.3"
+      "vitest>vite": "^6.4.3",
+      "deepmerge-ts": "^8.0.0"
     },
     "auditConfig": {
       "ignoreGhsas": [
         "GHSA-5p2g-fcmc-qvqq",
-        "GHSA-w3rx-r6r6-pgpr",
-        "GHSA-ggr8-5vv4-36mx"
+        "GHSA-w3rx-r6r6-pgpr"
       ]
     }
   }

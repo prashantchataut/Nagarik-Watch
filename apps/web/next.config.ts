@@ -45,6 +45,9 @@ const remotePatterns = (() => {
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
+  // `X-Powered-By: Next.js` tells an attacker the framework and narrows the
+  // exploit search for free. Nothing reads it, so drop it.
+  poweredByHeader: false,
   // Vercel-friendly defaults; SSG + ISR (revalidate) power the newsroom.
   images: {
     remotePatterns,
