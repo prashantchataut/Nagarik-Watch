@@ -93,15 +93,80 @@ whose commit SHA matches `main`.
 
 Nothing below this line can be validated until the site is actually serving.
 
-| #   | Item                                                                                                                                                | Why it blocks                                                                                                                                                                                 | Owner      |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| 1.1 | **Provision Postgres.** The Aiven host in the current `DATABASE_URL` no longer resolves.                                                            | Auth, comments, bookmarks, reading history, polls, engagement are all Postgres-backed. Without it `/api/health` stays `degraded` and every reader account feature is dead.                    | maintainer |
-| 1.2 | Run `pnpm db:push`, then `pnpm migrate:ops`                                                                                                         | Creates auth + ops tables. The launch gate explicitly reports ops migrations as unprobed.                                                                                                     | maintainer |
-| 1.3 | **Point the domain at the app.** `www` needs a DNS record, or the canonical host moves to the apex; the apex must stop serving the Cloudflare stub. | Every canonical URL, OG tag, sitemap entry and JSON-LD `@id` is built from `NEXT_PUBLIC_SITE_URL`. Publishing with a wrong or dead canonical host poisons the index and is expensive to undo. | maintainer |
-| 1.4 | Decide the canonical host — apex or `www` — and set `NEXT_PUBLIC_SITE_URL` + `BETTER_AUTH_URL` to match, with a 301 from the other                  | Split-host indexing and broken auth callbacks.                                                                                                                                                | maintainer |
-| 1.5 | Set `BETTER_AUTH_SECRET`, `SUBMISSION_IP_SALT`, `CRON_SECRET`, `REVALIDATE_SECRET` (≥32 chars, non-placeholder)                                     | The gate fails closed on placeholders. `PARTNER_FEED_TOKENS` in particular prevents an unauthenticated syndication feed.                                                                      | maintainer |
-| 1.6 | Attach blob storage (`BLOB_READ_WRITE_TOKEN` or R2)                                                                                                 | No media uploads without it; the media library is inert.                                                                                                                                      | maintainer |
-| 1.7 | Set `SENTRY_DSN`                                                                                                                                    | Until then production errors are invisible. Launching without this means the first reader incident is discovered by a reader.                                                                 | maintainer |
+### 1.0 — First, decide which platform actually deploys this site
+
+This is listed before the credential work because it invalidates part of it,
+and because it is the answer to a question the repo currently answers three
+different ways.
+
+The apex serves a Cloudflare Worker starter template:
+
+```
+$ curl -sI https://nagarikwatch.com/
+HTTP/2 200
+server: cloudflare
+content-type: text/plain;charset=UTF-8
+
+Hello world
+```
+
+That is not a "Cloudflare stub" in the generic sense — it is the literal
+default Worker script. The reason it is still there is visible in CI:
+
+- A Cloudflare **Workers Build** named `nagarik-watch` runs on every push and
+  **fails on every push**, including on `main` today. It predates any recent
+  branch.
+- The repo contains **two** `wrangler` configs that declare the **same** Worker
+  name, `nagarik-watch`:
+
+  | File                      | `main` / assets                                     | Valid? |
+  | ------------------------- | --------------------------------------------------- | ------ |
+  | `wrangler.jsonc` (root)   | assets from `./apps/web/out`                        | **no** |
+  | `apps/web/wrangler.jsonc` | `.open-next/worker.js` via `@opennextjs/cloudflare` | yes    |
+
+- `apps/web/out` **cannot ever exist**. It is the output of a Next static
+  export, and `apps/web/next.config.ts` sets no `output: 'export'` — nor could
+  it, because the app has 54 API route handlers and middleware.
+
+So the root config points the build at a directory that is impossible to
+produce, the build fails, the Worker never receives real code, and the Worker
+the apex is bound to keeps answering `Hello world`. Meanwhile the actual
+application deploys to Vercel via `vercel.json`, on a different origin.
+
+Two further details worth knowing before choosing:
+
+- `apps/web/wrangler.jsonc` pins `NEXT_PUBLIC_SITE_URL` to
+  `https://nagarik-watch.pages.dev` and `CONTENT_SOURCE` to `json`. If the
+  Cloudflare path were fixed today it would serve with a `pages.dev` canonical
+  host and the JSON store rather than Payload — correct for a preview, wrong
+  for production. These must change with the platform decision, not after it.
+- The earlier framing of the domain problem as "`www` has no DNS record" is
+  true but secondary. The apex resolves fine. It is pointed at a deployment
+  target that has never successfully built.
+
+**Decide one of these, then do the rest of Phase 1 against it:**
+
+| Option                                  | What it means                                                                                                                                                                              | Cost                                                                                   |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| **Vercel is canonical** _(recommended)_ | Point the apex at Vercel. Delete the root `wrangler.jsonc`, disconnect the Workers Build integration, and keep `apps/web/wrangler.jsonc` only if a Cloudflare preview is genuinely wanted. | Lowest. It is where the app already builds and where every green deploy has come from. |
+| **Cloudflare is canonical**             | Delete the root `wrangler.jsonc`, point the Workers Build at `apps/web`, fix the `vars` block, and verify `@opennextjs/cloudflare` handles ISR, middleware and the 54 API routes.          | Real migration work, and it must be finished before any content is indexed.            |
+
+Either way, **delete the root `wrangler.jsonc`** — two configs claiming one
+Worker name is a bug under both options.
+
+I have deliberately not made this change. Which platform owns production is an
+operator decision with a live blast radius, and the wrong guess moves the site
+to a different origin.
+
+| #   | Item                                                                                                                               | Why it blocks                                                                                                                                                                                 | Owner      |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| 1.1 | **Provision Postgres.** The Aiven host in the current `DATABASE_URL` no longer resolves.                                           | Auth, comments, bookmarks, reading history, polls, engagement are all Postgres-backed. Without it `/api/health` stays `degraded` and every reader account feature is dead.                    | maintainer |
+| 1.2 | Run `pnpm db:push`, then `pnpm migrate:ops`                                                                                        | Creates auth + ops tables. The launch gate explicitly reports ops migrations as unprobed.                                                                                                     | maintainer |
+| 1.3 | **Point the domain at the winner of 1.0.** Then give `www` a record, or move the canonical host to the apex.                       | Every canonical URL, OG tag, sitemap entry and JSON-LD `@id` is built from `NEXT_PUBLIC_SITE_URL`. Publishing with a wrong or dead canonical host poisons the index and is expensive to undo. | maintainer |
+| 1.4 | Decide the canonical host — apex or `www` — and set `NEXT_PUBLIC_SITE_URL` + `BETTER_AUTH_URL` to match, with a 301 from the other | Split-host indexing and broken auth callbacks.                                                                                                                                                | maintainer |
+| 1.5 | Set `BETTER_AUTH_SECRET`, `SUBMISSION_IP_SALT`, `CRON_SECRET`, `REVALIDATE_SECRET` (≥32 chars, non-placeholder)                    | The gate fails closed on placeholders. `PARTNER_FEED_TOKENS` in particular prevents an unauthenticated syndication feed.                                                                      | maintainer |
+| 1.6 | Attach blob storage (`BLOB_READ_WRITE_TOKEN` or R2)                                                                                | No media uploads without it; the media library is inert.                                                                                                                                      | maintainer |
+| 1.7 | Set `SENTRY_DSN`                                                                                                                   | Until then production errors are invisible. Launching without this means the first reader incident is discovered by a reader.                                                                 | maintainer |
 
 **Exit criteria:** `/api/health` returns `status: ok`, `/admin/launch` shows no
 red items in the infrastructure group, and a staff account can sign in on the
