@@ -34,11 +34,32 @@ function isProductionRuntime(): boolean {
   )
 }
 
-async function getPool(): Promise<Queryable | null> {
+/**
+ * Live-data overrides are newsroom chrome — weather, AQI, forex, scores, alerts —
+ * not article content, so reads and writes get deliberately different failure
+ * modes.
+ *
+ * A write that cannot reach Postgres must throw. An editor who saves an override
+ * has to know it did not persist, and the local JSON store below is a development
+ * affordance on an ephemeral filesystem, not somewhere a production write may
+ * quietly land.
+ *
+ * A read must not throw. Every read here answers "has the newsroom pinned a value
+ * for this key?", and "no" is an ordinary answer that every caller already
+ * handles. Throwing instead took the entire site down: these reads sit behind the
+ * masthead weather/AQI strip, so an unset or briefly unreachable DATABASE_URL made
+ * the server render throw *after* the shell had already flushed, and the client
+ * error boundary replaced every page — homepage included — with
+ * "पृष्ठ लोड हुन सकेन". Chrome that fails has to degrade to absent, never take the
+ * page down with it.
+ */
+type PoolMode = 'read' | 'write'
+
+async function getPool(mode: PoolMode): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
   const pool = await getSharedPool()
   if (!pool) {
-    if (isProductionRuntime()) {
+    if (mode === 'write' && isProductionRuntime()) {
       throw new Error('DATABASE_URL is required for persistent live-data overrides in production')
     }
     return null
@@ -46,8 +67,8 @@ async function getPool(): Promise<Queryable | null> {
   return pool as unknown as Queryable
 }
 
-async function ensureSchema(): Promise<Queryable | null> {
-  const pool = await getPool()
+async function ensureSchema(mode: PoolMode): Promise<Queryable | null> {
+  const pool = await getPool(mode)
   if (!pool) return null
   if (!schemaReady) {
     schemaReady = pool
@@ -62,9 +83,46 @@ async function ensureSchema(): Promise<Queryable | null> {
       `,
       )
       .then(() => undefined)
+      .catch((error: unknown) => {
+        // Clear the cache before rethrowing. `schemaReady` is memoised for the
+        // process, so holding on to a rejected promise would make one transient
+        // DDL failure permanent — every later call, writes included, would reject
+        // with the original error and never retry.
+        schemaReady = null
+        throw error
+      })
   }
   await schemaReady
   return pool
+}
+
+let readDegradationLogged = false
+
+/**
+ * Read-side pool. Swallows *every* failure, not just an absent DATABASE_URL:
+ * `ensureSchema` issues a CREATE TABLE IF NOT EXISTS, so a reachable database
+ * whose role lacks DDL rights, or a connection that drops mid-request, would
+ * otherwise throw from the same place an unset DATABASE_URL used to and take the
+ * page down in exactly the same way. Callers treat `null` as "no override
+ * pinned", which is the safe reading in all of those cases.
+ *
+ * Logged once per process rather than per request: the masthead reads several
+ * keys on every page, so per-request logging would bury the signal it exists to
+ * provide.
+ */
+async function readPool(): Promise<Queryable | null> {
+  try {
+    return await ensureSchema('read')
+  } catch (error) {
+    if (!readDegradationLogged) {
+      readDegradationLogged = true
+      console.warn(
+        '[live-manual] override store unreachable; serving live widgets without newsroom overrides:',
+        (error as Error).message,
+      )
+    }
+    return null
+  }
 }
 
 function rowToRecord<T>(row: Row): ManualLiveRecord<T> {
@@ -101,21 +159,23 @@ async function writeLocalStore(store: LocalStore): Promise<void> {
 }
 
 export async function getManualLiveRecord<T>(key: string): Promise<ManualLiveRecord<T> | null> {
-  const pool = await ensureSchema()
+  const pool = await readPool()
   if (pool) {
     const result = await pool.query<Row>('SELECT * FROM nw_live_manual WHERE key = $1', [key])
     return result.rows[0] ? rowToRecord<T>(result.rows[0]) : null
   }
+  if (isProductionRuntime()) return null
   const store = await readLocalStore()
   return (store[key] as ManualLiveRecord<T> | undefined) ?? null
 }
 
 export async function listManualLiveRecords(): Promise<ManualLiveRecord[]> {
-  const pool = await ensureSchema()
+  const pool = await readPool()
   if (pool) {
     const result = await pool.query<Row>('SELECT * FROM nw_live_manual ORDER BY updated_at DESC')
     return result.rows.map(rowToRecord)
   }
+  if (isProductionRuntime()) return []
   return Object.values(await readLocalStore()).sort((a, b) =>
     b.updatedAt.localeCompare(a.updatedAt),
   )
@@ -134,7 +194,7 @@ export async function setManualLiveRecord(input: {
   }
   if (!record.key) throw new Error('A live-data key is required')
 
-  const pool = await ensureSchema()
+  const pool = await ensureSchema('write')
   if (pool) {
     const result = await pool.query<Row>(
       `INSERT INTO nw_live_manual (key, source, data)
