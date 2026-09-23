@@ -420,3 +420,18 @@ export function canAccessAdminPath(role: NewsroomRole, pathname: string): boolea
   if (!rule) return true
   return rule.roles.has(role)
 }
+
+/**
+ * What should happen when `role` requests `pathname` under /admin.
+ *
+ * Separate from `canAccessAdminPath` because two of the three outcomes are not
+ * a yes/no: a reporter who lands on a desk URL belongs on the journalist
+ * dashboard, not on a 404. Keeping the decision in one pure function is what
+ * lets the enforcement point move without the rules moving with it.
+ */
+export type AdminPathOutcome = 'allow' | 'journalist-desk' | 'deny'
+
+export function adminPathOutcome(role: NewsroomRole, pathname: string): AdminPathOutcome {
+  if (isJournalistDeskRole(role)) return 'journalist-desk'
+  return canAccessAdminPath(role, pathname) ? 'allow' : 'deny'
+}

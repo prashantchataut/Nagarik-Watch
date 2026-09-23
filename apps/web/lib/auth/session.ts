@@ -20,6 +20,7 @@ import { redirect } from 'next/navigation'
 import { Kysely } from 'kysely'
 import { getAuth } from './index'
 import { createDialect } from './auth-pool'
+import { enforceAdminDeskAccess } from './desk-access'
 import type { NewsroomRole } from '@/lib/admin-roles'
 import { twoFactorConfigured } from '@/lib/security/mfa'
 
@@ -136,6 +137,12 @@ export async function requireNewsroomSession(): Promise<NewsroomSession> {
     }
     redirect('/admin/login')
   }
+  // Authentication is not authorization. Desk role rules used to be checked in
+  // `app/admin/(desk)/layout.tsx`, which App Router does not re-render on
+  // client-side navigation, so every desk reached by a sidebar click rendered
+  // unchecked. Pages and server actions always run; this is why the check hangs
+  // off here. No-op outside the admin shell. See `lib/auth/desk-access.ts`.
+  await enforceAdminDeskAccess(session.newsroomRole)
   return session
 }
 

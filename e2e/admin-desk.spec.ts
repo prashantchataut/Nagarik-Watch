@@ -17,6 +17,9 @@ import { expect, test, type Page } from '@playwright/test'
 
 const ADMIN = { email: 'admin@local.test', password: 'local-admin-only' }
 
+/** `section_editor`. Runs the editorial desks; not a USER_MANAGER_ROLE. */
+const EDITOR = { email: 'editor@local.test', password: 'local-editor-only' }
+
 /** Every desk route, minus the ones that need a record id. */
 const DESK_ROUTES = [
   '/admin/dashboard',
@@ -59,22 +62,22 @@ const DESK_ROUTES = [
  * spec's subject; here it is just setup, and driving it would make every one
  * of these cases fail for the same unrelated reason if the form regressed.
  */
-async function signInAsAdmin(page: Page) {
+async function signIn(page: Page, creds: { email: string; password: string }) {
   await page.goto('/admin/login')
-  const body = await page.evaluate(async (creds) => {
+  const body = await page.evaluate(async (payload) => {
     const res = await fetch('/api/auth/sign-in/email', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(creds),
+      body: JSON.stringify(payload),
     })
     return { status: res.status, text: await res.text() }
-  }, ADMIN)
-  expect(body.status, `admin sign-in failed: ${body.text}`).toBeLessThan(400)
+  }, creds)
+  expect(body.status, `sign-in failed for ${creds.email}: ${body.text}`).toBeLessThan(400)
 }
 
 test.describe('newsroom admin desks', () => {
   test.beforeEach(async ({ page }) => {
-    await signInAsAdmin(page)
+    await signIn(page, ADMIN)
   })
 
   for (const route of DESK_ROUTES) {
@@ -115,4 +118,93 @@ test.describe('newsroom admin desks', () => {
       expect(pageErrors, `${route} threw on the client`).toEqual([])
     })
   }
+})
+
+/**
+ * Desk role rules have to hold on a client-side navigation, not only on a full
+ * page load.
+ *
+ * They used to live in `app/admin/(desk)/layout.tsx`. App Router does not
+ * re-render a shared layout when the router moves between its children --
+ * instrumenting the layout showed one run for the hard load of
+ * `/admin/dashboard` and none at all for a sidebar click through to
+ * `/admin/articles`. So the rules were applied to the first desk an editor
+ * opened and to nothing after it, and the desk pages themselves only called
+ * `requireNewsroomSession()`, which authenticates without authorizing.
+ *
+ * Driving that through the UI is not possible from a test: Next's `Link` pushes
+ * the `href` it was given as a prop, so rewriting the DOM attribute and clicking
+ * re-pushes the original, and `history.pushState` moves the URL without
+ * fetching a new segment. So replay the navigation request itself. The
+ * `Next-Router-State-Tree` is captured from a real sidebar click rather than
+ * hardcoded, which is both faithful and version-proof: it tells the server the
+ * client already holds the `(desk)` layout, which is the exact condition that
+ * made the layout's check unreachable.
+ *
+ * The allowed desk is a positive control, and it is the part that keeps this
+ * test honest. Without it, the two denials would also pass if the replay
+ * silently stopped returning desk content for any reason.
+ */
+test.describe('desk authorization on a navigation request', () => {
+  /** Distinctive copy from each desk's own body, not its <title>. */
+  const ALLOWED = { route: '/admin/articles', marker: 'समाचार कक्षको सामग्री सूची' }
+  const DENIED = [
+    { route: '/admin/users', marker: 'भूमिका र निष्क्रियता व्यवस्थापन' },
+    { route: '/admin/audit-log', marker: 'Sensitive newsroom actions' },
+  ]
+
+  /** Flight payloads escape non-ASCII, so Devanagari arrives as \uXXXX. */
+  function decode(payload: string): string {
+    return payload.replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex) =>
+      String.fromCharCode(parseInt(hex, 16)),
+    )
+  }
+
+  test('a section editor gets its own desks and not the ones it has no rule for', async ({
+    page,
+  }) => {
+    await signIn(page, EDITOR)
+    await page.goto('/admin/dashboard')
+    await expect(page.locator('.admin-shell-surface[data-desk]')).toBeVisible()
+
+    let stateTree: string | undefined
+    page.on('request', (request) => {
+      const headers = request.headers()
+      if (headers['rsc'] === '1' && !headers['next-router-prefetch'] && !stateTree) {
+        stateTree = headers['next-router-state-tree']
+      }
+    })
+    await page.locator(`.admin-sidebar a[href="${ALLOWED.route}"]`).first().click()
+    await expect(page).toHaveURL(new RegExp(ALLOWED.route.replaceAll('/', '\\/')))
+    await expect.poll(() => stateTree).toBeTruthy()
+
+    async function replay(route: string): Promise<string> {
+      const response = await page.request.get(route, {
+        headers: {
+          RSC: '1',
+          'Next-Router-State-Tree': stateTree as string,
+          'Next-Url': '/admin/dashboard',
+        },
+      })
+      return decode(await response.text())
+    }
+
+    // Positive control: the replay does deliver desk bodies for a desk this
+    // role owns. If this ever fails, the denials below prove nothing.
+    expect(await replay(ALLOWED.route), 'replay no longer returns desk content').toContain(
+      ALLOWED.marker,
+    )
+
+    for (const { route, marker } of DENIED) {
+      expect(await replay(route), `${route} rendered for a role with no rule for it`).not.toContain(
+        marker,
+      )
+    }
+
+    // Also not reachable by a full load, which is what always worked.
+    for (const { route, marker } of DENIED) {
+      await page.goto(route)
+      expect(await page.locator('body').innerText()).not.toContain(marker)
+    }
+  })
 })
