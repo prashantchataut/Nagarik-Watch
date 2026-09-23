@@ -23,6 +23,7 @@ import {
   withRoles,
 } from '../access/rbac'
 import { revalidatePublishedArticle, revalidateDeletedArticle } from '../hooks/revalidate'
+import { recordArticleAuditEvents } from '../hooks/editorial-audit'
 
 const allowedBlockTypes = new Set([
   'paragraph',
@@ -910,7 +911,7 @@ export const Articles: CollectionConfig = {
         return normalized
       },
     ],
-    afterChange: [revalidatePublishedArticle],
+    afterChange: [recordArticleAuditEvents, revalidatePublishedArticle],
     afterDelete: [revalidateDeletedArticle],
   },
 }
