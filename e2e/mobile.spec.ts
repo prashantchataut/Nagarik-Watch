@@ -61,14 +61,19 @@ test.describe('mobile reader experience', () => {
     const bottomNav = page.locator('.nw-bottom-nav')
     await expect(bottomNav).toBeVisible()
     await expect(bottomNav.getByRole('link')).toHaveCount(5)
-    await expect(bottomNav).toContainText('पात्रो')
-    await expect(bottomNav).toContainText('सुरक्षित')
-    await expect(bottomNav).not.toContainText('खोज')
+    for (const label of ['गृहपृष्ठ', 'ताजा', 'पात्रो', 'खोज', 'खाता']) {
+      await expect(bottomNav).toContainText(label)
+    }
+    // Saved is a repeat-reader destination too, but it lives in the nav drawer
+    // (MobileNav) so the bar stays at five thumb-sized targets.
+    await expect(bottomNav).not.toContainText('सुरक्षित')
   })
 
   test('opens global search without navigating away first', async ({ page }) => {
+    // `.nw-masthead__chrome` is not a class this app renders — the header is
+    // `.nw-masthead` — so this resolved to nothing and spent the full timeout.
     const searchButton = page
-      .locator('.nw-masthead__chrome')
+      .locator('.nw-masthead')
       .getByRole('button', { name: /खोज|Search/i })
       .first()
     await searchButton.click()
