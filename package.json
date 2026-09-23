@@ -21,6 +21,7 @@
     "test:integration": "pnpm --filter @nagarikwatch/web exec vitest run lib/content/payload-source.contract.test.ts lib/content/content-source.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:newsroom": "playwright test --config=playwright.newsroom.config.ts",
+    "test:e2e:admin": "playwright test --config=playwright.admin.config.ts",
     "dev:stack": "node scripts/dev-stack.mjs",
     "dev:newsroom": "node scripts/dev-newsroom.mjs",
     "validate:newsroom": "node scripts/validate-newsroom-env.mjs",
