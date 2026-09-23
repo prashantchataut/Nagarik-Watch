@@ -8,16 +8,16 @@ import { test, expect } from '@playwright/test'
 test.describe('article and category pages', () => {
   test('category page renders either story cards or an honest empty state', async ({ page }) => {
     const response = await page.goto('/politics')
-    expect([200, 404]).toContain(response?.status() ?? 0)
-    if (response?.status() === 200) {
-      await expect(page.locator('h1')).toContainText(/राजनीति|Politics/)
-      const storyLinks = page.locator('#main a[href*="/politics/"]')
-      const empty = page.getByText(/अझै समाचार प्रकाशित गरिएको छैन|No stories have been published/i)
-      const hasStory = await storyLinks
-        .first()
-        .isVisible()
-        .catch(() => false)
-      if (!hasStory) await expect(empty.first()).toBeVisible()
+    expect(response?.status()).toBe(200)
+    await expect(page.locator('h1')).toContainText(/राजनीति|Politics/)
+    const storyLinks = page.locator('#main a[href*="/politics/"]')
+    const hasStory = (await storyLinks.count()) > 0
+    if (!hasStory) {
+      await expect(
+        page.getByText(
+          /अझै समीक्षित समाचार प्रकाशित भएका छैनन्|No reviewed stories are published/i,
+        ),
+      ).toBeVisible()
     }
   })
 
@@ -33,13 +33,17 @@ test.describe('article and category pages', () => {
     page,
   }) => {
     await page.goto('/')
-    const href = await page
-      .locator(
-        '#main a[href^="/politics/"], #main a[href^="/society/"], #main a[href^="/economy/"]',
-      )
-      .first()
-      .getAttribute('href')
-    test.skip(!href, 'No published stories in the honest empty-store fixture')
+    const storyLinks = page.locator(
+      '#main a[href^="/politics/"], #main a[href^="/society/"], #main a[href^="/economy/"]',
+    )
+    // `count()` resolves immediately; `getAttribute()` on a zero-match locator
+    // waits out the whole test timeout instead of letting the skip happen.
+    test.skip(
+      (await storyLinks.count()) === 0,
+      'No published stories in the honest empty-store fixture',
+    )
+    const href = await storyLinks.first().getAttribute('href')
+    test.skip(!href, 'Story link had no href')
     // Prefer navigation over click — home rails can animate and fail stability checks.
     await page.goto(href!)
     await expect(page.locator('h1')).toBeVisible()

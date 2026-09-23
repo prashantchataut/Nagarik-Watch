@@ -18,11 +18,16 @@ test.describe('breaking ticker + error surfaces', () => {
     }
   })
 
-  test('unknown top-level path shows 404 page', async ({ page }) => {
+  test('unknown top-level path shows a real 404 with recovery links', async ({ page }) => {
     const response = await page.goto('/no-such-category-xyz')
+    // A genuine 404, not a streamed 200 with the recovery body. The status is
+    // decided in proxy.ts because Next commits 200 as soon as a loading.tsx
+    // boundary streams (vercel/next.js #93253).
     expect(response?.status()).toBe(404)
     await expect(page.getByText('पृष्ठ फेला परेन')).toBeVisible()
-    // Bilingual home links are offered.
-    await expect(page.getByRole('link', { name: 'गृहपृष्ठमा फर्कनुहोस्' })).toBeVisible()
+    // Recovery links: home, latest, and the recovery search box.
+    await expect(page.getByRole('link', { name: 'गृहपृष्ठ' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'ताजा समाचार' })).toBeVisible()
+    await expect(page.getByRole('searchbox', { name: /खोज्नुहोस्/ })).toBeVisible()
   })
 })

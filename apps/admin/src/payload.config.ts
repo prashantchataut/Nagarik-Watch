@@ -101,6 +101,21 @@ function validateAtBoot() {
 export default buildConfig({
   secret: PAYLOAD_SECRET as string,
   serverURL: SERVER_URL,
+  /**
+   * Payload phones home anonymous usage data by default. This publication's
+   * privacy policy promises no third-party beacons from its own infrastructure,
+   * so telemetry is off and the only outbound calls are the ones an operator
+   * configured (storage, email, revalidation).
+   */
+  telemetry: false,
+  /**
+   * Cross-origin policy stays at Payload's locked-down default: no browser
+   * origin may call this API (`cors: []`), and cookie-authenticated writes are
+   * checked against the configured server URL (`csrf`, defaulted by Payload).
+   * The reader app talks to the CMS server-to-server with an API token, so it
+   * never needs a CORS allowance.
+   */
+  cors: [],
   admin: {
     user: Users.slug,
     importMap: {

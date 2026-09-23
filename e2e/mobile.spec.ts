@@ -60,15 +60,20 @@ test.describe('mobile reader experience', () => {
   test('keeps bottom navigation focused on repeat reader destinations', async ({ page }) => {
     const bottomNav = page.locator('.nw-bottom-nav')
     await expect(bottomNav).toBeVisible()
+    // The reader bar is Home / Latest / Patro / Search / Account. Search moved
+    // into the bar when the launcher became an overlay, and "Saved" was replaced
+    // by the account entry (see components/BottomNav.tsx).
     await expect(bottomNav.getByRole('link')).toHaveCount(5)
     await expect(bottomNav).toContainText('पात्रो')
-    await expect(bottomNav).toContainText('सुरक्षित')
-    await expect(bottomNav).not.toContainText('खोज')
+    await expect(bottomNav).toContainText('खोज')
+    await expect(bottomNav).toContainText('खाता')
   })
 
   test('opens global search without navigating away first', async ({ page }) => {
+    // `.nw-masthead__chrome` is a stylesheet-only hook (no element carries it),
+    // so scope to the masthead itself and match the launcher button by name.
     const searchButton = page
-      .locator('.nw-masthead__chrome')
+      .locator('.nw-masthead')
       .getByRole('button', { name: /खोज|Search/i })
       .first()
     await searchButton.click()

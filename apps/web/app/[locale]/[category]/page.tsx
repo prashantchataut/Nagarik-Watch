@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import type { PaginatedStories } from '@nagarikwatch/db'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { getCategory, getCategoryPage } from '@/lib/content'
 import { Pagination } from '@/components/Pagination'
@@ -72,10 +73,21 @@ export default async function CategoryPage({
   // desk shell (and a real empty state) instead of a 404/500. Partial records
   // with empty names also fall back.
   const fallback = canonicalCategoryBySlug(slug)
-  const category = categoryResult ??
-    (fallback ? { slug, nameNe: fallback.nameNe, nameEn: fallback.nameEn } : null)
-  const resolvedName = category ? (english ? category.nameEn || category.nameNe : category.nameNe || category.nameEn) : ''
-  if (!category || !resolvedName || !result || page > result.totalPages) notFound()
+  const category =
+    categoryResult ?? (fallback ? { slug, nameNe: fallback.nameNe, nameEn: fallback.nameEn } : null)
+  const resolvedName = category
+    ? english
+      ? category.nameEn || category.nameNe
+      : category.nameNe || category.nameEn
+    : ''
+  if (!category || !resolvedName) notFound()
+  // Only an unknown desk is a 404. A known desk whose source read failed or that
+  // simply has nothing published yet renders the honest empty state below —
+  // which is what the fallback above promises. Treating a null page as "not
+  // found" turned every desk into a 404 (or a soft 404) on an empty store,
+  // including during the soft-launch window before 30 stories exist.
+  const stories: PaginatedStories = result ?? { items: [], page: 1, totalPages: 1, total: 0 }
+  if (page > stories.totalPages) notFound()
   const name = resolvedName
   const description = english ? categoryResult?.descriptionEn : categoryResult?.descriptionNe
   // Short desk lead only when CMS has real copy; never invent marketing blurb.
@@ -84,13 +96,13 @@ export default async function CategoryPage({
   return (
     <div className="mx-auto max-w-page px-3 py-4 sm:px-4 sm:py-5">
       <HubIndexHeader title={name} lead={lead} lang={english ? 'en' : 'ne'} />
-      {result.items.length ? (
+      {stories.items.length ? (
         <>
           <div className="mt-4">
             <AdSlot locale={locale} placementKey="category-top" />
           </div>
           <div className="mt-4">
-            <CategoryDesk stories={result.items} locale={locale} />
+            <CategoryDesk stories={stories.items} locale={locale} />
           </div>
           <AdSlot
             locale={locale}
@@ -99,8 +111,8 @@ export default async function CategoryPage({
             className="mt-4"
           />
           <Pagination
-            page={result.page}
-            totalPages={result.totalPages}
+            page={stories.page}
+            totalPages={stories.totalPages}
             basePath={localizeHref(locale, `/${slug}`)}
             locale={locale}
             className="mt-6"

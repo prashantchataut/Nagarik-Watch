@@ -109,7 +109,14 @@ export function CookieConsent({ locale }: { locale: Locale }) {
     <>
       {bannerVisible ? (
         <section
-          className="nw-cookie-banner fixed inset-x-0 bottom-0 z-[35] border-t border-rule bg-surface shadow-overlay sm:inset-x-auto sm:bottom-6 sm:left-6 sm:w-[min(28rem,calc(100vw-3rem))] sm:border"
+          // No `bottom-0` here on purpose: the mobile offset lives in
+          // `.nw-cookie-banner` (app/styles/02-reader-chrome.css) so the banner
+          // clears the fixed bottom navigation. Tailwind utilities beat
+          // `@layer components`, so a `bottom-0` utility silently pinned the
+          // banner behind the nav and the "Customize" button was unclickable
+          // (nav z-40 intercepted the pointer). `sm:bottom-6` below is the
+          // desktop placement and is meant to win at that breakpoint.
+          className="nw-cookie-banner fixed inset-x-0 z-[35] border-t border-rule bg-surface shadow-overlay sm:inset-x-auto sm:bottom-6 sm:left-6 sm:w-[min(28rem,calc(100vw-3rem))] sm:border"
           role="region"
           aria-labelledby={`${dialogId}-banner-title`}
           aria-describedby={`${dialogId}-banner-body`}

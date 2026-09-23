@@ -13,6 +13,18 @@ import { defineConfig, devices } from '@playwright/test'
 const PORT = 3100
 const BASE = `http://localhost:${PORT}`
 
+/**
+ * Specs this config must not pick up.
+ *
+ * - `mobile.spec.ts` runs only in the two mobile projects below.
+ * - `newsroom-lifecycle.spec.ts` is the editorial lifecycle suite: it needs a
+ *   seeded Postgres and its own dev-server command, which is what
+ *   `playwright.newsroom.config.ts` (`pnpm test:e2e:newsroom`) provides. Without
+ *   this ignore, `pnpm test:e2e` — the CI job — collected it too and failed on a
+ *   database that job does not have.
+ */
+const READER_IGNORE = [/mobile\.spec\.ts/, /newsroom-lifecycle\.spec\.ts/]
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -36,7 +48,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 900 },
       },
-      testIgnore: /mobile\.spec\.ts/,
+      testIgnore: READER_IGNORE,
     },
     {
       name: 'laptop-chromium',
@@ -44,7 +56,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1024, height: 768 },
       },
-      testIgnore: /mobile\.spec\.ts/,
+      testIgnore: READER_IGNORE,
     },
     {
       name: 'mobile-chromium',

@@ -53,10 +53,13 @@ test.describe('automated accessibility audit', () => {
   test('public routes have no critical or serious WCAG A/AA violations', async ({ page }) => {
     test.setTimeout(120_000)
     await page.goto('/', { waitUntil: 'domcontentloaded' })
-    const firstArticlePath = await page
-      .locator('#main article a[href]')
-      .first()
-      .getAttribute('href')
+    const articleLinks = page.locator('#main article a[href]')
+    // The production store is allowed to be empty (honest empty edition), so the
+    // article route is only scanned when the homepage actually exposes a story.
+    // `count()` resolves immediately; `getAttribute()` on a zero-match locator
+    // waits out the entire test timeout and the audit never runs.
+    const firstArticlePath =
+      (await articleLinks.count()) > 0 ? await articleLinks.first().getAttribute('href') : null
 
     const routes = firstArticlePath
       ? [...REQUIRED_ROUTES, new URL(firstArticlePath, 'http://localhost').pathname]

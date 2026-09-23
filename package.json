@@ -36,9 +36,11 @@
     "audit:ui-bans": "node scripts/audit-ui-bans.mjs",
     "audit:contrast": "node scripts/audit-contrast.mjs",
     "audit:design-tokens": "node scripts/audit-design-tokens.mjs",
+    "audit:env-docs": "node scripts/audit-env-docs.mjs",
+    "audit:payload-routes": "node scripts/audit-payload-routes.mjs",
     "launch:gate": "node scripts/launch-gate.mjs",
     "launch:origin": "node scripts/assert-launch-origin.mjs",
-    "verify:static": "pnpm verify:workspaces && pnpm verify:lockfile && pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm audit:ui-bans && pnpm audit:contrast && pnpm audit:design-tokens && pnpm audit:internal-links && pnpm launch:origin && pnpm launch:gate",
+    "verify:static": "pnpm verify:workspaces && pnpm verify:lockfile && pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm audit:ui-bans && pnpm audit:contrast && pnpm audit:design-tokens && pnpm audit:internal-links && pnpm audit:env-docs && pnpm audit:payload-routes && pnpm launch:origin && pnpm launch:gate",
     "verify:lockfile": "node scripts/verify-workspace-lock.mjs",
     "perf:budget": "node scripts/perf-budget.mjs",
     "perf:budget:test": "node scripts/perf-budget.mjs --self-test",
@@ -83,6 +85,17 @@
       "miniflare>sharp": "^0.35.4",
       "vitest>vite": "^6.4.3"
     },
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@prisma/client",
+      "@prisma/engines",
+      "@sentry/cli",
+      "@swc/core",
+      "esbuild",
+      "prisma",
+      "unrs-resolver",
+      "workerd"
+    ],
     "auditConfig": {
       "ignoreGhsas": [
         "GHSA-5p2g-fcmc-qvqq",

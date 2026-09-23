@@ -64,13 +64,32 @@ function isStaticAssetPath(pathname: string): boolean {
   return STATIC_ASSET_EXTENSIONS.has(last.slice(dot + 1).toLowerCase())
 }
 
+/**
+ * Real HTTP 404 for a top-level path that is not part of the public tree.
+ *
+ * `NextResponse.rewrite(destination, { status: 404 })` looks like it should do
+ * this, but Next drops the status of a rewrite (only redirects carry
+ * `statusCode` through `resolve-routes`), and rendering a `not-found.tsx`
+ * boundary answers `200` because the status is committed once a `loading.tsx`
+ * Suspense boundary streams (vercel/next.js #93253 — maintainers confirm this is
+ * expected for streamed responses). Both were verified against a production
+ * build on 2026-09-23: every reader-facing 404 answered `200`.
+ *
+ * What does work: rewrite to a path that matches no route at all. Next then
+ * serves its internal `_not-found` route, whose status is forced to 404 *before*
+ * rendering, with `app/not-found.tsx` as the body. The target needs four
+ * segments so it cannot match `[locale]`, `[locale]/[category]` or
+ * `[locale]/[category]/[slug]`, and it is prefixed `__nw` so it can never
+ * collide with a real route.
+ */
+const HARD_NOT_FOUND_PATH = '/__nw/not-found/404/x'
+
 function hardNotFound(request: NextRequest, locale: 'ne' | 'en'): NextResponse {
   const destination = request.nextUrl.clone()
-  destination.pathname = locale === 'en' ? '/en/__not-found' : '/ne/__not-found'
+  destination.pathname = HARD_NOT_FOUND_PATH
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-locale', locale)
   return NextResponse.rewrite(destination, {
-    status: 404,
     request: { headers: requestHeaders },
   })
 }
