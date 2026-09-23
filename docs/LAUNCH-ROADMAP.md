@@ -336,6 +336,58 @@ until readers exist.
 
 ---
 
+## Phase 7.0 — One scope bug, four symptoms _(fixed)_
+
+Recorded because it explains several things this document previously listed as
+separate mysteries, and because the pattern is still live elsewhere in the repo.
+
+Next emits a shared module into both the RSC/SSR graph and the route-handler
+graph. A module-level `let cached` in such a module therefore exists **once per
+layer**, not once per process. Instrumenting `lib/auth/auth-pool.ts` caught it
+outright: one PGlite created from `chunks/ssr/[root-of-the-server]__*.js` under
+`AdminLoginPage`, a second from `chunks/[root-of-the-server]__*.js` under
+`getOperationalPool` — same pid, same data directory, two instances.
+
+Two PGlite instances on one directory do not share a page cache. Every symptom
+below is the same bug:
+
+| Symptom                                                                                                  | Mechanism                                                                                                                                                                |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `relation "nw_taxonomy_terms" does not exist` on `/journalist/articles/new`                              | `CREATE TABLE IF NOT EXISTS` ran on one instance, the `SELECT` two lines later on the other                                                                              |
+| A filed draft never reached the editor: `/admin/journalists` showed "no handoffs" for a just-filed story | `POST /api/journalist/articles` inserted through the route-handler instance; the desk read through the RSC one. Both statements succeeded. No error was logged anywhere. |
+| A just-published story could 404 for up to 30s                                                           | `invalidateArticleStoreCache()` runs in the publish handler and cleared that layer's cache; reader pages served the other layer's copy until the TTL expired             |
+| `SHARED_POOL_MAX_PER_INSTANCE = 1` silently became 2                                                     | `pg-pool` kept its pool in module state, so each layer opened its own — against a database that had already hit Postgres 53300                                           |
+
+Fixed by `lib/runtime/process-singleton.ts`, which keys the state off
+`globalThis` via a registered symbol — the only scope both layers share — and
+memoises the in-flight promise rather than the resolved value, so two concurrent
+first callers cannot both construct. Applied to `auth-pool`, `pg-pool` and
+`json-store`.
+
+**Still outstanding.** Roughly forty other modules under `apps/web/lib` hold
+module-level `memory` maps, `localWrite` queues and short-TTL caches with the
+same shape. They are lower risk — most are development fallbacks used only when
+no database is configured, and `rate-limit.ts` already fails closed in
+production rather than trusting its in-memory buckets — but every `localWrite`
+/ `writeQueue` promise chain guarding a file write has the same "two locks are
+no lock" flaw `json-store` had. Worth a sweep before launch; not a blocker.
+
+Two related findings worth writing down:
+
+- **PGlite must be `serverExternalPackages`.** Bundled, it builds its WASM and
+  filesystem paths with `new URL(..., import.meta.url)`, which yields a URL from
+  a different realm than the one `node:fs` validates against; every call then
+  fails `instanceof URL` with the self-contradictory "must be ... an instance of
+  URL. Received an instance of URL". This took out staff sign-in completely
+  wherever `DATABASE_URL` is unset.
+- **A PGlite data directory does not survive an unclean shutdown.** `kill -9` on
+  the dev server leaves it in a state where the next `PGlite.create()` aborts in
+  WASM (`Aborted(). Build with -sASSERTIONS`) with no recovery path in the app.
+  Only affects PGlite-backed local/E2E runs, never production Postgres, but it
+  costs ten confusing minutes the first time it happens. Delete the directory.
+
+---
+
 ## Phase 7 — Hardening the things that are currently honest but weak
 
 These are real but not launch-blocking. Listed so they are not forgotten.
@@ -348,6 +400,7 @@ These are real but not launch-blocking. Listed so they are not forgotten.
 | 7.4 | Redis presence / real-time counts                       | Honest adapter today; needs Redis.                                                                                                                                                |
 | 7.5 | Rate-limit review under real traffic                    | Limits exist; they have never met load.                                                                                                                                           |
 | 7.6 | Restore e2e + a11y suites to green in CI                | They have not run in 25 pushes — they were failing at `Install`, not on their own merits. Confirm they still pass now that install works.                                         |
+| 7.7 | Sweep the remaining per-layer module caches             | See Phase 7.0. ~40 modules, mostly development fallbacks; the file-write queues are the ones that can lose data.                                                                  |
 
 ---
 
