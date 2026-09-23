@@ -266,6 +266,59 @@ self-inflicted SEO wound available.
 | 5.5 | Plausible behind consent; verify no beacon fires pre-consent                                        |
 | 5.6 | Social cards — OG/Twitter — spot-checked on real articles                                           |
 
+### 5.0 — Unknown content URLs are soft 404s
+
+Blocks 5.2. Verified against a production build of `main`:
+
+```
+/_not-a-route            404   proxy rejects the shape, answers itself
+/en/ne                   404   locale duplication (fixed in this branch)
+/not-a-real-route-xyz    200   ← reaches the App Router
+/politics/no-such-slug   200   ← reaches the App Router
+```
+
+The recovery UI is correct in every case — reader-facing, this is not broken,
+and every one of those responses carries `<meta name="robots" content="noindex">`.
+What is wrong is the status line.
+
+The cause is **not** the locale rewrite. `/en/*` is served through
+`NextResponse.next()` with no rewrite at all and behaves identically, and the
+proxy's own `hardNotFound()` proves a rewrite can carry a 404 fine. The cause is
+`app/[locale]/loading.tsx`: a segment `loading.tsx` wraps its subtree in a
+Suspense boundary, the fallback flushes as soon as the layout resolves, and the
+HTTP status is committed with that first flush — before `notFound()` in the page
+body ever runs. This is documented Next.js behaviour, not a bug in this repo
+([notFound reference](https://nextjs.org/docs/app/api-reference/functions/not-found),
+[vercel/next.js#93239](https://github.com/vercel/next.js/issues/93239)).
+`export const dynamic = 'force-dynamic'`, which `[category]/page.tsx` already
+sets, does not change it.
+
+`lib/public-path-allowlist.ts` was written to prevent exactly this — its header
+comment says so. It works for every shape except the one that matters: a
+lowercase kebab slug, which is what essentially every crawled bad URL looks like.
+`looksLikeCategorySlug` lets those through on purpose, so a desk created in the
+CMS is not hard-404'd before the seed list or
+`NEXT_PUBLIC_EXTRA_PUBLIC_SEGMENTS` catches up.
+
+Three ways out, ranked:
+
+| Option                                                                                                                                                       | Fixes                        | Cost                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **A.** Make `looksLikeCategorySlug` opt-in and drive live taxonomy through `NEXT_PUBLIC_EXTRA_PUBLIC_SEGMENTS`                                               | unknown categories only      | A new desk hard-404s until the env var is set. Trades a soft 404 on junk URLs for a hard 404 on a real desk — needs an operator decision. |
+| **B.** Delete `app/[locale]/loading.tsx` and the two content-segment `loading.tsx` files; move skeletons into in-page `<Suspense>` after the existence check | both categories and articles | Loses the route-level skeleton; each page must be restructured to validate before it returns JSX.                                         |
+| **C.** Accept it                                                                                                                                             | nothing                      | Free. `noindex` already keeps these out of the index; the cost is crawl budget and a dirty Search Console coverage report.                |
+
+**Recommendation: B, scoped to `[category]` and `[category]/[slug]`, before 5.2.**
+It is the only option that also covers unknown article slugs, and unknown article
+slugs are what a news crawler actually generates. Not done in this branch: it
+changes the perceived-performance characteristics of the two highest-traffic
+route families, which is a product call, not a test-fixing one.
+
+Pinned meanwhile by `e2e/routes-trust.spec.ts` and `e2e/chrome.spec.ts`, which
+accept either status, assert `noindex` unconditionally, and emit a `known-gap`
+annotation when the answer is 200 — so the day this is fixed, the annotation
+disappears rather than a test going red.
+
 ---
 
 ## Phase 6 — Revenue and growth _(post-launch)_
