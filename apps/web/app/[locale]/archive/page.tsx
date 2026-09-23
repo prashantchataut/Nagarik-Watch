@@ -7,6 +7,7 @@ import { asLocale, localizeHref } from '@/lib/i18n/locales'
 import { HubIndexHeader } from '@/components/HubIndexHeader'
 import { STATIC_HUBS, localizedTitle } from '@/lib/site'
 import { InstrumentedStory } from '@/components/ranking/InstrumentedStory'
+import { formatAdDate } from '@nagarikwatch/db'
 
 const hub = STATIC_HUBS.find((item) => item.key === 'archive')!
 
@@ -186,11 +187,7 @@ export default async function ArchivePage({
                       <time dateTime={story.publishedAt}>
                         {Number.isNaN(published.getTime())
                           ? story.publishedAt
-                          : new Intl.DateTimeFormat(locale === 'en' ? 'en-NP' : 'ne-NP', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            }).format(published)}
+                          : formatAdDate(published, locale === 'en' ? 'en' : 'ne')}
                       </time>
                       <p className="mt-1 text-brand-strong">{category}</p>
                     </div>

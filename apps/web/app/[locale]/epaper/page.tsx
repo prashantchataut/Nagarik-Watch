@@ -6,6 +6,7 @@ import { checkEntitlement, listReplicaPages } from '@/lib/epaper'
 import { LiveDeskShell } from '@/components/public/LiveDeskShell'
 import { isPublicMembershipEnabled } from '@/lib/membership'
 import { canonicalAlternates } from '@/lib/seo/canonical'
+import { formatAdDate } from '@nagarikwatch/db'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,7 +53,10 @@ export default async function EpaperPage({ params }: { params: Promise<{ locale:
               aria-label={en ? 'E-paper preview placeholder' : 'ई-पेपर पूर्वावलोकन'}
             >
               <div className="min-w-0">
-                <div className="mx-auto grid h-14 w-11 place-items-center border border-rule bg-surface" aria-hidden="true">
+                <div
+                  className="mx-auto grid h-14 w-11 place-items-center border border-rule bg-surface"
+                  aria-hidden="true"
+                >
                   <span className="grid grid-cols-2 gap-0.5">
                     {[0, 1, 2, 3].map((dot) => (
                       <span key={dot} className="block h-2.5 w-2.5 bg-brand-tint" />
@@ -72,29 +76,56 @@ export default async function EpaperPage({ params }: { params: Promise<{ locale:
 
             <aside className="min-w-0 space-y-5">
               <section className="border border-rule bg-surface-raised px-3.5 py-3.5">
-                <p className="font-display text-meta font-extrabold text-ink" lang={en ? 'en' : 'ne'}>
+                <p
+                  className="font-display text-meta font-extrabold text-ink"
+                  lang={en ? 'en' : 'ne'}
+                >
                   {en ? 'What the e-paper includes' : 'ई-पेपरमा के हुन्छ'}
                 </p>
                 <span className="mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden="true" />
-                <ul className="mt-2.5 grid gap-1.5 text-caption leading-relaxed text-ink-soft" lang={en ? 'en' : 'ne'}>
-                  <li>· {en ? 'Page-for-page replica of the print edition' : 'छापा संस्करणको पृष्ठ-दर-पृष्ठ प्रतिलिपि'}</li>
-                  <li>· {en ? 'Seven-day archive of past editions' : 'पछिल्ला सात दिनका संस्करण संग्रह'}</li>
-                  <li>· {en ? 'Downloadable pages for offline reading' : 'अफलाइन पढाइका लागि डाउनलोड'}</li>
+                <ul
+                  className="mt-2.5 grid gap-1.5 text-caption leading-relaxed text-ink-soft"
+                  lang={en ? 'en' : 'ne'}
+                >
+                  <li>
+                    ·{' '}
+                    {en
+                      ? 'Page-for-page replica of the print edition'
+                      : 'छापा संस्करणको पृष्ठ-दर-पृष्ठ प्रतिलिपि'}
+                  </li>
+                  <li>
+                    ·{' '}
+                    {en ? 'Seven-day archive of past editions' : 'पछिल्ला सात दिनका संस्करण संग्रह'}
+                  </li>
+                  <li>
+                    · {en ? 'Downloadable pages for offline reading' : 'अफलाइन पढाइका लागि डाउनलोड'}
+                  </li>
                 </ul>
               </section>
               <section className="border border-rule bg-surface-raised px-3.5 py-3.5">
-                <p className="font-display text-meta font-extrabold text-ink" lang={en ? 'en' : 'ne'}>
+                <p
+                  className="font-display text-meta font-extrabold text-ink"
+                  lang={en ? 'en' : 'ne'}
+                >
                   {en ? 'Read meanwhile' : 'यसैबीच पढ्नुहोस्'}
                 </p>
                 <span className="mt-1.5 block h-0.5 w-8 bg-brand" aria-hidden="true" />
                 <ul className="mt-2.5 grid gap-1.5">
                   <li>
-                    <Link href={localizeHref(locale, '/latest')} className="text-caption font-bold text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong" lang={en ? 'en' : 'ne'}>
+                    <Link
+                      href={localizeHref(locale, '/latest')}
+                      className="text-caption font-bold text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+                      lang={en ? 'en' : 'ne'}
+                    >
                       {en ? 'Latest news →' : 'ताजा समाचार →'}
                     </Link>
                   </li>
                   <li>
-                    <Link href={localizeHref(locale, '/newsletter/archive')} className="text-caption font-bold text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong" lang={en ? 'en' : 'ne'}>
+                    <Link
+                      href={localizeHref(locale, '/newsletter/archive')}
+                      className="text-caption font-bold text-ink transition-colors duration-fast ease-out-quint hover:text-brand-strong"
+                      lang={en ? 'en' : 'ne'}
+                    >
                       {en ? 'Newsletter archive →' : 'न्युजलेटर अभिलेख →'}
                     </Link>
                   </li>
@@ -119,7 +150,7 @@ export default async function EpaperPage({ params }: { params: Promise<{ locale:
                     {edition.edition}
                   </p>
                   <p className="mt-1 text-meta text-ink-soft">
-                    {new Date(edition.date).toLocaleDateString(en ? 'en-GB' : 'ne-NP')}
+                    {formatAdDate(edition.date, en ? 'en' : 'ne')}
                     {' · '}
                     {en ? `${edition.pages.length} page(s)` : `${edition.pages.length} पृष्ठ`}
                     {' · '}

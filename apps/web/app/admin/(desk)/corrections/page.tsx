@@ -1,3 +1,4 @@
+import { formatAdDateTime } from '@nagarikwatch/db'
 import type { Metadata } from 'next'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { assertNewsroomRole, PUBLISHER_ROLES } from '@/lib/admin-roles'
@@ -59,7 +60,7 @@ function severityTone(severity: CorrectionSeverity): 'neutral' | 'attention' | '
 function formatDate(value: string): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('ne-NP', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+  return formatAdDateTime(date, 'ne')
 }
 
 export default async function CorrectionsPage() {

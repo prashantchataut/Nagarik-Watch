@@ -6,6 +6,7 @@ import type { Locale } from '@nagarikwatch/db'
 import {
   BS_MONTHS,
   BS_MONTHS_EN,
+  formatAdNumber,
   formatBsFull,
   todayBsInKathmandu,
   toDevanagari,
@@ -383,7 +384,7 @@ export function PatroDesk({
 }
 
 function formatNpr(value: number, locale: Locale): string {
-  const formatted = value.toLocaleString(locale === 'en' ? 'en-NP' : 'ne-NP')
+  const formatted = formatAdNumber(value, locale === 'en' ? 'en' : 'ne')
   return locale === 'en' ? `NPR ${formatted}` : `रु. ${formatted}`
 }
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
-import type { Locale } from '@nagarikwatch/db'
+import { formatAdDateTime, type Locale } from '@nagarikwatch/db'
 import { hasLivePublicApi } from '@/lib/runtime/public-api'
 import { TurnstileField } from '@/components/forms/TurnstileField'
 import { localizeHref } from '@/lib/i18n/locales'
@@ -276,7 +276,7 @@ export function CommentSection({
           {comment.status === 'pending' ? <span>{ne ? 'समीक्षामा' : 'In moderation'}</span> : null}
         </div>
         <time dateTime={comment.createdAt}>
-          {new Date(comment.createdAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}
+          {formatAdDateTime(comment.createdAt, ne ? 'ne' : 'en')}
         </time>
       </header>
       <p lang="ne">{comment.bodyNe}</p>

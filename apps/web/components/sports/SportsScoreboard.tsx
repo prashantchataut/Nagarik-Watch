@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { formatDate, type Locale, type StoryCardData } from '@nagarikwatch/db'
+import { formatAdDateTime, formatDate, type Locale, type StoryCardData } from '@nagarikwatch/db'
 import { getFootballScores, getCricketScores } from '@/lib/live/sports'
 import { getStories } from '@/lib/content'
 import { localizeHref } from '@/lib/i18n/locales'
@@ -192,24 +192,17 @@ function ScoreSection({
           <p>
             {available ? (
               <>
-                {source} ·{' '}
-                {new Date(updatedAt).toLocaleString(ne ? 'ne-NP' : 'en-GB', {
-                  timeZone: 'Asia/Kathmandu',
-                })}
+                {source} · {formatAdDateTime(updatedAt, ne ? 'ne' : 'en')}
               </>
+            ) : ne ? (
+              'प्रमाणित प्रदायक'
             ) : (
-              (ne ? 'प्रमाणित प्रदायक' : 'Verified provider')
+              'Verified provider'
             )}
           </p>
         </div>
         <span data-live={available ? 'true' : 'false'}>
-          {available
-            ? ne
-              ? 'सत्यापित'
-              : 'Verified'
-            : ne
-              ? 'उपलब्ध छैन'
-              : 'No feed'}
+          {available ? (ne ? 'सत्यापित' : 'Verified') : ne ? 'उपलब्ध छैन' : 'No feed'}
         </span>
       </header>
       {available ? (

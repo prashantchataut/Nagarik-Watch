@@ -6,6 +6,7 @@ import { NewsletterInline } from '@/components/NewsletterInline'
 import { listNewsletterIssues } from '@/lib/newsletter-admin'
 import { SITE_URL } from '@/lib/site'
 import { orEmpty } from '@/lib/resilience/or-empty'
+import { formatAdDate } from '@nagarikwatch/db'
 
 export const dynamic = 'force-static'
 
@@ -97,7 +98,7 @@ export default async function NewsletterArchivePage({
                   >
                     <span className="font-display text-body-lg font-bold">{issue.subject}</span>
                     <time className="shrink-0 text-meta text-mute" dateTime={issue.createdAt}>
-                      {new Date(issue.createdAt).toLocaleDateString(en ? 'en-GB' : 'ne-NP')}
+                      {formatAdDate(issue.createdAt, en ? 'en' : 'ne')}
                     </time>
                   </Link>
                 </li>

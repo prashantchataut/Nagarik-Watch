@@ -2,7 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { sourceReliabilityFlags, type Category, type Locale, type Tag } from '@nagarikwatch/db'
+import {
+  formatAdDateTime,
+  formatAdTime,
+  sourceReliabilityFlags,
+  type Category,
+  type Locale,
+  type Tag,
+} from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
 import { StoryBodyEditor } from '@/components/newsroom/StoryBodyEditor'
 import { MediaGalleryPicker, type GalleryMediaItem } from '@/components/newsroom/MediaGalleryPicker'
@@ -497,7 +504,7 @@ export function JournalistArticleDraftForm({
           <p>
             {lastSavedAt
               ? ne
-                ? `अन्तिम सुरक्षित: ${new Date(lastSavedAt).toLocaleTimeString('ne-NP')}`
+                ? `अन्तिम सुरक्षित: ${formatAdTime(lastSavedAt, 'ne')}`
                 : `Last saved ${new Date(lastSavedAt).toLocaleTimeString('en-GB')}`
               : dirty
                 ? ne
@@ -1245,9 +1252,7 @@ export function JournalistArticleDraftForm({
                     return (
                       <li key={revision.id}>
                         <strong>{action}</strong>
-                        <span>
-                          {new Date(revision.createdAt).toLocaleString(ne ? 'ne-NP' : 'en-GB')}
-                        </span>
+                        <span>{formatAdDateTime(revision.createdAt, ne ? 'ne' : 'en')}</span>
                         <small>
                           {revision.actorRole} · {revision.stage} ·{' '}
                           {revision.contentHash.slice(0, 10)}

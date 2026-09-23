@@ -12,6 +12,8 @@ import {
   todayBsInKathmandu,
   bsMonthLength,
   bsToAd,
+  formatAdDate,
+  formatAdDateLong,
   formatBsFull,
   toDevanagari,
 } from '@nagarikwatch/db'
@@ -42,14 +44,6 @@ function kathmanduAdParts(date: Date): { day: number; weekday: number } {
   const day = Number(parts.find((part) => part.type === 'day')?.value)
   const weekday = new Date(Date.UTC(year, month - 1, day, 12)).getUTCDay()
   return { day, weekday }
-}
-
-function formatKathmanduAdDate(
-  date: Date,
-  locale: string,
-  options: Intl.DateTimeFormatOptions,
-): string {
-  return new Intl.DateTimeFormat(locale, { ...options, timeZone: 'Asia/Kathmandu' }).format(date)
 }
 
 function readTodayBs(): BsPoint {
@@ -161,20 +155,20 @@ export function NepaliCalendar({
   const canPrevYear = year > BS_YEAR_MIN
   const canNextYear = year < BS_YEAR_MAX
 
+  // Formatted through the shared AD helpers rather than Intl. Chromium ships no
+  // Nepali date data, so `Intl.DateTimeFormat('ne-NP', …)` resolved to en-US in
+  // the browser while Node resolved it properly — this header hydrated with a
+  // mismatch ("Sep 17, 2026" against "१७ सेप्टेम्बर २०२६"), React threw the whole
+  // calendar away and re-rendered it, and the Nepali reader was left looking at
+  // an English date range on the Bikram Sambat desk.
   const adRangeLabel = (() => {
     if (!firstAd || !lastAd) return ''
-    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' }
-    const loc = en ? 'en-GB' : 'ne-NP'
-    return `${formatKathmanduAdDate(firstAd, loc, opts)} – ${formatKathmanduAdDate(lastAd, loc, opts)}`
+    const loc = en ? 'en' : 'ne'
+    return `${formatAdDate(firstAd, loc)} – ${formatAdDate(lastAd, loc)}`
   })()
 
   const selectedAdLabel = selected?.adDate
-    ? formatKathmanduAdDate(selected.adDate, en ? 'en-GB' : 'ne-NP', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
+    ? formatAdDateLong(selected.adDate, en ? 'en' : 'ne')
     : ''
 
   const selectedBsLabel = selected ? formatBsFull({ year, month, day: selected.day }, locale) : ''

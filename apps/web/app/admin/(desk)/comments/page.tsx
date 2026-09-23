@@ -19,6 +19,7 @@ import {
   AdminTable,
 } from '@/components/admin/primitives'
 import { CommentModerationActions } from '@/components/admin/CommentModerationActions'
+import { formatAdDateTime } from '@nagarikwatch/db'
 
 export const metadata: Metadata = { title: 'टिप्पणी', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
@@ -153,10 +154,7 @@ export default async function CommentsPage({
                       className="mt-1 block text-caption text-mute"
                       dateTime={comment.createdAt}
                     >
-                      {new Intl.DateTimeFormat('ne-NP', {
-                        dateStyle: 'medium',
-                        timeStyle: 'short',
-                      }).format(new Date(comment.createdAt))}
+                      {formatAdDateTime(comment.createdAt, 'ne')}
                     </time>
                   </td>
                   <td className="max-w-xl whitespace-pre-wrap text-body leading-relaxed text-ink-soft">
