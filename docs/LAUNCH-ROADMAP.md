@@ -388,19 +388,104 @@ Two related findings worth writing down:
 
 ---
 
+## Desk authorization lived in a layout _(fixed)_
+
+Role rules for the admin desks (`canAccessAdminPath`) were applied in
+`app/admin/(desk)/layout.tsx`. That is correct exactly once: on a full page
+load. **App Router does not re-render a shared layout on client-side
+navigation** — a navigation request returns only the segments that changed and
+the layout is reused from the router cache. Instrumenting the layout and driving
+a sidebar click under Playwright printed one `[LAYOUT-RUN] /admin/dashboard` for
+the hard load and nothing at all for the soft navigation to `/admin/articles`.
+
+All 36 desk pages call `requireNewsroomSession()`, which authenticates but does
+not authorize. So the rules were checked against the first desk an editor opened
+and against nothing after it.
+
+Measured as the seeded `section_editor` (not a `USER_MANAGER_ROLE`) by replaying
+a real navigation request — same captured `Next-Router-State-Tree`, which is what
+tells the server the client already holds the `(desk)` layout:
+
+| Route              | With the guard         | Without the guard                                                                |
+| ------------------ | ---------------------- | -------------------------------------------------------------------------------- |
+| `/admin/users`     | 6,918 B, metadata only | **13,913 B** — "भूमिका र निष्क्रियता व्यवस्थापन", the staff list, its search box |
+| `/admin/audit-log` | 6,907 B, metadata only | **7,599 B** — "Sensitive newsroom actions" and the event table                   |
+
+So any authenticated staff account could read any desk, including the user list
+and the audit log, by issuing the navigation request itself. A demoted account
+also kept its old reach until something forced a full reload.
+
+Fixed by moving the decision into `lib/auth/desk-access.ts` and calling it from
+`requireNewsroomSession()`. Pages and server actions always run, so no desk can
+skip it, and a desk server action's POST carries that desk's own pathname. It is
+gated on `x-nw-shell: admin`, which both `proxy.ts` and the slim Cloudflare
+middleware `set` (not append) for `/admin` and `/admin/*` only — a client can
+neither forge it onto another route nor strip it from an admin one.
+
+Three tests hold it down: the outcome table in `lib/admin-roles.test.ts`, a
+Playwright replay in `e2e/admin-desk.spec.ts` with an allowed desk as a positive
+control, and a structural test in `lib/auth/desk-access.test.ts` asserting every
+file under `app/admin/(desk)` reaches `requireNewsroomSession()` — so the next
+desk cannot be added unguarded without deleting that test on purpose.
+
+**Worth generalising.** "The check is in a layout" is not a local mistake; it is
+a shape. Any per-request decision in a layout — authorization, entitlement,
+feature gating — is a decision that runs once per hard load. Grep for
+`headers()` in layouts before trusting one.
+
+---
+
+## Why the site feels slow _(measured; not yet fixed)_
+
+A production build says it plainly: `/`, `/[locale]`, `/[locale]/[category]` and
+`/[locale]/[category]/[slug]` all render `ƒ` (dynamic). **The home page, every
+desk index and every article are rendered from scratch on every request.** Only
+about ten low-traffic route groups prerender — `district/[slug]`,
+`photos/[slug]`, `newsletter/archive`, `reader-corner` and friends. Across the
+app, **106 of 189 route files declare `export const dynamic = 'force-dynamic'`.**
+
+Each case has a specific and small cause, which is the good news:
+
+| Route                         | What actually forces it dynamic                                                                                                                        | What it would take to cache                                                                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/[locale]/[category]`        | `await searchParams` for `?page=N` (`page.tsx:66`). Nothing else — no cookie, header or session read                                                   | Move pagination into the path (`/desk/page/2`). Page 1 is most of the traffic and becomes ISR-cacheable                                                           |
+| `/[locale]/[category]/[slug]` | `await headers()` for the Save-Data hint at `page.tsx:187`, **unconditionally**. `cookies()` is touched only when public membership is on (`:161-184`) | Decide Save-Data on the client, or put the metered/paywall strip behind Suspense, so the article body caches and only the reader-specific strip stays per-request |
+
+Both files also declare `export const revalidate = 60` on the line directly
+above `export const dynamic = 'force-dynamic'`, which overrides it. They are the
+only two files in the app that do this. The `revalidate` is dead — the files
+claim a caching policy they do not have, and `generateStaticParams()` on the
+article page currently buys nothing.
+
+Note what this means for sequencing: **deleting `force-dynamic` from either file
+changes nothing on its own**, because `searchParams` and `headers()` would each
+force a dynamic render anyway. These are refactors, not config flips, and the
+article one has paywall-correctness stakes — the free-article meter must not be
+served from a shared cache. Do them deliberately, with the paywall e2e green
+before and after.
+
+Not yet measured, and worth doing before any of the above: server response time
+against the real content source. The route table proves nothing is cached; it
+does not prove the render is what is slow. If `getStories`/`getArticleBySlug` are
+the cost, request-scoped memoisation is a smaller fix with a larger effect.
+
+---
+
 ## Phase 7 — Hardening the things that are currently honest but weak
 
 These are real but not launch-blocking. Listed so they are not forgotten.
 
-| #   | Item                                                    | Why                                                                                                                                                                               |
-| --- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 7.1 | Revisit CSP `'unsafe-inline'` in `script-src`           | Documented and deliberate — nonces would force every route dynamic and give up SSG/ISR. Worth revisiting if Next's nonce story improves. `hasWeakDirectives` already surfaces it. |
-| 7.2 | `connect-src https:` is broad                           | Narrow to known hosts once Sentry/Plausible/storage origins are final.                                                                                                            |
-| 7.3 | Two unpatched `image-size` DoS advisories (via Payload) | No fix exists upstream. Reachable only through staff-authenticated upload. Re-check each Payload release; drop the exemption the moment a patch ships.                            |
-| 7.4 | Redis presence / real-time counts                       | Honest adapter today; needs Redis.                                                                                                                                                |
-| 7.5 | Rate-limit review under real traffic                    | Limits exist; they have never met load.                                                                                                                                           |
-| 7.6 | Restore e2e + a11y suites to green in CI                | They have not run in 25 pushes — they were failing at `Install`, not on their own merits. Confirm they still pass now that install works.                                         |
-| 7.7 | Sweep the remaining per-layer module caches             | See Phase 7.0. ~40 modules, mostly development fallbacks; the file-write queues are the ones that can lose data.                                                                  |
+| #   | Item                                                    | Why                                                                                                                                                                                                                                                                       |
+| --- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 7.1 | Revisit CSP `'unsafe-inline'` in `script-src`           | Documented and deliberate — nonces would force every route dynamic and give up SSG/ISR. Worth revisiting if Next's nonce story improves. `hasWeakDirectives` already surfaces it.                                                                                         |
+| 7.2 | `connect-src https:` is broad                           | Narrow to known hosts once Sentry/Plausible/storage origins are final.                                                                                                                                                                                                    |
+| 7.3 | Two unpatched `image-size` DoS advisories (via Payload) | No fix exists upstream. Reachable only through staff-authenticated upload. Re-check each Payload release; drop the exemption the moment a patch ships.                                                                                                                    |
+| 7.4 | Redis presence / real-time counts                       | Honest adapter today; needs Redis.                                                                                                                                                                                                                                        |
+| 7.5 | Rate-limit review under real traffic                    | Limits exist; they have never met load.                                                                                                                                                                                                                                   |
+| 7.6 | Restore e2e + a11y suites to green in CI                | They have not run in 25 pushes — they were failing at `Install`, not on their own merits. Confirm they still pass now that install works.                                                                                                                                 |
+| 7.7 | Sweep the remaining per-layer module caches             | See Phase 7.0. ~40 modules, mostly development fallbacks; the file-write queues are the ones that can lose data.                                                                                                                                                          |
+| 7.8 | Desk authorization for admin **API** routes             | The new guard is scoped to the admin shell: it keys off `x-nw-shell: admin` and `ADMIN_PATH_ROLE_RULES` is keyed on `/admin/...` prefixes, so `/api/admin/...` is deliberately out of scope. Those handlers keep their own checks; nothing audits that they all have one. |
+| 7.9 | `MEDIA_MANAGER_ROLES` includes `photo_video_editor`     | That role is in `JOURNALIST_DESK_ROLES`, so it is redirected to the journalist desk and can never reach the admin shell. The media sidebar entry for it is unreachable — grant it differently or drop it.                                                                 |
 
 ---
 
