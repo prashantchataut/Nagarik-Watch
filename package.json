@@ -38,7 +38,7 @@
     "audit:design-tokens": "node scripts/audit-design-tokens.mjs",
     "launch:gate": "node scripts/launch-gate.mjs",
     "launch:origin": "node scripts/assert-launch-origin.mjs",
-    "verify:static": "pnpm verify:workspaces && pnpm verify:lockfile && pnpm verify:overrides && pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm audit:ui-bans && pnpm audit:contrast && pnpm audit:design-tokens && pnpm audit:internal-links && pnpm launch:origin && pnpm launch:gate",
+    "verify:static": "pnpm verify:workspaces && pnpm verify:lockfile && pnpm verify:overrides && pnpm audit:script-refs && pnpm audit:env-docs && pnpm audit:payload-routes && pnpm audit:public && pnpm audit:ads && pnpm audit:architecture && pnpm audit:ui-bans && pnpm audit:contrast && pnpm audit:design-tokens && pnpm audit:internal-links && pnpm launch:origin && pnpm launch:gate",
     "verify:lockfile": "node scripts/verify-workspace-lock.mjs",
     "verify:overrides": "node scripts/verify-lockfile-overrides.mjs",
     "perf:budget": "node scripts/perf-budget.mjs",
@@ -57,7 +57,10 @@
     "verify:workspaces": "node scripts/verify-canonical-workspaces.mjs",
     "start": "pnpm --filter ./apps/web start",
     "db:push": "pnpm --filter ./apps/web db:push",
-    "seed": "pnpm --filter ./apps/web seed"
+    "seed": "pnpm --filter ./apps/web seed",
+    "audit:env-docs": "node scripts/audit-env-docs.mjs",
+    "audit:payload-routes": "node scripts/audit-payload-routes.mjs",
+    "audit:script-refs": "node scripts/audit-script-refs.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

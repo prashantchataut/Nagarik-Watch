@@ -2,6 +2,7 @@ import { staticTagParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
 import { permanentRedirect } from 'next/navigation'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import { isStaticPagesExport } from '@/lib/build-mode'
 
 export const revalidate = 60
 
@@ -27,7 +28,7 @@ export default async function LegacyTagPage({
 }) {
   const { locale: rawLocale, slug } = await params
   const locale = asLocale(rawLocale)
-  const { page } = await searchParams
+  const { page } = isStaticPagesExport ? {} : await searchParams
   const target = localizeHref(locale, `/topic/${encodeURIComponent(slug)}`)
   const suffix = page && /^\d+$/.test(page) && page !== '1' ? `?page=${page}` : ''
   permanentRedirect(`${target}${suffix}`)

@@ -1,6 +1,13 @@
 #!/usr/bin/env node
-/** Restore app segments moved to .pages-build-bak by the static Pages build. */
-import { existsSync, mkdirSync, renameSync } from 'node:fs'
+/**
+ * Restore app segments moved to `.pages-build-bak/` by the static Pages build.
+ *
+ * The build restores them itself in a `finally`, but a hard kill (or a SIGKILL
+ * from a CI timeout) leaves them stashed. `pnpm restore:stash` is the recovery
+ * path; keep this list in step with the stash list in
+ * `scripts/build-pages-static.mjs`.
+ */
+import { existsSync, mkdirSync, renameSync, rmdirSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -22,14 +29,25 @@ function restore(fromRel, toRel) {
 
 restore('admin', path.join('app', 'admin'))
 restore('api', path.join('app', 'api'))
+restore('feeds', path.join('app', 'feeds'))
 restore(path.join('[locale]', 'auth'), path.join('app', '[locale]', 'auth'))
 restore(path.join('[locale]', 'journalist'), path.join('app', '[locale]', 'journalist'))
 
-const middlewareBak = path.join(appDir, 'middleware.ts.pages-bak')
-const middleware = path.join(appDir, 'middleware.ts')
-if (existsSync(middlewareBak) && !existsSync(middleware)) {
-  renameSync(middlewareBak, middleware)
-  console.log('restored middleware.ts')
+// Next 16 renamed the `middleware` file convention to `proxy`; accept either
+// backup name so a stash from an older build still restores.
+for (const base of ['proxy.ts', 'middleware.ts']) {
+  const backup = path.join(appDir, `${base}.pages-bak`)
+  const target = path.join(appDir, base)
+  if (existsSync(backup) && !existsSync(target)) {
+    renameSync(backup, target)
+    console.log(`restored ${base}`)
+  }
 }
 
-console.log('Done. Remove .pages-build-bak manually if empty.')
+try {
+  rmdirSync(bak)
+  console.log('removed empty .pages-build-bak')
+} catch {
+  if (existsSync(bak))
+    console.log('Done. .pages-build-bak is not empty — inspect it before deleting.')
+}

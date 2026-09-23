@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
+import { isStaticPagesExport } from '@/lib/build-mode'
 import { getStories } from '@/lib/content'
 import { getRealForex, getRealGoldSilver, getRealNepse } from '@/lib/live/real'
 import { canonicalAlternates } from '@/lib/seo/canonical'
@@ -31,7 +32,9 @@ export async function generateMetadata({
 export default async function PatroPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale)
   const en = locale === 'en'
-  const onCalendarHost = (await headers()).get('x-nw-calendar-host') === '1'
+  // A static export has no request headers; the calendar host is decided by
+  // the subdomain rewrite, which does not exist on a static host.
+  const onCalendarHost = !isStaticPagesExport && (await headers()).get('x-nw-calendar-host') === '1'
 
   const [forex, gold, nepse, storiesPage, calendarSchedule] = await Promise.all([
     getRealForex(locale),
@@ -48,7 +51,7 @@ export default async function PatroPage({ params }: { params: Promise<{ locale: 
     // then drop synthetic media so broken thumb boxes never render.
     const normalized =
       rawThumb && !rawThumb.startsWith('data:')
-        ? normalizeLegacyHeroUrl(rawThumb, story.slug) ?? rawThumb
+        ? (normalizeLegacyHeroUrl(rawThumb, story.slug) ?? rawThumb)
         : null
     const thumb = normalized && !normalized.startsWith('data:') ? normalized : null
     const path = `/${story.category.slug}/${story.slug}`

@@ -8,6 +8,7 @@ import { HubRelatedNav } from '@/components/public/HubRelatedNav'
 import { StoryIndexComposition } from '@/components/public/StoryIndexComposition'
 import { IndexRail, RailModule } from '@/components/public/IndexRail'
 import { canonicalAlternates } from '@/lib/seo/canonical'
+import { isStaticPagesExport } from '@/lib/build-mode'
 
 export async function generateMetadata({
   params,
@@ -44,7 +45,9 @@ export default async function LatestPage({
 }) {
   const locale = asLocale((await params).locale)
   const english = locale === 'en'
-  const page = pageNumber((await searchParams).page)
+  // A static export has no request query: reading searchParams while
+  // prerendering aborts the build (see lib/static-export-params.ts).
+  const page = isStaticPagesExport ? 1 : pageNumber((await searchParams).page)
   const result = await getStories({ locale, page, perPage: PER_PAGE })
 
   return (
@@ -63,8 +66,18 @@ export default async function LatestPage({
       {result.items.length > 0 ? (
         <div className="mt-1 grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(15rem,0.3fr)] xl:items-start">
           <div className="min-w-0">
-            <StoryIndexComposition stories={result.items} locale={locale} mode="latest" startRank={(result.page - 1) * PER_PAGE + 1} />
-            <AdSlot locale={locale} placementKey="latest-inline" variant="inline" className="mt-6" />
+            <StoryIndexComposition
+              stories={result.items}
+              locale={locale}
+              mode="latest"
+              startRank={(result.page - 1) * PER_PAGE + 1}
+            />
+            <AdSlot
+              locale={locale}
+              placementKey="latest-inline"
+              variant="inline"
+              className="mt-6"
+            />
             <Pagination
               page={result.page}
               totalPages={result.totalPages}

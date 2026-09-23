@@ -11,6 +11,7 @@ import { resolveSlugRedirect } from '@/lib/content/slug-redirects'
 import { relatedByContent } from '@/lib/ranking'
 import { findSeriesContinuation, findSeriesPrevious } from '@/lib/content/series'
 import { requestWantsSaveData } from '@/lib/request/save-data'
+import { isStaticPagesExport } from '@/lib/build-mode'
 import { ArticleBody, CorrectionNotice, TagRow } from '@/components/article/ArticleBody'
 import { ArticleJsonLd } from '@/components/article/ArticleJsonLd'
 import { PaywallNotice } from '@/components/article/PaywallNotice'
@@ -165,13 +166,16 @@ export default async function ArticlePage({
   // had already been streamed by the time anything could count it.
   // `cookies()` is only touched inside this branch, so a site with membership off
   // keeps rendering articles statically.
-  const freeRemaining = membershipPublic
-    ? freeReadsRemainingFor(
-        parseMeter((await cookies()).get(FREE_ARTICLE_METER_COOKIE)?.value),
-        articleMeterKey(category, slug),
-        FREE_ARTICLE_SESSION_LIMIT,
-      )
-    : Infinity
+  // No request and no cookie jar in a static export: the meter is a server
+  // feature, so the export always renders the full body.
+  const freeRemaining =
+    membershipPublic && !isStaticPagesExport
+      ? freeReadsRemainingFor(
+          parseMeter((await cookies()).get(FREE_ARTICLE_METER_COOKIE)?.value),
+          articleMeterKey(category, slug),
+          FREE_ARTICLE_SESSION_LIMIT,
+        )
+      : Infinity
   const paywall = {
     isMember: premiumReader,
     freeRemaining,
@@ -180,7 +184,7 @@ export default async function ArticlePage({
   const canReadFull = membershipPublic ? !shouldShowPaywall(paywall) : true
   const showAds = !article.adFree
   // The route is force-dynamic, so reading the header costs nothing extra.
-  const saveData = requestWantsSaveData(await headers())
+  const saveData = isStaticPagesExport ? false : requestWantsSaveData(await headers())
   const body = readingEnglish && article.bodyEn ? article.bodyEn : article.bodyNe
   const visibleBody = canReadFull ? body : previewBlocks(body)
   const [openingBody, remainingBody] = splitAfterParagraphs(visibleBody)
