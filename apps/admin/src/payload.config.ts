@@ -10,6 +10,7 @@ import { Categories } from './collections/Categories'
 import { Authors } from './collections/Authors'
 import { Tags } from './collections/Tags'
 import { Articles } from './collections/Articles'
+import { EditorialAuditEvents } from './collections/EditorialAuditEvents'
 import { loadEnv } from '@nagarikwatch/db/env'
 
 const filename = fileURLToPath(import.meta.url)
@@ -116,7 +117,7 @@ export default buildConfig({
       icons: [{ type: 'icon', rel: 'icon', url: '/favicon.ico' }],
     },
   },
-  collections: [Users, Media, Categories, Authors, Tags, Articles],
+  collections: [Users, Media, Categories, Authors, Tags, Articles, EditorialAuditEvents],
   plugins: [
     vercelBlobStorage({
       enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim()),

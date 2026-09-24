@@ -59,6 +59,19 @@ const isStaticExport =
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
+  // PGlite must be loaded by Node, not bundled. It locates its WASM and
+  // filesystem assets through `new URL(..., import.meta.url)`; once Turbopack
+  // bundles it, those URLs come from a different realm than the one `node:fs`
+  // validates against, and every call fails the `instanceof URL` check with
+  // the self-contradictory "must be ... an instance of URL. Received an
+  // instance of URL".
+  //
+  // That is not cosmetic. PGlite backs auth and operational storage whenever
+  // DATABASE_URL is unset, so the failure took out staff sign-in completely in
+  // dev and in both PGlite-backed E2E runners -- `[admin/login] auth/boot
+  // failed`, `[ops-db] could not acquire PGlite operational pool`, and a
+  // newsroom lifecycle suite that could not get past its first sign-in.
+  serverExternalPackages: ['@electric-sql/pglite'],
   // `X-Powered-By: Next.js` tells an attacker the framework and narrows the
   // exploit search for free. Nothing reads it, so drop it.
   poweredByHeader: false,

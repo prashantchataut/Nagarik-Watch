@@ -44,8 +44,13 @@ async function adminLogin(
   creds: { email: string; password: string },
 ) {
   await page.goto('/admin/login')
+  // The staff login form is Nepali-only by design -- `AdminLoginForm` hardcodes
+  // `lang="ne"` and its submit button reads साइन इन -- so the English name never
+  // matched and this waited out its full two minutes. The browser locale being
+  // en-US does not change the form's copy. Matched both ways, the way this file
+  // already matches the headline field, so it survives a localisation pass.
   await page
-    .getByRole('button', { name: 'Sign in' })
+    .getByRole('button', { name: /साइन इन|Sign in/ })
     .waitFor({ state: 'visible', timeout: 120_000 })
   await signInWithApi(page, creds)
 }

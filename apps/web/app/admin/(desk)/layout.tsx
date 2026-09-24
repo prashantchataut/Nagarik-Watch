@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react'
 import { headers } from 'next/headers'
-import { notFound, redirect } from 'next/navigation'
 import { requireNewsroomSession } from '@/lib/auth/session'
-import { canAccessAdminPath, isJournalistDeskRole } from '@/lib/admin-roles'
 import { isPayloadCanonical, payloadAdminUrl } from '@/lib/content/payload-admin-client'
 import { AdminShell } from '@/components/admin/AdminShell'
 
@@ -37,11 +35,13 @@ export default async function AdminDeskLayout({ children }: { children: ReactNod
     )
   }
 
+  // The role rules used to be applied here. They are not, any more: this layout
+  // is rendered on a full page load and then reused across every client-side
+  // navigation, so a check here covered the first desk an editor opened and no
+  // others. `requireNewsroomSession` now enforces them for every request that
+  // carries the admin shell header, which is every desk page and every desk
+  // server action. See `lib/auth/desk-access.ts` for the evidence.
   const session = await requireNewsroomSession()
-  if (isJournalistDeskRole(session.newsroomRole)) {
-    redirect('/ne/journalist/dashboard')
-  }
-  if (!canAccessAdminPath(session.newsroomRole, pathname)) notFound()
   const contentAdminUrl = isPayloadCanonical() ? payloadAdminUrl() : undefined
   return (
     <AdminShell session={session} pathname={pathname} contentAdminUrl={contentAdminUrl}>
