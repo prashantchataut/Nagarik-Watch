@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import type { HomepageSection, Locale, StoryCardData } from '@nagarikwatch/db'
+import type { HomepageData, HomepageSection, Locale, StoryCardData } from '@nagarikwatch/db'
 import { BreakingTicker } from '@/components/BreakingTicker'
 import { canonicalAlternates } from '@/lib/seo/canonical'
 import { dedupeHomepage } from '@/lib/content/homepage-dedup'
@@ -102,19 +102,41 @@ export function homeMetadata(locale: Locale): Metadata {
 
 export async function HomePage({ locale }: { locale: Locale }) {
   // A single transient source flake must never blank the front page; retry
-  // once before falling back to the service notice.
-  const loadEdition = async () => {
-    const first = await getHomepage().catch(() => null)
-    if (first) return first
+  // once before falling back.
+  //
+  // `null` and a thrown error mean different things and the reader is owed
+  // different pages for them. `getHomepage()` resolves `null` when the source
+  // is healthy and nothing is published — the normal state of this repo before
+  // launch — and throws when the source is unreachable. Collapsing both into
+  // `null` is what made a working pre-launch site tell readers its front page
+  // "cannot be shown right now".
+  const loadEdition = async (): Promise<
+    { edition: HomepageData } | { reason: 'empty' | 'unavailable' }
+  > => {
+    let failed = false
+    const attempt = async () => {
+      try {
+        return await getHomepage()
+      } catch {
+        failed = true
+        return null
+      }
+    }
+    const first = await attempt()
+    if (first) return { edition: first }
+    // Only a failure is worth retrying. An empty store will still be empty in
+    // 300ms, and the delay is on the reader's critical path.
+    if (!failed) return { reason: 'empty' }
+    failed = false
     await new Promise((resolve) => setTimeout(resolve, 300))
-    return getHomepage().catch(() => null)
+    const second = await attempt()
+    if (second) return { edition: second }
+    return { reason: failed ? 'unavailable' : 'empty' }
   }
-  const [homepage, activePoll] = await Promise.all([
-    loadEdition(),
-    getActivePoll().catch(() => null),
-  ])
+  const [loaded, activePoll] = await Promise.all([loadEdition(), getActivePoll().catch(() => null)])
 
-  if (!homepage) return <HomeEmptyEdition locale={locale} />
+  if (!('edition' in loaded)) return <HomeEmptyEdition locale={locale} reason={loaded.reason} />
+  const homepage = loaded.edition
 
   const edition = dedupeHomepage(homepage)
   const editionStories = [
