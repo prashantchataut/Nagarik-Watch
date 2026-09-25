@@ -1,13 +1,26 @@
 import 'server-only'
 import { bsToAd } from '@nagarikwatch/db'
+import { processState } from '@/lib/runtime/process-singleton'
 import type { PublishedCalendarEvent, PublishedCalendarSchedule } from '@/lib/calendar-view'
 import { validateManualLiveData } from '@/lib/live/manual-schema'
 import { setManualLiveRecord } from '@/lib/live/manual'
 
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('calendar-provider:local', () => ({
+  providerCache: null as { year: number; at: number; value: PublishedCalendarSchedule } | null,
+}))
+
 const TIMEOUT_MS = 8_000
 const SCHEDULE_CACHE_MS = 6 * 60 * 60 * 1000
-
-let providerCache: { year: number; at: number; value: PublishedCalendarSchedule } | null = null
 
 export type CalendarProviderState = {
   provider: 'bizzpatro' | 'json'
@@ -147,7 +160,8 @@ async function fetchBizzPatroSchedule(year: number): Promise<PublishedCalendarSc
   for (const response of responses) {
     const month = Number(response.data?.bs_month)
     const generatedAt = response.meta?.generated_at
-    if (generatedAt && (!updatedAt || Date.parse(generatedAt) > Date.parse(updatedAt))) updatedAt = generatedAt
+    if (generatedAt && (!updatedAt || Date.parse(generatedAt) > Date.parse(updatedAt)))
+      updatedAt = generatedAt
     for (const day of response.data?.days ?? []) {
       const dayNumber = Number(day.bs_day)
       if (!Number.isInteger(month) || !Number.isInteger(dayNumber)) continue
@@ -192,7 +206,9 @@ async function fetchNormalizedSchedule(year: number): Promise<PublishedCalendarS
   return validateSchedule({
     year: Number(payload.year ?? year),
     source:
-      payload.source?.trim() || process.env.CALENDAR_SOURCE_NAME?.trim() || 'Configured calendar API',
+      payload.source?.trim() ||
+      process.env.CALENDAR_SOURCE_NAME?.trim() ||
+      'Configured calendar API',
     updatedAt: payload.updatedAt || new Date().toISOString(),
     events: Array.isArray(payload.events) ? payload.events : [],
   })
@@ -209,7 +225,9 @@ function validateSchedule(schedule: PublishedCalendarSchedule): PublishedCalenda
   if (!validation.ok) throw new Error(validation.message)
   for (const event of schedule.events) {
     if (!bsToAd(schedule.year, event.month, event.day)) {
-      throw new Error(`Calendar provider returned invalid BS date ${schedule.year}/${event.month}/${event.day}`)
+      throw new Error(
+        `Calendar provider returned invalid BS date ${schedule.year}/${event.month}/${event.day}`,
+      )
     }
   }
   if (!schedule.source.trim()) throw new Error('Calendar provider did not identify its source')
@@ -226,10 +244,10 @@ export async function fetchCalendarScheduleFromProvider(
 ): Promise<PublishedCalendarSchedule> {
   if (
     !options.bypassCache &&
-    providerCache?.year === year &&
-    Date.now() - providerCache.at < SCHEDULE_CACHE_MS
+    local.providerCache?.year === year &&
+    Date.now() - local.providerCache.at < SCHEDULE_CACHE_MS
   ) {
-    return providerCache.value
+    return local.providerCache.value
   }
   const state = getCalendarProviderState()
   if (!state.configured) throw new Error(state.detail)
@@ -237,7 +255,7 @@ export async function fetchCalendarScheduleFromProvider(
     state.provider === 'json'
       ? await fetchNormalizedSchedule(year)
       : await fetchBizzPatroSchedule(year)
-  providerCache = { year, at: Date.now(), value }
+  local.providerCache = { year, at: Date.now(), value }
   return value
 }
 

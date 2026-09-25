@@ -1,8 +1,23 @@
 import 'server-only'
+import { processState } from '@/lib/runtime/process-singleton'
 import type { AdPlacementKey } from '@/lib/ads'
 import { AD_PLACEMENTS } from '@/lib/ads'
 import { isProductionRuntime } from '@/lib/ops-db'
 import { getSharedPool } from '@/lib/pg-pool'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('house-ads:local', () => ({
+  schemaReady: null as Promise<void> | null,
+}))
 
 export type HouseAdCreative = {
   title: string
@@ -47,7 +62,6 @@ type Row = {
 }
 
 const memory = new Map<string, HouseAd>()
-let schemaReady: Promise<void> | null = null
 
 async function getPool(): Promise<Queryable | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
@@ -67,8 +81,8 @@ async function ensureSchema(): Promise<Queryable | null> {
     if (!pool) return null
     // Production schema is migration-owned; never run DDL in a reader/admin request.
     if (isProductionRuntime()) return pool
-    if (!schemaReady) {
-      schemaReady = (async () => {
+    if (!local.schemaReady) {
+      local.schemaReady = (async () => {
         await pool.query(`
           CREATE TABLE IF NOT EXISTS nw_house_ads (
             placement_key text PRIMARY KEY,
@@ -90,17 +104,19 @@ async function ensureSchema(): Promise<Queryable | null> {
         await pool.query(`ALTER TABLE nw_house_ads ADD COLUMN IF NOT EXISTS challenger_json text`)
       })()
     }
-    await schemaReady
+    await local.schemaReady
     return pool
   } catch (error) {
-    schemaReady = null
+    local.schemaReady = null
     if (isProductionRuntime()) throw error
     return null
   }
 }
 
 function optionalText(value: unknown, maxLength: number): string | undefined {
-  const normalized = String(value ?? '').trim().slice(0, maxLength)
+  const normalized = String(value ?? '')
+    .trim()
+    .slice(0, maxLength)
   return normalized || undefined
 }
 
@@ -118,9 +134,7 @@ function normalizeCreative(input: HouseAdCreative): HouseAdCreative {
 }
 
 function isCompleteCreative(input: HouseAdCreative | null | undefined): input is HouseAdCreative {
-  return Boolean(
-    input?.title.trim() && input.body.trim() && input.cta.trim() && input.href.trim(),
-  )
+  return Boolean(input?.title.trim() && input.body.trim() && input.cta.trim() && input.href.trim())
 }
 
 function parseChallenger(raw: string | null | undefined): HouseAdCreative | undefined {

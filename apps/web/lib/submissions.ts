@@ -1,8 +1,23 @@
 import 'server-only'
 import type { Locale } from '@nagarikwatch/db'
+import { processState } from '@/lib/runtime/process-singleton'
 import { resolveDatabaseUrl } from '@/lib/db-url'
 import { isProductionRuntime } from '@/lib/ops-db'
 import { getSharedPool } from '@/lib/pg-pool'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('submissions:local', () => ({
+  schemaReady: null as Promise<void> | null,
+}))
 
 export type SubmissionType = 'tip' | 'document' | 'photo' | 'video' | 'psa' | 'correction' | 'other'
 export type SubmissionStatus = 'new' | 'in_review' | 'accepted' | 'rejected'
@@ -57,7 +72,6 @@ type SubmissionRow = {
 }
 
 const memory = new Map<string, ReaderSubmission>()
-let schemaReady: Promise<void> | null = null
 const SUBMISSIONS_LIST_TTL_MS = 10_000
 const submissionsListCache = new Map<string, { expiresAt: number; items: ReaderSubmission[] }>()
 
@@ -80,8 +94,8 @@ async function getPool(): Promise<Queryable | null> {
 async function ensureSchema(): Promise<Queryable | null> {
   const pool = await getPool()
   if (!pool) return null
-  if (!schemaReady) {
-    schemaReady = (async () => {
+  if (!local.schemaReady) {
+    local.schemaReady = (async () => {
       await pool.query(`
         CREATE TABLE IF NOT EXISTS nw_submissions (
           id text PRIMARY KEY,
@@ -112,7 +126,7 @@ async function ensureSchema(): Promise<Queryable | null> {
       )
     })()
   }
-  await schemaReady
+  await local.schemaReady
   return pool
 }
 

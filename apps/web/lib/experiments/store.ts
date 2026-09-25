@@ -2,9 +2,23 @@ import 'server-only'
 import { createHmac } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { processState } from '@/lib/runtime/process-singleton'
 import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
 import { analyzeWithModes, assignVariant, type ExperimentAnalysisWithModes } from './core'
 import { getExperimentDefinition, getExperimentDefinitions } from './definitions'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here is one cache and one
+ * write queue per layer -- which is two locks, and two locks are no lock: a
+ * concurrent read-modify-write on the same JSON file interleaves and drops one
+ * of the writes. `processState` keys off `globalThis`, the only scope both
+ * layers share. See lib/runtime/process-singleton.ts for the evidence.
+ */
+const local = processState('experiments-store:local', () => ({
+  cache: null as LocalEvent[] | null,
+  write: Promise.resolve() as Promise<void>,
+}))
 
 export type ExperimentEventType = 'exposure' | 'conversion'
 
@@ -18,8 +32,6 @@ type LocalEvent = {
 
 const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'experiment-events.json')
 const SCHEMA_KEY = 'nw-experiments-v1'
-let localCache: LocalEvent[] | null = null
-let localWrite = Promise.resolve()
 
 async function ensureTable(pool: Queryable): Promise<void> {
   await pool.query(`
@@ -54,23 +66,23 @@ export function hashExperimentVisitor(visitorKey: string): string {
 }
 
 async function readLocal(): Promise<LocalEvent[]> {
-  if (localCache) return localCache
+  if (local.cache) return local.cache
   try {
-    localCache = JSON.parse(await fs.readFile(LOCAL_FILE, 'utf8')) as LocalEvent[]
+    local.cache = JSON.parse(await fs.readFile(LOCAL_FILE, 'utf8')) as LocalEvent[]
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
-    localCache = []
+    local.cache = []
   }
-  return localCache
+  return local.cache
 }
 
 async function writeLocal(events: LocalEvent[]): Promise<void> {
-  localWrite = localWrite.then(async () => {
+  local.write = local.write.then(async () => {
     await fs.mkdir(path.dirname(LOCAL_FILE), { recursive: true })
     await fs.writeFile(LOCAL_FILE, JSON.stringify(events.slice(-20_000)), 'utf8')
-    localCache = events
+    local.cache = events
   })
-  await localWrite
+  await local.write
 }
 
 export async function assignAndRecordExperiment(input: {

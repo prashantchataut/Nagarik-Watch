@@ -4,21 +4,30 @@ import type { Locale } from '@nagarikwatch/db'
 import { localizeHref } from '@/lib/i18n/locales'
 import { Logo } from '@/components/Logo'
 import { JournalistSignOutButton } from '@/components/journalist/JournalistSignOutButton'
+import { hasJournalistDeskGrant, type NewsroomRole } from '@/lib/admin-roles'
 
 export function JournalistWorkspaceShell({
   locale,
   name,
   roleLabel,
+  role,
   active,
   children,
 }: {
   locale: Locale
   name: string
   roleLabel: string
+  /** The signed-in role. Only used to surface desks granted outside /journalist. */
+  role?: NewsroomRole
   active: 'dashboard' | 'assignments' | 'new' | 'tools' | 'feedback' | 'profile'
   children: ReactNode
 }) {
   const ne = locale === 'ne'
+  // A photo/video editor owns the media library. `adminPathOutcome` grants
+  // them `/admin/media`, but a grant nobody can see is not a feature, so the
+  // entry is rendered here rather than only in the admin shell they never see.
+  const mediaLibraryHref =
+    role && hasJournalistDeskGrant(role, '/admin/media') ? '/admin/media' : null
   const primaryItems = [
     ['dashboard', '/journalist/dashboard', ne ? 'डेस्क' : 'Desk'],
     ['assignments', '/journalist/assignments', ne ? 'मेरा समाचार' : 'My stories'],
@@ -65,7 +74,10 @@ export function JournalistWorkspaceShell({
                 key={key}
                 href={localizeHref(locale, href)}
                 aria-current={active === key ? 'page' : undefined}
-                className={`${active === key ? 'is-active ' : ''}${key === 'new' ? 'is-primary' : ''}`.trim() || undefined}
+                className={
+                  `${active === key ? 'is-active ' : ''}${key === 'new' ? 'is-primary' : ''}`.trim() ||
+                  undefined
+                }
               >
                 {label}
               </Link>
@@ -83,13 +95,20 @@ export function JournalistWorkspaceShell({
                 {label}
               </Link>
             ))}
+            {mediaLibraryHref ? (
+              <Link href={localizeHref(locale, mediaLibraryHref)}>
+                {ne ? 'मिडिया लाइब्रेरी' : 'Media library'}
+              </Link>
+            ) : null}
           </div>
         </nav>
 
         <div className="newsroom-sidebar__identity">
           <strong>{name}</strong>
           <span>{roleLabel}</span>
-          <Link href={localizeHref(locale, '/')}>{ne ? 'सार्वजनिक साइट खोल्नुहोस्' : 'Open public site'}</Link>
+          <Link href={localizeHref(locale, '/')}>
+            {ne ? 'सार्वजनिक साइट खोल्नुहोस्' : 'Open public site'}
+          </Link>
           <JournalistSignOutButton locale={locale} />
         </div>
       </aside>

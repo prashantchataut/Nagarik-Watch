@@ -50,6 +50,7 @@ export default async function JournalistAssignmentsPage({
       locale={locale}
       name={session.displayName || session.email}
       roleLabel={roleLabel}
+      role={session.newsroomRole}
       active="assignments"
     >
       <main className="newsroom-page">

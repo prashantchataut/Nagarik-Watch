@@ -127,7 +127,7 @@ export async function HomeServiceDesk({ locale }: { locale: Locale }) {
             <>
               <div className="mt-2 grid grid-cols-2 gap-5">
                 <div>
-                  <span className="block text-[0.68rem] font-bold text-mute">
+                  <span className="block text-caption font-bold text-mute">
                     {ne ? 'खरिद' : 'Buy'}
                   </span>
                   <strong className="font-sans text-h3 font-black tabular-nums text-ink">
@@ -135,7 +135,7 @@ export async function HomeServiceDesk({ locale }: { locale: Locale }) {
                   </strong>
                 </div>
                 <div>
-                  <span className="block text-[0.68rem] font-bold text-mute">
+                  <span className="block text-caption font-bold text-mute">
                     {ne ? 'बिक्री' : 'Sell'}
                   </span>
                   <strong className="font-sans text-h3 font-black tabular-nums text-ink">

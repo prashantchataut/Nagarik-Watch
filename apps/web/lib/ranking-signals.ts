@@ -1,5 +1,6 @@
 import 'server-only'
 import type { StoryCardData } from '@nagarikwatch/db'
+import { processState } from '@/lib/runtime/process-singleton'
 import type { RankingSignals } from '@/lib/ranking'
 import {
   getBookmarkVelocityStats,
@@ -9,6 +10,24 @@ import {
 import { getRankingEventStats } from '@/lib/engagement/ranking-events'
 import { editorialTrustScore } from '@/lib/editorial/trust-score'
 import { orEmpty } from '@/lib/resilience/or-empty'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('ranking-signals:local', () => ({
+  engagementCache: null as {
+    at: number
+    windowMinutes: number
+    value: StoryEngagementIndex
+  } | null,
+}))
 
 export type StoryEngagementIndex = {
   bySlug: Map<
@@ -57,11 +76,11 @@ export async function buildStoryEngagementIndex(
   windowMinutes = 120,
 ): Promise<StoryEngagementIndex> {
   if (
-    engagementCache &&
-    engagementCache.windowMinutes === windowMinutes &&
-    Date.now() - engagementCache.at < ENGAGEMENT_TTL_MS
+    local.engagementCache &&
+    local.engagementCache.windowMinutes === windowMinutes &&
+    Date.now() - local.engagementCache.at < ENGAGEMENT_TTL_MS
   ) {
-    return engagementCache.value
+    return local.engagementCache.value
   }
 
   const [samples, mostRead, ranking, bookmarks] = await Promise.all([
@@ -136,16 +155,11 @@ export async function buildStoryEngagementIndex(
     storyCount: bySlug.size,
     totalImpressions,
   }
-  engagementCache = { at: Date.now(), windowMinutes, value }
+  local.engagementCache = { at: Date.now(), windowMinutes, value }
   return value
 }
 
 const ENGAGEMENT_TTL_MS = 30_000
-let engagementCache: {
-  at: number
-  windowMinutes: number
-  value: StoryEngagementIndex
-} | null = null
 
 export function signalsForStory(
   story: StoryCardData,

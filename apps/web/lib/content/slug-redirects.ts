@@ -1,7 +1,21 @@
 import 'server-only'
+import { processState } from '@/lib/runtime/process-singleton'
 import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here is one cache and one
+ * write queue per layer -- which is two locks, and two locks are no lock: a
+ * concurrent read-modify-write on the same JSON file interleaves and drops one
+ * of the writes. `processState` keys off `globalThis`, the only scope both
+ * layers share. See lib/runtime/process-singleton.ts for the evidence.
+ */
+const local = processState('slug-redirects:local', () => ({
+  cache: null as SlugRedirect[] | null,
+  write: Promise.resolve() as Promise<void>,
+}))
 
 export type SlugRedirect = {
   fromCategory: string
@@ -13,8 +27,6 @@ export type SlugRedirect = {
 
 const SCHEMA_KEY = 'nw-slug-redirects-v1'
 const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'slug-redirects.json')
-let localCache: SlugRedirect[] | null = null
-let localWrite = Promise.resolve()
 
 async function ensureSchema(): Promise<Queryable | null> {
   return ensureOperationalSchema(SCHEMA_KEY, async (pool) => {
@@ -35,22 +47,22 @@ async function ensureSchema(): Promise<Queryable | null> {
 }
 
 async function readLocal(): Promise<SlugRedirect[]> {
-  if (localCache) return localCache
+  if (local.cache) return local.cache
   try {
-    localCache = JSON.parse(await fs.readFile(LOCAL_FILE, 'utf8')) as SlugRedirect[]
+    local.cache = JSON.parse(await fs.readFile(LOCAL_FILE, 'utf8')) as SlugRedirect[]
   } catch {
-    localCache = []
+    local.cache = []
   }
-  return localCache
+  return local.cache
 }
 
 async function writeLocal(rows: SlugRedirect[]): Promise<void> {
-  localWrite = localWrite.then(async () => {
+  local.write = local.write.then(async () => {
     await fs.mkdir(path.dirname(LOCAL_FILE), { recursive: true })
     await fs.writeFile(LOCAL_FILE, JSON.stringify(rows.slice(-5000)), 'utf8')
-    localCache = rows
+    local.cache = rows
   })
-  await localWrite
+  await local.write
 }
 
 /** Record a permanent redirect when an article slug or category changes. */

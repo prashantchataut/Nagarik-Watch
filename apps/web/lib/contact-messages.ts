@@ -9,7 +9,20 @@ import {
   toIso,
   type Queryable,
 } from '@/lib/ops-db'
+import { processState } from '@/lib/runtime/process-singleton'
 import { dataPath } from '@/lib/fs/data-path'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here is one cache and one
+ * write queue per layer -- which is two locks, and two locks are no lock: a
+ * concurrent read-modify-write on the same JSON file interleaves and drops one
+ * of the writes. `processState` keys off `globalThis`, the only scope both
+ * layers share. See lib/runtime/process-singleton.ts for the evidence.
+ */
+const local = processState('contact-messages:local', () => ({
+  writeQueue: Promise.resolve() as Promise<void>,
+}))
 
 export type ContactMessageStatus = 'unread' | 'in_review' | 'resolved'
 
@@ -40,7 +53,6 @@ type ContactRow = {
 type LocalStore = { messages: ContactMessage[] }
 
 const LOCAL_STORE_PATH = dataPath(process.env.CONTACT_STORE_PATH, 'contact-messages.json')
-let localWriteQueue = Promise.resolve()
 
 function isProductionRuntime(): boolean {
   return (
@@ -107,12 +119,12 @@ async function writeLocal(store: LocalStore): Promise<void> {
 
 async function mutateLocal<T>(operation: (store: LocalStore) => T | Promise<T>): Promise<T> {
   let result!: T
-  localWriteQueue = localWriteQueue.then(async () => {
+  local.writeQueue = local.writeQueue.then(async () => {
     const store = await readLocal()
     result = await operation(store)
     await writeLocal(store)
   })
-  await localWriteQueue
+  await local.writeQueue
   return result
 }
 

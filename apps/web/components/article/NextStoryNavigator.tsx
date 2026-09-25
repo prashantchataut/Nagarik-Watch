@@ -14,7 +14,7 @@ export function NextStoryNavigator({ nextStory, prevStory, locale }: NextStoryNa
   const en = locale === 'en'
   const lang = en ? 'en' : 'ne'
   const labelClass = en
-    ? 'text-[0.72rem] font-bold uppercase tracking-[0.05em]'
+    ? 'text-caption font-bold uppercase tracking-[0.05em]'
     : 'font-display text-caption font-extrabold'
 
   return (

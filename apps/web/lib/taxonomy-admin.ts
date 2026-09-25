@@ -1,5 +1,6 @@
 import 'server-only'
 import type { Author, Category, Tag } from '@nagarikwatch/db'
+import { processState } from '@/lib/runtime/process-singleton'
 import { categories } from '@/lib/content/seed/categories'
 import { authors as seedAuthors } from '@/lib/content/seed/authors'
 import { tags as seedTags } from '@/lib/content/seed/tags'
@@ -13,6 +14,20 @@ import {
   toIso,
   type Queryable,
 } from '@/lib/ops-db'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('taxonomy-admin:local', () => ({
+  bootstrapPromise: null as Promise<void> | null,
+}))
 
 export type TaxonomyKind = 'category' | 'tag' | 'author'
 export type TaxonomyStatus = 'active' | 'hidden' | 'archived'
@@ -48,7 +63,6 @@ type Row = {
 }
 
 const memory = new Map<string, TaxonomyTerm>()
-let bootstrapPromise: Promise<void> | null = null
 
 function allowInMemorySeedFallback(): boolean {
   // Production must not invent taxonomy from seed when Postgres is empty/down.
@@ -147,13 +161,13 @@ async function bootstrapTaxonomyFromSeed(pool: Queryable): Promise<void> {
 
 async function ensureBootstrapped(pool: Queryable | null): Promise<void> {
   if (!pool) return
-  if (!bootstrapPromise) {
-    bootstrapPromise = bootstrapTaxonomyFromSeed(pool).catch((error) => {
-      bootstrapPromise = null
+  if (!local.bootstrapPromise) {
+    local.bootstrapPromise = bootstrapTaxonomyFromSeed(pool).catch((error) => {
+      local.bootstrapPromise = null
       throw error
     })
   }
-  await bootstrapPromise
+  await local.bootstrapPromise
 }
 
 /** Active categories for nav + article editor (Postgres taxonomy is the SoT). */

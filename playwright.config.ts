@@ -10,11 +10,16 @@ import { defineConfig, devices } from '@playwright/test'
  * already-running `next start` (or a local dev server on :3000) be reused to keep local
  * iteration fast.
  *
- * `newsroom-lifecycle.spec.ts` is excluded here. It signs staff in, and this config sets
- * E2E_TEST=true without E2E_NEWSROOM, which is exactly the combination that makes
- * lib/auth/session.ts return a null session and lib/auth/auth-pool.ts refuse a pool. It
- * has its own runner — playwright.newsroom.config.ts, `pnpm test:e2e:newsroom` — which
- * provisions PGlite auth and seeds the staff accounts it needs.
+ * `newsroom-lifecycle.spec.ts` and `admin-desk.spec.ts` are excluded here. Both sign
+ * staff in, and this config sets E2E_TEST=true without E2E_NEWSROOM, which is exactly
+ * the combination that makes lib/auth/session.ts return a null session and
+ * lib/auth/auth-pool.ts refuse a pool. Each has its own runner that provisions PGlite
+ * auth and seeds the staff accounts it needs — playwright.newsroom.config.ts
+ * (`pnpm test:e2e:newsroom`) and playwright.admin.config.ts (`pnpm test:e2e:admin`).
+ *
+ * `admin-desk.spec.ts` was missing from `testIgnore` until now, so `pnpm test:e2e` ran
+ * 34 desks x 2 projects that could never sign in and reported 68 failures. The default
+ * suite was red on `main` for reasons that had nothing to do with the code under test.
  */
 const PORT = 3100
 const BASE = `http://localhost:${PORT}`
@@ -42,7 +47,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 900 },
       },
-      testIgnore: [/mobile\.spec\.ts/, /newsroom-lifecycle\.spec\.ts/],
+      testIgnore: [/mobile\.spec\.ts/, /newsroom-lifecycle\.spec\.ts/, /admin-desk\.spec\.ts/],
     },
     {
       name: 'laptop-chromium',
@@ -50,7 +55,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1024, height: 768 },
       },
-      testIgnore: [/mobile\.spec\.ts/, /newsroom-lifecycle\.spec\.ts/],
+      testIgnore: [/mobile\.spec\.ts/, /newsroom-lifecycle\.spec\.ts/, /admin-desk\.spec\.ts/],
     },
     {
       name: 'mobile-chromium',

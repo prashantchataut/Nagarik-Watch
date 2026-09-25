@@ -45,8 +45,18 @@ export type HowTo = { name: string; steps: string[] }
  * Drop the inline shorthand the body format allows (`**bold**`, `*italic*`,
  * `==highlight==`, `[label](href)`) so JSON-LD carries the words a reader sees
  * rather than the markup around them.
+ *
+ * Tolerates a missing string. `HeadingBlock.text` and `ParagraphBlock.text` are
+ * required by the type, but a stored row is not type-checked: a legacy record,
+ * a half-migrated CMS document or a hand-edited JSON store can carry a block
+ * without one. Before this guard, a single such block threw inside the article
+ * page's render, and the route-level loading boundary committed a 200 with the
+ * error UI in place of the story — a broken page that no status check, no
+ * monitor and no crawler could see. Structured data is a decoration; it must
+ * not be able to take the page it decorates down with it.
  */
-export function stripInline(text: string): string {
+export function stripInline(text: string | null | undefined): string {
+  if (typeof text !== 'string') return ''
   return text
     .replace(/\[([^\]]+)\]\([^)]*\)/gu, '$1')
     .replace(/(\*\*|==|\*)(.+?)\1/gu, '$2')

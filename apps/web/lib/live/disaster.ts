@@ -1,10 +1,24 @@
 import 'server-only'
+import { processState } from '@/lib/runtime/process-singleton'
 import type { AlertData, LiveDataEnvelope } from '@/lib/live/types'
 import { getManualLiveRecord } from './manual'
 
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('live-disaster:local', () => ({
+  cached: null as { at: number; value: LiveDataEnvelope<AlertData[]> } | null,
+}))
+
 const NEPAL = { minLat: 25.8, maxLat: 31.5, minLon: 80, maxLon: 89.5 }
 const TTL = 5 * 60_000
-let cached: { at: number; value: LiveDataEnvelope<AlertData[]> } | null = null
 
 function inside(coordinates: number[]) {
   const lon = coordinates[0]
@@ -31,7 +45,7 @@ export async function getDisasterAlerts(): Promise<LiveDataEnvelope<AlertData[]>
       updatedAt: manual.updatedAt,
       data: manual.data,
     }
-  if (cached && Date.now() - cached.at < TTL) return cached.value
+  if (local.cached && Date.now() - local.cached.at < TTL) return local.cached.value
   try {
     const endpoint =
       process.env.DISASTER_ALERT_API_URL ??
@@ -74,7 +88,7 @@ export async function getDisasterAlerts(): Promise<LiveDataEnvelope<AlertData[]>
       updatedAt: new Date().toISOString(),
       data: alerts,
     }
-    cached = { at: Date.now(), value }
+    local.cached = { at: Date.now(), value }
     return value
   } catch (error) {
     return {

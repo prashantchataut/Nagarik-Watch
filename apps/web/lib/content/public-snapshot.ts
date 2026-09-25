@@ -1,19 +1,28 @@
 import 'server-only'
 import type { HomepageData, StoryCardData } from '@nagarikwatch/db'
-import {
-  ensureOperationalSchema,
-  runSchemaStatements,
-  type Queryable,
-} from '@/lib/ops-db'
+import { ensureOperationalSchema, runSchemaStatements, type Queryable } from '@/lib/ops-db'
+import { processState } from '@/lib/runtime/process-singleton'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('public-snapshot:local', () => ({
+  lastHomepageJson: '' as string,
+  lastHomepageWriteAt: 0 as number,
+}))
 
 const HOMEPAGE_KEY = 'homepage:v1'
 const SCHEMA_VERSION = 1
 const DEFAULT_MAX_AGE_SECONDS = 24 * 60 * 60
 const MAX_ALLOWED_AGE_SECONDS = 7 * 24 * 60 * 60
 const WRITE_THROTTLE_MS = 5 * 60_000
-
-let lastHomepageJson = ''
-let lastHomepageWriteAt = 0
 
 async function snapshotPool(): Promise<Queryable | null> {
   return ensureOperationalSchema('public-content-snapshots', async (pool) => {
@@ -32,7 +41,9 @@ async function snapshotPool(): Promise<Queryable | null> {
 }
 
 function snapshotMaxAgeSeconds(): number {
-  const configured = Number(process.env.NW_PUBLIC_SNAPSHOT_MAX_AGE_SECONDS ?? DEFAULT_MAX_AGE_SECONDS)
+  const configured = Number(
+    process.env.NW_PUBLIC_SNAPSHOT_MAX_AGE_SECONDS ?? DEFAULT_MAX_AGE_SECONDS,
+  )
   if (!Number.isFinite(configured)) return DEFAULT_MAX_AGE_SECONDS
   return Math.max(60, Math.min(MAX_ALLOWED_AGE_SECONDS, Math.floor(configured)))
 }
@@ -104,8 +115,8 @@ export async function writeHomepageSnapshot(
   const now = Date.now()
   if (
     !options?.force &&
-    json === lastHomepageJson &&
-    now - lastHomepageWriteAt < WRITE_THROTTLE_MS
+    json === local.lastHomepageJson &&
+    now - local.lastHomepageWriteAt < WRITE_THROTTLE_MS
   ) {
     return false
   }
@@ -124,8 +135,8 @@ export async function writeHomepageSnapshot(
          captured_at = EXCLUDED.captured_at`,
       [HOMEPAGE_KEY, SCHEMA_VERSION, json],
     )
-    lastHomepageJson = json
-    lastHomepageWriteAt = now
+    local.lastHomepageJson = json
+    local.lastHomepageWriteAt = now
     return true
   } catch (error) {
     console.error(

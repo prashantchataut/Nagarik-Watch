@@ -42,6 +42,7 @@ export default async function JournalistFeedbackPage({
       locale={locale}
       name={session.displayName || session.email}
       roleLabel={roleLabel}
+      role={session.newsroomRole}
       active="feedback"
     >
       <main className="newsroom-page">

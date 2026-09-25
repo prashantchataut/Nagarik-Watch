@@ -8,6 +8,24 @@ import {
   toIso,
   type Queryable,
 } from '@/lib/ops-db'
+import { processState } from '@/lib/runtime/process-singleton'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('media-library:local', () => ({
+  mediaListCache: null as {
+    expiresAt: number
+    items: MediaItem[]
+  } | null,
+}))
 
 export type MediaItem = {
   id: string
@@ -32,10 +50,6 @@ type Row = {
 }
 const memory = new Map<string, MediaItem>()
 const MEDIA_LIST_TTL_MS = 15_000
-let mediaListCache: {
-  expiresAt: number
-  items: MediaItem[]
-} | null = null
 
 async function ensureSchema(): Promise<Queryable | null> {
   return requireOperationalPool(
@@ -74,8 +88,8 @@ function rowToItem(row: Row): MediaItem {
 
 export async function listMediaItems(opts: { limit?: number } = {}): Promise<MediaItem[]> {
   const limit = Math.max(1, Math.min(300, opts.limit ?? 300))
-  if (mediaListCache && mediaListCache.expiresAt > Date.now()) {
-    return mediaListCache.items.slice(0, limit)
+  if (local.mediaListCache && local.mediaListCache.expiresAt > Date.now()) {
+    return local.mediaListCache.items.slice(0, limit)
   }
   const pool = await ensureSchema()
   if (pool) {
@@ -83,11 +97,11 @@ export async function listMediaItems(opts: { limit?: number } = {}): Promise<Med
       `SELECT * FROM nw_media_items ORDER BY created_at DESC LIMIT 300`,
     )
     const items = result.rows.map(rowToItem)
-    mediaListCache = { items, expiresAt: Date.now() + MEDIA_LIST_TTL_MS }
+    local.mediaListCache = { items, expiresAt: Date.now() + MEDIA_LIST_TTL_MS }
     return items.slice(0, limit)
   }
   const items = Array.from(memory.values()).sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
-  mediaListCache = { items, expiresAt: Date.now() + MEDIA_LIST_TTL_MS }
+  local.mediaListCache = { items, expiresAt: Date.now() + MEDIA_LIST_TTL_MS }
   return items.slice(0, limit)
 }
 
@@ -117,7 +131,7 @@ export async function createMediaItem(input: {
       `INSERT INTO nw_media_items (id, url, alt, caption, credit) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
       [item.id, item.url, item.alt, item.caption ?? null, item.credit ?? null],
     )
-    mediaListCache = null
+    local.mediaListCache = null
     return rowToItem(result.rows[0]!)
   }
   if (isProductionRuntime()) {
@@ -126,6 +140,6 @@ export async function createMediaItem(input: {
     )
   }
   memory.set(item.id, item)
-  mediaListCache = null
+  local.mediaListCache = null
   return item
 }

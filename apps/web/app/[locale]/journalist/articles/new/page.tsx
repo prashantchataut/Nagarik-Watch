@@ -55,6 +55,7 @@ export default async function JournalistNewArticle({
       locale={locale}
       name={session.displayName || session.email}
       roleLabel={roleLabel}
+      role={session.newsroomRole}
       active="new"
     >
       <JournalistArticleDraftForm

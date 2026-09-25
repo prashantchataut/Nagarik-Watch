@@ -47,8 +47,25 @@ export function DeskHoldingPage({
   return (
     <div className="mt-6">
       <section className="border-y border-rule py-7 text-center" aria-label={kicker}>
-        <p className="text-caption font-bold uppercase tracking-[0.12em] text-brand-strong">{kicker}</p>
-        <p className="mx-auto mt-2 max-w-[60ch] text-body-lg leading-relaxed text-ink-soft" lang={en ? 'en' : 'ne'}>
+        {/*
+          Letter-spacing is Latin-only. DESIGN.md §3 forbids it outright and
+          gives the reason: Devanagari conjuncts and matras need zero
+          inter-glyph spacing. `uppercase` is already a no-op on Devanagari, so
+          gating the tracking on the locale costs nothing visually and stops
+          this kicker from spacing out "सम्पादकीय नोट" on a Nepali desk.
+        */}
+        <p
+          className={`text-caption font-bold uppercase text-brand-strong ${
+            en ? 'tracking-[0.12em]' : 'tracking-normal'
+          }`}
+          lang={en ? 'en' : 'ne'}
+        >
+          {kicker}
+        </p>
+        <p
+          className="mx-auto mt-2 max-w-[60ch] text-body-lg leading-relaxed text-ink-soft"
+          lang={en ? 'en' : 'ne'}
+        >
           {note}
         </p>
         {ctaHref && ctaLabel ? (
@@ -111,7 +128,11 @@ export function DeskHoldingPage({
                       {titleFor(story, locale)}
                     </Link>
                   </h3>
-                  <Dateline iso={story.publishedAt} locale={locale} className="mt-1 block text-caption text-mute" />
+                  <Dateline
+                    iso={story.publishedAt}
+                    locale={locale}
+                    className="mt-1 block text-caption text-mute"
+                  />
                 </article>
               </InstrumentedStory>
             ))}

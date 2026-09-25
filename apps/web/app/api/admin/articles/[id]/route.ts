@@ -3,7 +3,7 @@ import { isTrustedWriteRequest } from '@/lib/security/origin'
 import { requireNewsroomSession } from '@/lib/auth/session'
 import { updateArticle, deleteArticle, getArticleById } from '@/lib/content/store/json-store'
 import type { StoredArticle } from '@/lib/content/store/json-store'
-import { canEdit, canDelete, canPublish } from '@/lib/admin-roles'
+import { ARTICLE_DESK_ROLES, canEdit, canDelete, canPublish } from '@/lib/admin-roles'
 import type { ArticleBlock } from '@nagarikwatch/db'
 import { blocksFromShorthand } from '@/lib/content/blocks'
 import { enforceRateLimit } from '@/lib/rate-limit'
@@ -65,10 +65,18 @@ function isWorkflowStage(value: unknown): value is StoredArticle['workflowStage'
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const limited = await enforceRateLimit(request, 'admin-article-read', 120, 60_000)
   if (limited) return limited
+  let session
   try {
-    await requireNewsroomSession()
+    session = await requireNewsroomSession()
   } catch {
     return NextResponse.json({ error: 'लगइन आवश्यक।' }, { status: 401 })
+  }
+  // A session is authentication, not authorization. This handler returns the
+  // whole stored record — unpublished bodies, editor pitches, source notes —
+  // so it has to ask the same question `/admin/articles` asks. It previously
+  // asked nothing, which made the API wider than the desk that consumes it.
+  if (!ARTICLE_DESK_ROLES.has(session.newsroomRole)) {
+    return NextResponse.json({ error: 'समाचार डेस्कको अनुमति छैन।' }, { status: 403 })
   }
   // After Payload cutover, shadow nw_articles reads are not authoritative.
   if (shouldBlockLocalContentWrites()) return payloadCanonicalBlockedResponse()

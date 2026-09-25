@@ -161,6 +161,27 @@ export const MEDIA_MANAGER_ROLES: ReadonlySet<NewsroomRole> = new Set([
   ...EDITOR_ROLES,
 ])
 
+/**
+ * Roles that may open the article desk and read a story that is not published
+ * yet.
+ *
+ * This one is worth spelling out. `/admin/articles` was the only desk in the
+ * matrix with no rule, and an unlisted prefix defaults to allowed, so the desk
+ * holding every embargoed draft was open to the whole of `ADMIN_BASE_ROLES` --
+ * including `viewer`, `moderator`, `ad_manager` and `analyst`. The admin
+ * sidebar already hides the Articles entry from exactly those roles (it keys on
+ * the 'ops' desk variant), so the rule below does not remove a link anyone can
+ * see; it closes the URL and the API behind it.
+ *
+ * `copy_editor` and `fact_checker` are included because they can create and
+ * submit copy and their desk variant renders the Articles entry.
+ */
+export const ARTICLE_DESK_ROLES: ReadonlySet<NewsroomRole> = new Set([
+  ...EDITOR_ROLES,
+  'copy_editor',
+  'fact_checker',
+])
+
 /** Roles that can change publication-wide settings. */
 export const SETTINGS_MANAGER_ROLES: ReadonlySet<NewsroomRole> = new Set([
   'publisher',
@@ -315,6 +336,7 @@ export const ADMIN_PATH_ROLE_RULES: ReadonlyArray<{
   { prefix: '/admin/topics', roles: TAXONOMY_MANAGER_ROLES },
   { prefix: '/admin/provinces', roles: TAXONOMY_MANAGER_ROLES },
   { prefix: '/admin/authors', roles: TAXONOMY_MANAGER_ROLES },
+  { prefix: '/admin/articles', roles: ARTICLE_DESK_ROLES },
   { prefix: '/admin/media', roles: MEDIA_MANAGER_ROLES },
   { prefix: '/admin/live-blogs', roles: EDITOR_ROLES },
   { prefix: '/admin/wire', roles: EDITOR_ROLES },
@@ -362,6 +384,32 @@ export const JOURNALIST_DESK_ROLES: ReadonlySet<NewsroomRole> = new Set([
   'journalist',
   'photo_video_editor',
 ])
+
+/**
+ * Desk grants that survive the journalist-desk redirect.
+ *
+ * A photo/video editor lands on `/journalist/dashboard`, and until this list
+ * existed the redirect was a fence: `adminPathOutcome` returned
+ * `'journalist-desk'` for every `/admin/*` path, so `MEDIA_MANAGER_ROLES` named
+ * a role that could never arrive and the media sidebar entry for it was dead
+ * code. The media library is that role's actual job and the journalist desk has
+ * no media surface, so the grant is explicit and narrow rather than a change to
+ * `ADMIN_BASE_ROLES` (which would hand a photo editor every unrestricted desk
+ * by accident, because an unlisted prefix defaults to allowed).
+ */
+export const JOURNALIST_DESK_EXTRA_GRANTS: ReadonlyArray<{
+  prefix: string
+  roles: ReadonlySet<NewsroomRole>
+}> = [{ prefix: '/admin/media', roles: new Set<NewsroomRole>(['photo_video_editor']) }]
+
+/** True when a journalist-desk role is explicitly granted this admin desk. */
+export function hasJournalistDeskGrant(role: NewsroomRole, pathname: string): boolean {
+  return JOURNALIST_DESK_EXTRA_GRANTS.some(
+    (grant) =>
+      grant.roles.has(role) &&
+      (pathname === grant.prefix || pathname.startsWith(`${grant.prefix}/`)),
+  )
+}
 
 export type AdminDeskVariant = 'super' | 'admin' | 'editor' | 'ops'
 
@@ -432,6 +480,12 @@ export function canAccessAdminPath(role: NewsroomRole, pathname: string): boolea
 export type AdminPathOutcome = 'allow' | 'journalist-desk' | 'deny'
 
 export function adminPathOutcome(role: NewsroomRole, pathname: string): AdminPathOutcome {
-  if (isJournalistDeskRole(role)) return 'journalist-desk'
+  if (isJournalistDeskRole(role)) {
+    // The journalist desk is a landing page, not a fence: a desk this role is
+    // explicitly granted stays reachable, otherwise the grant is unreachable
+    // and `MEDIA_MANAGER_ROLES` is a lie.
+    if (hasJournalistDeskGrant(role, pathname)) return 'allow'
+    return 'journalist-desk'
+  }
   return canAccessAdminPath(role, pathname) ? 'allow' : 'deny'
 }

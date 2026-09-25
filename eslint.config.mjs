@@ -54,6 +54,15 @@ export default [
       globals: { ...globals.node },
     },
   },
+  // `scripts/audit-live-ux.mjs` is a Node driver whose `PROBE` function is
+  // serialised into the page and evaluated in the browser, so the file legitimately
+  // touches both global sets. Scoped here rather than loosening the rule above.
+  {
+    files: ['scripts/audit-live-ux.mjs'],
+    languageOptions: {
+      globals: { ...globals.node, ...globals.browser },
+    },
+  },
   // TypeScript in the shared packages: syntax-aware linting without type
   // information, so it stays fast and needs no build step.
   ...tseslint.configs.recommended.map((config) => ({
