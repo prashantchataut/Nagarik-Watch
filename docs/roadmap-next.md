@@ -173,13 +173,14 @@ each from a thousand addresses — and the ledger is the pattern to copy when it
   a second reason to finish §1: for a fact-check desk, the absence of an audit trail on
   the article body is a credibility risk, and right now which path you are on decides
   whether you have one.
-- **Corrections are half-built.** `Correction` is a real type in `packages/db`, the
-  article page renders `CorrectionNotice`, and an editor still has no way to issue one —
-  nothing writes `corrections[]`, and the RSS feed does not carry it.
-
-That last one matters more than its size suggests. A Devanagari-first independent
-outlet's main asset is trust, and a visible corrections policy that the software
-actually implements is the cheapest trust you will ever buy.
+- **Corrections now run end to end.** The web desk ranks reader requests, lets a
+  publisher issue a dated notice, closes the originating request, revalidates the
+  article, writes an audit event, renders the notice and carries the newest notice
+  into distribution feeds. The canonical Payload path now enforces the same trust
+  property at its schema boundary: only publishing roles may add corrections,
+  existing rows cannot be changed or removed, and actor/time attribution is stamped
+  by the server. The remaining gate is an editorial drill against the deployed CMS,
+  not missing application code.
 
 ## 8. Performance, once there is content
 
