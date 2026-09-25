@@ -15,6 +15,45 @@ updates:
     labels:
       - dependencies
     groups:
+      # Lockstep families come first. Dependabot assigns a dependency to the
+      # first group whose rules it matches, so these must outrank the broad
+      # dependency-type groups below or they never take effect.
+      #
+      # Splitting one of these families across two PRs is not a noisy-review
+      # problem, it is a broken build. PR #23 bumped `prisma` to 7 and left
+      # `@prisma/client` on 6: the CLI is a devDependency and the client is a
+      # production one, so they fell into different groups, and because
+      # `production-dependencies` covers only minor and patch, the client's
+      # major was excluded from grouping altogether and simply never moved.
+      # `@prisma/client` declares `peerDependencies: { "prisma": "*" }` with
+      # prisma optional, so no resolver complains — and since `prisma generate`
+      # runs in both `build` and `postinstall`, every CI job failed at Install.
+      # No `update-types` filter here on purpose: a major has to be able to
+      # carry the whole family with it.
+      prisma:
+        patterns:
+          - prisma
+          - '@prisma/client'
+      # `payload` pins an exact version and declares graphql as a peer
+      # (`^16.8.1` on 3.85.1), which is why the standalone graphql 17 bump in
+      # PR #8 could never have merged. The CMS packages move as a unit.
+      payload:
+        patterns:
+          - payload
+          - '@payloadcms/*'
+          - graphql
+      next:
+        patterns:
+          - next
+          - '@next/*'
+          - eslint-config-next
+      react:
+        patterns:
+          - react
+          - react-dom
+          - '@types/react'
+          - '@types/react-dom'
+
       # Non-breaking production bumps ship as one review-friendly PR.
       production-dependencies:
         dependency-type: production
