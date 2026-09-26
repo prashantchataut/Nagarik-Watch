@@ -273,7 +273,7 @@
   }
   .patro-widget__stamp {
     margin: 0.55rem 0 0;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--mute);
   }
@@ -339,7 +339,7 @@
   .patro-tool-link small {
     margin-top: 0.1rem;
     color: var(--mute);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
   }
   .patro-tool-link > span:last-child {
     color: var(--brand-strong);

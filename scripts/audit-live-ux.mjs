@@ -24,6 +24,15 @@ const JSON_OUT = flag('json', '')
 const STRICT = args.includes('--strict')
 const ONLY = flag('routes', '')
 
+/*
+ * One route per stylesheet under app/styles, as far as that is possible: a
+ * rule nobody visits is a rule nobody measures, and the list started as the
+ * nine routes below the blank line. /sports, /photos and /utilities were added
+ * because 14-sports.css, the photo desk block of 04-utilities.css and the
+ * utility sidebar had no route on this list at all, and /membership and
+ * /fact-check because they are the two public pages built out of their own
+ * type scale rather than the shared components.
+ */
 const DEFAULT_ROUTES = [
   ['/home', '/'],
   ['/home-en', '/en'],
@@ -34,6 +43,12 @@ const DEFAULT_ROUTES = [
   ['/patro', '/patro'],
   ['/search', '/search'],
   ['/login', '/login'],
+
+  ['/sports', '/sports'],
+  ['/photos', '/photos'],
+  ['/utilities', '/utilities'],
+  ['/membership', '/membership'],
+  ['/fact-check', '/fact-check'],
 ]
 
 const ROUTES = ONLY ? ONLY.split(',').map((r) => [r.trim() || r, r.trim()]) : DEFAULT_ROUTES
@@ -485,6 +500,7 @@ async function main() {
       acc.unnamed += (r.unnamedInteractive || []).length
       acc.dupeIds += (r.duplicateIds || []).length
       acc.tracking += r.devanagariTrackingCount || 0
+      acc.tiny += r.tinyTextCount || 0
       return acc
     },
     {
@@ -496,6 +512,7 @@ async function main() {
       unnamed: 0,
       dupeIds: 0,
       tracking: 0,
+      tiny: 0,
     },
   )
   lines.push('')
@@ -503,7 +520,7 @@ async function main() {
     `totals: overflow=${totals.overflow} lowContrast=${totals.contrast} smallTapTargets=${totals.tap} ` +
       `imgMissingAlt=${totals.alt} unnamedControls=${totals.unnamed} duplicateIds=${totals.dupeIds}` +
       `\n         (undersized targets exempted by the 2.5.8 spacing rule: ${totals.spacingExempt})` +
-      `\n         devanagariLetterSpacing=${totals.tracking}`,
+      `\n         devanagariLetterSpacing=${totals.tracking} textUnder12px=${totals.tiny}`,
   )
 
   const worst = report
@@ -513,7 +530,8 @@ async function main() {
         (r.overflowX > 1 ||
           (r.contrastCount || 0) > 0 ||
           (r.tapTargetCount || 0) > 0 ||
-          (r.devanagariTrackingCount || 0) > 0),
+          (r.devanagariTrackingCount || 0) > 0 ||
+          (r.tinyTextCount || 0) > 0),
     )
     .slice(0, 8)
   for (const r of worst) {
@@ -543,9 +561,21 @@ async function main() {
     console.log(`\nwrote ${JSON_OUT}`)
   }
 
+  /*
+   * `tinyText` was collected from the first version of this script and then
+   * dropped on the floor: nothing printed it and nothing failed on it, so the
+   * 11px eyebrow in the masthead survived every "zero violations" run. The
+   * 12px floor is in DESIGN.md §3 with a reason behind it (thin Devanagari
+   * strokes at 11px on a 320px viewport), so it fails the run like the rest.
+   */
   if (
     STRICT &&
-    (totals.overflow || totals.contrast || totals.tap || totals.alt || totals.tracking)
+    (totals.overflow ||
+      totals.contrast ||
+      totals.tap ||
+      totals.alt ||
+      totals.tracking ||
+      totals.tiny)
   ) {
     process.exitCode = 1
   }

@@ -68,7 +68,7 @@
   }
   .article-tools-bar__label {
     color: var(--mute);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -409,7 +409,7 @@
     display: block;
     margin-bottom: 0.35rem;
     color: var(--mute);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.08em;

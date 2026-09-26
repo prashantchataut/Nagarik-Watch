@@ -87,7 +87,7 @@ export async function HomeServiceDesk({ locale }: { locale: Locale }) {
                 : 'No verified upcoming holiday/event feed.'}
             </p>
           )}
-          {schedule ? <p className="mt-2 text-[0.7rem] text-mute">{schedule.source}</p> : null}
+          {schedule ? <p className="mt-2 text-caption text-mute">{schedule.source}</p> : null}
         </section>
 
         <section className="border-t border-rule py-5 md:border-l md:border-t-0 md:px-6">
@@ -105,7 +105,7 @@ export async function HomeServiceDesk({ locale }: { locale: Locale }) {
                   {formatNumber(market.changePercent, locale)}%
                 </span>
               </div>
-              <p className="mt-2 text-[0.7rem] text-mute">
+              <p className="mt-2 text-caption text-mute">
                 {nepse?.source}
                 {nepse?.updatedAt ? ` · ${updatedTime(nepse.updatedAt, locale)}` : ''}
               </p>
@@ -143,7 +143,7 @@ export async function HomeServiceDesk({ locale }: { locale: Locale }) {
                   </strong>
                 </div>
               </div>
-              <p className="mt-2 text-[0.7rem] text-mute">{forex?.source}</p>
+              <p className="mt-2 text-caption text-mute">{forex?.source}</p>
             </>
           ) : (
             <p className="mt-3 text-meta text-mute">

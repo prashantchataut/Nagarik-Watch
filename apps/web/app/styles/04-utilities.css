@@ -19,7 +19,7 @@
   /* Latin-only costume tracking; Devanagari stays sentence case (AGENTS.md). */
   .section-kicker {
     color: var(--brand-strong);
-    font-size: 0.74rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -519,7 +519,7 @@
     padding: 0.55rem 0.2rem;
     text-align: center;
     color: var(--ink-soft);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 800;
     background: color-mix(in oklch, var(--surface) 55%, var(--surface-raised));
   }
@@ -579,7 +579,7 @@
   }
   .calendar-day__ad {
     color: var(--mute);
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 650;
     font-variant-numeric: tabular-nums;
   }
@@ -1154,7 +1154,7 @@
   }
   .market-board__lead-head > span {
     color: var(--mute);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
   }
   .market-board__index-row {
@@ -1214,7 +1214,7 @@
   .market-board__meta {
     margin-top: 0.65rem;
     color: var(--mute);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
   .market-board__meta--span {
     grid-column: 1 / -1;
@@ -1241,7 +1241,7 @@
   }
   .market-forex__kicker {
     color: var(--brand-strong);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
   }
   .market-forex__head h2 {
@@ -1253,7 +1253,7 @@
   }
   .market-forex__meta {
     color: var(--mute);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
   .market-forex__table-wrap {
     overflow-x: auto;
