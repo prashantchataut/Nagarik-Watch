@@ -2,7 +2,12 @@
 
 Guidance for coding agents working in this repo. Product truth lives in `PRODUCT.md`;
 visual system in `DESIGN.md`; public vs staff rules in
-`.cursor/skills/nagarik-watch-product/SKILL.md`.
+`.agents/skills/nagarik-watch-product/SKILL.md`.
+
+Committed agent skills live in exactly two trees: `.agents/skills/` (canonical, and where
+anything project-specific belongs) and `skills/` (a pinned library — see `skills-lock.json`,
+so do not hand-edit it). Per-harness copies under `.cursor/` and `.opencode/` were removed;
+mirroring a skill into a third place is how the last 403 files of drift happened.
 
 ## What this product is
 
