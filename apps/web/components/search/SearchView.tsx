@@ -221,8 +221,8 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
         title={dict.searchHeading}
         lead={
           locale === 'en'
-            ? 'Search titles, authors and topics in Nepali or English.'
-            : 'शीर्षक, लेखक र विषय खोज्नुहोस्।'
+            ? 'Search titles, authors and topics in Nepali, English, or Nepali typed in Latin.'
+            : 'शीर्षक, लेखक र विषय खोज्नुहोस्। रोमन अक्षरमा लेखेको नेपाली पनि चल्छ।'
         }
         lang={lang}
       />
@@ -472,6 +472,12 @@ export function SearchView({ locale, corpus, corpusCap }: SearchViewProps) {
                   {locale === 'en'
                     ? 'Nepali and English both work'
                     : 'नेपाली र अङ्ग्रेजी दुवै चल्छ'}
+                </li>
+                <li>
+                  ·{' '}
+                  {locale === 'en'
+                    ? 'Latin spelling finds Nepali: kathmandu → काठमाडौं'
+                    : 'रोमन अक्षर पनि चल्छ: kathmandu ले काठमाडौं भेट्टाउँछ'}
                 </li>
                 <li>
                   ·{' '}

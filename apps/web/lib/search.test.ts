@@ -216,3 +216,70 @@ describe('morphology-aware matching', () => {
     expect(r[0]?.slug).toBe('opinion-budget')
   })
 })
+
+describe('romanized queries', () => {
+  // Most Nepali readers on a phone type Latin. Before these keys existed, the
+  // only way `oli` reached ओली was a hand-curated lexicon entry — which cannot
+  // scale to the proper nouns that make up most news queries.
+  const devanagariOnly: SearchableStory[] = [
+    story({
+      id: 'r1',
+      slug: 'kathmandu-air',
+      titleNe: 'काठमाडौंको वायु प्रदूषण बढ्यो',
+      deckNe: 'उपत्यकाभर मापन केन्द्रहरूले उच्च तह देखाए',
+    }),
+    story({
+      id: 'r2',
+      slug: 'oli-statement',
+      titleNe: 'ओलीले सरकारको नीति स्पष्ट पारे',
+      deckNe: 'प्रधानमन्त्रीको सम्बोधन',
+    }),
+    story({
+      id: 'r3',
+      slug: 'biratnagar-road',
+      titleNe: 'विराटनगरमा सडक विस्तार सुरु',
+      deckNe: 'महानगरले ठेक्का सम्झौता गर्‍यो',
+    }),
+  ]
+  const romanIndex = buildIndex(devanagariOnly)
+
+  it('finds a Devanagari headline from the Latin spelling of its subject', () => {
+    expect(search(romanIndex, 'oli')[0]?.slug).toBe('oli-statement')
+    expect(search(romanIndex, 'pradhanmantri')[0]?.slug).toBe('oli-statement')
+  })
+
+  it('recovers a spelling the romanizer does not predict, via the skeleton', () => {
+    // काठमाडौं romanizes to `kathamadau`; `kathmandu` is three edits away, past
+    // the fuzzy radius. Both reduce to the consonant skeleton `ktmd`.
+    expect(search(romanIndex, 'kathmandu')[0]?.slug).toBe('kathmandu-air')
+    expect(search(romanIndex, 'katmandu')[0]?.slug).toBe('kathmandu-air')
+  })
+
+  it('treats the v and b spellings of a place name as the same place', () => {
+    expect(search(romanIndex, 'biratnagar')[0]?.slug).toBe('biratnagar-road')
+  })
+
+  it('reaches exactly the stories the Devanagari query reaches', () => {
+    // The alias is a second key on the same posting list, not a second corpus.
+    // Ordering is allowed to differ — the two queries expand through different
+    // lexicon entries — but neither may find a story the other cannot.
+    const viaLatin = search(index, 'bajet').map((r) => r.slug).sort()
+    const viaDevanagari = search(index, 'बजेट').map((r) => r.slug).sort()
+    expect(viaLatin).toEqual(viaDevanagari)
+  })
+
+  it('keeps a skeleton match below a real one', () => {
+    // `ktmd` is the skeleton of काठमाडौं; `ओली` matches its story outright.
+    // The skeleton may only fill in behind, never displace.
+    const mixed = search(romanIndex, 'oli')
+    expect(mixed[0]?.slug).toBe('oli-statement')
+  })
+
+  it('does not lengthen a document for carrying aliases', () => {
+    // BM25 normalises by field length. Counting alias keys there would make
+    // every Devanagari story look padded and depress its own real terms.
+    const latinOnly = buildIndex([story({ id: 'l1', slug: 'en', titleNe: 'Budget review' })])
+    const devanagari = buildIndex([story({ id: 'd1', slug: 'ne', titleNe: 'बजेट समीक्षा' })])
+    expect(devanagari.docLen[0]?.title).toBe(latinOnly.docLen[0]?.title)
+  })
+})

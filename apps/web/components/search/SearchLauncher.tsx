@@ -69,8 +69,8 @@ export function SearchLauncher({ locale, className, iconSize = 18 }: SearchLaunc
               </h2>
               <p id={descriptionId} className="mt-1 text-meta leading-relaxed text-ink-soft">
                 {en
-                  ? 'Search stories, authors and topics. Nepali and English queries are supported.'
-                  : 'समाचार, लेखक र विषय खोज्नुहोस्। नेपाली र अंग्रेजी दुवै खोज समर्थित छन्।'}
+                  ? 'Search stories, authors and topics. Nepali, English, or Nepali typed in Latin.'
+                  : 'समाचार, लेखक र विषय खोज्नुहोस्। नेपाली, अंग्रेजी र रोमन अक्षरमा लेखिएको नेपाली चल्छ।'}
               </p>
             </div>
             <button
