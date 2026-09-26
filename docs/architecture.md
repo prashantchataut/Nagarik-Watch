@@ -30,18 +30,18 @@ for a news portal at this scale.
 
 ### Non-functional (NFRs)
 
-| Category | Target |
-|, , , , -|, , , , , , , , , , , , , , , , , , , , , -|
-| **Performance** | LCP < 2.5s, CLS < 0.1, INP < 200ms on mid-tier Android over throttled 4G (Lighthouse) |
-| **Availability**| 99.9% for the read path (CDN-cached); degraded ISR acceptable on origin blips |
-| **Scalability** | Design for ~10× launch traffic without rearchitecture; CDN absorbs read spikes |
-| **Security** | OWASP top-10 baseline; CSP; rate-limited APIs; signed CMS webhooks; no secrets in repo |
-| **Accessibility**| WCAG 2.1 AA, automated (axe) + manual keyboard audit |
-| **SEO** | SSR/ISR on all content pages; JSON-LD `NewsArticle`; valid sitemaps; canonical URLs |
-| **Latency (Nepal)** | CDN edge cache HIT serves reads; origin location matters only on MISS/ISR |
-| **Maintainability**| TS strict, ADRs for decisions, vertical-slice phases, ≤5 files per task |
-| **i18n** | Devanagari-first; `lang` attributes; BS/AD date conversion; numerals by locale |
-| **Observability**| Plausible (privacy-lite) + GA4 + structured logs + uptime monitor |
+| Category            | Target                                                                                 |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| **Performance**     | LCP < 2.5s, CLS < 0.1, INP < 200ms on mid-tier Android over throttled 4G (Lighthouse)  |
+| **Availability**    | 99.9% for the read path (CDN-cached); degraded ISR acceptable on origin blips          |
+| **Scalability**     | Design for ~10× launch traffic without rearchitecture; CDN absorbs read spikes         |
+| **Security**        | OWASP top-10 baseline; CSP; rate-limited APIs; signed CMS webhooks; no secrets in repo |
+| **Accessibility**   | WCAG 2.1 AA, automated (axe) + manual keyboard audit                                   |
+| **SEO**             | SSR/ISR on all content pages; JSON-LD `NewsArticle`; valid sitemaps; canonical URLs    |
+| **Latency (Nepal)** | CDN edge cache HIT serves reads; origin location matters only on MISS/ISR              |
+| **Maintainability** | TS strict, ADRs for decisions, vertical-slice phases, ≤5 files per task                |
+| **i18n**            | Devanagari-first; `lang` attributes; BS/AD date conversion; numerals by locale         |
+| **Observability**   | Plausible (privacy-lite) + GA4 + structured logs + uptime monitor                      |
 
 ### Constraints
 
@@ -52,30 +52,30 @@ for a news portal at this scale.
   but must not poison the reading experience (PRODUCT.md principle 4).
 - Nepal regulatory: online news must be registered with **DoIB** (operational gate, not
   architectural) and listed with Press Council Nepal.
-- Budget-conscious at launch → prefer free/OFL fonts, OSS infra, generous free tiers., -
+- Budget-conscious at launch → prefer free/OFL fonts, OSS infra, generous free tiers.
 
 ## 2. Architecture (high level)
 
 ```mermaid
 graph TD
-    Reader["Reader<br/>(browser / PWA, mostly mobile)"], >|HTTPS| CDN["Edge / CDN<br/>(adapter default: Cloudflare)<br/>static + ISR cache, WAF, DDoS, rate-limit"]
+    Reader["Reader<br/>(browser / PWA, mostly mobile)"] -->|HTTPS| CDN["Edge / CDN<br/>(adapter default: Cloudflare)<br/>static + ISR cache, WAF, DDoS, rate-limit"]
 
-    CDN, >|cache HIT| Reader
-    CDN, >|MISS / ISR revalidate| Origin["Next.js Origin<br/>App Router · Node runtime"]
+    CDN -->|cache HIT| Reader
+    CDN -->|MISS / ISR revalidate| Origin["Next.js Origin<br/>App Router · Node runtime"]
 
-    Origin, >|read content| CMS["Payload CMS<br/>(self-hosted, separate app)<br/>REST/GraphQL"]
-    CMS, > PG[("PostgreSQL<br/>articles, media, taxonomy,<br/>users, revisions, FTS index")]
-    CMS, > OBJ["Object Storage<br/>(adapter default: Cloudflare R2, S3-compatible)<br/>images, ePaper PDFs"]
+    Origin -->|read content| CMS["Payload CMS<br/>(self-hosted, separate app)<br/>REST/GraphQL"]
+    CMS --> PG[("PostgreSQL<br/>articles, media, taxonomy,<br/>users, revisions, FTS index")]
+    CMS --> OBJ["Object Storage<br/>(adapter default: Cloudflare R2, S3-compatible)<br/>images, ePaper PDFs"]
 
-    Editors["Editors / Journalists / Translators"], >|admin UI| CMS
-    Wire["Wire / RSS sources"], >|cron ingest| Ingest["packages/ingest<br/>(scheduled jobs)"]
-    Ingest, >|create draft articles| CMS
+    Editors["Editors / Journalists / Translators"] -->|admin UI| CMS
+    Wire["Wire / RSS sources"] -->|cron ingest| Ingest["packages/ingest<br/>(scheduled jobs)"]
+    Ingest -->|create draft articles| CMS
 
-    Origin, > ADS["Ad stack<br/>AdSense → GAM; lazy-loaded<br/>+ viewability"]
-    Origin, > SRCH["Search<br/>Postgres FTS now<br/>→ Meilisearch later"]
-    Origin, > ANAL["Analytics<br/>Plausible + GA4"]
-    Origin, > PUSH["Web Push<br/>OneSignal / FCM<br/>(breaking news)"]
-    Origin, > MAIL["Newsletter<br/>Listmonk / Buttondown<br/>(Phase 3)"]
+    Origin --> ADS["Ad stack<br/>AdSense → GAM; lazy-loaded<br/>+ viewability"]
+    Origin --> SRCH["Search<br/>in-process BM25 index<br/>over published content"]
+    Origin --> ANAL["Analytics<br/>Plausible + GA4"]
+    Origin --> PUSH["Web Push<br/>OneSignal / FCM<br/>(breaking news)"]
+    Origin --> MAIL["Newsletter<br/>Listmonk / Buttondown<br/>(Phase 3)"]
 
     CMS -.->|publish webhook| Origin
     CMS -.->|publish event| PUSH
@@ -85,8 +85,8 @@ graph TD
         MON["Uptime monitor<br/>(UptimeRobot/Better Stack)"]
         LOG["Structured logs"]
     end
-    Origin, > Observability
-    CMS, > Observability
+    Origin --> Observability
+    CMS --> Observability
 
     classDef store fill:#f9f1f0,stroke:#c02a2a;
     class PG,OBJ store;
@@ -146,40 +146,41 @@ graph TD
 1. Cron triggers `packages/ingest` for a feed.
 2. Feed is fetched, normalized, deduped (by source URL + title hash).
 3. A draft Article is created with `sourceType: 'aggregated'`, source attribution, and
-   `_status: 'draft'` → appears in the editor review queue., -
+   `_status: 'draft'` → appears in the editor review queue.
 
 ## 3. Patterns chosen (and why)
 
-| Concern | Pattern | Why |
-|, , , , , , -|, , , , , , , , , |-, , , , , , , , , , , , -|
-| Topology | Modular monolith (web + admin + libs) | Solo team; microservices add ops for no gain here |
-| Rendering | SSR + ISR (App Router) | SEO + freshness + cache economy for news |
-| Data fetching | Payload REST (separate CMS deployment) | One content authority, explicit deploy boundary, independently scalable |
-| Content storage | Relational (Postgres) | Editorial data is relational; FTS avoids a 2nd store |
-| Media | Object storage + CDN transforms | Decouples binary blobs from DB; CDN-served |
-| Search | Postgres FTS → Meilisearch later | Don't add infra before traffic justifies it |
-| Cache invalidation | On-demand ISR revalidate webhook | Editors see published changes within seconds |
-| Auth (CMS) | Payload's email/pass + RBAC | Built-in, role-based, sufficient for a newsroom|
-| Auth (reader) | None in v1 (no accounts) | Free-to-read; no paywall; no UGC; simpler + safer |
-| Background jobs | Cron (host) + Payload scheduled jobs | News ingestion is periodic, not event-driven |
-| Config/secrets | Env vars + `.env.example`; secrets in CI/host vault | Standard; no committed secrets |
-| Error reporting | Sentry (web + admin) | Quick to wire, generous free tier |, -
+| Concern            | Pattern                                             | Why                                                                                 |
+| ------------------ | --------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Topology           | Modular monolith (web + admin + libs)               | Solo team; microservices add ops for no gain here                                   |
+| Rendering          | SSR + ISR (App Router)                              | SEO + freshness + cache economy for news                                            |
+| Data fetching      | Payload REST (separate CMS deployment)              | One content authority, explicit deploy boundary, independently scalable             |
+| Content storage    | Relational (Postgres)                               | Editorial data is relational; FTS avoids a 2nd store                                |
+| Media              | Object storage + CDN transforms                     | Decouples binary blobs from DB; CDN-served                                          |
+| Search             | In-process BM25 over the published index            | No second store to run, and it works offline in CI                                  |
+| Cache invalidation | On-demand ISR revalidate webhook                    | Editors see published changes within seconds                                        |
+| Auth (staff)       | Better Auth over Postgres, 21 newsroom roles        | One session system; authorisation enforced server-side per route and per handler    |
+| Auth (reader)      | Better Auth, same system, `reader` role             | Bookmarks, history, comments and poll votes need an identity that survives a device |
+| Background jobs    | Cron (host) + Payload scheduled jobs                | News ingestion is periodic, not event-driven                                        |
+| Config/secrets     | Env vars + `.env.example`; secrets in CI/host vault | Standard; no committed secrets                                                      |
+| Error reporting    | Sentry (web + admin)                                | Quick to wire, generous free tier                                                   |
 
 ## 4. Hosting decision framework (input to ADR-004)
 
-The origin decision is recorded in ADR-004 (Vercel Node + Cloudflare edge). The table below is
-the historical decision matrix; CDN is Cloudflare either way.the decision matrix; ADR-004 records the final pick before Phase 1 deploy.
+The origin decision is recorded in ADR-004 (Vercel Node + Cloudflare edge). The table below
+is the historical decision matrix that produced it, kept because the reasoning is what to
+re-read if the origin is ever revisited. CDN is Cloudflare either way.
 
-| Criterion (weight) | Option A: Managed Vercel origin + CF | Option B: Nepal VPS (Babal/Vianet) origin + CF | Option C: Hybrid (Vercel origin, R2 + Postgres near readers) |
-|, , , , , , , , , |, , , , , , , , , , , -|, , , , , , , , , , , , |, , , , , , , , , , , , , , , , |
-| Dev experience / ops burden (×3) | ★★★★★ zero ops | ★★ self-managed (backups, SSL, updates) | ★★★★ mostly managed |
-| Latency to Nepali readers (×2) | ★★★ origin far; CDN masks on HIT | ★★★★★ origin in-country | ★★★ CDN-cached; origin far on MISS |
-| Reliability / uptime (×2) | ★★★★★ SLA'd | ★★★ depends on provider + your ops | ★★★★ depends on Vercel + R2 |
-| Cost at launch (×1) | $$$ Vercel Pro ~$20/mo + usage            | $ VPS ~$10–20/mo flat                          | $$$ similar to A |
-| Runs Next.js App Router natively | ★★★★★ | ★★★ via Docker/PM2 | ★★★★★ |
-| Scalability on a spike | ★★★★★ auto | ★★ vertical only | ★★★★★ |
-| Data residency / locality | origin abroad | origin in Nepal | origin abroad, media on R2 |
-| Solo-dev fit | ★★★★★ best | ★★ worst | ★★★★ good |
+| Criterion (weight)               | Option A: Managed Vercel origin + CF | Option B: Nepal VPS (Babal/Vianet) origin + CF | Option C: Hybrid (Vercel origin, R2 + Postgres near readers) |
+| -------------------------------- | ------------------------------------ | ---------------------------------------------- | ------------------------------------------------------------ |
+| Dev experience / ops burden (×3) | ★★★★★ zero ops                       | ★★ self-managed (backups, SSL, updates)        | ★★★★ mostly managed                                          |
+| Latency to Nepali readers (×2)   | ★★★ origin far; CDN masks on HIT     | ★★★★★ origin in-country                        | ★★★ CDN-cached; origin far on MISS                           |
+| Reliability / uptime (×2)        | ★★★★★ SLA'd                          | ★★★ depends on provider + your ops             | ★★★★ depends on Vercel + R2                                  |
+| Cost at launch (×1)              | $$$ Vercel Pro ~$20/mo + usage       | $ VPS ~$10–20/mo flat                          | $$$ similar to A                                             |
+| Runs Next.js App Router natively | ★★★★★                                | ★★★ via Docker/PM2                             | ★★★★★                                                        |
+| Scalability on a spike           | ★★★★★ auto                           | ★★ vertical only                               | ★★★★★                                                        |
+| Data residency / locality        | origin abroad                        | origin in Nepal                                | origin abroad, media on R2                                   |
+| Solo-dev fit                     | ★★★★★ best                           | ★★ worst                                       | ★★★★ good                                                    |
 
 **ADR-004 decision (2026-08-02):** **Option A (Vercel Node origin + Cloudflare edge)** is
 **Accepted** — see `docs/adr/ADR-004-origin-hosting.md`. Cloudflare Pages static `out` is
@@ -212,7 +213,7 @@ Tip / beat ──▶ Editor writes Article in Payload CMS (draft)
 ```
 
 See `docs/content-model.md` for the field-level model and `docs/editorial-workflow.md`
-for roles and transitions., -
+for roles and transitions.
 
 ## 6. Security
 
@@ -228,7 +229,7 @@ for roles and transitions., -
 - **Ingestion safety:** RSS-sourced content is sanitized (no raw HTML injection), images
   re-hosted to R2 with alt text required before publish.
 - **Backups:** nightly Postgres dumps (managed or cron + R2); test restore quarterly.
-- **Dependency hygiene:** Dependabot/Renovate on; npm audit in CI; licenses checked., -
+- **Dependency hygiene:** Dependabot/Renovate on; npm audit in CI; licenses checked.
 
 ## 7. Observability
 
@@ -236,20 +237,20 @@ for roles and transitions., -
 - **GA4** alongside for richer ad/attribution reporting (cookie banner required).
 - **Sentry** for error tracking in web + admin.
 - **Uptime monitor** (UptimeRobot or Better Stack) on home + a canonical article.
-- **Structured logs** from origin + ingestion jobs, retained 30 days., -
+- **Structured logs** from origin + ingestion jobs, retained 30 days.
 
 ## 8. Failure modes & mitigations
 
-| Failure | Impact | Mitigation |
-|, , , , , , , , , , |-, , , , , , |, , , , , , , , , , , , , , , , |
-| Origin down | New/changed pages stale | CDN keeps serving cached ISR pages; status page communicates |
-| Postgres unavailable | CMS can't edit | Reads continue from ISR cache; managed DB HA if budget allows|
-| CMS publish webhook lost | Page not revalidated | Periodic sitemap-driven revalidation sweep as a backstop |
-| Ad script slow/blocked | Layout shift, blank gap | Reserve ad slot size; lazy-load; graceful fallback |
-| Ingestion feed malformed | Bad draft created | Strict Zod validation; bad items quarantined, never published |
-| Breaking-news push flood | Push fatigue, unsubscribes | Rate cap (≤N/hour); only publisher role can mark breaking |
-| Image without alt text | A11y failure | CMS hard-requires alt text on upload |
-| Brand-name legal challenge (ADR-001) | Forced rename | Composite name + domains kept; rename path documented |, -
+| Failure                              | Impact                     | Mitigation                                                    |
+| ------------------------------------ | -------------------------- | ------------------------------------------------------------- |
+| Origin down                          | New/changed pages stale    | CDN keeps serving cached ISR pages; status page communicates  |
+| Postgres unavailable                 | CMS can't edit             | Reads continue from ISR cache; managed DB HA if budget allows |
+| CMS publish webhook lost             | Page not revalidated       | Periodic sitemap-driven revalidation sweep as a backstop      |
+| Ad script slow/blocked               | Layout shift, blank gap    | Reserve ad slot size; lazy-load; graceful fallback            |
+| Ingestion feed malformed             | Bad draft created          | Strict Zod validation; bad items quarantined, never published |
+| Breaking-news push flood             | Push fatigue, unsubscribes | Rate cap (≤N/hour); only publisher role can mark breaking     |
+| Image without alt text               | A11y failure               | CMS hard-requires alt text on upload                          |
+| Brand-name legal challenge (ADR-001) | Forced rename              | Composite name + domains kept; rename path documented         |
 
 ## 9. Open architectural questions
 

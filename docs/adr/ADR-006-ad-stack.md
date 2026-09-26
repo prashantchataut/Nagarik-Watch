@@ -22,14 +22,14 @@ without poisoning the reading experience (PRODUCT.md principle 4). Constraints:
 
 ## Alternatives considered
 
-| Option | Pros | Cons |
-|, -|, -|, -|
-| **AdSense only, forever** | Zero ops; instant | Lowest CPMs; no direct-sold inventory; limited control |
-| **GAM (Google Ad Manager) from day 1** | Industry standard; direct-sold + programmatic in one | Heavy setup; complex for a solo dev pre-revenue |
-| **Third-party ad network (Taboola/Outbrain)** | Easy revenue | Toxic to UX (widget sprawl, clickbait); off-brand; rejected |
-| **Self-built ad server** | Total control | Reinvents the wheel; unjustified |
-| **Reader revenue / paywall** | Independent of ad market | Hard in Nepal (low willingness to pay); shrinks reach; out of scope for v1 |
-| **No ads / donation only** | Cleanest UX | Unlikely to fund a newsroom; unsustainable as the sole model now |
+| Option                                        | Pros                                                 | Cons                                                                       |
+| --------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------- |
+| **AdSense only, forever**                     | Zero ops; instant                                    | Lowest CPMs; no direct-sold inventory; limited control                     |
+| **GAM (Google Ad Manager) from day 1**        | Industry standard; direct-sold + programmatic in one | Heavy setup; complex for a solo dev pre-revenue                            |
+| **Third-party ad network (Taboola/Outbrain)** | Easy revenue                                         | Toxic to UX (widget sprawl, clickbait); off-brand; rejected                |
+| **Self-built ad server**                      | Total control                                        | Reinvents the wheel; unjustified                                           |
+| **Reader revenue / paywall**                  | Independent of ad market                             | Hard in Nepal (low willingness to pay); shrinks reach; out of scope for v1 |
+| **No ads / donation only**                    | Cleanest UX                                          | Unlikely to fund a newsroom; unsustainable as the sole model now           |
 
 ## Decision
 

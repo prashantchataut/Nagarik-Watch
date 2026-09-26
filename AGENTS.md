@@ -70,7 +70,7 @@ article. Do not spray cosmetic edits across the whole tree in one pass.
 
 | Concern          | Primary paths                                                           |
 | ---------------- | ----------------------------------------------------------------------- |
-| Composition      | `apps/web/app/[locale]/page.tsx`                                        |
+| Composition      | `apps/web/app/[locale]/(home)/page.tsx`                                 |
 | Latest rail      | `apps/web/components/home/LatestRail.tsx`                               |
 | Section headers  | `packages/ui/src/SectionHeader.tsx`                                     |
 | Story cards      | `packages/ui/src/StoryCard.tsx`                                         |

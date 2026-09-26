@@ -7,21 +7,21 @@
 
 **Guiding principles** (PRODUCT.md): reader trust above all; hybrid editorial is honest;
 bylines and source attribution are always shown; corrections are visible and unembarrassed;
-sponsored content is distinguishable in a blind test., -
+sponsored content is distinguishable in a blind test.
 
 ## 1. Roles & permissions
 
 Six roles, mapped to Payload access policies. Smallest set that fits a real newsroom;
 consolidate later if needed.
 
-| Role | Writes draft | Edits others' drafts | Sends to review | Publishes | Marks breaking | Manages taxonomy/menu | Manages ads/sponsored | Writes English version |
-|, , , , |:, -:|:, -:|:, -:|:, -:|:, -:|:, -:|:, -:|:, -:|
-| `author` | ✓ | own only | ✓ |, | , |, | , |, |
-| `copyeditor` | ✓ | ✓ | ✓ |, | , | tags only |, | , |
-| `translator` |, (English fields only) | English fields only | ✓ (English) |, | , |, | , | ✓ |
-| `editor` | ✓ | ✓ | ✓ | ✓ (own section) | ✓ (own section) | ✓ (own section) |, | ✓ |
-| `publisher` (Chief Sub / desk lead) | ✓ | ✓ | ✓ | ✓ (any) | ✓ (any) | ✓ | ✓ | ✓ |
-| `admin` (technical) |, | , |, | , |, | ✓ | ✓ + system |, |
+| Role                                | Writes draft            | Edits others' drafts | Sends to review | Publishes       | Marks breaking  | Manages taxonomy/menu | Manages ads/sponsored | Writes English version |
+| ----------------------------------- | ----------------------- | -------------------- | --------------- | --------------- | --------------- | --------------------- | --------------------- | ---------------------- |
+| `author`                            | ✓                       | own only             | ✓               | ,               | ,               | ,                     | ,                     | ,                      |
+| `copyeditor`                        | ✓                       | ✓                    | ✓               | ,               | ,               | tags only             | ,                     | ,                      |
+| `translator`                        | , (English fields only) | English fields only  | ✓ (English)     | ,               | ,               | ,                     | ,                     | ✓                      |
+| `editor`                            | ✓                       | ✓                    | ✓               | ✓ (own section) | ✓ (own section) | ✓ (own section)       | ,                     | ✓                      |
+| `publisher` (Chief Sub / desk lead) | ✓                       | ✓                    | ✓               | ✓ (any)         | ✓ (any)         | ✓                     | ✓                     | ✓                      |
+| `admin` (technical)                 | ,                       | ,                    | ,               | ,               | ,               | ✓                     | ✓ + system            | ,                      |
 
 Notes:
 
@@ -39,7 +39,7 @@ Notes:
   trust control, not a hierarchy flex.
 - **`admin`** is the technical/operator role (the solo dev initially); does not publish
   editorial content but operates the system, ads, and integrations.
-- **2FA required** for `publisher` and `admin` (security baseline, architecture.md §6)., -
+- **2FA required** for `publisher` and `admin` (security baseline, architecture.md §6).
 
 ## 2. The publish flow (state machine)
 
@@ -58,13 +58,13 @@ Notes:
 
 States map to Payload's draft system + a `workflowStage` field:
 
-| State | Visibility | Who can advance it out |
-|, , , , |, , , , , , , , , -|, , , , , , , , , -|
-| `draft` | CMS only; not on site; noindex | author, copyeditor, editor, publisher |
-| `review` | CMS only; flagged in the review queue | editor, publisher |
-| `scheduled` | CMS only until `publishAt` | (auto-published by scheduler) |
-| `published` | Public; indexed; in feeds |, (terminal until unpublished) |
-| `unpublished` | Reverts to `draft`; URL 410s or redirects to category | editor, publisher |
+| State         | Visibility                                            | Who can advance it out                |
+| ------------- | ----------------------------------------------------- | ------------------------------------- |
+| `draft`       | CMS only; not on site; noindex                        | author, copyeditor, editor, publisher |
+| `review`      | CMS only; flagged in the review queue                 | editor, publisher                     |
+| `scheduled`   | CMS only until `publishAt`                            | (auto-published by scheduler)         |
+| `published`   | Public; indexed; in feeds                             | , (terminal until unpublished)        |
+| `unpublished` | Reverts to `draft`; URL 410s or redirects to category | editor, publisher                     |
 
 ### What happens on Publish (Payload `afterChange` hook)
 
@@ -88,7 +88,7 @@ A scheduled story can be unscheduled (reverts to `draft`).
 
 Every save creates a revision (Payload built-in). Editors can diff and roll back.
 Retention: keep the **last 25 revisions per article** (bounds DB growth, open item in
-ADR-002). The published revision is always retained., -
+ADR-002). The published revision is always retained.
 
 ## 3. Source attribution policy (the hybrid model)
 
@@ -130,7 +130,7 @@ hard rules (content-model.md §1):
 - The on-site attribution line is rendered from these fields, editors cannot remove it
   by editing copy.
 - The reader always sees, at minimum: byline (or agency/source), dateline, and (where
-  applicable) a linked attribution line., -
+  applicable) a linked attribution line.
 
 ## 3b. Translation sub-workflow (bilingual, author-reviewed), see ADR-007
 
@@ -166,7 +166,7 @@ Rules:
   same fix (editorial prompt, not automatic).
 - **Optional MT aid:** a _clearly-labeled, never-published_ machine-translation pre-fill
   may be offered to translators as a draft aid, opt-in per editor, default off. It can
-  never reach the public site., -
+  never reach the public site.
 
 ## 4. Breaking news
 
@@ -177,7 +177,7 @@ Rules:
 - Breaking is a _state_, not a permanent label. Editors **un-flag** once the story is no
   longer unfolding; the ticker then drops it.
 - "ब्रेकिङ" is reserved for events actually unfolding (PRODUCT.md voice). Misuse is an
-  editorial error, corrected like any other., -
+  editorial error, corrected like any other.
 
 ## 5. Corrections & updates
 
@@ -198,7 +198,7 @@ Two distinct mechanisms:
   **"यो लेख अपडेट भएको छ"** with the timestamp.
 - No correction notice needed unless a fact was wrong.
 
-The distinction matters: corrections protect trust; updates signal freshness., -
+The distinction matters: corrections protect trust; updates signal freshness.
 
 ## 6. Sponsored / native content (Phase 4)
 
@@ -212,20 +212,20 @@ The distinction matters: corrections protect trust; updates signal freshness., -
 - Sponsored content is reviewed by the commercial team but **never edited to mimic
   editorial voice** in a way that hides its nature.
 - The sponsored-content policy is written into the ethics page (Phase 5) before the first
-  unit is sold., -
+  unit is sold.
 
 ## 7. Comments
 
 - **No comments in v1.** Reader engagement is via social, newsletter, and (later) a
   pre-moderated channel.
 - If added later: **pre-moderated** (editor approves before a comment appears), with a
-  clear community policy, rate limiting, and a blocklist. No open anonymous commenting., -
+  clear community policy, rate limiting, and a blocklist. No open anonymous commenting.
 
 ## 8. Editorial calendar & operations
 
 - A simple in-CMS calendar shows scheduled (`publishAt`) stories per day/section.
 - A **review queue** lists items in `review` state, oldest first, per section.
-- Section editors own their queues; the publisher has a cross-section view., -
+- Section editors own their queues; the publisher has a cross-section view.
 
 ## 9. Ethics & legal baseline (published on the site, Phase 5)
 
@@ -234,7 +234,7 @@ The distinction matters: corrections protect trust; updates signal freshness., -
 - A **Sponsored Content Policy** page (linked from every sponsored item).
 - A **Corrections Policy** page (how to report an error).
 - Footer carries the **DoIB registration number** and Press Council listing (legal norm).
-- Privacy policy + cookie consent (architecture.md §6; CMP integration in Phase 5)., -
+- Privacy policy + cookie consent (architecture.md §6; CMP integration in Phase 5).
 
 ## Open workflow questions
 
