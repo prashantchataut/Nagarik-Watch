@@ -40,7 +40,7 @@
   }
   .admin-topbar__title {
     margin: 0;
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.05rem;
     font-weight: 780;
     line-height: 1.2;
@@ -227,14 +227,14 @@
   }
   .admin-page-title {
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.25rem;
     font-weight: 780;
     line-height: 1.2;
   }
   .admin-welcome-title {
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.15rem, 2vw, 1.4rem);
     font-weight: 760;
     line-height: 1.2;
@@ -424,7 +424,7 @@
     background: color-mix(in oklch, var(--brand-tint) 40%, var(--surface-raised));
   }
   .admin-metric__value {
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.45rem;
     font-weight: 800;
     line-height: 1;
@@ -488,7 +488,7 @@
   }
   .admin-section-title {
     margin: 0;
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 0.98rem;
     font-weight: 760;
     color: var(--ink);
@@ -519,13 +519,13 @@
   }
   .auth-editorial__kicker {
     color: var(--brand);
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 0.78rem;
     font-weight: 800;
   }
   .auth-editorial__eyebrow {
     color: var(--on-chrome);
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.15rem;
     font-weight: 800;
     line-height: 1.25;
@@ -587,7 +587,7 @@
   }
   .auth-form-wrap__title {
     margin: 0;
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.55rem;
     font-weight: 800;
     letter-spacing: -0.02em;
@@ -725,7 +725,7 @@
   }
   .account-page__header h1 {
     margin: 0;
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.45rem, 2.5vw, 1.85rem);
     font-weight: 800;
     letter-spacing: -0.02em;

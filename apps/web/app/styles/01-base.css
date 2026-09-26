@@ -17,7 +17,7 @@
     overflow-x: hidden;
     background-color: var(--surface);
     color: var(--ink);
-    font-family: var(--font-source-sans), var(--font-devanagari), system-ui, sans-serif;
+    font-family: var(--font-source-sans);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
   }
@@ -33,7 +33,7 @@
 
   /* Devanagari content run: switch to the Devanagari-optimised stack. */
   [lang='ne'] {
-    font-family: var(--font-devanagari), var(--font-source-sans), sans-serif;
+    font-family: var(--font-devanagari);
   }
 
   h1,
@@ -42,7 +42,7 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     letter-spacing: normal;
   }
 

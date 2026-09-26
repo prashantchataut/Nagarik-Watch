@@ -20,7 +20,7 @@
   }
   .sports-score-section > header h2 {
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.35rem, 2.5vw, 1.7rem);
     font-weight: 850;
     line-height: 1.05;
@@ -77,7 +77,7 @@
     min-width: 3.5rem;
     text-align: center;
     color: var(--brand-strong);
-    font-family: var(--font-source-sans), sans-serif;
+    font-family: var(--font-source-sans);
     font-size: 1.05rem;
     font-weight: 800;
   }
@@ -107,7 +107,7 @@
   .sports-reporting > header h2 {
     margin-top: 0.1rem;
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.65rem, 3.6vw, 2.35rem);
     font-weight: 900;
     line-height: 1.05;
@@ -144,7 +144,7 @@
   .sports-reporting__lead > h3 {
     margin-top: 0.22rem;
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.55rem, 3.6vw, 2.6rem);
     font-weight: 900;
     line-height: 1.08;
@@ -178,13 +178,13 @@
   }
   .sports-reporting__list li > span {
     color: var(--brand-strong);
-    font-family: var(--font-source-sans), sans-serif;
+    font-family: var(--font-source-sans);
     font-size: 0.72rem;
     font-weight: 800;
   }
   .sports-reporting__list a {
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.05rem;
     font-weight: 800;
     line-height: 1.25;

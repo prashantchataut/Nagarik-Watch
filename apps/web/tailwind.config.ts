@@ -26,10 +26,14 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // next/font exposes these as CSS variables; see app/fonts.ts.
-        devanagari: ['var(--font-devanagari)', 'var(--font-mukta)', 'sans-serif'],
-        display: ['var(--font-mukta)', 'var(--font-devanagari)', 'sans-serif'],
-        sans: ['var(--font-source-sans)', 'var(--font-devanagari)', 'system-ui', 'sans-serif'],
+        // next/font exposes these as CSS variables; see app/fonts.ts. Each token
+        // is already a complete stack ending in the other script, the system
+        // fonts and a generic, so exactly one belongs in each list. Naming two
+        // used to compile `font-display` to a 15-entry stack with 8 unreachable
+        // duplicates; `pnpm audit:font-budget` now fails on a nested pair.
+        devanagari: ['var(--font-devanagari)'],
+        display: ['var(--font-mukta)'],
+        sans: ['var(--font-source-sans)'],
       },
       fontSize: {
         // Authoritative Devanagari news scale: up to 64px display for lead headlines.

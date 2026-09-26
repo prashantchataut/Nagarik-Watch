@@ -188,7 +188,7 @@
   }
   .notification-desk__list button strong {
     color: var(--ink);
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.08rem;
     font-weight: 800;
     line-height: 1.28;
@@ -357,7 +357,7 @@
     place-items: center;
     border-right: 1px solid var(--rule);
     color: var(--ink-soft);
-    font-family: var(--font-mukta), var(--font-source-sans), sans-serif;
+    font-family: var(--font-mukta);
     font-weight: 800;
     background: var(--surface);
   }

@@ -98,7 +98,7 @@
     display: block;
     margin-top: 0.18rem;
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.05rem, 2.1vw, 1.3rem);
     font-weight: 800;
     line-height: 1.25;
@@ -121,7 +121,7 @@
     max-width: 22ch;
     margin-top: 0.2rem;
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.8rem, 4vw, 3.2rem);
     font-weight: 850;
     line-height: 1.12;
@@ -330,7 +330,7 @@
   .admin-media-library > header h2 {
     margin-top: 0.1rem;
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.35rem;
     font-weight: 850;
   }

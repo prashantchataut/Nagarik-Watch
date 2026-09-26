@@ -175,7 +175,7 @@
     text-transform: uppercase;
   }
   .reader-ledger__continue strong {
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.05rem;
   }
   .reader-ledger__streak-badge {
@@ -189,7 +189,7 @@
     background: color-mix(in oklch, var(--brand) 8%, transparent);
   }
   .reader-ledger__streak-badge strong {
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1rem;
     font-weight: 850;
     color: var(--brand-strong);
@@ -235,7 +235,7 @@
   }
   .reader-ledger__stats dd {
     margin-top: 0.25rem;
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.25rem;
     font-weight: 700;
     line-height: 1.2;
@@ -301,7 +301,7 @@
   }
   .reader-ledger__list a {
     color: var(--ink);
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.16rem;
     font-weight: 800;
     line-height: 1.25;
@@ -512,7 +512,7 @@
   }
   .notification-desk__list a {
     color: var(--ink);
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.08rem;
     font-weight: 800;
     line-height: 1.28;
@@ -609,7 +609,7 @@
     font-weight: 750;
   }
   .recommendation-desk__continue strong {
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 0.95rem;
   }
   .recommendation-desk__digest {
@@ -1083,7 +1083,7 @@
   .newsroom-pulse dd,
   .newsroom-queue-summary dd {
     margin-top: 0.15rem;
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.15rem;
     font-weight: 850;
     line-height: 1.1;
@@ -1300,7 +1300,7 @@
     border-top: 1px solid var(--rule);
   }
   .journalist-profile-sheet > div h2 {
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 0.95rem;
     font-weight: 850;
   }
@@ -1710,7 +1710,7 @@
     min-height: 4.5rem;
     border-width: 0 0 1px;
     padding-inline: 0;
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.25rem, 3vw, 1.75rem);
     font-weight: 850;
     letter-spacing: -0.02em;
@@ -1719,7 +1719,7 @@
   }
   .newsroom-field--body textarea {
     min-height: 28rem;
-    font-family: var(--font-devanagari), sans-serif;
+    font-family: var(--font-devanagari);
     font-size: 1rem;
     line-height: 1.75;
   }
@@ -1842,7 +1842,7 @@
     margin: 1.25rem 0;
     padding: 0.85rem 0;
     border-block: 1px solid var(--rule);
-    font-family: var(--font-mukta), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.1rem;
     line-height: 1.45;
   }
@@ -1918,7 +1918,7 @@
   .newsroom-login__brief h1 {
     max-width: 15ch;
     margin-top: 0.55rem;
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(2rem, 4.8vw, 3.7rem);
     font-weight: 850;
     letter-spacing: normal;
@@ -2010,7 +2010,7 @@
   }
   .newsroom-login__form-main header h2 {
     margin-top: 0.35rem;
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(2rem, 5vw, 3.2rem);
     font-weight: 850;
     line-height: 1.08;
@@ -2150,7 +2150,7 @@
     margin-bottom: 1.5rem;
   }
   .staff-gate__header h1 {
-    font-family: var(--font-mukta), var(--font-source-sans), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.65rem;
     font-weight: 800;
     letter-spacing: -0.02em;

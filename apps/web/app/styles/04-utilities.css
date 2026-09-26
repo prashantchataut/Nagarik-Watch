@@ -29,7 +29,7 @@
     letter-spacing: 0;
     text-transform: none;
     font-weight: 700;
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
   }
   .editorial-link {
     font-weight: 750;
@@ -171,7 +171,7 @@
   }
   .utility-sidebar h2 {
     padding: 0.85rem 0.85rem 0.55rem;
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 0.95rem;
     font-weight: 850;
     color: var(--ink);
@@ -232,7 +232,7 @@
     outline-offset: 2px;
   }
   .utility-directory h2 {
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.15rem, 2.5vw, 1.45rem);
     font-weight: 800;
     line-height: 1.2;
@@ -250,9 +250,7 @@
   }
   .utility-index {
     color: var(--brand-strong) !important;
-    font:
-      800 0.72rem/1 var(--font-source-sans),
-      sans-serif;
+    font: 800 0.72rem/1 var(--font-source-sans);
     letter-spacing: 0.1em;
     padding-top: 0.35rem;
   }
@@ -413,7 +411,7 @@
   }
   .calendar-header__title {
     margin: 0;
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.75rem, 5vw, 2.65rem);
     font-weight: 850;
     line-height: 1.05;
@@ -573,7 +571,7 @@
     min-width: 1.85rem;
     place-items: center;
     border-radius: 0.15rem;
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.05rem;
     font-weight: 850;
     font-variant-numeric: tabular-nums;
@@ -656,7 +654,7 @@
   }
   .calendar-selection__date {
     margin: 0;
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.2rem, 2.8vw, 1.45rem);
     font-weight: 850;
     line-height: 1.2;
@@ -701,7 +699,7 @@
   }
   .calendar-agenda h3 {
     margin: 0;
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.05rem;
     font-weight: 850;
     color: var(--ink);
@@ -983,7 +981,7 @@
   .photo-desk__lead-copy h2 {
     margin-top: 0.2rem;
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(2rem, 5vw, 4.4rem);
     font-weight: 850;
     line-height: 1.08;
@@ -1034,7 +1032,7 @@
   .photo-desk__rail h3 {
     margin-top: 0.15rem;
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.25rem;
     font-weight: 800;
     line-height: 1.2;
@@ -1058,7 +1056,7 @@
   }
   .photo-contact-sheet > header h2 {
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.45rem;
     font-weight: 850;
   }
@@ -1086,7 +1084,7 @@
   .photo-contact-sheet h3 {
     margin-top: 0.1rem;
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.05rem;
     font-weight: 800;
     line-height: 1.25;
@@ -1188,7 +1186,7 @@
   .market-board__value {
     margin: 0;
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(2.5rem, 7vw, 4.8rem);
     font-weight: 850;
     line-height: 0.98;
@@ -1249,7 +1247,7 @@
   .market-forex__head h2 {
     margin-top: 0.1rem;
     color: var(--ink);
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: clamp(1.4rem, 3vw, 1.9rem);
     font-weight: 850;
   }
@@ -1331,7 +1329,7 @@
     border-bottom: 0;
   }
   .rashifal-grid__glyph {
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.65rem;
     font-weight: 850;
     line-height: 1.1;
@@ -1339,7 +1337,7 @@
   }
   .rashifal-grid__item h2 {
     margin: 0;
-    font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+    font-family: var(--font-mukta);
     font-size: 1.05rem;
     font-weight: 850;
     color: var(--ink);
