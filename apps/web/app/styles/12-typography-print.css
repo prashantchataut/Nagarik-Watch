@@ -124,7 +124,7 @@
   padding-top: 0.18rem;
   color: var(--mute);
   font-family: ui-monospace, monospace;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
 }
 
 .reader-profile-link__eyebrow,
@@ -135,7 +135,7 @@
 
 .reader-profile-link__eyebrow {
   color: var(--brand-strong);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 800;
 }
 

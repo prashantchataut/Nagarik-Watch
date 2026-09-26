@@ -35,7 +35,7 @@
     border: 0;
     background: transparent;
     color: var(--ink-soft);
-    font-size: 0.74rem;
+    font-size: 0.75rem;
     font-weight: 800;
     text-decoration: underline;
     text-underline-offset: 0.18em;
@@ -83,7 +83,7 @@
   .saved-library__index {
     padding-top: 0.18rem;
     color: var(--brand-strong);
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 850;
   }
   .saved-library__story {
@@ -114,7 +114,7 @@
   }
   .saved-library__empty > p {
     color: var(--brand-strong);
-    font-size: 0.74rem;
+    font-size: 0.75rem;
     font-weight: 800;
   }
   .saved-library__empty h2 {
