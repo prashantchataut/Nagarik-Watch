@@ -2,12 +2,14 @@ import type { StoryCardData } from '@nagarikwatch/db'
 import { buildTermVectors, termNeighbors, type TermVectors } from './search-semantics'
 import { CIVIC_QUERY_LEXICON, lexiconExpandTerm, type QueryLexicon } from './search-lexicon'
 import { stemToken } from './nlp/stemmer'
+import { romanizedKeys, skeleton } from './nlp/romanize'
 
 /**
  * Production search stack for the bounded news corpus:
  *   - inverted index (posting lists)
  *   - BM25 fielded ranking (title > author > deck > category)
  *   - fuzzy term recovery for Latin typos (edit distance ≤ 1–2)
+ *   - romanized aliases, so a Latin query reaches a Devanagari headline
  *   - editorial query expansion (Nepali↔English civic lexicon)
  *   - prefix trie autocomplete
  *
@@ -17,6 +19,14 @@ import { stemToken } from './nlp/stemmer'
 
 /** Synonym / bilingual hits score below exact and fuzzy recoveries. */
 const LEXICON_BOOST = 0.72
+
+/**
+ * Consonant-skeleton hits score below everything, and are only reached when a
+ * query term found nothing else at all. See `lib/nlp/romanize`: the skeleton
+ * deletes vowels, aspiration and nasal placement, so it is the last thing that
+ * should decide an ordering.
+ */
+const SKELETON_BOOST = 0.34
 
 export type SearchableStory = Pick<
   StoryCardData,
@@ -114,6 +124,34 @@ function tokenize(text: string): string[] {
  */
 function indexKeyForToken(token: string): string {
   return stemToken(token)
+}
+
+/**
+ * Latin keys a Devanagari stem is additionally posted under, so that a reader
+ * typing `kathmandu` or `bajet` can reach काठमाडौं and बजेट. Empty for a stem
+ * that is already Latin — `fuzzyExpandTerm` handles those.
+ *
+ * Memoized because a news corpus repeats its vocabulary heavily (नेपाल is in
+ * a large fraction of headlines) and romanization walks the string. The cache
+ * is keyed on the stem, which is what both the index and the query see.
+ */
+const aliasCache = new Map<string, readonly string[]>()
+/** Bounded so a long-lived server process cannot grow this without limit. */
+const ALIAS_CACHE_MAX = 20_000
+
+function aliasKeysForStem(stem: string): readonly string[] {
+  const cached = aliasCache.get(stem)
+  if (cached) return cached
+  const keys = romanizedKeys(stem)
+  const aliases: string[] = []
+  if (keys) {
+    if (keys.roman && keys.roman !== stem) aliases.push(keys.roman)
+    if (keys.skeleton && keys.skeleton !== keys.roman) aliases.push(keys.skeleton)
+  }
+  const frozen = Object.freeze(aliases)
+  if (aliasCache.size >= ALIAS_CACHE_MAX) aliasCache.clear()
+  aliasCache.set(stem, frozen)
+  return frozen
 }
 
 /**
@@ -290,6 +328,16 @@ export function buildIndex(stories: SearchableStory[]): SearchIndex {
         tf.set(key, (tf.get(key) ?? 0) + 1)
         vocabSet.add(key)
         if (field === 'title' || field === 'deck') topicalTerms.add(key)
+
+        // A Devanagari stem is also posted under its romanization, so `oli`
+        // and `bajet` reach ओली and बजेट without anyone curating a synonym
+        // for them. These keys are counted in `tf` but deliberately not in
+        // `lengths`: the document is not longer for having an alias, and
+        // BM25 normalises by length.
+        for (const alias of aliasKeysForStem(key)) {
+          tf.set(alias, (tf.get(alias) ?? 0) + 1)
+          vocabSet.add(alias)
+        }
       }
       for (const [token, count] of tf) {
         let posting = inverted.get(token)
@@ -357,12 +405,18 @@ function expandQueryTerm(
     variants.set(key, LEXICON_BOOST)
   }
 
-  // Nothing in the index yet — the reader is probably still typing the word.
+  // Nothing in the index yet — the reader is probably still typing the word,
+  // or spelling a Nepali name a way the romanizer did not predict.
   const anyPosting = [...variants.keys()].some((variant) => index.inverted.has(variant))
   if (!anyPosting) {
     for (const prefixed of prefixExpandTerm(stem, index.vocabulary)) {
       if (!variants.has(prefixed)) variants.set(prefixed, PREFIX_BOOST)
     }
+    // Last resort, and only for a Latin term: match on consonants alone.
+    // `kathmandu` is three edits from the romanization of काठमाडौं, which is
+    // outside the fuzzy radius; both reduce to `ktmd`.
+    const bones = isLatinToken(stem) ? skeleton(stem) : ''
+    if (bones && !variants.has(bones)) variants.set(bones, SKELETON_BOOST)
   }
 
   return [...variants.entries()].map(([variant, boost]) => ({ term: variant, boost }))

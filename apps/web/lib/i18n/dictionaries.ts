@@ -19,7 +19,8 @@ export const dictionary = {
     searchPlaceholder: 'शीर्षक, विषय वा लेखक खोज्नुहोस्…',
     searchHeading: 'खोज',
     searchEmptyQuery: 'खोज्न क्वेरी लेख्नुहोस्',
-    searchEmptyHint: 'शीर्षक, लेखक, विषय वा विभाग खोज्नुहोस्। देवनागरी वा अंग्रेजी दुवै चल्छ।',
+    searchEmptyHint:
+      'शीर्षक, लेखक, विषय वा विभाग खोज्नुहोस्। देवनागरी, अंग्रेजी र रोमन अक्षरको नेपाली तीनै चल्छ।',
     searchNoResults: 'कुनै परिणाम भेटिएन।',
     searchNoResultsHint: 'अर्को शब्द वा लेखकको नाम प्रयास गर्नुहोस्।',
     searchClear: 'खोज मेटाउनुहोस्',
@@ -172,7 +173,8 @@ export const dictionary = {
     searchPlaceholder: 'Search titles, topics or authors…',
     searchHeading: 'Search',
     searchEmptyQuery: 'Type a query to search',
-    searchEmptyHint: 'Search by title, author, topic or section. Devanagari or English both work.',
+    searchEmptyHint:
+      'Search by title, author, topic or section. Devanagari, English and Nepali typed in Latin all work.',
     searchNoResults: 'No results found.',
     searchNoResultsHint: 'Try another word or an author name.',
     searchClear: 'Clear search',
