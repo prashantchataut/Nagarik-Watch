@@ -19,6 +19,12 @@ updates:
       # first group whose rules it matches, so these must outrank the broad
       # dependency-type groups below or they never take effect.
       #
+      # Grouping here is a request, not a guarantee — PR #46 was grouped exactly
+      # as configured below and still shipped `@payloadcms/*` at 3.90.1 against
+      # `payload` 3.85.1. The invariant that actually holds is the
+      # `audit:dependency-lockstep` gate in `verify:static`; this config only
+      # keeps the common case to one reviewable PR.
+      #
       # Splitting one of these families across two PRs is not a noisy-review
       # problem, it is a broken build. PR #23 bumped `prisma` to 7 and left
       # `@prisma/client` on 6: the CLI is a devDependency and the client is a
