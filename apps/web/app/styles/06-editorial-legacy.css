@@ -74,7 +74,7 @@
 .news-hero h1,
 .section-page > header h1,
 .live-page > header h1 {
-  font-family: var(--font-mukta), var(--font-source-sans), sans-serif;
+  font-family: var(--font-mukta);
   font-size: clamp(2.4rem, 6vw, 5.5rem);
   line-height: 0.98;
   letter-spacing: -0.035em;
@@ -126,7 +126,7 @@
   object-fit: cover;
 }
 .lead-story h2 {
-  font-family: var(--font-mukta), var(--font-source-sans), sans-serif;
+  font-family: var(--font-mukta);
   font-size: clamp(2rem, 4.5vw, 4rem);
   line-height: 1.04;
   margin: 0.65rem 0;
@@ -156,7 +156,7 @@
   background: var(--surface-raised);
 }
 .story-river h2 {
-  font-family: var(--font-mukta), var(--font-source-sans), sans-serif;
+  font-family: var(--font-mukta);
   font-size: 1.45rem;
   line-height: 1.18;
   margin: 0.4rem 0;
@@ -205,7 +205,7 @@
   padding: clamp(2rem, 5vw, 5rem) 1rem;
 }
 .article-page h1 {
-  font-family: var(--font-mukta), var(--font-source-sans), sans-serif;
+  font-family: var(--font-mukta);
   font-size: clamp(2.5rem, 6vw, 5rem);
   line-height: 1.02;
   letter-spacing: -0.03em;
@@ -246,7 +246,7 @@
   margin: 2.2rem 0 0.8rem;
 }
 .article-body blockquote {
-  font-family: var(--font-mukta), var(--font-source-sans), sans-serif;
+  font-family: var(--font-mukta);
   font-size: 1.65rem;
   line-height: 1.35;
   margin: 2rem 0;

@@ -63,7 +63,7 @@ body {
 }
 
 .utility-tool-rail strong {
-  font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+  font-family: var(--font-mukta);
   font-size: 1rem;
   font-weight: 800;
   line-height: 1.25;
@@ -280,7 +280,6 @@ body {
   }
 }
 
-
 .contact-page section[aria-labelledby='contact-tip-title'],
 .contact-page section[aria-labelledby='contact-correction-title'] {
   border: 0;
@@ -355,7 +354,7 @@ body {
   border-top: 0;
   border-bottom-width: 2px;
   background: transparent;
-  font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+  font-family: var(--font-mukta);
   font-size: clamp(1.2rem, 2vw, 1.55rem);
 }
 
@@ -430,4 +429,3 @@ body {
     padding-left: 1.5rem;
   }
 }
-

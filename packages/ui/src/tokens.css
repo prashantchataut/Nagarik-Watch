@@ -21,14 +21,25 @@
  */
 
 :root {
-  /* Typography Stacks */
+  /* Typography Stacks — each one is COMPLETE. Use exactly one per rule.
+   *
+   * Every stack already ends in the script it cannot render itself, then the
+   * system fallbacks, then a generic. So `font-family: var(--font-mukta)` is
+   * the whole answer, and nesting two of them is not a longer fallback chain,
+   * it is a duplicated one. Naming the mukta and devanagari stacks together in
+   * one declaration resolved in Chrome to a 15-entry stack listing Mukta three
+   * times, Noto Sans Devanagari four, system-ui twice and sans-serif twice;
+   * nothing after the first occurrence of a family can ever be reached. That
+   * pattern was in 65 CSS declarations and all three Tailwind fontFamily
+   * entries. `pnpm audit:font-budget` now fails on a nested pair. */
   --font-mukta:
     var(--font-mukta-face), 'Mukta', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
   --font-devanagari:
     var(--font-devanagari-face), 'Noto Sans Devanagari', 'Mukta', system-ui, -apple-system,
     sans-serif;
   --font-source-sans:
-    var(--font-source-sans-face), 'Source Sans 3', system-ui, -apple-system, sans-serif;
+    var(--font-source-sans-face), 'Source Sans 3', 'Noto Sans Devanagari', system-ui, -apple-system,
+    sans-serif;
 
   /* Brand — Civic Crimson */
   --brand: oklch(0.55 0.18 25);

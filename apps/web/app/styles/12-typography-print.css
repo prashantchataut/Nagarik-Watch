@@ -141,7 +141,7 @@
 
 .reader-profile-link__title {
   margin-top: 0.18rem;
-  font-family: var(--font-mukta), var(--font-devanagari), sans-serif;
+  font-family: var(--font-mukta);
   font-size: 1.1rem;
   font-weight: 820;
   line-height: 1.25;
