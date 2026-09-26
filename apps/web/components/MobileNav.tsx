@@ -300,6 +300,19 @@ export function MobileNav({ locale, navCategories, account = null }: MobileNavPr
   )
 }
 
+/**
+ * The drawer markup is in the document on every page, open or not, so whatever
+ * these six group labels are, they are in the document outline. They used to be
+ * `<h2>`, which meant a reader navigating by heading met "News desks, Useful
+ * services, Province news, Readers, More, About Nagarik Watch" and two dialog
+ * headings before the headline of the page they had actually opened — the `<h1>`
+ * was the tenth heading in the document.
+ *
+ * A label on the list gives the group the same accessible name without taking a
+ * place in the outline: the group is announced as "list, News desks" when the
+ * drawer is entered, and the page headline is the first heading again. Not a
+ * `<section aria-labelledby>`, which would trade six headings for six landmarks.
+ */
 function DrawerSection({
   label,
   lang,
@@ -309,9 +322,11 @@ function DrawerSection({
   lang: 'en' | 'ne'
   children: ReactNode
 }) {
+  const labelId = useId()
   return (
-    <section className="mb-4 last:mb-0">
-      <h2
+    <div className="mb-4 last:mb-0">
+      <p
+        id={labelId}
         className={
           lang === 'en'
             ? 'px-2 pb-1 pt-2 text-caption font-extrabold uppercase tracking-[0.05em] text-mute'
@@ -320,9 +335,9 @@ function DrawerSection({
         lang={lang}
       >
         {label}
-      </h2>
-      <ul>{children}</ul>
-    </section>
+      </p>
+      <ul aria-labelledby={labelId}>{children}</ul>
+    </div>
   )
 }
 
@@ -343,7 +358,10 @@ function UtilityLink({
       onClick={onClick}
       className="flex min-h-12 items-center gap-2.5 border-b border-rule px-2 py-2 text-meta font-extrabold text-ink transition-colors duration-fast ease-out-quint hover:border-brand hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand"
     >
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center text-brand-strong" aria-hidden="true">
+      <span
+        className="flex h-6 w-6 shrink-0 items-center justify-center text-brand-strong"
+        aria-hidden="true"
+      >
         {icon}
       </span>
       <span className="min-w-0 leading-snug">{label}</span>

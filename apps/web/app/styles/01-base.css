@@ -55,6 +55,19 @@
     letter-spacing: -0.015em;
   }
 
+  /*
+   * `<small>` is used unstyled across the reader surfaces (patro tool meta,
+   * calendar event names, notification timestamps), and the UA default of 0.8em
+   * lands it at ~10.9px inside body copy — under DESIGN.md §3's 12px floor,
+   * which thin Devanagari strokes are the last thing that should go beneath.
+   * The floor is applied to the element rather than to each of the thirty-odd
+   * call sites, and `max()` keeps the relative scale wherever the parent is
+   * large enough for 0.8em to clear 12px on its own.
+   */
+  small {
+    font-size: max(0.75rem, 0.8em);
+  }
+
   /* Newspaper rule: headlines inherit ink. Brand color is for in-body links only. */
   a {
     color: inherit;

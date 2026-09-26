@@ -34,4 +34,4 @@
 @import './styles/12-typography-print.css'; /* 167 lines — Devanagari heading tuning, print styles, skeletons and reader profile links. */
 @import './styles/13-library-admin.css'; /* 454 lines — Saved library, admin metrics, admin media and ad ops. */
 @import './styles/14-sports.css'; /* 255 lines — Sports reporting, score boards and the reader desk. */
-@import './styles/15-devanagari-spacing.css'; /* Devanagari letter-spacing guard + kicker size floor. Imported last so it outranks the rules it corrects. */
+@import './styles/15-devanagari-spacing.css'; /* Devanagari letter-spacing guard. Imported last so it outranks the rules it corrects. */

@@ -44,11 +44,16 @@ spirit. No raw hex in components — colour reaches a component through a token.
 - **Latin/numerals**: Mukta + Noto Sans Devanagari fallback stack.
 - Lead headline **38–56px** (fluid `clamp`), support pair ~24–30px, rails and
   cards 16–19px, kickers 12–13px uppercase with a **12px floor**.
-- **letter-spacing is FORBIDDEN everywhere** — no tracking utilities, no
-  spaced-out wordmarks, in either Devanagari or Latin. Devanagari conjuncts and
-  matras require zero inter-glyph spacing to render correctly, and spaced Latin
-  small caps read as artificial. Hierarchy comes from weight, size and colour
-  only. ("NAGARIK WATCH", never "N A G A R I K W A T C H".)
+- **letter-spacing on Devanagari is FORBIDDEN.** Conjuncts and matras need zero
+  inter-glyph spacing to render correctly, so a tracked kicker is not off-brand,
+  it is harder to read. The rule is enforced once at the cascade, by a single
+  `:lang(ne)` reset in `app/styles/15-devanagari-spacing.css`, rather than class
+  by class — the class name never says which language the string will be. Latin
+  islands inside a Nepali page carry `lang="en"` and keep their tracking: tight
+  negative tracking on large Latin display type, and light positive tracking on
+  a 12px uppercase eyebrow, are both correct typography. What stays banned in
+  Latin too is the spaced-out wordmark: "NAGARIK WATCH", never
+  "N A G A R I K W A T C H". Hierarchy comes from weight, size and colour.
 
 Measure: article body **680px, centred**. Edition container **1180px**. Never
 justify body text; ragged right.
@@ -227,13 +232,16 @@ Rules that can be checked are checked, in `pnpm verify:static`:
 | ----------------------------------------------------- | ------------------------ |
 | No raw hex or off-token colour in components          | `audit:design-tokens`    |
 | Contrast on every token pair                          | `audit:contrast`         |
-| letter-spacing ban, kicker floor, banned UI patterns  | `audit:ui-bans`          |
+| Banned UI patterns, em-dashes in copy, home hierarchy | `audit:ui-bans`          |
 | Font weight and family budget                         | `audit:font-budget`      |
 | Labelled ad slots, never disguised                    | `audit:ads`              |
 | Internal links resolve                                | `audit:internal-links`   |
 | Reader shell mounts its chrome; no fixture journalism | `verify:repo-invariants` |
 
-`pnpm audit:live-ux` checks the rendered result — letter-spacing, touch targets,
-transfer weight, a11y — against a running production server, across routes and
-viewports. It needs an origin, so it is not in `verify:static`; run it before
+`pnpm audit:live-ux` checks the rendered result — Devanagari letter-spacing, the
+12px floor, touch targets, transfer weight, a11y — against a running production
+server, across routes and viewports. Letter-spacing and type size are checked
+there rather than in `verify:static` on purpose: a class name does not say which
+language it will render in, and only the browser knows the computed size after
+the cascade. It needs an origin, so it is not in `verify:static`; run it before
 calling a UI change done.

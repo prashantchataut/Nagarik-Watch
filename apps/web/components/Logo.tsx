@@ -100,10 +100,7 @@ export function Logo({
         </span>
         {!compact ? (
           <span
-            className={cn(
-              'mt-1.5 font-sans text-[0.7rem] font-bold tracking-[0.08em] sm:text-caption',
-              subClass,
-            )}
+            className={cn('mt-1.5 font-sans text-caption font-bold tracking-[0.08em]', subClass)}
             lang="en"
           >
             NAGARIK WATCH

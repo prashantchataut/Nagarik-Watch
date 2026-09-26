@@ -1,8 +1,8 @@
 /*
  * Devanagari letter-spacing guard.
  *
- * DESIGN.md §3 forbids letter-spacing, and gives the reason rather than a
- * preference: Devanagari conjuncts and matras need zero inter-glyph spacing to
+ * DESIGN.md §3 forbids letter-spacing on Devanagari, and gives the reason rather
+ * than a preference: conjuncts and matras need zero inter-glyph spacing to
  * render correctly, so a tracked kicker is not just off-brand, it is harder to
  * read. The rule was previously honoured element by element -- `.category-pill`
  * had its own `[lang='ne']` override, every React component that needed a kicker
@@ -24,21 +24,14 @@
  * This file is imported last on purpose. It is unlayered, so it outranks the
  * `@layer base` and `@layer components` rules it is correcting, and it sits
  * after them in source order so it also wins an equal-specificity tie.
+ *
+ * It used to also carry a font-size floor for four kickers. Those are now
+ * corrected in the rules that set them, because a size restated here is a size
+ * that reads as 11px everywhere you look for it and 12px only in the rendered
+ * page. Letter-spacing is different: it genuinely cannot be resolved where the
+ * class is written, because that is not where the language is known.
  */
 
 :lang(ne) {
   letter-spacing: normal;
-}
-
-/*
- * The same audit flagged the kickers below at 10.9-11.2px. DESIGN.md sets the
- * floor for a kicker at 12px, and thin Devanagari strokes are the last place to
- * go under it. These are size corrections, not layout changes: the rows are
- * line-height driven and none of the three sits in a fixed-height box.
- */
-.article-tools-bar__label,
-.article-tools-menu__label,
-.editorial-kicker,
-.section-kicker {
-  font-size: 0.75rem;
 }
