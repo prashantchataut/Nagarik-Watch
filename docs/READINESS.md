@@ -38,17 +38,17 @@ Every row below was run on this tree. Re-run them; do not trust the table.
 | Formatting is clean             | `pnpm format:check`  | pass                             |
 | Types check across all packages | `pnpm typecheck`     | 8/8 packages                     |
 | Lint is clean                   | `pnpm lint`          | clean                            |
-| Static gates pass               | `pnpm verify:static` | 18/18 gates                      |
+| Static gates pass               | `pnpm verify:static` | 19/19 gates                      |
 | Unit tests pass                 | `pnpm test`          | 983 tests, 138 files, 5 packages |
 
-The 18 gates in `verify:static`, in order:
+The 19 gates in `verify:static`, in order:
 
 ```
 verify:workspaces    verify:repo-invariants  verify:lockfile   verify:overrides
-audit:script-refs    audit:e2e-coverage      audit:env-docs    audit:payload-routes
-audit:public         audit:ads               audit:architecture audit:ui-bans
-audit:contrast       audit:design-tokens     audit:font-budget audit:internal-links
-launch:origin        launch:gate
+audit:dependency-lockstep                    audit:script-refs audit:e2e-coverage
+audit:env-docs       audit:payload-routes    audit:public      audit:ads
+audit:architecture   audit:ui-bans           audit:contrast    audit:design-tokens
+audit:font-budget    audit:internal-links    launch:origin     launch:gate
 ```
 
 This chain is the repository's strongest asset and is worth understanding before
@@ -321,7 +321,7 @@ Phase 2 is the critical path and it is the one no engineering shortens.
 ## Two different claims, and why conflating them is the failure this repo guards against
 
 **Engineering-ready** can be signed off on code alone, and is true today:
-formatting, lint, types, 983 unit tests, 18 static gates, both app builds, both
+formatting, lint, types, 983 unit tests, 19 static gates, both app builds, both
 Playwright suites, a live-UX sweep with zero findings, and every unknown URL
 answering 404 with no 200 producible by a render failure.
 
