@@ -8,6 +8,7 @@ import {
   isPublicControlStage,
   isValidHttpUrl,
   reviewTimestampFieldForStage,
+  normalizeCorrectionLedger,
   type WorkflowActor,
 } from '@nagarikwatch/db'
 import {
@@ -738,6 +739,14 @@ export const Articles: CollectionConfig = {
     {
       name: 'corrections',
       type: 'array',
+      access: {
+        create: canPublishField,
+        update: canPublishField,
+      },
+      admin: {
+        description:
+          'Append-only public record. Issued entries cannot be edited or deleted; add a new entry to clarify an earlier notice.',
+      },
       fields: [
         {
           name: 'at',
@@ -784,6 +793,17 @@ export const Articles: CollectionConfig = {
 
         if (operation === 'create' && req.user && !Array.isArray(data.assignedTo)) {
           data.assignedTo = [req.user.id]
+        }
+
+        if (Object.prototype.hasOwnProperty.call(data, 'corrections')) {
+          if (!req.user || !hasAnyRole(req.user, publishingRoles)) {
+            throw new Error('Only publishing roles may issue a public correction.')
+          }
+          data.corrections = normalizeCorrectionLedger({
+            previous: original.corrections,
+            proposed: data.corrections,
+            actorId: String(req.user.id),
+          })
         }
 
         if (full.sourceType && full.sourceType !== 'original') {
