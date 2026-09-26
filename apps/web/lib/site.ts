@@ -65,13 +65,9 @@ export const PUBLICATION = {
  * number) stay env-gated in PUBLICATION above.
  */
 export const NEWSROOM_DESKS = {
-  news:
-    process.env.NEXT_PUBLIC_NEWS_TIP_EMAIL?.trim() || 'news@nagarikwatch.com',
-  corrections:
-    process.env.NEXT_PUBLIC_CORRECTIONS_EMAIL?.trim() ||
-    'corrections@nagarikwatch.com',
-  advertising:
-    process.env.NEXT_PUBLIC_AD_SALES_EMAIL?.trim() || 'ads@nagarikwatch.com',
+  news: process.env.NEXT_PUBLIC_NEWS_TIP_EMAIL?.trim() || 'news@nagarikwatch.com',
+  corrections: process.env.NEXT_PUBLIC_CORRECTIONS_EMAIL?.trim() || 'corrections@nagarikwatch.com',
+  advertising: process.env.NEXT_PUBLIC_AD_SALES_EMAIL?.trim() || 'ads@nagarikwatch.com',
   general: process.env.NEXT_PUBLIC_NEWSROOM_EMAIL?.trim() || '',
 } as const
 
@@ -81,24 +77,106 @@ export const NEWSROOM_DESKS = {
  * mobile drawer and footer never collapse to a stub. Mirrors the seed desks.
  */
 export const FALLBACK_NAV_CATEGORIES = [
-  { id: 'cat-politics', slug: 'politics', nameNe: 'राजनीति', nameEn: 'Politics', navOrder: 1, showInNav: true },
-  { id: 'cat-society', slug: 'society', nameNe: 'समाज', nameEn: 'Society', navOrder: 2, showInNav: true },
-  { id: 'cat-business', slug: 'business', nameNe: 'बाजार', nameEn: 'Business', navOrder: 3, showInNav: true },
-  { id: 'cat-sports', slug: 'sports', nameNe: 'खेलकुद', nameEn: 'Sports', navOrder: 4, showInNav: true },
-  { id: 'cat-entertainment', slug: 'entertainment', nameNe: 'मनोरञ्जन', nameEn: 'Entertainment', navOrder: 5, showInNav: true },
-  { id: 'cat-world', slug: 'world', nameNe: 'विश्व', nameEn: 'World', navOrder: 6, showInNav: true },
-  { id: 'cat-opinion', slug: 'opinion', nameNe: 'विचार', nameEn: 'Opinion', navOrder: 7, showInNav: true },
-  { id: 'cat-literature', slug: 'literature', nameNe: 'साहित्य', nameEn: 'Literature', navOrder: 8, showInNav: true },
-  { id: 'cat-technology', slug: 'technology', nameNe: 'प्रविधि', nameEn: 'Technology', navOrder: 9, showInNav: true },
-  { id: 'cat-health', slug: 'health', nameNe: 'स्वास्थ्य', nameEn: 'Health', navOrder: 10, showInNav: true },
-  { id: 'cat-education', slug: 'education', nameNe: 'शिक्षा', nameEn: 'Education', navOrder: 11, showInNav: true },
-  { id: 'cat-diaspora', slug: 'diaspora', nameNe: 'प्रवास', nameEn: 'Diaspora', navOrder: 12, showInNav: false },
+  {
+    id: 'cat-politics',
+    slug: 'politics',
+    nameNe: 'राजनीति',
+    nameEn: 'Politics',
+    navOrder: 1,
+    showInNav: true,
+  },
+  {
+    id: 'cat-society',
+    slug: 'society',
+    nameNe: 'समाज',
+    nameEn: 'Society',
+    navOrder: 2,
+    showInNav: true,
+  },
+  {
+    id: 'cat-business',
+    slug: 'business',
+    nameNe: 'बाजार',
+    nameEn: 'Business',
+    navOrder: 3,
+    showInNav: true,
+  },
+  {
+    id: 'cat-sports',
+    slug: 'sports',
+    nameNe: 'खेलकुद',
+    nameEn: 'Sports',
+    navOrder: 4,
+    showInNav: true,
+  },
+  {
+    id: 'cat-entertainment',
+    slug: 'entertainment',
+    nameNe: 'मनोरञ्जन',
+    nameEn: 'Entertainment',
+    navOrder: 5,
+    showInNav: true,
+  },
+  {
+    id: 'cat-world',
+    slug: 'world',
+    nameNe: 'विश्व',
+    nameEn: 'World',
+    navOrder: 6,
+    showInNav: true,
+  },
+  {
+    id: 'cat-opinion',
+    slug: 'opinion',
+    nameNe: 'विचार',
+    nameEn: 'Opinion',
+    navOrder: 7,
+    showInNav: true,
+  },
+  {
+    id: 'cat-literature',
+    slug: 'literature',
+    nameNe: 'साहित्य',
+    nameEn: 'Literature',
+    navOrder: 8,
+    showInNav: true,
+  },
+  {
+    id: 'cat-technology',
+    slug: 'technology',
+    nameNe: 'प्रविधि',
+    nameEn: 'Technology',
+    navOrder: 9,
+    showInNav: true,
+  },
+  {
+    id: 'cat-health',
+    slug: 'health',
+    nameNe: 'स्वास्थ्य',
+    nameEn: 'Health',
+    navOrder: 10,
+    showInNav: true,
+  },
+  {
+    id: 'cat-education',
+    slug: 'education',
+    nameNe: 'शिक्षा',
+    nameEn: 'Education',
+    navOrder: 11,
+    showInNav: true,
+  },
+  {
+    id: 'cat-diaspora',
+    slug: 'diaspora',
+    nameNe: 'प्रवास',
+    nameEn: 'Diaspora',
+    navOrder: 12,
+    showInNav: false,
+  },
 ] as const
 
 /** Canonical taxonomy lookup for fail-safe metadata and page shells. */
-export function canonicalCategoryBySlug(
-  slug: string,
-): { nameNe: string; nameEn: string } | null {
+export function canonicalCategoryBySlug(slug: string): { nameNe: string; nameEn: string } | null {
   const match = FALLBACK_NAV_CATEGORIES.find((category) => category.slug === slug)
   return match ? { nameNe: match.nameNe, nameEn: match.nameEn } : null
 }
@@ -424,15 +502,39 @@ export const PROVINCES = [
   { slug: 'sudurpashchim', nameNe: 'सुदूरपश्चिम', nameEn: 'Sudurpashchim' },
 ] as const
 
-/** District desks that ship with the build. /district/[slug] prerenders these and
- *  the sitemap advertises them, so the two lists must stay one source. */
-export const DISTRICT_SLUGS = [
-  'kathmandu',
-  'lalitpur',
-  'pokhara',
-  'biratnagar',
-  'bharatpur',
-] as const
+/** District desks that ship with the build. /district/[slug] prerenders these,
+ *  the sitemap advertises them, and the route 404s on anything else, so the
+ *  three stay one source.
+ *
+ *  These are districts, not the cities inside them. Pokhara is in Kaski,
+ *  Biratnagar in Morang, Bharatpur in Chitwan — a desk headed "पोखरा जिल्ला"
+ *  is the kind of mistake a Nepali reader notices before the first paragraph.
+ *  The name is carried here rather than title-cased from the slug, because
+ *  title-casing a slug cannot produce Devanagari. */
+export const DISTRICTS = [
+  { slug: 'kathmandu', nameNe: 'काठमाडौं', nameEn: 'Kathmandu', province: 'bagmati' },
+  { slug: 'lalitpur', nameNe: 'ललितपुर', nameEn: 'Lalitpur', province: 'bagmati' },
+  { slug: 'kaski', nameNe: 'कास्की', nameEn: 'Kaski', province: 'gandaki' },
+  { slug: 'morang', nameNe: 'मोरङ', nameEn: 'Morang', province: 'koshi' },
+  { slug: 'chitwan', nameNe: 'चितवन', nameEn: 'Chitwan', province: 'bagmati' },
+] as const satisfies readonly {
+  slug: string
+  nameNe: string
+  nameEn: string
+  province: (typeof PROVINCES)[number]['slug']
+}[]
+
+export type District = (typeof DISTRICTS)[number]
+
+export const DISTRICT_SLUGS = DISTRICTS.map(
+  (district) => district.slug,
+) as readonly District['slug'][]
+
+/** Null for a slug no desk exists for, so the route can 404 instead of inventing
+ *  a district. */
+export function findDistrict(slug: string): District | null {
+  return DISTRICTS.find((district) => district.slug === slug) ?? null
+}
 
 /** Secondary nav rail — utility hubs a national portal surfaces above the
  *  section nav. Drawn from STATIC_HUBS so the rail stays in sync with the hub registry. */
