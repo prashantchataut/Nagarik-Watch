@@ -5,6 +5,7 @@
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { homeRoutePath } from './lib/home-route.mjs'
 
 const ROOT = process.cwd()
 const SCAN_ROOTS = [
@@ -67,7 +68,7 @@ for (const file of files) {
 // Homepage hierarchy invariants. The active opening package is the locked portal feed:
 // 3–5 centered display stories, with exactly one priority H1 inside MegaStoryBlock.
 const homePagePath = join(ROOT, 'apps/web/components/home/HomePage.tsx')
-const localeHomeRoutePath = join(ROOT, 'apps/web/app/[locale]/page.tsx')
+const localeHomeRoutePath = join(ROOT, homeRoutePath(ROOT))
 const portalFeedPath = join(ROOT, 'apps/web/components/home/PortalFeed.tsx')
 const megaStoryPath = join(ROOT, 'apps/web/components/home/MegaStoryBlock.tsx')
 

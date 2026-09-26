@@ -1,6 +1,8 @@
 import { staticDistrictParams } from '@/lib/static-export-params'
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { PublicHubPage } from '@/components/PublicHubPage'
+import { findDistrict } from '@/lib/site'
 import { asLocale, localizeHref } from '@/lib/i18n/locales'
 
 export const dynamic = 'force-static'
@@ -9,15 +11,12 @@ export function generateStaticParams() {
   return staticDistrictParams()
 }
 
-/** Title-case slug words for English; keep slug readable for Nepali until a district catalog exists. */
-function districtTitle(slug: string, locale: 'ne' | 'en'): string {
-  const words = slug.split('-').filter(Boolean)
-  if (locale === 'en') {
-    return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-  }
-  return words.join(' ')
-}
-
+/**
+ * District desk. `force-static` renders unlisted params at request time, so a
+ * slug with no desk behind it has to be turned away here — otherwise
+ * /district/anything answers 200 with a fabricated heading and no stories,
+ * which is the soft 404 that keeps a site out of Google News.
+ */
 export default async function Page({
   params,
 }: {
@@ -25,19 +24,20 @@ export default async function Page({
 }) {
   const { locale: raw, slug } = await params
   const locale = asLocale(raw)
-  const titleNe = districtTitle(slug, 'ne')
-  const titleEn = districtTitle(slug, 'en')
+  const district = findDistrict(slug)
+  if (!district) notFound()
+
   return (
     <PublicHubPage
       locale={locale}
-      district={slug}
+      district={district.slug}
       hub={{
         key: 'archive',
-        path: `/district/${slug}`,
-        titleNe,
-        titleEn,
-        leadNe: `${titleNe} जिल्लाका प्रकाशित सामग्री र स्थानीय अपडेट।`,
-        leadEn: `Published stories and local updates from ${titleEn} District.`,
+        path: `/district/${district.slug}`,
+        titleNe: district.nameNe,
+        titleEn: district.nameEn,
+        leadNe: `${district.nameNe} जिल्लाका प्रकाशित सामग्री र स्थानीय अपडेट।`,
+        leadEn: `Published stories and local updates from ${district.nameEn} District.`,
         mode: 'editorial',
       }}
     />
@@ -51,8 +51,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params
   const loc = asLocale(locale)
+  const district = findDistrict(slug)
+  if (!district) return { title: 'Not found', robots: { index: false, follow: false } }
   return {
-    title: districtTitle(slug, loc === 'en' ? 'en' : 'ne'),
-    alternates: { canonical: localizeHref(loc, `/district/${slug}`) },
+    title: loc === 'en' ? `${district.nameEn} District` : `${district.nameNe} जिल्ला`,
+    alternates: { canonical: localizeHref(loc, `/district/${district.slug}`) },
   }
 }

@@ -15,7 +15,9 @@ const TRUST_PATHS = [
 
 // Paths the proxy rejects on shape or locale duplication. These never reach the
 // App Router, so the proxy answers them itself and the status is a true 404.
-const HARD_404_PATHS = ['/en/ne', '/en/en', '/_not-a-route', '/Politics']
+// `/district/*` reaches the App Router: it renders unlisted params at request
+// time, so the page turns an unknown desk away itself rather than inventing one.
+const HARD_404_PATHS = ['/en/ne', '/en/en', '/_not-a-route', '/Politics', '/district/nope']
 
 // Public URLs keep Nepali at the root; `/ne/*` is the internal form. Asking for
 // it is not an error, so the proxy canonicalises with a 308 instead of 404'ing.
