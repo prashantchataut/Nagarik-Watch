@@ -81,7 +81,6 @@
 
   /* Reader focus mode: calm column, quieter chrome and ads. */
   html.reader-focus-mode .nw-masthead__topics,
-  html.reader-focus-mode .nw-masthead__chrome .nw-masthead__utility,
   body.reader-focus-mode .nw-masthead__topics {
     display: none;
   }
@@ -145,12 +144,6 @@
     animation: none;
     flex-wrap: wrap;
     white-space: normal;
-  }
-}
-
-@supports (padding: max(0px)) {
-  .safe-bottom {
-    padding-bottom: max(4rem, env(safe-area-inset-bottom));
   }
 }
 
