@@ -8,6 +8,7 @@ import {
   isPublicControlStage,
   isValidHttpUrl,
   reviewTimestampFieldForStage,
+  correctionLedgersMatch,
   normalizeCorrectionLedger,
   type WorkflowActor,
 } from '@nagarikwatch/db'
@@ -795,7 +796,16 @@ export const Articles: CollectionConfig = {
           data.assignedTo = [req.user.id]
         }
 
-        if (Object.prototype.hasOwnProperty.call(data, 'corrections')) {
+        // Read-modify-write is the normal way to use the REST API, and the admin
+        // form round-trips the whole document, so `corrections` being *present*
+        // says nothing about whether it changed. Requiring a publishing role on
+        // mere presence told a reporter fixing a typo that only publishing roles
+        // may issue a correction, and made every corrected article uneditable by
+        // anyone below that role. The role gates the act of issuing one.
+        if (
+          Object.prototype.hasOwnProperty.call(data, 'corrections') &&
+          !correctionLedgersMatch(original.corrections, data.corrections)
+        ) {
           if (!req.user || !hasAnyRole(req.user, publishingRoles)) {
             throw new Error('Only publishing roles may issue a public correction.')
           }
