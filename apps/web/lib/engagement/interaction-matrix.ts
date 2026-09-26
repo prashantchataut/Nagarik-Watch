@@ -11,14 +11,26 @@
  */
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { processState } from '@/lib/runtime/process-singleton'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here is one cache and one
+ * write queue per layer -- which is two locks, and two locks are no lock: a
+ * concurrent read-modify-write on the same JSON file interleaves and drops one
+ * of the writes. `processState` keys off `globalThis`, the only scope both
+ * layers share. See lib/runtime/process-singleton.ts for the evidence.
+ */
+const local = processState('engagement-interaction-matrix:local', () => ({
+  cache: null as LocalRow[] | null,
+  write: Promise.resolve() as Promise<void>,
+}))
 
 export type InteractionMatrix = Record<string, Record<string, number>>
 
 type LocalRow = { ownerKey: string; articleSlug: string; weight: number; updatedAt: string }
 
 const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'interactions.json')
-let localCache: LocalRow[] | null = null
-let localWrite: Promise<void> = Promise.resolve()
 
 async function getPool(): Promise<{
   query: (sql: string, params?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>> }>
@@ -43,23 +55,23 @@ async function getPool(): Promise<{
 }
 
 async function readLocal(): Promise<LocalRow[]> {
-  if (localCache) return localCache
+  if (local.cache) return local.cache
   try {
     const raw = await fs.readFile(LOCAL_FILE, 'utf-8')
-    localCache = JSON.parse(raw) as LocalRow[]
+    local.cache = JSON.parse(raw) as LocalRow[]
   } catch {
-    localCache = []
+    local.cache = []
   }
-  return localCache
+  return local.cache
 }
 
 async function writeLocal(rows: LocalRow[]): Promise<void> {
-  localWrite = localWrite.then(async () => {
+  local.write = local.write.then(async () => {
     await fs.mkdir(path.dirname(LOCAL_FILE), { recursive: true })
     await fs.writeFile(LOCAL_FILE, JSON.stringify(rows.slice(-20_000)), 'utf-8')
-    localCache = rows
+    local.cache = rows
   })
-  await localWrite
+  await local.write
 }
 
 export async function recordInteraction(
@@ -136,5 +148,5 @@ export function matrixReaderCount(matrix: InteractionMatrix): number {
 
 /** Test helper — clears the in-memory local cache between vitest cases. */
 export function __resetInteractionMatrixCacheForTests(): void {
-  localCache = null
+  local.cache = null
 }

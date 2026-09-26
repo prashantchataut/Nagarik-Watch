@@ -14,6 +14,31 @@ describe('stripInline', () => {
       'जरुरी कुरा यो स्रोत',
     )
   })
+
+  it('survives a stored block whose text field is missing', () => {
+    // The type requires `text`; a stored row does not. A throw here used to
+    // take down the whole article render behind a 200 and the error UI.
+    expect(stripInline(undefined)).toBe('')
+    expect(stripInline(null)).toBe('')
+  })
+})
+
+describe('extractFaqPairs with malformed stored blocks', () => {
+  it('drops the malformed section instead of throwing', () => {
+    const brokenHeading = { type: 'heading2' } as unknown as ArticleBlock
+    const brokenParagraph = { type: 'paragraph' } as unknown as ArticleBlock
+    expect(() =>
+      extractFaqPairs([
+        brokenHeading,
+        brokenParagraph,
+        h2('कति समय लाग्छ?'),
+        para(LONG),
+        h2('कहाँ जाने?'),
+        para(LONG),
+      ]),
+    ).not.toThrow()
+    expect(extractFaqPairs([brokenHeading, brokenParagraph])).toEqual([])
+  })
 })
 
 describe('extractFaqPairs', () => {

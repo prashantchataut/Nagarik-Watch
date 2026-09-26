@@ -45,6 +45,7 @@ export default async function JournalistDashboard({
       locale={locale}
       name={session.displayName || session.email}
       roleLabel={roleLabel}
+      role={session.newsroomRole}
       active="dashboard"
     >
       <main className="newsroom-page">

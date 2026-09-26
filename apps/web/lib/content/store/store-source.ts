@@ -25,8 +25,26 @@ import * as store from './json-store'
 import type { StoredArticle } from './json-store'
 import { placeholder } from '../seed/media'
 import { normalizeLegacyHeroUrl } from '../media-compat'
+import { processState } from '@/lib/runtime/process-singleton'
 import { listContentAuthors, listContentCategories, listContentTags } from '@/lib/taxonomy-admin'
 import { isProductionRuntime } from '@/lib/ops-db'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('store-source-taxonomy:local', () => ({
+  taxonomyCache: null as {
+    expiresAt: number
+    value: TaxonomyCatalog
+  } | null,
+}))
 
 const PER_PAGE = 12
 
@@ -74,10 +92,6 @@ function resolveHero(a: StoredArticle) {
 }
 
 type TaxonomyCatalog = { authors: Author[]; tags: Tag[]; categories: Category[] }
-let taxonomyCache: {
-  expiresAt: number
-  value: TaxonomyCatalog
-} | null = null
 const TAXONOMY_CACHE_TTL_MS = 15_000
 
 function toCard(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatalog): StoryCardData {
@@ -179,8 +193,8 @@ function toFullArticle(a: StoredArticle, locale: Locale, catalog?: TaxonomyCatal
 }
 
 async function loadCatalog(): Promise<TaxonomyCatalog> {
-  if (taxonomyCache && taxonomyCache.expiresAt > Date.now()) {
-    return taxonomyCache.value
+  if (local.taxonomyCache && local.taxonomyCache.expiresAt > Date.now()) {
+    return local.taxonomyCache.value
   }
   const [categoryList, tagList, authorList] = await Promise.all([
     listContentCategories(),
@@ -188,7 +202,7 @@ async function loadCatalog(): Promise<TaxonomyCatalog> {
     listContentAuthors(),
   ])
   const value = { categories: categoryList, tags: tagList, authors: authorList }
-  taxonomyCache = { value, expiresAt: Date.now() + TAXONOMY_CACHE_TTL_MS }
+  local.taxonomyCache = { value, expiresAt: Date.now() + TAXONOMY_CACHE_TTL_MS }
   return value
 }
 

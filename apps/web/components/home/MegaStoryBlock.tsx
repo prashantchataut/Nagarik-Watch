@@ -73,7 +73,9 @@ export function MegaStoryBlock({
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
       <article className={`group min-w-0 ${className}`.trim()}>
-        <div className={lead ? 'mx-auto max-w-[68rem] pb-5 pt-3 text-center sm:pb-7 sm:pt-5' : 'pb-4'}>
+        <div
+          className={lead ? 'mx-auto max-w-[68rem] pb-5 pt-3 text-center sm:pb-7 sm:pt-5' : 'pb-4'}
+        >
           <CategoryLabel category={story.category} locale={locale} as="span" />
           <div className="mt-2">{headline}</div>
           {deck ? (
@@ -88,11 +90,13 @@ export function MegaStoryBlock({
               {deck}
             </p>
           ) : null}
-          <div className={`mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-meta text-ink-soft ${lead ? 'justify-center' : ''}`}>
+          <div
+            className={`mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-meta text-ink-soft ${lead ? 'justify-center' : ''}`}
+          >
             {author ? (
               <Link
                 href={localizeHref(locale, `/author/${author.slug}`)}
-                className="font-bold text-ink hover:text-brand-strong hover:underline"
+                className="inline-flex min-h-6 items-center font-bold text-ink hover:text-brand-strong hover:underline"
                 lang={titleLang}
               >
                 {author.name}

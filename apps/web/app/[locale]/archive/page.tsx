@@ -212,6 +212,8 @@ export default async function ArchivePage({
                       <Link
                         href={href}
                         className="relative hidden aspect-[4/3] overflow-hidden bg-surface-raised sm:block"
+                        tabIndex={-1}
+                        aria-hidden="true"
                       >
                         <Image
                           src={story.heroImage.url}

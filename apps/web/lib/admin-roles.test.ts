@@ -58,4 +58,29 @@ describe('adminPathOutcome', () => {
     expect(adminPathOutcome('viewer', '/admin/dashboard')).toBe('allow')
     expect(adminPathOutcome('reader', '/admin/dashboard')).toBe('deny')
   })
+
+  it('treats the article desk as editorial, not as a default-allow path', () => {
+    // /admin/articles held every unpublished draft and had no rule, so it
+    // inherited the fail-open fallback above. The sidebar already hides the
+    // entry from ops desks, so this closes the URL and the API behind it
+    // rather than removing a link anybody can see.
+    expect(adminPathOutcome('section_editor', '/admin/articles')).toBe('allow')
+    expect(adminPathOutcome('section_editor', '/admin/articles/abc/edit')).toBe('allow')
+    expect(adminPathOutcome('copy_editor', '/admin/articles')).toBe('allow')
+    expect(adminPathOutcome('fact_checker', '/admin/articles')).toBe('allow')
+    expect(adminPathOutcome('viewer', '/admin/articles')).toBe('deny')
+    expect(adminPathOutcome('analyst', '/admin/articles')).toBe('deny')
+    expect(adminPathOutcome('moderator', '/admin/articles')).toBe('deny')
+    expect(adminPathOutcome('ad_manager', '/admin/articles')).toBe('deny')
+  })
+
+  it('lets a photo editor reach the media desk without leaving the journalist desk', () => {
+    // `photo_video_editor` is in JOURNALIST_DESK_ROLES, so every /admin path
+    // used to redirect it away, which made its MEDIA_MANAGER_ROLES entry
+    // unreachable. The grant is narrow on purpose.
+    expect(adminPathOutcome('photo_video_editor', '/admin/media')).toBe('allow')
+    expect(adminPathOutcome('photo_video_editor', '/admin/media/upload')).toBe('allow')
+    expect(adminPathOutcome('photo_video_editor', '/admin/dashboard')).toBe('journalist-desk')
+    expect(adminPathOutcome('journalist', '/admin/media')).toBe('journalist-desk')
+  })
 })

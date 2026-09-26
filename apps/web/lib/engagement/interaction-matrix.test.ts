@@ -1,6 +1,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { clearProcessSingleton } from '@/lib/runtime/process-singleton'
 
 const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'interactions.json')
 
@@ -12,8 +13,12 @@ describe('interaction-matrix (local file fallback)', () => {
   beforeEach(async () => {
     delete process.env.DATABASE_URL
     await resetLocalFile()
-    // Module keeps an in-memory cache of the local file, so it must be reset
-    // alongside the file itself for tests to observe a clean slate.
+    // The local cache is process-scoped on purpose (see process-singleton.ts),
+    // so `vi.resetModules()` alone no longer clears it -- surviving a module
+    // re-evaluation is the whole point of the change. Clearing the registry
+    // entry only helps if the module is then re-evaluated, because the module
+    // holds the object processState() handed it; hence both calls.
+    clearProcessSingleton('engagement-interaction-matrix:local')
     vi.resetModules()
   })
 

@@ -1,0 +1,44 @@
+/*
+ * Devanagari letter-spacing guard.
+ *
+ * DESIGN.md §3 forbids letter-spacing, and gives the reason rather than a
+ * preference: Devanagari conjuncts and matras need zero inter-glyph spacing to
+ * render correctly, so a tracked kicker is not just off-brand, it is harder to
+ * read. The rule was previously honoured element by element -- `.category-pill`
+ * had its own `[lang='ne']` override, every React component that needed a kicker
+ * gated the utility class on `locale === 'en'` -- and the ones nobody remembered
+ * stayed wrong. A rendered audit of the article page found two of them:
+ * `.editorial-kicker` spacing out "पाठक संवाद" at 0.16em and
+ * `.article-tools-bar__label` spacing out "अक्षर आकार" at 0.06em, both of which
+ * the source-level gate could not see because the class name says nothing about
+ * the language it will render in.
+ *
+ * So the rule is enforced once, at the cascade, for every element the browser
+ * knows is Nepali. `:lang(ne)` is inherited, so a single `lang` on the wrapper
+ * covers the whole subtree, and Latin islands inside a Nepali page -- the
+ * `NAGARIK WATCH` eyebrow carries `lang="en"` -- keep their tracking, which is
+ * correct: negative tracking on large Latin display type is good typography and
+ * DESIGN.md's objection is specifically about Devanagari and spaced-out
+ * wordmarks.
+ *
+ * This file is imported last on purpose. It is unlayered, so it outranks the
+ * `@layer base` and `@layer components` rules it is correcting, and it sits
+ * after them in source order so it also wins an equal-specificity tie.
+ */
+
+:lang(ne) {
+  letter-spacing: normal;
+}
+
+/*
+ * The same audit flagged the kickers below at 10.9-11.2px. DESIGN.md sets the
+ * floor for a kicker at 12px, and thin Devanagari strokes are the last place to
+ * go under it. These are size corrections, not layout changes: the rows are
+ * line-height driven and none of the three sits in a fixed-height box.
+ */
+.article-tools-bar__label,
+.article-tools-menu__label,
+.editorial-kicker,
+.section-kicker {
+  font-size: 0.75rem;
+}

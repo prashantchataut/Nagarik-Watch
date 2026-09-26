@@ -45,7 +45,12 @@ export async function HomeSportsLive({ locale }: { locale: Locale }) {
     >
       <header className="flex items-end justify-between gap-4 border-b-2 border-ink pb-2.5">
         <div>
-          <p className="text-caption font-extrabold uppercase tracking-[0.12em] text-brand-strong">
+          <p
+            className={`text-caption font-extrabold uppercase text-brand-strong ${
+              ne ? 'tracking-normal' : 'tracking-[0.12em]'
+            }`}
+            lang={ne ? 'ne' : 'en'}
+          >
             {ne ? 'प्रदायक फिड' : 'Provider feed'}
           </p>
           <h2
@@ -155,10 +160,10 @@ function HomeScoreRow({
 }) {
   return (
     <li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 py-3">
-      <p className="truncate text-[0.68rem] font-bold uppercase tracking-[0.08em] text-mute">
+      <p className="truncate text-caption font-bold uppercase tracking-[0.08em] text-mute">
         {league}
       </p>
-      <span className={`text-[0.68rem] font-extrabold ${live ? 'text-breaking' : 'text-mute'}`}>
+      <span className={`text-caption font-extrabold ${live ? 'text-breaking' : 'text-mute'}`}>
         {status}
       </span>
       <div className="min-w-0 text-meta font-extrabold leading-snug text-ink">

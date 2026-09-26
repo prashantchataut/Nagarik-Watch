@@ -71,6 +71,7 @@ export default async function JournalistToolsPage({
       locale={locale}
       name={session.displayName || session.email}
       roleLabel={roleLabel}
+      role={session.newsroomRole}
       active="tools"
     >
       <main className="newsroom-page">

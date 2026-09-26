@@ -9,8 +9,22 @@ import {
   toIso,
   type Queryable,
 } from '@/lib/ops-db'
+import { processState } from '@/lib/runtime/process-singleton'
 import { getPollVoteCounts } from '@/lib/engagement/store'
 import { dataPath } from '@/lib/fs/data-path'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here is one cache and one
+ * write queue per layer -- which is two locks, and two locks are no lock: a
+ * concurrent read-modify-write on the same JSON file interleaves and drops one
+ * of the writes. `processState` keys off `globalThis`, the only scope both
+ * layers share. See lib/runtime/process-singleton.ts for the evidence.
+ */
+const local = processState('polls-admin:local', () => ({
+  cache: null as Poll[] | null,
+  write: Promise.resolve() as Promise<void>,
+}))
 
 export type Poll = {
   id: string
@@ -33,32 +47,30 @@ type Row = {
 }
 
 const LOCAL_FILE = dataPath(process.env.POLLS_STORE_PATH, 'polls.json')
-let localCache: Poll[] | null = null
-let localWrite: Promise<void> = Promise.resolve()
 
 async function readLocal(): Promise<Poll[]> {
-  if (localCache) return localCache
+  if (local.cache) return local.cache
   try {
     const parsed = JSON.parse(await fs.readFile(LOCAL_FILE, 'utf8')) as { polls?: Poll[] }
-    localCache = Array.isArray(parsed.polls) ? parsed.polls : []
+    local.cache = Array.isArray(parsed.polls) ? parsed.polls : []
   } catch (error) {
     const code =
       error instanceof Error && 'code' in error ? String((error as NodeJS.ErrnoException).code) : ''
     if (code !== 'ENOENT') throw error
-    localCache = []
+    local.cache = []
   }
-  return localCache
+  return local.cache
 }
 
 async function writeLocal(polls: Poll[]): Promise<void> {
-  localCache = polls
-  localWrite = localWrite.then(async () => {
+  local.cache = polls
+  local.write = local.write.then(async () => {
     await fs.mkdir(path.dirname(LOCAL_FILE), { recursive: true })
     const temporary = `${LOCAL_FILE}.${process.pid}.tmp`
     await fs.writeFile(temporary, JSON.stringify({ version: 1, polls }, null, 2), 'utf8')
     await fs.rename(temporary, LOCAL_FILE)
   })
-  await localWrite
+  await local.write
 }
 
 async function ensureSchema(): Promise<Queryable | null> {
