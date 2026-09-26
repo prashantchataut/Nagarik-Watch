@@ -80,12 +80,15 @@ export function BottomNav({ locale, accountHref }: BottomNavProps) {
           return (
             <li key={item.key} className="relative flex-1">
               {active ? (
-                <span className="absolute inset-x-3 top-0 h-0.5 bg-brand-strong" aria-hidden="true" />
+                <span
+                  className="absolute inset-x-3 top-0 h-0.5 bg-brand-strong"
+                  aria-hidden="true"
+                />
               ) : null}
               <Link
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
-                className={`flex h-14 w-full flex-col items-center justify-center gap-0.5 px-1 text-[0.6875rem] transition-colors duration-fast ease-out-quint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand ${
+                className={`flex h-14 w-full flex-col items-center justify-center gap-0.5 px-1 text-caption transition-colors duration-fast ease-out-quint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand ${
                   active
                     ? 'font-extrabold text-brand-strong'
                     : 'font-semibold text-ink-soft hover:text-brand-strong'

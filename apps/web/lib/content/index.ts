@@ -12,21 +12,34 @@ import type { ContentSource, StoryListOptions } from './source'
 import { contentSourceFingerprint, resolveContentSource } from './resolve-content-source'
 import { isPayloadCanonical, isPayloadDeclared } from './payload-admin-client'
 import { readHomepageSnapshot, writeHomepageSnapshot } from './public-snapshot'
+import { processState } from '@/lib/runtime/process-singleton'
 
-let cached: { key: string; source: Promise<ContentSource> } | null = null
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('content-source:local', () => ({
+  cached: null as { key: string; source: Promise<ContentSource> } | null,
+}))
 
 async function source(): Promise<ContentSource> {
   const key = contentSourceFingerprint()
-  if (!cached || cached.key !== key) {
-    cached = {
+  if (!local.cached || local.cached.key !== key) {
+    local.cached = {
       key,
       source: resolveContentSource().catch((error) => {
-        if (cached?.key === key) cached = null
+        if (local.cached?.key === key) local.cached = null
         throw error
       }),
     }
   }
-  return cached.source
+  return local.cached.source
 }
 
 export async function getArticleBySlug(

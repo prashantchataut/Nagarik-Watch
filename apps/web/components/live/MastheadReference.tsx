@@ -48,7 +48,7 @@ export async function MastheadReference({ locale }: MastheadReferenceProps) {
             </span>
           </span>
           {updated ? (
-            <span className="hidden shrink-0 text-[0.68rem] text-on-chrome-soft 2xl:inline">
+            <span className="hidden shrink-0 text-caption text-on-chrome-soft 2xl:inline">
               {updated}
             </span>
           ) : null}

@@ -3,9 +3,23 @@
  * exploration. Consent-gated on the client; stored anonymously by article slug.
  */
 import 'server-only'
+import { processState } from '@/lib/runtime/process-singleton'
 import { ensureOperationalSchema, isProductionRuntime, type Queryable } from '@/lib/ops-db'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here is one cache and one
+ * write queue per layer -- which is two locks, and two locks are no lock: a
+ * concurrent read-modify-write on the same JSON file interleaves and drops one
+ * of the writes. `processState` keys off `globalThis`, the only scope both
+ * layers share. See lib/runtime/process-singleton.ts for the evidence.
+ */
+const local = processState('engagement-ranking-events:local', () => ({
+  cache: null as LocalEvent[] | null,
+  write: Promise.resolve() as Promise<void>,
+}))
 
 export type RankingEventType = 'impression' | 'click' | 'share'
 
@@ -31,8 +45,6 @@ type LocalEvent = {
 
 const SCHEMA_KEY = 'nw-ranking-events-v1'
 const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'ranking-events.json')
-let localCache: LocalEvent[] | null = null
-let localWrite: Promise<void> = Promise.resolve()
 
 async function ensureTable(pool: Queryable): Promise<void> {
   await pool.query(`
@@ -55,23 +67,23 @@ async function getPool(): Promise<Queryable | null> {
 }
 
 async function readLocal(): Promise<LocalEvent[]> {
-  if (localCache) return localCache
+  if (local.cache) return local.cache
   try {
     const raw = await fs.readFile(LOCAL_FILE, 'utf-8')
-    localCache = JSON.parse(raw) as LocalEvent[]
+    local.cache = JSON.parse(raw) as LocalEvent[]
   } catch {
-    localCache = []
+    local.cache = []
   }
-  return localCache
+  return local.cache
 }
 
 async function writeLocal(events: LocalEvent[]): Promise<void> {
-  localWrite = localWrite.then(async () => {
+  local.write = local.write.then(async () => {
     await fs.mkdir(path.dirname(LOCAL_FILE), { recursive: true })
     await fs.writeFile(LOCAL_FILE, JSON.stringify(events.slice(-5000)), 'utf-8')
-    localCache = events
+    local.cache = events
   })
-  await localWrite
+  await local.write
 }
 
 export async function recordRankingEvent(input: {

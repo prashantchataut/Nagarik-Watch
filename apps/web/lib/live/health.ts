@@ -1,3 +1,4 @@
+import { processState } from '@/lib/runtime/process-singleton'
 import { getDisasterAlerts } from '@/lib/live/disaster'
 import { getManualLiveRecord } from '@/lib/live/manual'
 import {
@@ -11,6 +12,20 @@ import { getCricketScores, getFootballScores } from '@/lib/live/sports'
 import { getCalendarProviderState } from '@/lib/calendar-provider'
 import { getPublishedCalendarSchedule } from '@/lib/calendar-schedule'
 import type { LiveDataEnvelope, LiveValue } from '@/lib/live/types'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('live-health:local', () => ({
+  healthCache: null as { at: number; value: ProviderHealth[] } | null,
+}))
 
 export type ProviderHealth = {
   key: string
@@ -48,7 +63,6 @@ function fromEnvelope<T>(value: LiveDataEnvelope<T>): CheckResult {
     error: value.error,
   }
 }
-
 
 async function calendarHealth(): Promise<CheckResult> {
   const state = getCalendarProviderState()
@@ -177,11 +191,10 @@ function configured(envVars: string[]): boolean {
 }
 
 const HEALTH_TTL_MS = 45_000
-let healthCache: { at: number; value: ProviderHealth[] } | null = null
 
 export async function getProviderHealth(): Promise<ProviderHealth[]> {
-  if (healthCache && Date.now() - healthCache.at < HEALTH_TTL_MS) {
-    return healthCache.value
+  if (local.healthCache && Date.now() - local.healthCache.at < HEALTH_TTL_MS) {
+    return local.healthCache.value
   }
   const value = await Promise.all(
     PROVIDERS.map(async (provider) => {
@@ -209,6 +222,6 @@ export async function getProviderHealth(): Promise<ProviderHealth[]> {
       }
     }),
   )
-  healthCache = { at: Date.now(), value }
+  local.healthCache = { at: Date.now(), value }
   return value
 }

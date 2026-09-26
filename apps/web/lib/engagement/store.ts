@@ -10,11 +10,26 @@ import {
   trollRiskScore,
   type EngagementSample,
 } from '@nagarikwatch/db'
+import { processState } from '@/lib/runtime/process-singleton'
 import { getSharedPool } from '@/lib/pg-pool'
 import { shouldApplyLivePathDdl } from '@/lib/ops-db'
 import { getRankingShareSamples, getRankingAttentionSamples } from '@/lib/engagement/ranking-events'
 import { triageComment, type CommentStatus } from '@/lib/engagement/comment-triage'
 import { orEmpty } from '@/lib/resilience/or-empty'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here is one cache and one
+ * write queue per layer -- which is two locks, and two locks are no lock: a
+ * concurrent read-modify-write on the same JSON file interleaves and drops one
+ * of the writes. `processState` keys off `globalThis`, the only scope both
+ * layers share. See lib/runtime/process-singleton.ts for the evidence.
+ */
+const local = processState('engagement-store:local', () => ({
+  cache: null as LocalEngagementStore | null,
+  write: Promise.resolve() as Promise<void>,
+  schemaReady: null as Promise<void> | null,
+}))
 
 type BookmarkInput = {
   anonymousId: string
@@ -114,9 +129,6 @@ type LocalEngagementStore = {
 }
 
 const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'engagement.json')
-let localCache: LocalEngagementStore | null = null
-let localWrite: Promise<void> = Promise.resolve()
-let schemaReady: Promise<void> | null = null
 
 async function getPool(): Promise<Pool | null> {
   if (process.env.NEXT_PHASE === 'phase-production-build') return null
@@ -130,7 +142,7 @@ async function getPool(): Promise<Pool | null> {
 async function ensureSchema() {
   const database = await getPool()
   if (!database || !shouldApplyLivePathDdl()) return
-  schemaReady ??= database
+  local.schemaReady ??= database
     .query(
       `
 CREATE TABLE IF NOT EXISTS nw_bookmarks(
@@ -203,10 +215,10 @@ CREATE INDEX IF NOT EXISTS nw_reading_owner_recent_idx ON nw_reading(owner_key, 
     )
     .then(() => undefined)
     .catch((error) => {
-      schemaReady = null
+      local.schemaReady = null
       throw error
     })
-  await schemaReady
+  await local.schemaReady
 }
 
 function emptyLocalStore(): LocalEngagementStore {
@@ -214,28 +226,28 @@ function emptyLocalStore(): LocalEngagementStore {
 }
 
 async function readLocal(): Promise<LocalEngagementStore> {
-  if (localCache) return localCache
+  if (local.cache) return local.cache
   try {
-    localCache = JSON.parse(await fs.readFile(LOCAL_FILE, 'utf8')) as LocalEngagementStore
+    local.cache = JSON.parse(await fs.readFile(LOCAL_FILE, 'utf8')) as LocalEngagementStore
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
-    localCache = emptyLocalStore()
+    local.cache = emptyLocalStore()
   }
-  return localCache
+  return local.cache
 }
 
 async function writeLocal(next: LocalEngagementStore): Promise<void> {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('Local engagement storage is disabled in production.')
   }
-  localWrite = localWrite.then(async () => {
+  local.write = local.write.then(async () => {
     await fs.mkdir(path.dirname(LOCAL_FILE), { recursive: true })
     const temp = `${LOCAL_FILE}.${process.pid}.tmp`
     await fs.writeFile(temp, JSON.stringify(next, null, 2), 'utf8')
     await fs.rename(temp, LOCAL_FILE)
-    localCache = next
+    local.cache = next
   })
-  await localWrite
+  await local.write
 }
 
 function owner(anonymousId: string, userId?: string) {

@@ -1,8 +1,24 @@
 import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { hashPassword } from 'better-auth/crypto'
+import { processState } from '@/lib/runtime/process-singleton'
 import { getSharedPool } from '@/lib/pg-pool'
 import { getAuthPgliteQueryable } from '@/lib/auth/auth-pool'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('auth-boot-accounts:local', () => ({
+  lastProvisionError: null as string | null,
+  provisionPromise: null as Promise<BootProvisionResult> | null,
+}))
 
 type AuthApi = {
   api: {
@@ -71,8 +87,6 @@ export type BootProvisionOptions = {
   forcePassword?: boolean
 }
 
-let lastProvisionError: string | null = null
-let provisionPromise: Promise<BootProvisionResult> | null = null
 const passwordSyncedThisProcess = new Set<string>()
 
 const ROLE_RANK: Record<string, number> = { admin: 1, super_admin: 2 }
@@ -395,10 +409,10 @@ export async function ensureNewsroomBootAccounts(
   options?: BootProvisionOptions,
 ): Promise<BootProvisionResult> {
   if (options?.forcePassword) {
-    provisionPromise = null
+    local.provisionPromise = null
     passwordSyncedThisProcess.clear()
   }
-  if (provisionPromise) return provisionPromise
+  if (local.provisionPromise) return local.provisionPromise
 
   const run = (async (): Promise<BootProvisionResult> => {
     const specs = configuredSpecs()
@@ -409,10 +423,10 @@ export async function ensureNewsroomBootAccounts(
       failed: [],
     }
     if (specs.length === 0) {
-      lastProvisionError =
+      local.lastProvisionError =
         'NEWSROOM_SUPERADMIN_EMAIL/PASSWORD (or ADMIN pair) is not set in Vercel.'
-      console.error('[auth]', lastProvisionError)
-      provisionPromise = null
+      console.error('[auth]', local.lastProvisionError)
+      local.provisionPromise = null
       return result
     }
 
@@ -427,7 +441,7 @@ export async function ensureNewsroomBootAccounts(
       }
     }
 
-    lastProvisionError =
+    local.lastProvisionError =
       result.failed.length > 0
         ? `Failed to provision ${result.failed.join(', ')}. Check DATABASE_URL and env passwords.`
         : null
@@ -435,15 +449,15 @@ export async function ensureNewsroomBootAccounts(
 
     // Cache only full success so a cold env fix can retry without redeploy.
     if (result.failed.length > 0) {
-      provisionPromise = null
+      local.provisionPromise = null
     }
     return result
   })().catch((error) => {
-    provisionPromise = null
+    local.provisionPromise = null
     throw error
   })
 
-  provisionPromise = run
+  local.provisionPromise = run
   return run
 }
 
@@ -455,6 +469,6 @@ export async function getBootLoginHint(): Promise<BootLoginHint> {
     emails: specs.map((spec) => spec.email),
     maskedEmails: specs.map((spec) => maskEmail(spec.email)),
     provisionedCount: specs.length,
-    lastError: specs.length > 0 ? lastProvisionError : null,
+    lastError: specs.length > 0 ? local.lastProvisionError : null,
   }
 }

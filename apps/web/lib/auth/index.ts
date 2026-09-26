@@ -23,16 +23,27 @@ import { APIError, betterAuth } from 'better-auth'
 import { twoFactor } from 'better-auth/plugins'
 import { after } from 'next/server'
 import { createDialect } from './auth-pool'
+import { processState } from '@/lib/runtime/process-singleton'
 import { SITE_URL } from '@/lib/site'
 import { sendEmail } from '@/lib/email-provider'
 import { isUserDisabledById } from './disabled-users'
 import { ensureNewsroomBootAccounts, hasConfiguredNewsroomBootAccounts } from './boot-accounts'
 import { isGoogleAuthPublicEnabled } from './flags'
-import {
-  isProductionSafeOrigin,
-  normalizeAuthOrigin,
-  resolveAuthBaseUrl,
-} from './origin-config'
+import { isProductionSafeOrigin, normalizeAuthOrigin, resolveAuthBaseUrl } from './origin-config'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('auth-instance:local', () => ({
+  authPromise: null as Promise<AuthInstance> | null,
+}))
 
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET
 
@@ -123,9 +134,7 @@ function staticTrustedOrigins(): string[] {
       candidates
         .map((value) => normalizeAuthOrigin(value))
         .filter((value): value is string => Boolean(value))
-        .filter(
-          (value) => process.env.NODE_ENV !== 'production' || isProductionSafeOrigin(value),
-        ),
+        .filter((value) => process.env.NODE_ENV !== 'production' || isProductionSafeOrigin(value)),
     ),
   )
 }
@@ -166,17 +175,15 @@ function escapeEmailHtml(value: string): string {
 
 type AuthInstance = ReturnType<typeof betterAuth>
 
-let authPromise: Promise<AuthInstance> | null = null
-
 export function getAuth(): Promise<AuthInstance> {
-  if (!authPromise) {
-    authPromise = buildAuth().catch((error) => {
+  if (!local.authPromise) {
+    local.authPromise = buildAuth().catch((error) => {
       // Allow a later request to recover after a transient database failure.
-      authPromise = null
+      local.authPromise = null
       throw error
     })
   }
-  return authPromise
+  return local.authPromise
 }
 
 async function buildAuth(): Promise<AuthInstance> {

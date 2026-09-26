@@ -87,7 +87,7 @@ export function DenseStoryItem({
 
       <div className="min-w-0">
         {showMeta ? (
-          <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[0.72rem]">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-caption">
             <span className="font-bold text-brand-strong" lang={english ? 'en' : 'ne'}>
               {displayCategoryName(story.category, locale)}
             </span>

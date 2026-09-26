@@ -2,8 +2,22 @@ import 'server-only'
 import { createHash } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { processState } from '@/lib/runtime/process-singleton'
 import { getSharedPool } from '@/lib/pg-pool'
 import { shouldApplyLivePathDdl } from '@/lib/ops-db'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here is one cache and one
+ * write queue per layer -- which is two locks, and two locks are no lock: a
+ * concurrent read-modify-write on the same JSON file interleaves and drops one
+ * of the writes. `processState` keys off `globalThis`, the only scope both
+ * layers share. See lib/runtime/process-singleton.ts for the evidence.
+ */
+const local = processState('engagement-reactions:local', () => ({
+  cache: null as LocalStore | null,
+  writeQueue: Promise.resolve() as Promise<void>,
+}))
 
 export const REACTION_EMOJIS = ['👍', '❤️', '😮', '😢', '👏', '🔥'] as const
 export type ReactionEmoji = (typeof REACTION_EMOJIS)[number]
@@ -19,8 +33,6 @@ type LocalStore = {
 }
 
 const LOCAL_FILE = path.resolve(process.cwd(), '.data', 'reactions-votes.json')
-let cache: LocalStore | null = null
-let writeQueue = Promise.resolve()
 
 function isProduction(): boolean {
   return process.env.NODE_ENV === 'production' && process.env.E2E_TEST !== 'true'
@@ -37,22 +49,22 @@ export function isReactionEmoji(value: string): value is ReactionEmoji {
 }
 
 async function readLocal(): Promise<LocalStore> {
-  if (cache) return cache
+  if (local.cache) return local.cache
   try {
-    cache = JSON.parse(await fs.readFile(LOCAL_FILE, 'utf8')) as LocalStore
+    local.cache = JSON.parse(await fs.readFile(LOCAL_FILE, 'utf8')) as LocalStore
   } catch {
-    cache = { reactions: [], votes: [] }
+    local.cache = { reactions: [], votes: [] }
   }
-  return cache
+  return local.cache
 }
 
 async function writeLocal(next: LocalStore): Promise<void> {
-  writeQueue = writeQueue.then(async () => {
+  local.writeQueue = local.writeQueue.then(async () => {
     await fs.mkdir(path.dirname(LOCAL_FILE), { recursive: true })
     await fs.writeFile(LOCAL_FILE, JSON.stringify(next), 'utf8')
-    cache = next
+    local.cache = next
   })
-  await writeQueue
+  await local.writeQueue
 }
 
 async function ensureSchema(): Promise<void> {

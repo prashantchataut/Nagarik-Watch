@@ -1,8 +1,23 @@
 import 'server-only'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { processState } from '@/lib/runtime/process-singleton'
 import { getSharedPool } from '@/lib/pg-pool'
 import { dataPath } from '@/lib/fs/data-path'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here is one cache and one
+ * write queue per layer -- which is two locks, and two locks are no lock: a
+ * concurrent read-modify-write on the same JSON file interleaves and drops one
+ * of the writes. `processState` keys off `globalThis`, the only scope both
+ * layers share. See lib/runtime/process-singleton.ts for the evidence.
+ */
+const local = processState('live-manual:local', () => ({
+  schemaReady: null as Promise<void> | null,
+  writeQueue: Promise.resolve() as Promise<void>,
+  readDegradationLogged: false as boolean,
+}))
 
 export type ManualLiveRecord<T = unknown> = {
   key: string
@@ -22,8 +37,6 @@ type Row = { key: string; source: string; data: unknown; updated_at: Date | stri
 type LocalStore = Record<string, ManualLiveRecord>
 
 const LOCAL_STORE_PATH = dataPath(process.env.LIVE_MANUAL_STORE_PATH, 'live-manual.json')
-let schemaReady: Promise<void> | null = null
-let localWriteQueue = Promise.resolve()
 
 function isProductionRuntime(): boolean {
   const isolatedE2e = process.env.E2E_TEST === 'true' || process.env.E2E_NEWSROOM === 'true'
@@ -70,8 +83,8 @@ async function getPool(mode: PoolMode): Promise<Queryable | null> {
 async function ensureSchema(mode: PoolMode): Promise<Queryable | null> {
   const pool = await getPool(mode)
   if (!pool) return null
-  if (!schemaReady) {
-    schemaReady = pool
+  if (!local.schemaReady) {
+    local.schemaReady = pool
       .query(
         `
         CREATE TABLE IF NOT EXISTS nw_live_manual (
@@ -84,19 +97,17 @@ async function ensureSchema(mode: PoolMode): Promise<Queryable | null> {
       )
       .then(() => undefined)
       .catch((error: unknown) => {
-        // Clear the cache before rethrowing. `schemaReady` is memoised for the
+        // Clear the cache before rethrowing. `local.schemaReady` is memoised for the
         // process, so holding on to a rejected promise would make one transient
         // DDL failure permanent — every later call, writes included, would reject
         // with the original error and never retry.
-        schemaReady = null
+        local.schemaReady = null
         throw error
       })
   }
-  await schemaReady
+  await local.schemaReady
   return pool
 }
-
-let readDegradationLogged = false
 
 /**
  * Read-side pool. Swallows *every* failure, not just an absent DATABASE_URL:
@@ -114,8 +125,8 @@ async function readPool(): Promise<Queryable | null> {
   try {
     return await ensureSchema('read')
   } catch (error) {
-    if (!readDegradationLogged) {
-      readDegradationLogged = true
+    if (!local.readDegradationLogged) {
+      local.readDegradationLogged = true
       console.warn(
         '[live-manual] override store unreachable; serving live widgets without newsroom overrides:',
         (error as Error).message,
@@ -209,11 +220,11 @@ export async function setManualLiveRecord(input: {
     return rowToRecord(saved)
   }
 
-  localWriteQueue = localWriteQueue.then(async () => {
+  local.writeQueue = local.writeQueue.then(async () => {
     const store = await readLocalStore()
     store[record.key] = record
     await writeLocalStore(store)
   })
-  await localWriteQueue
+  await local.writeQueue
   return record
 }

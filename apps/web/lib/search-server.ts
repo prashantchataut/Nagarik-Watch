@@ -1,5 +1,6 @@
 import 'server-only'
 import type { Locale, StoryCardData } from '@nagarikwatch/db'
+import { processState } from '@/lib/runtime/process-singleton'
 import { getStories } from '@/lib/content'
 import {
   buildIndex,
@@ -8,6 +9,21 @@ import {
   type SearchResult,
   type SearchableStory,
 } from '@/lib/search'
+
+/**
+ * Module scope is not process scope. Next emits this file into both the RSC/SSR
+ * graph and the route-handler graph, so a plain `let` here exists once per
+ * layer. For a promise guard that means the "run this once" work runs twice --
+ * which is how a `CREATE TABLE IF NOT EXISTS` and the `SELECT` two lines later
+ * ended up on different database handles -- and for a cache it means two
+ * answers to the same question in one process. `processState` keys off
+ * `globalThis`, the only scope both layers share.
+ * See lib/runtime/process-singleton.ts.
+ */
+const local = processState('search-index:local', () => ({
+  cache: null as CachedIndex | null,
+  building: null as Promise<CachedIndex> | null,
+}))
 
 /**
  * Server-side BM25 search.
@@ -20,7 +36,7 @@ import {
  * the browser over the 120-story payload the page ships.
  *
  * So the same ranker runs here, over a much larger bounded corpus, behind a
- * module-scoped cache. Two deliberate bounds:
+ * module-scoped local.cache. Two deliberate bounds:
  *
  *  - `CORPUS_CAP` stories are indexed, not the whole archive. Building an
  *    inverted index per request over an unbounded corpus is how a search box
@@ -64,13 +80,11 @@ type CachedIndex = {
   slugs: Set<string>
 }
 
-let cache: CachedIndex | null = null
 /**
  * Single in-flight build. Without this, the first request after a TTL
  * expiry — or a burst on a cold isolate — starts one full index build per
  * concurrent request, which is exactly when the site can least afford it.
  */
-let building: Promise<CachedIndex> | null = null
 
 function fresh(entry: CachedIndex | null): entry is CachedIndex {
   return entry !== null && Date.now() - entry.at < INDEX_TTL_MS
@@ -90,19 +104,19 @@ async function buildServerIndex(): Promise<CachedIndex> {
 
 /** Cached BM25 index, or `null` when the content source is unreachable. */
 export async function getServerSearchIndex(): Promise<CachedIndex | null> {
-  if (fresh(cache)) return cache
-  if (!building) {
-    building = buildServerIndex().finally(() => {
-      building = null
+  if (fresh(local.cache)) return local.cache
+  if (!local.building) {
+    local.building = buildServerIndex().finally(() => {
+      local.building = null
     })
   }
   try {
-    cache = await building
-    return cache
+    local.cache = await local.building
+    return local.cache
   } catch (error) {
     console.error('[search] index build failed', error instanceof Error ? error.message : error)
     // A stale index answers better than a 503. Only give up if there is none.
-    return cache
+    return local.cache
   }
 }
 
@@ -218,6 +232,6 @@ export async function searchStoriesRanked(
 
 /** Test seam: drop the cached index so a suite can control what is indexed. */
 export function resetServerSearchIndex(): void {
-  cache = null
-  building = null
+  local.cache = null
+  local.building = null
 }
