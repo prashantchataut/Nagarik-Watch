@@ -10,12 +10,21 @@ import { defineConfig, devices } from '@playwright/test'
  * already-running `next start` (or a local dev server on :3000) be reused to keep local
  * iteration fast.
  *
- * `newsroom-lifecycle.spec.ts` is excluded here. It signs staff in, and this config sets
- * E2E_TEST=true without E2E_NEWSROOM, which is exactly the combination that makes
- * lib/auth/session.ts return a null session and lib/auth/auth-pool.ts refuse a pool. It
- * has its own runner — playwright.newsroom.config.ts, `pnpm test:e2e:newsroom` — which
- * provisions PGlite auth and seeds the staff accounts it needs.
+ * Specs that sign staff in are excluded here and run under their own config. This one boots
+ * with E2E_TEST=true and no E2E_NEWSROOM, which is exactly the combination that makes
+ * lib/auth/session.ts return a null session and lib/auth/auth-pool.ts refuse a pool — so a
+ * staff spec run here does not fail on anything it is testing, it fails 503 at sign-in.
+ *
+ *   newsroom-lifecycle.spec.ts → playwright.newsroom.config.ts (`pnpm test:e2e:newsroom`)
+ *   admin-desk.spec.ts         → playwright.admin.config.ts    (`pnpm test:e2e:admin`)
+ *
+ * The list is shared across projects rather than repeated per project: it was repeated, a
+ * spec was added to only one copy, and the reader suite went red on 33 desk routes that were
+ * all fine. `scripts/audit-e2e-coverage.mjs` now fails the build if a spec in e2e/ is claimed
+ * by neither this config nor a dedicated runner.
  */
+const AUTHENTICATED_SPECS = [/newsroom-lifecycle\.spec\.ts/, /admin-desk\.spec\.ts/]
+
 const PORT = 3100
 const BASE = `http://localhost:${PORT}`
 
@@ -42,7 +51,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 900 },
       },
-      testIgnore: [/mobile\.spec\.ts/, /newsroom-lifecycle\.spec\.ts/],
+      testIgnore: [/mobile\.spec\.ts/, ...AUTHENTICATED_SPECS],
     },
     {
       name: 'laptop-chromium',
@@ -50,7 +59,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1024, height: 768 },
       },
-      testIgnore: [/mobile\.spec\.ts/, /newsroom-lifecycle\.spec\.ts/],
+      testIgnore: [/mobile\.spec\.ts/, ...AUTHENTICATED_SPECS],
     },
     {
       name: 'mobile-chromium',
