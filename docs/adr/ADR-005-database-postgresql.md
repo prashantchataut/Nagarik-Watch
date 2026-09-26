@@ -21,13 +21,13 @@ no separate cache store beyond the CDN) to keep the solo-dev ops surface small.
 
 ## Alternatives considered
 
-| Option | Pros | Cons |
-|, , , , -|, , , , , , , , , , , , -|, , , , , , , , , , , , , , , |
-| **PostgreSQL**| ACID, relational, mature FTS, JSONB for flexible fields, Payload-native via Drizzle | Vertical scale has limits (fine at our scale) |
-| **MySQL / MariaDB** | Mature, common in shared hosting | Weaker full-text story; Payload's first-class story is Postgres |
-| **MongoDB** | Flexible schema, good for content | We lose relational integrity + transactions; Payload's Postgres adapter is stronger |
-| **SQLite (Turso/libSQL)** | Zero-ops, embedded | Concurrency + write scaling limits for a newsroom editing all day; backups less convenient |
-| **Postgres + separate search (Meilisearch/Typesense) from day 1** | Best search | Second system to operate before traffic justifies it |
+| Option                                                            | Pros                                                                                | Cons                                                                                       |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| **PostgreSQL**                                                    | ACID, relational, mature FTS, JSONB for flexible fields, Payload-native via Drizzle | Vertical scale has limits (fine at our scale)                                              |
+| **MySQL / MariaDB**                                               | Mature, common in shared hosting                                                    | Weaker full-text story; Payload's first-class story is Postgres                            |
+| **MongoDB**                                                       | Flexible schema, good for content                                                   | We lose relational integrity + transactions; Payload's Postgres adapter is stronger        |
+| **SQLite (Turso/libSQL)**                                         | Zero-ops, embedded                                                                  | Concurrency + write scaling limits for a newsroom editing all day; backups less convenient |
+| **Postgres + separate search (Meilisearch/Typesense) from day 1** | Best search                                                                         | Second system to operate before traffic justifies it                                       |
 
 ## Decision
 

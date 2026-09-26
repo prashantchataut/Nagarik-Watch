@@ -1,34 +1,41 @@
 # DESIGN.md — नागरिक वाच Design Contract
 
-The design contract for the Nagarik Watch news portal rebuild. Every surface
-in this app is answerable to the rules below. When code and this document
-disagree, this document wins.
+The design contract for the Nagarik Watch news portal. Every reader-facing
+surface is answerable to the rules below. When code and this document disagree,
+this document wins.
+
+**It states rules, not components.** An earlier revision listed the components
+each band rendered and the endpoints each feature called; both moved, and the
+contract spent months describing a site that no longer existed while three gates
+kept citing it. A rule outlives a refactor. Where a rule is machine-checkable it
+names the gate that checks it, so the contract fails a build rather than
+drifting quietly (see §10).
 
 ---
 
 ## 1. Principle
 
-A Devanagari-first newsroom, not a dashboard. Two bands of chrome, then the
-edition. The page is the navigation: topics live inside the edition, not in
-extra nav rows. Facts (date, weather, market) sit in the masthead as facts,
-not as menus. One color does the pointing — Civic Crimson — and it is rationed
-to the rail, kickers, and links.
+A Devanagari-first newsroom, not a dashboard. Chrome, then the edition. The page
+is the navigation: topics live inside the edition, not in extra nav rows. Facts
+(BS date, place, market) sit in the chrome as facts, not as menus. One colour
+does the pointing — Civic Crimson — and it is rationed to the rail, kickers and
+links.
 
 ## 2. Surface
 
-| Token | Light (paper) | Dark (ink) |
-|---|---|---|
-| `--paper` | `#F4F1EC` warm paper | `#17120F` deep ink |
-| `--surface` | `#FFFFFF` card | `#211A16` card |
-| `--ink` | `#1A1012` | `#EDE6DC` |
-| `--ink-soft` | `#5C5148` | `#A99D91` |
-| `--crimson` | `#C02A2A` | `#E8484B` |
-| `--crimson-deep` | `#8E1F22` | — rail gradient |
-| `--rule` | `#E2DCD2` hairlines | `#322A24` |
+| Token            | Light (paper)        | Dark (ink)         |
+| ---------------- | -------------------- | ------------------ |
+| `--paper`        | `#F4F1EC` warm paper | `#17120F` deep ink |
+| `--surface`      | `#FFFFFF` card       | `#211A16` card     |
+| `--ink`          | `#1A1012`            | `#EDE6DC`          |
+| `--ink-soft`     | `#5C5148`            | `#A99D91`          |
+| `--crimson`      | `#C02A2A`            | `#E8484B`          |
+| `--crimson-deep` | `#8E1F22`            | rail gradient      |
+| `--rule`         | `#E2DCD2` hairlines  | `#322A24`          |
 
 Warm paper everywhere; pure white only for cards. Dark mode is the same
-newspaper printed at night — deep ink, warm cream text, crimson unchanged in
-spirit.
+newspaper printed at night: deep ink, warm cream text, crimson unchanged in
+spirit. No raw hex in components — colour reaches a component through a token.
 
 ## 3. Type
 
@@ -36,198 +43,197 @@ spirit.
 - **Body**: Noto Sans Devanagari, 18–19px, line-height 1.85–1.95.
 - **Latin/numerals**: Mukta + Noto Sans Devanagari fallback stack.
 - Lead headline **38–56px** (fluid `clamp`), support pair ~24–30px, rails and
-  cards 16–19px, kickers 12–13px uppercase.
+  cards 16–19px, kickers 12–13px uppercase with a **12px floor**.
 - **letter-spacing is FORBIDDEN everywhere** — no tracking utilities, no
-  spaced-out wordmarks, in either Devanagari or Latin. Devanagari conjuncts
-  and matras require zero inter-glyph spacing to render correctly, and
-  spaced Latin small caps read as artificial. Hierarchy comes from weight,
-  size and color only. ("NAGARIK WATCH", never "N A G A R I K  W A T C H".)
+  spaced-out wordmarks, in either Devanagari or Latin. Devanagari conjuncts and
+  matras require zero inter-glyph spacing to render correctly, and spaced Latin
+  small caps read as artificial. Hierarchy comes from weight, size and colour
+  only. ("NAGARIK WATCH", never "N A G A R I K W A T C H".)
 
-Measure: article body **680px, centered**. Homepage edition container
-**1180px**. Never justify body text; ragged right.
+Measure: article body **680px, centred**. Edition container **1180px**. Never
+justify body text; ragged right.
 
-## 4. Chrome — two bands only
+## 4. Chrome
 
-1. **Paper masthead** — logo lockup left (नागरिक वाच + NAGARIK WATCH eyebrow);
-   to the right, facts: BS date, काठमाडौं weather, NEPSE close, and पात्रो as
-   the single solid crimson button. Search + theme + सेभ as quiet icons.
-2. **Sticky crimson desk rail** — full-width crimson band (`crimson →
-   crimson-deep` gradient), white Mukta desk labels, active desk underlined
-   with a white caret. Sticks below the masthead on desktop.
+Chrome is thin and finite. Its job is to get out of the way of the first
+headline.
 
-Mobile: one masthead row (logo + पात्रो + menu), the crimson rail becomes a
-horizontal swipe strip, and a **five-item bottom nav** (गृह · विषय · खोज ·
-पात्रो · सेभ) replaces the rail. Bottom nav respects safe-area insets.
+1. **Brand band** — logo lockup left (नागरिक वाच + NAGARIK WATCH eyebrow). To
+   the right, quiet utility icons only: search, saved, account, theme, locale,
+   पात्रो. Icons, not labelled menus.
+2. **Primary nav** — desk labels in Mukta, the active desk marked. Desks that do
+   not fit collapse into a single overflow menu; they do not wrap into a second
+   row.
+3. **Facts strip** — BS date, reader place, NEPSE. Facts, and each one names its
+   source or its staleness (§7).
 
-No third band. No mega-menus. No topic rows above stories.
+Mobile: one brand row, the desk nav becomes a horizontal swipe strip, and a
+**five-item bottom nav** replaces it — home, ताजा, पात्रो, search, account.
+Bottom nav respects safe-area insets.
+
+No mega-menus. No topic rows above stories. Nothing above the brand band except
+तत्काल (§8).
 
 ## 5. The edition (homepage order)
 
-1. **Lead** — full-width photograph, centered Mukta headline over a
-   bottom-anchored ink gradient, kicker + deck. OnlineKhabar grammar with more
-   air.
-2. **Support pair** — two secondary stories, photo cards side by side.
-3. **Latest rail (ताजा)** — dense timestamped list, left; पात्रो mini + poll
-   right (desktop), stacked (mobile).
-4. **Desks by role** —
-   - news desks (राजनीति, समाज): text-forward list + one photo;
-   - market desk (बजार): NEPSE market well + movers;
+The lead system is the **full portal feed** (locked, §9 #1): centred
+mega-headline blocks for the top stories, then desks. Not a newspaper split hero
+with a side rail — that grammar lost to the incumbent portals on the one metric
+that matters here, which is how fast a reader finds the story they came for.
+
+1. **तत्काल ticker** when breaking news is live, and never repeating the lead.
+2. **Portal feed** — centred mega-headline leads with deck and photograph, then
+   a denser pair of picks.
+3. **Labelled billboard slot** — bordered, labelled "विज्ञापन", never disguised.
+4. **Editorial spotlight**, then desks by role:
+   - news desks (राजनीति, समाज): text-forward list plus one photo;
+   - market desk (बजार): market well and movers;
    - photo desks (खेलकुद, मनोरञ्जन): large photograph cards;
    - voices (विचार): pull-quote typography, no photos.
-5. **Province strip** — seven provinces, story counts, crimson numerals.
-6. **Labeled ad slot** — bordered, labeled "विज्ञापन", never disguised.
-7. **Evening briefing (साँझ ब्रिफिङ)** — numbered digest of the day.
-8. Remaining desks close the page (स्वास्थ्य, शिक्षा, प्रविधि, विश्व …).
+5. **ताजा rail** — dense timestamped list, interleaved between desk blocks so no
+   single band runs longer than a screen.
+6. **Service desks** — live scores and utilities, as summaries that link out.
+7. **Province strip** — seven provinces, story counts, crimson numerals.
+8. **Poll of the day**, remaining desks, then a **closing band** (newsletter,
+   archive, photo) so the page ends deliberately instead of trailing off.
+
+Sections rotate layout (desk / mosaic / stack) so twelve desks do not read as
+twelve copies of one block. Gaps are a single rhythm, not per-section guesses.
+
+When there is no published edition, the page says so plainly. It never fills the
+hole with fixture text (§8).
 
 ## 6. Article page
 
-Centered 680px column: kicker (crimson), large Mukta headline (32–44px),
-deck, byline + dateline + reading time, hero with caption/credit, body with
-`h2` section heads, pull-quotes set large with crimson rule, lists with
-crimson markers. **Save (सेभ) + share** controls above the fold and at the
-end. Related stories under the column. Progress hairline on top (crimson).
+Centred 680px column: kicker (crimson), large Mukta headline (32–44px), deck,
+byline, dateline, reading time, hero with caption **and** credit, body with `h2`
+section heads, pull-quotes set large with a crimson rule, lists with crimson
+markers. Save and share above the fold and at the end. Related stories under the
+column. Progress hairline on top (crimson).
 
-## 7. Utilities (पात्रो, NEPSE, राशिफल, उपकरणहरू)
+A correction is part of the article, not a footnote to it: visible on the story
+itself, dated, describing what was wrong.
+
+## 7. Utilities and live data (पात्रो, बजार, राशिफल, उपकरणहरू)
 
 Tools keep the newspaper skin: same paper, same type, crimson reserved for
-active states and numbers. **पात्रो runs an astronomical panchanga engine**
-(astronomy-engine): tithi, nakshatra, yoga and karana are computed from the
-apparent Moon/Sun ecliptic longitudes at Kathmandu sunrise and served by
-`GET /api/patro?year&month`. Lunar festivals (Dashain, Tihar, Teej, Purnimas)
-are DERIVED from those tithis for any year — never hardcoded dates. Weekly
-public holidays: **Saturday AND Sunday** (since 2082 Saun). Preeti→Unicode is
-a live two-way converter (ported newsroom algorithm). Date converter converts
-both ways, Devanagari numerals out.
+active states and numbers.
 
-### बजार (market) — live data contract
+**पात्रो** runs an astronomical panchanga engine (astronomy-engine): tithi,
+nakshatra, yoga and karana computed from the apparent Moon/Sun ecliptic
+longitudes at Kathmandu sunrise. Lunar festivals (Dashain, Tihar, Teej,
+Purnimas) are **derived** from those tithis for any year, never hardcoded dates.
+Weekly public holidays: **Saturday and Sunday** (since 2082 Saun).
+Preeti→Unicode is a live two-way converter. The date converter converts both
+ways, Devanagari numerals out.
 
-`GET /api/market/summary` (also `/forex`, `/metals`, `/nepse`) powers the
-masthead NEPSE chip, the बजार desk strip, the homepage market well and the
-full `#/nepse` dashboard:
+**बजार** — every panel names its source, and a stale panel says it is stale:
 
-- **विदेशी मुद्रा** — Nepal Rastra Bank official API (nrb.org.np), 2-hour
-  server cache, labelled fallback snapshot.
-- **सुन–चाँदी** — international spot (gold-api.com XAU/XAG) × NRB USD rate ×
-  tola conversion (0.375 oz) with calibrated dealer premium; auto-refreshed
-  and labelled सूचक मूल्य.
-- **नेप्से** — live fetch attempted from nepalstock.com.np (works when hosted
-  in Nepal); otherwise an honestly-labelled अन्तिम उपलब्ध snapshot.
+- **विदेशी मुद्रा** — Nepal Rastra Bank official API, server-cached, labelled
+  fallback snapshot.
+- **सुन–चाँदी** — international spot × NRB USD rate × tola conversion (0.375 oz)
+  with dealer premium, labelled सूचक मूल्य.
+- **नेप्से** — live when the host can reach nepalstock.com.np; otherwise an
+  honestly labelled अन्तिम उपलब्ध snapshot.
 - **इन्धन** — NOC revision table, revision date always shown.
 
-Never fake a live feed; every panel names its source. पात्रो is a real BS month grid (nepali-datetime)
-**with an astronomical panchanga engine** (astronomy-engine): tithi,
-nakshatra, yoga and karana are computed from the apparent Moon/Sun ecliptic
-longitudes at Kathmandu sunrise, served by `GET /api/patro?year&month`.
-Lunar festivals (Dashain, Tihar, Teej, Purnimas) are DERIVED from those
-tithis for any year — never hardcoded dates. Weekly public holidays:
-**Saturday AND Sunday** (since 2082 Saun). Preeti→Unicode is a live two-way
-converter (ported newsroom algorithm). Date converter converts both ways,
-Devanagari numerals out.
+**Never fake a live feed.** A panel with no data says it has no data. This is the
+rule the whole site's credibility rests on, and it is not tradeable for a
+demo that looks fuller.
 
-### बजार (market) — live data contract
+**Numerals.** Devanagari numerals on Nepali surfaces. The exception is
+market and technical readouts — NEPSE indices, forex rates, metal prices, version
+strings — which stay Latin, because that is how the source prints them and how a
+reader cross-checks them.
 
-`GET /api/market/summary` (also `/forex`, `/metals`, `/nepse`) powers the
-masthead NEPSE chip, the बजार desk strip, the homepage market well and the
-full `#/nepse` dashboard:
+## 8. Behaviour contract
 
-- **विदेशी मुद्रा** — Nepal Rastra Bank official API (nrb.org.np), 2-hour
-  server cache, labelled fallback snapshot.
-- **सुन–चाँदी** — international spot (gold-api.com XAU/XAG) × NRB USD rate ×
-  tola conversion (0.375 oz) with calibrated dealer premium; auto-refreshed,
-  labelled सूचक मूल्य.
-- **नेप्से** — live fetch attempted from nepalstock.com.np (works when hosted
-  in Nepal); otherwise an honestly-labelled अन्तिम उपलब्ध snapshot.
-- **इन्धन** — NOC revision table, revision date always shown.
+- **Real routes, locale-prefixed.** `/` is the Nepali edition, `/en/*` the
+  English one; `/ne/*` canonicalises to `/` with a 308. Desk, article, topic,
+  district, province, utility and trust pages are all real URLs — there are no
+  hash routes.
+- **An unknown URL is a 404.** Never a 200 with an empty page and an invented
+  heading: a soft 404 keeps the site out of Google News and lies to the reader.
+  Where a page cannot resolve its subject it calls `notFound()` itself.
+- **तत्काल** is the only band allowed above the brand band: crimson-deep strip,
+  white tab, bold headline, optional link, dismissible for the session.
+  Dismissal hides the strip, never the news. Editors control it from the
+  newsroom; readers only read it.
+- Saved stories: device-local for anonymous readers, account-synced (merged on
+  sign-in) once signed in. Whichever is in force is stated on the page.
+- Polls: server-counted, one vote per person (account when signed in, device key
+  otherwise), crimson bars with Devanagari percentages, and the honest label
+  "मत सर्भरमा गणना हुन्छ".
+- Comments at the end of every article; composer for signed-in readers, a
+  sign-in prompt for everyone else; moderation from the newsroom.
+- Theme: light and dark, persisted, default light paper.
+- Every interactive element is at least **44px** on its touch dimension, and has
+  a visible `focus-visible` ring.
+- Images: `alt` always. Every story has a visual — a real photograph, an
+  assigned stock photo, or the desk's editorial illustration. Never a blank or
+  broken placeholder.
+- The page works before JavaScript does: content is server-rendered, and the
+  skeleton a route shows while loading has the geometry of what replaces it.
 
-Never fake a live feed; every panel names its source.
+### Accounts — two audiences, one system
 
-## 8. Behavior contract
+Better Auth over Postgres backs both, and the separation is by **role**, not by
+a second login stack:
 
-- Hash routes: `#/` home, `#/en` English home, `#/{desk}`, `#/{desk}/{slug}`,
-  `#/patro`, `#/nepse`, `#/rashifal`, `#/scores`, `#/tools/preeti`,
-  `#/tools/date`, `#/province/{slug}`, `#/saved`, `#/search`, `#/journalist`, legal pages
-  `#/page/{slug}`.
-- Saved stories: **this device only** (localStorage), stated on the page.
-- Poll: one vote per device, results as crimson bars.
-- Theme: light/dark, persisted; default light paper.
-- Every interactive element ≥44px touch target; focus-visible rings.
-- Images: `alt` always; every story has a visual — a real newsroom
-  photograph, an assigned stock photo, or the desk's editorial illustration
-  (`/photos/desks/{desk}.jpg`). Never a blank or broken placeholder.
+- **पाठक (reader)** — signs in under `/[locale]/auth/*`, gets bookmarks,
+  reading history, comments, newsletter and notification preferences.
+- **न्यूजरुम (staff)** — signs in at `/admin/login` and works in the desk at
+  `/admin/*`. Twenty-one newsroom roles, from `contributor` to `super_admin`.
 
-### Accounts — two separate systems (by design)
+Authorisation is enforced **server-side on every route and every API handler**.
+Hiding a button is not a permission. Staff MFA is available and is expected to be
+on in production.
 
-- **पाठक (reader)** — email+password via `/api/auth/reader/*`; the masthead
-  shows an account chip; drawer with profile, saved count and साँझ ब्रिफिङ
-  newsletter subscribe (`/api/newsletter`). scrypt password hashing, httpOnly
-  cookie sessions (30 days, Prisma `Session` table).
-- **पत्रकार (journalist)** — a DIFFERENT login at `#/journalist`
-  (`/api/auth/journalist/login`) on the `Journalist` table. After login: a
-  mini newsroom desk with the journalist's own pitches
-  (`/api/desk/pitches` — submit, status, editor notes) and their desk's
-  published stories. Reader and journalist sessions are mutually exclusive
-  kinds, never mixed.
+### The newsroom
 
-## 9. Voice
+Pitch → draft → review → publish, with the desk surfaces that workflow needs:
+articles, submissions, corrections, media, taxonomy, authors, comments, polls,
+live blogs, ads, paywall, newsletter, experiments, SEO, roles, audit log and a
+launch readiness board. Editors keep the paper aesthetic inside `/admin`; it is
+the same newspaper, at a desk.
 
-Nepali first, Devanagari numerals for Nepali surfaces, Latin numerals for
-market/technical data. English edition mirrors the Nepali one at `#/en`.
-Demo/live data is labelled honestly — never fake a live feed.
+**No fixture journalism.** The store starts empty and stays empty until an editor
+publishes. Sample article text must never reach a reader as though it were
+reporting, and no amount of demo pressure makes that acceptable.
 
----
+## 9. Locked decisions
 
-## Revision 3 additions — the full newsroom loop
+Decisions, with the date they were taken. A locked decision is reopened by
+amending this list, not by a component quietly disagreeing with it.
 
-### Breaking news (तत्काल)
+| #   | Decision         | Choice                                                                          | Locked     |
+| --- | ---------------- | ------------------------------------------------------------------------------- | ---------- |
+| 1   | Lead system      | Full portal feed: centred mega-headline blocks for the top stories, then desks  | 2026-08-07 |
+| 2   | पात्रो subdomain | `patro.nagarikwatch.com`; `/patro` 308s to it once DNS is live                  | 2026-08-07 |
+| 3   | Brand band       | Left logo plus ad leaderboard slot                                              | 2026-08-07 |
+| 4   | Trending source  | **Open.** Editorial tags vs automated entity extraction; CMS tags until decided | —          |
 
-- A crimson-deep full-width strip sits **above the masthead** (the only band
-  allowed above the paper masthead): white "तत्काल" tab with a pulsing dot,
-  bold headline, optional link, dismiss (per browser session).
-- Controlled exclusively from the सम्पादक डेस्क (`/api/editor/breaking`);
-  readers get `GET /api/breaking`. Dismissal never removes the news — only
-  hides the strip for that session.
+Design read, for anyone extending a surface: this is a Devanagari-first Nepali
+news portal for mid-range Android readers. Variance low (portals win on
+predictable packing, not asymmetry), motion low (hover and ticker only, no
+scroll theatre), density high (match incumbent story packing; SaaS whitespace is
+the wrong instinct here).
 
-### The live edition layer (CMS merge)
+## 10. Enforcement
 
-- Published CMS articles merge into the same visual grammar as the 87-story
-  archive: latest rail (with a small crimson **ताजा** badge), desk pages,
-  English edition. No third card style — they reuse every existing card.
-- Article heroes: CMS photo if provided, else the desk editorial
-  illustration (`heroFor` never returns an empty src).
+Rules that can be checked are checked, in `pnpm verify:static`:
 
-### Reader engagement surfaces
+| Rule                                                  | Gate                     |
+| ----------------------------------------------------- | ------------------------ |
+| No raw hex or off-token colour in components          | `audit:design-tokens`    |
+| Contrast on every token pair                          | `audit:contrast`         |
+| letter-spacing ban, kicker floor, banned UI patterns  | `audit:ui-bans`          |
+| Font weight and family budget                         | `audit:font-budget`      |
+| Labelled ad slots, never disguised                    | `audit:ads`              |
+| Internal links resolve                                | `audit:internal-links`   |
+| Reader shell mounts its chrome; no fixture journalism | `verify:repo-invariants` |
 
-- **Comments** at the end of every article (archive + CMS alike, keyed
-  `desk/slug`): paper-card list, composer for logged-in readers only,
-  anonymous visitors get a login prompt; editors hide/delete from the
-  सम्पादक डेस्क.
-- **Poll of the day** — server counts, one vote per person (account for
-  readers, device key for anonymous), crimson bars with Devanagari
-  percentages; honest label: "मत सर्भरमा गणना हुन्छ".
-- **धेरै पढिएको** — numbered most-read rail (7-day window) from the
-  pageview engine; hidden when there is no data.
-- **Saved stories** — localStorage for anonymous readers, account-synced
-  (merge on login) for readers.
-
-### The newsroom (#/journalist)
-
-- Tabbed desk: **पिच तथा डेस्क** (pitches + desk content) ·
-  **लेख लेख्नुहोस्** (markdown-lite editor, live preview with word count
-  and reading time) · **मेरा लेखहरू** (pipeline with status chips:
-  ड्राफ्ट / समीक्षामा / प्रकाशित / अस्वीकार + edit / submit / retract / delete) ·
-  **सम्पादक डेस्क** (editors only, marked with a badge).
-- Editor dashboard keeps the paper aesthetic: stat cards, review queue with
-  expandable body preview, pitch triage, तत्काल control, 7-day traffic
-  chart, top stories, subscribers + CSV, comment moderation.
-- Roles: `reporter` files and edits own unpublished work; `editor`
-  publishes/declines, moderates, controls तत्काल. Enforced server-side,
-  never by hiding buttons.
-
-### Data honesty (unchanged contract)
-
-- Live: NRB forex, metals, पात्रो panchanga, poll counts, pageviews,
-  breaking news, CMS pipeline. Demo-labelled: NEPSE fallback snapshot,
-  scores fixtures, rashifal.
-- Sensitive APIs are rate-limited and validated (zod, Nepali error
-  messages); private surfaces (`/api/editor/*`, auth, bookmarks) are
-  disallowed in robots.txt.
+`pnpm audit:live-ux` checks the rendered result — letter-spacing, touch targets,
+transfer weight, a11y — against a running production server, across routes and
+viewports. It needs an origin, so it is not in `verify:static`; run it before
+calling a UI change done.

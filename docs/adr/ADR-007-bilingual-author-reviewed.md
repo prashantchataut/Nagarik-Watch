@@ -63,16 +63,16 @@ Adopt an **author-reviewed bilingual model** with these rules:
 
 The `Article` collection gains explicit bilingual body fields and a translation workflow:
 
-| Field | Type | Notes |
-|, , , , , -|, , , , , -|, , , , , , , , , , , , , , , |
-| `titleNe` | text | Required. Devanagari headline. |
-| `bodyNe` | richText (blocks) | Required. Nepali body. |
-| `titleEn` | text | Optional. English headline; only if an English version exists. |
-| `bodyEn` | richText (blocks) | Optional. English body. |
-| `deckNe`/`deckEn` | textarea | Per-language deck. |
-| `englishStatus` | select | `none` \| `requested` \| `in_progress` \| `ready` \| `published`. Default `none`. |
-| `englishBy` | relationship → User | The translator/editor responsible for the English version. |
-| `hasEnglish` | (derived) | True only when `englishStatus = published` AND `titleEn`+`bodyEn` present. Drives `/en` visibility. |
+| Field             | Type                | Notes                                                                                               |
+| ----------------- | ------------------- | --------------------------------------------------------------------------------------------------- |
+| `titleNe`         | text                | Required. Devanagari headline.                                                                      |
+| `bodyNe`          | richText (blocks)   | Required. Nepali body.                                                                              |
+| `titleEn`         | text                | Optional. English headline; only if an English version exists.                                      |
+| `bodyEn`          | richText (blocks)   | Optional. English body.                                                                             |
+| `deckNe`/`deckEn` | textarea            | Per-language deck.                                                                                  |
+| `englishStatus`   | select              | `none` \| `requested` \| `in_progress` \| `ready` \| `published`. Default `none`.                   |
+| `englishBy`       | relationship → User | The translator/editor responsible for the English version.                                          |
+| `hasEnglish`      | (derived)           | True only when `englishStatus = published` AND `titleEn`+`bodyEn` present. Drives `/en` visibility. |
 
 `locale` (the _primary_ language of the piece) is retained: a story can be `ne`-primary
 (usual) or `en`-primary (rare; an English-first wire/origin item translated _into_ Nepali).
