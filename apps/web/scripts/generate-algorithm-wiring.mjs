@@ -63,9 +63,15 @@ rows.sort((a, b) => a.id.localeCompare(b.id))
 const existing = readFileSync(TARGET, 'utf8')
 const open = existing.indexOf('export const ALGORITHM_PRODUCT_WIRING')
 // Anchor on `= [`, not the first `[` — that one belongs to `ProductWiring[]`.
-const start = existing.indexOf('\n', existing.indexOf('= [', open)) + 1
-const end = existing.indexOf('\n]\n', start)
-if (open < 0 || end < 0) {
+const start = open < 0 ? -1 : existing.indexOf('\n', existing.indexOf('= [', open)) + 1
+// Prettier indents a statement's closing bracket to the statement's own level,
+// so the terminator is ` ]`, not `]`. Matching `\n]\n` meant this script could
+// never find the array in a formatted file, and it bailed out with "edit by
+// hand" the one time it was needed. `[ \t]` rather than `\s` so the match
+// cannot run across a blank line into the next statement.
+const closeAt = start < 0 ? -1 : existing.slice(start).search(/^[ \t]*\]/m)
+const end = closeAt === -1 ? -1 : start + closeAt
+if (open < 0 || start < 0 || end < 0) {
   console.error('Could not locate the ALGORITHM_PRODUCT_WIRING array; edit by hand.')
   process.exit(1)
 }

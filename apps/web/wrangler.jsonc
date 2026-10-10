@@ -25,6 +25,11 @@
   "vars": {
     "CONTENT_SOURCE": "json",
     "NEXT_PUBLIC_LAUNCH_STATUS": "preview",
-    "NEXT_PUBLIC_SITE_URL": "https://nagarik-watch.pages.dev",
+    // The canonical origin. This was https://nagarik-watch.pages.dev, which no
+    // longer resolves; every canonical URL, OG tag, sitemap entry and JSON-LD
+    // @id is built from it, so a dead host here poisons the index. Override at
+    // deploy time with a --var if the apex ever moves.
+    "NEXT_PUBLIC_SITE_URL": "https://nagarikwatch.com",
+    "BETTER_AUTH_URL": "https://nagarikwatch.com",
   },
 }

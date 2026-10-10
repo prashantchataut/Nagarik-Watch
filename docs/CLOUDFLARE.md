@@ -1,42 +1,58 @@
-# Cloudflare Workers hosting (OpenNext) — Free tier
+# Cloudflare Workers hosting (OpenNext)
 
-> **Not the launch origin.** Production reader+API runs on **Vercel Node** with Cloudflare
-> DNS/CDN (ADR-004). This document covers the optional Workers Free / OpenNext path and
-> its size limits. For launch topology see `docs/CLOUDFLARE-DOMAIN.md` and
-> `docs/launch-runbook.md`.
+> **This is the origin.** Production reader+API is the `nagarik-watch` Worker
+> built with `@opennextjs/cloudflare`. Cloudflare Workers Builds runs it on every
+> push to `main`. DNS and CDN are Cloudflare (ADR-004).
 
-Nagarik Watch's public Next.js app (`apps/web`) can deploy to **Cloudflare Workers Free** via [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare) when the gzip bundle fits.
+Nagarik Watch's public Next.js app (`apps/web`) deploys to Cloudflare Workers via
+[`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare).
 
-## Requirements (all free)
+## Requirements
 
-1. **Workers Free plan** — script must stay under **3 MiB gzip**. Use `pnpm deploy:free` (`CF_WORKERS=1` + `wrangler deploy --minify`). No paid Workers upgrade needed if the slim build fits.
+1. **Build on Linux** — Windows native OpenNext builds fail on symlink
+   `EPERM`. Cloudflare Workers Builds is Linux, so CI is unaffected; for local
+   deploys use `bash scripts/cf-build-wsl.sh` or WSL.
 
-2. **Build on WSL/Linux** — Windows native OpenNext builds fail on symlink `EPERM`; use `bash scripts/cf-build-wsl.sh` then deploy from `~/nagarik-watch/apps/web`.
+2. **Postgres for auth/newsroom** — PGlite does not run on Workers. Use an
+   external Postgres (Neon, Supabase, Aiven) and set `DATABASE_URL` as a Worker
+   secret. Cloudflare D1 is another option with adapter work.
 
-3. **Postgres for auth/newsroom** — PGlite does not run on Workers. Use a free external Postgres (Neon, Supabase, etc.) and set `DATABASE_URL` as a Worker secret. Cloudflare D1 is another free option with adapter work.
+3. **R2 for media (optional)** — enable R2 in the dashboard (free tier includes
+   storage): [R2 Overview](https://dash.cloudflare.com/?to=/:account/r2/overview).
+   Until storage is configured, do not substitute source-code article fixtures
+   for newsroom media.
 
-4. **R2 for media (optional)** — enable R2 in the dashboard (free tier includes storage): [R2 Overview](https://dash.cloudflare.com/?to=/:account/r2/overview). Until storage is configured, do not substitute source-code article fixtures for newsroom media.
+## Free-tier limits that actually bind
 
-## Free-tier limits to know
+Verified against Cloudflare's limits documentation (updated 2026-10-08). Earlier
+revisions of this file described a **3 MiB gzip** Worker limit. **That limit does
+not exist any more** and was never the constraint.
 
-| Limit            | Workers Free     | Impact                                           |
-| ---------------- | ---------------- | ------------------------------------------------ |
-| Worker gzip size | 3 MiB            | Slim build + `--minify` required                 |
-| CPU per request  | 10 ms            | Favor cached/static pages; heavy SSR may timeout |
-| Requests         | 100k/day         | Fine for launch/preview                          |
-| KV / R2          | Free tiers exist | ISR cache + media                                |
+| Limit                      | Workers Free | Note                                                     |
+| -------------------------- | ------------ | -------------------------------------------------------- |
+| Worker size (uncompressed) | **64 MiB**   | There is no compressed-size limit; gzip is not enforced. |
+| CPU time per request       | **10 ms**    | **This is the binding constraint.** See below.           |
+| Requests                   | 100k/day     | Fine for launch/preview.                                 |
+| Static asset files         | 20,000       | Prerendered pages and hashed assets count here.          |
+
+The 10 ms CPU budget is why `CF_WORKERS=1` is set during deploy: it selects the
+static-assets incremental cache and cache interception, so prerendered routes
+are served straight from the asset store and never invoke the Worker. Only
+genuinely dynamic routes spend CPU. Watch Error 1102 ("exceeded CPU time") in
+Worker metrics; that, not bundle size, is what forces a paid plan.
 
 ## Architecture
 
 ```
-WSL build (CF_WORKERS=1) → wrangler deploy --minify
-                 ↓
-         OpenNext worker (nagarik-watch)
-                 ↓
-    Static assets + slim handler | Postgres (secret) | R2 (optional)
+Workers Builds (Linux) → opennextjs-cloudflare build → wrangler deploy
+                  ↓
+          OpenNext worker (nagarik-watch)
+                  ↓
+     Static assets + slim handler | Postgres (secret) | R2 (optional)
 ```
 
-Payload CMS (`apps/admin`) stays a separate service. The live reader must reach that service with `CONTENT_SOURCE=payload` (the default); the static Pages export is preview-only and cannot provide live CMS publishing semantics.
+Payload CMS (`apps/admin`) stays a separate service. The live reader must reach
+that service with `CONTENT_SOURCE=payload` (the default).
 
 ## One-time setup
 
@@ -44,8 +60,6 @@ Payload CMS (`apps/admin`) stays a separate service. The live reader must reach 
 pnpm --filter @nagarikwatch/web exec wrangler login
 pnpm --filter @nagarikwatch/web exec wrangler whoami
 ```
-
-KV namespace for non-free builds is in `wrangler.jsonc`. Free deploys use static-assets ISR and do not require KV.
 
 Set secrets:
 
@@ -57,11 +71,10 @@ pnpm exec wrangler secret put REVALIDATE_SECRET
 pnpm exec wrangler secret put DATABASE_URL
 ```
 
-For the dynamic Worker/app deployment use `CONTENT_SOURCE=payload`. The static Pages preview forces preview mode and must never be the live origin. Override `NEXT_PUBLIC_SITE_URL` / `BETTER_AUTH_URL` to your real domain after first deploy.
+Override `NEXT_PUBLIC_SITE_URL` / `BETTER_AUTH_URL` in `apps/web/wrangler.jsonc`
+if the canonical host is not the apex.
 
-## Cloudflare Workers Builds (this is what is failing)
-
-Your dashboard is using **Workers Builds**, not classic Pages upload.
+## Cloudflare Workers Builds
 
 | Setting        | Set to exactly this     |
 | -------------- | ----------------------- |
@@ -69,37 +82,30 @@ Your dashboard is using **Workers Builds**, not classic Pages upload.
 | Deploy command | `pnpm run deploy`       |
 | Root directory | `/` (empty / repo root) |
 
-`pnpm run deploy` runs `wrangler deploy --no-autoconfig` against root `wrangler.jsonc` (static assets from `apps/web/out`).
+`pnpm run deploy` runs `scripts/cf-ci-deploy.mjs`, which builds the OpenNext
+Worker in `apps/web` and deploys it with `apps/web/wrangler.jsonc`.
 
-Do **not** leave Deploy as `npx wrangler deploy` unless you are on a commit that includes the assets-only root `wrangler.jsonc` (that path also works after that commit). Prefer `pnpm run deploy`.
+**Do not set Deploy to `npx wrangler deploy`.** From the repo root there is no
+Wrangler config on purpose: two configs previously claimed the same Worker name,
+one of them pointing at a static export directory this app cannot produce. That
+collision is what made the origin serve a site with no API routes.
 
-**Production branch:** set Workers Builds / Pages to build **`main` only**. Dependabot PRs that bump TypeScript 7 break Next’s `next.config.ts` loader (`fileExists` crash). Config is now `next.config.mjs` and TypeScript is pinned to 5.9.x.
+**Production branch:** build `main` only. Dependabot PRs that bump TypeScript 7
+break the Next config loader; TypeScript is pinned to 5.9.x.
 
-### Classic Pages (optional alternative)
+## Static Pages preview (optional, preview-only)
 
-| Setting                | Value           |
-| ---------------------- | --------------- |
-| Build command          | `pnpm build`    |
-| Build output directory | `apps/web/out`  |
-| Deploy command         | _(leave empty)_ |
+`pnpm build:cf-pages` / `pnpm deploy:cf-pages` still produce and publish the
+static export under `apps/web/out`. A static export has no server: it stashes
+`app/api` and `app/admin` to make the build pass, so **every `/api/*` route
+answers 404**. It must never be the live origin.
 
-Set `NEXT_PUBLIC_SITE_URL` in project env. Without it, the build falls back to `CF_PAGES_URL` or `https://nagarik-watch.pages.dev`.
-
-Do **not** point the output directory at `.next`.
-
-## Deploy (free)
+## Deploy (local)
 
 From WSL after `bash scripts/cf-build-wsl.sh`:
 
 ```bash
-cd ~/nagarik-watch/apps/web
-pnpm deploy:free
-```
-
-From repo root (same WSL tree):
-
-```bash
-pnpm deploy:web:cf
+cd ~/nagarik-watch && pnpm deploy
 ```
 
 Check bundle size without deploying:
@@ -107,13 +113,16 @@ Check bundle size without deploying:
 ```bash
 cd apps/web
 CF_WORKERS=1 pnpm exec opennextjs-cloudflare build
-pnpm exec wrangler deploy --dry-run --minify
+pnpm exec wrangler deploy --dry-run
 ```
 
 ## Custom domain
 
-Workers → `nagarik-watch` → Custom domains (zone on Cloudflare).
+Workers → `nagarik-watch` → the apex route, plus a `www` DNS record pointing at
+the zone. A Worker keeps serving the previous version if a build fails, so a
+broken push does not take the site down.
 
 ## Cron
 
-`POST` `/api/cron/*` with `Authorization: Bearer $CRON_SECRET` via Cron Triggers (5 free) or an external scheduler.
+`POST` `/api/cron/*` with `Authorization: Bearer $CRON_SECRET` via Cron Triggers
+(5 free) or an external scheduler.
