@@ -11,6 +11,7 @@ which is where superseded plans belong.
 | Doc                                                  | Use                                                                     |
 | ---------------------------------------------------- | ----------------------------------------------------------------------- |
 | [READINESS.md](./READINESS.md)                       | **Is it ready?** Status, owners, phases, risks. One page.               |
+| [WHATS-LEFT.md](./WHATS-LEFT.md)                     | **What is still outstanding**, ordered, with who can do it.             |
 | [launch-runbook.md](./launch-runbook.md)             | Soft to hard launch, step by step.                                      |
 | [env-launch-checklist.md](./env-launch-checklist.md) | Environment variables and secrets.                                      |
 | [pending/](./pending/)                               | Fixes blocked on a token scope no agent branch has. Apply, then delete. |

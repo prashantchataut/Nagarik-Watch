@@ -1,6 +1,6 @@
 # Nagarik Watch: launch readiness
 
-**Status as of 2026-09-26.** The single page to read before asking "is it ready?".
+**Status as of 2026-10-10.** The single page to read before asking "is it ready?".
 
 This used to be one of ten. `ROADMAP.md`, `docs/LAUNCH-ROADMAP.md`,
 `docs/roadmap-next.md`, `docs/roadmap-reader-first.md`, `LAUNCH-GUIDE.md`,
@@ -29,17 +29,61 @@ not yet a publication.**
 
 ---
 
+## What production is actually doing right now
+
+Probed 2026-10-10. This section is about the deployment, not the code, and
+every row was measured rather than assumed. Re-probe before trusting it.
+
+| Host                       | State                                               |
+| -------------------------- | --------------------------------------------------- |
+| `nagarikwatch.com`         | 200, but it is a **Cloudflare Pages static export** |
+| `nagarik-watch.vercel.app` | Full Node app, `/api/health` = **degraded**         |
+| `nagarik-watch.pages.dev`  | **502**                                             |
+
+**The apex is in the failure mode ADR-004 names by name.** ADR-004 says the
+static `out` build "is not the launch origin… it may remain a preview/mirror
+only", because it strips `app/api` and `app/admin`. Measured on the apex:
+
+```
+/api/health    404      /api/articles  404      /admin/login  404
+/admin         200, 1.5 KB — a hand-written <meta refresh> stub
+```
+
+So on the domain a reader or client visits, there is no auth, no comments, no
+bookmarks, no polls, no paywall, no recommendations, no media upload, no
+revalidation and no newsroom. All of it exists; none of it is reachable.
+
+**It is also publishing canonical URLs to a dead host.** `cf-pages-build.mjs`
+pins the build origin to `pages.dev`, so `nagarikwatch.com/robots.txt` currently
+answers `Host: https://nagarik-watch.pages.dev` and advertises three sitemaps
+there — against a host returning 502. Every OG tag, canonical and JSON-LD `@id`
+in that build points away from the publication.
+
+**The database is gone.** `/api/health` on the Vercel app reports
+`getaddrinfo ENOTFOUND nagarikwatch-nagarikwatch.d.aivencloud.com` — not a
+credential failure, the hostname is not in DNS. `migrations` and `mediaStorage`
+fail with it.
+
+None of the above is a code defect, and none of it is fixable from a pull
+request. It is items 1–3 of the operator list below.
+
+---
+
+## Verdict (code)
+
+---
+
 ## What is verifiably true today
 
 Every row below was run on this tree. Re-run them; do not trust the table.
 
-| Claim                           | Command              | Result                           |
-| ------------------------------- | -------------------- | -------------------------------- |
-| Formatting is clean             | `pnpm format:check`  | pass                             |
-| Types check across all packages | `pnpm typecheck`     | 8/8 packages                     |
-| Lint is clean                   | `pnpm lint`          | clean                            |
-| Static gates pass               | `pnpm verify:static` | 19/19 gates                      |
-| Unit tests pass                 | `pnpm test`          | 983 tests, 138 files, 5 packages |
+| Claim                           | Command              | Result                             |
+| ------------------------------- | -------------------- | ---------------------------------- |
+| Formatting is clean             | `pnpm format:check`  | pass                               |
+| Types check across all packages | `pnpm typecheck`     | 8/8 packages                       |
+| Lint is clean                   | `pnpm lint`          | clean                              |
+| Static gates pass               | `pnpm verify:static` | 19/19 gates                        |
+| Unit tests pass                 | `pnpm test`          | 1,012 tests, 141 files, 5 packages |
 
 The 19 gates in `verify:static`, in order:
 
@@ -128,18 +172,25 @@ half-configured site, which is the correct behaviour.
   silence: it trains everyone to ignore a red workflow badge. Either set the
   secrets or make the workflow skip cleanly when they are absent. The fix is
   written and waiting in `docs/pending/workflow-fixes.patch`; applying it needs a
-  token with `workflow` scope, which no agent branch has.
+  token with `workflow` scope, which no agent branch has. **Re-verified
+  2026-10-10:** a tree containing a `.github/workflows/` path is still answered
+  with `404 Not Found`, so this cannot be unblocked from an agent session. It
+  needs a human checkout, and it is two minutes of work.
 - **Cloudflare `Workers Builds: nagarik-watch` fails on every pull request**,
   including documentation-only ones. Same problem: a permanently red check that
   carries no information. Repair it or remove it.
 - **Secret scanning and Dependabot security updates are both disabled.** Both are
   free and should be on before the site holds a single reader account.
-- **Decide the canonical platform** (Vercel vs Cloudflare) and delete the loser's
-  config. The root `wrangler.jsonc` claims the same Worker name as the app's own
-  and points at `apps/web/out`, a directory this app cannot produce. Every
-  canonical URL, OG tag, sitemap entry and JSON-LD `@id` is built from
-  `NEXT_PUBLIC_SITE_URL`; publishing on the wrong host poisons the index.
+- **The platform is already decided — point the apex at it.** ADR-004 chose
+  Vercel Node origin behind Cloudflare DNS/CDN, and says in as many words that
+  static Pages "is not the launch origin". The apex is currently serving static
+  Pages anyway. This is not an open question to re-litigate; it is a DNS record
+  and a deletion. The root `wrangler.jsonc` claims the same Worker name as the
+  app's own and points at `apps/web/out`; once the apex is on Vercel it should
+  go, so nobody deploys the mirror onto the publication again.
 - **Set `CRON_BASE_URL`** to the real deployed origin.
+- **Re-provision Postgres.** The configured Aiven host stopped resolving; see
+  the production section above. Nothing stateful works until this is replaced.
 
 ### Editorial
 
@@ -321,7 +372,7 @@ Phase 2 is the critical path and it is the one no engineering shortens.
 ## Two different claims, and why conflating them is the failure this repo guards against
 
 **Engineering-ready** can be signed off on code alone, and is true today:
-formatting, lint, types, 983 unit tests, 19 static gates, both app builds, both
+formatting, lint, types, 1,012 unit tests, 19 static gates, both app builds, both
 Playwright suites, a live-UX sweep with zero findings, and every unknown URL
 answering 404 with no 200 producible by a render failure.
 
