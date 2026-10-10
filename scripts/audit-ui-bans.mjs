@@ -65,8 +65,16 @@ for (const file of files) {
   }
 }
 
-// Homepage hierarchy invariants. The active opening package is the locked portal feed:
-// 3–5 centered display stories, with exactly one priority H1 inside MegaStoryBlock.
+// Homepage hierarchy invariants. The active opening package is the portal
+// opening (DESIGN.md §5, locked decision #1 amended 2026-10-10): one lead
+// display story beside a dense ताजा rail, with exactly one priority H1 inside
+// MegaStoryBlock.
+//
+// The rail is checked structurally rather than counted at runtime because the
+// count a reader actually sees depends on how much the edition has published.
+// What a gate can hold is that the opening still *has* a rail, that HomePage
+// still feeds it, and that the lead headline has not crept back up to the
+// screen-filling size the amendment removed.
 const homePagePath = join(ROOT, 'apps/web/components/home/HomePage.tsx')
 const localeHomeRoutePath = join(ROOT, homeRoutePath(ROOT))
 const portalFeedPath = join(ROOT, 'apps/web/components/home/PortalFeed.tsx')
@@ -78,7 +86,9 @@ try {
   if (
     !/PortalFeed/.test(homePage) ||
     /LeadPackage/.test(homePage) ||
-    !/HomePage/.test(localeRoute)
+    !/HomePage/.test(localeRoute) ||
+    // The opening must be fed a rail, or the density rule has no input.
+    !/rail=\{/.test(homePage)
   ) {
     findings.push({ ban: 'homepage-opening-hierarchy', file: relative(ROOT, homePagePath) })
   }
@@ -88,7 +98,13 @@ try {
 
 try {
   const portalFeed = stripComments(readFileSync(portalFeedPath, 'utf8'))
-  if (!/slice\(0,\s*5\)/.test(portalFeed) || !/MegaStoryBlock/.test(portalFeed)) {
+  if (
+    !/slice\(0,\s*5\)/.test(portalFeed) ||
+    !/MegaStoryBlock/.test(portalFeed) ||
+    // The rail itself: a dense list beside the lead, not another display block.
+    !/DenseStoryItem/.test(portalFeed) ||
+    !/\brail\b/.test(portalFeed)
+  ) {
     findings.push({ ban: 'homepage-portal-feed-contract', file: relative(ROOT, portalFeedPath) })
   }
 } catch {
@@ -100,6 +116,15 @@ try {
   const h1Count = megaStory.match(/<h1\b/g)?.length ?? 0
   if (h1Count !== 1 || !/priority/.test(megaStory)) {
     findings.push({ ban: 'homepage-h1-count', file: relative(ROOT, megaStoryPath) })
+  }
+  // The lead headline used to clamp at 4.5rem and centre itself, which is what
+  // made the first screen a one-story screen. Hold the ceiling.
+  const leadClamp = megaStory.match(/max-w-\[20ch\]\s+text-\[clamp\([^)]*,\s*([\d.]+)rem\)\]/)
+  if (!leadClamp || Number(leadClamp[1]) > 3) {
+    findings.push({ ban: 'homepage-lead-headline-scale', file: relative(ROOT, megaStoryPath) })
+  }
+  if (/mx-auto max-w-\[\d+rem\] pb-\d/.test(megaStory) || /text-center/.test(megaStory)) {
+    findings.push({ ban: 'homepage-lead-centred', file: relative(ROOT, megaStoryPath) })
   }
 } catch {
   findings.push({ ban: 'homepage-mega-story-missing', file: relative(ROOT, megaStoryPath) })

@@ -157,9 +157,22 @@ export async function HomePage({ locale }: { locale: Locale }) {
     if (frontPageStories.length >= 5) break
   }
 
+  // The opening rail (DESIGN.md §5): the headlines that sit beside the lead and
+  // carry the first screen's density. Drawn from the whole edition, spaced so a
+  // busy politics day does not fill all seven slots with politics, and excluded
+  // from `latest` below so the same story never appears twice above the fold.
+  const openingRail = spaceOutCategories(
+    catalog
+      .filter((story) => !frontPageIds.has(story.id))
+      .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt)),
+    2,
+  ).slice(0, 7)
+  const openingRailIds = new Set(openingRail.map((story) => story.id))
+
   const populatedDesks = edition.sections.filter(
     (section) => Boolean(section.lead) || section.items.length > 0,
   )
+
   const sectionsBySlug = new Map<string, HomepageSection>(
     populatedDesks.map((section) => [section.category.slug, section]),
   )
@@ -173,6 +186,7 @@ export async function HomePage({ locale }: { locale: Locale }) {
 
   const aboveFoldExclude = new Set<string>([
     ...frontPageIds,
+    ...openingRailIds,
     ...spotlightIds,
     ...edition.breaking.map((story) => story.id),
   ])
@@ -227,7 +241,7 @@ export async function HomePage({ locale }: { locale: Locale }) {
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
       <div className="mx-auto max-w-page px-3 pb-8 pt-2 sm:px-4 sm:pt-3 lg:pb-10">
-        <PortalFeed stories={frontPageStories} locale={locale} />
+        <PortalFeed stories={frontPageStories} rail={openingRail} locale={locale} />
 
         <HomeBillboardAd locale={locale} className="mt-6 sm:mt-8" />
 

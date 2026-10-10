@@ -46,7 +46,7 @@ export function MegaStoryBlock({
   // display headline to ~164px, towering it into 10+ lines.
   const headlineClass = `text-balance font-display font-black text-ink ${
     lead
-      ? 'mx-auto max-w-[19ch] text-[clamp(2.35rem,5.5vw,4.5rem)]'
+      ? 'max-w-[20ch] text-[clamp(1.95rem,3.3vw,3rem)]'
       : 'max-w-[24ch] text-[clamp(1.85rem,3.4vw,2.8rem)]'
   } ${titleLang === 'en' ? 'leading-[1.02] tracking-[-0.035em]' : 'leading-[1.12] tracking-normal'}`
 
@@ -73,16 +73,14 @@ export function MegaStoryBlock({
   return (
     <InstrumentedStory articleSlug={story.slug} articleCategory={story.category.slug}>
       <article className={`group min-w-0 ${className}`.trim()}>
-        <div
-          className={lead ? 'mx-auto max-w-[68rem] pb-5 pt-3 text-center sm:pb-7 sm:pt-5' : 'pb-4'}
-        >
+        <div className={lead ? 'pb-3.5 pt-1' : 'pb-4'}>
           <CategoryLabel category={story.category} locale={locale} as="span" />
           <div className="mt-2">{headline}</div>
           {deck ? (
             <p
               className={
                 lead
-                  ? 'mx-auto mt-3 max-w-[58rem] text-pretty text-[1.08rem] leading-[1.7] text-ink-soft sm:text-[1.25rem]'
+                  ? 'mt-2.5 max-w-[46rem] text-pretty text-[1.02rem] leading-[1.65] text-ink-soft sm:text-[1.1rem]'
                   : 'mt-2 max-w-[52rem] text-pretty text-body leading-[1.65] text-ink-soft'
               }
               lang={titleLang}
@@ -90,9 +88,7 @@ export function MegaStoryBlock({
               {deck}
             </p>
           ) : null}
-          <div
-            className={`mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-meta text-ink-soft ${lead ? 'justify-center' : ''}`}
-          >
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-meta text-ink-soft">
             {author ? (
               <Link
                 href={localizeHref(locale, `/author/${author.slug}`)}
@@ -114,7 +110,7 @@ export function MegaStoryBlock({
         {showPhoto ? (
           <Link
             href={href}
-            className="relative block aspect-[16/10] w-full overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:aspect-[16/9] lg:aspect-[2/1]"
+            className="relative block aspect-[16/10] w-full overflow-hidden bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:aspect-[16/9]"
             tabIndex={-1}
             aria-hidden="true"
           >
@@ -123,7 +119,7 @@ export function MegaStoryBlock({
               alt={image!.alt}
               fill
               priority={priority}
-              sizes="(min-width: 1280px) 1280px, calc(100vw - 2rem)"
+              sizes="(min-width: 1024px) 66vw, calc(100vw - 2rem)"
               className="object-cover transition-transform duration-slow ease-out-quint motion-safe:group-hover:scale-[1.008]"
             />
           </Link>
