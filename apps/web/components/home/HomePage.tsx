@@ -79,15 +79,77 @@ function orderSections(
     .filter((section): section is HomepageSection => Boolean(section))
 }
 
-function Section({ section, locale }: { section: HomepageSection; locale: Locale }) {
+function Section({
+  section,
+  locale,
+  layout,
+}: {
+  section: HomepageSection
+  locale: Locale
+  /** Override the per-desk layout. Used by paired rows; see `PairedDeskRow`. */
+  layout?: HomeSectionLayout
+}) {
   return (
     <SectionBlock
       section={section}
       locale={locale}
-      layout={SECTION_LAYOUT_BY_SLUG[section.category.slug] ?? 'news-desk'}
+      layout={layout ?? SECTION_LAYOUT_BY_SLUG[section.category.slug] ?? 'news-desk'}
     />
   )
 }
+
+/**
+ * Two desks side by side, rendered with the *same* layout.
+ *
+ * Desk layouts rotate so twelve desks do not read as twelve copies of one
+ * block (DESIGN.md §5). That rotation is correct between rows and wrong
+ * within one: a `compact-desk` (a short text list) beside a `news-desk` (a
+ * photo lead plus a rail) left the taller column setting the row height and
+ * several hundred pixels of dead space under the shorter one. The page read
+ * as ragged patchwork rather than as a page.
+ *
+ * So the row picks one layout for both columns, and variety comes from the
+ * row index instead. `items-start` keeps a short final row from stretching.
+ */
+function PairedDeskRow({
+  sections,
+  locale,
+  layout,
+  className = '',
+}: {
+  sections: HomepageSection[]
+  locale: Locale
+  layout: HomeSectionLayout
+  className?: string
+}) {
+  if (sections.length === 0) return null
+  return (
+    <div
+      className={`grid items-start gap-8 ${
+        sections.length > 1 ? 'md:grid-cols-2 md:gap-x-7 md:gap-y-10' : ''
+      } ${className}`.trim()}
+    >
+      {sections.map((section) => (
+        <Section
+          key={section.category.slug}
+          section={section}
+          locale={locale}
+          layout={sections.length > 1 ? layout : undefined}
+        />
+      ))}
+    </div>
+  )
+}
+
+/** Split a desk list into rows of two so each row can carry one layout. */
+function inPairs(sections: HomepageSection[]): HomepageSection[][] {
+  const rows: HomepageSection[][] = []
+  for (let i = 0; i < sections.length; i += 2) rows.push(sections.slice(i, i + 2))
+  return rows
+}
+
+/** Row layouts, rotated so consecutive rows do not repeat. */
+const PAIRED_ROW_LAYOUTS: readonly HomeSectionLayout[] = ['news-desk', 'compact-desk', 'split']
 
 export function homeMetadata(locale: Locale): Metadata {
   return {
@@ -157,9 +219,22 @@ export async function HomePage({ locale }: { locale: Locale }) {
     if (frontPageStories.length >= 5) break
   }
 
+  // The opening rail (DESIGN.md §5): the headlines that sit beside the lead and
+  // carry the first screen's density. Drawn from the whole edition, spaced so a
+  // busy politics day does not fill all seven slots with politics, and excluded
+  // from `latest` below so the same story never appears twice above the fold.
+  const openingRail = spaceOutCategories(
+    catalog
+      .filter((story) => !frontPageIds.has(story.id))
+      .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt)),
+    2,
+  ).slice(0, 7)
+  const openingRailIds = new Set(openingRail.map((story) => story.id))
+
   const populatedDesks = edition.sections.filter(
     (section) => Boolean(section.lead) || section.items.length > 0,
   )
+
   const sectionsBySlug = new Map<string, HomepageSection>(
     populatedDesks.map((section) => [section.category.slug, section]),
   )
@@ -173,6 +248,7 @@ export async function HomePage({ locale }: { locale: Locale }) {
 
   const aboveFoldExclude = new Set<string>([
     ...frontPageIds,
+    ...openingRailIds,
     ...spotlightIds,
     ...edition.breaking.map((story) => story.id),
   ])
@@ -227,7 +303,7 @@ export async function HomePage({ locale }: { locale: Locale }) {
       <BreakingTicker stories={edition.breaking} locale={locale} />
 
       <div className="mx-auto max-w-page px-3 pb-8 pt-2 sm:px-4 sm:pt-3 lg:pb-10">
-        <PortalFeed stories={frontPageStories} locale={locale} />
+        <PortalFeed stories={frontPageStories} rail={openingRail} locale={locale} />
 
         <HomeBillboardAd locale={locale} className="mt-6 sm:mt-8" />
 
@@ -297,15 +373,12 @@ export async function HomePage({ locale }: { locale: Locale }) {
         <ProvinceHub locale={locale} stories={catalog} className="mt-8 sm:mt-10" />
 
         {featurePair.length > 0 ? (
-          <div
-            className={`mt-8 grid gap-8 sm:mt-10 ${
-              featurePair.length > 1 ? 'lg:grid-cols-2 lg:gap-7' : ''
-            }`}
-          >
-            {featurePair.map((section) => (
-              <Section key={section.category.slug} section={section} locale={locale} />
-            ))}
-          </div>
+          <PairedDeskRow
+            sections={featurePair}
+            locale={locale}
+            layout="photo-desk"
+            className="mt-8 sm:mt-10"
+          />
         ) : null}
 
         {activePoll ? (
@@ -323,13 +396,14 @@ export async function HomePage({ locale }: { locale: Locale }) {
         ) : null}
 
         {secondaryDesks.length > 0 ? (
-          <div
-            className={`mt-8 grid gap-8 sm:mt-10 ${
-              secondaryDesks.length > 1 ? 'md:grid-cols-2 md:gap-x-7 md:gap-y-10' : ''
-            }`}
-          >
-            {secondaryDesks.map((section) => (
-              <Section key={section.category.slug} section={section} locale={locale} />
+          <div className="mt-8 space-y-10 sm:mt-10">
+            {inPairs(secondaryDesks).map((row, index) => (
+              <PairedDeskRow
+                key={row.map((section) => section.category.slug).join('-')}
+                sections={row}
+                locale={locale}
+                layout={PAIRED_ROW_LAYOUTS[index % PAIRED_ROW_LAYOUTS.length]!}
+              />
             ))}
           </div>
         ) : null}

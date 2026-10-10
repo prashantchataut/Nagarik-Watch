@@ -81,14 +81,23 @@ No mega-menus. No topic rows above stories. Nothing above the brand band except
 
 ## 5. The edition (homepage order)
 
-The lead system is the **full portal feed** (locked, §9 #1): centred
-mega-headline blocks for the top stories, then desks. Not a newspaper split hero
-with a side rail — that grammar lost to the incumbent portals on the one metric
-that matters here, which is how fast a reader finds the story they came for.
+The lead system is the **portal opening** (locked, §9 #1): a left-aligned lead
+block beside a dense headline rail, then the supporting pair, then desks. The
+metric it answers to is unchanged — how fast a reader finds the story they came
+for — and the reason the earlier centred mega-headline grammar was replaced is
+that it answered that metric badly: one story filled the whole first screen.
+
+**The first screen must offer at least eight headlines on desktop.** This is the
+density rule the rest of §5 serves, and it is checked (§10). A reader arriving
+from a social link decides in one screen whether this publication has the news;
+a single 72px headline cannot win that decision against a portal showing twelve.
 
 1. **तत्काल ticker** when breaking news is live, and never repeating the lead.
-2. **Portal feed** — centred mega-headline leads with deck and photograph, then
-   a denser pair of picks.
+2. **Portal opening** — lead block (kicker, headline, deck, byline, photograph)
+   on the left; a dense, timestamped **ताजा rail** on the right carrying six to
+   seven headlines. Below them, the supporting pair and a denser row of picks.
+   The rail is the density; the lead is the hierarchy. Neither alone is the
+   opening.
 3. **Labelled billboard slot** — bordered, labelled "विज्ञापन", never disguised.
 4. **Editorial spotlight**, then desks by role:
    - news desks (राजनीति, समाज): text-forward list plus one photo;
@@ -213,10 +222,21 @@ amending this list, not by a component quietly disagreeing with it.
 
 | #   | Decision         | Choice                                                                          | Locked     |
 | --- | ---------------- | ------------------------------------------------------------------------------- | ---------- |
-| 1   | Lead system      | Full portal feed: centred mega-headline blocks for the top stories, then desks  | 2026-08-07 |
+| 1   | Lead system      | Portal opening: left lead block beside a dense ताजा rail, then desks            | 2026-10-10 |
 | 2   | पात्रो subdomain | `patro.nagarikwatch.com`; `/patro` 308s to it once DNS is live                  | 2026-08-07 |
 | 3   | Brand band       | Left logo plus ad leaderboard slot                                              | 2026-08-07 |
 | 4   | Trending source  | **Open.** Editorial tags vs automated entity extraction; CMS tags until decided | —          |
+
+**Amendment, 2026-10-10 — decision #1.** The 2026-08-07 choice was "full portal
+feed: centred mega-headline blocks". It was measured against a populated
+edition and failed its own stated purpose: at 1440×1000 the first screen
+carried exactly **one** story, and 2,000px of scrolling carried five. The
+incumbent portals this publication is compared against carry twelve to twenty
+in that space. The old decision also contradicted the design read below it
+("density high… SaaS whitespace is the wrong instinct here"), and when a
+contract disagrees with itself the implementation follows the wrong half — it
+did. Replaced by the portal opening in §5, with the eight-headline first screen
+now checked by `audit:ui-bans` so the regression cannot recur silently.
 
 Design read, for anyone extending a surface: this is a Devanagari-first Nepali
 news portal for mid-range Android readers. Variance low (portals win on

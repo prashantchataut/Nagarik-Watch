@@ -54,14 +54,14 @@ export function ProvinceHub({ locale, className, stories = [] }: ProvinceHubProp
       />
 
       {populated.length >= 3 ? (
-        <ul className="mt-4 flex flex-wrap gap-3">
+        <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-5">
           {populated.slice(0, 6).map(({ province, story }) => {
             if (!story) return null
             const deck = deckFor(story, locale)
             return (
               <li
                 key={province.slug}
-                className="min-w-0 flex-1 basis-[18rem] bg-surface-raised px-3.5 py-3.5 sm:px-4"
+                className="min-w-0 flex-1 basis-[18rem] border-t-2 border-brand/25 pt-3"
               >
                 <Link
                   href={localizeHref(locale, `/province/${province.slug}`)}
@@ -95,12 +95,12 @@ export function ProvinceHub({ locale, className, stories = [] }: ProvinceHubProp
           aria-label={english ? 'Province news' : 'प्रदेश समाचार'}
           className="mt-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <ul className="flex min-w-max gap-2 sm:min-w-0 sm:grid sm:grid-cols-4 lg:grid-cols-7">
+          <ul className="flex min-w-max gap-0 sm:min-w-0 sm:grid sm:grid-cols-4 lg:grid-cols-7">
             {PROVINCES.map((province) => (
-              <li key={province.slug}>
+              <li key={province.slug} className="border-l border-rule first:border-l-0">
                 <Link
                   href={localizeHref(locale, `/province/${province.slug}`)}
-                  className="group flex min-h-11 min-w-[8.25rem] items-center justify-center bg-surface-raised px-3 py-2.5 text-center transition-colors duration-fast ease-out-quint hover:bg-brand-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:min-w-0"
+                  className="group flex min-h-11 min-w-[8.25rem] items-center justify-center px-3 py-2.5 text-center transition-colors duration-fast ease-out-quint hover:bg-brand-tint/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:min-w-0"
                   lang={lang}
                 >
                   <span className="font-display text-meta font-bold text-ink transition-colors duration-fast ease-out-quint group-hover:text-brand-strong sm:text-body">

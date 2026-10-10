@@ -641,6 +641,19 @@ export async function getArticleById(id: string): Promise<StoredArticle | null> 
   return store.articles.find((a) => a.id === id) ?? null
 }
 
+/**
+ * Does this category/slug pair exist in any workflow stage?
+ *
+ * `getArticleBySlug` deliberately hides non-public stages, which is right for a
+ * reader and wrong for an idempotency check: a job that re-ran would not see
+ * the draft it wrote last time and would try to write it again. This answers
+ * the question `createArticle`'s duplicate guard asks, without the throw.
+ */
+export async function articleSlugExists(category: string, slug: string): Promise<boolean> {
+  const store = await read()
+  return store.articles.some((a) => a.categorySlug === category && a.slug === slug)
+}
+
 export async function findArticleForAdmin(identifier: string): Promise<StoredArticle | null> {
   const store = await read()
   return store.articles.find((a) => a.id === identifier || a.slug === identifier) ?? null

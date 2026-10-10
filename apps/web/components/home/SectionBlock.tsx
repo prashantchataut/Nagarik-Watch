@@ -345,26 +345,29 @@ function PhotoDesk({ items, locale }: { items: StoryCardData[]; locale: Locale }
 }
 
 function VoicesDesk({ items, locale }: { items: StoryCardData[]; locale: Locale }) {
-  const lead = items[0]!
-  const rest = items.slice(1, 4)
+  // An even column set, not a lead-plus-rail. The lead/rail split left the
+  // tinted panel's taller column deciding its height, so with one featured
+  // voice beside two short ones roughly 40% of the band rendered as empty
+  // tint. Voices carry no photos (DESIGN.md §5), so there is no photo mass to
+  // balance the split against — equal columns is the honest shape, and it
+  // raises the band from three visible voices to four.
+  const visible = items.slice(0, 4)
+  const [lead, ...rest] = visible
+
+  if (!lead) return null
 
   return (
     <div className="bg-brand-tint/35 px-3 py-4 sm:px-5 sm:py-5">
-      <div
-        className={`grid gap-5 ${
-          rest.length ? 'lg:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)] lg:gap-6' : ''
-        }`}
-      >
+      <div className="grid items-start gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-4 lg:gap-7">
         <VoiceStory story={lead} locale={locale} featured />
-        {rest.length ? (
-          <div className="divide-y divide-rule lg:border-l lg:border-rule lg:pl-5">
-            {rest.map((story) => (
-              <div key={story.id} className="py-3 first:pt-0">
-                <VoiceStory story={story} locale={locale} />
-              </div>
-            ))}
+        {rest.map((story) => (
+          <div
+            key={story.id}
+            className="border-t border-rule pt-4 md:border-l md:border-t-0 md:pl-5 md:pt-0 lg:first-of-type:border-l lg:first-of-type:pl-5"
+          >
+            <VoiceStory story={story} locale={locale} />
           </div>
-        ) : null}
+        ))}
       </div>
     </div>
   )
