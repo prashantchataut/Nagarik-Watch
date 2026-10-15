@@ -1,32 +1,6 @@
 /* Reader Corner desk grids and the distribution brief. */
-/* Reader Corner is a working desk, not a generic content hub. */
-.reader-account-hero--desk {
-  align-items: end;
-  border-top: 3px solid var(--ink);
-}
 .reader-corner-recommendations {
   margin-top: clamp(2rem, 5vw, 4.5rem);
-}
-.reader-account-grid--desk {
-  margin-top: clamp(2rem, 5vw, 4rem);
-}
-@media (min-width: 1024px) {
-  .reader-account-grid--desk {
-    grid-template-columns: minmax(0, 1.45fr) minmax(19rem, 0.55fr);
-  }
-  .reader-account-grid--desk .reader-account-grid__rail {
-    position: sticky;
-    top: 6.5rem;
-    align-self: start;
-  }
-}
-.reader-account-grid--profile {
-  margin-top: clamp(2rem, 5vw, 4rem);
-}
-@media (min-width: 1024px) {
-  .reader-account-grid--profile {
-    grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.55fr);
-  }
 }
 .newsroom-distribution-brief dl {
   display: grid;

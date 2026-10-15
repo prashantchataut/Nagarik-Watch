@@ -23,98 +23,9 @@
     color: var(--ink);
   }
 
-  /* Reader account */
-  .reader-account-page {
-    background: var(--surface);
-  }
-  .reader-account-page__inner {
-    width: min(100%, var(--page-max));
-    margin-inline: auto;
-    padding: 1.25rem 1rem 5rem;
-  }
-  .reader-account-nav {
-    display: flex;
-    gap: 1.4rem;
-    overflow-x: auto;
-    border-bottom: 1px solid var(--rule);
-    white-space: nowrap;
-  }
-  .reader-account-nav a {
-    min-height: 3rem;
-    display: inline-flex;
-    align-items: center;
-    border-bottom: 3px solid transparent;
-    color: var(--ink-soft);
-    font-size: 0.84rem;
-    font-weight: 800;
-  }
-  .reader-account-nav a[aria-current='page'] {
-    border-color: var(--brand);
-    color: var(--ink);
-  }
-  .reader-account-nav a:hover {
-    color: var(--brand-strong);
-  }
-  .reader-account-hero {
-    display: grid;
-    gap: 1rem;
-    padding: clamp(1.5rem, 4vw, 2.75rem) 0 1.5rem;
-    border-bottom: 1px solid var(--rule);
-  }
-  .reader-account-hero h1 {
-    max-width: 18ch;
-    margin-top: 0;
-    font-size: clamp(1.75rem, 4vw, 2.4rem);
-    font-weight: 850;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-  }
-  .reader-account-hero > div > p:last-child {
-    max-width: 64ch;
-    margin-top: 0.65rem;
-    color: var(--ink-soft);
-    font-size: 1rem;
-    line-height: 1.65;
-  }
-  .reader-account-hero__trust {
-    align-self: end;
-    padding-top: 1rem;
-    border-top: 1px solid var(--rule);
-  }
-  .reader-account-hero__trust strong,
-  .reader-account-hero__trust span {
-    display: block;
-  }
-  .reader-account-hero__trust strong {
-    font-size: 1rem;
-  }
-  .reader-account-hero__trust span {
-    margin-top: 0.45rem;
-    color: var(--ink-soft);
-    font-size: 0.86rem;
-    line-height: 1.65;
-  }
-  .reader-account-grid {
-    display: grid;
-    gap: clamp(2.5rem, 5vw, 5rem);
-    padding-top: 2.5rem;
-  }
-  .reader-account-grid__main {
-    min-width: 0;
-    display: grid;
-    gap: 3rem;
-  }
-  .reader-account-grid__rail {
-    min-width: 0;
-    display: grid;
-    align-content: start;
-    gap: 2.5rem;
-  }
-
   .reader-ledger,
   .preference-desk,
-  .notification-desk,
-  .reader-shortcuts {
+  .notification-desk {
     border-top: 4px solid var(--ink);
     padding-top: 1.15rem;
   }
@@ -126,8 +37,7 @@
   }
   .reader-ledger__title,
   .preference-desk__header h2,
-  .notification-desk__header h2,
-  .reader-shortcuts h2 {
+  .notification-desk__header h2 {
     margin-top: 0.35rem;
     font-size: clamp(1.65rem, 3vw, 2.35rem);
     font-weight: 850;
@@ -151,7 +61,7 @@
     border: 1px solid var(--rule);
     padding: 0.25rem 0.6rem;
     color: var(--ink-soft);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 800;
   }
   .reader-ledger__sync[data-state='synced'],
@@ -169,7 +79,7 @@
   }
   .reader-ledger__continue span {
     color: var(--brand-strong);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 850;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -260,7 +170,7 @@
   .reader-ledger__calendar span {
     margin-top: 0.2rem;
     color: var(--mute);
-    font-size: 0.74rem;
+    font-size: 0.75rem;
   }
   .reader-ledger__calendar ol {
     display: grid;
@@ -270,7 +180,7 @@
   .reader-ledger__calendar li {
     text-align: center;
     color: var(--mute);
-    font-size: 0.62rem;
+    font-size: 0.75rem;
   }
   .reader-ledger__calendar i {
     width: 0.7rem;
@@ -297,7 +207,7 @@
   .reader-ledger__index {
     color: var(--mute);
     font-family: ui-monospace, monospace;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
   .reader-ledger__list a {
     color: var(--ink);
@@ -312,7 +222,7 @@
   .reader-ledger__list p {
     margin-top: 0.25rem;
     color: var(--mute);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     line-height: 1.5;
   }
   .reader-ledger__progress {
@@ -438,7 +348,7 @@
   .preference-desk__note {
     margin-top: 1rem;
     color: var(--mute);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
   .preference-desk__note a {
     border-bottom: 1px solid currentColor;
@@ -525,39 +435,6 @@
     margin-top: 0.35rem;
     color: var(--mute);
     font-size: 0.7rem;
-    line-height: 1.5;
-  }
-
-  .reader-shortcuts ol,
-  .reader-shortcuts ul {
-    margin-top: 0.75rem;
-    list-style: none;
-    padding: 0;
-  }
-  .reader-shortcuts li {
-    display: grid;
-    gap: 0.15rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--rule);
-  }
-  .reader-shortcuts li > span {
-    color: var(--mute);
-    font-family: ui-monospace, monospace;
-    font-size: 0.72rem;
-  }
-  .reader-shortcuts a,
-  .reader-shortcuts strong,
-  .reader-shortcuts small {
-    display: block;
-  }
-  .reader-shortcuts strong {
-    color: var(--ink);
-    font-size: 0.94rem;
-  }
-  .reader-shortcuts small {
-    margin-top: 0.2rem;
-    color: var(--ink-soft);
-    font-size: 0.76rem;
     line-height: 1.5;
   }
 
@@ -670,7 +547,7 @@
   }
   .reader-onboarding__topics button small {
     color: var(--brand-strong);
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 850;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -691,7 +568,7 @@
     right: 0.75rem;
     min-height: 2.75rem;
     color: var(--mute);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
 
   /* Recommendation and notification accountability */
@@ -759,7 +636,7 @@
   .algorithm-flow li > span {
     color: var(--mute);
     font-family: ui-monospace, monospace;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
   .algorithm-flow h3 {
     font-size: clamp(1.25rem, 3vw, 1.75rem);
@@ -840,7 +717,7 @@
   }
   .algorithm-alerts dt {
     color: var(--mute);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -909,31 +786,6 @@
     color: var(--ink-soft);
     font-size: 0.78rem;
     line-height: 1.55;
-  }
-  .staff-gate__card--wide {
-    width: min(100%, 34rem);
-  }
-  .staff-gate__tools {
-    display: grid;
-    gap: 0.45rem;
-    margin: 0 0 1.25rem;
-    padding: 0.9rem 1rem;
-    border: 1px solid var(--rule);
-    background: var(--surface-raised);
-  }
-  .staff-gate__tools li {
-    color: var(--ink-soft);
-    font-size: 0.82rem;
-    line-height: 1.45;
-    padding-left: 1rem;
-    position: relative;
-  }
-  .staff-gate__tools li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: var(--brand-strong);
-    font-weight: 900;
   }
   @media (min-width: 720px) {
     .newsroom-tools-grid {
@@ -1717,12 +1569,6 @@
     line-height: 1.15;
     resize: vertical;
   }
-  .newsroom-field--body textarea {
-    min-height: 28rem;
-    font-family: var(--font-devanagari);
-    font-size: 1rem;
-    line-height: 1.75;
-  }
   .newsroom-studio__section-intro {
     margin-bottom: 1rem;
     padding-bottom: 0.65rem;
@@ -2131,66 +1977,8 @@
       padding: 1.4rem 1.5rem 1.2rem;
     }
   }
-  .staff-gate {
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
-    padding: 1.5rem;
-    background: var(--surface);
-  }
-  .staff-gate__card {
-    width: min(100%, 26rem);
-    border: 1px solid var(--rule);
-    background: var(--surface);
-    padding: 1.75rem 1.5rem 1.5rem;
-    box-shadow: 0 12px 40px color-mix(in oklch, var(--ink) 6%, transparent);
-  }
-  .staff-gate__brand {
-    display: inline-flex;
-    margin-bottom: 1.5rem;
-  }
-  .staff-gate__header h1 {
-    font-family: var(--font-mukta);
-    font-size: 1.65rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-  }
-  .staff-gate__header p {
-    margin-top: 0.35rem;
-    color: var(--ink-soft);
-    font-size: 0.9rem;
-    line-height: 1.5;
-  }
-  .staff-gate .newsroom-login-form {
-    margin-top: 1.25rem;
-  }
-  .staff-gate .newsroom-login-form__error,
-  .staff-gate .newsroom-login-form__ok {
-    margin-bottom: 0.25rem;
-  }
-  .staff-gate__footer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin-top: 1.25rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--rule);
-  }
-  .staff-gate__footer a {
-    color: var(--ink-soft);
-    font-size: 0.8rem;
-    font-weight: 700;
-  }
-  .staff-gate__footer a:hover {
-    color: var(--brand-strong);
-  }
 
   @media (min-width: 720px) {
-    .reader-account-hero {
-      grid-template-columns: minmax(0, 1.45fr) minmax(16rem, 0.55fr);
-    }
     .reader-ledger__header,
     .preference-desk__header {
       grid-template-columns: minmax(0, 1fr) auto;
@@ -2289,13 +2077,6 @@
   }
 
   @media (min-width: 1024px) {
-    .reader-account-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.38fr);
-    }
-    .reader-account-grid__rail {
-      position: sticky;
-      top: 1.5rem;
-    }
     .newsroom-workspace {
       display: grid;
       grid-template-columns: 16rem minmax(0, 1fr);
@@ -2451,14 +2232,8 @@
   }
 
   @media (max-width: 520px) {
-    .reader-account-hero h1 {
-      letter-spacing: -0.02em;
-    }
     .newsroom-login__brief h1 {
       letter-spacing: normal;
-    }
-    .reader-account-nav {
-      gap: 1rem;
     }
     .preference-desk__options label {
       flex: 1 1 calc(50% - 0.45rem);

@@ -23,6 +23,8 @@ const BASE = flag('base', process.env.AUDIT_BASE_URL || 'http://localhost:3000')
 const JSON_OUT = flag('json', '')
 const STRICT = args.includes('--strict')
 const ONLY = flag('routes', '')
+/** Accept probes that did not render, reporting the gap instead of failing on it. */
+const ALLOW_UNCOVERED = args.includes('--allow-uncovered')
 
 /*
  * One route per stylesheet under app/styles, as far as that is possible: a
@@ -402,6 +404,35 @@ const PROBE = () => {
   out.domNodes = document.getElementsByTagName('*').length
   out.htmlBytes = document.documentElement.outerHTML.length
 
+  /*
+   * ---- did the page get its stylesheet? ----
+   *
+   * Every measurement above assumes the site's CSS is applied. When it is not,
+   * nothing errors: the page still renders, still returns 200, and every box
+   * quietly collapses to its unstyled default. That is not hypothetical — a
+   * stale `next start` kept serving HTML that pointed at a chunk the last build
+   * had replaced, the request 500'd, and the audit measured a Times New Roman
+   * document for a whole session. It reported 332 undersized tap targets, all
+   * of them `<a>` and `<button>` at their 19-21px unstyled line-box height,
+   * including elements that declare `min-h-14`. The numbers looked like a
+   * finding and were an artefact.
+   *
+   * A stylesheet the browser did not parse has no readable `cssRules` — zero
+   * for an empty sheet, a throw for one it refused (a 500 served as
+   * `text/plain` is refused). Either way it is not styling anything, and a
+   * probe that ran without styles is a probe that measured nothing.
+   */
+  out.styleSheets = [...document.styleSheets].map((sheet) => {
+    let rules = -1
+    try {
+      rules = sheet.cssRules.length
+    } catch {
+      rules = -1
+    }
+    return { href: sheet.href, rules }
+  })
+  out.stylesApplied = out.styleSheets.length > 0 && out.styleSheets.every((s) => s.rules > 0)
+
   /* ---- resources ---- */
   const res = performance.getEntriesByType('resource')
   out.resourceCount = res.length
@@ -413,6 +444,57 @@ const PROBE = () => {
 }
 
 /* ------------------------------------------------------------------ */
+
+/** A path shaped like a story URL: `/<desk>/<slug>`, one locale prefix allowed. */
+export const ARTICLE_PATH = /^\/(?:en\/)?[a-z0-9-]+\/[a-z0-9-]+$/
+
+/**
+ * Find a story the site is actually publishing.
+ *
+ * The `/article` probe used to point at `/politics/demo-politics-1`, a slug only
+ * `pnpm seed` creates. DESIGN.md §8 says the store starts empty, so on every
+ * machine without a seeded database the article page — the surface the whole
+ * type scale exists for — answered 404 and went unaudited. Following a link off
+ * `/latest` audits whatever is published instead, which is the same thing a
+ * reader does, and needs no fixture.
+ *
+ * Candidates are confirmed by rendering: `#article-reading-column` is the
+ * reading measure DESIGN.md §3 constrains, and only the article page has it. A
+ * category index that happens to match the path shape is rejected rather than
+ * measured as an article.
+ */
+async function discoverArticlePath(page) {
+  const index = await page
+    .goto(`${BASE}/latest`, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    .catch(() => null)
+  if (!index || !index.ok()) return null
+  const candidates = await page.evaluate(
+    (pattern) =>
+      [
+        ...new Set(
+          [...document.querySelectorAll('a[href]')]
+            .map((a) => {
+              try {
+                return new URL(a.getAttribute('href'), location.origin)
+              } catch {
+                return null
+              }
+            })
+            .filter((url) => url && url.origin === location.origin)
+            .map((url) => url.pathname.replace(/\/$/, '')),
+        ),
+      ].filter((path) => new RegExp(pattern).test(path)),
+    ARTICLE_PATH.source,
+  )
+  for (const path of candidates.slice(0, 8)) {
+    const response = await page
+      .goto(BASE + path, { waitUntil: 'domcontentloaded', timeout: 60000 })
+      .catch(() => null)
+    if (!response || !response.ok()) continue
+    if (await page.$('#article-reading-column')) return path
+  }
+  return null
+}
 
 async function main() {
   let chromium
@@ -429,8 +511,26 @@ async function main() {
   })
   if (!browser) return
 
+  const routes = [...ROUTES]
+  let articleNote = ''
+  const articleIndex = routes.findIndex(([name]) => name === '/article')
+  if (articleIndex !== -1) {
+    const probe = await browser.newContext({ viewport: { width: 390, height: 844 } })
+    const page = await probe.newPage()
+    const discovered = await discoverArticlePath(page).catch(() => null)
+    await probe.close()
+    if (discovered) {
+      routes[articleIndex] = ['/article', discovered]
+      articleNote = `/article probes ${discovered}, found by following a link off /latest.`
+    } else {
+      articleNote =
+        `/article falls back to ${routes[articleIndex][1]}: no story was reachable from /latest, ` +
+        'so nothing is published here.'
+    }
+  }
+
   const report = []
-  for (const [name, path] of ROUTES) {
+  for (const [name, path] of routes) {
     for (const [vpName, width, height] of VIEWPORTS) {
       const ctx = await browser.newContext({ viewport: { width, height }, locale: 'ne-NP' })
       const page = await ctx.newPage()
@@ -463,10 +563,12 @@ async function main() {
   /* ---- human summary ---- */
   const lines = []
   lines.push(`live UX audit — ${BASE}`)
+  if (articleNote) lines.push(articleNote)
   lines.push('')
   const head =
     'route'.padEnd(16) +
     'vp'.padEnd(14) +
+    'http'.padStart(5) +
     'ovf'.padStart(5) +
     'contr'.padStart(7) +
     'tap'.padStart(6) +
@@ -482,6 +584,7 @@ async function main() {
     lines.push(
       r.name.padEnd(16) +
         r.viewportName.padEnd(14) +
+        String(r.status).padStart(5) +
         String(r.overflowX).padStart(5) +
         String(r.contrastCount).padStart(7) +
         String(r.tapTargetCount).padStart(6) +
@@ -501,9 +604,15 @@ async function main() {
       acc.dupeIds += (r.duplicateIds || []).length
       acc.tracking += r.devanagariTrackingCount || 0
       acc.tiny += r.tinyTextCount || 0
+      if (r.error) acc.uncovered.push(`${r.name} @ ${r.viewportName} (error)`)
+      else if (r.status !== 200)
+        acc.uncovered.push(`${r.name} @ ${r.viewportName} (HTTP ${r.status})`)
+      else if (r.stylesApplied === false)
+        acc.uncovered.push(`${r.name} @ ${r.viewportName} (stylesheet not applied)`)
       return acc
     },
     {
+      uncovered: [],
       overflow: 0,
       contrast: 0,
       tap: 0,
@@ -516,6 +625,12 @@ async function main() {
     },
   )
   lines.push('')
+  lines.push(
+    `probes: ${report.length - totals.uncovered.length}/${report.length} rendered and styled`,
+  )
+  if (totals.uncovered.length) {
+    lines.push(`         NOT COVERED: ${totals.uncovered.join(', ')}`)
+  }
   lines.push(
     `totals: overflow=${totals.overflow} lowContrast=${totals.contrast} smallTapTargets=${totals.tap} ` +
       `imgMissingAlt=${totals.alt} unnamedControls=${totals.unnamed} duplicateIds=${totals.dupeIds}` +
@@ -578,6 +693,38 @@ async function main() {
       totals.tiny)
   ) {
     process.exitCode = 1
+  }
+
+  /*
+   * A route that did not render was not audited, and for a long time this script
+   * could not tell the difference. `status` was recorded and shown only in the
+   * per-route detail of the worst offenders, so a probe that got a 404 reported
+   * zero of everything and the run announced clean results "across 14 routes".
+   * `/article` is the one it happened to: it points at a slug that only exists
+   * once the database has published content, and DESIGN.md §8 is emphatic that
+   * the store starts empty, so on any machine without Postgres the most
+   * important reader surface in the site was quietly not being checked.
+   *
+   * The same reasoning covers a page that rendered without its stylesheet
+   * (`stylesApplied`, above): it is a 200 that measured a different document.
+   *
+   * Uncovered probes now fail the run. `--allow-uncovered` acknowledges them
+   * instead, for exactly the `/article` case — it still prints which surfaces
+   * went unchecked, so the result is never mistaken for coverage.
+   */
+  if (totals.uncovered.length) {
+    const summary = `${totals.uncovered.length} probe(s) were not audited (did not render, or rendered unstyled)`
+    if (ALLOW_UNCOVERED) {
+      console.log(`\nWARNING: ${summary}.`)
+    } else {
+      console.error(
+        `\nlive UX audit FAILED: ${summary}:\n  ${totals.uncovered.join('\n  ')}\n\n` +
+          'Publish content for the route (pnpm seed needs Postgres), fix the route, restart\n' +
+          '`next start` if the build changed under it, or pass --allow-uncovered to accept\n' +
+          'the gap and have it reported instead.',
+      )
+      process.exitCode = 1
+    }
   }
 }
 

@@ -1,0 +1,56 @@
+/*
+ * The skip link, and the article page's outer box.
+ *
+ * This file was `06-editorial-legacy.css`, and most of what it held was the
+ * previous article page: a public header and footer, a lead-story hero, a story
+ * river, score and alert lists. Those surfaces are gone — the homepage is the
+ * portal feed (DESIGN.md §9 #1) and the article page is assembled from
+ * components — so the rules matched nothing and `pnpm audit:dead-css` removed
+ * them.
+ *
+ * What remained was worse than dead. These rules are unlayered, and in Tailwind
+ * v4 unlayered CSS outranks every `@layer`, including the utilities the
+ * components are written in. So five of them were quietly winning arguments with
+ * the components they describe, each time in favour of the older value:
+ *
+ *   .article-deck         20px at every width, beating the component's
+ *                         `text-[1.08rem] sm:text-[1.24rem]` — a 320px phone got
+ *                         the desktop deck size.
+ *   .article-page h1      `letter-spacing: -0.03em`, beating `tracking-normal`
+ *                         on Nepali headlines. DESIGN.md §3 forbids tracking on
+ *                         Devanagari; only the `:lang(ne)` guard in 15-*.css was
+ *                         undoing this, one file further down the cascade.
+ *   .article-page figure  `margin: 2.5rem 0`, beating `my-2`.
+ *   .. figcaption         `0.8rem` and `--mute`, beating `text-caption` and
+ *                         `--ink-soft` — a size and a contrast the component did
+ *                         not ask for.
+ *   .section-kicker       a second, unlayered copy of the definition in
+ *                         04-utilities.css with a different colour, tracking and
+ *                         size, which also took that file's layered
+ *                         `.section-kicker:lang(ne)` rule down with it, so
+ *                         Devanagari kickers never got Mukta or lost their
+ *                         uppercasing.
+ *
+ * All five are deleted. A component's type and spacing belong in the component;
+ * a stylesheet that overrules it from outside the layer system is how a page
+ * ends up styled from a place nobody can find.
+ */
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: -5rem;
+  z-index: 1000;
+  background: var(--ink);
+  color: var(--surface);
+  padding: 0.75rem 1rem;
+  border-radius: 0.35rem;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+.article-page {
+  max-width: var(--page-max);
+  margin: auto;
+  padding: clamp(2rem, 5vw, 5rem) 1rem;
+}

@@ -82,7 +82,7 @@
   .comment-item footer button {
     min-height: 2.75rem;
     color: var(--brand-strong);
-    font-size: 0.74rem;
+    font-size: 0.75rem;
     font-weight: 800;
   }
   .comment-composer__identity {
@@ -99,7 +99,7 @@
   }
   .comment-composer__footer p {
     color: var(--mute);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
   .comment-composer__footer > button {
     min-height: 3rem;
@@ -155,12 +155,12 @@
   .comment-item header span {
     border-bottom: 1px solid var(--brand);
     color: var(--brand-strong);
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     font-weight: 850;
   }
   .comment-item time {
     color: var(--mute);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
   }
   .comment-item > p {
     margin-top: 0.65rem;

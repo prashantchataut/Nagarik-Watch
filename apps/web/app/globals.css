@@ -19,19 +19,25 @@
  * Order is the cascade: these imports are listed in the order the rules were
  * in, and moving one moves the rule it overrides. Add a new surface as a new
  * file at the end rather than appending to an existing one.
+ *
+ * These annotations used to carry a line count each. They were wrong within one
+ * commit of being written — `pnpm audit:dead-css` took 1,480 unreachable lines
+ * out of these files and every count went stale at once. A count nobody can
+ * check is worse than no count, so they say what the file is for and nothing
+ * that rots. `wc -l app/styles/*.css` answers the other question.
  */
-@import './styles/01-base.css'; /* 113 lines — Element resets and the base layer. */
-@import './styles/02-reader-chrome.css'; /* 271 lines — Masthead, ticker, dialogs, bottom nav, save-data and reduced-motion chrome. */
-@import './styles/03-newsroom-account.css'; /* 958 lines — Account, auth and admin form/button register. */
-@import './styles/04-utilities.css'; /* 1464 lines — Calendar, market board, forex, photo desk and the utility sidebar. */
-@import './styles/05-patro.css'; /* 436 lines — पात्रो chrome, tool nav, widgets and rates. */
-@import './styles/06-editorial-legacy.css'; /* 366 lines — Public header/footer, lead story, story river, article page, score and alert lists. */
-@import './styles/07-newsroom-desks.css'; /* 2468 lines — Newsroom login and studio, reader ledger and account, notification and preference desks. */
-@import './styles/08-comments.css'; /* 240 lines — Comment composer, thread and desk; recommendation desk; admin feedback. */
-@import './styles/09-article-tools.css'; /* 443 lines — Article tools, trust panel, share and font controls, install prompt. */
-@import './styles/10-reader-desk.css'; /* 82 lines — Reader Corner desk grids and the distribution brief. */
-@import './styles/11-newsroom-editor.css'; /* 280 lines — Story body editor, media gallery picker and editor preferences. */
-@import './styles/12-typography-print.css'; /* 167 lines — Devanagari heading tuning, print styles, skeletons and reader profile links. */
-@import './styles/13-library-admin.css'; /* 454 lines — Saved library, admin metrics, admin media and ad ops. */
-@import './styles/14-sports.css'; /* 255 lines — Sports reporting, score boards and the reader desk. */
+@import './styles/01-base.css'; /* Element resets and the base layer. */
+@import './styles/02-reader-chrome.css'; /* Masthead, ticker, dialogs, bottom nav, cookie banner, save-data and reduced-motion chrome. */
+@import './styles/03-newsroom-account.css'; /* Reader account cards and the admin form, button, table and panel register. */
+@import './styles/04-utilities.css'; /* Calendar, market board, forex, photo desk and the utility directory. */
+@import './styles/05-patro.css'; /* पात्रो chrome, tool nav, widgets and rates. */
+@import './styles/06-article-shell.css'; /* Skip link and the article page's outer box. */
+@import './styles/07-newsroom-desks.css'; /* Newsroom login and studio, reader ledger, onboarding, notification and preference desks. */
+@import './styles/08-comments.css'; /* Comment composer, thread and desk; recommendation desk; admin feedback. */
+@import './styles/09-article-tools.css'; /* Article tools, trust panel, share and font controls, install prompt. */
+@import './styles/10-reader-desk.css'; /* Reader Corner recommendations and the distribution brief. */
+@import './styles/11-newsroom-editor.css'; /* Story body editor, media gallery picker and editor preferences. */
+@import './styles/12-typography-print.css'; /* Devanagari heading tuning, print styles, skeletons and reader profile links. */
+@import './styles/13-library-admin.css'; /* Saved library, admin metrics, admin media and ad ops. */
+@import './styles/14-sports.css'; /* Sports reporting, score boards and the reader desk. */
 @import './styles/15-devanagari-spacing.css'; /* Devanagari letter-spacing guard. Imported last so it outranks the rules it corrects. */
